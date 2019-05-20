@@ -1,0 +1,7 @@
+1.MP_Discre.m contains information of inputs, gives discretization to CovDec_Cor.m
+2.CovDec_Cor.m gives correlation matrix to MP_Discre.m
+3.main_reli.m gets data inputs (include correlation matrix) from MP_Discre.m
+4.gfun_rf.m calls load_resistance_basic.m to estimate resistance.
+
+
+
