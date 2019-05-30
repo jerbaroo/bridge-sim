@@ -1,0 +1,4 @@
+colorama
+matplotlib
+numpy
+termcolor
