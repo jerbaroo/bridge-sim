@@ -8,21 +8,23 @@ MODEL_TEMPLATE = "2018_OpenSees/model-template.tcl"
 
 
 class Fix():
+    """An OpenSees fix command e.g. fix 43 0 1 0."""
     def __init__(self, x_pos, x=False, y=False, rot=False):
         self.x_pos = x_pos
         self.x = x
         self.y = y
         self.rot = rot
 
-    def to_opensees(self):
-        fixed_nodes = np.interp(
-            list(map(lambda f: f.x_pos, fix)),
+    def to_opensees(self, num_elems):
+        node = np.interp(
+            list(map(lambda x_pos: x_pos, [self.x_pos])),
             (0, 1),
             (1, num_elems + 1)
-        )
-        fixed = ""
-        fixed += f"\nfix {int(fixed_nodes[i])} "
-        fixed += f"{int(fix[i].x)} {int(fix[i].y)} {int(fix[i].rot)}"
+        )[0]
+        fix = ""
+        fix += f"\nfix {int(node)} "
+        fix += f"{int(self.x)} {int(self.y)} {int(self.rot)}"
+        return fix
 
 
 class Load():
@@ -72,16 +74,10 @@ def build_model(num_elems=300, node_start=0, node_step=0.2, fix=[], load=[],
     )
 
     # Fix #####################################################################
-    fixed_nodes = np.interp(
-        list(map(lambda f: f.x_pos, fix)),
-        (0, 1),
-        (1, num_elems + 1)
+    out_tcl = out_tcl.replace(
+        "<<FIX>>",
+        "\n".join(x.to_opensees(num_elems) for x in fix)
     )
-    fixed = ""
-    for i in range(len(fix)):
-        fixed += f"\nfix {int(fixed_nodes[i])} "
-        fixed += f"{int(fix[i].x)} {int(fix[i].y)} {int(fix[i].rot)}"
-    out_tcl = out_tcl.replace("<<FIX>>", fixed)
 
     # Elements ################################################################
     out_tcl = out_tcl.replace(

@@ -306,12 +306,19 @@ node 301 60.0 0
 
 
 fix 1 0 1 0
+
 fix 43 0 1 0
+
 fix 86 0 1 0
+
 fix 129 0 1 0
+
 fix 172 0 1 0
+
 fix 215 0 1 0
+
 fix 258 0 1 0
+
 fix 301 0 1 0
 
 geomTransf Linear 1
