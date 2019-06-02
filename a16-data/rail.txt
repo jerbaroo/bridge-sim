@@ -1,0 +1,1 @@
+month day year hour minute second station type speed length totalweigt weight_per_axle axle_distance

@@ -1,0 +1,1 @@
+month day year hour min sec number (incrementing) lane (left or right) type speed length total weight weight_per_axle axle_distance 
