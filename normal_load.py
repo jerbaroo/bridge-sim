@@ -35,7 +35,7 @@ def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
             12 + len_axle_weight:12 + len_axle_weight + len_axle_distance]
         row = simple_cols + [axle_weights] + [axle_distances]
         df.loc[i % max_rows] = row
-        if i != 0 and i % 999 == 0:
+        if i != 0 and (i + 1) % 1000 == 0:
             print(f"{i + 1} rows converted")
         if len(df) == max_rows or i == len(rows) - 1:
             df.to_csv(part_filepath(num))
