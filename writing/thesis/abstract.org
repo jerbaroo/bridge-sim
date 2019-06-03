@@ -1,0 +1,46 @@
+#+TITLE: How can sensors be used in a data-driven decision support system for bridge maintenance?
+#+AUTHOR: Jeremy Barisch-Rooney
+#+OPTIONS: toc:nil date:nil
+#+LATEX_HEADER: \usepackage[table]{xcolor}
+#+LATEX_HEADER: \usepackage{parskip}
+#+LATEX_HEADER: \usepackage[margin=0.5in, top=0in, bottom=0in]{geometry}
+#+LATEX_HEADER: \usepackage{titling}
+\setlength{\droptitle}{-3cm}
+\pagenumbering{gobble}
+
+TNO supervisor: Árpád Rózsás - Structural Reliability Researcher, TNO
+
+UvA supervisor: Valeria Krzhizhanovskaya - Researcher Informatics Institute, UvA
+
+#+INCLUDE: "./thesis.org::*Abstract" :lines "2-"
+   
+| Date   | WP | Rate |   WW | Goal/Note (WP = weeks passed, WW = weeks worked)                        |
+|--------+----+------+------+-------------------------------------------------------------------------|
+| Apr 1  |  1 |  0.5 |  0.5 | Reading                                                                 |
+| Apr 8  |  2 |  0.5 |  1.0 | Research question formulated                                            |
+| Apr 15 |  3 |    0 |  1.0 | @@latex:\cellcolor{blue!25}@@ Time off (catching up on work)            |
+| Apr 22 |  4 |  0.5 |  1.5 | First draft of abstract and timeline                                    |
+| Apr 29 |  5 |  0.5 |  2.0 | Investigated bridge damage types and small scale FE model               |
+| May 6  |  6 |  0.5 |  2.5 | Project presented to TNO staff                                          |
+| May 13 |  7 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Birthday and father visit                 |
+| May 20 |  8 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Exam                                      |
+| May 27 |  9 |  0.5 |  3.0 | Generated synthetic data under normal conditions                        |
+| Jun 3  | 10 |    1 |  4.0 | Completed literature review                                             |
+| Jun 10 | 11 |  0.5 |  4.5 | @@latex:\cellcolor{blue!25}@@ Mother visit                              |
+| Jun 17 | 12 |    1 |  5.5 | Verified synthetic data against sensor measurements                     |
+| Jun 24 | 13 |    1 |  6.5 | Determined sensors containing explanatory information per damage type   |
+| Jul 14 | 16 |    1 |  9.5 | Determined optimal sensor placement for bridge 705                      |
+| Jul 21 | 17 |    0 |  9.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
+| Jul 28 | 18 |    0 |  9.5 | @@latex:\cellcolor{blue!25}@@ Time off and move closer to the office    |
+| Aug 19 | 21 |    1 | 12.5 | Calculated damage to bridge 705 with a data-driven model                |
+| Sep 2  | 23 |    1 | 14.5 | Calculated damage to bridge 705 with a finite element model             |
+| Sep 9  | 24 |    1 | 15.5 | Determined useful combinations of data-driven and finite element models |
+| Sep 30 | 27 |    1 | 18.5 | Quantified measurement and model uncertainty                            |
+| Oct 7  | 28 |    1 | 19.5 | Outlined a decision support system                                      |
+| Oct 14 | 29 |    1 | 20.5 | Completed a cost-beneft analysis of the decision support system         |
+| Oct 21 | 30 |    1 | 21.5 | Started generalizing the model to bridges other than 705                |
+| Nov 18 | 34 |    1 | 25.5 | Started writing thesis                                                  |
+| Dec 9  | 37 |    1 | 28.5 | Finished writing draft of thesis                                        |
+| Dec 23 | 39 |    0 | 29.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
+| Dec 30 | 40 |    0 | 29.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
+| Jan 27 | 44 |    1 | 33.5 | Submit                                                                  |

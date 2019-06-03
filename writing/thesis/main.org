@@ -1,0 +1,7 @@
+#+AUTHOR: Jeremy Barisch-Rooney
+#+TITLE: From sensors to a decision support system for bridge maintenance
+#+LATEX_HEADER: \usepackage{parskip}
+
+* Introduction
+* Background Material
+* Literature Overview
