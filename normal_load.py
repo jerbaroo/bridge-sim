@@ -4,6 +4,7 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 
 A16_RAW_DATA = "a16-data/A16.dat"
 A16_CSV_DATA = "a16-data/a16.csv"
@@ -14,8 +15,8 @@ COL_NAMES = [
 ]
 
 
-def raw_to_df_csv(in_filepath, out_filepath, columns=COL_NAMES,
-                  max_rows=10000):
+def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
+                  columns=COL_NAMES, max_rows=10000):
     """Convert the raw A16 data to a csv written by Pandas."""
     with open(in_filepath) as f:
         rows = f.readlines()
@@ -46,17 +47,45 @@ def raw_to_df_csv(in_filepath, out_filepath, columns=COL_NAMES,
     for num in range(file_number):
         df = pd.read_csv(part_filepath)
         df_merged = df_merged.append(df, sort=False, ignore_index=True)
-        print(f"Read file {part_filepath}")
+        print(f"Read file {part_filepath(num)}")
     df.set_index("number")
     df_merged.to_csv(out_filepath)
+    print(f"Generated file out_filepath")
     # Delete temporary files.
     for num in range(file_number):
         os.remove(part_filepath(num))
+        print(f"Deleted file {part_filepath(num)}")
+
+
+def plot_distribution(data, bins=None, density=True, title=None):
+    """Plot and show distribution of given data."""
+    _, x, _ = plt.hist(data, bins=bins, density=density)
+    if density:
+        plt.plot(x, stats.gaussian_kde(data)(x))
+    if title:
+        plt.title(title)
+    plt.show()
+
+
+def plot_distributions_based_on_type(df):
+    """Plot and show distributions based on vehicle type."""
+    groups = df.groupby(
+        by=lambda x: df.loc[x, "type"].replace("\"", "")[0])["total_weight"]
+    plt.bar(range(len(groups)), groups.count())
+    plt.xticks(plt.xticks()[0], [""] + [type_ for type_, _ in groups])
+    plt.show()
+    for type_, group in groups:
+        plot_distribution(group, density=False, title=f"Type {type_}")
+
+
+def read_a16(filepath=A16_CSV_DATA):
+    """Return the A16 csv file as a DataFrame."""
+    return pd.read_csv(filepath, usecols=COL_NAMES, index_col="number")
 
 
 if __name__ == "__main__":
     # raw_to_df_csv(A16_RAW_DATA, A16_CSV_DATA)
-    df = pd.read_csv(A16_CSV_DATA, index_col=0)
-    print(df.head)
-    plt.hist(df["total_weight"])
-    plt.show()
+    df = read_a16()
+    print(df.loc[:10, :"total_weight"])
+    plot_distribution(df["total_weight"], bins=100)
+    plot_distributions_based_on_type(df)
