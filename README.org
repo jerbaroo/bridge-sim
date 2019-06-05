@@ -1,1 +1,7 @@
 * MSc Thesis
+
+Written documents and the generated PDFs are found in /writing/.
+
+Collected data is found in /data/.
+
+Code is found in /code/ with a README describing the files [[./code/README.org][here]].

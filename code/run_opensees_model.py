@@ -28,7 +28,7 @@ def run_opensees_model(model="generated/built-model.tcl",
         [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
         for t in range(num_t)
     ]
-    print_i("Read OpenSees recorded data")
+    print_i("Parsed OpenSees recorded data")
     return x, y, stress, strain
 
 

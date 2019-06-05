@@ -1,0 +1,31 @@
+* MSc Code
+
+The files and what they do:
+
+*normal_load.py*
+
+Convert A16 traffic data to a DataFrame and perform analysis.
+
+*model.py*
+
+Generate parameters used for building a model of a bridge.
+
+*build_opensees_model.py*
+
+Build an opensees model of a bridge with given parameters.
+
+*model-template.tcl*
+
+Template OpenSees model file, filled in by /build_opensees_model.py/.
+
+*run_opensees_model.py*
+
+Run an opensees model and parse the output.
+
+*influence_line.py*
+
+Generate an influence line by running multiple model simulations.
+
+*util.py*
+
+Useful functions that don't belong anywhere else.
