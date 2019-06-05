@@ -1,0 +1,321 @@
+#+TITLE: Thesis Notes
+#+AUTHOR: Jeremy Barisch-Rooney
+#+OPTIONS: toc:nil
+
+#+SEQ_TODO: TODO(t) INPROGRESS(i) NEXT(s) | DONE(d) CANCELLED(c)
+
+# All questions in Questions, can reference elsewhere if needed.
+
+* Tasks
+** TODO Send Arpi and Valeria invite to GitHub
+** TODO Send VPN document to IT
+** TODO Check if some sensors remain on bridge 705
+** TODO OpenSees: generate influence lines
+** TODO Start the literature review
+** TODO Basic definitions
+** TODO Compile sensor list
+** TODO Compile list of damage scenarios for bridge 705
+** TODO Bayesian statistics [[https://stats.stackexchange.com/questions/2272/whats-the-difference-between-a-confidence-interval-and-a-credible-interval][SO: cookie jar]]
+** TODO OpenSees: generate sections with patches from Python
+** TODO OpenSees: generate matrix of unit load and sensor response
+** TODO OpenSees: collect stress-strain data from each fiber
+** TODO OpenSees: ensure model is similar to the bridge 705
+** TODO OpenSees: collect rotation data
+** TODO OpenSees: collect acceleration data
+** TODO OpenSees: discuss static vs dynamic analysis
+** DONE Basic beam theory
+   CLOSED: [2019-06-03 Mon 17:15]
+    https://www.coursera.org/learn/mechanics-1 Stress and Strain Fundamentals,
+    Stress-Strain Diagrams, Material Properties, and Shear Stress and Strain
+** DONE Submit Datanose project outline
+    CLOSED: [2019-05-20 Mon 09:52]
+** DONE OpenSees: show support points on plots
+    CLOSED: [2019-05-07 Tue 15:20]
+** DONE OpenSees: change number of spans programmatically
+    CLOSED: [2019-05-07 Tue 13:05]
+** DONE OpenSees: fix rotation programmatically
+    CLOSED: [2019-05-07 Tue 12:45]
+** DONE OpenSees: modify position of load programmatically
+    CLOSED: [2019-05-05 Sun 22:09]
+** DONE OpenSees: collect translation data
+    CLOSED: [2019-05-05 Sun 22:09]
+** DONE OpenSees: collect strain data
+    CLOSED: [2019-05-05 Sun 22:09]
+** DONE Organise communications
+    CLOSED: [2019-05-07 Tue 12:06]
+** DONE Presentation for May 7th
+    CLOSED: [2019-05-07 Tue 10:21]
+** DONE Avoid filling area in OpenSees plot
+    CLOSED: [2019-05-07 Tue 15:12]
+** DONE Declaration from Valeria
+    CLOSED: [2019-04-25 Thu 20:42]
+** DONE Go over Arpi's notes
+    CLOSED: [2019-05-01 Wed 10:48]
+** DONE Understand OpenSees
+    CLOSED: [2019-05-02 Thu 10:02]
+** DONE Install OpenSees on Windows
+    CLOSED: [2019-05-01 Wed 12:43]
+** DONE Timeline for Valeria
+    CLOSED: [2019-04-29 Mon 22:53]
+** DONE Draft abstract
+    CLOSED: [2019-04-29 Mon 22:53]
+** DONE What is Arpi's company?
+    CLOSED: [2019-04-01 Mon 14:00]
+    https://pngk.org/
+** DONE Confidentiality of thesis
+    CLOSED: [2019-04-04 Thu 13:25]
+    Should be fine.
+** DONE Send Rizal SHB paper and presentation
+    CLOSED: [2019-05-07 Tue 15:10]
+** DONE Organize a meeting with Valeria
+    CLOSED: [2019-04-11 Thu 09:57]
+** DONE Print papers
+    CLOSED: [2019-04-11 Thu 14:53]
+** DONE Pausing the thesis
+    CLOSED: [2019-04-24 Wed 10:54]
+    Should be fine.
+** DONE Initial timeline
+    CLOSED: [2019-04-24 Wed 10:54]
+    I suggest:
+    - 1 week background reading.
+    - 1 week to come up with a question.
+    - 4 weeks, focus on: generating synthetic data, data analysis and consider
+      high-risk sections of the project.
+    - 6 weeks building, iterating and analysing core models and data required to
+      answer the research question.
+    - After three months we have the core of the system such that we can at
+      least partly answer the research question. Further work will be on
+      analysis and improvements to the system in the context of answering the
+      research question in as much detail as possible.
+* Questions
+** TODO What types of damage can occur on bridge 705?
+** DONE What is the use of synthetic data?
+    #+NAME: use-of-synthetic-data
+    CLOSED: [2019-05-07 Tue 10:47]
+    Collecting sensor data under normal conditions allows for the training of a
+    one class classifier. In some cases this data will not be available,
+    therefore it is necessary to generate the data, this addresses the
+    cold-start problem. In the case of bridge 705 we verify our synthetic data
+    against real data to show it is viable to begin training with synthetic data
+    in cases where the real data is not available. The synthetic data will also
+    be useful when moving beyond a one class classifier, and attempting to
+    estimate damage.
+** TODO For each damage type can it be identified from sensor data?
+** TODO Can abnormal status be detected using similar substructure information?
+** TODO For each damage type what is the minimal and the optimal sensor placement?
+** TODO What are the limitations (including uncertainty) of such a system?
+** TODO What are the costs and benefits associated with such a system?
+** TODO What is needed to transfer such a system from bridge 705 to another bridge?
+** TODO Is a historical damage profile of a bridge sufficient to predict structural damage ahead of time?
+** TODO Can sensor data reduce maintenance checks to a fixed cost, or at least cost effective?
+** TODO Component level analysis cannot capture entire system level behaviours.
+** TODO Component level maintenance depends on the risk of that component.
+** TODO How can we collect sensor data under normal conditions?
+** TODO Is this information enough to classify abnormal conditions?
+** TODO Can the above be done using NC methods, or time series prediction?
+** TODO Can we classify abnormal conditions early enough that the system is useful?
+** TODO How do the sensor types and positions affect abnormal condition classification?
+** TODO What is the minimum sensor density needed for this system to operate?
+** TODO Can we adapt such a model from one structure (bridge) to another?
+     How much structure specific information is necessary for a useful system?
+** DONE Recall Latin Hypercube sampling
+    CLOSED: [2019-04-08 Mon 09:38]
+    N rooks on a chess board without threatening each other.
+** DONE What is automatic differentiation?
+    CLOSED: [2019-04-08 Mon 09:36]
+* Meetings
+** May 6 with Arpi
+*** What is the use of synthetic data?
+     Answered in [[use-of-synthetic-data]]
+*** What is a good way of collecting strain data?
+     Need to collect a point at every fiber.
+*** Detect abnormalities by classifying similar substructures together.
+     This idea is based on the presumption that similar substructures should
+     behave in a similar manner, as soon as sensors in one substructure are
+     operating differently this is an indication that something has gone wrong.
+     This also means that sensors on different substructures should be placed in
+     the same relative places.
+*** Abnormalities could be detected with NC, time-series and similar substructures?
+     Probably not with time series, but the other two are worth investigating.
+*** What should be done next on the OpenSees model?
+     Collect better strain information. 
+*** Could evolutionary algorithms be used to determine sensor placement?
+     The optimal sensor placement depends on the definition of optimal, what are
+     we trying to maximise? If we are trying to maximise the amount of sensory
+     information, then we should cover all available space on the bridge with
+     sensors, but clearly we also need to put a cost term into the evaluation
+     function.
+*** What are the damage scenarios for bridge 705?
+*** English document on bridge 705.
+     Meeting with Diego Wednesday morning.
+*** Additional Feedback
+     Ask for help about the data collection, last slide.
+** Next meeting
+*** Difference between nominal and true strain
+*** What is the usefulness of the influence line
+    Overview of method:
+    - Determine normal loading conditions (NLC)
+    - Generate sensor responses from model based on the NLC
+    - Verify sensor responses from sensor measurements
+    - Determine responses as normal/abnormal from a neural cloud
+    - We have ignored: sensor positioning, similar substructures, decision
+      support system
+*** How to extract moment diagram and influence line from OpenSees
+*** TNO password
+*** Go over timeline
+*** How to interface with Diana
+* Communications
+* Abstract
+   # The end of life of a bridge is an estimate based on expert knowledge,
+   # historical data and regular maintenance checks.
+   The probability of a bridge to fail increases over time until it is no longer
+   considered safe for use. Maintenance of a bridge is typically carried out
+   when something goes wrong or according to a preventative maintenance schedule
+   based on expert knowledge, neither approach making the best use of limited
+   maintenance resources. Sensor data can provide useful real-time information
+   without the delay or cost of a manual maintenance check. How sensors can be
+   used in a data-driven decision support system for bridge maintenance is the
+   topic of this research. In particular we will focus on bridge 705 in
+   Amsterdam for which sensor data corresponding to known loads has been
+   collected, and a 3D finite element model is available. We will build a model
+   to estimate from sensor data if damage to the bridge has occured and will
+   investigate what types of sensors and what sensor placement is optimal for
+   estimating different types of damage. A finite element model will be used to
+   generate synthetic data in order to address the cold start problem. Due to
+   the safety requirements of any bridge it is necessary to quantify the
+   uncertainty we have in our damage estimates. Once the capabilities and
+   limitations of the model in determining damage are understood, we will
+   suggest a decision support system for policy makers which includes the model
+   and present a cost-benefit analysis thereof. Finally (stretch-goal) we will
+   investigate how such a system can be generalized to bridges other than
+   bridge 705.
+** Diego
+    Traffic load models, weight-in-motion data. Finite element model of bridge 705.
+**** INPROGRESS Arthur and Arpi will talk with Diego on Wednesday
+** Johan, Stefan, Monica
+    Load models for fatigue.
+**** INPROGRESS Possible meeting Monday 20th
+** Esra
+    Esra is working on an EU project containing sensor information. Will provide
+    an overview when it is done and look into if it is sharable.
+**** INPROGRESS Esra will share when it is done.
+** Wim Courage
+     The value of information. Involved in multiple related projects and member
+     of a relevant [[https://www.cost.eu/actions/TU1402/#tabs|Name:overview][COST action]].
+** Companies monitoring bridge 705
+**** INPROGRESS Arthur will take action
+** Rijkswaterstaat bridge department
+    Get SHM costs and costs related to current inspection and maintenance
+    practices would be great.
+* Additional Writing
+** OpenSees
+    =model basic -ndm 2 -ndf 3=
+    
+    Basic model builder, number of dimensions (ndm) and degrees of freedom per
+    node (ndf).
+    
+    =node 2 504 0= 
+    
+    Node tag, coordinates, and an optional mass.
+    
+    =fix 2 1 1 1=
+
+    Node tag and ndf constraint values (0 or 1) corresponding to the ndf
+    degrees-of-freedom.
+    
+    =geomTransf Linear 1=
+    
+    Defines how the element coordinates correlate to the global model
+    coordinates, and a tag.
+    
+    =element elasticBeamColumn 1 1 3 3600 4227 1080000 1=
+    
+    Defines an element with tag, start and end nodes, cross-sectional area
+    (3600), Young's elastic modulus (4227), second moment of area about the
+    local z-axis (1080000), and identifier for the translation tag.
+** Unfiled
+   The risk of a false negative is higher for suggesting a bridge should receive
+   a maintenance check than for predicting a bridge will suffer failure. We will
+   examine the influence on the uncertainty of our damage estimate and the
+   associated risk as we vary parameters of our model. Of particular interest is
+   the increased risk of a false negative ncluding the threshold from low damage
+   requiring a maintenance check to high damage indicating the bridge is close
+   to failure.
+   
+   # Feasability.
+   Our system, consisting of sensors and associated software, must clearly be
+   cost-effective for it to be used. Therefore we estimate the required impact
+   of such a system on a real-life situation, parameters of such a situation
+   include the amount of sensors, codes/requirements for maintenance checks.
+* Sensor List
+   | Type                                 | Cost | Link |
+   |--------------------------------------+------+------|
+   | Strains (LVDT + FBG + DFOS)          |      |      |
+   | Deflections (laser)                  |      |      |
+   | Acceleration (fiber)                 |      |      |
+   | Vibration (visual vibrometry + DFOS) |      |      |
+   | Material properties (ultrasound)     |      |      |
+   | Reinforcement depth (radar)          |      |      |
+* Reading List
+** 1960: Probability, Statistics and Decision for Civil Engineers
+    Chapter 5 Elementary Bayesian Decision Theory (~ 80 pages)
+** 1999: Structural Reliability, Analysis and Prediction
+    Chapter 1 Measures of Structural Reliability (32 pages)
+    Chapter 2 Structural Reliability Assessment (31 pages)
+    Chapter 5 Reliability of Structural Systems (51 pages)
+    Chapter 10 Probabilistic Evaluation of Existing Structures (20 pages)
+** 2010: Grid-enabled Adaptive Surrogate Modeling for Computer Aided Engineering
+    Chapters 1 - 3 (~ 80 pages)
+** 2012: All models are wrong
+** 2014: Concrete Durability
+    Chapter 1: Introduction (5 pages)
+    Chapter 2: Physical mechanisms of concrete degradation (2.1, 1 page)
+    Chapter 3: Chemical mechanisms of concrete degradation (3.1, 1 page)
+    Chapter 4: Corrosion of steel reinforcement in concrete (-4.2, 10 pages)
+    Chapter 7: Serviceability, repair and maintenance (-7.2, 6 pages)
+** 2015: Robust system identification and model predictions in the presence of uncertainty
+** 2016: Why Does Deep and Cheap Learning Work So Well?
+    https://www.technologyreview.com/s/602344/the-extraordinary-link-between-deep-neural-networks-and-the-nature-of-the-universe/
+* Reading & Read
+** 2019: Physics-informed neural network: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations
+    The key point in this paper is that when enough data is not available for a
+    deep learning solution, then some law of physics can be included in the
+    error function.
+** 2019: Probabilistic system indentification and optimal sensor placement for a single anchored sheet pile wall
+    Xuzheng worked on system identification (parameter inference) of a single
+    anchored sheet pile wall from sensor data. A FE model with input parameters
+    of the retaining wall gives a distribution of the observed parameters. The
+    input (or hidden) parameters are then determined with some uncertainty from
+    the observations. Sensor placement is optimised by minimizing the credible
+    region and entropy from the sensor readings.
+* Links
+https://www.data61.csiro.au/en/Our-Work/Future-Cities/Planning-sustainable-infrastructure/Structural-health-monitoring
+
+https://research.csiro.au/data61/structural-health-monitoring/
+
+https://www.eiseverywhere.com/file_uploads/83ba86baa3f7028e84e8bc3d752a92eb_3.PeterRuncieData61November2017Update.pdf
+
+https://people.csiro.au/N/K/Khoa-Nguyen
+
+[[https://drive.google.com/drive/folders/1xuBMgMsaHjRHXJvLhRykZ_q0XhR8f6Mp?usp=sharing][Examples of Computational Science Master theses]]
+
+* Terminology
+** Jack Arch 
+    Unlike regular arches, jack arches are not semicircular in form. Instead,
+    they are flat in profile.
+** Frequency Moment
+    The kth frequency moment of a set of frequencies a is $F_k(a) = \sum a^k_i
+** Mode
+    In a mode of a system all part sof the system move under a fixed frequency.
+    To prevent the vibration of a system it needs to be damped at the
+    anti-nodes.
+** Centroid
+    The centre of mass of a geometric object of uniform density.
+** Axial load
+    Load parallel to longitudinal axis of the member.
+** Centric load
+    Line of action of resultant force passes through centroid.
+** Beam
+** Pier
+** Abutment
+** Span
