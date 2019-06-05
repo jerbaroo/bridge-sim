@@ -165,30 +165,6 @@
 *** Go over timeline
 *** How to interface with Diana
 * Communications
-* Abstract
-   # The end of life of a bridge is an estimate based on expert knowledge,
-   # historical data and regular maintenance checks.
-   The probability of a bridge to fail increases over time until it is no longer
-   considered safe for use. Maintenance of a bridge is typically carried out
-   when something goes wrong or according to a preventative maintenance schedule
-   based on expert knowledge, neither approach making the best use of limited
-   maintenance resources. Sensor data can provide useful real-time information
-   without the delay or cost of a manual maintenance check. How sensors can be
-   used in a data-driven decision support system for bridge maintenance is the
-   topic of this research. In particular we will focus on bridge 705 in
-   Amsterdam for which sensor data corresponding to known loads has been
-   collected, and a 3D finite element model is available. We will build a model
-   to estimate from sensor data if damage to the bridge has occured and will
-   investigate what types of sensors and what sensor placement is optimal for
-   estimating different types of damage. A finite element model will be used to
-   generate synthetic data in order to address the cold start problem. Due to
-   the safety requirements of any bridge it is necessary to quantify the
-   uncertainty we have in our damage estimates. Once the capabilities and
-   limitations of the model in determining damage are understood, we will
-   suggest a decision support system for policy makers which includes the model
-   and present a cost-benefit analysis thereof. Finally (stretch-goal) we will
-   investigate how such a system can be generalized to bridges other than
-   bridge 705.
 ** Diego
     Traffic load models, weight-in-motion data. Finite element model of bridge 705.
 **** INPROGRESS Arthur and Arpi will talk with Diego on Wednesday
