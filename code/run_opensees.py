@@ -1,8 +1,8 @@
 import numpy as np
 
 import plot
-
-from build_model import Fix, Load, Patch, build_model
+from model import Fix, Load, Patch
+from build_model import build_model
 from run_model import run_model
 
 

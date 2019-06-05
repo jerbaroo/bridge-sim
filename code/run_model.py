@@ -7,9 +7,10 @@ from util import print_i
 OPEN_SEES_PATH = 'c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe'
 
 
-def run_model(model="built-model.tcl", open_sees_path=OPEN_SEES_PATH,
-              node_stress_strain_out_file="stress-strain.out",
-              node_x_out_file="node-x.out", node_y_out_file="node-y.out"):
+def run_model(model="generated/built-model.tcl", open_sees_path=OPEN_SEES_PATH,
+              node_x_out_file="generated/node-x.out",
+              node_y_out_file="generated/node-y.out",
+              node_stress_strain_out_file="generated/stress-strain.out"):
     """Run a model and return the recorded results."""
     print_i(f"Running OpenSees with {model}")
     subprocess.run([OPEN_SEES_PATH, model])
