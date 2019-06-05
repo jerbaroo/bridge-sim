@@ -5,13 +5,13 @@ from util import print_i
 MODEL_TEMPLATE = "model-template.tcl"
 
 
-def build_model(num_elems=300, node_start=0, node_step=0.2, fix=[], load=[],
-                sections=[], in_file=MODEL_TEMPLATE,
-                out_file="generated/built-model.tcl",
-                elem_out_file="generated/elem.out",
-                node_x_out_file="generated/node-x.out",
-                node_y_out_file="generated/node-y.out",
-                node_stress_strain_out_file="generated/stress-strain.out"):
+def build_opensees_model(num_elems=300, node_start=0, node_step=0.2, fix=[],
+                         load=[], sections=[], in_file=MODEL_TEMPLATE,
+                         out_file="generated/built-model.tcl",
+                         elem_out_file="generated/elem.out",
+                         node_x_out_file="generated/node-x.out",
+                         node_y_out_file="generated/node-y.out",
+                         node_stress_strain_out_file="generated/stress-strain.out"):
     """Build a .tcl file based on the given parameters."""
     print_i(f"Generating model file with\n\t{num_elems} elements"
             + f"\n\t{node_step} element length")

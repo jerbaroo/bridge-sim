@@ -31,16 +31,6 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
 def animate_stress_strain(stress_strain, stress=True, num_elems=300,
                           node_step=0.2, spans=7):
     """Show an animation of stress and strain."""
-    num_t = len(stress_strain)
-    num_measurements = len(stress_strain[0]) // 2
-    stress_data = [
-        [stress_strain[t][i * 2] for i in range(num_measurements)]
-        for t in range(num_t)
-    ]
-    strain_data = [
-        [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
-        for t in range(num_t)
-    ]
     data = stress_data if stress else strain_data
 
     def plot_stress_strain(t):
