@@ -51,8 +51,8 @@
    Amsterdam has seven spans each with the same dimensions, ignoring the small
    differences due to construction and time in operation. To develop an SSSB
    system loads must be "driven" across the bridge in the FEM, then an analysis
-   must be performed on the difference in sensor measurements from the sensors
-   at the same position on each substructure.
+   must be performed on the difference between sensor measurements from sensors
+   at equivalent positions on each substructure.
    
    # End goal.
    The end-goal of this thesis is to outline how sensors can be utilized to

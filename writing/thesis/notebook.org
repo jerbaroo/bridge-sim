@@ -89,6 +89,13 @@
       research question in as much detail as possible.
 * Questions
 ** TODO What types of damage can occur on bridge 705?
+** DONE What is the point of an infuence line?
+   CLOSED: [2019-06-06 Thu 10:20]
+   An influence line shows the response of the bridge at each point for a load
+   at a point A. A unit weight is driven along the bridge and the simulated
+   sensor measurement collected at each point. Due to the superposition property
+   the influence line can be used to determine the response of the bridge for
+   other loads.
 ** DONE What is the use of synthetic data?
     #+NAME: use-of-synthetic-data
     CLOSED: [2019-05-07 Tue 10:47]
@@ -100,23 +107,21 @@
     in cases where the real data is not available. The synthetic data will also
     be useful when moving beyond a one class classifier, and attempting to
     estimate damage.
-** TODO For each damage type can it be identified from sensor data?
-** TODO Can abnormal status be detected using similar substructure information?
-** TODO For each damage type what is the minimal and the optimal sensor placement?
+** TODO Can abnormal status be detected using SSSB?
+** TODO What is the minimal and the optimal sensor placement?
 ** TODO What are the limitations (including uncertainty) of such a system?
 ** TODO What are the costs and benefits associated with such a system?
-** TODO What is needed to transfer such a system from bridge 705 to another bridge?
-** TODO Is a historical damage profile of a bridge sufficient to predict structural damage ahead of time?
-** TODO Can sensor data reduce maintenance checks to a fixed cost, or at least cost effective?
-** TODO Component level analysis cannot capture entire system level behaviours.
-** TODO Component level maintenance depends on the risk of that component.
-** TODO How can we collect sensor data under normal conditions?
-** TODO Is this information enough to classify abnormal conditions?
-** TODO Can the above be done using NC methods, or time series prediction?
-** TODO Can we classify abnormal conditions early enough that the system is useful?
-** TODO How do the sensor types and positions affect abnormal condition classification?
+** TODO Can sensor data reduce the cost of maintenance checks?
+** DONE How can we collect sensor data under normal conditions?
+   CLOSED: [2019-06-06 Thu 10:28]
+   Use a finite element model to simulate sensor measurements under normal
+   loading conditions (determined from data). These simulated sensor
+   measurements represent the range of sensor measurments under normal
+   conditions. That the simulated sensor measurements reflect reality can be
+   verified against the sensor measurements obtained through experiments.
+** TODO How do sensor type and position affect abnormal condition classification?
 ** TODO What is the minimum sensor density needed for this system to operate?
-** TODO Can we adapt such a model from one structure (bridge) to another?
+** TODO What is necessary to adapt the system from one bridge to another?
      How much structure specific information is necessary for a useful system?
 ** DONE Recall Latin Hypercube sampling
     CLOSED: [2019-04-08 Mon 09:38]
@@ -126,31 +131,31 @@
 * Meetings
 ** May 6 with Arpi
 *** What is the use of synthetic data?
-     Answered in [[use-of-synthetic-data]]
+    Answered in [[use-of-synthetic-data]]
 *** What is a good way of collecting strain data?
-     Need to collect a point at every fiber.
+    Need to collect a point at every fiber.
 *** Detect abnormalities by classifying similar substructures together.
-     This idea is based on the presumption that similar substructures should
-     behave in a similar manner, as soon as sensors in one substructure are
-     operating differently this is an indication that something has gone wrong.
-     This also means that sensors on different substructures should be placed in
-     the same relative places.
+    This idea is based on the presumption that similar substructures should
+    behave in a similar manner, as soon as sensors in one substructure are
+    operating differently this is an indication that something has gone wrong.
+    This also means that sensors on different substructures should be placed in
+    the same relative places.
 *** Abnormalities could be detected with NC, time-series and similar substructures?
-     Probably not with time series, but the other two are worth investigating.
+    Probably not with time series, but the other two are worth investigating.
 *** What should be done next on the OpenSees model?
-     Collect better strain information. 
+    Collect better strain information. 
 *** Could evolutionary algorithms be used to determine sensor placement?
-     The optimal sensor placement depends on the definition of optimal, what are
-     we trying to maximise? If we are trying to maximise the amount of sensory
-     information, then we should cover all available space on the bridge with
-     sensors, but clearly we also need to put a cost term into the evaluation
-     function.
+    The optimal sensor placement depends on the definition of optimal, what are
+    we trying to maximise? If we are trying to maximise the amount of sensory
+    information, then we should cover all available space on the bridge with
+    sensors, but clearly we also need to put a cost term into the evaluation
+    function.
 *** What are the damage scenarios for bridge 705?
 *** English document on bridge 705.
-     Meeting with Diego Wednesday morning.
+    Meeting with Diego Wednesday morning.
 *** Additional Feedback
-     Ask for help about the data collection, last slide.
-** Next meeting
+    Ask for help about the data collection, last slide.
+** June 3 with Arpi
 *** Difference between nominal and true strain
 *** What is the usefulness of the influence line
     Overview of method:
@@ -183,7 +188,7 @@
 ** Rijkswaterstaat bridge department
     Get SHM costs and costs related to current inspection and maintenance
     practices would be great.
-* Additional Writing
+* Additional Notes
 ** OpenSees
     =model basic -ndm 2 -ndf 3=
     
@@ -282,7 +287,7 @@ https://people.csiro.au/N/K/Khoa-Nguyen
 ** Frequency Moment
     The kth frequency moment of a set of frequencies a is $F_k(a) = \sum a^k_i
 ** Mode
-    In a mode of a system all part sof the system move under a fixed frequency.
+    In a mode of a system all parts of the system move under a fixed frequency.
     To prevent the vibration of a system it needs to be damped at the
     anti-nodes.
 ** Centroid
