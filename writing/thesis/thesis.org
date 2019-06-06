@@ -57,17 +57,50 @@
    # End goal.
    The end-goal of this thesis is to outline how sensors can be utilized to
    build a decision support system for bridge maintenance. To accomplish this a
-   model will be built (consisting of the AAC and SSSB methods) to estimate from
-   sensor measurements if damage to the bridge has occured. Research will be
-   conducted to ascertain what types of sensors and what sensor placement is
-   optimal to determine a damaged status. A finite element model will be used to
-   simulate sensor measurements in order to address the lack of available data.
-   Due to the safety requirements of any bridge it is necessary to quantify the
-   uncertainty we have in our damage estimates. Once the capabilities and
-   limitations of the model are understood, we will suggest a decision support
-   system for policy makers which includes the model and present a cost-benefit
-   analysis thereof. Finally (stretch-goal) we will investigate how such a
-   system can be generalized to bridges other than bridge 705.
-* Background Material
-* Literature Overview
-  # SSSB method on SHB.
+   model will be built (consisting of the AAC and SSSB methods) to determine if
+   sensor measurements represent an abnormal condition of the bridge . Research
+   will be conducted to ascertain what types of sensors and what sensor
+   placement is optimal for detecting such an abnormal condition. A finite
+   element model will be used to simulate sensor measurements in order to
+   address the lack of available data. Due to the safety requirements of any
+   bridge it is necessary to quantify the uncertainty we have in our damage
+   estimates. Once the capabilities and limitations of the model are understood,
+   we will suggest a decision support system for policy makers which includes
+   the model and present a cost-benefit analysis thereof. Finally (stretch-goal)
+   we will investigate how such a system can be generalized to bridges other
+   than bridge 705.
+   
+   # Structure of this thesis.
+* Literature review
+  This section contains a review of relevant literature studied during this
+  thesis project.
+** Combining Data-driven Methods with Finite Element Analysis for Flood Early Warning Systems
+** Neural Clouds for Monitoring of Complex Systems
+   # One-class classification.
+   In one-class classification, a classifier attempts to identify objects of a
+   single class among all objects by learning from a training set that consists
+   only of objects of that class. One-class classifiers are useful in the domain
+   of system condition monitoring because often only data corresponding to the
+   normal range of operating conditions is available. Data corresponding to the
+   class of abnormal conditions, when a failure or breakdown of a system has
+   occurred, is often not available or is difficult or expensive to obtain.
+
+   # Neural Clouds algorithm.
+   The Neural Clouds (NC) method presented in TODO:REF is a one-class classifier
+   which provides a confidence measure of the condition of a complex system. In
+   the NC algorithm we are dealing with measurements from a real object where
+   each measurement is considered as a point in n-dimensional space. First a
+   normalization procedure is applied to the data to avoid clustering problems
+   in the subsequent step. The data is then clustered and the centroids of the
+   clusters extracted. The centroids are then encapsulated with "Gaussian
+   bells", and these Gaussian bells are normalized to avoid outliers in the
+   data. The summation of the Gaussian bells results in a height =h= for each
+   point =p= on the hyperplane of parameter values. The value of =h= at a point
+   =p= can be interpreted as the probability of the parameter values at =p=
+   falling within the normal conditions represented by the training data. In
+   comparison to other one-class classifiers, the NC method has an advantage in
+   condition monitoring in that it creates this unique plateau where height can
+   be interpreted as probability of the system condition. Figure TODO:FIG shows
+   this plateau in comparison with other one-class classifiers.
+** Similar Substructures on Sydney Harbour Bridge
+   # SSSB method on SHB. 

@@ -8,9 +8,11 @@
 
 * Tasks
 ** TODO Send Arpi and Valeria invite to GitHub
-** TODO Send VPN document to IT
+** DONE Send VPN document to IT
+   CLOSED: [2019-06-06 Thu 14:57]
 ** TODO Check if some sensors remain on bridge 705
 ** TODO OpenSees: generate influence lines
+** TODO Setup bibtex
 ** TODO Start the literature review
 ** TODO Basic definitions
 ** TODO Compile sensor list
@@ -69,8 +71,6 @@
     CLOSED: [2019-05-07 Tue 15:10]
 ** DONE Organize a meeting with Valeria
     CLOSED: [2019-04-11 Thu 09:57]
-** DONE Print papers
-    CLOSED: [2019-04-11 Thu 14:53]
 ** DONE Pausing the thesis
     CLOSED: [2019-04-24 Wed 10:54]
     Should be fine.
@@ -89,6 +89,15 @@
       research question in as much detail as possible.
 * Questions
 ** TODO What types of damage can occur on bridge 705?
+** TODO Can abnormal status be detected using SSSB?
+** TODO What is the minimal and the optimal sensor placement?
+** TODO What are the limitations (including uncertainty) of such a system?
+** TODO What are the costs and benefits associated with such a system?
+** TODO Can sensor data reduce the cost of maintenance checks?
+** TODO How do sensor type and position affect abnormal condition classification?
+** TODO What is the minimum sensor density needed for this system to operate?
+** TODO What is necessary to adapt the system from one bridge to another?
+     How much structure specific information is necessary for a useful system?
 ** DONE What is the point of an infuence line?
    CLOSED: [2019-06-06 Thu 10:20]
    An influence line shows the response of the bridge at each point for a load
@@ -107,11 +116,6 @@
     in cases where the real data is not available. The synthetic data will also
     be useful when moving beyond a one class classifier, and attempting to
     estimate damage.
-** TODO Can abnormal status be detected using SSSB?
-** TODO What is the minimal and the optimal sensor placement?
-** TODO What are the limitations (including uncertainty) of such a system?
-** TODO What are the costs and benefits associated with such a system?
-** TODO Can sensor data reduce the cost of maintenance checks?
 ** DONE How can we collect sensor data under normal conditions?
    CLOSED: [2019-06-06 Thu 10:28]
    Use a finite element model to simulate sensor measurements under normal
@@ -119,15 +123,6 @@
    measurements represent the range of sensor measurments under normal
    conditions. That the simulated sensor measurements reflect reality can be
    verified against the sensor measurements obtained through experiments.
-** TODO How do sensor type and position affect abnormal condition classification?
-** TODO What is the minimum sensor density needed for this system to operate?
-** TODO What is necessary to adapt the system from one bridge to another?
-     How much structure specific information is necessary for a useful system?
-** DONE Recall Latin Hypercube sampling
-    CLOSED: [2019-04-08 Mon 09:38]
-    N rooks on a chess board without threatening each other.
-** DONE What is automatic differentiation?
-    CLOSED: [2019-04-08 Mon 09:36]
 * Meetings
 ** May 6 with Arpi
 *** What is the use of synthetic data?
