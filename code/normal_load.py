@@ -84,7 +84,7 @@ def read_a16(filepath=A16_CSV_DATA):
 
 
 if __name__ == "__main__":
-    # raw_to_df_csv(A16_RAW_DATA, A16_CSV_DATA)
+    # raw_to_df_csv()
     df = read_a16()
     print(df.loc[:10, :"total_weight"])
     plot_distribution(df["total_weight"], bins=100)
