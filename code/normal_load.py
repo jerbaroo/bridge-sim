@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-A16_RAW_DATA = "a16-data/A16.dat"
-A16_CSV_DATA = "a16-data/a16.csv"
+A16_RAW_DATA = "../data/a16-data/A16.dat"
+A16_CSV_DATA = "../data/a16-data/a16.csv"
 
 COL_NAMES = [
     "month", "day", "year", "hour", "min", "sec", "number", "lane", "type",
@@ -57,35 +57,57 @@ def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
         print(f"Deleted file {part_filepath(num)}")
 
 
-def plot_distribution(data, bins=None, density=True, title=None):
-    """Plot and show distribution of given data."""
+def read_a16(filepath=A16_CSV_DATA):
+    """Return the A16 csv file as a DataFrame."""
+    return pd.read_csv(filepath, usecols=COL_NAMES, index_col="number")
+
+
+def kde_sampler(data, print_=False):
+    """A generator which returns samples from a KD estimate of the data."""
+    kde = stats.gaussian_kde(data)
+    i = 1
+    while True:
+        if print_ and i % 100 == 0:
+            print(i, end=", ", flush=True)
+        i += 1
+        yield kde.resample(1)[0][0]
+
+
+def plot_hist_and_kde(data, bins=None, density=True, title=None):
+    """Plot a histogram and KDE of given data."""
     _, x, _ = plt.hist(data, bins=bins, density=density)
-    if density:
-        plt.plot(x, stats.gaussian_kde(data)(x))
+    kde = stats.gaussian_kde(data)
+    plt.plot(x, kde(x))
     if title:
         plt.title(title)
     plt.show()
 
 
-def plot_distributions_based_on_type(df):
-    """Plot and show distributions based on vehicle type."""
+def plot_kde_and_kde_samples_hist(data, samples=5000):
+    """Plot the KDE of given data and a histogram of samples from the KDE."""
+    kde = stats.gaussian_kde(data)
+    x = np.linspace(data.min(), data.max(), 100)
+    plt.plot(x, kde(x))
+    sampler = kde_sampler(data)
+    plt.hist([next(sampler) for _ in range(samples)], bins=25, density=True)
+    plt.show()
+
+
+def plot_hist_and_kde_per_type(df):
+    """Plot a histogram and KDE per vehicle type."""
     groups = df.groupby(
         by=lambda x: df.loc[x, "type"].replace("\"", "")[0])["total_weight"]
     plt.bar(range(len(groups)), groups.count())
     plt.xticks(plt.xticks()[0], [""] + [type_ for type_, _ in groups])
     plt.show()
     for type_, group in groups:
-        plot_distribution(group, density=False, title=f"Type {type_}")
-
-
-def read_a16(filepath=A16_CSV_DATA):
-    """Return the A16 csv file as a DataFrame."""
-    return pd.read_csv(filepath, usecols=COL_NAMES, index_col="number")
+        plot_hist_and_kde(group, density=False, title=f"Type {type_}")
 
 
 if __name__ == "__main__":
     # raw_to_df_csv()
     df = read_a16()
     print(df.loc[:10, :"total_weight"])
-    plot_distribution(df["total_weight"], bins=100)
-    plot_distributions_based_on_type(df)
+    # plot_hist_and_kde(df["total_weight"], bins=100)
+    plot_kde_and_kde_samples_hist(df["total_weight"])
+    # plot_hist_and_kde_per_type(df)
