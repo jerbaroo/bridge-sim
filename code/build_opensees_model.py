@@ -5,8 +5,7 @@ from util import print_i
 MODEL_TEMPLATE = "model-template.tcl"
 
 
-def build_opensees_model(num_elems=300, node_start=0, node_step=0.2, fix=[],
-                         load=[], sections=[], in_file=MODEL_TEMPLATE,
+def build_opensees_model(model, load=[], in_file=MODEL_TEMPLATE,
                          out_file="generated/built-model.tcl",
                          elem_out_file="generated/elem.out",
                          node_x_out_file="generated/node-x.out",
