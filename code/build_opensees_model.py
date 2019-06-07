@@ -40,7 +40,7 @@ def opensees_loads(c: Config, loads: [Load]):
 
 
 def opensees_sections(c: Config):
-    """OpenSees section command for a .tcl file."""
+    """OpenSees section commands for a .tcl file."""
     def opensees_patch(p: Patch):
         return (f"patch rect {p.material.value} 1 {p.num_sub_div_z}"
                 + f" {p.p0.y} {p.p0.z} {p.p1.y} {p.p1.z}")
@@ -61,9 +61,22 @@ def opensees_recorders(c: Config):
     recorders += f"\nrecorder Element -file {c.os_element_path}"
     recorders += " -ele " + " ".join(map(str, c.elem_ids()))
     recorders += " globalForce"
-    recorders += f"\nrecorder Element -file {c.os_stress_strain_path}"
-    recorders += " -ele " + " ".join(map(str, c.elem_ids()))
-    recorders += " section 1 fiber 0 0.5 stressStrain"
+    # Need a stress_strain recorder command for each patch.
+    for p in c.bridge.sections[0].patches:
+        dy = abs(p.p0.y - p.p1.y)
+        dz = abs(p.p0.z - p.p1.z)
+        point = (min(p.p0.y, p.p1.y) + (dy / 2),
+                 min(p.p0.z, p.p1.z) + (dz / 2))
+        def assertBetween(a, b, c):
+            assert (a < c and c < b) or (b < c and c < a)
+        assertBetween(p.p0.y, p.p1.y, point[0])
+        assertBetween(p.p0.z, p.p1.z, point[1])
+        recorders += (f"\nrecorder Element -file"
+                      + f" {c.os_stress_strain_path(p)}"
+                      + " -ele " + " ".join(map(str, c.elem_ids()))
+                      + " section 1 fiber"
+                      + f" {p.p0.y + (dy / 2)} {p.p0.z + (dz / 2)}"
+                      + " stressStrain")
     return recorders
 
 
@@ -74,12 +87,13 @@ def build_opensees_model(c: Config, loads=[]):
             + f"\n\t{c.node_step} element length")
     with open(c.os_model_template_path) as f:
         in_tcl = f.read()
-    out_tcl = in_tcl.replace("<<NODES>>", opensees_nodes(c))
-    out_tcl = out_tcl.replace("<<FIX>>", opensees_fixed_nodes(c))
-    out_tcl = out_tcl.replace("<<ELEMENTS>>", opensees_elements(c))
-    out_tcl = out_tcl.replace("<<LOAD>>", opensees_loads(c, loads))
-    out_tcl = out_tcl.replace("<<SECTIONS>>", opensees_sections(c))
-    out_tcl = out_tcl.replace("<<RECORDERS>>", opensees_recorders(c))
+    out_tcl = (in_tcl
+        .replace("<<NODES>>", opensees_nodes(c))
+        .replace("<<FIX>>", opensees_fixed_nodes(c))
+        .replace("<<ELEMENTS>>", opensees_elements(c))
+        .replace("<<LOAD>>", opensees_loads(c, loads))
+        .replace("<<SECTIONS>>", opensees_sections(c))
+        .replace("<<RECORDERS>>", opensees_recorders(c)))
     with open(c.os_built_model_path, "w") as f:
         f.write(out_tcl)
     print_i(f"Saved model file to {c.os_built_model_path}")

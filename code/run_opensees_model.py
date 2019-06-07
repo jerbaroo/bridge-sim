@@ -2,32 +2,30 @@ import subprocess
 
 import numpy as np
 
+from config import Config
 from util import print_i
 
-OPEN_SEES_PATH = 'c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe'
 
-
-def run_opensees_model(model="generated/built-model.tcl",
-                       open_sees_path=OPEN_SEES_PATH,
-                       node_x_out_file="generated/node-x.out",
-                       node_y_out_file="generated/node-y.out",
-                       node_stress_strain_out_file="generated/stress-strain.out"):
-    """Run a model and return the recorded results."""
-    print_i(f"Running OpenSees with {model}")
-    subprocess.run([OPEN_SEES_PATH, model])
-    x = openSeesToNumpy(node_x_out_file)
-    y = openSeesToNumpy(node_y_out_file)
-    stress_strain = openSeesToNumpy(node_stress_strain_out_file)
-    num_t = len(stress_strain)
-    num_measurements = len(stress_strain[0]) // 2
-    stress = [
-        [stress_strain[t][i * 2] for i in range(num_measurements)]
-        for t in range(num_t)
-    ]
-    strain = [
-        [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
-        for t in range(num_t)
-    ]
+def run_opensees_model(c: Config):
+    """Run an OpenSees model and return the recorded results."""
+    print_i(f"Running OpenSees with {c.os_built_model_path}")
+    subprocess.run([c.os_exe_path, c.os_built_model_path])
+    x = openSeesToNumpy(c.os_x_path)
+    y = openSeesToNumpy(c.os_y_path)
+    stress = []
+    strain = []
+    for patch in c.bridge.sections[0].patches:
+        stress_strain = openSeesToNumpy(c.os_stress_strain_path(patch))
+        num_t = len(stress_strain)
+        num_measurements = len(stress_strain[0]) // 2
+        stress.append([
+            [stress_strain[t][i * 2] for i in range(num_measurements)]
+            for t in range(num_t)
+        ])
+        strain.append([
+            [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
+            for t in range(num_t)
+        ])
     print_i("Parsed OpenSees recorded data")
     return x, y, stress, strain
 

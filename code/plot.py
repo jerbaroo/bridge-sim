@@ -3,16 +3,31 @@ import numpy as np
 
 from matplotlib.animation import FuncAnimation
 
-from model import Bridge
+from model import Bridge, Section
 
 
 def plot_bridge(b: Bridge):
-    """Plot the background of the bridge."""
+    """Plot the background of a bridge."""
     plt.hlines(0, 0, b.length, color="green")
     plt.plot(
         np.linspace(0, b.length, len(b.fixed_nodes)),
         [0 for _ in range(len(b.fixed_nodes))],
         "o", color="green")
+
+
+def plot_section(s: Section):
+    """Plot the cross section of a bridge."""
+    for p in s.patches:
+        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color="b")  # Bottom.
+        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color="b")  # Left.
+        plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color="b")  # Top.
+        plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color="b")  # Right.
+        dy = abs(p.p0.y - p.p1.y)
+        dz = abs(p.p0.z - p.p1.z)
+        point = (min(p.p0.y, p.p1.y) + (dy / 2),
+                 min(p.p0.z, p.p1.z) + (dz / 2))
+        plt.plot(point[1], point[0], "ro")
+    plt.show()
 
 
 def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):

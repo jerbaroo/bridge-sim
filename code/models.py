@@ -1,6 +1,7 @@
 """
-Bridge model and simulation parameters.
+Description of bridge 705 and simulation parameters.
 """
+import plot
 from config import Config
 from model import *
 
@@ -13,3 +14,6 @@ bridge_705 = Bridge(
     ])])
 
 bridge_705_config = Config(bridge_705)
+
+if __name__ == "__main__":
+    plot.plot_section(bridge_705.sections[0])

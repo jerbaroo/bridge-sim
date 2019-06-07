@@ -11,14 +11,17 @@
 ** DONE Send VPN document to IT
    CLOSED: [2019-06-06 Thu 14:57]
 ** TODO Check if some sensors remain on bridge 705
-** TODO OpenSees: generate influence lines
+** DONE OpenSees: generate influence lines
+   CLOSED: [2019-06-07 Fri 17:45]
 ** TODO Setup bibtex
 ** TODO Start the literature review
 ** TODO Basic definitions
 ** TODO Compile sensor list
 ** TODO Compile list of damage scenarios for bridge 705
 ** TODO Bayesian statistics [[https://stats.stackexchange.com/questions/2272/whats-the-difference-between-a-confidence-interval-and-a-credible-interval][SO: cookie jar]]
-** TODO OpenSees: generate sections with patches from Python
+** TODO OpenSees: support multiple sections 
+** DONE OpenSees: generate sections with patches from Python
+   CLOSED: [2019-06-07 Fri 18:01]
 ** TODO OpenSees: generate matrix of unit load and sensor response
 ** TODO OpenSees: collect stress-strain data from each fiber
 ** TODO OpenSees: ensure model is similar to the bridge 705
@@ -166,6 +169,8 @@
 *** How to interface with Diana
 ** Next
 *** Which configuration parameters are OpenSees/Diana specific.
+*** Good method of generating normal responses from sensors.
+*** Influence line is only using data from first patch.
 * Communications
 ** Diego
     Traffic load models, weight-in-motion data. Finite element model of bridge 705.

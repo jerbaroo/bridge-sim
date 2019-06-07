@@ -17,8 +17,8 @@ def gen_il_matrix(c: Config):
     matrix = np.empty(shape=(c.il_num_loads, c.num_elems()))
     for i, load_position in enumerate(np.linspace(0, 1, c.il_num_loads)):
         build_opensees_model(c, loads=[Load(load_position, c.il_unit_load)])
-        x, y, stress, strain = run_opensees_model()
-        matrix[i] = stress[c.il_save_time]
+        _x, _y, stress, _strain = run_opensees_model(c)
+        matrix[i] = stress[0][c.il_save_time]
     np.save(c.il_mat_path(), matrix)
     plt.imshow(matrix)
     plt.ylabel("load position")

@@ -1,20 +1,24 @@
+"""
+Classes for describing bridges and loads.
+"""
 from enum import Enum
 
 import numpy as np
 
 
 class Bridge():
-    """Specification of a bridge model.
+    """Description of a bridge.
 
     Args:
         length: length of the beam.
         fixed_nodes: nodes fixed in some degrees of freedom.
         sections: specification of the cross section.
     """
-    def __init__(self, length, fixed_nodes, sections=[]):
+    def __init__(self, length, fixed_nodes, sections):
         self.length = length
         self.fixed_nodes = fixed_nodes
         self.sections = sections
+        assert len(sections) == 1
 
     def x_axis(self, n):
         """n equidistant points along the bridge's length."""
@@ -22,7 +26,7 @@ class Bridge():
 
 
 class Fix():
-    """An indexed node which is fixed in some degrees of freedom."""
+    """A node fixed in some degrees of freedom."""
     def __init__(self, x_pos, x=False, y=False, rot=False):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
@@ -46,8 +50,11 @@ class Material(Enum):
 
 class Patch():
     """A rectangular patch, used to describe a Section."""
+    next_id = 1
     def __init__(self, y_i, z_i, y_j, z_j, num_sub_div_z=30,
                  material=Material.Concrete):
+        self.id = Patch.next_id
+        Patch.next_id += 1
         self.p0 = Point(y=y_i, z=z_i)
         self.p1 = Point(y=y_j, z=z_j)
         self.num_sub_div_z = num_sub_div_z

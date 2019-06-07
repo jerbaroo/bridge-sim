@@ -8,9 +8,11 @@ class Config():
     """Simulation parameters.
 
     Args:
-        bridge: specification of a bridge model.
+        bridge: description of a bridge.
 
+        TODO: Move to Bridge.
         node_start: position on the x-axis of the first node.
+        TODO: Move to OpenSees.
         node_step: distance between two nodes, or length of an element.
 
         # Parameters used for the influence line.
@@ -20,6 +22,7 @@ class Config():
         il_save_time: time index to read the response after loading.
 
         # Parameters used for OpenSees.
+        os_exe_path: path of the OpenSees executable.
         os_model_template_path: path of the model template file.
         os_built_model_path: path to save/load the built model.
         os_element_path: path to save element recorder data.
@@ -30,12 +33,13 @@ class Config():
     def __init__(self, bridge, node_start=0, node_step=0.2,
                  il_mat_path_prefix="generated/il/il-matrix", il_num_loads=10,
                  il_unit_load=-5e4, il_save_time=1,
+                 os_exe_path="c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe",
                  os_model_template_path="model-template.tcl",
                  os_built_model_path="generated/built-model.tcl",
                  os_element_path="generated/elem.out",
                  os_x_path="generated/node-x.out",
                  os_y_path="generated/node-y.out",
-                 os_stress_strain_path="generated/stress-strain.out"):
+                 os_stress_strain_path_prefix="generated/stress-strain"):
         self.bridge = bridge
 
         # Nodes and elements.
@@ -65,9 +69,12 @@ class Config():
         self.il_mat_path = get_il_mat_path
 
         # OpenSees parameters.
+        self.os_exe_path = os_exe_path
         self.os_model_template_path = os_model_template_path
         self.os_built_model_path = os_built_model_path
         self.os_element_path = os_element_path
         self.os_x_path = os_x_path
         self.os_y_path = os_y_path
-        self.os_stress_strain_path = os_stress_strain_path
+        self.os_stress_strain_path_prefix = os_stress_strain_path_prefix
+        self.os_stress_strain_path = (lambda patch:
+            f"{self.os_stress_strain_path_prefix}-{patch.id}.out")
