@@ -164,6 +164,8 @@
 *** TNO password
 *** Go over timeline
 *** How to interface with Diana
+** Next
+*** Which configuration parameters are OpenSees/Diana specific.
 * Communications
 ** Diego
     Traffic load models, weight-in-motion data. Finite element model of bridge 705.

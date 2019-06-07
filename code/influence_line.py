@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from build_opensees_model import build_opensees_model
-from model import Config, Load
+from config import Config
+from model import Load
 from models import bridge_705_config
 from plot import plot_bridge
 from run_opensees_model import run_opensees_model
@@ -35,7 +36,7 @@ def plot_ils(c: Config, matrix, at=None):
     il_indices = range(len(matrix)) if at is None else [at]
     for i in il_indices:
         plt.plot(c.bridge.x_axis(len(matrix[i])), matrix[i])
-        plot_bridge(c)
+        plot_bridge(c.bridge)
         plt.show()
 
 
@@ -61,7 +62,7 @@ def il_response(c: Config, matrix, response_pos, load_pos, load):
 if __name__ == "__main__":
     c = bridge_705_config
 
-    # gen_il_matrix(c)
+    gen_il_matrix(c)
     il_matrix = np.load(c.il_mat_path())
     il_response(c, il_matrix, 0.5, 0.6, -5e6)
     plot_ils(c, il_matrix, at=4)

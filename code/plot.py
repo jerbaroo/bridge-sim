@@ -3,16 +3,15 @@ import numpy as np
 
 from matplotlib.animation import FuncAnimation
 
-from model import Config
+from model import Bridge
 
 
-def plot_bridge(c: Config, spans=7):
+def plot_bridge(b: Bridge):
     """Plot the background of the bridge."""
-    stop = c.num_elems() * c.node_step
-    plt.hlines(0, 0, stop, color="green")
+    plt.hlines(0, 0, b.length, color="green")
     plt.plot(
-        np.linspace(0, c.bridge.length, len(c.bridge.fixed_nodes)),
-        [0 for _ in range(len(c.bridge.fixed_nodes))],
+        np.linspace(0, b.length, len(b.fixed_nodes)),
+        [0 for _ in range(len(b.fixed_nodes))],
         "o", color="green")
 
 

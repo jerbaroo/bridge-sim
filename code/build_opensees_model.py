@@ -3,7 +3,8 @@ Build an OpenSees model file from a configuration.
 """
 import numpy as np
 
-from model import Config, Fix, Load
+from config import Config
+from model import Fix, Load, Patch, Section
 from util import print_i
 
 
@@ -38,6 +39,18 @@ def opensees_loads(c: Config, loads: [Load]):
     return "\n".join(opensees_load(l) for l in loads)
 
 
+def opensees_sections(c: Config):
+    """OpenSees section command for a .tcl file."""
+    def opensees_patch(p: Patch):
+        return (f"patch rect {p.material.value} 1 {p.num_sub_div_z}"
+                + f" {p.p0.y} {p.p0.z} {p.p1.y} {p.p1.z}")
+    def opensees_section(s: Section):
+        return (f"section Fiber {s.id} {{"
+                + "\n\t" + "\n\t".join(opensees_patch(p) for p in s.patches)
+                + "\n}")
+    return "\n".join(opensees_section(s) for s in c.bridge.sections)
+
+
 def opensees_recorders(c: Config):
     """OpenSees recorder commands for a .tcl file."""
     recorders = ""
@@ -65,6 +78,7 @@ def build_opensees_model(c: Config, loads=[]):
     out_tcl = out_tcl.replace("<<FIX>>", opensees_fixed_nodes(c))
     out_tcl = out_tcl.replace("<<ELEMENTS>>", opensees_elements(c))
     out_tcl = out_tcl.replace("<<LOAD>>", opensees_loads(c, loads))
+    out_tcl = out_tcl.replace("<<SECTIONS>>", opensees_sections(c))
     out_tcl = out_tcl.replace("<<RECORDERS>>", opensees_recorders(c))
     with open(c.os_built_model_path, "w") as f:
         f.write(out_tcl)
