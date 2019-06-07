@@ -3,16 +3,17 @@ import numpy as np
 
 from matplotlib.animation import FuncAnimation
 
+from model import Config
 
-def plot_bridge(num_elems=300, node_step=0.2, spans=7):
+
+def plot_bridge(c: Config, spans=7):
     """Plot the background of the bridge."""
-    stop = num_elems * node_step
+    stop = c.num_elems() * c.node_step
     plt.hlines(0, 0, stop, color="green")
     plt.plot(
-        np.arange(0, stop + 0.001, stop / spans),
-        [0 for _ in range(spans + 1)],
-        "o", color="green"
-    )
+        np.linspace(0, c.bridge.length, len(c.bridge.fixed_nodes)),
+        [0 for _ in range(len(c.bridge.fixed_nodes))],
+        "o", color="green")
 
 
 def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):

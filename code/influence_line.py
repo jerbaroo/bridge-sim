@@ -1,53 +1,31 @@
 """
-Generate an influence line of bridge 705.
+Generate an influence line from a configuration.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
 from build_opensees_model import build_opensees_model
-from model import Fix, Load, Patch
-from models import bridge_705
+from model import Config, Load
+from models import bridge_705_config
 from plot import plot_bridge
 from run_opensees_model import run_opensees_model
 
-# The filepath of an influence line matrix.
-il_filepath = (lambda filepath, num_loads, num_sensors, load, time:
-    f"{filepath}-nl-{num_loads}-ns-{num_sensors}-l-{load}-t-{time}.npy")
 
-# Load an influence line matrix from a file.
-load_il = (lambda filepath, num_loads, num_sensors, load, time:
-    np.load(il_filepath(filepath, num_loads, num_sensors, unit_load, time)))
-
-
-def gen_matrix(model, filepath, num_loads, num_sensors, unit_load, time):
-    """Generate a matrix of stress response for each sensor/load position.
-
-    Args:
-        model: specification of a model of a bridge.
-        filepath: path of where to save the matrix.
-        num_loads: amount of points at which to place the load.
-        num_sensors: amount of points at which to record the response.
-        unit_load: the value of load which is placed on the bridge.
-        time: int, time index at which to read the response after loading.
-    """
-    matrix = np.empty(shape=(num_loads, num_sensors))
-    for i, load_position in enumerate(np.linspace(0, 1, num_loads)):
-        build_opensees_model(
-            num_elems=num_sensors,
-            load=[Load(load_position, unit_load)]
-        )
+def gen_il_matrix(c: Config):
+    """Generate a stress response matrix for each sensor/load position."""
+    matrix = np.empty(shape=(c.il_num_loads, c.num_elems()))
+    for i, load_position in enumerate(np.linspace(0, 1, c.il_num_loads)):
+        build_opensees_model(c, loads=[Load(load_position, c.il_unit_load)])
         x, y, stress, strain = run_opensees_model()
-        matrix[i] = stress[time]
-    np.save(
-        il_filepath(filepath, num_loads, num_sensors, load, time),
-        matrix)
+        matrix[i] = stress[c.il_save_time]
+    np.save(c.il_mat_path(), matrix)
     plt.imshow(matrix)
     plt.ylabel("load position")
     plt.xlabel("sensor position")
     plt.show()
 
 
-def plot_ils(matrix, at=None):
+def plot_ils(c: Config, matrix, at=None):
     """Plot each influence line from the matrix.
 
     Args:
@@ -56,12 +34,12 @@ def plot_ils(matrix, at=None):
     """
     il_indices = range(len(matrix)) if at is None else [at]
     for i in il_indices:
-        plt.plot(matrix[i])
-        plot_bridge()
+        plt.plot(c.bridge.x_axis(len(matrix[i])), matrix[i])
+        plot_bridge(c)
         plt.show()
 
 
-def il_response(matrix, response_pos, load_pos, load, unit_load):
+def il_response(c: Config, matrix, response_pos, load_pos, load):
     """The response of a load at a position from an influence line matrix.
 
     Args:
@@ -77,18 +55,13 @@ def il_response(matrix, response_pos, load_pos, load, unit_load):
     response_ind = int(np.interp(
         response_pos, [0, 1], [0, len(matrix[0]) - 1]))
     # Return the matrix value times the load factor.
-    return matrix[load_ind, response_ind] * (load / unit_load)
+    return matrix[load_ind, response_ind] * (load / c.il_unit_load)
 
 
 if __name__ == "__main__":
-    model = bridge_705
-    filepath = "generated/il/influence-line-matrix"
-    num_loads = 10
-    num_sensors = 100
-    unit_load = -5e4
-    time = 1
+    c = bridge_705_config
 
-    # gen_matrix(filepath, num_loads, num_sensors, unit_load, time)
-    matrix = load_il(filepath, num_loads, num_sensors, unit_load, time)
-    il_response(matrix, 0.5, 0.6, -5e6, unit_load)
-    plot_ils(matrix, at=4)
+    # gen_il_matrix(c)
+    il_matrix = np.load(c.il_mat_path())
+    il_response(c, il_matrix, 0.5, 0.6, -5e6)
+    plot_ils(c, il_matrix, at=4)
