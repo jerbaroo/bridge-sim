@@ -26,44 +26,37 @@ def gen_il_matrix(c: Config):
     plt.show()
 
 
-def plot_ils(c: Config, matrix, at=None):
+def plot_ils(c: Config, at=None):
     """Plot each influence line from the matrix.
 
     Args:
-        matrix: influence line matrix indexed by load then sensor position.
-        at: plot the influence line at given index, else all influence lines.
+        at: int, position index to plot influence line at.
     """
-    il_indices = range(len(matrix)) if at is None else [at]
+    il_indices = range(len(c.il_matrix())) if at is None else [at]
     for i in il_indices:
-        plt.plot(c.bridge.x_axis(len(matrix[i])), matrix[i])
+        plt.plot(c.bridge.x_axis(len(c.il_matrix()[i])), c.il_matrix()[i])
         plot_bridge(c.bridge)
         plt.show()
 
 
-def il_response(c: Config, matrix, response_pos, load_pos, load):
+def il_response(c: Config, response_pos, load_pos, load):
     """The response of a load at a position from an influence line matrix.
 
     Args:
-        matrix: influence line matrix indexed by load then sensor position.
         response_pos: position of the returned response, in [0 1].
         load_pos: position of the load, in [0 1].
         load: the value of the load.
-        unit_load: the unit load used to generate the influence line.
     """
     # Convert load_pos to a matrix index.
-    load_ind = int(np.interp(load_pos, [0, 1], [0, len(matrix) - 1]))
+    load_ind = int(np.interp(load_pos, [0, 1], [0, len(c.il_matrix()) - 1]))
     # Convert response_pos to a matrix index.
     response_ind = int(np.interp(
-        response_pos, [0, 1], [0, len(matrix[0]) - 1]))
+        response_pos, [0, 1], [0, len(c.il_matrix()[0]) - 1]))
     # Return the matrix value times the load factor.
-    return matrix[load_ind, response_ind] * (load / c.il_unit_load)
+    return c.il_matrix()[load_ind, response_ind] * (load / c.il_unit_load)
 
 
 if __name__ == "__main__":
-    c = bridge_705_config
-
-    gen_il_matrix(c)
-    # TODO Move to Config.
-    il_matrix = np.load(c.il_mat_path())
-    il_response(c, il_matrix, 0.5, 0.6, -5e6)
-    plot_ils(c, il_matrix, at=4)
+    gen_il_matrix(bridge_705_config)
+    il_response(bridge_705_config, 0.5, 0.6, -5e6)
+    plot_ils(bridge_705_config, at=4)

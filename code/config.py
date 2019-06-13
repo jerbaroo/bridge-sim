@@ -8,6 +8,8 @@ import pandas as pd
 class Config():
     """Simulation parameters and data.
 
+    Config parameters should only be modified directly after construction.
+
     Args:
         bridge: description of a bridge.
 
@@ -34,30 +36,20 @@ class Config():
         os_stress_strain_path: str, path to save stress/strain recorder data.
 
         # A16 data.
-        a16_raw_path: str, path of the raw A16 traffic load data.
-        a16_csv_path: str, path of the CSV A16 traffic load data.
-        a16_col_names: [str], column names of the A16 traffic load data.
+        a16_raw_path: str, path of the raw A16 load distribution data.
+        a16_csv_path: str, path of the CSV A16 load distribution data.
+        a16_col_names: [str], column names of the A16 load distribution data.
 
     NOTE, some assumptions are made:
       - the A16 data must have index column "number"
       - the A16 data must have a weight column "total_weight"
     """
-    def __init__(self, bridge, node_start=0, node_step=0.2,
-                 il_mat_path_prefix="generated/il/il-matrix", il_num_loads=10,
-                 il_unit_load=-5e4, il_save_time=1,
-                 os_exe_path="c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe",
-                 os_model_template_path="model-template.tcl",
-                 os_built_model_path="generated/built-model.tcl",
-                 os_element_path="generated/elem.out",
-                 os_x_path="generated/node-x.out",
-                 os_y_path="generated/node-y.out",
-                 os_stress_strain_path_prefix="generated/stress-strain",
-    ):
+    def __init__(self, bridge):
         self.bridge = bridge
 
         # Nodes and elements.
-        self.node_start = node_start
-        self.node_step = node_step
+        self.node_start = 0
+        self.node_step = 0.2
         def get_num_elems():
             result = int(self.bridge.length / self.node_step)
             assert result * self.node_step == self.bridge.length
@@ -71,25 +63,30 @@ class Config():
         assert len(list(self.elem_ids())) == self.num_elems()
 
         # Influence line.
-        self.il_mat_path_prefix = il_mat_path_prefix
-        self.il_num_loads = il_num_loads
-        self.il_unit_load = il_unit_load
-        self.il_save_time = il_save_time
+        self.il_mat_path_prefix = "generated/il/il-matrix"
+        self.il_num_loads = 10
+        self.il_unit_load = -5e4
+        self.il_save_time = 1
         def get_il_mat_path():
             return (f"{self.il_mat_path_prefix}-nl-{self.il_num_loads}"
                     + f"-ns-{self.num_elems()}-l-{self.il_unit_load}"
-                    + f"-t-{il_save_time}.npy")
+                    + f"-t-{self.il_save_time}.npy")
         self.il_mat_path = get_il_mat_path
-        self.il_matrix = lambda: np.load(self.il_mat_path())
+        self._il_matrix = None
+        def get_il_matrix():
+            if self._il_matrix is None:
+                self._il_matrix = np.load(self.il_mat_path())
+            return self._il_matrix
+        self.il_matrix = get_il_matrix
 
         # OpenSees.
-        self.os_exe_path = os_exe_path
-        self.os_model_template_path = os_model_template_path
-        self.os_built_model_path = os_built_model_path
-        self.os_element_path = os_element_path
-        self.os_x_path = os_x_path
-        self.os_y_path = os_y_path
-        self.os_stress_strain_path_prefix = os_stress_strain_path_prefix
+        self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
+        self.os_model_template_path = "model-template.tcl"
+        self.os_built_model_path = "generated/built-model.tcl"
+        self.os_element_path = "generated/elem.out"
+        self.os_x_path = "generated/node-x.out"
+        self.os_y_path = "generated/node-y.out"
+        self.os_stress_strain_path_prefix = "generated/stress-strain"
         self.os_stress_strain_path = (lambda patch:
             f"{self.os_stress_strain_path_prefix}-{patch.id}.out")
 
@@ -99,20 +96,11 @@ class Config():
         self.a16_col_names = [
             "month", "day", "year", "hour", "min", "sec", "number", "lane",
             "type", "speed", "length", "total_weight", "weight_per_axle",
-            "axle_distance"
-        ]
+            "axle_distance"]
         self._a16_data = None
-        self._a16_data_path = None
-        self._a16_col_names = None
         def get_a16_data():
-            if (self._a16_data_path == self.a16_csv_path
-                and self._a16_col_names == self.a16_col_names):
-                return self._a16_data
-            self._a16_data = pd.read_csv(
-                self.a16_csv_path, usecols=self.a16_col_names,
-                index_col="number"
-            )
-            self._a16_data_path = self.a16_csv_path
-            self._a16_col_names = self.a16_col_names
+            if self._a16_data is None:
+                self._a16_data = pd.read_csv(self.a16_csv_path,
+                    usecols=self.a16_col_names, index_col="number")
             return self._a16_data
         self.a16_data = get_a16_data

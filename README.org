@@ -5,3 +5,13 @@ Written documents and the generated PDFs are found in /writing/.
 Collected data is found in /data/.
 
 Code is found in /code/ with a README describing the files [[./code/README.org][here]].
+
+** Quickstart
+``` bash
+cd code
+pip install -r requirements.txt
+
+python normal_load.py
+python influence_line.py
+python normal_response.py
+```
