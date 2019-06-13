@@ -7,12 +7,7 @@
 # All questions in Questions, can reference elsewhere if needed.
 
 * Tasks
-** TODO Send Arpi and Valeria invite to GitHub
-** DONE Send VPN document to IT
-   CLOSED: [2019-06-06 Thu 14:57]
 ** TODO Check if some sensors remain on bridge 705
-** DONE OpenSees: generate influence lines
-   CLOSED: [2019-06-07 Fri 17:45]
 ** TODO Setup bibtex
 ** TODO Start the literature review
 ** TODO Basic definitions
@@ -20,14 +15,20 @@
 ** TODO Compile list of damage scenarios for bridge 705
 ** TODO Bayesian statistics [[https://stats.stackexchange.com/questions/2272/whats-the-difference-between-a-confidence-interval-and-a-credible-interval][SO: cookie jar]]
 ** TODO OpenSees: support multiple sections 
-** DONE OpenSees: generate sections with patches from Python
-   CLOSED: [2019-06-07 Fri 18:01]
 ** TODO OpenSees: generate matrix of unit load and sensor response
 ** TODO OpenSees: collect stress-strain data from each fiber
 ** TODO OpenSees: ensure model is similar to the bridge 705
 ** TODO OpenSees: collect rotation data
 ** TODO OpenSees: collect acceleration data
 ** TODO OpenSees: discuss static vs dynamic analysis
+** DONE Send Arpi and Valeria invite to GitHub
+   CLOSED: [2019-06-13 Thu 11:16]
+** DONE Send VPN document to IT
+   CLOSED: [2019-06-06 Thu 14:57]
+** DONE OpenSees: generate influence lines
+   CLOSED: [2019-06-07 Fri 17:45]
+** DONE OpenSees: generate sections with patches from Python
+   CLOSED: [2019-06-07 Fri 18:01]
 ** DONE Basic beam theory
    CLOSED: [2019-06-03 Mon 17:15]
     https://www.coursera.org/learn/mechanics-1 Stress and Strain Fundamentals,
@@ -92,6 +93,7 @@
       research question in as much detail as possible.
 * Questions
 ** TODO What types of damage can occur on bridge 705?
+** TODO Can we detect high load in addition to high response?
 ** TODO Can abnormal status be detected using SSSB?
 ** TODO What is the minimal and the optimal sensor placement?
 ** TODO What are the limitations (including uncertainty) of such a system?
@@ -171,25 +173,44 @@
 *** Which configuration parameters are OpenSees/Diana specific.
 *** Good method of generating normal responses from sensors.
 *** Influence line is only using data from first patch.
+*** Plan to start full time after first week of July.
 * Communications
 ** Diego
-    Traffic load models, weight-in-motion data. Finite element model of bridge 705.
-**** INPROGRESS Arthur and Arpi will talk with Diego on Wednesday
+   Traffic load models, weight-in-motion data. Finite element model of bridge 705.
+*** Talk to Adri and Taoufik
+    Hi Jeremy and Arpad,
+
+    Adri is going to write an e-mail to Rijkswaterstaat about the use of the WIM
+    database for your purpose. Adri will ask to you some description of your
+    work. In the meanwhile, you can find a description of the vehicles chosen
+    for the investigation about city bridges in annex A of the attached report.
+
+    Taoufik Bakri (taoufik.bakri@tno.nl) and Walter Lohman
+    (walter.lohman@tno.nl) are the two guys involved in the dashboard for the
+    municipality of Amsterdam
+    (https://www.tno.nl/nl/over-tno/nieuws/2018/11/tno-brengt-met-urban-strategy-effecten-stedelijke-planning-amsterdam-in-kaart/).
+    I suggest to talk first to Taoufik, because he is the guy working on the
+    data and the models.
+
+    Kind regards,
+    Diego
+
 ** Johan, Stefan, Monica
-    Load models for fatigue.
-**** INPROGRESS Possible meeting Monday 20th
+   Load models for fatigue.
 ** Esra
-    Esra is working on an EU project containing sensor information. Will provide
-    an overview when it is done and look into if it is sharable.
-**** INPROGRESS Esra will share when it is done.
+   Esra is working on an EU project containing sensor information. Will provide
+   an overview when it is done and look into if it is sharable. Esra will share
+   when it is done.
 ** Wim Courage
-     The value of information. Involved in multiple related projects and member
-     of a relevant [[https://www.cost.eu/actions/TU1402/#tabs|Name:overview][COST action]].
+   The value of information. Involved in multiple related projects and member of
+   a relevant [[https://www.cost.eu/actions/TU1402/#tabs|Name:overview][COST action]].
 ** Companies monitoring bridge 705
-**** INPROGRESS Arthur will take action
+   Arthur will take action
 ** Rijkswaterstaat bridge department
-    Get SHM costs and costs related to current inspection and maintenance
-    practices would be great.
+   Get SHM costs and costs related to current inspection and maintenance
+   practices would be great.
+** Valeria & Alexander
+   Requesting Neural Clouds code from Alexander.
 * Additional Notes
 ** OpenSees
     =model basic -ndm 2 -ndf 3=

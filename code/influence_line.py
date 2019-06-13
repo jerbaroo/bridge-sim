@@ -63,6 +63,7 @@ if __name__ == "__main__":
     c = bridge_705_config
 
     gen_il_matrix(c)
+    # TODO Move to Config.
     il_matrix = np.load(c.il_mat_path())
     il_response(c, il_matrix, 0.5, 0.6, -5e6)
     plot_ils(c, il_matrix, at=4)

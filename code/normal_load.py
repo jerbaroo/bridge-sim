@@ -1,3 +1,6 @@
+"""
+Manipulate and sample A16 load distribution data.
+"""
 import os
 from functools import reduce
 
@@ -6,22 +9,16 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-A16_RAW_DATA = "../data/a16-data/A16.dat"
-A16_CSV_DATA = "../data/a16-data/a16.csv"
-
-COL_NAMES = [
-    "month", "day", "year", "hour", "min", "sec", "number", "lane", "type",
-    "speed", "length", "total_weight", "weight_per_axle", "axle_distance"
-]
+from config import Config
+from models import bridge_705_config
 
 
-def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
-                  columns=COL_NAMES, max_rows=10000):
+def raw_to_df_csv(c: Config, max_rows=10000):
     """Convert the raw A16 data to a csv written by Pandas."""
-    with open(in_filepath) as f:
+    with open(c.a16_raw_path) as f:
         rows = f.readlines()
-    df = pd.DataFrame(columns=columns)
-    part_filepath = lambda num: out_filepath.replace(".", f"{num}.")
+    df = pd.DataFrame(columns=c.a16_col_names)
+    part_filepath = lambda num: c.a16_csv_path.replace(".", f"{num}.")
     # After max rows, or last row reached, save to csv.
     file_number = 0
     for i, row in enumerate(rows):
@@ -40,10 +37,10 @@ def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
         if len(df) == max_rows or i == len(rows) - 1:
             df.to_csv(part_filepath(num))
             print(f"Saved {len(df)} rows to {part_filepath(num)}")
-            df = pd.DataFrame(columns=columns)
+            df = pd.DataFrame(columns=c.a16_col_names)
             file_number += 1
     # Merge all saved csv's into a single DataFrame.
-    df_merged = pd.DataFrame(columns=columns)
+    df_merged = pd.DataFrame(columns=c.a16_col_names)
     for num in range(file_number):
         df = pd.read_csv(part_filepath)
         df_merged = df_merged.append(df, sort=False, ignore_index=True)
@@ -52,14 +49,9 @@ def raw_to_df_csv(in_filepath=A16_RAW_DATA, out_filepath=A16_CSV_DATA,
     df_merged.to_csv(out_filepath)
     print(f"Generated file out_filepath")
     # Delete temporary files.
-    for num in range(file_number):
+    for num in range(c.a16_csv_path):
         os.remove(part_filepath(num))
         print(f"Deleted file {part_filepath(num)}")
-
-
-def read_a16(filepath=A16_CSV_DATA):
-    """Return the A16 csv file as a DataFrame."""
-    return pd.read_csv(filepath, usecols=COL_NAMES, index_col="number")
 
 
 def kde_sampler(data, print_=False):
@@ -105,8 +97,9 @@ def plot_hist_and_kde_per_type(df):
 
 
 if __name__ == "__main__":
-    # raw_to_df_csv()
-    df = read_a16()
+    c = bridge_705_config
+    # raw_to_df_csv(c)
+    df = c.a16_data()
     print(df.loc[:10, :"total_weight"])
     # plot_hist_and_kde(df["total_weight"], bins=100)
     plot_kde_and_kde_samples_hist(df["total_weight"])

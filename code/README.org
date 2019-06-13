@@ -2,29 +2,33 @@
 
 The files and what they do:
 
-*normal_load.py*
+*build_opensees_model.py*
 
-Convert A16 traffic data to a DataFrame and perform analysis.
+Build an OpenSees model of a bridge with given parameters.
+
+*influence_line.py*
+
+Generate an influence line by running multiple model simulations.
 
 *model.py*
 
 Generate parameters used for building a model of a bridge.
 
-*build_opensees_model.py*
-
-Build an opensees model of a bridge with given parameters.
-
 *model-template.tcl*
 
 Template OpenSees model file, filled in by /build_opensees_model.py/.
 
+*normal_load.py*
+
+Manipulate and sample A16 load distribution data.
+
+*normal_response.py*
+
+Generate a normal range of sensor responses.
+
 *run_opensees_model.py*
 
-Run an opensees model and parse the output.
-
-*influence_line.py*
-
-Generate an influence line by running multiple model simulations.
+Run an OpenSees model and parse the output.
 
 *util.py*
 
