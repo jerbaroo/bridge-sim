@@ -8,6 +8,7 @@
 
 * Tasks
 ** TODO Check if some sensors remain on bridge 705
+** TODO Paper: Department of water resources: Urban Levee Design Criteria
 ** TODO Setup bibtex
 ** TODO Start the literature review
 ** TODO Basic definitions
@@ -169,10 +170,11 @@
 *** TNO password
 *** Go over timeline
 *** How to interface with Diana
-** Next
+** June 13 with Arpi
 *** Which configuration parameters are OpenSees/Diana specific.
 *** Good method of generating normal responses from sensors.
 *** Influence line is only using data from first patch.
+    Depends on sensor placement. Sensor placement has physical limitations.
 *** Plan to start full time after first week of July.
 * Communications
 ** Diego
