@@ -75,7 +75,7 @@
 * Literature review
   This section contains a review of relevant literature studied during this
   thesis project.
-** Neural Clouds for Monitoring of Complex Systems
+** Neural Clouds for monitoring of complex systems
    # One-class classification.
    In one-class classification, a classifier attempts to identify objects of a
    single class among all objects by learning from a training set that consists
@@ -116,7 +116,7 @@
    classifier should be retrained in order to avoid a false alarm. However, if a
    NC classifier is continually being retrained with real-time data then it may
    not detect a gradual long-term change to the system.
-** Combining Data-driven Methods with Finite Element Analysis for Flood Early Warning Systems
+** Combining data-driven methods with finite element analysis for flood early warning systems
    # Introduction and why levee collapse.
    In this paper TODO:REF a system for real-time levee condition monitoring is
    presented based on a combination of data-driven methods and finite-element
