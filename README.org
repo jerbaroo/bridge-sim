@@ -1,6 +1,7 @@
 * MSc Thesis
 
-Written documents and the generated PDFs are found in /writing/.
+Written documents and the generated PDFs are found in /writing/, rendered thesis
+PDF [[./writing/thesis/thesis.pdf][here]].
 
 Collected data is found in /data/.
 

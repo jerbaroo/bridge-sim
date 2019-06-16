@@ -4,7 +4,7 @@ Build an OpenSees model file from a configuration.
 import numpy as np
 
 from config import Config
-from model import Fix, Load, Patch, Section
+from model import *
 from util import print_i
 
 
@@ -44,9 +44,13 @@ def opensees_sections(c: Config):
     def opensees_patch(p: Patch):
         return (f"patch rect {p.material.value} 1 {p.num_sub_div_z}"
                 + f" {p.p0.y} {p.p0.z} {p.p1.y} {p.p1.z}")
+    def opensees_layer(l: Layer):
+        return (f"layer straight {l.material.value} {l.num_fibers}"
+                + f" {l.area_fiber} {l.p0.y} {l.p0.z} {l.p1.y} {l.p1.z}")
     def opensees_section(s: Section):
         return (f"section Fiber {s.id} {{"
                 + "\n\t" + "\n\t".join(opensees_patch(p) for p in s.patches)
+                + "\n\t" + "\n\t".join(opensees_layer(l) for l in s.layers)
                 + "\n}")
     return "\n".join(opensees_section(s) for s in c.bridge.sections)
 

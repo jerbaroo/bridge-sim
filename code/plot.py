@@ -1,6 +1,7 @@
+from collections import OrderedDict
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 from matplotlib.animation import FuncAnimation
 
 from model import Bridge, Section
@@ -15,18 +16,31 @@ def plot_bridge(b: Bridge):
         "o", color="green")
 
 
-def plot_section(s: Section):
+def plot_section(s: Section, color="b", point_color="r"):
     """Plot the cross section of a bridge."""
     for p in s.patches:
-        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color="b")  # Bottom.
-        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color="b")  # Left.
-        plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color="b")  # Top.
-        plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color="b")  # Right.
+        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=color)  # Bottom.
+        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color=color)  # Left.
+        plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color=color)  # Top.
+        plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color=color,  # Right.
+                 label=p.material.name)
+        # TODO: Move patch center to Patch definition.
         dy = abs(p.p0.y - p.p1.y)
         dz = abs(p.p0.z - p.p1.z)
         point = (min(p.p0.y, p.p1.y) + (dy / 2),
                  min(p.p0.z, p.p1.z) + (dz / 2))
-        plt.plot(point[1], point[0], "ro")
+        # plt.plot(point[1], point[0], "o", color=color, label=p.material.name)
+    for l in s.layers:
+        dy = (l.p1.y - l.p0.y) / (l.num_fibers - 1)
+        dz = (l.p1.z - l.p0.z) / (l.num_fibers - 1)
+        y, z = l.p0.y, l.p0.z
+        for i in range(l.num_fibers):
+            plt.plot([z], [y], "o", color=point_color, label=l.material.name)
+            y += dy
+            z += dz
+    handles, labels = plt.gca().get_legend_handles_labels()
+    by_label = OrderedDict(zip(labels, handles))
+    plt.legend(by_label.values(), by_label.keys())
     plt.show()
 
 

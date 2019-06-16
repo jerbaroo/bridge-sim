@@ -321,6 +321,9 @@ uniaxialMaterial Steel01    2 3.4800000e+08  2.0000000e+11  0.0000000e+00
 section Fiber 1 {
 	patch rect 1 1 30 -0.2 -1.075 0 1.075
 	patch rect 1 1 30 -1.25 -0.25 -0.2 0.25
+	layer straight 2 16 0.00049 0.04 -1.035 0.04 0.21
+	layer straight 2 5 0.00049 -1.21 -0.21 -1.21 0.21
+	layer straight 2 6 0.00049 -1.16 -0.21 -1.16 0.21
 }
 
 element dispBeamColumn 1 1 2 5 1 1
@@ -627,7 +630,7 @@ element dispBeamColumn 300 300 301 5 1 1
 timeSeries Linear 1
 
 pattern Plain 1 1 {
-load 301 0 -50000.0 0
+load 34 0 -50000.0 0
 }
 
 system BandGeneral

@@ -61,7 +61,27 @@ class Patch():
         self.material = material
 
 
+class Layer():
+    """A straight line of fibers, used to describe a Section.
+
+    Args:
+        y_i, z_i: float, y and z-coordinates of first fiber in line.
+        y_j, z_j: float, y and z-coordinates of last fiber in line.
+        num_fibers: int, number of fibers along line.
+        area_fiber: float, area of each fiber.
+        material: Material, material of the fibers.
+    """
+    def __init__(self, y_i, z_i, y_j, z_j, num_fibers, area_fiber,
+                 material=Material.Steel):
+        self.p0 = Point(y=y_i, z=z_i)
+        self.p1 = Point(y=y_j, z=z_j)
+        self.num_fibers = num_fibers
+        self.area_fiber = area_fiber
+        self.material = material
+
+
 class Point():
+    """A point described as (x, y, z)."""
     def __init__(self, x=None, y=None, z=None):
         self.x = x
         self.y = y
@@ -69,9 +89,10 @@ class Point():
 
 
 class Section():
-    """A fiber section consisting of multiple patches."""
+    """A section composed of fibers."""
     next_id = 1
-    def __init__(self, patches):
+    def __init__(self, patches=[], layers=[]):
         self.id = Section.next_id
         Section.next_id += 1
         self.patches = patches
+        self.layers = layers
