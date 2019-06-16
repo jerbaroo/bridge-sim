@@ -1,6 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
 #+TITLE: Utilizing sensors for the purpose of building a decision support system for bridge maintenance
-#+LATEX_HEADER: \usepackage{parskip}
 
 * Introduction
    # Introduction of the research question/title.
@@ -90,19 +89,26 @@
    The Neural Clouds (NC) method presented in TODO:REF is a one-class classifier
    which provides a confidence measure of the condition of a complex system. In
    the NC algorithm we are dealing with measurements from a real object where
-   each measurement is considered as a point in n-dimensional space. First a
-   normalization procedure is applied to the data to avoid clustering problems
-   in the subsequent step. The data is then clustered and the centroids of the
-   clusters extracted. The centroids are then encapsulated with "Gaussian
+   each measurement is considered as a point in n-dimensional space.
+
+   # Normalization and clustering.
+   First a normalization procedure is applied to the data to avoid clustering
+   problems in the subsequent step. The data is then clustered and the centroids
+   of the clusters extracted. The centroids are then encapsulated with "Gaussian
    bells", and these Gaussian bells are normalized to avoid outliers in the
-   data. The summation of the Gaussian bells results in a height =h= for each
-   point =p= on the hyperplane of parameter values. The value of =h= at a point
-   =p= can be interpreted as the probability of the parameter values at =p=
-   falling within the normal conditions represented by the training data. In
-   comparison to other one-class classifiers, the NC method has an advantage in
-   condition monitoring in that it creates this unique plateau where height can
-   be interpreted as probability of the system condition. Figure TODO:FIG shows
-   this plateau in comparison with other one-class classifiers.
+   data.
+
+   # Height = probability.
+   The summation of the Gaussian bells results in a height =h= for each point
+   =p= on the hyperplane of parameter values. The value of =h= at a point =p=
+   can be interpreted as the probability of the parameter values at =p= falling
+   within the normal conditions represented by the training data.
+
+   # Comparison.
+   In comparison to other one-class classifiers, the NC method has an advantage
+   in condition monitoring in that it creates this unique plateau where height
+   can be interpreted as probability of the system condition. Figure TODO:FIG
+   shows this plateau in comparison with other one-class classifiers.
 
    # Limitations.
    It is important to note that when significant changes occur in the normal
@@ -187,7 +193,66 @@
    models the flooding dynamics, this information is sent to the decision
    support system to be made available to the decision maker.
 ** A clustering approach for structural health monitoring on bridges
-   # SSSB method on SHB. 
+   # Introduction. 
+   In this paper TODO:REF a clustering based approach is presented to group
+   substructures or joints with similar behaviour and to detect abnormal or
+   damaged ones. The presented approach is based on the simple idea that a
+   sensor located at a damaged substructure or joint will record responses that
+   are significantly different from sensors at undamaged points on the bridge.
+
+   # Collected data.
+   The approach was applied to data collected from 2,400 tri-axial
+   accelerometers installed on 800 jack arches on the Sydney Harbour Bridge. An
+   /event/ is defined as a time period in which a vehicle is driving across a
+   joint. A pre-set threshold is set to trigger the recording of the responses
+   by each sensor, each event is then represented by a vector of samples $X$.
+
+   # Normalisation.
+   Prior to performing any abnormality detection the data is preprocessed. First
+   each event data is transformed into a feature $V_i = |A_i| - |A_r|$ where
+   $A_i$ is the instantaneous acceleration at the $i$th sample and $A_r$ is the
+   "rest vector" or average of the first 100 samples. The event data is then
+   normalised as $X = \frac{V - \mu(V)}{\sigma(V)}$.
+   
+   # Outlier removal.
+   After normalisation of the event data, k-nearest neighbours is applied for
+   outlier removal. One might consider that outliers are useful in the detection
+   of abnormal conditions, since they represent abnormal responses. However if
+   outlying data per joint are removed, then a greater level of confidence can
+   be had when an abnormal condition is detected knowing that the result is not
+   based on any outliers. In this outlier removal step the sum of the energy in
+   time domain is calculated for event data as $E(X) = \sum_i |x_i|^2$. Then for
+   every iteration of k-nearest neighbours, the $k$ closest neighbours to the
+   mean of the enery of the joint's signals $\mu_{joint}$ is calculated.
+   
+   # Tranform and clustering metric.
+   The event data is then transformed from the time domain into a series of
+   frequencies using the Fast Fourier Transform (FFT), such that the original
+   vibration data is now represented as sequence that determines the importance
+   of each frequency component in the signal. After this transformation a
+   distance metric is calculated for each pair of event signals, this metric is
+   used for k-means clustering of the data for anomaly detection. The distance
+   metric used is the Euclidean distance: $dist(X, Y) = ||X - Y|| = \sqrt{\sum
+   (x_i - y_i)^2}$.
+   
+   # Event based clustering.
+   Two clustering methods were applied, event-based and joint-based. In the
+   event-based clustering experiment it was known beforehand that joint 4 was
+   damaged. All event data was clustered using k-means clustering with $K = 2$
+   which resulted in a big cluster containing 23,849 events and a smaller
+   cluster of 4662 events mostly located in joint 4, detecting the damaged
+   joint. In case there is no knowledge of abnormal behaviour then this method
+   can be used to separate outliers and obtain a profile of normal behaviour.
+   
+   # Joint-based clustering.
+   In joint-based clustering a pairwise map of distances is calculated between
+   joint representatives. A joint representative is calculated as the mean of
+   the values of all event data for a joint, after the outlier removal phase.
+   Two experiments were conducted. One experiment consisted only of 6 joints,
+   including the damaged joint 4. The clustering method detected the damaged
+   joint as can be seen in TODO:FIG. The second experiment was run on data from
+   71 joints. The resulting map can be seen in TODO:FIG which accuratley
+   detected the damaged joint 135.
 * Background material
   # Material without a specific paper e.g. FEM, bridges.
 * Condition classification
