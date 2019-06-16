@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Utilizing sensors to build a decision support system for bridge maintenance
+#+TITLE: Utilizing sensors for the purpose of building a decision support system for bridge maintenance
 #+LATEX_HEADER: \usepackage{parskip}
 
 * Introduction
@@ -107,9 +107,9 @@
    # Limitations.
    It is important to note that when significant changes occur in the normal
    state of the system, perhaps due to environmental changes, then the NC
-   classifier should be retrained in order to avoid a false alarm. On the
-   flip-side however, if a NC classifier is retrained with real-time data then
-   it may not detect a gradual long-term change to the system.
+   classifier should be retrained in order to avoid a false alarm. However, if a
+   NC classifier is continually being retrained with real-time data then it may
+   not detect a gradual long-term change to the system.
 ** Combining Data-driven Methods with Finite Element Analysis for Flood Early Warning Systems
    # Introduction and why levee collapse.
    In this paper TODO:REF a system for real-time levee condition monitoring is
@@ -186,7 +186,7 @@
    from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which
    models the flooding dynamics, this information is sent to the decision
    support system to be made available to the decision maker.
-** Similar Substructures on Sydney Harbour Bridge
+** A clustering approach for structural health monitoring on bridges
    # SSSB method on SHB. 
 * Background material
   # Material without a specific paper e.g. FEM, bridges.
