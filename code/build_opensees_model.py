@@ -65,22 +65,14 @@ def opensees_recorders(c: Config):
     recorders += f"\nrecorder Element -file {c.os_element_path}"
     recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
     recorders += " globalForce"
-    # Need a stress_strain recorder command for each patch.
+    # Record stress and strain for each patch.
     for p in c.bridge.sections[0].patches:
-        dy = abs(p.p0.y - p.p1.y)
-        dz = abs(p.p0.z - p.p1.z)
-        point = (min(p.p0.y, p.p1.y) + (dy / 2),
-                 min(p.p0.z, p.p1.z) + (dz / 2))
-        def assertBetween(a, b, c):
-            assert (a < c and c < b) or (b < c and c < a)
-        assertBetween(p.p0.y, p.p1.y, point[0])
-        assertBetween(p.p0.z, p.p1.z, point[1])
+        point = p.center()
         recorders += (f"\nrecorder Element -file"
                       + f" {c.os_stress_strain_path(p)}"
                       + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                      + " section 1 fiber"
-                      + f" {p.p0.y + (dy / 2)} {p.p0.z + (dz / 2)}"
-                      + " stressStrain")
+                      + f" section 1 fiber {point.y} {point.z} stressStrain")
+    # Record stress and strain for each fiber in a layer.
     return recorders
 
 

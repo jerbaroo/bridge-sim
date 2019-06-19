@@ -65,7 +65,7 @@ class ILMatrix():
         load_ind = int(np.interp(load_pos, [0, 1], [0, self.num_loads - 1]))
         sensor_ind = int(np.interp(
             sensor_pos, [0, 1], [0, self.num_sensors - 1]))
-        # The influence line value times the load factor.
+        # The influence line value * the load factor.
         return (self.responses[load_ind][fiber, time, sensor_ind]
                 * (load / c.il_unit_load))
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     num_loads = 10
     response_type = Response.Stress
 
-    # clean_generated(c)
+    clean_generated(c)
     il_matrix = ILMatrix.load(c, num_loads, response_type)
-    # il_matrix.plot()
-    il_matrix.plot_ils(at=4)
+    il_matrix.plot()
+    # il_matrix.plot_ils(at=4)

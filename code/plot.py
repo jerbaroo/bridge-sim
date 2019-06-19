@@ -24,21 +24,10 @@ def plot_section(s: Section, color="b", point_color="r"):
         plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color=color)  # Top.
         plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color=color,  # Right.
                  label=p.material.name)
-        # TODO: Move patch center calculation to Patch definition.
-        dy = abs(p.p0.y - p.p1.y)
-        dz = abs(p.p0.z - p.p1.z)
-        point = (min(p.p0.y, p.p1.y) + (dy / 2),
-                 min(p.p0.z, p.p1.z) + (dz / 2))
-        # plt.plot(point[1], point[0], "o", color=color, label=p.material.name)
     for l in s.layers:
-        # TODO: Move fibre point calculation to Layer definition.
-        dy = (l.p1.y - l.p0.y) / (l.num_fibers - 1)
-        dz = (l.p1.z - l.p0.z) / (l.num_fibers - 1)
-        y, z = l.p0.y, l.p0.z
-        for i in range(l.num_fibers):
-            plt.plot([z], [y], "o", color=point_color, label=l.material.name)
-            y += dy
-            z += dz
+        for point in l.points():
+            plt.plot([point.z], [point.y], "o", color=point_color,
+                     label=l.material.name)
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())

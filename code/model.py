@@ -67,6 +67,17 @@ class Patch():
         self.num_sub_div_z = num_sub_div_z
         self.material = material
 
+    def center(self):
+        dy = abs(self.p0.y - self.p1.y)
+        dz = abs(self.p0.z - self.p1.z)
+        point = Point(y=min(self.p0.y, self.p1.y) + (dy / 2),
+                      z=min(self.p0.z, self.p1.z) + (dz / 2))
+        def assertBetween(a, b, c):
+            assert (a < c and c < b) or (b < c and c < a)
+        assertBetween(self.p0.y, self.p1.y, point.y)
+        assertBetween(self.p0.z, self.p1.z, point.z)
+        return point
+
 
 class Layer():
     """A straight line of fibers, used to describe a Section.
@@ -85,6 +96,18 @@ class Layer():
         self.num_fibers = num_fibers
         self.area_fiber = area_fiber
         self.material = material
+
+    def points(self):
+        """The points respresenting each fiber."""
+        dy = (self.p1.y - self.p0.y) / (self.num_fibers - 1)
+        dz = (self.p1.z - self.p0.z) / (self.num_fibers - 1)
+        y, z = self.p0.y, self.p0.z
+        points = [Point(y=y, z=z)]
+        for i in range(self.num_fibers - 1):
+            y += dy
+            z += dz
+            points.append(Point(y=y, z=z))
+        return points
 
 
 class Point():
