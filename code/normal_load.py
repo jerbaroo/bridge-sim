@@ -13,9 +13,9 @@ from config import Config
 from models import bridge_705_config
 
 
-def raw_to_df_csv(c: Config, max_rows=10000):
+def raw_to_df_csv(c: Config, a16_raw_path, max_rows=10000):
     """Convert the raw A16 data to a csv written by Pandas."""
-    with open(c.a16_raw_path) as f:
+    with open(a16_raw_path) as f:
         rows = f.readlines()
     df = pd.DataFrame(columns=c.a16_col_names)
     part_filepath = lambda num: c.a16_csv_path.replace(".", f"{num}.")
@@ -98,9 +98,9 @@ def plot_hist_and_kde_per_type(df):
 
 if __name__ == "__main__":
     c = bridge_705_config
-    # raw_to_df_csv(c)
+    # raw_to_df_csv(c, "../data/a16-data/A16.dat")
     df = c.a16_data()
     print(df.loc[:10, :"total_weight"])
-    # plot_hist_and_kde(df["total_weight"], bins=100)
+    plot_hist_and_kde(df["total_weight"], bins=100)
     plot_kde_and_kde_samples_hist(df["total_weight"])
-    # plot_hist_and_kde_per_type(df)
+    plot_hist_and_kde_per_type(df)

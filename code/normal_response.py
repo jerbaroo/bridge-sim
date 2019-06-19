@@ -18,8 +18,7 @@ def from_static_load(c: Config, response_pos, print_=True):
     """
     sampler = kde_sampler(c.a16_data()["total_weight"], print_=print_)
     while True:
-        yield il_response(
-            c, response_pos, np.random.uniform(), next(sampler))
+        yield il_response(c, response_pos, np.random.uniform(), -next(sampler))
 
 
 if __name__ == "__main__":

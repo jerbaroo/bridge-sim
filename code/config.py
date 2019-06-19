@@ -1,22 +1,23 @@
 """
-Configuration object holding simulation parameters and data.
+Configuration object holding simulation parameters.
 """
 import numpy as np
 import pandas as pd
 
+from model import Load
+from util import param_path
+
 
 class Config():
-    """Simulation parameters and data.
+    """Simulation parameters.
 
-    Config parameters should only be modified directly after construction.
+    NOTE:
+        - the A16 data must have index column "number"
+        - the A16 data must have a weight column "total_weight"
+        - the A16 data must have a vehicle type column "type"
 
-    Args:
+    Attributes:
         bridge: description of a bridge.
-
-        TODO: Move to Bridge.
-        node_start: position on the x-axis of the first node.
-        TODO: Move to OpenSees.
-        node_step: distance between two nodes, or length of an element.
 
         # Influence line.
         il_mat_path_prefix: str, prefix of path to save/load the IL matrix.
@@ -24,9 +25,9 @@ class Config():
         il_unit_load: float, the value of load to place on the bridge.
         il_save_time: int, time index to read the response after loading.
         il_mat_path: str, path to save/load the IL matrix.
-        il_matrix: load the IL matrix into a numpy matrix.
 
         # OpenSees.
+        os_node_step: distance between two nodes, or length of an element.
         os_exe_path: str, path of the OpenSees executable.
         os_model_template_path: str, path of the model template file.
         os_built_model_path: str, path to save/load the built model.
@@ -36,31 +37,14 @@ class Config():
         os_stress_strain_path: str, path to save stress/strain recorder data.
 
         # A16 data.
-        a16_raw_path: str, path of the raw A16 load distribution data.
-        a16_csv_path: str, path of the CSV A16 load distribution data.
-        a16_col_names: [str], column names of the A16 load distribution data.
-
-    NOTE, some assumptions are made:
-      - the A16 data must have index column "number"
-      - the A16 data must have a weight column "total_weight"
+        a16_csv_path: str, path of the A16 CSV data.
+        a16_col_names: [str], column names of the A16 CSV data.
+        a16_data: the A16 data as a DataFrame, TODO: remove.
     """
     def __init__(self, bridge):
         self.bridge = bridge
 
-        # Nodes and elements.
-        self.node_start = 0
-        self.node_step = 0.2
-        def get_num_elems():
-            result = int(self.bridge.length / self.node_step)
-            assert result * self.node_step == self.bridge.length
-            return result
-        get_num_elems()
-        self.num_elems = get_num_elems
-        self.num_nodes = lambda: self.num_elems() + 1
-        self.node_ids = lambda: np.arange(1, self.num_nodes() + 1)
-        assert len(list(self.node_ids())) == self.num_nodes()
-        self.elem_ids = lambda: np.arange(1, self.num_elems() + 1)
-        assert len(list(self.elem_ids())) == self.num_elems()
+        self.images_dir = "generated/images"
 
         # Influence line.
         self.il_mat_path_prefix = "generated/il/il-matrix"
@@ -68,8 +52,9 @@ class Config():
         self.il_unit_load = -5e4
         self.il_save_time = 1
         def get_il_mat_path():
+            # param_path(self, "il", "il_mat_path_prefix", ["il_mat_path", "il_matrix"])
             return (f"{self.il_mat_path_prefix}-nl-{self.il_num_loads}"
-                    + f"-ns-{self.num_elems()}-l-{self.il_unit_load}"
+                    + f"-ns-{self.os_num_elems()}-l-{self.il_unit_load}"
                     + f"-t-{self.il_save_time}.npy")
         self.il_mat_path = get_il_mat_path
         self._il_matrix = None
@@ -80,6 +65,7 @@ class Config():
         self.il_matrix = get_il_matrix
 
         # OpenSees.
+        self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
         self.os_built_model_path = "generated/built-model.tcl"
@@ -90,8 +76,19 @@ class Config():
         self.os_stress_strain_path = (lambda patch:
             f"{self.os_stress_strain_path_prefix}-{patch.id}.out")
 
+        def os_get_num_elems():
+            result = int(self.bridge.length / self.os_node_step)
+            assert result * self.os_node_step == self.bridge.length
+            return result
+        os_get_num_elems()
+        self.os_num_elems = os_get_num_elems
+        self.os_num_nodes = lambda: self.os_num_elems() + 1
+        self.os_node_ids = lambda: np.arange(1, self.os_num_nodes() + 1)
+        assert len(list(self.os_node_ids())) == self.os_num_nodes()
+        self.os_elem_ids = lambda: np.arange(1, self.os_num_elems() + 1)
+        assert len(list(self.os_elem_ids())) == self.os_num_elems()
+
         # A16 data.
-        self.a16_raw_path = "../data/a16-data/A16.dat"
         self.a16_csv_path = "../data/a16-data/A16.csv"
         self.a16_col_names = [
             "month", "day", "year", "hour", "min", "sec", "number", "lane",
@@ -104,3 +101,6 @@ class Config():
                     usecols=self.a16_col_names, index_col="number")
             return self._a16_data
         self.a16_data = get_a16_data
+
+        # Testing.
+        self.test_settlement_loads = [Load(0.5, -5e4)]

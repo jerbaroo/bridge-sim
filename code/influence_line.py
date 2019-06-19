@@ -14,7 +14,7 @@ from run_opensees_model import run_opensees_model
 
 def gen_il_matrix(c: Config):
     """Generate a stress response matrix for each sensor/load position."""
-    matrix = np.empty(shape=(c.il_num_loads, c.num_elems()))
+    matrix = np.empty(shape=(c.il_num_loads, c.os_num_elems()))
     for i, load_position in enumerate(np.linspace(0, 1, c.il_num_loads)):
         build_opensees_model(c, loads=[Load(load_position, c.il_unit_load)])
         _x, _y, stress, _strain = run_opensees_model(c)
@@ -40,7 +40,7 @@ def plot_ils(c: Config, at=None):
 
 
 def il_response(c: Config, response_pos, load_pos, load):
-    """The response of a load at a position from an influence line matrix.
+    """The response to a load based on an influence line matrix.
 
     Args:
         response_pos: position of the returned response, in [0 1].
@@ -57,6 +57,7 @@ def il_response(c: Config, response_pos, load_pos, load):
 
 
 if __name__ == "__main__":
+    c = bridge_705_config
     gen_il_matrix(bridge_705_config)
     il_response(bridge_705_config, 0.5, 0.6, -5e6)
     plot_ils(bridge_705_config, at=4)
