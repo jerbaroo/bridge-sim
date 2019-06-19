@@ -1,11 +1,12 @@
 """
 Configuration object holding simulation parameters.
 """
+import os
+
 import numpy as np
 import pandas as pd
 
 from model import Load
-from util import param_path
 
 
 class Config():
@@ -18,6 +19,12 @@ class Config():
 
     Attributes:
         bridge: description of a bridge.
+        generated_dir: directory to save all generated files.
+        fig_dir: directory to save generated figures.
+
+        # A16 data.
+        a16_csv_path: str, path of the A16 CSV data.
+        a16_col_names: [str], column names of the A16 CSV data.
 
         # Influence line.
         il_mat_path_prefix: str, prefix of path to save/load the IL matrix.
@@ -35,44 +42,28 @@ class Config():
         os_x_path: str, path to save node x translation recorder data.
         os_y_path: str, path to save node y translation recorder data.
         os_stress_strain_path: str, path to save stress/strain recorder data.
-
-        # A16 data.
-        a16_csv_path: str, path of the A16 CSV data.
-        a16_col_names: [str], column names of the A16 CSV data.
-        a16_data: the A16 data as a DataFrame, TODO: remove.
     """
     def __init__(self, bridge):
         self.bridge = bridge
-
-        self.images_dir = "generated/images"
+        self.generated_dir = "generated/"
+        self.fig_dir = os.path.join(self.generated_dir, "images/")
 
         # Influence line.
-        self.il_mat_path_prefix = "generated/il/il-matrix"
-        self.il_num_loads = 10
+        self.il_mat_path_prefix = os.path.join(
+            self.generated_dir, "il/il-matrix")
         self.il_unit_load = -5e4
-        self.il_save_time = 1
-        def get_il_mat_path():
-            # param_path(self, "il", "il_mat_path_prefix", ["il_mat_path", "il_matrix"])
-            return (f"{self.il_mat_path_prefix}-nl-{self.il_num_loads}"
-                    + f"-ns-{self.os_num_elems()}-l-{self.il_unit_load}"
-                    + f"-t-{self.il_save_time}.npy")
-        self.il_mat_path = get_il_mat_path
-        self._il_matrix = None
-        def get_il_matrix():
-            if self._il_matrix is None:
-                self._il_matrix = np.load(self.il_mat_path())
-            return self._il_matrix
-        self.il_matrix = get_il_matrix
 
         # OpenSees.
         self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
-        self.os_built_model_path = "generated/built-model.tcl"
-        self.os_element_path = "generated/elem.out"
-        self.os_x_path = "generated/node-x.out"
-        self.os_y_path = "generated/node-y.out"
-        self.os_stress_strain_path_prefix = "generated/stress-strain"
+        self.os_built_model_path = os.path.join(
+            self.generated_dir, "built-model.tcl")
+        self.os_element_path = os.path.join(self.generated_dir, "elem.out")
+        self.os_x_path = os.path.join(self.generated_dir, "node-x.out")
+        self.os_y_path = os.path.join(self.generated_dir, "node-y.out")
+        self.os_stress_strain_path_prefix = os.path.join(
+            self.generated_dir, "stress-strain")
         self.os_stress_strain_path = (lambda patch:
             f"{self.os_stress_strain_path_prefix}-{patch.id}.out")
 
@@ -94,13 +85,3 @@ class Config():
             "month", "day", "year", "hour", "min", "sec", "number", "lane",
             "type", "speed", "length", "total_weight", "weight_per_axle",
             "axle_distance"]
-        self._a16_data = None
-        def get_a16_data():
-            if self._a16_data is None:
-                self._a16_data = pd.read_csv(self.a16_csv_path,
-                    usecols=self.a16_col_names, index_col="number")
-            return self._a16_data
-        self.a16_data = get_a16_data
-
-        # Testing.
-        self.test_settlement_loads = [Load(0.5, -5e4)]

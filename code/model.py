@@ -25,6 +25,13 @@ class Bridge():
         return np.interp(range(n), [0, n - 1], [0, self.length])
 
 
+class Response(Enum):
+    XTranslation = "xtrans"
+    YTranslation = "ytrans"
+    Stress = "stress"
+    Strain = "strain"
+
+
 class Fix():
     """A node fixed in some degrees of freedom."""
     def __init__(self, x_pos, x=False, y=False, rot=False):

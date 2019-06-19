@@ -13,6 +13,12 @@ from config import Config
 from models import bridge_705_config
 
 
+def a16_data(c: Config):
+    """Load the A16 data from disk."""
+    return pd.read_csv(
+        self.a16_csv_path, usecols=self.a16_col_names, index_col="number")
+
+
 def raw_to_df_csv(c: Config, a16_raw_path, max_rows=10000):
     """Convert the raw A16 data to a csv written by Pandas."""
     with open(a16_raw_path) as f:

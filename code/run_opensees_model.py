@@ -3,6 +3,7 @@ import subprocess
 import numpy as np
 
 from config import Config
+from model import *
 from util import print_i
 
 
@@ -27,7 +28,12 @@ def run_opensees_model(c: Config):
             for t in range(num_t)
         ])
     print_i("Parsed OpenSees recorded data")
-    return x, y, stress, strain
+    return {
+        Response.XTranslation: [x],
+        Response.YTranslation: [y],
+        Response.Stress: stress,
+        Response.Strain: strain
+    }
 
 
 def openSeesToNumpy(path):
