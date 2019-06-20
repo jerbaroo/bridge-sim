@@ -64,8 +64,6 @@ class Config():
         self.os_y_path = os.path.join(self.generated_dir, "node-y.out")
         self.os_stress_strain_path_prefix = os.path.join(
             self.generated_dir, "stress-strain")
-        self.os_stress_strain_path = (lambda patch:
-            f"{self.os_stress_strain_path_prefix}-{patch.id}.out")
 
         def os_get_num_elems():
             result = int(self.bridge.length / self.os_node_step)

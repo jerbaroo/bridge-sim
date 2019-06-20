@@ -68,6 +68,7 @@ class Patch():
         self.material = material
 
     def center(self):
+        """Point in the center of this patch."""
         dy = abs(self.p0.y - self.p1.y)
         dz = abs(self.p0.z - self.p1.z)
         point = Point(y=min(self.p0.y, self.p1.y) + (dy / 2),
@@ -89,8 +90,11 @@ class Layer():
         area_fiber: float, area of each fiber.
         material: Material, material of the fibers.
     """
+    next_id = 1
     def __init__(self, y_i, z_i, y_j, z_j, num_fibers, area_fiber,
                  material=Material.Steel):
+        self.id = Layer.next_id
+        Layer.next_id += 1
         self.p0 = Point(y=y_i, z=z_i)
         self.p1 = Point(y=y_j, z=z_j)
         self.num_fibers = num_fibers

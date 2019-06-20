@@ -124,7 +124,7 @@ if __name__ == "__main__":
     num_loads = 10
     response_type = Response.Stress
 
-    clean_generated(c)
+    # clean_generated(c)
     il_matrix = ILMatrix.load(c, num_loads, response_type)
     il_matrix.plot()
     # il_matrix.plot_ils(at=4)

@@ -55,6 +55,17 @@ def opensees_sections(c: Config):
     return "\n".join(opensees_section(s) for s in c.bridge.sections)
 
 
+def os_patch_path(c: Config, patch):
+    return f"{c.os_stress_strain_path_prefix}-{patch.id}.out"
+
+
+def os_layer_paths(c: Config, layer):
+    """A filepath for each point in the layer."""
+    for point in layer.points():
+        yield (f"{c.os_stress_strain_path_prefix}-{layer.id}"
+                + f"-{point.y:.5f}-{point.z:.5f}.out");
+
+
 def opensees_recorders(c: Config):
     """OpenSees recorder commands for a .tcl file."""
     recorders = ""
@@ -66,13 +77,20 @@ def opensees_recorders(c: Config):
     recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
     recorders += " globalForce"
     # Record stress and strain for each patch.
-    for p in c.bridge.sections[0].patches:
-        point = p.center()
+    for patch in c.bridge.sections[0].patches:
+        point = patch.center()
         recorders += (f"\nrecorder Element -file"
-                      + f" {c.os_stress_strain_path(p)}"
+                      + f" {os_patch_path(c, patch)}"
                       + " -ele " + " ".join(map(str, c.os_elem_ids()))
                       + f" section 1 fiber {point.y} {point.z} stressStrain")
     # Record stress and strain for each fiber in a layer.
+    for layer in c.bridge.sections[0].layers:
+        for (point, point_path) in zip(layer.points(),
+                                       os_layer_paths(c, layer)):
+            recorders += (f"\nrecorder Element -file"
+                        + f" {point_path}"
+                        + " -ele " + " ".join(map(str, c.os_elem_ids()))
+                        + f" section 1 fiber {point.y} {point.z} stressStrain")
     return recorders
 
 

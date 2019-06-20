@@ -1,10 +1,12 @@
+import itertools
 import subprocess
 
 import numpy as np
 
+from build_opensees_model import os_layer_paths, os_patch_path
 from config import Config
 from model import *
-from util import print_i
+from util import *
 
 
 def run_opensees_model(c: Config):
@@ -15,18 +17,22 @@ def run_opensees_model(c: Config):
     y = openSeesToNumpy(c.os_y_path)
     stress = []
     strain = []
-    for patch in c.bridge.sections[0].patches:
-        stress_strain = openSeesToNumpy(c.os_stress_strain_path(patch))
-        num_t = len(stress_strain)
-        num_measurements = len(stress_strain[0]) // 2
-        stress.append([
-            [stress_strain[t][i * 2] for i in range(num_measurements)]
-            for t in range(num_t)
-        ])
-        strain.append([
-            [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
-            for t in range(num_t)
-        ])
+    for section in c.bridge.sections:
+        patch_paths = [os_patch_path(c, patch) for patch in section.patches]
+        layer_paths = [os_layer_paths(c, layer) for layer in section.layers]
+        layer_paths = list(itertools.chain.from_iterable(layer_paths))
+        for path in patch_paths + layer_paths:
+            stress_strain = openSeesToNumpy(path)
+            num_t = len(stress_strain)
+            num_measurements = len(stress_strain[0]) // 2
+            stress.append([
+                [stress_strain[t][i * 2] for i in range(num_measurements)]
+                for t in range(num_t)
+            ])
+            strain.append([
+                [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
+                for t in range(num_t)
+            ])
     print_i("Parsed OpenSees recorded data")
     return {
         Response.XTranslation: [x],
