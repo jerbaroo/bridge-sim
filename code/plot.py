@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 
-from model import Bridge, Section
+from model import *
 
 
 def plot_bridge(b: Bridge):
@@ -47,29 +47,23 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
     animate_plot(len(x), plot_translation)
 
 
-def animate_stress_strain(stress_strain, stress=True, num_elems=300,
-                          node_step=0.2, spans=7):
-    """Show an animation of stress and strain."""
-    data = stress_data if stress else strain_data
-
-    def plot_stress_strain(t):
+def animate_bridge_response(bridge: Bridge, data):
+    """Show an animation of a bridge response over time."""
+    def plot_bridge_response(t):
         plt.ylim(top=np.amax(data), bottom=np.amin(data))
-        plt.plot(np.arange(0, num_elems * node_step, node_step), data[t],
-                 color="blue")
-        plot_bridge(num_elems=num_elems, node_step=node_step, spans=spans)
-
-    animate_plot(len(data), plot_stress_strain)
+        plt.plot(np.linspace(0, bridge.length, len(data[t])), data[t],
+                 color="b")
+        plot_bridge(bridge)
+    animate_plot(len(data), plot_bridge_response)
 
 
 def animate_plot(frames, f):
     """Show an animation with the function f plotting data."""
-
     def animate(t):
         """Plot at the given time index."""
         plt.cla()
         plt.title(f"time = {t}")
         f(t)
-
     f(0)
     ani = FuncAnimation(plt.gcf(), animate, frames, interval=1)
     plt.show()

@@ -30,7 +30,7 @@ def gen_il_matrix(c: Config, num_loads):
         responses[i] = simulation_responses
     for response_type in Response:
         print_i(response_type)
-        ILMatrix(c.bridge, response_type,
+        ILMatrix(c, response_type,
                  [np.array(responses[i][response_type])
                   for i in range(num_loads)]
         ).save(c)
@@ -47,22 +47,23 @@ class ILMatrix():
         max_time: int, maximum time index of each load position's simulation.
         responses: the matrix as indexed in the class header.
     """
-    def __init__(self, b, response_type: Response, responses):
-        self.b = b
+    def __init__(self, c: Config, response_type: Response, responses):
+        self.b = c.bridge
+        self.unit_load = c.il_unit_load
         self.response_type = response_type
         self.max_time = min([r.shape[1] for r in responses])
         self.responses = responses
         self.num_loads = len(responses)
         self.num_sensors = len(responses[0][0][0])
 
-    def response(self, sensor_pos, load_pos, load, fibre=0, time=0):
+    def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
         """The response at a position, to a load at a position.
 
         Args:
             sensor_pos: float, position of the response, in [0 1].
             load_pos: float, position of the load, in [0 1].
             load: float, value of the load.
-            fibre: int, index of the fibre.
+            fiber: int, index of the fiber.
             time: int, time index of the simulation.
         """
         # Determine load and sensor indices.
@@ -71,7 +72,7 @@ class ILMatrix():
             sensor_pos, [0, 1], [0, self.num_sensors - 1]))
         # The influence line value * the load factor.
         return (self.responses[load_ind][fiber, time, sensor_ind]
-                * (load / c.il_unit_load))
+                * (load / self.unit_load))
 
     def save(self, c: Config):
         path = il_matrix_path(c, len(self.responses), self.response_type)
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     num_loads = 10
     response_type = Response.YTranslation
 
-    # clean_generated(c)
+    clean_generated(c)
     il_matrix = ILMatrix.load(c, num_loads, response_type)
     il_matrix.plot()
     # il_matrix.plot_ils(at=4)

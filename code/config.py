@@ -51,7 +51,7 @@ class Config():
         # Influence line.
         self.il_mat_path_prefix = os.path.join(
             self.generated_dir, "il/il-matrix")
-        self.il_unit_load = -5e4
+        self.il_unit_load = -5e2
 
         # OpenSees.
         self.os_node_step = 0.2

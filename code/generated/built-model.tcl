@@ -630,7 +630,7 @@ element dispBeamColumn 300 300 301 5 1 1
 timeSeries Linear 1
 
 pattern Plain 1 1 {
-load 301 0 -50000.0 0
+load 301 0 -500.0 0
 }
 
 system BandGeneral

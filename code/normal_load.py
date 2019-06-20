@@ -16,7 +16,7 @@ from models import bridge_705_config
 def a16_data(c: Config):
     """Load the A16 data from disk."""
     return pd.read_csv(
-        self.a16_csv_path, usecols=self.a16_col_names, index_col="number")
+        c.a16_csv_path, usecols=c.a16_col_names, index_col="number")
 
 
 def raw_to_df_csv(c: Config, a16_raw_path, max_rows=10000):
