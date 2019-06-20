@@ -21,15 +21,19 @@ def il_matrix_path(c: Config, num_loads, response_type):
             + f"-l-{c.il_unit_load}-r-{response_type.name}.npy")
 
 
-def gen_il_matrix(c: Config, num_loads, response_type: Response):
+def gen_il_matrix(c: Config, num_loads):
     """Generate a response matrix for each sensor/load position."""
     responses = [0 for _ in range(num_loads)]
-    max_time = None  # The maximum time of a simulation
     for i, load_position in enumerate(np.linspace(0, 1, num_loads)):
         build_opensees_model(c, loads=[Load(load_position, c.il_unit_load)])
         simulation_responses = run_opensees_model(c)
-        responses[i] = np.array(simulation_responses[response_type])
-    ILMatrix(c.bridge, response_type, responses).save(c)
+        responses[i] = simulation_responses
+    for response_type in Response:
+        print_i(response_type)
+        ILMatrix(c.bridge, response_type,
+                 [np.array(responses[i][response_type])
+                  for i in range(num_loads)]
+        ).save(c)
 
 
 class ILMatrix():
@@ -79,7 +83,7 @@ class ILMatrix():
     def load(c: Config, num_loads, response_type: Response):
         path = il_matrix_path(c, num_loads, response_type)
         if (not os.path.exists(path)):
-            gen_il_matrix(c, num_loads, response_type)
+            gen_il_matrix(c, num_loads)
         with open(path, "rb") as f:
             return pickle.load(f)
 
@@ -95,7 +99,7 @@ class ILMatrix():
              for s in range(self.num_sensors)]
             for l in range(self.num_loads)
         ]
-        plt.imshow(matrix)
+        plt.imshow(matrix, aspect="auto")
         plt.ylabel("load")
         plt.xlabel("sensor")
         plt.show()
@@ -122,7 +126,7 @@ class ILMatrix():
 if __name__ == "__main__":
     c = bridge_705_config
     num_loads = 10
-    response_type = Response.Stress
+    response_type = Response.YTranslation
 
     # clean_generated(c)
     il_matrix = ILMatrix.load(c, num_loads, response_type)
