@@ -48,8 +48,8 @@ class Config():
         self.generated_dir = "generated/"
         self.fig_dir = os.path.join(self.generated_dir, "images/")
 
-        # Influence line.
-        self.il_mat_path_prefix = os.path.join(
+        # Responses & influence line.
+        self.fem_responses_path_prefix = os.path.join(
             self.generated_dir, "il/il-matrix")
         self.il_unit_load = -5e2
 

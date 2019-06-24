@@ -1,35 +1,44 @@
 """
 Parameters and responses of a FEM simulation.
 """
+import os
+import pickle
+
+import matplotlib.pyplot as plt
+
 from models import *
+from build_opensees_model import build_opensees_model
+from run_opensees_model import run_opensees_model
+from util import *
 
 
 class FEMParams():
-    """Parameters for running a FEM simulation.
+    """Parameters for running FEM simulations.
 
-    NOTE: Currently only static loads.
+    NOTE:
+      - Currently only static loads.
+      - A list of Load per simulation.
     """
-    def __init__(self, loads=[Load]):
+    def __init__(self, loads=[[Load]]):
         self.loads=loads
 
 
-def fem_responses_path(c: Config, f: FEMParams, response_type: Response):
+def fem_responses_path(c: Config, num_simulations, response_type: Response):
     """Path of the influence line matrix on disk."""
-    return (f"{c.fem_responses_path_prefix}-ns-{len(f.loads)}"
+    return (f"{c.fem_responses_path_prefix}-ns-{num_simulations}"
             + f"-l-{c.il_unit_load}-r-{response_type.name}.npy")
 
 
-def gen_fem_responses(c: Config, fs: [FEMParams]):
+def gen_fem_responses(c: Config, f: FEMParams):
     """Generate a response matrix for each set of parameters."""
-    responses = [0 for _ in range(len(fs))]
-    for i, fem_params in enumerate(fs):
-        build_opensees_model(c, loads=fem_params.loads)
+    responses = [0 for _ in range(len(f.loads))]
+    for i, loads in enumerate(f.loads):
+        build_opensees_model(c, loads=loads)
         responses[i] = run_opensees_model(c)
     for response_type in Response:
-        print_i(response_type)
         FEMResponses(
             response_type,
-            list(map(lambda r: r[response_type]), responses)
+            list(map(lambda r: np.array(r[response_type]), responses))
         ).save(c)
 
 
@@ -58,10 +67,10 @@ class FEMResponses():
         self.num_sensors = len(responses[0][0][0])
 
     @staticmethod
-    def load(c: Config, fs: [FEMParams], response_type: Response):
-        path = fem_responses_path(c, len(fs), response_type)
+    def load(c: Config, f: FEMParams, response_type: Response):
+        path = fem_responses_path(c, len(f.loads), response_type)
         if (not os.path.exists(path)):
-            gen_fem_responses(c, fs)
+            gen_fem_responses(c, f)
         with open(path, "rb") as f:
             return pickle.load(f)
 
@@ -81,7 +90,7 @@ class FEMResponses():
         matrix = [
             [self.responses[l][fibre, time, s]
              for s in range(self.num_sensors)]
-            for l in range(self.num_loads)
+            for l in range(self.num_simulations)
         ]
         plt.imshow(matrix, aspect="auto")
         plt.ylabel("load")

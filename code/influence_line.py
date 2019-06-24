@@ -1,33 +1,32 @@
 """
 Generate an influence line.
 """
-import pickle
-
 import matplotlib.pyplot as plt
 import numpy as np
 
-from build_opensees_model import build_opensees_model
 from config import Config
-from fem import FEMResponses, fem_responses_path
+from fem import FEMParams, FEMResponses
 from model import *
 from models import bridge_705_config
 from plot import plot_bridge
-from run_opensees_model import run_opensees_model
 from util import *
 
 
-class ILMatrix(FEMResponses):
-    """Indexed as [load position][fiber, time, sensor position]."""
-    def __init__(self, c: Config, response_type: Response, responses):
+class ILMatrix():
+    """FEM responses used for influence line calculation."""
+    def __init__(self, c: Config, response_type: Response, fem_responses:
+                 FEMResponses):
         self.b = c.bridge
         self.unit_load = c.il_unit_load
-        super().__init__(self, response_type, responses)
+        self.fem_responses = fem_responses
 
     @staticmethod
     def load(c: Config, num_loads, response_type: Response):
-        params = [FEMParams(Load(c.unit_load, load_pos))
-                  for load_pos in np.linspace(0, 1, num_loads)]
-        super(FEMResponses, FEMResponses).load(c, params, response_type)
+        params = FEMParams([[Load(load_pos, c.il_unit_load)]
+                           for load_pos in np.linspace(0, 1, num_loads)])
+        return ILMatrix(
+            c, response_type, FEMResponses.load(
+                c, params, response_type))
 
     def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
         """The response at a position, to a load at a position.
@@ -41,11 +40,11 @@ class ILMatrix(FEMResponses):
         """
         # Determine load and sensor indices.
         load_ind = int(np.interp(
-            load_pos, [0, 1], [0, self.num_simulations - 1]))
+            load_pos, [0, 1], [0, self.fem_responses.num_simulations - 1]))
         sensor_ind = int(np.interp(
-            sensor_pos, [0, 1], [0, self.num_sensors - 1]))
+            sensor_pos, [0, 1], [0, self.fem_responses.num_sensors - 1]))
         # The influence line value * the load factor.
-        return (self.responses[load_ind][fiber, time, sensor_ind]
+        return (self.fem_responses.responses[load_ind][fiber, time, sensor_ind]
                 * (load / self.unit_load))
 
     def plot_ils(self, at=None, fiber=0, time=0):
@@ -59,9 +58,9 @@ class ILMatrix(FEMResponses):
         load_indices = range(self.num_loads) if at is None else [at]
         for l in load_indices:
             plt.plot(
-                self.b.x_axis(self.num_sensors),
-                [self.responses[l][fiber, time, s]
-                 for s in range(self.num_sensors)]
+                self.b.x_axis(self.fem_responses.num_sensors),
+                [self.fem_responses.responses[l][fiber, time, s]
+                 for s in range(self.fem_responses.num_sensors)]
             )
             plot_bridge(c.bridge)
             plt.show()
@@ -69,10 +68,10 @@ class ILMatrix(FEMResponses):
 
 if __name__ == "__main__":
     c = bridge_705_config
-    num_loads = 10
+    num_loads = 4
     response_type = Response.Strain
 
     # clean_generated(c)
     il_matrix = ILMatrix.load(c, num_loads, response_type)
-    il_matrix.plot()
+    il_matrix.fem_responses.plot()
     # il_matrix.plot_ils(at=4)
