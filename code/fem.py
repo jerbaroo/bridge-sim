@@ -6,8 +6,8 @@ import pickle
 
 import matplotlib.pyplot as plt
 
-from models import *
 from build_opensees_model import build_opensees_model
+from models import *
 from run_opensees_model import run_opensees_model
 from util import *
 
