@@ -24,9 +24,8 @@ class ILMatrix():
     def load(c: Config, num_loads, response_type: Response):
         params = FEMParams([[Load(load_pos, c.il_unit_load)]
                            for load_pos in np.linspace(0, 1, num_loads)])
-        return ILMatrix(
-            c, response_type, FEMResponses.load(
-                c, params, response_type))
+        return ILMatrix(c, response_type, FEMResponses.load(
+            c, params, response_type))
 
     def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
         """The response at a position, to a load at a position.
@@ -68,7 +67,7 @@ class ILMatrix():
 
 if __name__ == "__main__":
     c = bridge_705_config
-    num_loads = 4
+    num_loads = 10
     response_type = Response.Strain
 
     # clean_generated(c)

@@ -44,6 +44,11 @@ def plot_normal_static_loads_1s_1t(c: Config, num_loads, response_pos,
     plt.show()
 
 
+def plot_stress_over_time(c: Config):
+    """Plot stress at a point over time."""
+    pass
+
+
 if __name__ == "__main__":
     c = bridge_705_config
     num_loads = 4
