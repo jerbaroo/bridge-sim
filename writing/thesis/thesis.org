@@ -1,5 +1,7 @@
 #+AUTHOR: Jeremy Barisch-Rooney
 #+TITLE: Utilizing sensors for the purpose of building a decision support system for bridge maintenance
+#+LATEX_HEADER: \usepackage[backend=bibtex,style=alphabetic,citestyle=authoryear]{biblatex}
+#+LATEX_HEADER: \addbibresource{thesis-bib-refs.bib}
 
 * Introduction
    # Introduction of the research question/title.
@@ -61,7 +63,7 @@
    introduced at a high-level, showing how the separate components interact. The
    components of the DSS are examined in detail, with a large focus on the
    condition classification model that determines if sensor measurements
-   represent an abnormal condition of the bridge. Since analysis is presented of
+   represent an abnormal condition of the bridge. An analysis is presented of
    which sensor types and what sensor placement is optimal for detecting such an
    abnormal condition. A finite element model is used to simulate sensor
    measurements in order to address the lack of available data. Due to the
@@ -73,8 +75,50 @@
    can be generalized to bridges other than bridge 705.
    
 * Literature review
-  This section contains a review of relevant literature studied during this
-  thesis project.
+  This section contains a review of the most relevant material studied during
+  this thesis. The aim of presenting a review of this material is to place this
+  thesis in context by describing related work, and to provide background
+  information on techniques that are employed in this thesis.
+** The application of machine learning to structural health monitoring
+   # Introduction.
+   cite:worden2006application illustrates the utility of a data-driven approach
+   to structural health monitoring (SHM) by a number of case studies. In
+   particular the paper focuses on pattern recognition and machine learning (ML)
+   algorithms that are applicable to damage identification problems.
+   
+   # Hierarchy of levels.
+   The question of /damage detection/ is simply to identify if a system has
+   departed from normal (i.e. undamaged) condition. The more sophisticated
+   problem of /damage identification/ seeks to determine a greater level of
+   information on the damage status, even to provide a forecase of the likely
+   outcome of a situation. The problem of detection and identification can be
+   considered as a hierarchy of levels as described in
+   cite:rytter1993vibrational.
+   - Level 1. (Detection) indication that damage might be present in the
+     structure.
+   - Level 2. (Localization) information about the probable position of the
+     damage.
+   - Level 3. (Assessment) an estimate of the extend of the damage.
+   - Level 4. (Prediction) information about the safety of the structure.
+   This paper argues that ML provides solutions to these problems at upto level
+   three, and that in general level four cannot be addressed by ML methods.
+   
+   # Waterfall model. (ML is only a step).
+   Applying ML for the purpose of SHM is usually only a single step in a broader
+   framework of analysis. Figure [[fig:waterfall-model]] shows the waterfall model
+   cite:bedworth2000omnibus which begins with sensing (when to record responses)
+   and ends with decision making. ML methods are only step four in this model.
+   An important part of this entire process is feature extraction, step three,
+   which can be regarded as a process of amplification, transforming the data to
+   keep only information that is useful for the ML analysis. Another aim of
+   feature extraction is to reuce the dimensionality of the data, as data
+   requirements grow explosively with the data dimensions, this is known as the
+   /curse of dimensionality/.
+   
+   #+CAPTION: The /waterfall/ model.
+   #+NAME: fig:waterfall-model
+   #+ATTR_LATEX: :width 150pt
+   [[../images/waterfall-model.png]]
 ** Neural Clouds for monitoring of complex systems
    # One-class classification.
    In one-class classification, a classifier attempts to identify objects of a
@@ -86,10 +130,11 @@
    occurred, is often not available or is difficult or expensive to obtain.
 
    # Neural Clouds algorithm.
-   The Neural Clouds (NC) method presented in TODO:REF is a one-class classifier
-   which provides a confidence measure of the condition of a complex system. In
-   the NC algorithm we are dealing with measurements from a real object where
-   each measurement is considered as a point in n-dimensional space.
+   The Neural Clouds (NC) method presented in cite:lang2008neural is a one-class
+   classifier which provides a confidence measure of the condition of a complex
+   system. In the NC algorithm we are dealing with measurements from a real
+   object where each measurement is considered as a point in n-dimensional
+   space.
 
    # Normalization and clustering.
    First a normalization procedure is applied to the data to avoid clustering
@@ -107,8 +152,13 @@
    # Comparison.
    In comparison to other one-class classifiers, the NC method has an advantage
    in condition monitoring in that it creates this unique plateau where height
-   can be interpreted as probability of the system condition. Figure TODO:FIG
-   shows this plateau in comparison with other one-class classifiers.
+   can be interpreted as probability of the system condition. Figure
+   [[fig:neural-clouds]] shows this plateau in comparison with other one-class
+   classifiers, Gaussian mixture and Parzen-window.
+   
+   #+CAPTION: Comparison of Neural Clouds with other approaches, namely Gaussian mixture and Parzen-window. At the left side 2D contour line plots are pictures and at the right normalized density 3D plots.
+   #+NAME: fig:neural-clouds
+   [[../images/neural-clouds.png]]
 
    # Limitations.
    It is important to note that when significant changes occur in the normal
@@ -118,8 +168,8 @@
    not detect a gradual long-term change to the system.
 ** Combining data-driven methods with finite element analysis for flood early warning systems
    # Introduction and why levee collapse.
-   In this paper TODO:REF a system for real-time levee condition monitoring is
-   presented based on a combination of data-driven methods and finite-element
+   In cite:pyayt2015combining a system for real-time levee condition monitoring
+   is presented based on a combination of data-driven methods and finite-element
    analysis. Levee monitoring allows for earlier warning signals incase of levee
    failure, compared to the current method of visual inspection. The problem
    with visual inspection is that when deformations are visiable at the surface
@@ -143,58 +193,53 @@
    In the first case the CM is used for data generation. Data is generated by
    the CM corresponding to normal and abnormal conditions. The normal behaviour
    data is used to train the AI and both the normal and abnormal behaviour data
-   can be used for testing the AI. In the second case shown in TODO:FIG the CM
-   is used for validation of the alarms generated by the AI. If the AI detects
-   abnormal behaviour then the CM is run to confirm the result. If the AI was
-   correct a warning is raised, else the new data point is used to retrain the
-   AI.
+   can be used for testing the AI. In the second case shown in Figure
+   [[fig:ai-and-cm]] the CM is used for validation of the alarms generated by the
+   AI. If the AI detects abnormal behaviour then the CM is run to confirm the
+   result. If the AI was correct a warning is raised, else the new data point is
+   used to retrain the AI.
+   
+   #+CAPTION: AI and CM...
+   #+NAME: fig:ai-and-cm
+   [[../images/ai-and-cm.png]]
    
    # Finite element analysis.
-   The paper includes a section which demonstrates the applicability of FEM for
-   prediction tasks. Real sensor values (collected from an experiment where a
-   constructed levee was intentionaly collapsed) are compared to virtual sensor
-   values generated by the CM. Figure TODO:REF it can be clearly seen how the
-   real and virtual sensor values deviate prior to collapse.
+   # The paper includes a section which demonstrates the applicability of FEM for
+   # prediction tasks. Real sensor values (collected from an experiment where a
+   # constructed levee was intentionaly collapsed) are compared to virtual sensor
+   # values generated by the CM. Figure TODO:REF it can be clearly seen how the
+   # real and virtual sensor values deviate prior to collapse.
 ** Flood early warning system: design, implementation and computational modules.
    # Decision support system.
-   In TODO:REF a prototype of an flood early warning system (EWS) is presented
-   as developed within the UrbanFlood FP7 project. This system monitors sensors
-   installed in flood defenses, detects sensor signal abnormalities, calculates
-   failure probability of the flood defense, and simulates failure scenarios.
-   All of this information is made available online as part of a DSS to help the
-   relevant figure of authority make an informed decision in case of emergency
-   or routine assessment.
+   In cite:krzhizhanovskaya2011flood a prototype of an flood early warning
+   system (EWS) is presented as developed within the UrbanFlood FP7 project.
+   This system monitors sensors installed in flood defenses, detects sensor
+   signal abnormalities, calculates failure probability of the flood defense,
+   and simulates failure scenarios. All of this information is made available
+   online as part of a DSS to help the relevant figure of authority make an
+   informed decision in case of emergency or routine assessment.
    
    # Relevant components of the EWS.
-   Some requirements are listed which must be taken into account in the design
-   of an EWS, these include:
-   - sensor equipment design, installation and technical maintenance
-   - sensor data transmission, filtering and analysis
-   - computational models and simulation components
-   - interactive visualization technologies
-   - remote access to the system
+   Some requirements that must be taken into account in the design of an EWS
+   include:
+   - Sensor equipment design, installation and technical maintenance.
+   - Sensor data transmission, filtering and analysis.
+   - Computational models and simulation components.
+   - Onteractive visualization technologies.
+   - Remote access to the system.
    Thus it is clear that the development of an EWS or DSS consists of much more
    than the development of the software components, but must also take into
    account the installation of hardware and the transmission of information
-   between components of the system.
-  
-   # Organization of the system.
-   The EWS consists of a number of interacting components. The /Sensor
-   Monitoring/ module receives data from the installed sensors which are then
-   filtered by the /AI Anomaly Detector/. In case an abnormality is detected the
-   /Reliability Analysis/ calculates the probability of failure. If the failure
-   probability is high then the /Breach Simulator/ predicts the dynamics of the
-   dike failure. The response which is calculated beginning with the /AI Anomaly
-   Detector/ and ending with the /Breaching Simulator/ is a fast response i.e.
-   the response is calculated quickly to be available to the decision maker
-   without delay. The /Virtual Dike/ module is additionaly available for the
-   purpose of simulation by expert users. The fast response and the response
-   from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which
-   models the flooding dynamics, this information is sent to the decision
-   support system to be made available to the decision maker.
+   between components of the system. These many interacting components are
+   shown in Figure [[fig:urbanflood-ews]] along with a description.
+   
+   #+CAPTION: The /Sensor Monitoring/ module receives data from the installed sensors which are then filtered by the /AI Anomaly Detector/. In case an abnormality is detected the /Reliability Analysis/ calculates the probability of failure. If the failure probability is high then the /Breach Simulator/ predicts the dynamics of the dike failure. A fast response is calculated beginning with the /AI Anomaly Detector/ and ending with the /Breaching Simulator/. The /Virtual Dike/ module is additionaly available for the purpose of simulation by expert users, but takes longer. The fast response and the response from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which models the flooding dynamics, this information is sent to the decision support system to be made available to the decision maker.
+   #+NAME: fig:urbanflood-ews
+   [[../images/urbanflood-ews.png]]
+   
 ** A clustering approach for structural health monitoring on bridges
    # Introduction. 
-   In this paper TODO:REF a clustering based approach is presented to group
+   In cite:diez2016clustering a clustering based approach is presented to group
    substructures or joints with similar behaviour and to detect abnormal or
    damaged ones. The presented approach is based on the simple idea that a
    sensor located at a damaged substructure or joint will record responses that
@@ -228,33 +273,68 @@
    # Tranform and clustering metric.
    The event data is then transformed from the time domain into a series of
    frequencies using the Fast Fourier Transform (FFT), such that the original
-   vibration data is now represented as sequence that determines the importance
-   of each frequency component in the signal. After this transformation a
-   distance metric is calculated for each pair of event signals, this metric is
-   used for k-means clustering of the data for anomaly detection. The distance
-   metric used is the Euclidean distance: $dist(X, Y) = ||X - Y|| = \sqrt{\sum
-   (x_i - y_i)^2}$.
+   vibration data is now represented as a sequence that determines the
+   importance of each frequency component in the signal. After this
+   transformation a distance metric is calculated for each pair of event
+   signals, this metric is used for k-means clustering of the data for anomaly
+   detection. The distance metric used is the Euclidean distance: $dist(X, Y)
+   = ||X - Y|| = \sqrt{\sum (x_i - y_i)^2}$.
    
    # Event based clustering.
    Two clustering methods were applied, event-based and joint-based. In the
    event-based clustering experiment it was known beforehand that joint 4 was
    damaged. All event data was clustered using k-means clustering with $K = 2$
    which resulted in a big cluster containing 23,849 events and a smaller
-   cluster of 4662 events mostly located in joint 4, detecting the damaged
-   joint. In case there is no knowledge of abnormal behaviour then this method
-   can be used to separate outliers and obtain a profile of normal behaviour.
+   cluster of 4662 events mostly located in joint 4. The percentage of events
+   per joint in the big cluster are shown in Figure [[fig:shb-joint4]] where joint 4
+   is clearly an outlier.
    
+   #+CAPTION: ...
+   #+NAME: fig:shb-joint4
+   [[../images/shb-joint4.png]]
+   
+   # Frequency profiles.
+   A frequency profile of both the big and small cluster are shown in Figures
+   [[fig:shb-cluster0-profile]] and [[fig:shb-cluster1-profile]]. In case there is no
+   knowledge of abnormal behaviour then this method can be used to separate
+   outliers and obtain a profile of normal behaviour. In this research on SHB
+   there was prior knowledge of a damaged joint. A frequency profile of an
+   arbitrary joint and the damaged joint before and after repair is shown in
+   Figure [[fig:shb-damaged-profile]]. The difference of the damaged profile to the
+   other two is clear, which indicates that there is sufficient information in
+   frequency information from accelerometers to detect abnormal joints.
+   
+   #+CAPTION: ...
+   #+NAME: fig:shb-cluster0-profile
+   [[../images/shb-cluster0-profile.png]]
+   
+   #+CAPTION: ...
+   #+NAME: fig:shb-cluster1-profile
+   [[../images/shb-cluster1-profile.png]]
+
+   #+CAPTION: ...
+   #+NAME: fig:shb-damaged-profile
+   [[../images/shb-damaged-profile.png]]   
+
    # Joint-based clustering.
    In joint-based clustering a pairwise map of distances is calculated between
-   joint representatives. A joint representative is calculated as the mean of
-   the values of all event data for a joint, after the outlier removal phase.
-   Two experiments were conducted. One experiment consisted only of 6 joints,
-   including the damaged joint 4. The clustering method detected the damaged
-   joint as can be seen in TODO:FIG. The second experiment was run on data from
-   71 joints. The resulting map can be seen in TODO:FIG which accuratley
-   detected the damaged joint 135.
-* Background material
-  # Material without a specific paper e.g. FEM, bridges.
+   each pair of joint representatives. A joint representative is calculated as
+   the mean of the values of all event data for one joint, after the outlier
+   removal phase. Two experiments were conducted. One experiment consisted only
+   of 6 joints, including the damaged joint 4. The clustering method detected
+   the damaged joint as can be seen in [[fig:shb-6-joint-map]]. The second
+   experiment was run on data from 71 joints. The resulting map can be seen in
+   [[fig:shb-71-joint-map]] which accurately detected the damaged joint 135. Damage
+   was also detected in joint 131 but this result was not verified.
+   
+   #+CAPTION: ...
+   #+NAME: fig:shb-6-joint-map
+   [[../images/shb-6-joint-map.png]]
+
+   #+CAPTION: ...
+   #+NAME: fig:shb-71-joint-map
+   [[../images/shb-71-joint-map.png]]
+
 * Condition classification
   # How the classification model is built and how it performs.
 ** Components
@@ -283,3 +363,5 @@
 ** Generalizing beyond bridge 705
    # What is required to move to another bridge.
 * Conclusion
+
+\printbibliography
