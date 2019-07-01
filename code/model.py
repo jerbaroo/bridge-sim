@@ -49,6 +49,9 @@ class Load():
         self.x_pos = x_pos
         self.weight = weight
 
+    def __str__(self):
+        return f"({self.x_pos}, {self.weight})"
+
 
 class Material(Enum):
     Concrete = 1

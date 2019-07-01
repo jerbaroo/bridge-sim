@@ -45,7 +45,7 @@ def raw_to_df_csv(c: Config, a16_raw_path, max_rows=10000):
             print(f"Saved {len(df)} rows to {part_filepath(num)}")
             df = pd.DataFrame(columns=c.a16_col_names)
             file_number += 1
-    # Merge all saved csv's into a single DataFrame.
+    # Merge all saved CSV's into a single DataFrame.
     df_merged = pd.DataFrame(columns=c.a16_col_names)
     for num in range(file_number):
         df = pd.read_csv(part_filepath)
@@ -105,7 +105,7 @@ def plot_hist_and_kde_per_type(df):
 if __name__ == "__main__":
     c = bridge_705_config
     # raw_to_df_csv(c, "../data/a16-data/A16.dat")
-    df = c.a16_data()
+    df = a16_data(c)
     print(df.loc[:10, :"total_weight"])
     plot_hist_and_kde(df["total_weight"], bins=100)
     plot_kde_and_kde_samples_hist(df["total_weight"])

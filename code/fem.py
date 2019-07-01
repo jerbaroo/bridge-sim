@@ -3,6 +3,7 @@ Parameters and responses of a FEM simulation.
 """
 import os
 import pickle
+from typing import Callable
 
 import matplotlib.pyplot as plt
 
@@ -13,26 +14,43 @@ from util import *
 
 
 class FEMParams():
-    """Parameters for running FEM simulations.
+    """Parameters for FEM simulations.
 
     NOTE:
       - Currently only static loads.
-      - A list of Load per simulation.
+
+    Attributes:
+        simulations: [[Load]], a list of Load per simulation.
     """
-    def __init__(self, loads=[[Load]]):
-        self.loads=loads
+    def __init__(self, simulations: [[Load]]=[]):
+        self.simulations=simulations
+
+    def id_str(self):
+        return "-".join(
+            f"[{lstr}]" for lstr in (
+                ",".join(str(l) for l in loads)
+                for loads in self.simulations))
 
 
-def fem_responses_path(c: Config, num_simulations, response_type: Response):
+class FEMRunner():
+    """Run FEM simulations and generate responses."""
+    def __init__(self, run: Callable[[Config, FEMParams], None], name: str):
+        self.run = run
+        self.name = name
+
+
+def fem_responses_path(c: Config, num_simulations, response_type: Response,
+                       runner: FEMRunner):
     """Path of the influence line matrix on disk."""
-    return (f"{c.fem_responses_path_prefix}-ns-{num_simulations}"
-            + f"-l-{c.il_unit_load}-r-{response_type.name}.npy")
+    return (f"{c.fem_responses_path_prefix}-pa-{num_simulations}"
+            + f"-ul-{c.il_unit_load}-rt-{response_type.name}"
+            + f"-ru-{runner.name}.npy")
 
 
-def gen_fem_responses(c: Config, f: FEMParams):
-    """Generate a response matrix for each set of parameters."""
-    responses = [0 for _ in range(len(f.loads))]
-    for i, loads in enumerate(f.loads):
+def _os_runner(c: Config, f: FEMParams):
+    """Generate a FEMResponses for each FEMParams for each ResponseType."""
+    responses = [0 for _ in range(len(f.simulations))]
+    for i, loads in enumerate(f.simulations):
         build_opensees_model(c, loads=loads)
         responses[i] = run_opensees_model(c)
     for response_type in Response:
@@ -42,16 +60,20 @@ def gen_fem_responses(c: Config, f: FEMParams):
         ).save(c)
 
 
-class FEMResponses():
-    """Indexed as [simulation no.][fiber, time, sensor position].
+os_runner = FEMRunner(_os_runner, "OpenSees")
 
-    For a simulation, the responses of type R in a fiber F at time T.
+
+class FEMResponses():
+    """Indexed as [simulation][fiber, time, sensor].
+
+    THe responses of some sensor type for a number of simulations.
 
     NOTE:
-      - Time may vary per experiment.
+      - Time may vary per simulation.
       - Translation is for only one fiber.
 
     Attrs:
+        params: FEMParams, used to generate these responses.
         response_type: Response, type of the response.
         max_time: int, maximum time index of each load position's simulation.
         responses: the matrix as indexed in the class header.
@@ -59,7 +81,7 @@ class FEMResponses():
         num_sensors: int, number of sensors.
 
     """
-    def __init__(self, response_type: Response, responses):
+    def __init__(self, params: FEMParams, response_type: Response, responses):
         self.response_type = response_type
         self.max_time = min([r.shape[1] for r in responses])
         self.responses = responses
@@ -67,10 +89,11 @@ class FEMResponses():
         self.num_sensors = len(responses[0][0][0])
 
     @staticmethod
-    def load(c: Config, f: FEMParams, response_type: Response):
-        path = fem_responses_path(c, len(f.loads), response_type)
+    def load(c: Config, f: FEMParams, response_type: Response,
+             runner: FEMRunner=os_runner):
+        path = fem_responses_path(c, f, response_type, runner)
         if (not os.path.exists(path)):
-            gen_fem_responses(c, f)
+            runner.run(c, f)
         with open(path, "rb") as f:
             return pickle.load(f)
 
@@ -96,3 +119,9 @@ class FEMResponses():
         plt.ylabel("load")
         plt.xlabel("sensor")
         plt.show()
+
+
+if __name__ == "__main__":
+    fem_params = FEMParams(
+        simulations=[[Load(0.5, 5e3), Load(0.2, 5e1)], [Load(0.6, 5e2)]])
+    print(fem_params.id_str())
