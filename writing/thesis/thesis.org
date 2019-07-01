@@ -76,9 +76,9 @@
    
 * Literature review
   This section contains a review of the most relevant material studied during
-  this thesis. The aim of presenting a review of this material is to place this
-  thesis in context by describing related work, and to provide background
-  information on techniques that are employed in this thesis.
+  this thesis work. The aim of presenting a review of this material is to place
+  this thesis in context by describing related work, and to provide background
+  information to the reader on techniques that are employed in this thesis.
 ** The application of machine learning to structural health monitoring
    # Introduction.
    cite:worden2006application illustrates the utility of a data-driven approach
@@ -90,7 +90,7 @@
    The question of /damage detection/ is simply to identify if a system has
    departed from normal (i.e. undamaged) condition. The more sophisticated
    problem of /damage identification/ seeks to determine a greater level of
-   information on the damage status, even to provide a forecase of the likely
+   information on the damage status, even to provide a forecast of the likely
    outcome of a situation. The problem of detection and identification can be
    considered as a hierarchy of levels as described in
    cite:rytter1993vibrational.
@@ -101,7 +101,7 @@
    - Level 3. (Assessment) an estimate of the extend of the damage.
    - Level 4. (Prediction) information about the safety of the structure.
    This paper argues that ML provides solutions to these problems at upto level
-   three, and that in general level four cannot be addressed by ML methods.
+   3, and that in general level 4 cannot be addressed by ML methods.
    
    # Waterfall model. (ML is only a step).
    Applying ML for the purpose of SHM is usually only a single step in a broader
@@ -111,14 +111,55 @@
    An important part of this entire process is feature extraction, step three,
    which can be regarded as a process of amplification, transforming the data to
    keep only information that is useful for the ML analysis. Another aim of
-   feature extraction is to reuce the dimensionality of the data, as data
-   requirements grow explosively with the data dimensions, this is known as the
-   /curse of dimensionality/.
+   feature extraction is to reduce the dimensionality of the data, to avoid the
+   explosive growth of the data requirements for training with the data
+   dimensions, known as the /curse of dimensionality/ TODO:REF.
    
    #+CAPTION: The /waterfall/ model.
    #+NAME: fig:waterfall-model
    #+ATTR_LATEX: :width 150pt
    [[../images/waterfall-model.png]]
+   
+   # Experiment setup and features.
+   An experiment was setup to identify damage on the wing of a Gnat artefact.
+   Damage scenarios for testing were created by making a number of cuts into
+   copies of the wing panel. Transmissibility between two points was chosen as a
+   measurement based on success in a previous study TODO:REF, it is the ratio of
+   the acceleration spectra between two points $A_j(\omega)/A_i(\omega)$. This
+   was measured for two pairs of perpendicular points on each wing; in the
+   frequency range 1-2kHz, which was found to be sensitive to the type of damage
+   investigated. The measurements were transformed into features for novelty
+   detection by manual investigation of 128-average transmissibilities from the
+   faulted and unfaulted panels, selecting for each feature a range of spectral
+   lines as shown in TODO:FIG. 18 features were chosen.
+
+   # Damage detection.
+   To address the first level of Rytter's hierarchy, damage detection, an
+   outlier analysis was applied. This outlier analysis calculates a distance
+   measure (the squared Mahalanobis distance) for each testing observation from
+   the training set. 4 of the 18 features could detect some of the damaged
+   scenarios and could detect all of the unfaulted scenarios, other features
+   produced false positives and were discarded. Two combined features managed to
+   detect all damage types and raised no false positives.
+   
+   # Damage location.
+   The second level of Rytter's hierarchy is damage localization. This problem
+   can be approached as a regression problem, however here it is based on the
+   classification work done for damage detection where transmissibilities are
+   used to determine damage classes for each panel. A vector of damage indices
+   for each of the panels is given as input to a multi-layer perceptron (MLP)
+   which is trained to select the damaged panel. The paper argues that "it may
+   be sufficient to classify which skin panel is damged rather than give a more
+   precise damage location. It is likely that, by lowering expectations, a more
+   robust damage locator will be the result". This approach has an accuracy of
+   86.5%, the main errors were from two pairs of adjacent panels, whose damage
+   detectors would fire when either of the panels were removed. The approach
+   depends on the fact that damage is local to some degree, and the damage
+   detectors don't fire in all cases, which was true in this case.
+
+   # Damage assessment.
+   , the assessment was based on the previous detection technique.
+   
 ** Neural Clouds for monitoring of complex systems
    # One-class classification.
    In one-class classification, a classifier attempts to identify objects of a
@@ -334,7 +375,7 @@
    #+CAPTION: ...
    #+NAME: fig:shb-71-joint-map
    [[../images/shb-71-joint-map.png]]
-
+   
 * Condition classification
   # How the classification model is built and how it performs.
 ** Components
