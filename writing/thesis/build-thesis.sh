@@ -11,6 +11,7 @@ rm_byproducts() {
     rm *.blg
     rm *blx.bib
     rm *.log
+    rm *.out
     rm *.tex
     rm *.toc
     rm *.run.xml
