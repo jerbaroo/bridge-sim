@@ -94,7 +94,7 @@ def opensees_recorders(c: Config):
     return recorders
 
 
-def build_opensees_model(c: Config, loads=[]):
+def build_model(c: Config, loads=[]):
     """Build a .tcl file based on the given configuration."""
     print_i(f"Generating model file with"
             + f"\n\t{c.os_num_elems()} elements"

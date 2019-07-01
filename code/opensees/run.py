@@ -9,7 +9,7 @@ from model import *
 from util import *
 
 
-def run_opensees_model(c: Config):
+def run_model(c: Config):
     """Run an OpenSees model and return the recorded results."""
     print_i(f"Running OpenSees with {c.os_built_model_path}")
     subprocess.run([c.os_exe_path, c.os_built_model_path])
