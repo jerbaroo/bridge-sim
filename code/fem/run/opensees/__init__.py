@@ -1,3 +1,4 @@
+"""Run FEM simulations with OpenSees."""
 import numpy as np
 
 from config import Config

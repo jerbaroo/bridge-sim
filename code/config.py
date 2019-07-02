@@ -1,6 +1,4 @@
-"""
-Configuration object holding simulation parameters.
-"""
+"""Configuration object holding simulation parameters."""
 import os
 
 import numpy as np
@@ -13,9 +11,10 @@ class Config():
     """Simulation parameters.
 
     NOTE:
-        - the A16 data must have index column "number"
-        - the A16 data must have a weight column "total_weight"
-        - the A16 data must have a vehicle type column "type"
+        - Paths are relative to this file.
+        - The A16 data must have index column "number".
+        - The A16 data must have a weight column "total_weight".
+        - The A16 data must have a vehicle type column "type".
 
     Attributes:
         bridge: description of a bridge.
@@ -41,6 +40,13 @@ class Config():
         os_y_path: str, path to save node y translation recorder data.
         os_stress_strain_path_prefix: str, prefix of the path to save
             stress/strain recorder data.
+
+        # Diana.
+        di_exe_path: str, path of the Diana executable.
+        di_model_path: str, path of the Diana model file.
+        di_cmd_path: str, path of the Diana command file.
+        di_out_path: str, path of the Diana output file.
+        di_filos_path: str, path of the Diana filos file.
 
     """
     def __init__(self, bridge):
@@ -91,6 +97,13 @@ class Config():
         assert len(list(self.os_node_ids())) == self.os_num_nodes()
         self.os_elem_ids = lambda: np.arange(1, self.os_num_elems() + 1)
         assert len(list(self.os_elem_ids())) == self.os_num_elems()
+
+        # Diana.
+        self.di_exe_path = "c:/Program Files/Diana 10.3/bin/diana.exe"
+        self.di_model_path = "diana-705.dat"
+        self.di_cmd_path = "diana-cmd.dcf"
+        self.di_out_path = "diana-out.out"
+        self.di_filos_path = "diana.ff"
 
 
 bridge_705_config = Config(bridge_705)

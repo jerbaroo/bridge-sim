@@ -3,6 +3,7 @@ Parameters for FEM simulations.
 """
 from model import *
 
+
 class FEMParams():
     """Parameters for FEM simulations.
 
@@ -15,7 +16,7 @@ class FEMParams():
     def __init__(self, simulations: [[Load]]=[]):
         self.simulations=simulations
 
-    def id_str(self):
+    def __str__(self):
         return "-".join(
             f"[{lstr}]" for lstr in (
                 ",".join(str(l) for l in loads)
