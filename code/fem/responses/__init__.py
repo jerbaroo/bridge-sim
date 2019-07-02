@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from fem.params import FEMParams
 from fem.run import FEMRunner
-from models import *
+from model import *
 from util import *
 
 

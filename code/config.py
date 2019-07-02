@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from model import Load
+from model import bridge_705, Load
 
 
 class Config():
@@ -82,3 +82,6 @@ class Config():
         assert len(list(self.os_node_ids())) == self.os_num_nodes()
         self.os_elem_ids = lambda: np.arange(1, self.os_num_elems() + 1)
         assert len(list(self.os_elem_ids())) == self.os_num_elems()
+
+
+bridge_705_config = Config(bridge_705)

@@ -4,13 +4,12 @@ Generate an influence line.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import Config
+from config import bridge_705_config, Config
 from fem.params import FEMParams
 from fem.responses import FEMResponses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
-from models import bridge_705_config
 from plot import plot_bridge
 from util import *
 
