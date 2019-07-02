@@ -1,4 +1,4 @@
-* MSc Thesis
+* MSc Thesis [[https://circleci.com/gh/barischrooneyj/msc-uva-tno.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
 
 Written documents and the generated PDFs are found in /writing/, rendered thesis
 PDF [[./writing/thesis/thesis.pdf][here]].
