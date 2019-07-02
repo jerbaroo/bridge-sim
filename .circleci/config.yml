@@ -36,6 +36,7 @@ jobs:
           command: |
             pipenv shell
             ./test.sh
+            exit
 
       - store_artifacts:
           path: test-reports
