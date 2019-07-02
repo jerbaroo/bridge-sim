@@ -23,9 +23,9 @@ class ILMatrix():
         self.fem_responses = fem_responses
 
     @staticmethod
-    def load(c: Config, num_loads, response_type: Response, runner: FEMRunner):
+    def load(c: Config, response_type: Response, runner: FEMRunner):
         params = FEMParams([[Load(load_pos, c.il_unit_load)]
-                           for load_pos in np.linspace(0, 1, num_loads)])
+                           for load_pos in np.linspace(0, 1, c.il_num_loads)])
         return ILMatrix(c, response_type, FEMResponses.load(
             c, params, response_type, runner))
 
@@ -69,10 +69,9 @@ class ILMatrix():
 
 if __name__ == "__main__":
     c = bridge_705_config
-    num_loads = 4
     response_type = Response.Strain
 
     # clean_generated(c)
-    il_matrix = ILMatrix.load(c, num_loads, response_type, os_runner)
+    il_matrix = ILMatrix.load(c, response_type, os_runner)
     il_matrix.fem_responses.plot()
     # il_matrix.plot_ils(at=4)
