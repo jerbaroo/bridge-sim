@@ -1,6 +1,4 @@
-"""
-Sensor responses from a FEM simulation.
-"""
+"""Sensor responses from a FEM simulation."""
 import os
 import pickle
 from typing import Callable
@@ -16,7 +14,7 @@ from util import *
 def fem_responses_path(c: Config, fem_params: FEMParams,
                        response_type: Response, runner_name: str):
     """Path of the influence line matrix on disk."""
-    return (f"{c.fem_responses_path_prefix}-pa-{fem_params.id_str()}"
+    return (f"{c.fem_responses_path_prefix}-pa-{fem_params}"
             + f"-ul-{c.il_unit_load}-rt-{response_type.name}"
             + f"-ru-{runner_name}.npy")
 
@@ -24,7 +22,7 @@ def fem_responses_path(c: Config, fem_params: FEMParams,
 class FEMResponses():
     """Indexed as [simulation][fiber, time, sensor].
 
-    THe responses of one sensor type for a number of simulations.
+    The responses of one sensor type for a number of simulations.
 
     NOTE:
       - Time may vary per simulation.
@@ -45,9 +43,13 @@ class FEMResponses():
         self.runner_name = runner_name
         self.response_type = response_type
         self.responses = list(map(np.array, responses))
-        self.max_time = min([r.shape[1] for r in self.responses])
         self.num_simulations = len(self.responses)
-        self.num_sensors = len(self.responses[0][0][0])
+        try:
+            self.max_time = min([r.shape[1] for r in self.responses])
+            self.num_sensors = len(self.responses[0][0][0])
+        except:
+            self.max_time = 0
+            self.num_sensors = 0
 
     @staticmethod
     def load(c: Config, fem_params: FEMParams, response_type: Response,

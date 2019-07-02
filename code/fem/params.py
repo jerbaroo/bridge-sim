@@ -26,4 +26,4 @@ class FEMParams():
 if __name__ == "__main__":
     fem_params = FEMParams(
         simulations=[[Load(0.5, 5e3), Load(0.2, 5e1)], [Load(0.6, 5e2)]])
-    print(fem_params.id_str())
+    print(fem_params)
