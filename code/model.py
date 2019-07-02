@@ -50,7 +50,7 @@ class Load():
         self.weight = weight
 
     def __str__(self):
-        return f"({self.x_pos}, {self.weight})"
+        return f"({self.x_pos:.2f}, {self.weight:.2f})"
 
 
 class Material(Enum):

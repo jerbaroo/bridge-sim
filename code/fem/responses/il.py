@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from config import Config
-from fem import FEMParams, FEMResponses
+from fem.params import FEMParams
+from fem.responses import FEMResponses
+from fem.run import FEMRunner
+from fem.run.opensees import os_runner
 from model import *
 from models import bridge_705_config
 from plot import plot_bridge
@@ -21,11 +24,11 @@ class ILMatrix():
         self.fem_responses = fem_responses
 
     @staticmethod
-    def load(c: Config, num_loads, response_type: Response):
+    def load(c: Config, num_loads, response_type: Response, runner: FEMRunner):
         params = FEMParams([[Load(load_pos, c.il_unit_load)]
                            for load_pos in np.linspace(0, 1, num_loads)])
         return ILMatrix(c, response_type, FEMResponses.load(
-            c, params, response_type))
+            c, params, response_type, runner))
 
     def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
         """The response at a position, to a load at a position.
@@ -67,10 +70,10 @@ class ILMatrix():
 
 if __name__ == "__main__":
     c = bridge_705_config
-    num_loads = 10
+    num_loads = 4
     response_type = Response.Strain
 
     # clean_generated(c)
-    il_matrix = ILMatrix.load(c, num_loads, response_type)
+    il_matrix = ILMatrix.load(c, num_loads, response_type, os_runner)
     il_matrix.fem_responses.plot()
     # il_matrix.plot_ils(at=4)

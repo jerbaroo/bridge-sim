@@ -12,6 +12,7 @@ numpy = "*"
 scipy = "*"
 termcolor = "*"
 pandas = "*"
+dss = {editable = true,path = "./code"}
 
 [requires]
 python_version = "3.7"

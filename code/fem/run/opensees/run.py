@@ -3,8 +3,8 @@ import subprocess
 
 import numpy as np
 
-from build_opensees_model import os_layer_paths, os_patch_path
 from config import Config
+from fem.run.opensees.build import os_layer_paths, os_patch_path
 from model import *
 from util import *
 

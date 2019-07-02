@@ -2,7 +2,6 @@
 Manipulate and sample A16 load distribution data.
 """
 import os
-from functools import reduce
 
 import matplotlib.pyplot as plt
 import numpy as np
