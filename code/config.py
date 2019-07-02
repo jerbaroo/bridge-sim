@@ -21,7 +21,7 @@ class Config():
         bridge: description of a bridge.
         generated_dir: str, directory where to save all generated files.
         fig_dir: str, directory where to save generated figures.
-    
+
         # A16 data.
         a16_csv_path: str, path of the A16 CSV data.
         a16_col_names: [str], column names of the A16 CSV data.
@@ -29,6 +29,7 @@ class Config():
         # Responses & influence line.
         fem_responses_path_prefix: str, prefix of path to save/load responses.
         il_unit_load: float, unit load to place on the bridge.
+        il_num_loads: int, number of loads/simulations to generate the IL.
 
         # OpenSees.
         os_node_step: float, distance between two nodes (element length).
@@ -65,6 +66,7 @@ class Config():
         self.fem_responses_path_prefix = os.path.join(
             self.generated_dir, "responses/responses")
         self.il_unit_load = 1e2
+        self.il_num_loads = 3
 
         # OpenSees.
         self.os_node_step = 0.2

@@ -33,10 +33,7 @@ jobs:
 
       - run:
           name: run tests
-          command: |
-            pipenv shell
-            ./test.sh
-            exit
+          command: pipenv run bash test.sh
 
       - store_artifacts:
           path: test-reports

@@ -8,7 +8,6 @@ from model import *
 
 if __name__ == "__main__":
     c = bridge_705_config
-    num_loads = 3
     at_load = 1
     at_fiber = 0
     response_type = Response.Stress
