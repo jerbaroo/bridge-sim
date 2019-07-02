@@ -44,8 +44,15 @@ class Config():
     """
     def __init__(self, bridge):
         self.bridge = bridge
-        self.generated_dir = "generated/"
-        self.fig_dir = os.path.join(self.generated_dir, "images/")
+
+        __dir__ = os.path.dirname(os.path.realpath(__file__))
+        self.generated_dir = os.path.normpath(
+            os.path.join(__dir__, "generated/"))
+        self.images_dir = os.path.normpath(
+            os.path.join(self.generated_dir, "images/"))
+        for directory in [self.generated_dir, self.images_dir]:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
 
         # A16 data.
         self.a16_csv_path = "../data/a16-data/A16.csv"
