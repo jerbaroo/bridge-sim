@@ -52,11 +52,8 @@ class Config():
     def __init__(self, bridge):
         self.bridge = bridge
 
-        __dir__ = os.path.dirname(os.path.realpath(__file__))
-        self.generated_dir = os.path.normpath(
-            os.path.join(__dir__, "generated/"))
-        self.images_dir = os.path.normpath(
-            os.path.join(self.generated_dir, "images/"))
+        self.generated_dir = "generated/"
+        self.images_dir = "images/"
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)

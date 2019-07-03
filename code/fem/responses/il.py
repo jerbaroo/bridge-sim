@@ -71,7 +71,7 @@ if __name__ == "__main__":
     c = bridge_705_config
     response_type = Response.Strain
 
-    # clean_generated(c)
+    clean_generated(c)
     il_matrix = ILMatrix.load(c, response_type, os_runner)
     il_matrix.fem_responses.plot()
     # il_matrix.plot_ils(at=4)
