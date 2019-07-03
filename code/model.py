@@ -58,13 +58,17 @@ class Material(Enum):
     Steel = 2
 
 
+# ID for all kinds of fibers.
+_fiber_cmd_id = 1
+
+
 class Patch():
     """A rectangular patch, used to describe a Section."""
-    next_id = 1
     def __init__(self, y_i, z_i, y_j, z_j, num_sub_div_z=30,
                  material=Material.Concrete):
-        self.id = Patch.next_id
-        Patch.next_id += 1
+        global _fiber_cmd_id
+        self.fiber_cmd_id = _fiber_cmd_id
+        _fiber_cmd_id += 1
         self.p0 = Point(y=y_i, z=z_i)
         self.p1 = Point(y=y_j, z=z_j)
         self.num_sub_div_z = num_sub_div_z
@@ -93,11 +97,11 @@ class Layer():
         area_fiber: float, area of each fiber.
         material: Material, material of the fibers.
     """
-    next_id = 1
     def __init__(self, y_i, z_i, y_j, z_j, num_fibers, area_fiber,
                  material=Material.Steel):
-        self.id = Layer.next_id
-        Layer.next_id += 1
+        global _fiber_cmd_id
+        self.fiber_cmd_id = _fiber_cmd_id
+        _fiber_cmd_id += 1
         self.p0 = Point(y=y_i, z=z_i)
         self.p1 = Point(y=y_j, z=z_j)
         self.num_fibers = num_fibers
@@ -123,6 +127,9 @@ class Point():
         self.x = x
         self.y = y
         self.z = z
+
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
 
 
 class Section():

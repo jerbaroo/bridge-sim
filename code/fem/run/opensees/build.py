@@ -56,13 +56,13 @@ def opensees_sections(c: Config):
 
 
 def os_patch_path(c: Config, patch):
-    return f"{c.os_stress_strain_path_prefix}-{patch.id}.out"
+    return f"{c.os_stress_strain_path_prefix}-{patch.fiber_cmd_id}.out"
 
 
 def os_layer_paths(c: Config, layer):
     """A filepath for each point in the layer."""
     for point in layer.points():
-        yield (f"{c.os_stress_strain_path_prefix}-{layer.id}"
+        yield (f"{c.os_stress_strain_path_prefix}-{layer.fiber_cmd_id}"
                 + f"-{point.y:.5f}-{point.z:.5f}.out");
 
 

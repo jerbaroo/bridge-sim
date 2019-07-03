@@ -6,7 +6,7 @@ import numpy as np
 
 from config import bridge_705_config, Config
 from fem.params import FEMParams
-from fem.responses import FEMResponses
+from fem.responses import FEMResponses, NewFEMResponses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
@@ -17,7 +17,7 @@ from util import *
 class ILMatrix():
     """FEM responses used for influence line calculation."""
     def __init__(self, c: Config, response_type: Response, fem_responses:
-                 FEMResponses):
+                 NewFEMResponses):
         self.b = c.bridge
         self.unit_load = c.il_unit_load
         self.fem_responses = fem_responses
@@ -26,7 +26,7 @@ class ILMatrix():
     def load(c: Config, response_type: Response, runner: FEMRunner):
         params = FEMParams([[Load(load_pos, c.il_unit_load)]
                            for load_pos in np.linspace(0, 1, c.il_num_loads)])
-        return ILMatrix(c, response_type, FEMResponses.load(
+        return ILMatrix(c, response_type, NewFEMResponses.load(
             c, params, response_type, runner))
 
     def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
@@ -69,9 +69,12 @@ class ILMatrix():
 
 if __name__ == "__main__":
     c = bridge_705_config
+    c.il_num_loads = 1
     response_type = Response.Strain
 
     clean_generated(c)
     il_matrix = ILMatrix.load(c, response_type, os_runner)
+    print("Loaded IL matrix")
+    print(type(il_matrix.fem_responses))
     il_matrix.fem_responses.plot()
     # il_matrix.plot_ils(at=4)
