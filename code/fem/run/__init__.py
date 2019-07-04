@@ -8,7 +8,7 @@ from timeit import default_timer as timer
 from typing import Callable
 
 from fem.params import FEMParams
-from fem.responses import NewFEMResponses
+from fem.responses import FEMResponses
 from config import Config
 from util import *
 
@@ -18,7 +18,7 @@ class FEMRunner():
     def __init__(self,
                  run: Callable[
                     [Config, FEMParams],
-                    [int, Dict[Response, [_Response]]]
+                    [int, Dict[ResponseType, [Response]]]
                  ],
                  name: str):
         self._run = run
@@ -32,7 +32,7 @@ class FEMRunner():
         print_i(f"Ran FEM simulation in {end - start:.2f}s")
         for response_type, responses in responses_by_type.items():
             start = timer()
-            fem_responses = NewFEMResponses(
+            fem_responses = FEMResponses(
                 fem_params,
                 self.name,
                 response_type,

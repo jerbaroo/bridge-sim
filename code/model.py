@@ -1,6 +1,4 @@
-"""
-Classes for describing bridges and loads.
-"""
+"""Classes for describing bridges and loads."""
 from enum import Enum
 
 import numpy as np
@@ -23,14 +21,6 @@ class Bridge():
     def x_axis(self, n):
         """n equidistant points along the bridge's length."""
         return np.interp(range(n), [0, n - 1], [0, self.length])
-
-
-class Response(Enum):
-    XTranslation = "xtrans"
-    YTranslation = "ytrans"
-    Stress = "stress"
-    Strain = "strain"
-
 
 class Fix():
     """A node fixed in some degrees of freedom."""
@@ -58,7 +48,7 @@ class Material(Enum):
     Steel = 2
 
 
-# ID for all kinds of fibers.
+# ID for all fiber commands.
 _fiber_cmd_id = 1
 
 
@@ -130,6 +120,39 @@ class Point():
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
+
+
+class Response:
+    """A sensor response collected from a simulation."""
+    def __init__(self, value, x=None, y=None, z=None, time=0, elem_id=None,
+                 srf_id=None, node_id=None, section_id=None, fiber_cmd_id=None):
+        self.value = value
+        self.point = Point(x=x, y=y, z=z)
+        self.time = time
+        self.node_id = node_id
+        self.elem_id = elem_id
+        self.srf_id = srf_id
+        self.section_id = section_id
+        self.fiber_cmd_id = fiber_cmd_id
+
+    def __str__(self):
+        return (f"{self.value}"
+               + f" at ({self.point.x}, {self.point.y}, {self.point.z})"
+               + f" t={self.time}"
+               + ("" if self.node_id is None else f" node_id={self.node_id}")
+               + ("" if self.elem_id is None else f" elem_id={self.elem_id}")
+               + ("" if self.srf_id is None else f" srf_id={self.srf_id}")
+               + ("" if self.section_id is None
+                  else f" section_id={self.section_id}")
+               + ("" if self.fiber_cmd_id is None
+                  else f" fiber_cmd_id={self.fiber_cmd_id}"))
+
+
+class ResponseType(Enum):
+    XTranslation = "xtrans"
+    YTranslation = "ytrans"
+    Stress = "stress"
+    Strain = "strain"
 
 
 class Section():

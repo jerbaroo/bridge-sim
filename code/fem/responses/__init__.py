@@ -15,37 +15,14 @@ from util import *
 
 
 def fem_responses_path(c: Config, fem_params: FEMParams,
-                       response_type: Response, runner_name: str):
+                       response_type: ResponseType, runner_name: str):
     """Path of the influence line matrix on disk."""
     return (f"{c.fem_responses_path_prefix}-pa-{fem_params}"
             + f"-ul-{c.il_unit_load}-rt-{response_type.name}"
             + f"-ru-{runner_name}.npy")
 
 
-class _Response:
-    """A sensor response collected from a simulation."""
-    # TODO: Rename srfnr to srf_id etc.
-    def __init__(self, value, x=None, y=None, z=None, time=0, elem_id=None,
-                 srfnr=None, node_id=None, section_id=None, fiber_cmd_id=None):
-        self.value = value
-        self.point = Point(x=x, y=y, z=z)
-        self.time = time
-        self.elem_id = elem_id
-        self.node_id = node_id
-        self.srfnr = srfnr
-        self.section_id = section_id
-        self.fiber_cmd_id = fiber_cmd_id
-
-    def __str__(self):
-        # TODO: Append elmnr etc. if not None.
-        return (f"{self.value}"
-               + f" at ({self.point.x}, {self.point.y}, {self.point.z})"
-               + f" t={self.time}"
-               + ("" if self.node_id is None else f" node_id={self.node_id}")
-               + ("" if self.elem_id is None else f" elem_id={self.elem_id}"))
-
-
-class NewFEMResponses:
+class FEMResponses:
     """Responses of one sensor type for one simulation.
 
     Indexed as [time][x][y][z], where x, y, z are axis ordinates.
@@ -54,9 +31,9 @@ class NewFEMResponses:
 
     """
     def __init__(self, fem_params: FEMParams, runner_name: str,
-                 response_type: Response, responses: [_Response]):
+                 response_type: ResponseType, responses: [Response]):
         assert isinstance(responses, list)
-        assert isinstance(responses[0], _Response)
+        assert isinstance(responses[0], Response)
 
         # Used for de/serialization.
         self._responses = responses
@@ -115,19 +92,22 @@ class NewFEMResponses:
         plt.xlabel("sensor")
         plt.show()
 
-    def plot_1(self, y=0, z=0, time=0):
-        print(self.xs)
-        data = [self.at(x_ord=x, y=y, z=z, time=time).value for x in self.xs]
-        plt.plot(data)
-        plt.show()
+
+def plot_x(fem_responses, y=0, y_ord=None, z=0, z_ord=None, t=-1, time=None):
+    """Plot responses along the x axis at some (y, z, t)."""
+    data = [fem_responses.at(
+                x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
+            for x_ord in fem_responses.xs]
+    plt.plot(data)
+    plt.show()
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,
-                       response_type: Response, runner: FEMRunner):
-    print("Running NEWFEMResponses.load")
+                       response_type: ResponseType, runner: FEMRunner):
+    print_i("Loading FEMResponses")
     path = fem_responses_path(c, fem_params, response_type, runner.name)
     if (not os.path.exists(path)):
         runner.run(c, fem_params)
     with open(path, "rb") as f:
-        return NewFEMResponses(
+        return FEMResponses(
             fem_params, runner.name, response_type, pickle.load(f))

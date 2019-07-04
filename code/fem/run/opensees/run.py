@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 from config import Config
-from fem.responses import _Response
+from fem.responses import Response
 from fem.run.opensees.build import os_layer_paths, os_patch_path
 from model import *
 from util import *
@@ -22,11 +22,10 @@ def run_model(c: Config):
         """Convert data indexed as [time][node] to a list of Response."""
         node_ids = c.os_node_ids()
         return [
-            _Response(trans[time][i], x=i * c.os_node_step, y=0, z=0,
-                      time=time, node_id=node_ids[i])
+            Response(trans[time][i], x=i * c.os_node_step, y=0, z=0,
+                     time=time, node_id=node_ids[i])
             for time in range(len(trans))
-            for i in range(len(trans[time]))
-        ]
+            for i in range(len(trans[time]))]
 
     x = openSeesToNumpy(c.os_x_path)
     _sim_time = len(x)  # Used for sanity check.
@@ -41,7 +40,7 @@ def run_model(c: Config):
         assert len(stress) == _sim_time
         elem_ids = c.os_elem_ids()
         return [
-            _Response(
+            Response(
                 stress[time][i], x=i * c.os_node_step + (c.os_node_step / 2),
                 y=y, z=z, time=time, elem_id=elem_ids[i],
                 section_id=section_id, fiber_cmd_id=fiber_cmd_id)
@@ -85,10 +84,10 @@ def run_model(c: Config):
 
     print_i("Parsed OpenSees recorded data")
     return {
-        Response.XTranslation: x,
-        Response.YTranslation: y,
-        Response.Stress: stress,
-        Response.Strain: strain
+        ResponseType.XTranslation: x,
+        ResponseType.YTranslation: y,
+        ResponseType.Stress: stress,
+        ResponseType.Strain: strain
     }
 
 
