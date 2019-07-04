@@ -16,9 +16,9 @@ def _os_runner(c: Config, fem_params: FEMParams):
 
 os_runner = FEMRunner(_os_runner, "OpenSees")
 
-
 if __name__ == "__main__":
     fem_params = FEMParams([Load(0.5, 5e3), Load(0.2, 5e1)])
-    os_runner.run(bridge_705_config, fem_params)
-    load_fem_responses(
-        bridge_705_config, fem_params, 199, Response.Stress, os_runner)
+    # os_runner.run(bridge_705_config, fem_params)
+    fem_responses = load_fem_responses(
+        bridge_705_config, fem_params, Response.Stress, os_runner)
+    fem_responses.plot()

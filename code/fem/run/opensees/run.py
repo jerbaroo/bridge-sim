@@ -29,8 +29,8 @@ def run_model(c: Config):
         ]
 
     x = openSeesToNumpy(c.os_x_path)
+    _sim_time = len(x)  # Used for sanity check.
     y = openSeesToNumpy(c.os_y_path)
-    sim_time = len(x)
     x = translation_to_responses(x)
     y = translation_to_responses(y)
 
@@ -38,7 +38,7 @@ def run_model(c: Config):
 
     def stress_to_responses(stress, section_id, fiber_cmd_id, y, z):
         """Stress or strain data to a list of Response."""
-        assert len(stress) == sim_time
+        assert len(stress) == _sim_time
         elem_ids = c.os_elem_ids()
         return [
             _Response(
@@ -84,7 +84,7 @@ def run_model(c: Config):
             strain += more_strain
 
     print_i("Parsed OpenSees recorded data")
-    return sim_time - 1, {
+    return {
         Response.XTranslation: x,
         Response.YTranslation: y,
         Response.Stress: stress,

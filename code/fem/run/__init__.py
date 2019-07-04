@@ -27,7 +27,7 @@ class FEMRunner():
     def run(self, c: Config, fem_params: FEMParams):
         print_i(f"Running {self.name} FEMRunner")
         start = timer()
-        max_time, responses_by_type = self._run(c, fem_params)
+        responses_by_type = self._run(c, fem_params)
         end = timer()
         print_i(f"Ran FEM simulation in {end - start:.2f}s")
         for response_type, responses in responses_by_type.items():
@@ -35,7 +35,6 @@ class FEMRunner():
             fem_responses = NewFEMResponses(
                 fem_params,
                 self.name,
-                max_time,
                 response_type,
                 responses)
             end = timer()
