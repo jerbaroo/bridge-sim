@@ -30,6 +30,7 @@ def run_model(c: Config):
 
     x = openSeesToNumpy(c.os_x_path)
     y = openSeesToNumpy(c.os_y_path)
+    sim_time = len(x)
     x = translation_to_responses(x)
     y = translation_to_responses(y)
 
@@ -37,6 +38,7 @@ def run_model(c: Config):
 
     def stress_to_responses(stress, section_id, fiber_cmd_id, y, z):
         """Stress or strain data to a list of Response."""
+        assert len(stress) == sim_time
         elem_ids = c.os_elem_ids()
         return [
             _Response(
@@ -45,7 +47,7 @@ def run_model(c: Config):
                 section_id=section_id, fiber_cmd_id=fiber_cmd_id)
             for time in range(len(stress))
             for i in range(len(stress[time]))]
-    
+
     stress = []
     strain = []
     for section in c.bridge.sections:
@@ -78,17 +80,16 @@ def run_model(c: Config):
                 more_stress, section.id, fiber_cmd_id, point.y, point.z)
             more_strain = stress_to_responses(
                 more_strain, section.id, fiber_cmd_id, point.y, point.z)
+            stress += more_stress
+            strain += more_strain
 
     print_i("Parsed OpenSees recorded data")
-
-    responses_by_type = {
+    return sim_time - 1, {
         Response.XTranslation: x,
         Response.YTranslation: y,
-        Response.Stress: to_responses(stress),
-        Response.Strain: to_responses(strain)
+        Response.Stress: stress,
+        Response.Strain: strain
     }
-    print_i("Formatted data into Responses")
-    return responses_by_type
 
 
 def openSeesToNumpy(path):

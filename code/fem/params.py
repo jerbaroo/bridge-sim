@@ -5,25 +5,22 @@ from model import *
 
 
 class FEMParams():
-    """Parameters for FEM simulations.
+    """Parameters for a FEM simulation.
 
     NOTE:
       - Currently only static loads.
 
     Attributes:
-        simulations: [[Load]], a list of Load per simulation.
+        loads: [Load], a list of Load.
     """
-    def __init__(self, simulations: [[Load]]=[]):
-        self.simulations=simulations
+    def __init__(self, loads: [Load]=[]):
+        self.loads=loads
 
     def __str__(self):
-        return "-".join(
-            f"[{lstr}]" for lstr in (
-                ",".join(str(l) for l in loads)
-                for loads in self.simulations))
+        lstr = ",".join(str(l) for l in self.loads)
+        return f"[{lstr}]"
 
 
 if __name__ == "__main__":
-    fem_params = FEMParams(
-        simulations=[[Load(0.5, 5e3), Load(0.2, 5e1)], [Load(0.6, 5e2)]])
+    fem_params = FEMParams(loads=[Load(0.5, 5e3), Load(0.2, 5e1)])
     print(fem_params)

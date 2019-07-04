@@ -1,12 +1,10 @@
-"""
-Generate an influence line.
-"""
+"""Generate an influence line."""
 import matplotlib.pyplot as plt
 import numpy as np
 
 from config import bridge_705_config, Config
 from fem.params import FEMParams
-from fem.responses import FEMResponses, NewFEMResponses
+from fem.responses import NewFEMResponses, load_responses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
@@ -26,7 +24,7 @@ class ILMatrix():
     def load(c: Config, response_type: Response, runner: FEMRunner):
         params = FEMParams([[Load(load_pos, c.il_unit_load)]
                            for load_pos in np.linspace(0, 1, c.il_num_loads)])
-        return ILMatrix(c, response_type, NewFEMResponses.load(
+        return ILMatrix(c, response_type, load_responses(
             c, params, response_type, runner))
 
     def response(self, sensor_pos, load_pos, load, fiber=0, time=0):
@@ -61,16 +59,15 @@ class ILMatrix():
             plt.plot(
                 self.b.x_axis(self.fem_responses.num_sensors),
                 [self.fem_responses.responses[l][fiber, time, s]
-                 for s in range(self.fem_responses.num_sensors)]
-            )
+                 for s in range(self.fem_responses.num_sensors)])
             plot_bridge(c.bridge)
             plt.show()
 
 
 if __name__ == "__main__":
     c = bridge_705_config
-    c.il_num_loads = 1
-    response_type = Response.Strain
+    c.il_num_loads = 4
+    response_type = Response.Stress
 
     clean_generated(c)
     il_matrix = ILMatrix.load(c, response_type, os_runner)
