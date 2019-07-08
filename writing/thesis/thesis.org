@@ -54,7 +54,7 @@
    system loads must be "driven" across the bridge in the FEM, then an analysis
    must be performed on the difference between sensor measurements from sensors
    at equivalent positions on each substructure.
-   
+
    # Thesis structure.
    The research question that this thesis answers is: how can sensors be
    utilized to build a DSS for bridge maintenance. The structure of this thesis
@@ -73,7 +73,7 @@
    includes the model and a cost-benefit analysis is presented of the system.
    Finally (stretch-goal) an investigation is conducted into how such a system
    can be generalized to bridges other than bridge 705.
-   
+
 * Literature review
   This section contains a review of the most relevant material studied during
   this thesis work. The aim of presenting a review of this material is to place
@@ -85,7 +85,7 @@
    to structural health monitoring (SHM) by a number of case studies. In
    particular the paper focuses on pattern recognition and machine learning (ML)
    algorithms that are applicable to damage identification problems.
-   
+
    # Hierarchy of levels.
    The question of /damage detection/ is simply to identify if a system has
    departed from normal (i.e. undamaged) condition. The more sophisticated
@@ -102,24 +102,24 @@
    - Level 4. (Prediction) information about the safety of the structure.
    This paper argues that ML provides solutions to these problems at upto level
    3, and that in general level 4 cannot be addressed by ML methods.
-   
+
    # Waterfall model. (ML is only a step).
    Applying ML for the purpose of SHM is usually only a single step in a broader
    framework of analysis. Figure [[fig:waterfall-model]] shows the waterfall model
-   cite:bedworth2000omnibus which begins with sensing (when to record responses)
-   and ends with decision making. ML methods are only step four in this model.
-   An important part of this entire process is feature extraction, step three,
-   which can be regarded as a process of amplification, transforming the data to
-   keep only information that is useful for the ML analysis. Another aim of
-   feature extraction is to reduce the dimensionality of the data, to avoid the
-   explosive growth of the data requirements for training with the data
-   dimensions, known as the /curse of dimensionality/ TODO:REF.
-   
+   (cite:bedworth2000omnibus) which begins with sensing (when to record
+   responses) and ends with decision making. ML methods are only step four in
+   this model. An important part of this entire process is feature extraction,
+   step three, which can be regarded as a process of amplification, transforming
+   the data to keep only information that is useful for the ML analysis. Another
+   aim of feature extraction is to reduce the dimensionality of the data, to
+   avoid the explosive growth of the data requirements for training with the
+   data dimensions, known as the /curse of dimensionality/ TODO:REF.
+
    #+CAPTION: The /waterfall/ model.
    #+NAME: fig:waterfall-model
    #+ATTR_LATEX: :width 150pt
    [[../images/waterfall-model.png]]
-   
+
    # Experiment setup and features.
    An experiment was setup to identify damage on the wing of a Gnat artefact.
    Damage scenarios for testing were created by making a number of cuts into
@@ -141,7 +141,7 @@
    scenarios and could detect all of the unfaulted scenarios, other features
    produced false positives and were discarded. Two combined features managed to
    detect all damage types and raised no false positives.
-   
+
    # Damage location.
    The second level of Rytter's hierarchy is damage localization. This problem
    can be approached as a regression problem, however here it is based on the
@@ -159,7 +159,7 @@
 
    # Damage assessment.
    , the assessment was based on the previous detection technique.
-   
+
 ** Neural Clouds for monitoring of complex systems
    # One-class classification.
    In one-class classification, a classifier attempts to identify objects of a
@@ -196,7 +196,7 @@
    can be interpreted as probability of the system condition. Figure
    [[fig:neural-clouds]] shows this plateau in comparison with other one-class
    classifiers, Gaussian mixture and Parzen-window.
-   
+
    #+CAPTION: Comparison of Neural Clouds with other approaches, namely Gaussian mixture and Parzen-window. At the left side 2D contour line plots are pictures and at the right normalized density 3D plots.
    #+NAME: fig:neural-clouds
    [[../images/neural-clouds.png]]
@@ -215,7 +215,7 @@
    failure, compared to the current method of visual inspection. The problem
    with visual inspection is that when deformations are visiable at the surface
    it means that levee collapse is already in progress.
-   
+
    # Data-driven vs. finite element.
    Data-driven methods are model-free and include machine learning and
    statistical techniques, whereas finite-element analysis is a model-based
@@ -226,7 +226,7 @@
    model-based methods provide more information about the monitored object, but
    are more expensive to evaluate and thus difficult to use for real-time
    condition assessment.
-   
+
    # Combination of methods.
    In this paper the data-driven and finite-element components of the system
    which were developed are referred to as the Artificial Intelligence (AI) and
@@ -239,11 +239,11 @@
    AI. If the AI detects abnormal behaviour then the CM is run to confirm the
    result. If the AI was correct a warning is raised, else the new data point is
    used to retrain the AI.
-   
+
    #+CAPTION: AI and CM...
    #+NAME: fig:ai-and-cm
    [[../images/ai-and-cm.png]]
-   
+
    # Finite element analysis.
    # The paper includes a section which demonstrates the applicability of FEM for
    # prediction tasks. Real sensor values (collected from an experiment where a
@@ -259,7 +259,7 @@
    and simulates failure scenarios. All of this information is made available
    online as part of a DSS to help the relevant figure of authority make an
    informed decision in case of emergency or routine assessment.
-   
+
    # Relevant components of the EWS.
    Some requirements that must be taken into account in the design of an EWS
    include:
@@ -273,13 +273,14 @@
    account the installation of hardware and the transmission of information
    between components of the system. These many interacting components are
    shown in Figure [[fig:urbanflood-ews]] along with a description.
-   
+
    #+CAPTION: The /Sensor Monitoring/ module receives data from the installed sensors which are then filtered by the /AI Anomaly Detector/. In case an abnormality is detected the /Reliability Analysis/ calculates the probability of failure. If the failure probability is high then the /Breach Simulator/ predicts the dynamics of the dike failure. A fast response is calculated beginning with the /AI Anomaly Detector/ and ending with the /Breaching Simulator/. The /Virtual Dike/ module is additionaly available for the purpose of simulation by expert users, but takes longer. The fast response and the response from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which models the flooding dynamics, this information is sent to the decision support system to be made available to the decision maker.
    #+NAME: fig:urbanflood-ews
+   #+ATTR_LATEX: :width 250pt
    [[../images/urbanflood-ews.png]]
-   
+
 ** A clustering approach for structural health monitoring on bridges
-   # Introduction. 
+   # Introduction.
    In cite:diez2016clustering a clustering based approach is presented to group
    substructures or joints with similar behaviour and to detect abnormal or
    damaged ones. The presented approach is based on the simple idea that a
@@ -299,7 +300,7 @@
    $A_i$ is the instantaneous acceleration at the $i$th sample and $A_r$ is the
    "rest vector" or average of the first 100 samples. The event data is then
    normalised as $X = \frac{V - \mu(V)}{\sigma(V)}$.
-   
+
    # Outlier removal.
    After normalisation of the event data, k-nearest neighbours is applied for
    outlier removal. One might consider that outliers are useful in the detection
@@ -310,7 +311,7 @@
    time domain is calculated for event data as $E(X) = \sum_i |x_i|^2$. Then for
    every iteration of k-nearest neighbours, the $k$ closest neighbours to the
    mean of the enery of the joint's signals $\mu_{joint}$ is calculated.
-   
+
    # Tranform and clustering metric.
    The event data is then transformed from the time domain into a series of
    frequencies using the Fast Fourier Transform (FFT), such that the original
@@ -320,7 +321,7 @@
    signals, this metric is used for k-means clustering of the data for anomaly
    detection. The distance metric used is the Euclidean distance: $dist(X, Y)
    = ||X - Y|| = \sqrt{\sum (x_i - y_i)^2}$.
-   
+
    # Event based clustering.
    Two clustering methods were applied, event-based and joint-based. In the
    event-based clustering experiment it was known beforehand that joint 4 was
@@ -329,11 +330,11 @@
    cluster of 4662 events mostly located in joint 4. The percentage of events
    per joint in the big cluster are shown in Figure [[fig:shb-joint4]] where joint 4
    is clearly an outlier.
-   
+
    #+CAPTION: ...
    #+NAME: fig:shb-joint4
    [[../images/shb-joint4.png]]
-   
+
    # Frequency profiles.
    A frequency profile of both the big and small cluster are shown in Figures
    [[fig:shb-cluster0-profile]] and [[fig:shb-cluster1-profile]]. In case there is no
@@ -344,18 +345,18 @@
    Figure [[fig:shb-damaged-profile]]. The difference of the damaged profile to the
    other two is clear, which indicates that there is sufficient information in
    frequency information from accelerometers to detect abnormal joints.
-   
+
    #+CAPTION: ...
    #+NAME: fig:shb-cluster0-profile
    [[../images/shb-cluster0-profile.png]]
-   
+
    #+CAPTION: ...
    #+NAME: fig:shb-cluster1-profile
    [[../images/shb-cluster1-profile.png]]
 
    #+CAPTION: ...
    #+NAME: fig:shb-damaged-profile
-   [[../images/shb-damaged-profile.png]]   
+   [[../images/shb-damaged-profile.png]]
 
    # Joint-based clustering.
    In joint-based clustering a pairwise map of distances is calculated between
@@ -367,42 +368,109 @@
    experiment was run on data from 71 joints. The resulting map can be seen in
    [[fig:shb-71-joint-map]] which accurately detected the damaged joint 135. Damage
    was also detected in joint 131 but this result was not verified.
-   
-   #+CAPTION: ...
+
    #+NAME: fig:shb-6-joint-map
+   #+CAPTION: TODO:CAPTION
+   #+ATTR_LATEX: :width 200pt
    [[../images/shb-6-joint-map.png]]
 
-   #+CAPTION: ...
    #+NAME: fig:shb-71-joint-map
+   #+CAPTION: TODO:CAPTION
+   #+ATTR_LATEX: :width 200pt
    [[../images/shb-71-joint-map.png]]
-   
-* Condition classification
-  # How the classification model is built and how it performs.
-** Components
-   # Overview of components and how they interact.
-** Simulated sensor measurements
-   # How sensor measurements are simulated.
+
+** Conclusion
+* Methods
+  # How the classification model was built.
+  # Why simulated responses and how they are simulated.
+** Simulated responses
+  # What data is neccessary and how it was collected.
 *** Neccessary data
-    # What data is neccessary and how it was collected.
+  # How the FEM is used to simulate sensor measurements.
 *** Finite element model
-    # How the FEM is used to simulate sensor measurements.
-** Condition classification
+  # How the simulated responses compare to reality.
+*** Data analysis
+** Damage identification
+   # Section overview.
+   In this section the process of building the damage identification model is
+   described. First there is an introduction to the damage scenarios that it is
+   desirable for the model to identify, followed by a description of the setup
+   for testing iterations of the model. After this an analysis is presented of
+   the sensor responses with respect to the useful information in different
+   sensor types for each damage scenario. Finally the damage identification
+   model that is built is discussed.
+*** Damage scenarios
+    # TODO: verify content when Leziria bridge document is published.
+    # Outline of short-term and long-term events.
+    The goal of the damage identification model is to identify damage in a
+    number of selected damage scenarios. Damage scenarios can be classified as
+    short-term or long-term events. Short-term events are defined as a change of
+    the properties of structural materials and elements, and of the behaviour of
+    the whole structure, due to effects that occur during a very short period of
+    time. Long-term events are time-dependent and may not only be related to
+    external factors but also due to a change of state of materials with time.
+    Tables [[table:short-term-events]] and [[table:long-term-events]] outline some of
+    the predominant types of damage due to short-term and long-term events
+    respectively, as presented in cite:sousa2019tool.
+    
+    # TODO: Use table.el to fix tables.
+    #+NAME: table:short-term-events
+    #+CAPTION: Types of damage due to short-term events.
+    | Event                       | Examples/Consequences                                                        | Critical component |
+    |-----------------------------+------------------------------------------------------------------------------+--------------------|
+    | Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
+    | Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
+    | Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
+    | Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
+    | Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
+    | Excessive vibration         | Earthquake                                                                   | Pier               |
+    | Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
+
+    #+NAME: table:long-term-events
+    #+CAPTION: Types of damage due to long-term events.
+    | Event                        | Examples/Consequences                                  | Critical component |
+    |------------------------------+--------------------------------------------------------+--------------------|
+    | Corrosion                    | Degradation of the bearings                            | Deck               |
+    |                              | Loss of cross-section area in the prestressing tendons | Deck               |
+    | Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
+    | the structural materials     | Concrete deterioration                                 | All                |
+    | Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
+    | fatigue                      |                                                        |                    |
+    | High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
+    | fatigue                      |                                                        |                    |
+    | Environmental effects        | Freezing water leading to concrete expansion           | All                |
+    | Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
+    |                              | degradation in the zone of the tendon anchorages       | Deck               |
+    | Pier settlement              | Change in the soil properties                          | Deck               |
+    
+  Of the damage scenarios listed in Tables [[table:short-term-events]] and
+  [[table:long-term-events]], four scenarios are selected for identification by the
+  DIM. These scenarios are chosen due to the practicality of simulating them in
+  a FEM of bridge 705. /Pier settlement/ can be simulated by displacing a pier
+  by a fixed amount, this is achieved in practice by applying a vertical force
+  known as a /displacement load/ to the deck so that the desired displacement is
+  achieved. /Abnormal loading conditions/ can be simulated easily by applying
+  abnormally heavy loads in the FE simulation. /Cracked concrete/ can be
+  simulated by reducing the value of Young's modulus for the cracked concrete
+  section. In practice, Young's modulus is often reduced to $\frac{1}{3}$ of its
+  original value, (cite:li2010predicting). /Corrosion/ of the reinforment bars
+  can be simulated by increasing the size of the reinforcement bars TODO:WHY.
+
+  # How to test/score the models.
 *** Test setup
-    # How to test the model's classification ability.
-*** Classification model
+*** Data analysis
+*** Damage identification model
     # The model used for classification.
+** Decision support system
 *** Sensor placement
     # The optimal placement for classification.
+*** Cost-benefit analysis
 *** Uncertainty
     # What is the uncertainty in the system.
-* Decision support system
-  # The suggested system DSS.
-** Outline
-   # Outline of what is required to install the DSS.
-** Cost-benefit analysis
-   # What are costs and benefit of installing the DSS.
-** Generalizing beyond bridge 705
-   # What is required to move to another bridge.
+* Results
+** Simulated responses
+** Damage identification
+** Decision support system
 * Conclusion
 
 \printbibliography

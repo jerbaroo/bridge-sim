@@ -107,6 +107,7 @@ def convert_responses(c: Config, parsed: Dict[ResponseType, P]) -> Dict[Response
 
     def stress_to_responses(stress, section_id, fiber_cmd_id, y, z):
         """Stress or strain data to a list of Response."""
+        # TODO: Check.
         assert len(stress) == _sim_time
         elem_ids = c.os_elem_ids()
         return [
