@@ -81,9 +81,8 @@ class FEMResponses:
             c, self.fem_params, self.response_type, self.runner_name)
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
-        print_i(f"Saved FEM responses to {path}")
 
-    def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=-1, time=None):
+    def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=0, time=None):
         """Plot responses along the x axis at some (y, z, t)."""
         data = [self.at(
                     x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
@@ -100,14 +99,17 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
     path = fem_responses_path(c, fem_params, response_type, runner.name)
     if (not os.path.exists(path)):
         runner.run(c, fem_params)
+
     start = timer()
     with open(path, "rb") as f:
         responses = pickle.load(f)
     end = timer()
-    print_i(f"Loaded {response_type} Responses in {end - start:.2f}")
+    print_i(f"Loaded Responses in {end - start:.2f}s ({response_type})")
+
     start = timer()
     fem_responses = FEMResponses(
         fem_params, runner.name, response_type, responses)
     end = timer()
-    print_i(f"Built {response_type} FEMResponses in {end - start:.2f}")
+    print_i(f"Built FEMResponses in {end - start:.2f}s, ({response_type})")
+
     return fem_responses

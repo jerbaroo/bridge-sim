@@ -4,6 +4,7 @@ Build an OpenSees model file from a configuration.
 import numpy as np
 
 from config import Config
+from fem.params import FEMParams
 from model import *
 from util import print_i
 
@@ -94,20 +95,19 @@ def opensees_recorders(c: Config):
     return recorders
 
 
-def build_model(c: Config, loads=[]):
+def build_model(c: Config, fem_params: FEMParams):
     """Build an OpenSees model file."""
-    print_i(f"Generating model file with"
-            + f"\n\t{c.os_num_elems()} elements"
-            + f"\n\t{c.os_node_step} element length")
+    print_i(f"OpenSees: building model file with"
+            + f" {c.os_num_elems()} elements,"
+            + f" {c.os_node_step} element length")
     with open(c.os_model_template_path) as f:
         in_tcl = f.read()
     out_tcl = (in_tcl
         .replace("<<NODES>>", opensees_nodes(c))
         .replace("<<FIX>>", opensees_fixed_nodes(c))
         .replace("<<ELEMENTS>>", opensees_elements(c))
-        .replace("<<LOAD>>", opensees_loads(c, loads))
+        .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
         .replace("<<SECTIONS>>", opensees_sections(c))
         .replace("<<RECORDERS>>", opensees_recorders(c)))
     with open(c.os_built_model_path, "w") as f:
         f.write(out_tcl)
-    print_i(f"Saved model file to {c.os_built_model_path}")

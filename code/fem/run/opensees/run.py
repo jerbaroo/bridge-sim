@@ -1,6 +1,7 @@
 import itertools
 import subprocess
 from timeit import default_timer as timer
+from typing import Dict, List, TypeVar
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,14 +14,80 @@ from util import *
 
 
 def run_model(c: Config):
-    """Run an OpenSees model and return the recorded responses."""
-    print_i(f"Running OpenSees with {c.os_built_model_path}")
-    start = timer()
+    """Run an OpenSees simulation."""
     subprocess.run([c.os_exe_path, c.os_built_model_path])
-    end = timer()
-    print_i(f"Ran FEM simulation in {end - start:.2f}s")
 
-    ##### X and Y translation for each node. #####
+
+_sim_time = None
+P = TypeVar("P")
+
+
+def parse_responses(c: Config, response_types: [ResponseType]) -> Dict[ResponseType, P]:
+    """Parse responses from an OpenSees simulation."""
+
+    def parse_type(response_type: ResponseType):
+        return response_type in response_types or response_types is None
+
+    if parse_type(ResponseType.XTranslation):
+        start = timer()
+        x = openSeesToNumpy(c.os_x_path)
+        end = timer()
+        print_i(f"OpenSees: Parsed XTranslation responses in {end - start:.2f}s")
+
+    if parse_type(ResponseType.YTranslation):
+        start = timer()
+        y = openSeesToNumpy(c.os_y_path)
+        end = timer()
+        print_i(f"OpenSees: Parsed YTranslation responses in {end - start:.2f}s")
+
+    stress = []
+    strain = []
+    if parse_type(ResponseType.Stress) or parse_type(ResponseType.Strain):
+        start = timer()
+        for section in c.bridge.sections:
+            # Convert fiber commands to (path, fiber_cmd_id, Point).
+            patch_paths_and_more = [
+                (os_patch_path(c, patch), patch.fiber_cmd_id, patch.center())
+                for patch in section.patches]
+            layer_paths_and_more = [
+                zip(os_layer_paths(c, layer),
+                    itertools.repeat(layer.fiber_cmd_id),
+                    layer.points())
+                for layer in section.layers]
+            layer_paths_and_more = list(
+                itertools.chain.from_iterable(layer_paths_and_more))
+
+            # For each fiber: collect and append the Responses.
+            for path, fiber_cmd_id, point in (
+                    patch_paths_and_more + layer_paths_and_more):
+                stress_strain = openSeesToNumpy(path)
+                num_t = len(stress_strain)
+                num_measurements = len(stress_strain[0]) // 2
+                if parse_type(ResponseType.Stress):
+                    stress += [
+                        [stress_strain[t][i * 2] for i in range(num_measurements)]
+                        for t in range(num_t)]
+                if parse_type(ResponseType.Strain):
+                    strain += [
+                        [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
+                        for t in range(num_t)]
+        end = timer()
+        print_i(f"OpenSees: Parsed stress/strain responses in {end - start:.2f}s")
+
+    results = dict()
+    if parse_type(ResponseType.XTranslation):
+        results[ResponseType.XTranslation] = x
+    if parse_type(ResponseType.YTranslation):
+        results[ResponseType.YTranslation] = y
+    if parse_type(ResponseType.Stress):
+        results[ResponseType.Stress] = stress
+    if parse_type(ResponseType.Strain):
+        results[ResponseType.Strain] = strain
+    return results
+
+
+def convert_responses(c: Config, parsed: Dict[ResponseType, P]) -> Dict[ResponseType, List[Response]]:
+    """Convert parsed responses to Responses."""
 
     def translation_to_responses(trans):
         """Convert data indexed as [time][node] to a list of Response."""
@@ -31,14 +98,10 @@ def run_model(c: Config):
             for time in range(len(trans))
             for i in range(len(trans[time]))]
 
-    start = timer()
-    x = openSeesToNumpy(c.os_x_path)
-    _sim_time = len(x)  # Used for sanity check below.
-    y = openSeesToNumpy(c.os_y_path)
-    x = translation_to_responses(x)
-    y = translation_to_responses(y)
-    end = timer()
-    print_i(f"Parsed FEM translation responses in {end - start:.2f}s")
+    if ResponseType.XTranslation in parsed:
+        x = translation_to_responses(parsed[ResponseType.XTranslation])
+    if ResponseType.YTranslation in parsed:
+        y = translation_to_responses(parsed[ResponseType.YTranslation])
 
     ##### Stress and strain for each section's fiber. #####
 
@@ -54,52 +117,24 @@ def run_model(c: Config):
             for time in range(len(stress))
             for i in range(len(stress[time]))]
 
-    start = timer()
-    stress = []
-    strain = []
-    for section in c.bridge.sections:
+    if ResponseType.Stress in parsed:
+        stress = stress_to_responses(
+            parsed[ResponseType.Stress], section.id, fiber_cmd_id, point.y,
+            point.z)
+    if ResponseType.Strain in parsed:
+        strain = stress_to_responses(
+            parsed[ResponseType.Strain], section.id, fiber_cmd_id, point.y,
+            point.z)
 
-        # Convert fiber commands to (path, fiber_cmd_id, Point).
-        patch_paths_and_more = [
-            (os_patch_path(c, patch), patch.fiber_cmd_id, patch.center())
-            for patch in section.patches]
-        layer_paths_and_more = [
-            zip(os_layer_paths(c, layer),
-                itertools.repeat(layer.fiber_cmd_id),
-                layer.points())
-            for layer in section.layers]
-        layer_paths_and_more = list(
-            itertools.chain.from_iterable(layer_paths_and_more))
-
-        # For each fiber: collect and append the Responses.
-        for path, fiber_cmd_id, point in (
-                patch_paths_and_more + layer_paths_and_more):
-            stress_strain = openSeesToNumpy(path)
-            num_t = len(stress_strain)
-            num_measurements = len(stress_strain[0]) // 2
-            more_stress = [
-                [stress_strain[t][i * 2] for i in range(num_measurements)]
-                for t in range(num_t)]
-
-            more_strain = [
-                [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
-                for t in range(num_t)]
-            more_stress = stress_to_responses(
-                more_stress, section.id, fiber_cmd_id, point.y, point.z)
-            ms = [r.value for r in more_stress if r.time == 0]
-
-            more_strain = stress_to_responses(
-                more_strain, section.id, fiber_cmd_id, point.y, point.z)
-            stress += more_stress
-            strain += more_strain
-
-    end = timer()
-    print_i(f"Parsed FEM stress/strain responses in {end - start:.2f}s")
     return {
-        ResponseType.XTranslation: x,
-        ResponseType.YTranslation: y,
-        ResponseType.Stress: stress,
-        ResponseType.Strain: strain
+        ResponseType.XTranslation:
+            x if ResponseType.XTranslation in parsed else None,
+        ResponseType.YTranslation:
+            y if ResponseType.YTranslation in parsed else None,
+        ResponseType.Stress:
+            stress if ResponseType.Stress in parsed else None,
+        ResponseType.Strain:
+            strain if ResponseType.Strain in parsed else None
     }
 
 
