@@ -33,8 +33,7 @@ class FEMRunner():
         self._convert = convert
         self.name = name
 
-    def run(self, c: Config, fem_params: FEMParams,
-            response_types: [ResponseType]=None):
+    def run(self, c: Config, fem_params: FEMParams):
         start = timer()
         self._build(c, fem_params)
         end = timer()
@@ -47,7 +46,7 @@ class FEMRunner():
 
         start = timer()
         # TODO: Return parsing time per ResponseType.
-        parsed_by_type = self._parse(c, response_types)
+        parsed_by_type = self._parse(c, fem_params.response_types)
         end = timer()
         print_i(f"FEMRunner: parsed all responses in {end - start:.2f}s")
 
@@ -58,7 +57,7 @@ class FEMRunner():
         print_i(f"FEMRunner: converted all to [Response] in {end - start:.2f}s")
 
         for response_type, responses in responses_by_type.items():
-            if response_types is None or response_type in response_types:
+            if response_type in fem_params.response_types:
                 start = timer()
                 fem_responses = FEMResponses(
                     fem_params, self.name, response_type, responses)

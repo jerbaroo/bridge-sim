@@ -67,31 +67,35 @@ def os_layer_paths(c: Config, layer):
                 + f"-{point.y:.5f}-{point.z:.5f}.out");
 
 
-def opensees_recorders(c: Config):
+def opensees_recorders(c: Config, response_types: [ResponseType]):
     """OpenSees recorder commands for a .tcl file."""
     recorders = ""
-    for node_out_file, dof in [(c.os_x_path, 1), (c.os_y_path, 2)]:
-        recorders += f"\nrecorder Node -file {node_out_file}"
-        recorders += " -node " + " ".join(map(str, c.os_node_ids()))
-        recorders += f" -dof {dof} disp"
-    recorders += f"\nrecorder Element -file {c.os_element_path}"
-    recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
-    recorders += " globalForce"
-    # Record stress and strain for each patch.
-    for patch in c.bridge.sections[0].patches:
-        point = patch.center()
-        recorders += (f"\nrecorder Element -file"
-                      + f" {os_patch_path(c, patch)}"
-                      + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                      + f" section 1 fiber {point.y} {point.z} stressStrain")
-    # Record stress and strain for each fiber in a layer.
-    for layer in c.bridge.sections[0].layers:
-        for (point, point_path) in zip(layer.points(),
-                                       os_layer_paths(c, layer)):
+    if (ResponseType.XTranslation in response_types or
+            ResponseType.YTranslation in response_types):
+        for node_out_file, dof in [(c.os_x_path, 1), (c.os_y_path, 2)]:
+            recorders += f"\nrecorder Node -file {node_out_file}"
+            recorders += " -node " + " ".join(map(str, c.os_node_ids()))
+            recorders += f" -dof {dof} disp"
+        recorders += f"\nrecorder Element -file {c.os_element_path}"
+        recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
+        recorders += " globalForce"
+    if (ResponseType.Stress in response_types or
+            ResponseType.Strain in response_types):
+        # Record stress and strain for each patch.
+        for patch in c.bridge.sections[0].patches:
+            point = patch.center()
             recorders += (f"\nrecorder Element -file"
-                        + f" {point_path}"
+                        + f" {os_patch_path(c, patch)}"
                         + " -ele " + " ".join(map(str, c.os_elem_ids()))
                         + f" section 1 fiber {point.y} {point.z} stressStrain")
+        # Record stress and strain for each fiber in a layer.
+        for layer in c.bridge.sections[0].layers:
+            for (point, point_path) in zip(layer.points(),
+                                        os_layer_paths(c, layer)):
+                recorders += (f"\nrecorder Element -file"
+                            + f" {point_path}"
+                            + " -ele " + " ".join(map(str, c.os_elem_ids()))
+                            + f" section 1 fiber {point.y} {point.z} stressStrain")
     return recorders
 
 
@@ -108,6 +112,6 @@ def build_model(c: Config, fem_params: FEMParams):
         .replace("<<ELEMENTS>>", opensees_elements(c))
         .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
         .replace("<<SECTIONS>>", opensees_sections(c))
-        .replace("<<RECORDERS>>", opensees_recorders(c)))
+        .replace("<<RECORDERS>>", opensees_recorders(c, fem_params.response_types)))
     with open(c.os_built_model_path, "w") as f:
         f.write(out_tcl)

@@ -14,10 +14,14 @@ class FEMParams():
 
     Attributes:
         loads: [Load], a list of Load.
+        response_types: [ResponseType], response types to record.
     """
-    def __init__(self, loads: [Load]=[]):
+    def __init__(self, loads: [Load]=[],
+                 response_types: [ResponseType]=all_response_types):
         self.loads=loads
+        self.response_types = response_types
 
+    # TODO: Rename for simulation-dependent results.
     def __str__(self):
         lstr = ",".join(str(l) for l in self.loads)
         return f"[{lstr}]"

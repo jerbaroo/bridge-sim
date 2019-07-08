@@ -155,6 +155,9 @@ class ResponseType(Enum):
     Strain = "strain"
 
 
+all_response_types = [rt for rt in ResponseType]
+
+
 class Section():
     """A section composed of fibers."""
     next_id = 1
