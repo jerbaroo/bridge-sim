@@ -5,7 +5,8 @@ import os
 import pickle
 from collections import defaultdict
 from config import bridge_705_config
-from typing import Callable
+from timeit import default_timer as timer
+from typing import Callable, List
 
 import matplotlib.pyplot as plt
 
@@ -82,32 +83,31 @@ class FEMResponses:
             pickle.dump(self._responses, f)
         print_i(f"Saved FEM responses to {path}")
 
-    def plot(self, y=0, z=0, t=-1):
-        """Plot responses along the x-axis for each simulation."""
-        matrix = [
-            [self.at(x, y=y, z=z, t=t).value for x in self.xs]
-            for simulation in range(self.num_simulations)]
-        plt.imshow(matrix, aspect="auto")
-        plt.ylabel("load")
-        plt.xlabel("sensor")
+    def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=-1, time=None):
+        """Plot responses along the x axis at some (y, z, t)."""
+        data = [self.at(
+                    x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
+                for x_ord in self.xs]
+        plt.plot(data)
         plt.show()
 
 
-def plot_x(fem_responses, y=0, y_ord=None, z=0, z_ord=None, t=-1, time=None):
-    """Plot responses along the x axis at some (y, z, t)."""
-    data = [fem_responses.at(
-                x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
-            for x_ord in fem_responses.xs]
-    plt.plot(data)
-    plt.show()
+ExptResponses = List[FEMResponses]
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, runner: FEMRunner):
-    print_i("Loading FEMResponses")
     path = fem_responses_path(c, fem_params, response_type, runner.name)
     if (not os.path.exists(path)):
         runner.run(c, fem_params)
+    start = timer()
     with open(path, "rb") as f:
-        return FEMResponses(
-            fem_params, runner.name, response_type, pickle.load(f))
+        responses = pickle.load(f)
+    end = timer()
+    print_i(f"Loaded {response_type} Responses in {end - start:.2f}")
+    start = timer()
+    fem_responses = FEMResponses(
+        fem_params, runner.name, response_type, responses)
+    end = timer()
+    print_i(f"Built {response_type} FEMResponses in {end - start:.2f}")
+    return fem_responses

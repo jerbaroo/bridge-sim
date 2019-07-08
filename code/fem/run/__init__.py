@@ -16,30 +16,24 @@ from util import *
 class FEMRunner():
     """Run FEM simulations and generate responses."""
     def __init__(self,
-                 run: Callable[
-                    [Config, FEMParams],
-                    [int, Dict[ResponseType, [Response]]]
-                 ],
+                 build: Callable[[Config, FEMParams], None],
+                 run: Callable[[Config], None],
                  name: str):
         self._run = run
         self.name = name
 
-    def run(self, c: Config, fem_params: FEMParams):
-        print_i(f"Running {self.name} FEMRunner")
-        start = timer()
+    def run(self, c: Config, fem_params: FEMParams,
+            response_types: [ResponseType]=None):
+        print_i(f"FEMRunner: running {self.name} FEM")
         responses_by_type = self._run(c, fem_params)
-        end = timer()
-        print_i(f"Ran FEM simulation in {end - start:.2f}s")
         for response_type, responses in responses_by_type.items():
-            start = timer()
-            fem_responses = FEMResponses(
-                fem_params,
-                self.name,
-                response_type,
-                responses)
-            end = timer()
-            print_i(f"Built {response_type} FEMResponses in {end - start:.2f}s")
-            start = timer()
-            fem_responses.save(c)
-            end = timer()
-            print_i(f"Saved {response_type} FEMResponses in {end - start:.2f}s")
+            if response_types is None or response_type in response_types:
+                start = timer()
+                fem_responses = FEMResponses(
+                    fem_params, self.name, response_type, responses)
+                end = timer()
+                print_i(f"Built {response_type} FEMResponses in {end - start:.2f}s")
+                start = timer()
+                fem_responses.save(c)
+                end = timer()
+                print_i(f"Saved {response_type} FEMResponses in {end - start:.2f}s")

@@ -1,7 +1,8 @@
 import itertools
 import subprocess
-import sys
+from timeit import default_timer as timer
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from config import Config
@@ -14,7 +15,10 @@ from util import *
 def run_model(c: Config):
     """Run an OpenSees model and return the recorded responses."""
     print_i(f"Running OpenSees with {c.os_built_model_path}")
+    start = timer()
     subprocess.run([c.os_exe_path, c.os_built_model_path])
+    end = timer()
+    print_i(f"Ran FEM simulation in {end - start:.2f}s")
 
     ##### X and Y translation for each node. #####
 
@@ -27,11 +31,14 @@ def run_model(c: Config):
             for time in range(len(trans))
             for i in range(len(trans[time]))]
 
+    start = timer()
     x = openSeesToNumpy(c.os_x_path)
-    _sim_time = len(x)  # Used for sanity check.
+    _sim_time = len(x)  # Used for sanity check below.
     y = openSeesToNumpy(c.os_y_path)
     x = translation_to_responses(x)
     y = translation_to_responses(y)
+    end = timer()
+    print_i(f"Parsed FEM translation responses in {end - start:.2f}s")
 
     ##### Stress and strain for each section's fiber. #####
 
@@ -47,6 +54,7 @@ def run_model(c: Config):
             for time in range(len(stress))
             for i in range(len(stress[time]))]
 
+    start = timer()
     stress = []
     strain = []
     for section in c.bridge.sections:
@@ -72,17 +80,21 @@ def run_model(c: Config):
             more_stress = [
                 [stress_strain[t][i * 2] for i in range(num_measurements)]
                 for t in range(num_t)]
+
             more_strain = [
                 [stress_strain[t][i * 2 + 1] for i in range(num_measurements)]
                 for t in range(num_t)]
             more_stress = stress_to_responses(
                 more_stress, section.id, fiber_cmd_id, point.y, point.z)
+            ms = [r.value for r in more_stress if r.time == 0]
+
             more_strain = stress_to_responses(
                 more_strain, section.id, fiber_cmd_id, point.y, point.z)
             stress += more_stress
             strain += more_strain
 
-    print_i("Parsed OpenSees recorded data")
+    end = timer()
+    print_i(f"Parsed FEM stress/strain responses in {end - start:.2f}s")
     return {
         ResponseType.XTranslation: x,
         ResponseType.YTranslation: y,

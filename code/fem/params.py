@@ -1,6 +1,8 @@
 """
 Parameters for FEM simulations.
 """
+from typing import List
+
 from model import *
 
 
@@ -19,6 +21,9 @@ class FEMParams():
     def __str__(self):
         lstr = ",".join(str(l) for l in self.loads)
         return f"[{lstr}]"
+
+
+ExptParams = List[FEMParams]
 
 
 if __name__ == "__main__":

@@ -1,11 +1,12 @@
 """Run FEM simulations with OpenSees."""
 from config import Config, bridge_705_config
 from fem.params import FEMParams
-from fem.responses import load_fem_responses, plot_x
+from fem.responses import load_fem_responses
 from fem.run import FEMRunner
 from fem.run.opensees.build import build_model
 from fem.run.opensees.run import run_model
 from model import *
+from util import *
 
 
 def _os_runner(c: Config, fem_params: FEMParams):
@@ -17,9 +18,8 @@ def _os_runner(c: Config, fem_params: FEMParams):
 os_runner = FEMRunner(_os_runner, "OpenSees")
 
 if __name__ == "__main__":
+    response_type = ResponseType.XTranslation
     fem_params = FEMParams([Load(0.5, 5e3), Load(0.2, 5e1)])
-    # os_runner.run(bridge_705_config, fem_params)
+    os_runner.run(bridge_705_config, fem_params, response_types=[response_type])
     fem_responses = load_fem_responses(
-        bridge_705_config, fem_params, ResponseType.Stress, os_runner)
-    plot_x(fem_responses, t=-1)
-    plot_x(fem_responses, t=0)
+        bridge_705_config, fem_params, response_type, os_runner)

@@ -12,6 +12,13 @@ from fem.run import FEMRunner
 from util import *
 
 
+def build_model(c: Config, loads=[]):
+    """Build a Diana model file."""
+    with open(c.di_model_template_path) as f:
+        in_tcl = f.read()
+    out_tcl = in_tcl.replace("<<LOADS>>")
+
+
 def run_model(c: Config, fem_params: FEMParams):
     """Run a Diana simulation."""
     print_i("TODO Add loads to Diana simulation.")
