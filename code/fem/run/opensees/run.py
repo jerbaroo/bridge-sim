@@ -84,7 +84,8 @@ def parse_responses(c: Config, response_types: [ResponseType]) -> Dict[ResponseT
     return results
 
 
-def convert_responses(c: Config, parsed: Dict[ResponseType, P]) -> Dict[ResponseType, List[Response]]:
+def convert_responses(c: Config, parsed: Dict[ResponseType, P], _
+                     ) -> Dict[ResponseType, List[Response]]:
     """Convert parsed responses to Responses."""
 
     def translation_to_responses(trans):

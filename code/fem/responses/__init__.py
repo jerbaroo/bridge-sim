@@ -30,9 +30,11 @@ class FEMResponses:
 
     NOTE: Use the .at method to access responses.
 
+    If skip_build is true then only the .save method will operate correctly.
     """
     def __init__(self, fem_params: FEMParams, runner_name: str,
-                 response_type: ResponseType, responses: [Response]):
+                 response_type: ResponseType, responses: [Response],
+                 skip_build=False):
         assert isinstance(responses, list)
         assert isinstance(responses[0], Response)
 
@@ -43,6 +45,9 @@ class FEMResponses:
         self.runner_name = runner_name
         self.response_type = response_type
         self.num_sensors = len(responses)
+
+        if skip_build:
+            return
 
         # Nested dictionaries for indexing responses by ordinates.
         self.responses = defaultdict(

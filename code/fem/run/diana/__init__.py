@@ -2,7 +2,7 @@
 import subprocess
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import TypeVar
+from typing import Dict, List, TypeVar
 
 import numpy as np
 
@@ -120,6 +120,7 @@ def parse_strain(c: Config):
 
 def parse_responses(c: Config, response_types: [ResponseType]) -> Parsed:
     """Parse responses from a Diana simulation."""
+    results = dict()
 
     def parse_type(response_type: ResponseType):
         return response_type in response_types or response_types is None
@@ -129,15 +130,43 @@ def parse_responses(c: Config, response_types: [ResponseType]) -> Parsed:
         start = timer()
         parsed_translation = parse_translation(c)
         print_i(f"Diana: Parsed translation responses in {timer() - start:.2f}s")
+        results["translation"] = parsed_translation
 
     if (parse_type(ResponseType.Strain)):
         start = timer()
         parsed_strain = parse_strain(c)
         print_i(f"Diana: Parsed strain responses in {timer() - start:.2f}s")
+        results["strain"] = parsed_strain
+
+    return results
 
 
+def convert_responses(c: Config, parsed: Parsed, response_types: [ResponseType]
+                     ) -> Dict[ResponseType, List[Response]]:
+    """Convert parsed responses to Responses."""
+    results = dict()
+    if ResponseType.XTranslation in response_types:
+        results[ResponseType.XTranslation] = [
+            Response(dx, x=x, y=y, z=z, time=time, node_id=node_id)
+            for time in parsed["translation"]
+            for node_id, dx, _dy, _dz, x, y, z in parsed["translation"][time]]
+    if ResponseType.YTranslation in response_types:
+        results[ResponseType.YTranslation] = [
+            Response(dy, x=x, y=y, z=z, time=time, node_id=node_id)
+            for time in parsed["translation"]
+            for node_id, _dx, dy, _dz, x, y, z in parsed["translation"][time]]
+    if ResponseType.Strain in response_types:
+        results[ResponseType.Strain] = [
+            Response(ey, x=x, y=y, z=z, time=time, elem_id=elem_id,
+                     srf_id=srf_id, node_id=node_id)
+            for time in parsed["strain"]
+            for elem_id, srf_id, node_id, _ex, ey, _ez, gx, gy, gz, x, y, z
+            in parsed["strain"][time]]
+    return results
 
-di_runner = FEMRunner("Diana", build_model, run_model, parse_responses, None)
+
+di_runner = FEMRunner(
+    "Diana", build_model, run_model, parse_responses, convert_responses)
 
 
 if __name__ == "__main__":
@@ -146,11 +175,3 @@ if __name__ == "__main__":
     fem_params = FEMParams([Load(0.5, 5e4), Load(0.2, 5e5)], [response_type])
 
     di_runner.run(c, fem_params)
-    print(str(fem_params))
-    n = FEMResponses(0, 0, 0, [
-        Response(1, x=1, y=2, z=3),
-        Response(2, x=1, y=4, z=3),
-        Response(3, x=1, y=1, z=3),
-        Response(4, x=1, y=2, z=1),
-        Response(5, x=2, y=2, z=3)])
-    print(n.at(0.5).value)
