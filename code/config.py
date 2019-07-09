@@ -98,6 +98,7 @@ class Config():
 
         # Diana.
         self.di_exe_path = "c:/Program Files/Diana 10.3/bin/diana.exe"
+        self.di_model_template_path = "diana-705-template.dat"
         self.di_model_path = "diana-705.dat"
         self.di_cmd_path = "diana-cmd.dcf"
         self.di_out_path = "diana-out.out"

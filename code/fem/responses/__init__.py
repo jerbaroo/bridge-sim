@@ -60,7 +60,12 @@ class FEMResponses:
 
     def at(self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=-1,
            time=None):
-        """Access simulation responses using indices or directly."""
+        """Access simulation responses using fractions in [0 1] or directly.
+
+        When accessed using fractions in [0 1], the fraction respresents the
+        nth sensor along that axis.
+
+        """
         if x_ord is None:
             x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
             x_ord = self.xs[x_ind]
