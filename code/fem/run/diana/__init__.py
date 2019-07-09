@@ -1,6 +1,8 @@
 """Run FEM simulations of bridge 705 with Diana."""
 import subprocess
 from collections import defaultdict
+from timeit import default_timer as timer
+from typing import TypeVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def diana_loads(c: Config, loads: [Load]):
 
 def build_model(c: Config, fem_params: FEMParams):
     """Build a Diana model file."""
+    return
     print_i("Diana: ignoring Config.Bridge")
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
@@ -41,13 +44,60 @@ def build_model(c: Config, fem_params: FEMParams):
 
 def run_model(c: Config):
     """Run a Diana simulation."""
+    return
     out = ".out"
     assert c.di_out_path.endswith(out)
     subprocess.run([c.di_exe_path, c.di_model_path, c.di_cmd_path,
                     c.di_out_path[:-len(out)], c.di_filos_path])
 
 
-di_runner = FEMRunner("Diana", build_model, run_model, None, None)
+P = TypeVar("P")
+
+
+def parse_translation(c: Config):
+    """Parse translation responses as tuples, indexed by timestep.
+
+    NOTE: timestep starts at 0.
+
+    """
+    with open(c.di_translation_path) as f:
+        lines = f.readlines()
+    time = 0
+    time_header = True
+    data = defaultdict(list)  # Data for each subsequent timestep.
+    for line in lines:
+        # Need to find beginning of data.
+        if time_header:
+            if line.strip().startswith("Nodnr"):
+                time_header = False
+        else:
+            nums = line.split()
+            # Else parse data if possible.
+            if len(nums) == 7:
+                line_data = list(map(float, nums))
+                data[time].append(line_data)
+            # Else beginning of new header.
+            else:
+                time += 1
+                time_header = True
+    return data
+
+
+def parse_responses(c: Config, response_types: [ResponseType]) -> P:
+    """Parse responses from a Diana simulation."""
+
+    def parse_type(response_type: ResponseType):
+        return response_type in response_types or response_types is None
+
+    if (parse_type(ResponseType.XTranslation)
+            or parse_type(ResponseType.YTranslation)):
+        start = timer()
+        parsed_translation = parse_translation(c)
+        print_i(f"Diana: Parsed translation responses in {timer() - start:.2f}s")
+        
+
+
+di_runner = FEMRunner("Diana", build_model, run_model, parse_responses, None)
 
 
 if __name__ == "__main__":

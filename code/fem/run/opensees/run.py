@@ -31,14 +31,12 @@ def parse_responses(c: Config, response_types: [ResponseType]) -> Dict[ResponseT
     if parse_type(ResponseType.XTranslation):
         start = timer()
         x = openSeesToNumpy(c.os_x_path)
-        end = timer()
-        print_i(f"OpenSees: Parsed XTranslation responses in {end - start:.2f}s")
+        print_i(f"OpenSees: Parsed XTranslation responses in {timer() - start:.2f}s")
 
     if parse_type(ResponseType.YTranslation):
         start = timer()
         y = openSeesToNumpy(c.os_y_path)
-        end = timer()
-        print_i(f"OpenSees: Parsed YTranslation responses in {end - start:.2f}s")
+        print_i(f"OpenSees: Parsed YTranslation responses in {timer() - start:.2f}s")
 
     stress = []
     strain = []
@@ -107,7 +105,7 @@ def convert_responses(c: Config, parsed: Dict[ResponseType, P]) -> Dict[Response
 
     def stress_to_responses(stress, section_id, fiber_cmd_id, y, z):
         """Stress or strain data to a list of Response."""
-        # TODO: Check.
+        # TODO: Check assertion makes sense.
         assert len(stress) == _sim_time
         elem_ids = c.os_elem_ids()
         return [
