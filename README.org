@@ -10,11 +10,13 @@ Code is found in /code/ with a README describing the files [[./code/README.org][
 ** Quickstart
 
 If you don't have pipenv installed: =pip install pipenv=.
+If you don't have Git LFS installed: [[https://git-lfs.github.com/][download here]].
 
 #+BEGIN_SRC bash
 git clone git@github.com:barischrooneyj/msc-tno-uva
 cd msc-tno-uva
 pipenv install
+git lfs install
 
 cd code
 python normal_load.py
