@@ -91,7 +91,7 @@ def opensees_recorders(c: Config, response_types: [ResponseType]):
         # Record stress and strain for each fiber in a layer.
         for layer in c.bridge.sections[0].layers:
             for (point, point_path) in zip(layer.points(),
-                                        os_layer_paths(c, layer)):
+                                           os_layer_paths(c, layer)):
                 recorders += (f"\nrecorder Element -file"
                             + f" {point_path}"
                             + " -ele " + " ".join(map(str, c.os_elem_ids()))
@@ -112,6 +112,7 @@ def build_model(c: Config, fem_params: FEMParams):
         .replace("<<ELEMENTS>>", opensees_elements(c))
         .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
         .replace("<<SECTIONS>>", opensees_sections(c))
-        .replace("<<RECORDERS>>", opensees_recorders(c, fem_params.response_types)))
+        .replace("<<RECORDERS>>",
+                 opensees_recorders(c, fem_params.response_types)))
     with open(c.os_built_model_path, "w") as f:
         f.write(out_tcl)

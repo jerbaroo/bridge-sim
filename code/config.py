@@ -47,6 +47,7 @@ class Config():
         di_cmd_path: str, path of the Diana command file.
         di_out_path: str, path of the Diana output file.
         di_filos_path: str, path of the Diana filos file.
+        di_max_x_elem: int, index of maximum x-axis element.
 
     """
     def __init__(self, bridge):
@@ -101,6 +102,7 @@ class Config():
         self.di_cmd_path = "diana-cmd.dcf"
         self.di_out_path = "diana-out.out"
         self.di_filos_path = "diana.ff"
+        self.di_max_x_elem = 207848
 
 
 bridge_705_config = Config(bridge_705)

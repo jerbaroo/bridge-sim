@@ -12,7 +12,14 @@ from fem.run import FEMRunner
 from util import *
 
 
-def build_model(c: Config, loads=[]):
+def diana_loads(c: Config, fem_params: FEMParams):
+    """Diana load commands for a .dat file."""
+    return "\n".join(
+        (f"")
+        for i, l in enumerate(fem_params.loads))
+
+
+def build_model(c: Config, fem_params: FEMParams):
     """Build a Diana model file."""
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()

@@ -8,64 +8,60 @@
 * Overview
   My goal is to submit the thesis by end of January 2020, and no later.
  
-  This will be 8 months of full-time work over a 10 month period. The difference
-  of two months is because I am initially working part-time on the thesis and
-  will also take some time off, in particular early on before I leave Amsterdam.
-  
-  Overleaf you will find a table of weekly work rate and notes/goals of what is
-  happening per week. You will also find a graph of the work rate.
+  Initially 6 weeks in a 3 month period. Followed by 6.5 months in a 7 month
+  period. 8 months total in a 10 month period.
   
 \pagebreak
 * Table 
   WP = weeks passed, WW = weeks worked
   
 #+TBLNAME: weekly
-| Date   | WP | Rate |   WW | Goal/Note                                                               |
-|--------+----+------+------+-------------------------------------------------------------------------|
-| Apr 1  |  1 |  0.5 |  0.5 | Reading                                                                 |
-| Apr 8  |  2 |  0.5 |  1.0 | Research question formulated                                            |
-| Apr 15 |  3 |    0 |  1.0 | @@latex:\cellcolor{blue!25}@@ Time off (catching up on work)            |
-| Apr 22 |  4 |  0.5 |  1.5 | First draft of abstract and timeline                                    |
-| Apr 29 |  5 |  0.5 |  2.0 | Investigated bridge damage types and small scale FE model               |
-| May 6  |  6 |  0.5 |  2.5 | Project presented to TNO staff                                          |
-| May 13 |  7 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Birthday and father visit                 |
-| May 20 |  8 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Exam                                      |
-| May 27 |  9 |  0.5 |  3.0 | Generated synthetic data under normal conditions                        |
-| Jun 3  | 10 |    1 |  4.0 | Completed literature review                                             |
-| Jun 10 | 11 |  0.5 |  4.5 | @@latex:\cellcolor{blue!25}@@ Mother visit                              |
-| Jun 17 | 12 |    1 |  5.5 | Verified synthetic data against sensor measurements                     |
-| Jun 24 | 13 |    1 |  6.5 | Determined sensors containing explanatory information per damage type   |
-| July 1 | 14 |    1 |  7.5 |                                                                         |
-| Jul 7  | 15 |    1 |  8.5 |                                                                         |
-| Jul 14 | 16 |    1 |  9.5 | Determined optimal sensor placement for bridge 705                      |
-| Jul 21 | 17 |    0 |  9.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
-| Jul 28 | 18 |    0 |  9.5 | @@latex:\cellcolor{blue!25}@@ Time off and move closer to the office    |
-| Aug 5  | 19 |    1 | 10.5 |                                                                         |
-| Aug 12 | 20 |    1 | 11.5 |                                                                         |
-| Aug 19 | 21 |    1 | 12.5 | Calculated damage to bridge 705 with a data-driven model                |
-| Aug 26 | 22 |    1 | 13.5 |                                                                         |
-| Sep 2  | 23 |    1 | 14.5 | Calculated damage to bridge 705 with a finite element model             |
-| Sep 9  | 24 |    1 | 15.5 | Determined useful combinations of data-driven and finite element models |
-| Sep 16 | 25 |    1 | 16.5 |                                                                         |
-| Sep 23 | 26 |    1 | 17.5 |                                                                         |
-| Sep 30 | 27 |    1 | 18.5 | Quantified measurement and model uncertainty                            |
-| Oct 7  | 28 |    1 | 19.5 | Outlined a decision support system                                      |
-| Oct 14 | 29 |    1 | 20.5 | Completed a cost-beneft analysis of the decision support system         |
-| Oct 21 | 30 |    1 | 21.5 | Started generalizing the model to bridges other than 705                |
-| Oct 28 | 31 |    1 | 22.5 |                                                                         |
-| Nov 4  | 32 |    1 | 23.5 |                                                                         |
-| Nov 11 | 33 |    1 | 24.5 |                                                                         |
-| Nov 18 | 34 |    1 | 25.5 | Started writing thesis                                                  |
-| Nov 25 | 35 |    1 | 26.5 |                                                                         |
-| Dec 2  | 36 |    1 | 27.5 |                                                                         |
-| Dec 9  | 37 |    1 | 28.5 | Finished writing draft of thesis                                        |
-| Dec 16 | 38 |    1 | 29.5 |                                                                         |
-| Dec 23 | 39 |    0 | 29.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
-| Dec 30 | 40 |    0 | 29.5 | @@latex:\cellcolor{blue!25}@@ Time off                                  |
-| Jan 6  | 41 |    1 | 30.5 |                                                                         |
-| Jan 13 | 42 |    1 | 31.5 |                                                                         |
-| Jan 20 | 43 |    1 | 32.5 |                                                                         |
-| Jan 27 | 44 |    1 | 33.5 | Submit                                                                  |
+| Date   | WP | Rate |   WW | Goal/Note                                          |
+|--------+----+------+------+----------------------------------------------------|
+| Apr 1  |  1 |  0.5 |  0.5 | Reading                                            |
+| Apr 8  |  2 |  0.5 |  1.0 | Formulated research question                       |
+| Apr 15 |  3 |    0 |  1.0 | @@latex:\cellcolor{blue!25}@@ Time off             |
+| Apr 22 |  4 |  0.5 |  1.5 | Completed draft of abstract and timeline           |
+| Apr 29 |  5 |  0.5 |  2.0 | Investigated damage types and OpenSees             |
+| May 6  |  6 |  0.5 |  2.5 | Project presented to TNO staff                     |
+| May 13 |  7 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Father visit         |
+| May 20 |  8 |    0 |  2.5 | @@latex:\cellcolor{blue!25}@@ Exam                 |
+| May 27 |  9 |  0.5 |  3.0 | Generated data from static loads with OpenSees     |
+| Jun 3  | 10 |    1 |  4.0 | Completed literature review draft                  |
+| Jun 10 | 11 |    0 |  4.0 | @@latex:\cellcolor{blue!25}@@ Mother visit         |
+| Jun 17 | 12 |    1 |  5.0 |                                                    |
+| Jun 24 | 13 |    1 |  6.0 |                                                    |
+| July 1 | 14 |    1 |  7.0 | Completed engineering plan and thesis structure    |
+| Jul 7  | 15 |    1 |  8.0 | Generated data from static loads with Diana        |
+| Jul 14 | 16 |    1 |  9.0 | Completed first analysis of static analysis data   |
+| Jul 21 | 17 |    1 | 10.0 | Implemented NC and classified one damage scenario  |
+| Jul 28 | 18 |    1 | 11.0 |                                                    |
+| Aug 5  | 19 |    1 | 12.0 | Generated synthetic data from dynamic analysis     |
+| Aug 12 | 20 |    1 | 13.0 |                                                    |
+| Aug 19 | 21 |    1 | 14.0 | Completed first analysis of dynamic analysis data  |
+| Aug 26 | 22 |    1 | 15.0 |                                                    |
+| Sep 2  | 23 |    1 | 16.0 | Completed (SHB) clustering of vibration data       |
+| Sep 9  | 24 |    1 | 17.0 |                                                    |
+| Sep 16 | 25 |    1 | 18.0 | Determined optimal sensor placement for bridge 705 |
+| Sep 23 | 26 |    1 | 19.0 |                                                    |
+| Sep 30 | 27 |    1 | 20.0 | Classification of remaining damage scenarios       |
+| Oct 7  | 28 |    1 | 21.0 |                                                    |
+| Oct 14 | 29 |    1 | 22.0 | Quantified uncertainty in the model                |
+| Oct 21 | 30 |    1 | 23.0 |                                                    |
+| Oct 28 | 31 |    1 | 24.0 | Completed a cost-beneft analysis of the DSS        |
+| Nov 4  | 32 |    1 | 25.0 |                                                    |
+| Nov 11 | 33 |    1 | 26.0 | Outlined a decision support system                 |
+| Nov 18 | 34 |    1 | 27.0 |                                                    |
+| Nov 25 | 35 |    1 | 28.0 | Generalizing the DSS to bridges other than 705     |
+| Dec 2  | 36 |    1 | 29.0 |                                                    |
+| Dec 9  | 37 |    1 | 30.0 | Completed draft of thesis                          |
+| Dec 16 | 38 |    1 | 31.0 | Built GUI to interact with the DSS                 |
+| Dec 23 | 39 |    0 | 31.0 | @@latex:\cellcolor{blue!25}@@ Time off             |
+| Dec 30 | 40 |    1 | 32.0 |                                                    |
+| Jan 6  | 41 |    1 | 33.0 |                                                    |
+| Jan 13 | 42 |    1 | 34.0 |                                                    |
+| Jan 20 | 43 |    1 | 35.0 |                                                    |
+| Jan 27 | 44 |    1 | 36.0 | Submit                                             |
 #+TBLFM: $2 = @#-1
 #+TBLFM: @3$4..@>$4 = $3 + @-1$4 ; %0.1f
 
