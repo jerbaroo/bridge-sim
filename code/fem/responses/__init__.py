@@ -67,7 +67,7 @@ class FEMResponses:
            time=None):
         """Access simulation responses using fractions in [0 1] or directly.
 
-        When accessed using fractions in [0 1], the fraction respresents the
+        When accessed using fractions in [0 1], the fractions respresent the
         nth sensor along that axis.
 
         """

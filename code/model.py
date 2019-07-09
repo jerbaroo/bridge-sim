@@ -22,8 +22,9 @@ class Bridge():
         """n equidistant points along the bridge's length."""
         return np.interp(range(n), [0, n - 1], [0, self.length])
 
+
 class Fix():
-    """A node fixed in some degrees of freedom."""
+    """A node (identified by x axis) fixed in some degrees of freedom."""
     def __init__(self, x_pos, x=False, y=False, rot=False):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
