@@ -104,6 +104,7 @@ class Config():
         self.di_out_path = "diana-out.out"
         self.di_filos_path = "diana.ff"
         self.di_translation_path = "displa_paths.tb"
+        self.di_strain_path = "strains_paths.tb"
         self.di_max_x_elem = 207848
 
 
