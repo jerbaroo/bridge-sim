@@ -24,17 +24,17 @@ def diana_mobile_load(c: Config, expt_params: ExptParams):
             for f in expt_params.fem_params)
 
     return (
-          f"CASE 1"
+          f"CASE 2"
         + f"\nMOBILE"
-        + f"\n    ELEMEN 1-57219"
-        + f"\n    DIRECT 3"
-        + f"\n    CODE NONE"
-        + f"\n    AXFORC -{int(expt_params.fem_params[0].loads[0].weight)}"
-        + f"\n    QUADIM 960 900"
-        + f"\n    AXWIDT 2300"
-        + f"\n    AXDIST 3600 1350 1500"
-        + f"\n    PATH {diana_path()}"
-        + f"\n    POSINC 1000")
+        + f"\n     ELEMEN 1-57129"
+        + f"\n     DIRECT 3"
+        + f"\n     CODE NONE"
+        + f"\n     AXFORC -{int(expt_params.fem_params[0].loads[0].weight)}"
+        + f"\n     QUADIM 960 900"
+        + f"\n     AXWIDT 2300"
+        + f"\n     AXDIST 3600 1350 1500"
+        + f"\n     PATH 0 8200 4165 20784 8200 4165"
+        + f"\n     POSINC 1000")
 
 
 def build_models(c: Config, expt_params: ExptParams):
@@ -44,6 +44,8 @@ def build_models(c: Config, expt_params: ExptParams):
     simulation will be run using the MOBILE Diana load.
 
     """
+    expt_params.mobile_load = True
+    return expt_params
     print_i("Diana: ignoring Config.Bridge")
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
@@ -60,7 +62,7 @@ def build_models(c: Config, expt_params: ExptParams):
     expt_params.mobile_load = mobile_load
     if mobile_load:
         out_tcl = in_tcl.replace(
-            "<<LOADS>>", diana_mobile_load(c, expt_params))
+            "<<MOBILE>>", diana_mobile_load(c, expt_params))
         print_i(diana_mobile_load(c, expt_params))
         with open(c.di_model_path, "w") as f:
             f.write(out_tcl)
@@ -78,8 +80,16 @@ def run_model(c: Config, expt_params: ExptParams):
     assert expt_params.mobile_load
     out = ".out"
     assert c.di_out_path.endswith(out)
-    subprocess.run([c.di_exe_path, c.di_model_path, c.di_cmd_path,
-                    c.di_out_path[:-len(out)], c.di_filos_path])
+    result = subprocess.run(
+        [c.di_exe_path, c.di_model_path, c.di_cmd_path,
+         c.di_out_path[:-len(out)], c.di_filos_path],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if result.stdout:
+        print(result.stdout.decode("utf-8"))
+    if result.stderr:
+        print(result.stderr.decode("utf-8"))
+        with open(c.di_out_path) as f:
+            print(f.read())
 
 
 Parsed = TypeVar("Parsed")
@@ -206,10 +216,10 @@ if __name__ == "__main__":
     response_type = ResponseType.Strain
     fem_params = ExptParams([
         FEMParams(
-            [Load(0, c.il_unit_load)],
+            [Load(0, 87375)],
             [response_type]),
         FEMParams(
-            [Load(0.1, c.il_unit_load)],
+            [Load(0.1, 87375)],
             [response_type])
     ])
 
