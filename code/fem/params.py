@@ -1,12 +1,10 @@
-"""
-Parameters for FEM simulations.
-"""
+"""Parameters for FEM simulations."""
 from typing import List
 
 from model import *
 
 
-class FEMParams():
+class FEMParams:
     """Parameters for a FEM simulation.
 
     NOTE:
@@ -20,6 +18,7 @@ class FEMParams():
                  response_types: [ResponseType]=all_response_types):
         self.loads=loads
         self.response_types = response_types
+        self.built_model_file = None
 
     # TODO: Rename for simulation-dependent results.
     def __str__(self):
@@ -27,7 +26,9 @@ class FEMParams():
         return f"[{lstr}]"
 
 
-ExptParams = List[FEMParams]
+class ExptParams:
+    def __init__(self, fem_params: List[FEMParams]):
+        self.fem_params = fem_params
 
 
 if __name__ == "__main__":

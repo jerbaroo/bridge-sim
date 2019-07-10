@@ -77,8 +77,9 @@
 * Literature review
   This section contains a review of the most relevant material studied during
   this thesis work. The aim of presenting a review of this material is to place
-  this thesis in context by describing related work, and to provide background
-  information to the reader on techniques that are employed in this thesis.
+  this thesis in context and to provide background information to the reader on
+  techniques that are employed in this thesis. After reviewing the most relevant
+  material this section closes with a more general overview of related material.
 ** The application of machine learning to structural health monitoring
    # Introduction.
    cite:worden2006application illustrates the utility of a data-driven approach
@@ -389,6 +390,7 @@
   # How the FEM is used to simulate sensor measurements.
 *** Finite element model
   # How the simulated responses compare to reality.
+*** Collected data
 *** Data analysis
 ** Damage identification
    # Section overview.
@@ -445,20 +447,31 @@
     
   Of the damage scenarios listed in Tables [[table:short-term-events]] and
   [[table:long-term-events]], four scenarios are selected for identification by the
-  DIM. These scenarios are chosen due to the practicality of simulating them in
-  a FEM of bridge 705. /Pier settlement/ can be simulated by displacing a pier
-  by a fixed amount, this is achieved in practice by applying a vertical force
-  known as a /displacement load/ to the deck so that the desired displacement is
-  achieved. /Abnormal loading conditions/ can be simulated easily by applying
-  abnormally heavy loads in the FE simulation. /Cracked concrete/ can be
-  simulated by reducing the value of Young's modulus for the cracked concrete
-  section. In practice, Young's modulus is often reduced to $\frac{1}{3}$ of its
-  original value (cite:li2010predicting). /Corrosion/ of the reinforment bars
-  can be simulated by increasing the size of the reinforcement bars TODO:WHY.
-  Finally, a damage scenario is considered where it is not the bridge that is
-  damaged but rather a sensor is malfunctioning. A /malfunctioning sensor/ can
-  be simulated by adding a significant amount of noise to the simulated sensor
-  responses or adding a constant offset to the responses.
+  DIM in addition to one unlisted damage scenario. These scenarios are chosen
+  due to the practicality of simulating them in a FEM of bridge 705.
+
+  /Pier settlement/ can be simulated by displacing a pier by a fixed amount,
+  this is achieved in practice by applying an increasing vertical force known as
+  a /displacement load/ to the deck until the desired displacement is achieved.
+  
+  /Abnormal loading conditions/ can be simulated relatively easily by applying
+  the heavy loads in the FE simulation. Care must be taken regarding the axle
+  configuration because extreme heavy loads typically have a different axle
+  configuration than less heavy vehicles.
+  
+  /Cracked concrete/ can be simulated by reducing the value of Young's modulus
+  for the cracked concrete section. In practice, Young's modulus is often
+  reduced to $\frac{1}{3}$ of its original value (cite:li2010predicting).
+  
+  /Corrosion/ of the reinforment bars can be simulated by increasing the size of
+  the reinforcement bars TODO:WHY. Finally, a damage scenario is considered
+  where it is not the bridge that is damaged but rather a sensor is
+  malfunctioning.
+
+  A /malfunctioning sensor/ can be simulated by adding a significant amount of
+  noise to the simulated sensor responses or adding a constant offset to the
+  responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
+  malfunctioning sensors is useful to accomplish.
 
   # How to test/score the models.
 *** Test setup

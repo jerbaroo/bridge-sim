@@ -2,9 +2,8 @@
 import os
 
 import numpy as np
-import pandas as pd
 
-from model import bridge_705, Load
+from model import bridge_705
 
 
 class Config():
@@ -43,6 +42,7 @@ class Config():
 
         # Diana.
         di_exe_path: str, path of the Diana executable.
+        di_model_path: str, path of the template Diana model file.
         di_model_path: str, path of the Diana model file.
         di_cmd_path: str, path of the Diana command file.
         di_out_path: str, path of the Diana output file.

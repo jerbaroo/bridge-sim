@@ -1,6 +1,4 @@
-"""
-Run FEM simulations and generate responses.
-"""
+"""Run FEM simulations and generate responses."""
 from __future__ import annotations
 
 import sys
@@ -19,8 +17,8 @@ class FEMRunner():
     """Run FEM simulations and generate responses."""
     def __init__(self,
                  name: str,
-                 build: Callable[[Config, FEMParams], None],
-                 run: Callable[[Config], None],
+                 build: Callable[[Config, ExptParams], ExptParams],
+                 run: Callable[[Config, ExptParams], ExptParams],
                  parse: Callable[
                      [Config, [ResponseType]],
                      Parsed],
@@ -33,13 +31,13 @@ class FEMRunner():
         self._convert = convert
         self.name = name
 
-    def run(self, c: Config, fem_params: FEMParams):
+    def run(self, c: Config, expt_params: ExptParams):
         start = timer()
-        self._build(c, fem_params)
+        expt_params = self._build(c, expt_params)
         print_i(f"FEMRunner: built {self.name} model file in {timer() - start:.2f}s")
 
         start = timer()
-        self._run(c)
+        self._run(c, expt_params)
         print_i(f"FEMRunner: ran {self.name} simulation in {timer() - start:.2f}s")
 
         start = timer()

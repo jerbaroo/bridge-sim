@@ -113,13 +113,11 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
     start = timer()
     with open(path, "rb") as f:
         responses = pickle.load(f)
-    end = timer()
-    print_i(f"Loaded Responses in {end - start:.2f}s ({response_type})")
+    print_i(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
 
     start = timer()
     fem_responses = FEMResponses(
         fem_params, runner.name, response_type, responses)
-    end = timer()
-    print_i(f"Built FEMResponses in {end - start:.2f}s, ({response_type})")
+    print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
     return fem_responses

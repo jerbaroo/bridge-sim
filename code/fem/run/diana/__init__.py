@@ -7,44 +7,75 @@ from typing import Dict, List, TypeVar
 import numpy as np
 
 from config import Config, bridge_705_config
-from fem.params import FEMParams
+from fem.params import ExptParams, FEMParams
 from fem.responses import FEMResponses
 from fem.run import FEMRunner
 from model import *
 from util import *
 
 
-def diana_loads(c: Config, loads: [Load]):
-    """Diana load commands for a .dat file."""
+def diana_mobile_load(c: Config, expt_params: ExptParams):
+    """Diana MOBILE load command for a .dat file."""
     # https://dianafea.com/manuals/d101/Analys/node32.html
-    return "\n".join(
-        ( f"CASE {i + 1}"
+
+    def diana_path():
+        return " ".join(
+            f"{int(c.di_max_x_elem * f.loads[0].x_pos)} 8200 4165"
+            for f in expt_params.fem_params)
+
+    return (
+          f"CASE 1"
         + f"\nMOBILE"
-        + f"\n\tELEMEN 1-57219"
-        + f"\n\tCODE NONE"
-        + f"\n\tAXFORC -{int(l.weight)}"
-        + f"\n\tQUADIM 960 900"
-        + f"\n\tAXWIDT 2300"
-        + f"\n\tAXDIST 3600 1350 1500"
-        + f"\n\tPATH 0 8200 4165 {int(c.di_max_x_elem * l.x_pos)} 8200 4165"
-        + f"\n\tPOSINC 1000")
-        for i, l in enumerate(loads))
+        + f"\n    ELEMEN 1-57219"
+        + f"\n    DIRECT 3"
+        + f"\n    CODE NONE"
+        + f"\n    AXFORC -{int(expt_params.fem_params[0].loads[0].weight)}"
+        + f"\n    QUADIM 960 900"
+        + f"\n    AXWIDT 2300"
+        + f"\n    AXDIST 3600 1350 1500"
+        + f"\n    PATH {diana_path()}"
+        + f"\n    POSINC 1000")
 
 
-def build_model(c: Config, fem_params: FEMParams):
-    """Build a Diana model file."""
-    return
+def build_models(c: Config, expt_params: ExptParams):
+    """Build Diana model files.
+
+    All simulations must consist of a single load of the same weight, a single
+    simulation will be run using the MOBILE Diana load.
+
+    """
     print_i("Diana: ignoring Config.Bridge")
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
-    out_tcl = in_tcl.replace("<<LOADS>>", diana_loads(c, fem_params.loads))
-    with open(c.di_model_path, "w") as f:
-        f.write(out_tcl)
+    # MOBILE Diana load.
+    mobile_load = True
+    for fem_params in expt_params.fem_params:
+        if len(fem_params.loads) != 1:
+            mobile_load = False
+    if mobile_load:
+        for fp1, fp2 in zip(
+                expt_params.fem_params[:-1], expt_params.fem_params[1:]):
+            if fp1.loads[0].weight != fp2.loads[0].weight:
+                mobile_load = False
+    expt_params.mobile_load = mobile_load
+    if mobile_load:
+        out_tcl = in_tcl.replace(
+            "<<LOADS>>", diana_mobile_load(c, expt_params))
+        print_i(diana_mobile_load(c, expt_params))
+        with open(c.di_model_path, "w") as f:
+            f.write(out_tcl)
+        return expt_params
+    raise ValueError("Only mobile load supported")
+    # Individual FEMParams unsupported.
+    for fem_params in expt_params.fem_params:
+        # out_tcl = in_tcl.replace("<<LOADS>>", diana_loads(c, fem_params.loads))
+        with open(fem_params.built_model_file, "w") as f:
+            f.write(out_tcl)
 
 
-def run_model(c: Config):
+def run_model(c: Config, expt_params: ExptParams):
     """Run a Diana simulation."""
-    return
+    assert expt_params.mobile_load
     out = ".out"
     assert c.di_out_path.endswith(out)
     subprocess.run([c.di_exe_path, c.di_model_path, c.di_cmd_path,
@@ -120,6 +151,7 @@ def parse_strain(c: Config):
 
 def parse_responses(c: Config, response_types: [ResponseType]) -> Parsed:
     """Parse responses from a Diana simulation."""
+    return None
     results = dict()
 
     def parse_type(response_type: ResponseType):
@@ -166,12 +198,19 @@ def convert_responses(c: Config, parsed: Parsed, response_types: [ResponseType]
 
 
 di_runner = FEMRunner(
-    "Diana", build_model, run_model, parse_responses, convert_responses)
+    "Diana", build_models, run_model, parse_responses, convert_responses)
 
 
 if __name__ == "__main__":
     c = bridge_705_config
     response_type = ResponseType.Strain
-    fem_params = FEMParams([Load(0.5, 5e4), Load(0.2, 5e5)], [response_type])
+    fem_params = ExptParams([
+        FEMParams(
+            [Load(0, c.il_unit_load)],
+            [response_type]),
+        FEMParams(
+            [Load(0.1, c.il_unit_load)],
+            [response_type])
+    ])
 
     di_runner.run(c, fem_params)
