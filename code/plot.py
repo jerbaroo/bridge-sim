@@ -34,6 +34,7 @@ def plot_bridge_deck_top(b: Bridge, bridge_color=bridge_color,
         plt.gca().add_patch(
             patches.Rectangle((0, lane.z0), b.length, lane.z1 - lane.z0,
                               facecolor=lane_color))
+    plt.axis("equal")
     if show:
         plt.show()
 
@@ -58,6 +59,7 @@ def plot_section(s: Section, color=bridge_color, point_color="r", show=True):
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
+    plt.axis("equal")
     if show:
         plt.show()
 

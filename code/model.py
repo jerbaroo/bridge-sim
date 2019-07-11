@@ -10,6 +10,8 @@ class Fix:
     Args:
         x_frac: float, fraction in [0 1] of x length.
         x: bool, whether to fix x translation.
+        y: bool, whether to fix y translation.
+        rot: bool, whether to fix rotation.
     """
     def __init__(self, x_frac, x=False, y=False, rot=False):
         assert x_frac >= 0 and x_frac <= 1
