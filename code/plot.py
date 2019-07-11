@@ -18,7 +18,7 @@ def plot_bridge_deck_side(b: Bridge, bridge_color=bridge_color,
     """Plot the deck of a bridge from the side."""
     plt.hlines(0, 0, b.length, color=bridge_color)
     plt.plot(
-        np.linspace(0, b.length, len(b.fixed_nodes)),
+        [f.x_frac * b.length for f in b.fixed_nodes],
         [0 for _ in range(len(b.fixed_nodes))],
         "o", color=pier_color)
     if show:

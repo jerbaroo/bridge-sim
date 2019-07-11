@@ -5,10 +5,15 @@ import numpy as np
 
 
 class Fix:
-    """A node fixed in some degrees of freedom."""
-    def __init__(self, x_pos, x=False, y=False, rot=False):
-        assert x_pos >= 0 and x_pos <= 1
-        self.x_pos = x_pos
+    """A node fixed in some degrees of freedom.
+
+    Args:
+        x_frac: float, fraction in [0 1] of x length.
+        x: bool, whether to fix x translation.
+    """
+    def __init__(self, x_frac, x=False, y=False, rot=False):
+        assert x_frac >= 0 and x_frac <= 1
+        self.x_frac = x_frac
         self.x = x
         self.y = y
         self.rot = rot
@@ -35,7 +40,13 @@ class Lane:
 
 
 class Load:
-    """A load to apply to the bridge."""
+    """A load to apply to the bridge.
+
+    Args:
+        x_pos: float, fraction of x position in [0 1].
+        weight: float, kgs.
+        lane: int, 0 is the first lane.
+    """
     def __init__(self, x_pos, weight, lane=0):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
@@ -197,11 +208,17 @@ class Bridge:
         return np.interp(range(n), [0, n - 1], [0, self.length])
 
 
+# Pier locations in meters.
+bridge_705_piers = [0]
+for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
+    bridge_705_piers.append(bridge_705_piers[-1] + span_distance)
+bridge_705_length = 102
 bridge_705 = Bridge(
-    length=102,
+    length=bridge_705_length,
     width=33.2,
     lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
-    fixed_nodes=[Fix(x_pos, y=True) for x_pos in np.linspace(0, 1, 8)],
+    fixed_nodes=[Fix(x / bridge_705_length, y=True)
+                 for x in bridge_705_piers],
     sections=[Section(
         patches=[
             Patch(-0.2, -1.075, 0, 1.075),
@@ -213,3 +230,4 @@ bridge_705 = Bridge(
         ]
     )]
 )
+print([f.x_frac for f in bridge_705.fixed_nodes])

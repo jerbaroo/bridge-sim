@@ -28,7 +28,7 @@ def diana_mobile_load(c: Config, expt_params: ExptParams):
         + f"\n     AXWIDT 2300"
         + f"\n     AXDIST 3600 1350 1500"
         + f"\n     PATH {path}"
-        + f"\n     POSINC {dinc}")
+        + f"\n     POSINC 1000")
 
 
 def build_models(c: Config, expt_params: ExptParams) -> ExptParams:
@@ -42,6 +42,8 @@ def build_models(c: Config, expt_params: ExptParams) -> ExptParams:
     NOTE: Diana units are in mm, length of bridge 705 is 102m or 102000mm.
 
     """
+    # expt_params.mobile_load = True
+    # return expt_params
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
 
