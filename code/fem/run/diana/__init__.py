@@ -43,8 +43,8 @@ def build_models(c: Config, expt_params: ExptParams):
     simulation will be run using the MOBILE Diana load.
 
     """
-    expt_params.mobile_load = True
-    return expt_params
+    # expt_params.mobile_load = True
+    # return expt_params
     print_i("Diana: ignoring Config.Bridge")
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
@@ -78,6 +78,7 @@ def build_models(c: Config, expt_params: ExptParams):
 
 def run_model(c: Config, expt_params: ExptParams):
     """Run a Diana simulation."""
+    return
     assert expt_params.mobile_load
     out = ".out"
     assert c.di_out_path.endswith(out)

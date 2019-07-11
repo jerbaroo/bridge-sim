@@ -4,26 +4,7 @@ from enum import Enum
 import numpy as np
 
 
-class Bridge():
-    """Description of a bridge.
-
-    Args:
-        length: length of the beam.
-        fixed_nodes: nodes fixed in some degrees of freedom.
-        sections: specification of the cross section.
-    """
-    def __init__(self, length, fixed_nodes, sections):
-        self.length = length
-        self.fixed_nodes = fixed_nodes
-        self.sections = sections
-        assert len(sections) == 1
-
-    def x_axis(self, n):
-        """n equidistant points along the bridge's length."""
-        return np.interp(range(n), [0, n - 1], [0, self.length])
-
-
-class Fix():
+class Fix:
     """A node (identified by x axis) fixed in some degrees of freedom."""
     def __init__(self, x_pos, x=False, y=False, rot=False):
         assert x_pos >= 0 and x_pos <= 1
@@ -33,7 +14,14 @@ class Fix():
         self.rot = rot
 
 
-class Load():
+class Lane:
+    """A traffic lane spanning the length of the bridge."""
+    def __init__(self, z0, z1):
+        self.z0 = min(z0, z1)
+        self.z1 = max(z0, z1)
+
+
+class Load:
     """A load to apply to the bridge."""
     def __init__(self, x_pos, weight):
         assert x_pos >= 0 and x_pos <= 1
@@ -53,7 +41,7 @@ class Material(Enum):
 _fiber_cmd_id = 1
 
 
-class Patch():
+class Patch:
     """A rectangular patch, used to describe a Section."""
     def __init__(self, y_i, z_i, y_j, z_j, num_sub_div_z=30,
                  material=Material.Concrete):
@@ -78,7 +66,7 @@ class Patch():
         return point
 
 
-class Layer():
+class Layer:
     """A straight line of fibers, used to describe a Section.
 
     Args:
@@ -112,7 +100,7 @@ class Layer():
         return points
 
 
-class Point():
+class Point:
     """A point described as (x, y, z)."""
     def __init__(self, x=None, y=None, z=None):
         self.x = x
@@ -159,7 +147,7 @@ class ResponseType(Enum):
 all_response_types = [rt for rt in ResponseType]
 
 
-class Section():
+class Section:
     """A section composed of fibers."""
     next_id = 1
     def __init__(self, patches=[], layers=[]):
@@ -169,8 +157,34 @@ class Section():
         self.layers = layers
 
 
+class Bridge:
+    """Description of a bridge.
+
+    Args:
+        length: int, length of the beam.
+        fixed_nodes: [Fix], nodes fixed in some degrees of freedom.
+        sections: [Section], specification of the cross section.
+        width: int, width of the bridge, ignored by OpenSees.
+
+    """
+    def __init__(self, length, width, fixed_nodes: [Fix]=[],
+                 sections: [Section]=[], lanes: [Lane]=[]):
+        self.length = length
+        self.width = width
+        self.fixed_nodes = fixed_nodes
+        self.sections = sections
+        self.lanes = lanes
+        assert len(sections) == 1
+
+    def x_axis(self, n):
+        """n equidistant points along the bridge's length."""
+        return np.interp(range(n), [0, n - 1], [0, self.length])
+
+
 bridge_705 = Bridge(
-    length=60,
+    length=102,
+    width=33.2,
+    lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
     fixed_nodes=[Fix(x_pos, y=True) for x_pos in np.linspace(0, 1, 8)],
     sections=[Section(
         patches=[
