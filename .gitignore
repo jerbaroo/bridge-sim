@@ -1,7 +1,9 @@
 .DS_Store
 *.swp
+*.tb
 diana*.out
 diana.ff
+diana-705.dat
 __pycache__/
 dss.egg-info/
 generated/

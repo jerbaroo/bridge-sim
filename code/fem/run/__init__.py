@@ -39,6 +39,7 @@ class FEMRunner():
         start = timer()
         self._run(c, expt_params)
         print_i(f"FEMRunner: ran {self.name} simulation in {timer() - start:.2f}s")
+        exit()
 
         start = timer()
         # TODO: Return parsing time per ResponseType.
