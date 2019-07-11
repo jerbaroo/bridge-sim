@@ -1,11 +1,11 @@
-"""Classes for describing bridges and loads."""
+"""Classes for modeling bridges and loads."""
 from enum import Enum
 
 import numpy as np
 
 
 class Fix:
-    """A node (identified by x axis) fixed in some degrees of freedom."""
+    """A node fixed in some degrees of freedom."""
     def __init__(self, x_pos, x=False, y=False, rot=False):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
@@ -15,18 +15,33 @@ class Fix:
 
 
 class Lane:
-    """A traffic lane spanning the length of the bridge."""
+    """A traffic lane spanning the length of the bridge.
+
+    Args:
+        z0: float, z ordinate of one edge of the lane, in meters.
+        z1: float, z ordinate of the other edge of the lane, in meters.
+    """
     def __init__(self, z0, z1):
         self.z0 = min(z0, z1)
         self.z1 = max(z0, z1)
 
+    def width(self):
+        """Width of the lane in meters."""
+        return self.z1 - self.z0
+
+    def z_center(self):
+        """Z ordinate of the center of the lane, in meters."""
+        return self.z0 + self.width()
+
 
 class Load:
     """A load to apply to the bridge."""
-    def __init__(self, x_pos, weight):
+    def __init__(self, x_pos, weight, lane=1):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
+        # Rename to kgs.
         self.weight = weight
+        self.lane = lane
 
     def __str__(self):
         return f"({self.x_pos:.2f}, {self.weight:.2f})"
@@ -161,10 +176,11 @@ class Bridge:
     """Description of a bridge.
 
     Args:
-        length: int, length of the beam.
-        fixed_nodes: [Fix], nodes fixed in some degrees of freedom.
-        sections: [Section], specification of the cross section.
-        width: int, width of the bridge, ignored by OpenSees.
+        length: int, length of the beam in meters.
+        width: int, width of the bridge in meters, ignored by OpenSees.
+        lanes: [Lane], lanes that span the bridge, where to place loads.
+        fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
+        sections: [Section], description of the bridge's cross section.
 
     """
     def __init__(self, length, width, fixed_nodes: [Fix]=[],

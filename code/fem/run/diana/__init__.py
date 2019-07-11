@@ -17,35 +17,41 @@ from util import *
 def diana_mobile_load(c: Config, expt_params: ExptParams):
     """MOBILE load command for a Diana build file."""
     # https://dianafea.com/manuals/d101/Analys/node32.html
-
-    diana_path = " ".join(
-        f"{int(c.di_max_x_elem * f.loads[0].x_pos)} 8200 4165"
-        for f in expt_params.fem_params)
+    start_x = c.bridge.length * expt_params.fem_params[0].loads[0].x_pos * 100
+    end_x = c.bridge.length * expt_params.fem_params[-1].loads[0].x_pos * 100
+    lane = c.bridge.lanes[expt_params.fem_params[0].loads[0].lane]
+    lane_z_center = lane.z_center() * 100
+    # Path is given by x, y, z, x, y, z.
+    path = (f"{start_x:.0f} 8200 {lane_z_center:.0f}"
+            + f" {end_x:.0f} 8200 {lane_z_center:.0f}")
+    print_i(f"Diana: path = {path}")
+    dinc = f"{(end_x - start_x) / len(expt_params.fem_params):.0f}"
+    print_i(f"Diana: position increment = {dinc}")
 
     return (
-          f"CASE 2"
+          f"CASE 1"
         + f"\nMOBILE"
-        + f"\n  ELEMEN 1-57129"
-        + f"\n  DIRECT 3"
-        + f"\n  CODE NONE"
-        + f"\n  AXFORC -{int(expt_params.fem_params[0].loads[0].weight)}"
-        + f"\n  QUADIM 960 900"
-        + f"\n  AXWIDT 2300"
-        + f"\n  AXDIST 3600 1350 1500"
-        + f"\n  PATH {diana_path}"
-        + f"\n  POSINC 1000")
+        + f"\n    ELEMEN 1-57129"
+        + f"\n    DIRECT 3"
+        + f"\n    CODE NONE"
+        + f"\n    AXFORC -{int(expt_params.fem_params[0].loads[0].weight)}"
+        + f"\n    QUADIM 960 900"
+        + f"\n    AXWIDT 2300"
+        + f"\n    AXDIST 3600 1350 1500"
+        + f"\n    PATH {path}"
+        + f"\n    POSINC {dinc}")
 
 
 def build_models(c: Config, expt_params: ExptParams):
     """Build Diana model files.
 
-    All simulations must consist of a single load of the same weight, a single
-    simulation will be run using the MOBILE Diana load.
+    If all simulations consist of a single load (where each load is identical
+    apart from x_pos), then Diana a will run a single simulatsion using the
+    MOBILE Diana load command.
+
+    NOTE: Diana units are in cm, length of bridge 705 is 102m or 10200cm.
 
     """
-    # expt_params.mobile_load = True
-    # return expt_params
-    print_i("Diana: ignoring Config.Bridge")
     with open(c.di_model_template_path) as f:
         in_tcl = f.read()
 
@@ -59,26 +65,30 @@ def build_models(c: Config, expt_params: ExptParams):
                 expt_params.fem_params[:-1], expt_params.fem_params[1:]):
             if fp1.loads[0].weight != fp2.loads[0].weight:
                 mobile_load = False
+            if fp1.loads[0].lane != fp2.loads[0].lane:
+                mobile_load = False
+            if fp2.loads[0].x_pos < fp1.loads[0].x_pos:
+                mobile_load = False
     expt_params.mobile_load = mobile_load
     if mobile_load:
-        out_tcl = in_tcl.replace(
-            "<<MOBILE>>", diana_mobile_load(c, expt_params))
-        print_i(diana_mobile_load(c, expt_params))
+        mobile_load_str = diana_mobile_load(c, expt_params)
+        out_tcl = in_tcl.replace("<<MOBILE>>", mobile_load_str)
+        print_i(mobile_load_str)
         with open(c.di_model_path, "w") as f:
             f.write(out_tcl)
         return expt_params
 
     # Individual FEMParams unsupported.
     raise ValueError("Diana: only MOBILE load supported")
-    for fem_params in expt_params.fem_params:
+    # for fem_params in expt_params.fem_params:
         # out_tcl = in_tcl.replace("<<LOADS>>", diana_loads(c, fem_params.loads))
-        with open(fem_params.built_model_file, "w") as f:
-            f.write(out_tcl)
+        # with open(fem_params.built_model_file, "w") as f:
+        #     f.write(out_tcl)
 
 
 def run_model(c: Config, expt_params: ExptParams):
     """Run a Diana simulation."""
-    return
+    exit()
     assert expt_params.mobile_load
     out = ".out"
     assert c.di_out_path.endswith(out)
@@ -91,6 +101,7 @@ def run_model(c: Config, expt_params: ExptParams):
         print(result.stdout.decode("utf-8"))
     if result.stderr:
         print(result.stderr.decode("utf-8"))
+        # Print output log.
         with open(c.di_out_path) as f:
             print(f.read())
 
