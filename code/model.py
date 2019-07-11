@@ -31,12 +31,12 @@ class Lane:
 
     def z_center(self):
         """Z ordinate of the center of the lane, in meters."""
-        return self.z0 + self.width()
+        return self.z0 + (self.width() / 2)
 
 
 class Load:
     """A load to apply to the bridge."""
-    def __init__(self, x_pos, weight, lane=1):
+    def __init__(self, x_pos, weight, lane=0):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
         # Rename to kgs.

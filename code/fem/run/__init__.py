@@ -20,11 +20,11 @@ class FEMRunner():
                  build: Callable[[Config, ExptParams], ExptParams],
                  run: Callable[[Config, ExptParams], ExptParams],
                  parse: Callable[
-                     [Config, [ResponseType]],
+                     [Config, ExptParams, List[ResponseType]],
                      Parsed],
                  convert: Callable[
-                     [Config, Parsed, [ResponseType]],
-                     Dict[ResponseType, [Response]]]):
+                     [Config, Parsed, List[ResponseType]],
+                     Dict[int, Dict[ResponseType, List[Response]]]]):
         self._build = build
         self._run = run
         self._parse = parse
@@ -37,13 +37,12 @@ class FEMRunner():
         print_i(f"FEMRunner: built {self.name} model file in {timer() - start:.2f}s")
 
         start = timer()
-        self._run(c, expt_params)
+        expt_params = self._run(c, expt_params)
         print_i(f"FEMRunner: ran {self.name} simulation in {timer() - start:.2f}s")
-        exit()
 
         start = timer()
         # TODO: Return parsing time per ResponseType.
-        parsed_by_type = self._parse(c, fem_params.response_types)
+        parsed_by_type = self._parse(c, expt_params)
         print_i(f"FEMRunner: parsed all responses in {timer() - start:.2f}s")
 
         start = timer()
