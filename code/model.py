@@ -210,17 +210,17 @@ class Bridge:
         return np.interp(range(n), [0, n - 1], [0, self.length])
 
 
-# Pier locations in meters.
-bridge_705_piers = [0]
+_bridge_705_piers = [0]  # Pier locations in meters.
 for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
-    bridge_705_piers.append(bridge_705_piers[-1] + span_distance)
-bridge_705_length = 102
+    _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
+_bridge_705_length = 102
+
 bridge_705 = Bridge(
-    length=bridge_705_length,
+    length=_bridge_705_length,
     width=33.2,
     lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
-    fixed_nodes=[Fix(x / bridge_705_length, y=True)
-                 for x in bridge_705_piers],
+    fixed_nodes=[Fix(x / _bridge_705_length, y=True)
+                 for x in _bridge_705_piers],
     sections=[Section(
         patches=[
             Patch(-0.2, -1.075, 0, 1.075),
@@ -232,4 +232,3 @@ bridge_705 = Bridge(
         ]
     )]
 )
-print([f.x_frac for f in bridge_705.fixed_nodes])

@@ -24,13 +24,17 @@ def fem_responses_path(c: Config, fem_params: FEMParams,
 
 
 class FEMResponses:
-    """Responses of one sensor type for one simulation.
+    """Responses of one sensor type for one FEM simulation.
 
-    Indexed as [time][x][y][z], where x, y, z are axis ordinates.
+    FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
+    axis ordinates. But it is better to use the .at method to access responses.
 
-    NOTE: Use the .at method to access responses.
+    Args:
+        fem_params: FEMParams, the parameters of the simulation.
+        runner_name: str, the FEMRunner used to run the simulation.
+        response_type: ResponseType, the type of sensor responses collected.
+        skip_build: bool, reduces time if responses will only be saved.
 
-    If skip_build is true then only the .save method will operate correctly.
     """
     def __init__(self, fem_params: FEMParams, runner_name: str,
                  response_type: ResponseType, responses: [Response],

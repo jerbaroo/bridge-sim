@@ -10,6 +10,7 @@ from fem.responses import FEMResponses
 from config import Config
 from util import *
 
+
 Parsed = TypeVar("parsed")
 
 
@@ -34,30 +35,35 @@ class FEMRunner():
     def run(self, c: Config, expt_params: ExptParams):
         start = timer()
         expt_params = self._build(c, expt_params)
-        print_i(f"FEMRunner: built {self.name} model file in {timer() - start:.2f}s")
+        print_i(f"FEMRunner: built {self.name} model file in"
+                + f"{timer() - start:.2f}s")
 
         start = timer()
         expt_params = self._run(c, expt_params)
-        print_i(f"FEMRunner: ran {self.name} simulation in {timer() - start:.2f}s")
+        print_i(f"FEMRunner: ran {self.name} simulation in"
+                + f"{timer() - start:.2f}s")
 
         start = timer()
-        # TODO: Return parsing time per ResponseType.
         parsed_by_type = self._parse(c, expt_params)
-        print_i(f"FEMRunner: parsed all responses in {timer() - start:.2f}s")
+        print_i(f"FEMRunner: parsed all responses in"
+                + f"{timer() - start:.2f}s")
 
         start = timer()
-        # TODO: Return conversion time per ResponseType.
-        responses_by_type = self._convert(
-            c, parsed_by_type, fem_params.response_types)
-        print_i(f"FEMRunner: converted all to [Response] in {timer() - start:.2f}s")
+        sim_responses = self._convert(c, expt_params, parsed_by_type)
+        print_i(f"FEMRunner: converted all to [Response] in"
+                + f"{timer() - start:.2f}s")
 
-        for response_type, responses in responses_by_type.items():
-            start = timer()
-            fem_responses = FEMResponses(
-                fem_params, self.name, response_type, responses,
-                skip_build=True)
-            print_i(f"FEMRunner: built FEMResponses in {timer() - start:.2f}s, ({response_type})")
+        for sim in sim_responses:
+            for response_type, responses in sim_responses[sim].items():
+                start = timer()
+                fem_responses = FEMResponses(
+                    expt_params.fem_params[sim], self.name, response_type,
+                    responses, skip_build=True)
+                print_i(f"FEMRunner: built simulation {sim} FEMResponses in"
+                        + f" {timer() - start:.2f}s, ({response_type})")
 
-            start = timer()
-            fem_responses.save(c)
-            print_i(f"FEMRunner: saved FEMResponses ([Response]) in {timer() - start:.2f}s, ({response_type})")
+                start = timer()
+                fem_responses.save(c)
+                print_i(f"FEMRunner: saved simulation {sim} FEMResponses"
+                        + f" ([Response]) in {timer() - start:.2f}s,"
+                        + f"({response_type})")

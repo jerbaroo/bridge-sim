@@ -8,7 +8,7 @@ from fem.params import ExptParams
 
 def run_model(c: Config, expt_params: ExptParams):
     """Run a Diana simulation."""
-    if not expt_params.mobile_load:
+    if not expt_params.is_mobile_load():
         raise ValueError("Diana: only MOBILE load supported")
     out = ".out"
     assert c.di_out_path.endswith(out)

@@ -11,7 +11,7 @@ from util import *
 
 
 def parse_translation(c: Config):
-    """Parse translation responses as tuples, indexed by timestep.
+    """Parse translation responses as tuples, indexed by simulation timestep.
 
     NOTE: timestep starts at 0.
 
@@ -40,7 +40,7 @@ def parse_translation(c: Config):
 
 
 def parse_strain(c: Config):
-    """Parse strain responses as tuples, indexed by timestep.
+    """Parse strain responses as tuples, indexed by simulation timestep.
 
     NOTE: timestep starts at 0.
 
@@ -76,7 +76,7 @@ def parse_strain(c: Config):
 
 def parse_responses(c: Config, expt_params: ExptParams) -> Parsed:
     """Parse responses from a Diana simulation."""
-    if not expt_params.mobile_load:
+    if not expt_params.is_mobile_load():
         raise ValueError("Diana: only MOBILE load supported")
 
     results = dict()
@@ -89,7 +89,6 @@ def parse_responses(c: Config, expt_params: ExptParams) -> Parsed:
         start = timer()
         parsed_translation = parse_translation(c)
         print_i(f"Diana: Parsed translation responses in {timer() - start:.2f}s")
-        print(parsed_translation.keys())
         results["translation"] = parsed_translation
 
     if (parse_type(ResponseType.Strain)):
