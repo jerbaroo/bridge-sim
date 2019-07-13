@@ -47,17 +47,17 @@ class Load:
     TODO: Where is axle-based load placed on the bridge.
 
     Args:
-        x_pos: float, fraction of x position in [0 1].
+        x_frac: float, fraction of x position in [0 1].
         kgs: float or [float], point load or weight at each axle in kgs.
         lane: int, 0 is the first lane.
         axle_distances: None or [float], distances between axles, in meters.
         axle_width: None or float, width of an axle, in meters.
         quadim: None or (float, float): length and width of wheel, in meters.
     """
-    def __init__(self, x_pos, kgs, lane=0, axle_distances=None,
+    def __init__(self, x_frac, kgs, lane=0, axle_distances=None,
                  axle_width=None, quadim=None):
-        assert x_pos >= 0 and x_pos <= 1
-        self.x_pos = x_pos
+        assert x_frac >= 0 and x_frac <= 1
+        self.x_frac = x_frac
         self.kgs = kgs
         self.lane = lane
         self.axle_distances = axle_distances
@@ -82,7 +82,7 @@ class Load:
 
     def __str__(self):
         """String uniquely respresenting this load."""
-        return f"({self.x_pos:.2f}, {self.weight:.2f})"
+        return f"({self.x_frac:.2f}, {self.kgs:.2f})"
 
 
 class Material(Enum):

@@ -22,4 +22,6 @@ def run_model(c: Config, expt_params: ExptParams):
         # Print output log.
         with open(c.di_out_path) as f:
             print(f.read())
+    os.rm(c.di_filos_path)
+    os.rm(c.di_out_path)
     return expt_params

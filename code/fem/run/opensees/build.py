@@ -4,7 +4,8 @@ Build an OpenSees model file from a configuration.
 import numpy as np
 
 from config import Config
-from fem.params import FEMParams
+from fem.params import ExptParams
+from fem.run import FEMRunner, built_model_path
 from model import *
 from util import print_i
 
@@ -19,7 +20,7 @@ def opensees_nodes(c: Config):
 def opensees_fixed_nodes(c: Config):
     """OpenSees fixed node commands for a .tcl file."""
     def opensees_fixed_node(f: Fix):
-        node = np.interp(f.x_pos, (0, 1), (1, c.os_num_nodes()))
+        node = np.interp(f.x_frac, (0, 1), (1, c.os_num_nodes()))
         return f"fix {int(node)} {int(f.x)} {int(f.y)} {int(f.rot)}"
     return "\n".join(opensees_fixed_node(f) for f in c.bridge.fixed_nodes)
 
@@ -35,8 +36,8 @@ def opensees_elements(c: Config):
 def opensees_loads(c: Config, loads: [Load]):
     """OpenSees load commands for a .tcl file."""
     def opensees_load(l: Load):
-        nid = int(np.interp(l.x_pos, (0, 1), (1, c.os_num_nodes())))
-        return f"load {nid} 0 {l.weight} 0"
+        nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
+        return f"load {nid} 0 {l.kgs} 0"
     return "\n".join(opensees_load(l) for l in loads)
 
 
@@ -95,24 +96,29 @@ def opensees_recorders(c: Config, response_types: [ResponseType]):
                 recorders += (f"\nrecorder Element -file"
                             + f" {point_path}"
                             + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                            + f" section 1 fiber {point.y} {point.z} stressStrain")
+                            + f" section 1 fiber {point.y} {point.z}"
+                            + "stressStrain")
     return recorders
 
 
-def build_model(c: Config, fem_params: FEMParams):
-    """Build an OpenSees model file."""
-    print_i(f"OpenSees: building model file with"
-            + f" {c.os_num_elems()} elements,"
-            + f" {c.os_node_step} element length")
-    with open(c.os_model_template_path) as f:
-        in_tcl = f.read()
-    out_tcl = (in_tcl
-        .replace("<<NODES>>", opensees_nodes(c))
-        .replace("<<FIX>>", opensees_fixed_nodes(c))
-        .replace("<<ELEMENTS>>", opensees_elements(c))
-        .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
-        .replace("<<SECTIONS>>", opensees_sections(c))
-        .replace("<<RECORDERS>>",
-                 opensees_recorders(c, fem_params.response_types)))
-    with open(c.os_built_model_path, "w") as f:
-        f.write(out_tcl)
+def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
+    """Build OpenSees model files."""
+    for fem_params in expt_params.fem_params:
+        print_i(f"OpenSees: building model file with"
+                + f" {c.os_num_elems()} elements,"
+                + f" {c.os_node_step} element length")
+        with open(c.os_model_template_path) as f:
+            in_tcl = f.read()
+        out_tcl = (in_tcl
+            .replace("<<NODES>>", opensees_nodes(c))
+            .replace("<<FIX>>", opensees_fixed_nodes(c))
+            .replace("<<ELEMENTS>>", opensees_elements(c))
+            .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
+            .replace("<<SECTIONS>>", opensees_sections(c))
+            .replace("<<RECORDERS>>",
+                    opensees_recorders(c, fem_params.response_types)))
+        model_path = built_model_path(fem_params, fem_runner)
+        print_i(f"OpenSees: saving model file to {model_path}")
+        with open(model_path, "w") as f:
+            f.write(out_tcl)
+    return expt_params

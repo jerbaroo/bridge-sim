@@ -16,7 +16,7 @@ di_runner = FEMRunner(
 if __name__ == "__main__":
     c = bridge_705_config
     response_type = ResponseType.XTranslation
-    fem_params = ExptParams([
+    expt_params = ExptParams([
         FEMParams(
             [Load(0, 87375)],
             [response_type]),
@@ -27,4 +27,4 @@ if __name__ == "__main__":
             [Load(0.2, 87375)],
             [response_type])
     ])
-    di_runner.run(c, fem_params)
+    di_runner.run(c, expt_params)

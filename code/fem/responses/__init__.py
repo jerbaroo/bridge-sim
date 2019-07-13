@@ -10,7 +10,7 @@ from typing import Callable, List
 
 import matplotlib.pyplot as plt
 
-from fem.params import FEMParams
+from fem.params import ExptParams
 from model import *
 from util import *
 
@@ -18,9 +18,8 @@ from util import *
 def fem_responses_path(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, runner_name: str):
     """Path of the influence line matrix on disk."""
-    return (f"{c.fem_responses_path_prefix}-pa-{fem_params}"
-            + f"-ul-{c.il_unit_load}-rt-{response_type.name}"
-            + f"-ru-{runner_name}.npy")
+    return (f"{c.fem_responses_path_prefix}-pa-{fem_params.load_str()}"
+            + f"-rt-{response_type.name}-ru-{runner_name}.npy")
 
 
 class FEMResponses:
@@ -109,10 +108,10 @@ ExptResponses = List[FEMResponses]
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,
-                       response_type: ResponseType, runner: FEMRunner):
-    path = fem_responses_path(c, fem_params, response_type, runner.name)
+                       response_type: ResponseType, fem_runner: FEMRunner):
+    path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
     if (not os.path.exists(path)):
-        runner.run(c, fem_params)
+        fem_runner.run(c, ExptParams([fem_params]))
 
     start = timer()
     with open(path, "rb") as f:
