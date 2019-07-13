@@ -50,15 +50,23 @@ class Load:
         x_pos: float, fraction of x position in [0 1].
         kgs: float or [float], point load or weight at each axle in kgs.
         lane: int, 0 is the first lane.
+        axle_distances: None or [float], distances between axles, in meters.
+        axle_width: None or float, width of an axle, in meters.
+        quadim: None or (float, float): length and width of wheel, in meters.
     """
-    def __init__(self, x_pos, kgs, lane=0, axle_distances=None):
+    def __init__(self, x_pos, kgs, lane=0, axle_distances=None,
+                 axle_width=None, quadim=None):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
         self.kgs = kgs
         self.lane = lane
         self.axle_distances = axle_distances
-        if axle_distances is not None:
-            assert len(kgs) == len(axle_distances) + 1
+        self.axle_width = axle_width
+        self.quadim = quadim
+        if isinstance(kgs, list) or axle_distances:
+            if len(kgs) != len(axle_distances) + 1:
+                raise ValueError(
+                    "Length of axle_distances and kgs don't correspond")
 
     def total_kgs(self):
         """The total weight in kgs of this load."""
