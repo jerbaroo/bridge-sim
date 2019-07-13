@@ -11,17 +11,17 @@ class FEMParams:
       - Currently only static loads.
 
     Attributes:
-        loads: [Load], a list of Load.
+        loads: [Load], a list of Load to place on the bridge.
         response_types: [ResponseType], response types to record.
     """
     def __init__(self, loads: [Load]=[],
-                 response_types: [ResponseType]=all_response_types):
+                 response_types: [ResponseType]=[rt for rt in ResponseType]):
         self.loads=loads
         self.response_types = response_types
         self.built_model_file = None
 
-    # TODO: Rename for simulation-dependent results.
-    def __str__(self):
+    def load_str(self):
+        """String representing the loads."""
         lstr = ",".join(str(l) for l in self.loads)
         return f"[{lstr}]"
 

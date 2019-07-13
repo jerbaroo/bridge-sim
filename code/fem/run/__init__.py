@@ -36,22 +36,22 @@ class FEMRunner():
         start = timer()
         expt_params = self._build(c, expt_params)
         print_i(f"FEMRunner: built {self.name} model file in"
-                + f"{timer() - start:.2f}s")
+                + f" {timer() - start:.2f}s")
 
         start = timer()
         expt_params = self._run(c, expt_params)
         print_i(f"FEMRunner: ran {self.name} simulation in"
-                + f"{timer() - start:.2f}s")
+                + f" {timer() - start:.2f}s")
 
         start = timer()
         parsed_by_type = self._parse(c, expt_params)
         print_i(f"FEMRunner: parsed all responses in"
-                + f"{timer() - start:.2f}s")
+                + f" {timer() - start:.2f}s")
 
         start = timer()
         sim_responses = self._convert(c, expt_params, parsed_by_type)
         print_i(f"FEMRunner: converted all to [Response] in"
-                + f"{timer() - start:.2f}s")
+                + f" {timer() - start:.2f}s")
 
         for sim in sim_responses:
             for response_type, responses in sim_responses[sim].items():

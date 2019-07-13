@@ -42,21 +42,38 @@ class Lane:
 
 
 class Load:
-    """A load to apply to the bridge.
+    """A load to apply to a bridge, either a point or axle-based load.
+
+    TODO: Where is axle-based load placed on the bridge.
 
     Args:
         x_pos: float, fraction of x position in [0 1].
-        weight: float, kgs.
+        kgs: float or [float], point load or weight at each axle in kgs.
         lane: int, 0 is the first lane.
     """
-    def __init__(self, x_pos, weight, lane=0):
+    def __init__(self, x_pos, kgs, lane=0, axle_distances=None):
         assert x_pos >= 0 and x_pos <= 1
         self.x_pos = x_pos
-        # Rename to kgs.
-        self.weight = weight
+        self.kgs = kgs
         self.lane = lane
+        self.axle_distances = axle_distances
+        if axle_distances is not None:
+            assert len(kgs) == len(axle_distances) + 1
+
+    def total_kgs(self):
+        """The total weight in kgs of this load."""
+        if self.axle_distances:
+            return sum(kgs for kgs in self.kgs)
+        return self.kgs
+
+    def __repr__(self):
+        """Human readable representation of this load."""
+        load_type = ("point" if self.axle_distances is None
+                     else f"{len(selx.axle_distances) + 1}-axle")
+        return f"{self.total_kgs} kgs, lane {self.lane}, {load_type} load"
 
     def __str__(self):
+        """String uniquely respresenting this load."""
         return f"({self.x_pos:.2f}, {self.weight:.2f})"
 
 
@@ -129,7 +146,11 @@ class Layer:
 
 
 class Point:
-    """A point described as (x, y, z)."""
+    """A point described as (x, y, z).
+
+    x is with the beam, y across the beam, and z is the height.
+
+    """
     def __init__(self, x=None, y=None, z=None):
         self.x = x
         self.y = y
@@ -153,16 +174,17 @@ class Response:
         self.fiber_cmd_id = fiber_cmd_id
 
     def __str__(self):
+        """Readable representation of a sensor response."""
+        str_if = lambda s, b: "" if b else s
         return (f"{self.value}"
-               + f" at ({self.point.x}, {self.point.y}, {self.point.z})"
+               + f" at (x={self.point.x}, y={self.point.y}, z={self.point.z})"
                + f" t={self.time}"
-               + ("" if self.node_id is None else f" node_id={self.node_id}")
-               + ("" if self.elem_id is None else f" elem_id={self.elem_id}")
-               + ("" if self.srf_id is None else f" srf_id={self.srf_id}")
-               + ("" if self.section_id is None
-                  else f" section_id={self.section_id}")
-               + ("" if self.fiber_cmd_id is None
-                  else f" fiber_cmd_id={self.fiber_cmd_id}"))
+               + str_if(f" node_id={self.node_id}", self.node_id)
+               + str_if(f" elem_id={self.elem_id}", self.elem_id)
+               + str_if(f" srf_id={self.srf_id}", self.srf_id)
+               + str_if(f" section_id={self.section_id}", self.section_id)
+               + str_if(f" fiber_cmd_id={self.fiber_cmd_id}",
+                        self.fiber_cmd_id))
 
 
 class ResponseType(Enum):
@@ -170,9 +192,6 @@ class ResponseType(Enum):
     YTranslation = "ytrans"
     Stress = "stress"
     Strain = "strain"
-
-
-all_response_types = [rt for rt in ResponseType]
 
 
 class Section:
