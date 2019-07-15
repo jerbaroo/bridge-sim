@@ -14,8 +14,8 @@ def test_build():
     c.os_node_step = 0.5
     c.bridge.fixed_nodes = [Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]
     expt_params = ExptParams([
-        FEMParams([Load(0.65, 1234)], [ResponseType.XTranslation])
-    ])
+        FEMParams([Load(0.65, 1234)],
+                  [ResponseType.XTranslation, ResponseType.Strain])])
 
     # Run and read.
     fem_runner = os_runner(c)

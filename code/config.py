@@ -76,12 +76,6 @@ class Config():
         self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
-        self.os_element_path = os.path.join(self.generated_dir, "elem.out")
-        self.os_x_path = os.path.join(self.generated_dir, "node-x.out")
-        self.os_y_path = os.path.join(self.generated_dir, "node-y.out")
-        self.os_stress_strain_path_prefix = os.path.join(
-            self.generated_dir, "stress-strain")
-
         def os_get_num_elems():
             result = int(self.bridge.length / self.os_node_step)
             assert result * self.os_node_step == self.bridge.length

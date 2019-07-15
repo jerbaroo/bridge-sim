@@ -4,7 +4,7 @@ Build an OpenSees model file from a configuration.
 import numpy as np
 
 from config import Config
-from fem.params import ExptParams
+from fem.params import ExptParams, FEMParams
 from fem.run import FEMRunner, fem_file_path
 from model import *
 from util import print_i
@@ -57,47 +57,42 @@ def opensees_sections(c: Config):
     return "\n".join(opensees_section(s) for s in c.bridge.sections)
 
 
-def os_patch_path(c: Config, patch):
-    return f"{c.os_stress_strain_path_prefix}-{patch.fiber_cmd_id}.out"
-
-
-def os_layer_paths(c: Config, layer):
-    """A filepath for each point in the layer."""
-    for point in layer.points():
-        yield (f"{c.os_stress_strain_path_prefix}-{layer.fiber_cmd_id}"
-                + f"-{point.y:.5f}-{point.z:.5f}.out");
-
-
-def opensees_recorders(c: Config, response_types: [ResponseType]):
+def opensees_recorders(c: Config, fem_runner: FEMRunner,
+                       fem_params: FEMParams):
     """OpenSees recorder commands for a .tcl file."""
+    response_types = fem_params.response_types
     recorders = ""
+
     if (ResponseType.XTranslation in response_types or
             ResponseType.YTranslation in response_types):
-        for node_out_file, dof in [(c.os_x_path, 1), (c.os_y_path, 2)]:
+        for node_out_file, dof in [
+                (fem_runner.x_translation_path(fem_params), 1),
+                (fem_runner.y_translation_path(fem_params), 1)]:
             recorders += f"\nrecorder Node -file {node_out_file}"
             recorders += " -node " + " ".join(map(str, c.os_node_ids()))
             recorders += f" -dof {dof} disp"
-        recorders += f"\nrecorder Element -file {c.os_element_path}"
+        recorders += f"\nrecorder Element -file"
+        recorders += f" {fem_runner.element_path(fem_params)}"
         recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
         recorders += " globalForce"
+
     if (ResponseType.Stress in response_types or
             ResponseType.Strain in response_types):
         # Record stress and strain for each patch.
         for patch in c.bridge.sections[0].patches:
             point = patch.center()
             recorders += (f"\nrecorder Element -file"
-                        + f" {os_patch_path(c, patch)}"
+                        + f" {fem_runner.patch_path(fem_params, patch)}"
                         + " -ele " + " ".join(map(str, c.os_elem_ids()))
                         + f" section 1 fiber {point.y} {point.z} stressStrain")
         # Record stress and strain for each fiber in a layer.
         for layer in c.bridge.sections[0].layers:
-            for (point, point_path) in zip(layer.points(),
-                                           os_layer_paths(c, layer)):
-                recorders += (f"\nrecorder Element -file"
-                            + f" {point_path}"
-                            + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                            + f" section 1 fiber {point.y} {point.z}"
-                            + "stressStrain")
+            for (point, point_path) in zip(
+                    layer.points(), fem_runner.layer_paths(fem_params, layer)):
+                recorders += (f"\nrecorder Element -file {point_path}"
+                              + " -ele " + " ".join(map(str, c.os_elem_ids()))
+                              + f" section 1 fiber {point.y} {point.z}"
+                              + "stressStrain")
     return recorders
 
 
@@ -115,8 +110,8 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
             .replace("<<ELEMENTS>>", opensees_elements(c))
             .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
             .replace("<<SECTIONS>>", opensees_sections(c))
-            .replace("<<RECORDERS>>",
-                    opensees_recorders(c, fem_params.response_types)))
+            .replace("<<RECORDERS>>", opensees_recorders(
+                c, fem_runner, fem_params)))
         model_path = fem_file_path(fem_params, fem_runner)
         print_i(f"OpenSees: saving model file to {model_path}")
         with open(model_path, "w") as f:
