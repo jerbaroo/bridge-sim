@@ -11,3 +11,4 @@ def run_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
     for fem_params in expt_params.fem_params:
         subprocess.run(
             [c.os_exe_path, built_model_path(fem_params, fem_runner)])
+    return expt_params

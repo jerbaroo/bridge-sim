@@ -14,14 +14,26 @@ from util import *
 Parsed = TypeVar("parsed")
 
 
+def fem_id(fem_params: FEMParams, fem_runner: FEMRunner):
+    """A string unique to this FEMRunner and parameters."""
+    return (f"{fem_runner.name}-{fem_params.load_str()}")
+
+
 def built_model_path(fem_params: FEMParams, fem_runner: FEMRunner):
     """A file path based on FEM parameters and runner."""
-    return (f"{fem_runner.built_model_path_prefix}-{fem_params.load_str()}"
-            + f".{fem_runner.built_model_path_ext}")
+    return os.path.join(
+        fem_runner.built_model_dir,
+        f"{fem_id(fem_params, fem_runner)}.{fem_runner.built_model_ext}"
+    ).replace(" ", "")
 
 
 class FEMRunner():
-    """Run FEM simulations and generate responses."""
+    """Run FEM simulations and generate responses.
+
+    Args:
+        built_model_dir: str, directory to save the built model file in.
+
+    """
     def __init__(self,
                  name: str,
                  build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
@@ -32,15 +44,15 @@ class FEMRunner():
                  convert: Callable[
                      [Config, Parsed, List[ResponseType]],
                      Dict[int, Dict[ResponseType, List[Response]]]],
-                 built_model_path_prefix: str,
-                 built_model_path_ext: str):
+                 built_model_ext: str,
+                 built_model_dir: str="."):
         self._build = build
         self._run = run
         self._parse = parse
         self._convert = convert
         self.name = name
-        self.built_model_path_prefix = built_model_path_prefix
-        self.built_model_path_ext = built_model_path_ext
+        self.built_model_ext = built_model_ext
+        self.built_model_dir = built_model_dir
 
     def run(self, c: Config, expt_params: ExptParams, run=True, save=True):
 
@@ -49,14 +61,15 @@ class FEMRunner():
         print_i(f"FEMRunner: built {self.name} model file(s) in"
                 + f" {timer() - start:.2f}s")
 
+        print(expt_params)
         if run:
             start = timer()
             expt_params = self._run(c, expt_params, self)
             print_i(f"FEMRunner: ran {len(expt_params.fem_params)} {self.name}"
                     + f" simulation in {timer() - start:.2f}s")
 
-        for fem_params in expt_params.fem_params:
-            os.remove(built_model_path(fem_params, self))
+        # for fem_params in expt_params.fem_params:
+        #     os.remove(built_model_path(fem_params, self))
 
         if not save:
             return
