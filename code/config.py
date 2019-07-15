@@ -26,19 +26,13 @@ class Config():
 
         # Responses & influence line.
         fem_responses_path_prefix: str, prefix of path to save/load responses.
-        il_unit_load: float, unit load to place on the bridge.
+        il_unit_load_kgs: float, unit load to place on the bridge in kgs.
         il_num_loads: int, number of loads/simulations to generate the IL.
 
         # OpenSees.
         os_node_step: float, distance between two nodes (element length).
         os_exe_path: str, path of the OpenSees executable.
         os_model_template_path: str, path of the model template file.
-        os_built_model_path: str, path to save/load the built model.
-        os_element_path: str, path to save element recorder data.
-        os_x_path: str, path to save node x translation recorder data.
-        os_y_path: str, path to save node y translation recorder data.
-        os_stress_strain_path_prefix: str, prefix of the path to save
-            stress/strain recorder data.
 
         # Diana.
         di_exe_path: str, path of the Diana executable.
@@ -69,7 +63,7 @@ class Config():
         # Responses & influence line.
         self.fem_responses_path_prefix = os.path.join(
             self.generated_dir, "responses/responses")
-        self.il_unit_load = 1e2
+        self.il_unit_load_kgs = 1000
 
         # OpenSees.
         self.os_node_step = 0.2

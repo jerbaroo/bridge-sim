@@ -69,9 +69,9 @@ class FEMResponses:
     def at(self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=0,
            time=None):
         """Access responses with axis fractions in [0 1] or with ordinates."""
-        assert x >= 0 and x <= 1
-        assert y >= 0 and y <= 1
-        assert z >= 0 and z <= 1
+        assert 0 <= x and x <= 1
+        assert 0 <= y and y <= 1
+        assert 0 <= z and z <= 1
         if x_ord is None:
             x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
             x_ord = self.xs[x_ind]
@@ -93,13 +93,15 @@ class FEMResponses:
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 
-    def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=0, time=None):
+    def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=0, time=None,
+               show=True):
         """Plot responses along the x axis at some (y, z, t)."""
         data = [self.at(
                     x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
                 for x_ord in self.xs]
-        plt.plot(data)
-        plt.show()
+        plt.plot(self.xs, data)
+        if show:
+            plt.show()
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,

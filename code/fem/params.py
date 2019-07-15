@@ -34,8 +34,9 @@ class ExptParams:
     def is_mobile_load(self):
         """"Whether each simulation is equal apart from load position.
 
-        Additionally each simulation must only have one load, and the
-        loads must be increasing with equal step.
+        Additionally each simulation must only have one load, and the loads
+        must be increasing with equal step.
+
         """
         # MOBILE Diana load.
         mobile_load = True

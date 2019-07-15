@@ -1,5 +1,6 @@
 """Classes for modeling bridges and loads."""
 from enum import Enum
+from typing import List
 
 import numpy as np
 
@@ -13,7 +14,8 @@ class Fix:
         y: bool, whether to fix y translation.
         rot: bool, whether to fix rotation.
     """
-    def __init__(self, x_frac, x=False, y=False, rot=False):
+    def __init__(self, x_frac: float, x: bool=False, y: bool=False,
+                 rot: bool=False):
         assert x_frac >= 0 and x_frac <= 1
         self.x_frac = x_frac
         self.x = x
@@ -25,10 +27,10 @@ class Lane:
     """A traffic lane spanning the length of the bridge.
 
     Args:
-        z0: float, z ordinate of one edge of the lane, in meters.
-        z1: float, z ordinate of the other edge of the lane, in meters.
+        z0: float, z ordinate of one edge of the lane in meters.
+        z1: float, z ordinate of the other edge of the lane in meters.
     """
-    def __init__(self, z0, z1):
+    def __init__(self, z0: float, z1: float):
         self.z0 = min(z0, z1)
         self.z1 = max(z0, z1)
 
@@ -54,8 +56,9 @@ class Load:
         axle_width: None or float, width of an axle in meters.
         quadim: None or (float, float): length and width of wheel in meters.
     """
-    def __init__(self, x_frac, kgs, lane=0, axle_distances=None,
-                 axle_width=None, quadim=None):
+    def __init__(self, x_frac: float, kgs: float, lane: int=0,
+                 axle_distances: List[float]=None, axle_width: float=None,
+                 quadim: (float, float)=None):
         assert x_frac >= 0 and x_frac <= 1
         self.x_frac = x_frac
         self.kgs = kgs
@@ -96,8 +99,8 @@ _fiber_cmd_id = 1
 
 class Patch:
     """A rectangular patch, used to describe a Section."""
-    def __init__(self, y_i, z_i, y_j, z_j, num_sub_div_z=30,
-                 material=Material.Concrete):
+    def __init__(self, y_i: float, z_i: float, y_j: float, z_j: float,
+                 num_sub_div_z: int=30, material: Material=Material.Concrete):
         global _fiber_cmd_id
         self.fiber_cmd_id = _fiber_cmd_id
         _fiber_cmd_id += 1
@@ -129,8 +132,9 @@ class Layer:
         area_fiber: float, area of each fiber.
         material: Material, material of the fibers.
     """
-    def __init__(self, y_i, z_i, y_j, z_j, num_fibers, area_fiber,
-                 material=Material.Steel):
+    def __init__(self, y_i: float, z_i: float, y_j: float, z_j: float,
+                 num_fibers: int, area_fiber: float,
+                 material: Material=Material.Steel):
         global _fiber_cmd_id
         self.fiber_cmd_id = _fiber_cmd_id
         _fiber_cmd_id += 1
@@ -159,7 +163,7 @@ class Point:
     x is with the beam, y across the beam, and z is the height.
 
     """
-    def __init__(self, x=None, y=None, z=None):
+    def __init__(self, x: float=None, y: float=None, z: float=None):
         self.x = x
         self.y = y
         self.z = z
@@ -170,8 +174,10 @@ class Point:
 
 class Response:
     """A sensor response collected from a simulation."""
-    def __init__(self, value, x=None, y=None, z=None, time=0, elem_id=None,
-                 srf_id=None, node_id=None, section_id=None, fiber_cmd_id=None):
+    def __init__(self, value: float, x: float=None, y: float=None,
+                 z: float=None, time: int=0, elem_id: int=None,
+                 srf_id: int=None, node_id: int=None, section_id: int=None,
+                 fiber_cmd_id: int=None):
         self.value = value
         self.point = Point(x=x, y=y, z=z)
         self.time = time
@@ -202,10 +208,30 @@ class ResponseType(Enum):
     Strain = "strain"
 
 
+def response_type_name(response_type: ResponseType):
+    """Human readable name for a response type."""
+    return {
+        ResponseType.XTranslation: "x translation",
+        ResponseType.YTranslation: "y translation",
+        ResponseType.Stress: "stress",
+        ResponseType.Strain: "strain",
+    }[response_type]
+
+
+def response_type_units(response_type: ResponseType, short: bool=True):
+    """Unit string (long or short) for a response type."""
+    return {
+        ResponseType.XTranslation: ("meters", "m"),
+        ResponseType.YTranslation: ("meters", "m"),
+        ResponseType.Stress: ("kilograms", "kgs"),
+        ResponseType.Strain: ("kilograms", "kgs")
+    }[response_type][int(short)]
+
+
 class Section:
     """A section composed of fibers."""
     next_id = 1
-    def __init__(self, patches=[], layers=[]):
+    def __init__(self, patches: List[Patch]=[], layers: List[Layer]=[]):
         self.id = Section.next_id
         Section.next_id += 1
         self.patches = patches
@@ -216,15 +242,15 @@ class Bridge:
     """Description of a bridge.
 
     Args:
-        length: int, length of the beam in meters.
-        width: int, width of the bridge in meters, ignored by OpenSees.
-        lanes: [Lane], lanes that span the bridge, where to place loads.
+        length: float, length of the beam in meters.
+        width: float, width of the bridge in meters.
         fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
         sections: [Section], description of the bridge's cross section.
+        lanes: [Lane], lanes that span the bridge, where to place loads.
 
     """
-    def __init__(self, length, width, fixed_nodes: [Fix]=[],
-                 sections: [Section]=[], lanes: [Lane]=[]):
+    def __init__(self, length: float, width: float, fixed_nodes: List[Fix]=[],
+                 sections: List[Section]=[], lanes: List[Lane]=[]):
         self.length = length
         self.width = width
         self.fixed_nodes = fixed_nodes
@@ -233,9 +259,11 @@ class Bridge:
         if len(sections) != 1:
             raise ValueError("Only single sections are supported")
 
-    def x_axis(self, n):
-        """n equidistant points along the bridge's length."""
-        return np.interp(range(n), [0, n - 1], [0, self.length])
+    def x_axis(self):
+        """Fixed points along the bridge's length."""
+        return np.interp(
+            [f.x_frac for f in self.fixed_nodes],
+            [0, 1], [0, self.length])
 
 
 _bridge_705_piers = [0]  # Pier locations in meters.
