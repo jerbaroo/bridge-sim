@@ -1,4 +1,5 @@
 """Parse responses from an OpenSees simulation."""
+import itertools
 from collections import defaultdict
 from timeit import default_timer as timer
 
@@ -66,18 +67,20 @@ def parse_responses(c: Config, expt_params: ExptParams, fem_runner: FEMRunner
                 for path, fiber_cmd_id, point in (
                         patch_paths_and_more + layer_paths_and_more):
                     stress_strain = openSeesToNumpy(path)
-                    num_t = len(stress_strain)
+                    num_time = len(stress_strain)
                     num_measurements = len(stress_strain[0]) // 2
                     if parse_type(ResponseType.Stress):
                         stress += [
-                            [stress_strain[t][i * 2]
-                            for i in range(num_measurements)]
-                            for t in range(num_t)]
+                            (stress_strain[time][i * 2], i, section.id,
+                             time, fiber_cmd_id, point)
+                            for i in range(num_measurements)
+                            for time in range(num_time)]
                     if parse_type(ResponseType.Strain):
                         strain += [
-                            [stress_strain[t][i * 2 + 1]
-                            for i in range(num_measurements)]
-                            for t in range(num_t)]
+                            (stress_strain[time][i * 2 + 1], i, section.id,
+                             time, fiber_cmd_id, point)
+                            for i in range(num_measurements)
+                            for time in range(num_time)]
             print_i("OpenSees: Parsed stress/strain responses in "
                     + f" {timer() - start:.2f}s")
 

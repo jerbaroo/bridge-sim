@@ -90,7 +90,6 @@ class FEMRunner():
 
         for sim in sim_responses:
             for response_type, responses in sim_responses[sim].items():
-                print(response_type)
                 start = timer()
                 fem_responses = FEMResponses(
                     expt_params.fem_params[sim], self.name, response_type,

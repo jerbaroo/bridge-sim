@@ -92,7 +92,7 @@ def opensees_recorders(c: Config, fem_runner: FEMRunner,
                 recorders += (f"\nrecorder Element -file {point_path}"
                               + " -ele " + " ".join(map(str, c.os_elem_ids()))
                               + f" section 1 fiber {point.y} {point.z}"
-                              + "stressStrain")
+                              + " stressStrain")
     return recorders
 
 

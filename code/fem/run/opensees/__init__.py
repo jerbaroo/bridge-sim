@@ -24,17 +24,18 @@ def os_runner(c: Config):
             fem_file_path(fem_params, fem_runner))[0] + f"node-{axis}.out"
 
     def patch_path(fem_params: FEMParams, patch: Patch):
+        center = patch.center()
         return (os.path.splitext(fem_file_path(fem_params, fem_runner))[0]
-                + f"patch-{patch.fiber_cmd_id}.out")
+                + f"-patch-{center.y:.5f}-{center.z:.5f}.out")
 
     def layer_paths(fem_params: FEMParams, layer: Layer):
         return [os.path.splitext(fem_file_path(fem_params, fem_runner))[0]
-                + f"{layer.fiber_cmd_id}-{point.y:.5f}-{point.z:.5f}.out"
+                + f"-layer-{point.y:.5f}-{point.z:.5f}.out"
                 for point in layer.points()]
 
     def element_path(fem_params: FEMParams):
         return os.path.splitext(
-            fem_file_path(fem_params, fem_runner))[0] + f"elems.out"
+            fem_file_path(fem_params, fem_runner))[0] + f"-elems.out"
 
     fem_runner.x_translation_path = lambda fp: translation_path(fp, "x")
     fem_runner.y_translation_path = lambda fp: translation_path(fp, "y")
@@ -46,7 +47,6 @@ def os_runner(c: Config):
 
 if __name__ == "__main__":
     c = bridge_705_config()
-    response_type = ResponseType.XTranslation
     expt_params = ExptParams([
         # FEMParams(
         #     [Load(0, 87375)],
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         #     [response_type]),
         FEMParams(
             [Load(0.2, 87375)],
-            [response_type])
+            [ResponseType.XTranslation, ResponseType.Stress])
     ])
 
     os_runner(c).run(c, expt_params, run=True, save=True)
