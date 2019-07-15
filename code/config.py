@@ -70,7 +70,6 @@ class Config():
         self.fem_responses_path_prefix = os.path.join(
             self.generated_dir, "responses/responses")
         self.il_unit_load = 1e2
-        self.il_num_loads = 3
 
         # OpenSees.
         self.os_node_step = 0.2

@@ -66,14 +66,12 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
-    def at(self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=-1,
+    def at(self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=0,
            time=None):
-        """Access simulation responses using fractions in [0 1] or directly.
-
-        When accessed using fractions in [0 1], the fractions respresent the
-        nth sensor along that axis.
-
-        """
+        """Access responses with axis fractions in [0 1] or with ordinates."""
+        assert x >= 0 and x <= 1
+        assert y >= 0 and y <= 1
+        assert z >= 0 and z <= 1
         if x_ord is None:
             x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
             x_ord = self.xs[x_ind]
@@ -104,9 +102,6 @@ class FEMResponses:
         plt.show()
 
 
-ExptResponses = List[FEMResponses]
-
-
 def load_fem_responses(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, fem_runner: FEMRunner):
     path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
@@ -120,7 +115,18 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
 
     start = timer()
     fem_responses = FEMResponses(
-        fem_params, runner.name, response_type, responses)
+        fem_params, fem_runner.name, response_type, responses)
     print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
     return fem_responses
+
+
+ExptResponses = List[FEMResponses]
+
+
+def load_expt_responses(c: Config, expt_params: ExptParams,
+                        response_type: ResponseType, runner: FEMRunner):
+    """Load responses for an experiment."""
+    return [
+        load_fem_responses(c, fem_params, response_type, runner)
+        for fem_params in expt_params.fem_params]

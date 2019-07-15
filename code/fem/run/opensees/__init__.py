@@ -47,6 +47,7 @@ def os_runner(c: Config):
 
 if __name__ == "__main__":
     c = bridge_705_config()
+    response_type = ResponseType.XTranslation
     expt_params = ExptParams([
         # FEMParams(
         #     [Load(0, 87375)],
@@ -56,10 +57,10 @@ if __name__ == "__main__":
         #     [response_type]),
         FEMParams(
             [Load(0.2, 87375)],
-            [ResponseType.XTranslation, ResponseType.Stress])
+            [ResponseType.XTranslation, response_type])
     ])
 
-    os_runner(c).run(c, expt_params, run=True, save=True)
-    # fem_responses = load_fem_responses(
-    #     c, expt_params.fem_params[0], response_type, os_runner)
-    # fem_responses.plot_x()
+    # os_runner(c).run(c, expt_params, run=True, save=True)
+    fem_responses = load_fem_responses(
+        c, expt_params.fem_params[0], response_type, os_runner(c))
+    fem_responses.plot_x()
