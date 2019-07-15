@@ -3,7 +3,7 @@ import subprocess
 
 from config import Config
 from fem.params import ExptParams
-from fem.run import FEMRunner, built_model_path
+from fem.run import FEMRunner, fem_file_path
 
 
 def run_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):

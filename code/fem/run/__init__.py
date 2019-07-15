@@ -19,7 +19,7 @@ def fem_id(fem_params: FEMParams, fem_runner: FEMRunner):
     return (f"{fem_runner.name}-{fem_params.load_str()}")
 
 
-def built_model_path(fem_params: FEMParams, fem_runner: FEMRunner):
+def fem_file_path(fem_params: FEMParams, fem_runner: FEMRunner):
     """A file path based on FEM parameters and runner."""
     return os.path.join(
         fem_runner.built_model_dir,

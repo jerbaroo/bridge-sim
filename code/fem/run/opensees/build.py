@@ -5,7 +5,7 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams
-from fem.run import FEMRunner, built_model_path
+from fem.run import FEMRunner, fem_file_path
 from model import *
 from util import print_i
 
@@ -117,7 +117,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
             .replace("<<SECTIONS>>", opensees_sections(c))
             .replace("<<RECORDERS>>",
                     opensees_recorders(c, fem_params.response_types)))
-        model_path = built_model_path(fem_params, fem_runner)
+        model_path = fem_file_path(fem_params, fem_runner)
         print_i(f"OpenSees: saving model file to {model_path}")
         with open(model_path, "w") as f:
             f.write(out_tcl)

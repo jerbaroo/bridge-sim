@@ -12,7 +12,7 @@ from fem.run.opensees.run import run_model
 from model import *
 
 
-def os_runner(config: Config):
+def os_runner(c: Config):
     return FEMRunner(
         "OpenSees", build_model, run_model, parse_responses, convert_responses,
         "tcl", c.generated_dir)

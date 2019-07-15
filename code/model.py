@@ -50,9 +50,9 @@ class Load:
         x_frac: float, fraction of x position in [0 1].
         kgs: float or [float], point load or weight at each axle in kgs.
         lane: int, 0 is the first lane.
-        axle_distances: None or [float], distances between axles, in meters.
-        axle_width: None or float, width of an axle, in meters.
-        quadim: None or (float, float): length and width of wheel, in meters.
+        axle_distances: None or [float], distances between axles in meters.
+        axle_width: None or float, width of an axle in meters.
+        quadim: None or (float, float): length and width of wheel in meters.
     """
     def __init__(self, x_frac, kgs, lane=0, axle_distances=None,
                  axle_width=None, quadim=None):
@@ -230,7 +230,8 @@ class Bridge:
         self.fixed_nodes = fixed_nodes
         self.sections = sections
         self.lanes = lanes
-        assert len(sections) == 1
+        if len(sections) != 1:
+            raise ValueError("Only single sections are supported")
 
     def x_axis(self, n):
         """n equidistant points along the bridge's length."""
@@ -242,20 +243,22 @@ for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
     _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
 _bridge_705_length = 102
 
-bridge_705 = Bridge(
-    length=_bridge_705_length,
-    width=33.2,
-    lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
-    fixed_nodes=[Fix(x / _bridge_705_length, y=True)
-                 for x in _bridge_705_piers],
-    sections=[Section(
-        patches=[
-            Patch(-0.2, -1.075, 0, 1.075),
-            Patch(-1.25, -0.25, -0.2, 0.25)
-        ], layers=[
-            Layer(-0.04, -1.035, -0.04, 0.21, num_fibers=16, area_fiber=4.9e-4),
-            Layer(-1.21, -0.21, -1.21, 0.21, num_fibers=5, area_fiber=4.9e-4),
-            Layer(-1.16, -0.21, -1.16, 0.21, num_fibers=6, area_fiber=4.9e-4)
-        ]
-    )]
-)
+
+def bridge_705() -> Bridge:
+    return Bridge(
+        length=_bridge_705_length,
+        width=33.2,
+        lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
+        fixed_nodes=[Fix(x / _bridge_705_length, y=True)
+                     for x in _bridge_705_piers],
+        sections=[Section(
+            patches=[
+                Patch(-0.2, -1.075, 0, 1.075),
+                Patch(-1.25, -0.25, -0.2, 0.25)
+            ], layers=[
+                Layer(-0.04, -1.035, -0.04, 0.21, num_fibers=16, area_fiber=4.9e-4),
+                Layer(-1.21, -0.21, -1.21, 0.21, num_fibers=5, area_fiber=4.9e-4),
+                Layer(-1.16, -0.21, -1.16, 0.21, num_fibers=6, area_fiber=4.9e-4)
+            ]
+        )]
+    )

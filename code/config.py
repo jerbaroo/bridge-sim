@@ -106,4 +106,5 @@ class Config():
         self.di_max_x_elem = 207848
 
 
-bridge_705_config = Config(bridge_705)
+def bridge_705_config() -> Config:
+    return Config(bridge_705())
