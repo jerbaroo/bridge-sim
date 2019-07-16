@@ -101,53 +101,66 @@ def plot_hist_and_kde_per_type(df):
         plot_hist_and_kde(group, density=False, title=f"Type {type_}")
 
 
-def num_axles(axle_distances: str) -> int:
-    """The number of axles from an axle_distance array as a string."""
-    distances = axle_distances.replace(
+def axle_array_and_count(axle_array_str: str) -> int:
+    """Return an axle array and count of non zero values from a string."""
+    axle_array_str = axle_array_str.replace(
         "'", "").replace("[", "").replace("]", "")
-    distances = list(
-        filter(lambda x: x != 0, map(float, distances.split(","))))
-    return len(distances)
+    axle_array = list(map(float, axle_array_str.split(",")))
+    count_non_zero = len(list(filter(lambda x: x != 0, axle_array)))
+    return axle_array, count_non_zero
 
 
-def scatter_plots(c: Config, a16_data: pd.DataFrame, show=False, save=False):
+def make_scatter_plots(c: Config, a16_data: pd.DataFrame):
     # Length against weight.
-    plt.scatter(a16_data["total_weight"], a16_data["length"])
+    plt.scatter(a16_data["total_weight"], a16_data["length"], s=10, alpha=0.1)
     plt.title("Vehicle length against weight on A16")
     plt.ylabel("length (m)")
     plt.xlabel("weight (kg)")
-    if save:
-        plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-length"))
-    if show: plt.show()
-    if save or show: plt.close()
+    plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-length"))
+    plt.close()
 
     # Length against number of axles.
-    num_axles_column = a16_data["axle_distance"].apply(num_axles)
-    plt.scatter(num_axles_column, a16_data["length"])
+    num_axles_column = a16_data["weight_per_axle"].apply(
+        lambda s: axle_array_and_count(s)[1])
+    plt.scatter(num_axles_column, a16_data["length"], s=10, alpha=0.1)
     plt.title("Vehicle length against number of axles on A16")
     plt.ylabel("length (m)")
     plt.xlabel("number of axles")
-    if save:
-        plt.savefig(os.path.join(c.images_dir, "a16-length-vs-num-axles"))
-    if show: plt.show()
-    if save or show: plt.close()
+    plt.savefig(os.path.join(c.images_dir, "a16-length-vs-num-axles"))
+    plt.close()
 
     # Weight against number of axles.
-    plt.scatter(num_axles_column, a16_data["total_weight"])
+    plt.scatter(num_axles_column, a16_data["total_weight"], s=10, alpha=0.1)
     plt.title("Vehicle weight against number of axles on A16")
     plt.ylabel("weight (kg)")
     plt.xlabel("number of axles")
-    if save:
-        plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-num-axles"))
-    if show: plt.show()
-    if save or show: plt.close()
+    plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-num-axles"))
+    plt.close()
+
+    # Fair amount of load per axle.
+    axle_weights_and_counts = a16_data["weight_per_axle"].apply(
+        axle_array_and_count)
+    axle_nums = []
+    axle_fair_amounts = []
+    for axle_weights, num_axles in axle_weights_and_counts:
+        total_weight = sum(axle_weights)
+        for i in range(len(axle_weights)):
+            if axle_weights[i] != 0:
+                axle_nums.append(i + 1)
+                axle_fair_amounts.append(
+                    (axle_weights[i] / total_weight) * num_axles)
+    plt.scatter(axle_nums, axle_fair_amounts, s=10, alpha=0.1)
+    plt.title("Weight distribution per axle on A16")
+    plt.ylabel("(weight / total weight) x #axles")
+    plt.xlabel("axle position")
+    plt.savefig(os.path.join(c.images_dir, "a16-fair-amount-per-axle"))
 
 
 if __name__ == "__main__":
     c = bridge_705_config()
     # raw_to_df_csv(c, "../data/a16-data/A16.dat")
     a16_data = load_a16_data(c)
-    scatter_plots(c, a16_data, save=True)
+    make_scatter_plots(c, a16_data)
     print(a16_data.loc[:10, :"total_weight"])
     print(a16_data.loc[:10, "weight_per_axle":])
     # plot_hist_and_kde(df["total_weight"], bins=100)
