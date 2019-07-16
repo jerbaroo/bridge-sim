@@ -6,7 +6,7 @@ import numpy as np
 from model import bridge_705
 
 
-class Config():
+class Config:
     """Simulation parameters.
 
     NOTE:
@@ -18,7 +18,7 @@ class Config():
     Attributes:
         bridge: description of a bridge.
         generated_dir: str, directory where to save all generated files.
-        fig_dir: str, directory where to save generated figures.
+        images_dir: str, directory where to save generated images.
 
         # A16 data.
         a16_csv_path: str, path of the A16 CSV data.
@@ -27,7 +27,6 @@ class Config():
         # Responses & influence line.
         fem_responses_path_prefix: str, prefix of path to save/load responses.
         il_unit_load_kgs: float, unit load to place on the bridge in kgs.
-        il_num_loads: int, number of loads/simulations to generate the IL.
 
         # OpenSees.
         os_node_step: float, distance between two nodes (element length).
@@ -69,10 +68,12 @@ class Config():
         self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
+
         def os_get_num_elems():
             result = int(self.bridge.length / self.os_node_step)
             assert result * self.os_node_step == self.bridge.length
             return result
+
         os_get_num_elems()
         self.os_num_elems = os_get_num_elems
         self.os_num_nodes = lambda: self.os_num_elems() + 1
@@ -90,7 +91,6 @@ class Config():
         self.di_filos_path = "diana.ff"
         self.di_translation_path = "displa_paths.tb"
         self.di_strain_path = "strains_paths.tb"
-        self.di_max_x_elem = 207848
 
 
 def bridge_705_config() -> Config:

@@ -109,6 +109,7 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
     """Load responses of one type for a simulation.
 
     The FEMParams determine which responses are saved.
+
     """
     assert response_type in fem_params.response_types
 

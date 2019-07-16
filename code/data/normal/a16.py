@@ -8,17 +8,17 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-from config import Config
-from models import bridge_705_config
+from config import Config, bridge_705_config
+from util import *
 
 
-def a16_data(c: Config):
+def load_a16_data(c: Config):
     """Load the A16 data from disk."""
     return pd.read_csv(
         c.a16_csv_path, usecols=c.a16_col_names, index_col="number")
 
 
-def raw_to_df_csv(c: Config, a16_raw_path, max_rows=10000):
+def raw_to_df_csv(c: Config, a16_raw_path: str, max_rows=10000):
     """Convert the raw A16 data to a csv written by Pandas."""
     with open(a16_raw_path) as f:
         rows = f.readlines()
@@ -101,11 +101,55 @@ def plot_hist_and_kde_per_type(df):
         plot_hist_and_kde(group, density=False, title=f"Type {type_}")
 
 
+def num_axles(axle_distances: str) -> int:
+    """The number of axles from an axle_distance array as a string."""
+    distances = axle_distances.replace(
+        "'", "").replace("[", "").replace("]", "")
+    distances = list(
+        filter(lambda x: x != 0, map(float, distances.split(","))))
+    return len(distances)
+
+
+def scatter_plots(c: Config, a16_data: pd.DataFrame, show=False, save=False):
+    # Length against weight.
+    plt.scatter(a16_data["total_weight"], a16_data["length"])
+    plt.title("Vehicle length against weight on A16")
+    plt.ylabel("length (m)")
+    plt.xlabel("weight (kg)")
+    if save:
+        plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-length"))
+    if show: plt.show()
+    if save or show: plt.close()
+
+    # Length against number of axles.
+    num_axles_column = a16_data["axle_distance"].apply(num_axles)
+    plt.scatter(num_axles_column, a16_data["length"])
+    plt.title("Vehicle length against number of axles on A16")
+    plt.ylabel("length (m)")
+    plt.xlabel("number of axles")
+    if save:
+        plt.savefig(os.path.join(c.images_dir, "a16-length-vs-num-axles"))
+    if show: plt.show()
+    if save or show: plt.close()
+
+    # Weight against number of axles.
+    plt.scatter(num_axles_column, a16_data["total_weight"])
+    plt.title("Vehicle weight against number of axles on A16")
+    plt.ylabel("weight (kg)")
+    plt.xlabel("number of axles")
+    if save:
+        plt.savefig(os.path.join(c.images_dir, "a16-weight-vs-num-axles"))
+    if show: plt.show()
+    if save or show: plt.close()
+
+
 if __name__ == "__main__":
-    c = bridge_705_config
+    c = bridge_705_config()
     # raw_to_df_csv(c, "../data/a16-data/A16.dat")
-    df = a16_data(c)
-    print(df.loc[:10, :"total_weight"])
-    plot_hist_and_kde(df["total_weight"], bins=100)
-    plot_kde_and_kde_samples_hist(df["total_weight"])
-    plot_hist_and_kde_per_type(df)
+    a16_data = load_a16_data(c)
+    scatter_plots(c, a16_data, save=True)
+    print(a16_data.loc[:10, :"total_weight"])
+    print(a16_data.loc[:10, "weight_per_axle":])
+    # plot_hist_and_kde(df["total_weight"], bins=100)
+    # plot_kde_and_kde_samples_hist(df["total_weight"])
+    # plot_hist_and_kde_per_type(df)

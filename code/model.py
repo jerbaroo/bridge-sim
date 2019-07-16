@@ -29,6 +29,7 @@ class Lane:
     Args:
         z0: float, z ordinate of one edge of the lane in meters.
         z1: float, z ordinate of the other edge of the lane in meters.
+
     """
     def __init__(self, z0: float, z1: float):
         self.z0 = min(z0, z1)
@@ -219,7 +220,7 @@ def response_type_name(response_type: ResponseType):
 
 
 def response_type_units(response_type: ResponseType, short: bool=True):
-    """Unit string (long or short) for a response type."""
+    """Human readable units (long or short) for a response type."""
     return {
         ResponseType.XTranslation: ("meters", "m"),
         ResponseType.YTranslation: ("meters", "m"),
