@@ -106,6 +106,12 @@ class FEMResponses:
 
 def load_fem_responses(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, fem_runner: FEMRunner):
+    """Load responses of one type for a simulation.
+
+    The FEMParams determine which responses are saved.
+    """
+    assert response_type in fem_params.response_types
+
     path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
     if (not os.path.exists(path)):
         fem_runner.run(c, ExptParams([fem_params]))
@@ -127,8 +133,7 @@ ExptResponses = List[FEMResponses]
 
 
 def load_expt_responses(c: Config, expt_params: ExptParams,
-                        response_type: ResponseType, runner: FEMRunner):
-    """Load responses for an experiment."""
-    return [
-        load_fem_responses(c, fem_params, response_type, runner)
-        for fem_params in expt_params.fem_params]
+                        response_type: ResponseType, fem_runner: FEMRunner):
+    """Load responses of one type for an experiment."""
+    return [load_fem_responses(c, fem_params, response_type, fem_runner)
+            for fem_params in expt_params.fem_params]

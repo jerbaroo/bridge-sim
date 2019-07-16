@@ -31,7 +31,7 @@ def fem_file_path(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
 
 
 class FEMRunner():
-    """Run FEM simulations and generate responses.
+    """Run FEM simulations with an external program and generate responses.
 
     Args:
         built_model_dir: str, directory to save the built model file in.
