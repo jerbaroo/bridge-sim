@@ -13,6 +13,7 @@ class Fix:
         x: bool, whether to fix x translation.
         y: bool, whether to fix y translation.
         rot: bool, whether to fix rotation.
+
     """
     def __init__(self, x_frac: float, x: bool=False, y: bool=False,
                  rot: bool=False):
@@ -40,7 +41,7 @@ class Lane:
         return self.z1 - self.z0
 
     def z_center(self):
-        """Z ordinate of the center of the lane, in meters."""
+        """Z ordinate of the center of the lane in meters."""
         return self.z0 + (self.width() / 2)
 
 
@@ -56,6 +57,7 @@ class Load:
         axle_distances: None or [float], distances between axles in meters.
         axle_width: None or float, width of an axle in meters.
         quadim: None or (float, float): length and width of wheel in meters.
+
     """
     def __init__(self, x_frac: float, kgs: float, lane: int=0,
                  axle_distances: List[float]=None, axle_width: float=None,
@@ -67,10 +69,22 @@ class Load:
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.quadim = quadim
-        if isinstance(kgs, list) or axle_distances:
-            if len(kgs) != len(axle_distances) + 1:
-                raise ValueError(
-                    "Length of axle_distances and kgs don't correspond")
+        if not self.is_point_load():
+            if not isinstance(self.kgs, list):
+                raise ValueError("Axle weights not given")
+            if not self.axle_distances:
+                raise ValueError("Axle distances not given")
+            if not self.axle_width:
+                raise ValueError("Axle width not given")
+            if not self.quadim:
+                raise ValueError("Quadim not given")
+            if len(self.kgs) != len(self.axle_distances) + 1:
+                raise ValueError("Axle distances and weights don't correspond")
+
+    def is_point_load(self):
+        """Whether this load is a point load."""
+        return not any(isinstance(self.kgs, list), self.axle_distances,
+                       self.axle_width, self.quadim)
 
     def total_kgs(self):
         """The total weight in kgs of this load."""
