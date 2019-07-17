@@ -24,11 +24,10 @@ pattern Plain 1 1 {
 system BandGeneral
 numberer RCM
 constraints Plain
-test NormDispIncr 1.0e-3  100 3
-integrator LoadControl 0.005
-algorithm Newton
+integrator LoadControl 1
+algorithm Linear
 analysis Static
 
 <<RECORDERS>>
 
-analyze 200
+analyze 1
