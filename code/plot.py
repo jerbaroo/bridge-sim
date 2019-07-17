@@ -1,12 +1,19 @@
-""""Plot a Bridge."""
+"""General plotting functions.
+
+More specific plotting functions are found in other modules.
+
+"""
 from collections import OrderedDict
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from scipy import stats
 
 from model import *
+from util import * 
+
 
 bridge_color = "green"
 lane_color = "red"
@@ -97,6 +104,37 @@ def animate_plot(frames, f):
     f(0)
     ani = FuncAnimation(plt.gcf(), animate, frames, interval=1)
     plt.show()
+
+
+def plot_hist(data, bins: int=None, density: bool=True, kde: bool=False,
+              title: str=None, ylabel: str=None, xlabel: str=None,
+              save: str=None, show: bool=False):
+    """Plot a histogram and optionally a KDE of given data."""
+    _, x, _ = plt.hist(data, bins=bins, density=density)
+    data_kde = stats.gaussian_kde(data)
+    if kde: plt.plot(x, data_kde(x))
+    if title: plt.title(title)
+    if ylabel: plt.ylabel(ylabel)
+    if xlabel: plt.xlabel(xlabel)
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
+
+
+def plot_kde_and_kde_samples_hist(data, samples=5000, title=None, ylabel=None,
+                                  xlabel=None, save=None, show=None):
+    """Plot the KDE of given data and a histogram of samples from the KDE."""
+    kde = stats.gaussian_kde(data)
+    x = np.linspace(data.min(), data.max(), 100)
+    sampler = kde_sampler(data)
+    plt.hist([next(sampler) for _ in range(samples)], bins=25, density=True)
+    plt.plot(x, kde(x))
+    if title: plt.title(title)
+    if ylabel: plt.ylabel(ylabel)
+    if xlabel: plt.xlabel(xlabel)
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
 
 
 if __name__ == "__main__":

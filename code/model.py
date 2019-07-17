@@ -83,8 +83,8 @@ class Load:
 
     def is_point_load(self):
         """Whether this load is a point load."""
-        return not any(isinstance(self.kgs, list), self.axle_distances,
-                       self.axle_width, self.quadim)
+        return not any((isinstance(self.kgs, list), self.axle_distances,
+                        self.axle_width, self.quadim))
 
     def total_kgs(self):
         """The total weight in kgs of this load."""

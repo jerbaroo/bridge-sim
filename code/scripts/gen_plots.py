@@ -1,11 +1,11 @@
-"""Generate plots."""
+"""Generate all plots for the thesis."""
 from config import Config, bridge_705_config
 from fem.responses.il import ILMatrix
 from fem.run.opensees import os_runner
 from model import *
 
 
-def plot_influence_lines(c: Config):
+def gen_influence_lines(c: Config):
     for response_type in ResponseType:
         il_matrix = ILMatrix.load(c, response_type, os_runner(c))
         il_matrix.imshow(save=True)
@@ -14,7 +14,7 @@ def plot_influence_lines(c: Config):
 
 if __name__ == "__main__":
     c = bridge_705_config()
-    plot_influence_lines(c)
+    gen_influence_lines(c)
     # at_load = 1
     # at_fiber = 0
     # response_type = Response.Stress

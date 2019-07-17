@@ -54,10 +54,6 @@ class Config:
 
         # A16 data.
         self.a16_csv_path = "../data/a16-data/A16.csv"
-        self.a16_col_names = [
-            "month", "day", "year", "hour", "min", "sec", "number", "lane",
-            "type", "speed", "length", "total_weight", "weight_per_axle",
-            "axle_distance"]
 
         # Responses & influence line.
         self.fem_responses_path_prefix = os.path.join(

@@ -136,5 +136,9 @@ ExptResponses = List[FEMResponses]
 def load_expt_responses(c: Config, expt_params: ExptParams,
                         response_type: ResponseType, fem_runner: FEMRunner):
     """Load responses of one type for an experiment."""
-    return [load_fem_responses(c, fem_params, response_type, fem_runner)
-            for fem_params in expt_params.fem_params]
+    results = []
+    for i, fem_params in enumerate(expt_params.fem_params):
+        results.append(load_fem_responses(
+            c, fem_params, response_type, fem_runner))
+        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
+    return results

@@ -1,6 +1,8 @@
+"""Functions that don't belong elsewhere."""
 import os
 import sys
 
+import scipy.stats as stats
 from colorama import init
 from termcolor import colored
 
@@ -27,6 +29,17 @@ def clean_generated(c: Config):
                 clean_dir(os.path.join(root, dir_name))
 
     clean_dir(c.generated_dir)
+
+
+def kde_sampler(data, print_=False):
+    """A generator which returns samples from a KD estimate of the data."""
+    kde = stats.gaussian_kde(data)
+    i = 1
+    while True:
+        if print_ and i % 100 == 0:
+            print(i, end=", ", flush=True)
+        i += 1
+        yield kde.resample(1)[0][0]
 
 
 def exit():
