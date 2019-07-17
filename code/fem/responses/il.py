@@ -15,7 +15,7 @@ from plot import *
 from util import *
 
 
-class ILMatrix():
+class ILMatrix:
     """Experiment responses used for influence line calculation."""
     def __init__(self, c: Config, response_type: ResponseType,
                  expt_responses: ExptResponses, fem_runner_name: str):
@@ -59,7 +59,7 @@ class ILMatrix():
         # Determine load index.
         load_ind = int(np.interp(
             load_pos, [0, 1], [0, len(self.expt_responses) - 1]))
-        # The influence line value * the load factor.
+        # The simulation response * the load factor.
         return (self.expt_responses[load_ind].at(x=x_frac, y=y, z=z, t=t)
                 * (load / self.c.unit_load_kgs))
 

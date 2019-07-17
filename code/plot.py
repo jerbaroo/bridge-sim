@@ -123,11 +123,13 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
 
 def animate_bridge_response(bridge: Bridge, data):
     """Show an animation of a bridge response over time."""
+
     def plot_bridge_response(t):
         plt.ylim(top=np.amax(data), bottom=np.amin(data))
         plt.plot(np.linspace(0, bridge.length, len(data[t])), data[t],
                  color="b")
-        plot_bridge(bridge)
+        plot_bridge_deck_side(bridge)
+
     animate_plot(len(data), plot_bridge_response)
 
 

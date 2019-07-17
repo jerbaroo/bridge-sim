@@ -30,11 +30,13 @@ class Lane:
     Args:
         z0: float, z ordinate of one edge of the lane in meters.
         z1: float, z ordinate of the other edge of the lane in meters.
+        left_to_right: bool, whether traffic moves left to right or opposite.
 
     """
-    def __init__(self, z0: float, z1: float):
+    def __init__(self, z0: float, z1: float, left_to_right: bool=True):
         self.z0 = min(z0, z1)
         self.z1 = max(z0, z1)
+        self.left_to_right = left_to_right
 
     def width(self):
         """Width of the lane in meters."""
@@ -47,8 +49,6 @@ class Lane:
 
 class Load:
     """A load to apply to a bridge, either a point or axle-based load.
-
-    TODO: Where is axle-based load placed on the bridge.
 
     Args:
         x_frac: float, fraction of x position in [0 1].
@@ -100,6 +100,21 @@ class Load:
     def __str__(self):
         """String uniquely respresenting this load."""
         return f"({self.x_frac:.2f}, {self.total_kn():.2f})"
+
+
+class MovingLoad:
+    """A load with a constant speed."""
+    def __init__(self, load: Load, kmph: float):
+        self.load = load
+        self.kmph = kmph
+        self.mps = self.kmph / 3.6
+
+    def x_frac_at(self, seconds: float, bridge: Bridge):
+        """Fraction of bridge x position after given seconds."""
+        delta_frac = (self.mps * seconds) / bridge.length
+        if not self.load.left_to_right:
+            delta_frac *= 1
+        return self.load.x_frac + delta_frac
 
 
 class Material(Enum):
