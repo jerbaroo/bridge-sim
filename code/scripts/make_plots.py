@@ -8,13 +8,14 @@ from model import *
 
 def make_bridge_plots(c: Config):
     """Make plots of the bridge with and without load."""
-    # plot_bridge_first_section(c.bridge, save=c.image_path(f"bridge-section"))
+    plot_bridge_first_section(
+        c.bridge, save=c.image_path("bridges/bridge-section"))
     for loads in [
             [],
             [Load(0.4, 500)],
-            [Load(0.6, [79, 101, 45], axle_distances=[2, 1.5]),
-             Load(0.5, [79, 101, 45], axle_distances=[2, 1.5]),
-             Load(0.6, [79, 101, 45], axle_distances=[2, 1.5], lane=1)]]:
+            [Load(0.6, [0, 0, 0], axle_distances=[2, 1.5]),
+             Load(0.5, [0, 0, 0], axle_distances=[2, 1.5]),
+             Load(0.6, [0, 0, 0], axle_distances=[2, 1.5], lane=1)]]:
         load_str = "-".join(str(l).replace(".", ",") for l in loads)
         plot_bridge_deck_side(c.bridge, loads=loads,
             save=c.image_path(f"bridges/side-{load_str}"))
