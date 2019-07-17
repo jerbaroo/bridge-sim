@@ -2,9 +2,11 @@
 Manipulate and sample A16 load distribution data.
 """
 import os
+from typing import List
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from pandas import DataFrame
 
 from config import Config, bridge_705_config
 from plot import *
@@ -22,7 +24,20 @@ def load_a16_data(c: Config):
         c.a16_csv_path, usecols=a16_col_names, index_col="number")
 
 
-def gen_hist_per_type(c: Config, a16_data: pd.DataFrame):
+def a16_length_groups(a16_data: DataFrame, col_name: str, lengths: List[int]):
+    """Return the A16 data grouped by given length ranges."""
+    assert sorted(lengths) == lengths
+
+    def length_group(x):
+        length = a16_data.loc[x, "length"]
+        for i, l in enumerate(lengths):
+            if length < l:
+                return i
+
+    return a16_data.groupby(by=length_group)
+
+
+def gen_hist_per_type(c: Config, a16_data: DataFrame):
     """Plot a histogram per vehicle type."""
     groups = a16_data.groupby(
         by=lambda x: a16_data.loc[x, "type"].replace("\"", "")[0]
@@ -39,7 +54,7 @@ def gen_hist_per_type(c: Config, a16_data: pd.DataFrame):
             save=os.path.join(c.images_dir, f"a16-vehicle-type-{type_}"))
 
 
-def gen_hists(c: Config, a16_data: pd.DataFrame):
+def gen_hists(c: Config, a16_data: DataFrame):
     """Generate histograms of weight and vehicle type."""
     # Histogram of weight distribution.
     plot_hist(
@@ -69,7 +84,7 @@ def axle_array_and_count(axle_array_str: str) -> int:
     return axle_array, count_non_zero
 
 
-def gen_scatter_plots(c: Config, a16_data: pd.DataFrame):
+def gen_scatter_plots(c: Config, a16_data: DataFrame):
     """Generate scatter plots of the A16 data."""
     # Length against weight.
     plt.scatter(a16_data["total_weight"], a16_data["length"], s=10, alpha=0.1)

@@ -95,7 +95,7 @@ class Load:
     def __repr__(self):
         """Human readable representation of this load."""
         load_type = ("point" if self.axle_distances is None
-                     else f"{len(selx.axle_distances) + 1}-axle")
+                     else f"{len(self.axle_distances) + 1}-axle")
         return f"{self.total_kgs} kgs, lane {self.lane}, {load_type} load"
 
     def __str__(self):
