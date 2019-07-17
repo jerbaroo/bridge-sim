@@ -37,7 +37,7 @@ def opensees_loads(c: Config, loads: [Load]):
     """OpenSees load commands for a .tcl file."""
     def opensees_load(l: Load):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
-        return f"load {nid} 0 {l.kgs} 0"
+        return f"load {nid} 0 {l.kn} 0"
     return "\n".join(opensees_load(l) for l in loads)
 
 
@@ -63,11 +63,15 @@ def opensees_recorders(c: Config, fem_runner: FEMRunner,
     response_types = fem_params.response_types
     recorders = ""
 
-    if (ResponseType.XTranslation in response_types or
-            ResponseType.YTranslation in response_types):
-        for node_out_file, dof in [
-                (fem_runner.x_translation_path(fem_params), 1),
-                (fem_runner.y_translation_path(fem_params), 1)]:
+    node_recorders = []
+    if ResponseType.XTranslation in response_types:
+        node_recorders.append(
+            (fem_runner.x_translation_path(fem_params), 1))
+    if ResponseType.YTranslation in response_types:
+        node_recorders.append(
+            (fem_runner.y_translation_path(fem_params), 2))
+    if len(node_recorders) > 0:
+        for node_out_file, dof in node_recorders:
             recorders += f"\nrecorder Node -file {node_out_file}"
             recorders += " -node " + " ".join(map(str, c.os_node_ids()))
             recorders += f" -dof {dof} disp"

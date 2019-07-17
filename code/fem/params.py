@@ -63,8 +63,3 @@ class ExptParams:
                     mobile_load = False
                 step = new_step
         return mobile_load
-
-
-if __name__ == "__main__":
-    fem_params = FEMParams(loads=[Load(0.5, 5e3), Load(0.2, 5e1)])
-    print(fem_params)

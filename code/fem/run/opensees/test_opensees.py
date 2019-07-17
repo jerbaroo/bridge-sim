@@ -15,7 +15,7 @@ def test_build():
     c.bridge.fixed_nodes = [Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]
     expt_params = ExptParams([
         FEMParams([Load(0.65, 1234)],
-                  [ResponseType.XTranslation, ResponseType.Strain])])
+                  [ResponseType.YTranslation, ResponseType.Strain])])
 
     # Run and read.
     fem_runner = os_runner(c)
@@ -32,3 +32,7 @@ def test_build():
     assert any(line == "fix 1 1 0 0\n" for line in lines)
     assert any(line == "fix 11 0 1 0\n" for line in lines)
     assert any(line == "fix 21 0 0 1\n" for line in lines)
+
+    # Node recorders.
+    assert not any(line.endswith("-dof 1 disp\n") for line in lines)
+    assert any(line.endswith("-dof 2 disp\n") for line in lines)
