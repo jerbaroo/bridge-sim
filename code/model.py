@@ -52,25 +52,25 @@ class Load:
 
     Args:
         x_frac: float, fraction of x position in [0 1].
-        kgs: float or [float], point load or weight at each axle in kgs.
+        kn: float or [float], point load or weight at each axle in kN.
         lane: int, 0 is the first lane.
         axle_distances: None or [float], distances between axles in meters.
         axle_width: None or float, width of an axle in meters.
         quadim: None or (float, float): length and width of wheel in meters.
 
     """
-    def __init__(self, x_frac: float, kgs: float, lane: int=0,
-                 axle_distances: List[float]=None, axle_width: float=None,
-                 quadim: (float, float)=None):
+    def __init__(self, x_frac: float, kn: float, lane: int=0,
+                 axle_distances: List[float]=None, axle_width: float=2,
+                 quadim: (float, float)=(0.4, 0.2)):
         assert x_frac >= 0 and x_frac <= 1
         self.x_frac = x_frac
-        self.kgs = kgs
+        self.kn = kn
         self.lane = lane
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.quadim = quadim
         if not self.is_point_load():
-            if not isinstance(self.kgs, list):
+            if not isinstance(self.kn, list):
                 raise ValueError("Axle weights not given")
             if not self.axle_distances:
                 raise ValueError("Axle distances not given")
@@ -78,29 +78,28 @@ class Load:
                 raise ValueError("Axle width not given")
             if not self.quadim:
                 raise ValueError("Quadim not given")
-            if len(self.kgs) != len(self.axle_distances) + 1:
+            if len(self.kn) != len(self.axle_distances) + 1:
                 raise ValueError("Axle distances and weights don't correspond")
 
     def is_point_load(self):
         """Whether this load is a point load."""
-        return not any((isinstance(self.kgs, list), self.axle_distances,
-                        self.axle_width, self.quadim))
+        return not isinstance(self.kn, list)
 
-    def total_kgs(self):
-        """The total weight in kgs of this load."""
-        if self.axle_distances:
-            return sum(kgs for kgs in self.kgs)
-        return self.kgs
+    def total_kn(self):
+        """The total weight in kn of this load."""
+        if self.is_point_load():
+            return self.kn
+        return sum(kn for kn in self.kn)
 
     def __repr__(self):
         """Human readable representation of this load."""
-        load_type = ("point" if self.axle_distances is None
+        load_type = ("point" if self.is_point_load()
                      else f"{len(self.axle_distances) + 1}-axle")
-        return f"{self.total_kgs} kgs, lane {self.lane}, {load_type} load"
+        return f"{self.total_kn()} kN, lane {self.lane}, {load_type} load"
 
     def __str__(self):
         """String uniquely respresenting this load."""
-        return f"({self.x_frac:.2f}, {self.kgs:.2f})"
+        return f"({self.x_frac:.2f}, {self.total_kn():.2f})"
 
 
 class Material(Enum):

@@ -51,6 +51,8 @@ class Config:
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
+        self.image_path = lambda filename: os.path.join(
+            self.images_dir, filename)
 
         # A16 data.
         self.a16_csv_path = "../data/a16-data/A16.csv"
@@ -58,7 +60,7 @@ class Config:
         # Responses & influence line.
         self.fem_responses_path_prefix = os.path.join(
             self.generated_dir, "responses/responses")
-        self.il_unit_load_kgs = 1000
+        self.il_unit_load_kn = 10000
 
         # OpenSees.
         self.os_node_step = 0.2

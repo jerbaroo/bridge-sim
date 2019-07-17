@@ -4,6 +4,7 @@ More specific plotting functions are found in other modules.
 
 """
 from collections import OrderedDict
+from typing import List
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
@@ -12,63 +13,99 @@ from matplotlib.animation import FuncAnimation
 from scipy import stats
 
 from model import *
-from util import * 
+from util import *
 
 
 bridge_color = "green"
-lane_color = "red"
+lane_color = "yellow"
+load_color = "red"
 pier_color = "green"
+rebar_color = "red"
 
 
-def plot_bridge_deck_side(b: Bridge, bridge_color=bridge_color,
-                          pier_color=pier_color, show=True):
-    """Plot the deck of a bridge from the side."""
-    plt.hlines(0, 0, b.length, color=bridge_color)
+def _plot_load_deck_side(bridge: Bridge, load: Load):
+    xl = load.x_frac * bridge.length
+    if load.is_point_load():
+        plt.plot(xl, 0, "o", color=load_color)
+    # A vehicle load.
+    else:
+        plt.gca().add_patch(patches.Rectangle(
+            (xl, 0), sum(load.axle_distances), load.axle_width,
+            facecolor=load_color))
+
+
+def plot_bridge_deck_side(bridge: Bridge, loads: List[Load]=[], save: str=None,
+                          show: bool=False):
+    """Plot the deck of a bridge from the side with optional loads."""
+    plt.hlines(0, 0, bridge.length, color=bridge_color)
     plt.plot(
-        [f.x_frac * b.length for f in b.fixed_nodes],
-        [0 for _ in range(len(b.fixed_nodes))],
+        [f.x_frac * bridge.length for f in bridge.fixed_nodes],
+        [0 for _ in range(len(bridge.fixed_nodes))],
         "o", color=pier_color)
-    if show:
-        plt.show()
-
-
-def plot_bridge_deck_top(b: Bridge, bridge_color=bridge_color,
-                         lane_color=lane_color, show=True):
-    """Plot the deck of a bridge from the top."""
-    plt.hlines([0, b.width], 0, b.length, color=bridge_color)
-    plt.vlines([0, b.length], 0, b.width, color=bridge_color)
-    for lane in b.lanes:
-        plt.gca().add_patch(
-            patches.Rectangle((0, lane.z0), b.length, lane.z1 - lane.z0,
-                              facecolor=lane_color))
+    for load in loads:
+        _plot_load_deck_side(bridge, load)
     plt.axis("equal")
-    if show:
-        plt.show()
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
 
 
-def plot_bridge_first_section(b: Bridge, show=True):
+def _plot_load_deck_top(bridge: Bridge, load: Load):
+    xl = load.x_frac * bridge.length
+    z_center = bridge.lanes[load.lane].z_center()
+    if load.is_point_load():
+        plt.plot(xl, z_center, "o", color=load_color)
+    # A vehicle load.
+    else:
+        z_center = bridge.lanes[load.lane].z_center()
+        zb = z_center - (load.axle_width / 2)
+        plt.gca().add_patch(patches.Rectangle(
+            (xl, zb), sum(load.axle_distances), load.axle_width,
+            facecolor=load_color))
+
+
+def plot_bridge_deck_top(bridge: Bridge, loads: List[Load]=[], save: str=None,
+                         show: bool=False):
+    """Plot the deck of a bridge from the top."""
+    plt.hlines([0, bridge.width], 0, bridge.length, color=bridge_color)
+    plt.vlines([0, bridge.length], 0, bridge.width, color=bridge_color)
+    for lane in bridge.lanes:
+        plt.gca().add_patch(
+            patches.Rectangle((0, lane.z0), bridge.length, lane.z1 - lane.z0,
+                              facecolor=lane_color))
+    for load in loads:
+        _plot_load_deck_top(bridge, load)
+    plt.axis("equal")
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
+
+
+def plot_bridge_first_section(bridge: Bridge, save: str=None,
+                              show: bool=False):
     """Plot the first cross section of a bridge."""
-    plot_section(b.sections[0], show=show)
+    plot_section(bridge.sections[0], save=save, show=show)
 
 
-def plot_section(s: Section, color=bridge_color, point_color="r", show=True):
+def plot_section(section: Section, save: str=None, show: bool=False):
     """Plot the cross section of a bridge."""
-    for p in s.patches:
-        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=color)  # Bottom.
-        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color=color)  # Left.
-        plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color=color)  # Top.
-        plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color=color,  # Right.
+    for p in section.patches:
+        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=bridge_color)  # Bottom.
+        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color=bridge_color)  # Left.
+        plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color=bridge_color)  # Top.
+        plt.plot([p.p1.z, p.p1.z], [p.p1.y, p.p0.y], color=bridge_color,  # Right.
                  label=p.material.name)
-    for l in s.layers:
+    for l in section.layers:
         for point in l.points():
-            plt.plot([point.z], [point.y], "o", color=point_color,
+            plt.plot([point.z], [point.y], "o", color=rebar_color,
                      label=l.material.name)
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
     plt.axis("equal")
-    if show:
-        plt.show()
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
 
 
 def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
@@ -135,9 +172,3 @@ def plot_kde_and_kde_samples_hist(data, samples=5000, title=None, ylabel=None,
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
-
-
-if __name__ == "__main__":
-    plot_bridge_deck_side(bridge_705)
-    plot_bridge_deck_top(bridge_705)
-    plot_bridge_first_section(bridge_705)

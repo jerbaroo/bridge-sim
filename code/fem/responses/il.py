@@ -92,8 +92,7 @@ class ILMatrix():
             plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
             plt.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
             plt.xlabel("x-axis (m)")
-            plt.title(f"Load at {pos:.2f}m")
-            # plt.title(f"{self.c.il_unit_load_kgs}kg load\nat {pos:.2f}m")
+            plt.title(f"{self.c.il_unit_load_kn}kN load at {pos:.2f}m")
         plt.gcf().set_size_inches(16, 10)
         plt.tight_layout()
         if save:
