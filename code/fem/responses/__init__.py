@@ -49,8 +49,7 @@ class FEMResponses:
         self.response_type = response_type
         self.num_sensors = len(responses)
 
-        if skip_build:
-            return
+        if skip_build: return
 
         # Nested dictionaries for indexing responses by ordinates.
         self.responses = defaultdict(
@@ -100,8 +99,7 @@ class FEMResponses:
                     x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
                 for x_ord in self.xs]
         plt.plot(self.xs, data)
-        if show:
-            plt.show()
+        if show: plt.show()
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,

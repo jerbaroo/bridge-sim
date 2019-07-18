@@ -1,4 +1,5 @@
 """Classes for modeling bridges and loads."""
+from __future__ import annotations
 from enum import Enum
 from typing import List
 
@@ -104,17 +105,31 @@ class Load:
 
 class MovingLoad:
     """A load with a constant speed."""
-    def __init__(self, load: Load, kmph: float):
+    def __init__(self, load: Load, kmph: float, left_to_right: bool=True):
         self.load = load
         self.kmph = kmph
         self.mps = self.kmph / 3.6
+        self.left_to_right = left_to_right
 
-    def x_frac_at(self, seconds: float, bridge: Bridge):
-        """Fraction of bridge x position after given seconds."""
-        delta_frac = (self.mps * seconds) / bridge.length
-        if not self.load.left_to_right:
+    def x_frac_at(self, time: float, bridge: Bridge):
+        """Fraction of bridge length after given time.
+
+        Args:
+            time: float, time in seconds.
+        """
+        delta_frac = (self.mps * time) / bridge.length
+        print(type(self))
+        if not self.left_to_right:
             delta_frac *= 1
         return self.load.x_frac + delta_frac
+
+    def x_at(self, time: float, bridge: Bridge):
+        """X ordinate of bridge in meters after given time.
+
+        Args:
+            time: float, time in seconds.
+        """
+        return bridge.x(self.x_frac_at(time, bridge))
 
 
 class Material(Enum):
@@ -289,10 +304,16 @@ class Bridge:
             raise ValueError("Only single sections are supported")
 
     def x_axis(self):
-        """Fixed points along the bridge's length."""
+        """Fixed points in meters along the bridge's length."""
         return np.interp(
             [f.x_frac for f in self.fixed_nodes],
             [0, 1], [0, self.length])
+
+    def x_frac(self, x: float):
+        return x / self.length
+
+    def x(self, x_frac: float):
+        return x_frac * self.length
 
 
 _bridge_705_piers = [0]  # Pier locations in meters.

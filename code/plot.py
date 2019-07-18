@@ -108,6 +108,15 @@ def plot_section(section: Section, save: str=None, show: bool=False):
     if save or show: plt.close()
 
 
+def plot_responses_to_mv_load_bridge_side(
+        c: Config, responses: np.ndarray, mv_load: MovingLoad,
+        time_step: float, at: List[Point], response_type: ResponseType
+    ):
+    """Plot responses to a moving load from the bridge side."""
+
+    pass
+
+
 def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
     """Show an animation of translation of the nodes."""
 
