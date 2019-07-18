@@ -45,9 +45,9 @@ def test_os_il_matrices():
     assert 2 < time and time < 3
 
 
-def test_gen_all_os_matrices():
+def test_load_all_os_matrices():
     c.il_matrices = dict()
-    # Should run fast, after the first time (maybe also fast).
+    # Should run fast after the first time (may also be fast).
     ILMatrix.load(c, ResponseType.Strain, os_runner(c))
     c.il_matrices = dict()
     start = timer()

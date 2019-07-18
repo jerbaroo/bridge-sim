@@ -1,4 +1,4 @@
-"""Generate an influence line."""
+"""Load and save influence line matrices."""
 from typing import List
 
 import matplotlib.pyplot as plt

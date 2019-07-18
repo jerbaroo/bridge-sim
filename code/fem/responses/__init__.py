@@ -1,4 +1,4 @@
-"""Sensor responses from a FEM simulation."""
+"""Load and save responses from FEM simulation(s)."""
 from __future__ import annotations
 
 import os
@@ -10,7 +10,7 @@ from typing import Callable, List
 
 import matplotlib.pyplot as plt
 
-from fem.params import ExptParams
+from fem.params import ExptParams, FEMParams
 from model import *
 from util import *
 
@@ -103,7 +103,8 @@ class FEMResponses:
 
 
 def load_fem_responses(c: Config, fem_params: FEMParams,
-                       response_type: ResponseType, fem_runner: FEMRunner):
+                       response_type: ResponseType, fem_runner: FEMRunner
+                      ) -> FEMResponses:
     """Load responses of one type for a simulation.
 
     The FEMParams determine which responses are saved.
@@ -132,7 +133,8 @@ ExptResponses = List[FEMResponses]
 
 
 def load_expt_responses(c: Config, expt_params: ExptParams,
-                        response_type: ResponseType, fem_runner: FEMRunner):
+                        response_type: ResponseType, fem_runner: FEMRunner
+                       ) -> ExptResponses:
     """Load responses of one type for an experiment."""
     results = []
     for i, fem_params in enumerate(expt_params.fem_params):
