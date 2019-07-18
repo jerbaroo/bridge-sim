@@ -8,6 +8,7 @@ from fem.run.opensees import os_runner
 from model import *
 
 
+reset_model_ids()
 c = bridge_705_config()
 path = os.path.join(c.generated_dir,
     "responses/responses-pa-[(0.00, 1000.00)]-rt-XTranslation-ru-OpenSees.npy")

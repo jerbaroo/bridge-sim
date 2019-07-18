@@ -11,6 +11,7 @@ from model import *
 
 def test_fem_responses():
     # Setup.
+    reset_model_ids()
     c = bridge_705_config()
     fem_params = FEMParams([Load(0.1, 1000)])
     response_type = ResponseType.XTranslation

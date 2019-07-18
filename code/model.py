@@ -6,6 +6,8 @@ from typing import List
 import numpy as np
 
 
+
+
 class Fix:
     """A node fixed in some degrees of freedom.
 
@@ -271,6 +273,11 @@ class Section:
         Section.next_id += 1
         self.patches = patches
         self.layers = layers
+
+
+def reset_model_ids():
+    _fiber_cmd_id = 1
+    Section.next_id = 1
 
 
 class Bridge:
