@@ -49,16 +49,16 @@ class ExptParams:
         if mobile_load:
             for fp1, fp2 in zip(
                     self.fem_params[:-1], self.fem_params[1:]):
-                if fp1.loads[0].weight != fp2.loads[0].weight:
+                if fp1.loads[0].total_kn() != fp2.loads[0].total_kn():
                     mobile_load = False
                 if fp1.loads[0].lane != fp2.loads[0].lane:
                     mobile_load = False
                 if fp1.response_types != fp2.response_types:
                     mobile_load = False
-                if fp2.loads[0].x_pos < fp1.loads[0].x_pos:
+                if fp2.loads[0].x_frac < fp1.loads[0].x_frac:
                     mobile_load = False
                 # Loads must be increasing with equal step.
-                new_step = fp2.loads[0].x_pos - fp1.loads[0].x_pos
+                new_step = fp2.loads[0].x_frac - fp1.loads[0].x_frac
                 if step is not None and step != new_step:
                     mobile_load = False
                 step = new_step

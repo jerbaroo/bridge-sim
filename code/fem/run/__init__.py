@@ -45,7 +45,7 @@ class FEMRunner():
                  convert: Callable[
                      [Config, Parsed],
                      Dict[int, Dict[ResponseType, List[Response]]]],
-                 built_model_ext: str,
+                 built_model_ext: str=None,
                  built_model_dir: str="."):
         self._build = build
         self._run = run

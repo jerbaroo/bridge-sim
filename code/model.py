@@ -53,7 +53,7 @@ class Load:
 
     Args:
         x_frac: float, fraction of x position in [0 1].
-        kn: float or [float], point load or weight at each axle in kN.
+        kn: float, point load or force per axle in kN.
         lane: int, 0 is the first lane.
         axle_distances: None or [float], distances between axles in meters.
         axle_width: None or float, width of an axle in meters.
@@ -68,29 +68,20 @@ class Load:
         self.kn = kn
         self.lane = lane
         self.axle_distances = axle_distances
+        self.num_axles = (None if self.axle_distances is None
+                          else len(self.axle_distances) + 1)
         self.axle_width = axle_width
         self.quadim = quadim
-        if not self.is_point_load():
-            if not isinstance(self.kn, list):
-                raise ValueError("Axle weights not given")
-            if not self.axle_distances:
-                raise ValueError("Axle distances not given")
-            if not self.axle_width:
-                raise ValueError("Axle width not given")
-            if not self.quadim:
-                raise ValueError("Quadim not given")
-            if len(self.kn) != len(self.axle_distances) + 1:
-                raise ValueError("Axle distances and weights don't correspond")
 
     def is_point_load(self):
         """Whether this load is a point load."""
-        return not isinstance(self.kn, list)
+        return self.axle_distances is None
 
     def total_kn(self):
         """The total weight in kn of this load."""
         if self.is_point_load():
             return self.kn
-        return sum(kn for kn in self.kn)
+        return sum(self.kn for _ in range(self.num_axles))
 
     def __repr__(self):
         """Human readable representation of this load."""
