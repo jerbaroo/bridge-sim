@@ -48,7 +48,7 @@ class ILMatrix:
         # Else calculate, keep a reference and return.
         expt_params = ExptParams([
             FEMParams(
-                [Load(x_frac, c.il_unit_load_kn)],
+                loads=[Load(x_frac, c.il_unit_load_kn)],
                 # If save_all is true pass all response types.
                 response_types=[rt for rt in ResponseType] if save_all
                                else [response_type])
