@@ -10,6 +10,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
 from model import *
@@ -21,6 +22,15 @@ lane_color = "yellow"
 load_color = "red"
 pier_color = "green"
 rebar_color = "red"
+
+
+def sci_format_y_axis():
+    """Format an axis' ticks in scientific style."""
+    class ScalarFormatterForceFormat(ScalarFormatter):
+        def _set_format(self):
+            self.format = "%1.1f"
+    plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
+    plt.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
 
 
 def _plot_load_deck_side(bridge: Bridge, load: Load):
@@ -35,7 +45,7 @@ def _plot_load_deck_side(bridge: Bridge, load: Load):
 
 
 def plot_bridge_deck_side(bridge: Bridge, loads: List[Load]=[], save: str=None,
-                          show: bool=False):
+                          show: bool=False, equal_axis: bool=True):
     """Plot the deck of a bridge from the side with optional loads."""
     plt.hlines(0, 0, bridge.length, color=bridge_color)
     plt.plot(
@@ -44,7 +54,7 @@ def plot_bridge_deck_side(bridge: Bridge, loads: List[Load]=[], save: str=None,
         "o", color=pier_color)
     for load in loads:
         _plot_load_deck_side(bridge, load)
-    plt.axis("equal")
+    if equal_axis: plt.axis("equal")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()

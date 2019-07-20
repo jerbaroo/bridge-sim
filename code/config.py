@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from model import bridge_705
+from model import bridge_705, reset_model_ids
 
 
 class Config:
@@ -95,4 +95,5 @@ class Config:
 
 
 def bridge_705_config() -> Config:
+    reset_model_ids()
     return Config(bridge_705())

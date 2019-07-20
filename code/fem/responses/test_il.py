@@ -8,7 +8,6 @@ from fem.run.opensees import os_runner
 from model import *
 
 
-reset_model_ids()
 c = bridge_705_config()
 path = os.path.join(c.generated_dir,
     "responses/responses-pa-[(0.00, 1000.00)]-rt-XTranslation-ru-OpenSees.npy")
@@ -43,15 +42,16 @@ def test_os_il_matrices():
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
-    assert 2 < time and time < 3
+    assert 2 < time and time < 3.5
 
 
 def test_load_all_os_matrices():
     c.il_matrices = dict()
     # Should run fast after the first time (may also be fast).
+    # The second time should only require loading from disk.
     ILMatrix.load(c, ResponseType.Strain, os_runner(c))
     c.il_matrices = dict()
     start = timer()
     ILMatrix.load(c, ResponseType.Strain, os_runner(c))
     time = timer() - start
-    assert 1.5 < time and time < 2.5
+    assert 1.5 < time and time < 3

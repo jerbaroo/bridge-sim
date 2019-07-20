@@ -7,11 +7,11 @@ from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import os_runner
 from model import *
+from util import *
 
 
 def test_fem_responses():
     # Setup.
-    reset_model_ids()
     c = bridge_705_config()
     fem_params = FEMParams([Load(0.1, 1000)])
     response_type = ResponseType.XTranslation

@@ -260,8 +260,8 @@ def response_type_units(response_type: ResponseType, short: bool=True):
     return {
         ResponseType.XTranslation: ("meters", "m"),
         ResponseType.YTranslation: ("meters", "m"),
-        ResponseType.Stress: ("kilograms", "kgs"),
-        ResponseType.Strain: ("kilograms", "kgs")
+        ResponseType.Stress: ("kilo newton", "kN"),
+        ResponseType.Strain: ("kilo newton", "kN")
     }[response_type][int(short)]
 
 
@@ -276,6 +276,8 @@ class Section:
 
 
 def reset_model_ids():
+    """Call this before constructing a bridge/loads etc.."""
+    global _fiber_cmd_id
     _fiber_cmd_id = 1
     Section.next_id = 1
 

@@ -9,7 +9,6 @@ from model import *
 
 def test_build():
     # Config.
-    reset_model_ids()
     c = bridge_705_config()
     c.bridge.length = 10
     c.os_node_step = 0.5

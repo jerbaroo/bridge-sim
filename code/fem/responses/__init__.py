@@ -58,6 +58,7 @@ class FEMResponses:
             self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
 
         # Convert nested dictionaries to sorted lists at leaves.
+        # This allows for conversion from an index to an ordinate.
         self.times = sorted(self.responses.keys())
         points = self.responses[self.times[0]]
         self.xs = sorted(points.keys())
@@ -71,19 +72,27 @@ class FEMResponses:
         assert 0 <= x and x <= 1
         assert 0 <= y and y <= 1
         assert 0 <= z and z <= 1
+        # print(f"({x}, {y}, {z}) ({x_ord}, {y_ord}, {z_ord}) t={time}")
+
+        # Convert to x ordinate if necessary.
         if x_ord is None:
             x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
             x_ord = self.xs[x_ind]
+
+        # Convert to y ordinate if necessary.
         if y_ord is None:
             y_ind = int(np.interp(y, [0, 1], [0, len(self.ys[x_ord]) - 1]))
             y_ord = self.ys[x_ord][y_ind]
+
+        # Convert to z ordinate if necessary.
         if z_ord is None:
             z_ind = int(
                 np.interp(z, [0, 1], [0, len(self.zs[x_ord][y_ord]) - 1]))
             z_ord = self.zs[x_ord][y_ord][z_ind]
+
         if time is None:
             time = self.times[t]
-        # print(f"({x}, {y}, {z}) ({x_ord}, {y_ord}, {z_ord}) t={time}")
+
         return self.responses[time][x_ord][y_ord][z_ord]
 
     def save(self, c: Config):
