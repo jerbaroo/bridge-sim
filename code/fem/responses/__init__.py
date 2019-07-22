@@ -101,6 +101,7 @@ class FEMResponses:
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 
+    # TODO: Remove.
     def plot_x(self, y=0, y_ord=None, z=0, z_ord=None, t=0, time=None,
                show=True):
         """Plot responses along the x axis at some (y, z, t)."""

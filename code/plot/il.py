@@ -2,14 +2,14 @@
 import matplotlib.pyplot as plt
 
 from config import Config, bridge_705_config
-from fem.responses.il import ILMatrix
+from fem.responses.il import ILMatrix, ResponsesMatrix
 from fem.run.opensees import os_runner
 from model import *
 from plot import *
 
 
-def plot_il(c: Config, il_matrix: ILMatrix, response_frac: float, num_x: int,
-            save: str=None, show: bool=False):
+def plot_il(c: Config, il_matrix: ILMatrix, _i: int, response_frac: float,
+            num_x: int, save: str=None, show: bool=False):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
     rs = [il_matrix.response(response_frac, x_frac, c.il_unit_load_kn)
@@ -30,16 +30,42 @@ def plot_il(c: Config, il_matrix: ILMatrix, response_frac: float, num_x: int,
     return rs
 
 
-def plot_ils(c: Config, il_matrix: ILMatrix, rows: int=4, cols:int=3,
-             num_x: int=100, save: str=None, show: bool=False):
-    """Plot the influence line for a number of response positions."""
-    response_name = response_type_name(il_matrix.response_type).capitalize()
-    response_units = response_type_units(il_matrix.response_type)
+def plot_dc(c: Config, resp_matrix: ResponsesMatrix, i: int,
+            _response_frac: float, num_x: int, save: str=None,
+            show: bool=False):
+    """Plot the IL for a response at some position."""
+    fem_responses = resp_matrix.expt_responses[i]
+    xs = fem_responses.xs
+    rs = [resp_matrix.expt_responses[i].at(x_ord=x).value for x in xs]
+    response_name = response_type_name(resp_matrix.response_type)
+    response_units = response_type_units(resp_matrix.response_type)
+    plt.title(f"{response_name.capitalize()} at simulation {i}")
+    plt.xlabel(f"x-axis (m)")
+    plt.ylabel(f"{response_name.capitalize()} ({response_units})")
+    sci_format_y_axis()
+    plt.plot(xs, rs)
+    if save: plt.savefig(save)
+    if show: plt.show()
+    if save or show: plt.close()
+    return rs
+
+
+def matrix_subplots(c: Config, resp_matrix: ResponsesMatrix, rows: int=4,
+                    cols:int=None, num_x: int=100, save: str=None,
+                    show: bool=False, plot_func=None):
+    """For each subplot plot matrix responses using the given function."""
+    if cols is None:
+        cols = int(resp_matrix.num_loads / rows)
+        if cols != resp_matrix.num_loads / rows:
+            print_w("Rows don't divide number of simulations")
+            cols += 1
+    response_name = response_type_name(resp_matrix.response_type).capitalize()
+    response_units = response_type_units(resp_matrix.response_type)
     ymin, ymax = 0, 0
     # Plot each IL and bridge deck side.
     for i, response_frac in enumerate(np.linspace(0, 1, rows * cols)):
         plt.subplot(rows, cols, i + 1)
-        rs = plot_il(c, il_matrix, response_frac, num_x=num_x)
+        rs = plot_func(c, resp_matrix, i, response_frac, num_x=num_x)
         plot_bridge_deck_side(c.bridge, show=False, equal_axis=False)
         # Keep track of min and max on y axis (only when non-zero responses).
         if any(rs):

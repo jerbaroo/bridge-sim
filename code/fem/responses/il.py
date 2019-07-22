@@ -1,4 +1,4 @@
-"""Load and save influence line matrices."""
+"""Load and save response matrices."""
 from typing import List
 
 import matplotlib.pyplot as plt
