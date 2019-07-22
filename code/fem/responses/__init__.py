@@ -121,9 +121,23 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
     """
     assert response_type in fem_params.response_types
 
+    # May need to free a node in y direction.
+    set_y_False = False
+    if fem_params.displacement_ctrl is not None:
+        pier = fem_params.displacement_ctrl.pier
+        fix = c.bridge.fixed_nodes[pier]
+        if fix.y:
+            print_i(f"Freeing node at pier {pier} in y direction")
+            fix.y = False
+            set_y_false = True
+
     path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
     if (not os.path.exists(path)):
         fem_runner.run(c, ExptParams([fem_params]))
+
+    # And set the node as fixed again after running.
+    if set_y_False:
+        fix.y = True
 
     start = timer()
     with open(path, "rb") as f:

@@ -133,8 +133,21 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
         print_i(f"OpenSees: building model file with"
                 + f" {c.os_num_elems()} elements,"
                 + f" {c.os_node_step} element length")
+
+        # For displacement control check that the required pier is not fixed
+        # for displacement.
+        if fem_params.displacement_ctrl is not None:
+            print_d("Displacmenet control!!")
+            fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
+            if fix.y:
+                nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
+                raise ValueError(
+                    f"Displacement control node ({nid}) not fixed in y"
+                    + " direction.")
+
         with open(c.os_model_template_path) as f:
             in_tcl = f.read()
+
         out_tcl = (in_tcl
             .replace("<<NODES>>", opensees_nodes(c))
             .replace("<<FIX>>", opensees_fixed_nodes(c))
@@ -149,6 +162,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
                 c, fem_params.displacement_ctrl))
             .replace("<<RECORDERS>>", opensees_recorders(
                 c, fem_runner, fem_params)))
+
         model_path = fem_file_path(fem_params, fem_runner)
         print_i(f"OpenSees: saving model file to {model_path}")
         with open(model_path, "w") as f:

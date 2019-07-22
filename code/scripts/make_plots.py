@@ -43,6 +43,24 @@ def make_il_plots(c: Config):
                 + f"-{response_type_name(response_type)}-{rows}-{cols}"))
 
 
+def make_dc_plots(c: Config):
+    """Make plots of the displacement control responses."""
+    for response_type in ResponseType:
+        il_matrix = ILMatrix.load(
+            c, response_type, os_runner(c), num_loads=100)
+        num_ils, num_x = 10, 100
+        imshow_il(c, il_matrix, save=c.image_path(
+            f"ils/il-imshow-{il_matrix.fem_runner_name}"
+            + f"-{response_type_name(response_type)}"
+            + f"-{num_ils}-{num_x}"))
+        rows, cols = 4, 3
+        plot_ils(
+            c, il_matrix, rows=rows, cols=cols,
+            save=c.image_path(
+                f"ils/il-subplots-{il_matrix.fem_runner_name}"
+                + f"-{response_type_name(response_type)}-{rows}-{cols}"))
+
+
 if __name__ == "__main__":
     c = bridge_705_config()
     # clean_generated(c)

@@ -1,4 +1,6 @@
 """Test that OpenSees builds model files correctly."""
+import pytest
+
 from config import bridge_705_config
 from fem.params import ExptParams, FEMParams
 from fem.run import fem_file_path
@@ -46,7 +48,7 @@ def test_build_displacement_ctrl():
     c = bridge_705_config()
     c.bridge.length = 10
     c.os_node_step = 0.5
-    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
+    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
     expt_params = ExptParams([
         FEMParams(displacement_ctrl=DisplacementCtrl(0.1, 1),
                   response_types=[
@@ -61,3 +63,12 @@ def test_build_displacement_ctrl():
     assert any(line == "test NormDispIncr 1.0e-12 100\n" for line in lines)
     assert any(line == "integrator DisplacementControl 11 2 0.1\n"
                for line in lines)
+
+    # Assert the displacement control node is not fixed in y direction.
+    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
+    expt_params = ExptParams([
+        FEMParams(displacement_ctrl=DisplacementCtrl(0.1, 1),
+                  response_types=[
+                      ResponseType.YTranslation, ResponseType.Strain])])
+    with pytest.raises(ValueError):
+        build_model(c, expt_params, os_runner(c))

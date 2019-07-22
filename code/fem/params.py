@@ -29,7 +29,10 @@ class FEMParams:
         self.built_model_file = None
 
     def load_str(self):
-        """String representing the loads."""
+        """String representing the parameters (that affect simulation)."""
+        if self.displacement_ctrl is not None:
+            return (f"disp-ctrl-{self.displacement_ctrl.displacement}"
+                    + f"-{self.displacement_ctrl.pier}")
         lstr = ",".join(str(l) for l in self.loads)
         return f"[{lstr}]"
 
