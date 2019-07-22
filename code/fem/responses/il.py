@@ -13,13 +13,15 @@ from model import *
 from plot import *
 from util import *
 
+
 def il_matrix_id(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
                  num_loads: int) -> str:
     return f"{c.il_unit_load_kn}-{response_type}-{fem_runner.name}-{num_loads}"
 
 
-class ILMatrix:
-    """Experiment responses used for influence line calculation."""
+# TODO: Rename.
+class ResponsesMatrix:
+    """Responses of one type for a number of related simulations."""
     def __init__(self, c: Config, response_type: ResponseType,
                  expt_responses: ExptResponses, fem_runner_name: str):
         self.c = c
@@ -28,14 +30,18 @@ class ILMatrix:
         self.num_loads = len(expt_responses)
         self.fem_runner_name = fem_runner_name
 
+
+class ILMatrix(ResponsesMatrix):
+
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
              num_loads: int=12, save_all: bool=True):
-        """Load ILMatrix from disk, running simulations if necessary.
+        """Load ILMatrix from disk, running simulations first if necessary.
 
         Args:
             response_type: ResponseType, the type of response to load.
-            fem_runner: FEMRunner, the program to run simulations with.
+            fem_runner: FEMRunner, the FEM program to run simulations with.
+            num_loads: int, the number of equidistant positions to apply load.
             save_all: bool, save all response types when running a simulation.
 
         """

@@ -24,8 +24,11 @@ pattern Plain 1 1 {
 system BandGeneral
 numberer RCM
 constraints Plain
-integrator LoadControl 1
+<<TEST>>
+<<ALGORITHM>>
 algorithm Linear
+<<INTEGRATOR>>
+integrator LoadControl 1
 analysis Static
 
 <<RECORDERS>>

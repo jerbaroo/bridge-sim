@@ -7,7 +7,7 @@ from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.run import FEMRunner, fem_file_path
 from model import *
-from util import print_i
+from util import *
 
 
 def opensees_nodes(c: Config):
@@ -33,12 +33,15 @@ def opensees_elements(c: Config):
     return "\n".join(opensees_element(nid) for nid in c.os_node_ids()[:-1])
 
 
-def opensees_loads(c: Config, loads: [Load]):
+def opensees_loads(c: Config, fem_params: FEMParams):
     """OpenSees load commands for a .tcl file."""
     def opensees_load(l: Load):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
         return f"load {nid} 0 {l.kn} 0"
-    return "\n".join(opensees_load(l) for l in loads)
+    if fem_params.displacement_ctrl is not None:
+        fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
+        return opensees_load(Load(x_frac=fix.x_frac, kn=10))
+    return "\n".join(opensees_load(l) for l in fem_params.loads)
 
 
 def opensees_sections(c: Config):
@@ -100,6 +103,30 @@ def opensees_recorders(c: Config, fem_runner: FEMRunner,
     return recorders
 
 
+def opensees_test(c: Config, displacement_ctrl: DisplacementCtrl):
+    """OpenSees test command."""
+    if displacement_ctrl is None:
+        return ""
+    return "test NormDispIncr 1.0e-12 100"
+
+
+def opensees_algorithm(c: Config, displacement_ctrl: DisplacementCtrl):
+    """OpenSees algorithm command."""
+    if displacement_ctrl is None:
+        return "algorithm Linear"
+    return "algorithm Newton"
+
+
+def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
+    """OpenSees integrator command."""
+    if displacement_ctrl is None:
+        return "integrator LoadControl 1"
+    fix = c.bridge.fixed_nodes[displacement_ctrl.pier]
+    nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
+    return (f"integrator DisplacementControl {nid} 2"
+            + f" {displacement_ctrl.displacement}")
+
+
 def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
     """Build OpenSees model files."""
     for fem_params in expt_params.fem_params:
@@ -112,8 +139,14 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
             .replace("<<NODES>>", opensees_nodes(c))
             .replace("<<FIX>>", opensees_fixed_nodes(c))
             .replace("<<ELEMENTS>>", opensees_elements(c))
-            .replace("<<LOAD>>", opensees_loads(c, fem_params.loads))
+            .replace("<<LOAD>>", opensees_loads(c, fem_params))
             .replace("<<SECTIONS>>", opensees_sections(c))
+            .replace("<<TEST>>", opensees_test(
+                c, fem_params.displacement_ctrl))
+            .replace("<<ALGORITHM>>", opensees_algorithm(
+                c, fem_params.displacement_ctrl))
+            .replace("<<INTEGRATOR>>", opensees_integrator(
+                c, fem_params.displacement_ctrl))
             .replace("<<RECORDERS>>", opensees_recorders(
                 c, fem_runner, fem_params)))
         model_path = fem_file_path(fem_params, fem_runner)

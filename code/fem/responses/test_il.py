@@ -32,7 +32,7 @@ def test_os_il_matrices():
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=False)
     time = timer() - start
-    assert 0.1 < time and time < 1
+    assert 0.1 < time and time < 1.5
 
     # Test file is created.
     assert os.path.exists(path)
@@ -42,7 +42,7 @@ def test_os_il_matrices():
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
-    assert 2 < time and time < 3.5
+    assert 1 < time and time < 3.5
 
 
 def test_load_all_os_matrices():
@@ -54,4 +54,4 @@ def test_load_all_os_matrices():
     start = timer()
     ILMatrix.load(c, ResponseType.Strain, os_runner(c))
     time = timer() - start
-    assert 1.5 < time and time < 3
+    assert 1.5 < time and time < 4

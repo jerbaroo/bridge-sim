@@ -1,26 +1,23 @@
-* MSc Thesis [[https://circleci.com/gh/barischrooneyj/msc-uva-tno.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* Thesis MSc Computational Science [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+  
+My thesis for the University of Amsterdam and TNO.
 
-Written documents and the generated PDFs are found in /writing/, rendered thesis
-PDF [[./writing/thesis/thesis.pdf][here]].
+Code is in /code/ with a README describing the files [[./code/README.org][here]].
 
-Collected data is found in /data/.
+Supporting data is in /data/.
 
-Code is found in /code/ with a README describing the files [[./code/README.org][here]].
+PDFs and source files are in /writing/, rendered thesis PDF [[./writing/thesis/thesis.pdf][here]].
 
 ** Quickstart
 
-If you don't have pipenv installed: =pip install pipenv=.
-If you don't have Git LFS installed: [[https://git-lfs.github.com/][download here]].
+If you don't have pipenv: =pip install pipenv=.
+
+If you don't have Git LFS: [[https://git-lfs.github.com/][download it here]].
 
 #+BEGIN_SRC bash
-git clone git@github.com:barischrooneyj/msc-tno-uva
-cd msc-tno-uva
-pipenv install
-git lfs install
-
-cd code
-python normal_load.py
-python influence_line.py
-python normal_response.py
-python models.py
+  git clone git@github.com:barischrooneyj/thesis-msc-computational-science
+  cd thesis-msc-computational-science
+  pipenv install
+  git lfs install
+  (cd code && pytest)
 #+END_SRC

@@ -6,10 +6,8 @@ from typing import List
 import numpy as np
 
 
-
-
 class Fix:
-    """A node fixed in some degrees of freedom.
+    """A node fixed in some degrees of freedom, used to model a pier.
 
     Args:
         x_frac: float, fraction in [0 1] of x length.
@@ -28,12 +26,12 @@ class Fix:
 
 
 class Lane:
-    """A traffic lane spanning the length of the bridge.
+    """A traffic lane spanning the length of a bridge.
 
     Args:
         z0: float, z ordinate of one edge of the lane in meters.
         z1: float, z ordinate of the other edge of the lane in meters.
-        left_to_right: bool, whether traffic moves left to right or opposite.
+        left_to_right: bool, whether traffic moves left to right, or opposite.
 
     """
     def __init__(self, z0: float, z1: float, left_to_right: bool=True):
@@ -55,7 +53,7 @@ class Load:
 
     Args:
         x_frac: float, fraction of x position in [0 1].
-        kn: float, point load or force per axle in kN.
+        kn: float, point load intensity or force per axle, in kN.
         lane: int, 0 is the first lane.
         axle_distances: None or [float], distances between axles in meters.
         axle_width: None or float, width of an axle in meters.
@@ -80,7 +78,7 @@ class Load:
         return self.axle_distances is None
 
     def total_kn(self):
-        """The total weight in kn of this load."""
+        """The total weight in kN of this load."""
         if self.is_point_load():
             return self.kn
         return sum(self.kn for _ in range(self.num_axles))
@@ -129,11 +127,11 @@ class DisplacementCtrl:
     """Apply a load in simulation until the displacement is reached.
 
     Args:
-        displacement: int, displacement in meters.
+        displacement: float, displacement in meters.
         pier: int, index of the pier (fixed node) starting at 0.
 
     """
-    def __init__(self, displacement: int, pier: int):
+    def __init__(self, displacement: float, pier: int):
         self.displacement = displacement
         self.pier = pier
 
@@ -296,7 +294,7 @@ def reset_model_ids():
 
 
 class Bridge:
-    """Description of a bridge.
+    """A bridge specification.
 
     Args:
         length: float, length of the beam in meters.
@@ -329,14 +327,12 @@ class Bridge:
         return x_frac * self.length
 
 
-_bridge_705_piers = [0]  # Pier locations in meters.
-for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
-    _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
-_bridge_705_length = 102
-
-
 def bridge_705() -> Bridge:
-    return Bridge(
+    _bridge_705_piers = [0]  # Pier locations in meters.
+    for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
+        _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
+    _bridge_705_length = 102
+    bridge = Bridge(
         length=_bridge_705_length,
         width=33.2,
         lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
@@ -353,3 +349,5 @@ def bridge_705() -> Bridge:
             ]
         )]
     )
+    return bridge
+    # TODO Fix first node on x translation.

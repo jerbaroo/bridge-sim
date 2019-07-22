@@ -1,4 +1,4 @@
-"""Functions that don't belong elsewhere."""
+"""Useful functions that don't belong anywhere else."""
 import os
 import sys
 
@@ -11,9 +11,19 @@ from config import Config
 init()
 
 
+def print_d(s):
+    """Print some debug text."""
+    print(colored(s, "yellow"))
+
+
 def print_i(s):
     """Print some info text."""
     print(colored(s, "green"))
+
+
+def print_w(s):
+    """Print some warning text."""
+    print(colored(s, "orange"))
 
 
 def clean_generated(c: Config):

@@ -1,34 +1,34 @@
 * MSc Code
 
-The files and what they do:
+Description of top-level directories and files:
 
-*build_opensees_model.py*
+*classification/*
 
-Build an OpenSees model of a bridge with given parameters.
+Classification of damage scenarios by data-driven models.
 
-*influence_line.py*
+*fem/*
 
-Generate an influence line by running multiple model simulations.
+Use FEM simulations to collect data from scenarios.
+
+*scenarios/*
+
+Definitions of normal usage and damage scenarios.
+
+*plot/*
+
+Plot bridges and responses.
+
+*config.py*
+
+Simulation configuration.
 
 *model.py*
 
-Generate parameters used for building a model of a bridge.
+Classes for modeling bridges and loads.
 
 *model-template.tcl*
 
 Template OpenSees model file, filled in by /build_opensees_model.py/.
-
-*normal_load.py*
-
-Manipulate and sample A16 load distribution data.
-
-*normal_response.py*
-
-Generate a normal range of sensor responses.
-
-*run_opensees_model.py*
-
-Run an OpenSees model and parse the output.
 
 *util.py*
 

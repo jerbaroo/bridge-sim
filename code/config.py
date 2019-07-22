@@ -1,36 +1,35 @@
-"""Configuration object holding simulation parameters."""
+"""Simulation configuration."""
 import os
+from typing import Callable
 
 import numpy as np
 
-from model import bridge_705, reset_model_ids
+from model import *
 
 
 class Config:
-    """Simulation parameters.
+    """Simulation configuration.
 
     NOTE:
         - Paths are relative to this file.
-        - The A16 data must have index column "number".
-        - The A16 data must have a weight column "total_weight".
-        - The A16 data must have a vehicle type column "type".
 
-    Attributes:
-        bridge: description of a bridge.
-        il_matrices: Dict[str, ILMatrix], IL matrices already in memory.
+    Args:
+        bridge: Callable[[], Bridge], returns a bridge specification.
+
+    Attrs:
+        il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
         generated_dir: str, directory where to save all generated files.
         images_dir: str, directory where to save generated images.
 
         # A16 data.
         a16_csv_path: str, path of the A16 CSV data.
-        a16_col_names: [str], column names of the A16 CSV data.
 
         # Responses & influence line.
-        fem_responses_path_prefix: str, prefix of path to save/load responses.
-        il_unit_load_kgs: float, unit load to place on the bridge in kgs.
+        fem_responses_path_prefix: str, prefix of where to save responses.
+        il_unit_load_kn: float, unit load to place on the bridge in kN.
 
         # OpenSees.
-        os_node_step: float, distance between two nodes (element length).
+        os_node_step: float, distance between two nodes in meters.
         os_exe_path: str, path of the OpenSees executable.
         os_model_template_path: str, path of the model template file.
 
@@ -44,8 +43,10 @@ class Config:
         di_max_x_elem: int, index of maximum x-axis element.
 
     """
-    def __init__(self, bridge):
-        self.bridge = bridge
+    def __init__(self, bridge: Callable[[], Bridge]):
+        reset_model_ids()
+        self.bridge = bridge()
+
         self.il_matrices = dict()
         self.generated_dir = "generated/"
         self.images_dir = "images/"
@@ -66,15 +67,15 @@ class Config:
         self.il_unit_load_kn = 1000
 
         # OpenSees.
-        self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
+        self.os_node_step = 0.2
 
+        # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():
             result = int(self.bridge.length / self.os_node_step)
             assert result * self.os_node_step == self.bridge.length
             return result
-
         os_get_num_elems()
         self.os_num_elems = os_get_num_elems
         self.os_num_nodes = lambda: self.os_num_elems() + 1
@@ -95,5 +96,4 @@ class Config:
 
 
 def bridge_705_config() -> Config:
-    reset_model_ids()
-    return Config(bridge_705())
+    return Config(bridge_705)

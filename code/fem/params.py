@@ -11,17 +11,20 @@ class FEMParams:
 
     Args:
         loads: [Load], a list of Load to apply to the bridge.
-        disp_ctrl: DisplacementCtrl, apply a load until the displacement is
-            reached. If given then "loads" are ignored.
+        displacement_ctrl: DisplacementCtrl, apply a load until the
+            displacement is reached. If given then "loads" are ignored.
         response_types: [ResponseType], response types to record.
 
     Attrs:
         built_model_file: str, path of the model file built for simulation.
 
     """
-    def __init__(self, loads: [Load]=[], disp_ctrl: DisplacementCtrl=None,
+    def __init__(self, loads: [Load]=[],
+                 displacement_ctrl: DisplacementCtrl=None,
                  response_types: [ResponseType]=[rt for rt in ResponseType]):
         self.loads=loads
+        self.displacement_ctrl = displacement_ctrl
+        assert not (len(loads) > 0 and displacement_ctrl is not None)
         self.response_types = response_types
         self.built_model_file = None
 
