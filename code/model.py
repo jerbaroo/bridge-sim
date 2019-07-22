@@ -313,6 +313,8 @@ class Bridge:
         self.lanes = lanes
         if len(sections) != 1:
             raise ValueError("Only single sections are supported")
+        if not self.fixed_nodes[0].x:
+            raise ValueError("First fixed node must be fixed in x direction")
 
     def x_axis(self):
         """Fixed points in meters along the bridge's length."""
@@ -328,16 +330,20 @@ class Bridge:
 
 
 def bridge_705() -> Bridge:
+
     _bridge_705_piers = [0]  # Pier locations in meters.
     for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
         _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
     _bridge_705_length = 102
+    fixed_nodes = [Fix(x / _bridge_705_length, y=True)
+                   for x in _bridge_705_piers]
+    fixed_nodes[0].x = True
+
     bridge = Bridge(
         length=_bridge_705_length,
         width=33.2,
         lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
-        fixed_nodes=[Fix(x / _bridge_705_length, y=True)
-                     for x in _bridge_705_piers],
+        fixed_nodes=fixed_nodes,
         sections=[Section(
             patches=[
                 Patch(-0.2, -1.075, 0, 1.075),
@@ -350,4 +356,3 @@ def bridge_705() -> Bridge:
         )]
     )
     return bridge
-    # TODO Fix first node on x translation.

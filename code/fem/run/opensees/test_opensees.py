@@ -59,7 +59,7 @@ def test_build_displacement_ctrl():
     with open(fem_file_path(expt_params.fem_params[0], os_runner(c))) as f:
         lines = f.readlines()
 
-    assert any(line == "load 11 0 10 0\n" for line in lines)
+    assert any(line == "load 11 0 10000 0\n" for line in lines)
     assert any(line == "test NormDispIncr 1.0e-12 100\n" for line in lines)
     assert any(line == "integrator DisplacementControl 11 2 0.1\n"
                for line in lines)
