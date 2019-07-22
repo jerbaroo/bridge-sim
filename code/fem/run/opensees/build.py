@@ -37,7 +37,7 @@ def opensees_loads(c: Config, fem_params: FEMParams):
     """OpenSees load commands for a .tcl file."""
     def opensees_load(l: Load):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
-        return f"load {nid} 0 {l.kn} 0"
+        return f"load {nid} 0 {l.kn * 1000} 0"
     if fem_params.displacement_ctrl is not None:
         fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
         return opensees_load(Load(x_frac=fix.x_frac, kn=10))
@@ -127,6 +127,22 @@ def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
             + f" {displacement_ctrl.displacement}")
 
 
+def opensees_materials(c: Config, displacement_ctrl: DisplacementCtrl):
+    """OpenSees material commands."""
+    if displacement_ctrl is None:
+        # In standard case return:
+        # - Concrete: nonlinear with linear tension softening.
+        # - Steel: uniaxial bilinear with strain hardening.
+        return """
+uniaxialMaterial Concrete02 1 -2.8800000e+07 -1.6044568e-03 -2.8800000e+07 -3.5000000e-03 2.0000000e-01 2.8800000e+06 3.5900000e+10
+uniaxialMaterial Steel01    2 3.4800000e+08  2.0000000e+11  0.0000000e+00
+"""
+    # In displacement control case use linear elastic.
+    return """
+uniaxialMaterial Elastic 1 3.59e+10
+uniaxialMaterial Elastic 2 2.0000000e+11
+"""
+
 def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
     """Build OpenSees model files."""
     for fem_params in expt_params.fem_params:
@@ -151,6 +167,8 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner):
         out_tcl = (in_tcl
             .replace("<<NODES>>", opensees_nodes(c))
             .replace("<<FIX>>", opensees_fixed_nodes(c))
+            .replace("<<MATERIALS>>", opensees_materials(
+                c, fem_params.displacement_ctrl))
             .replace("<<ELEMENTS>>", opensees_elements(c))
             .replace("<<LOAD>>", opensees_loads(c, fem_params))
             .replace("<<SECTIONS>>", opensees_sections(c))

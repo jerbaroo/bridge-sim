@@ -62,7 +62,7 @@ def make_dc_plots(c: Config):
 
 if __name__ == "__main__":
     c = bridge_705_config()
-    # clean_generated(c)
+    clean_generated(c)
     # make_bridge_plots(c)
     # make_il_plots(c)
     make_dc_plots(c)
