@@ -14,11 +14,6 @@ from plot import *
 from util import *
 
 
-def il_matrix_id(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-                 num_loads: int) -> str:
-    return f"{c.il_unit_load_kn}-{response_type}-{fem_runner.name}-{num_loads}"
-
-
 # TODO: Rename.
 class ResponsesMatrix:
     """Responses of one type for a number of related simulations."""
@@ -36,7 +31,7 @@ class ILMatrix(ResponsesMatrix):
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
              num_loads: int=12, save_all: bool=True):
-        """Load ILMatrix from disk, running simulations first if necessary.
+        """Load an ILMatrix from disk, running simulations first if necessary.
 
         Args:
             response_type: ResponseType, the type of response to load.
@@ -45,8 +40,13 @@ class ILMatrix(ResponsesMatrix):
             save_all: bool, save all response types when running a simulation.
 
         """
+
+        def il_matrix_id() -> str:
+            return (f"{c.il_unit_load_kn}-{response_type}-{fem_runner.name}"
+                    + f"-{num_loads}")
+
         # Return ILMatrix if already calculated.
-        id_ = il_matrix_id(c, response_type, fem_runner, num_loads)
+        id_ = il_matrix_id()
         if id_ in c.il_matrices:
             return c.il_matrices[id_]
 

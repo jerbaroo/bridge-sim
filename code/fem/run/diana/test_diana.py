@@ -2,7 +2,6 @@
 from config import Config, bridge_705_config
 from fem.params import ExptParams, FEMParams
 from fem.run import fem_file_path
-from fem.run.diana import di_runner
 from fem.run.diana.build import build_models
 from model import *
 
@@ -13,18 +12,17 @@ def test_mobile_load():
     response_type = ResponseType.XTranslation
     expt_params = ExptParams([
         FEMParams(
-            [Load(x_frac=0, kn=5000, axle_distances=[2, 3])],
-            [response_type]),
+            loads=[Load(x_frac=0, kn=5000, axle_distances=[2, 3])],
+            response_types=[response_type]),
         FEMParams(
-            [Load(x_frac=0.1, kn=5000, axle_distances=[2, 3])],
-            [response_type]),
+            loads=[Load(x_frac=0.1, kn=5000, axle_distances=[2, 3])],
+            response_types=[response_type]),
         FEMParams(
-            [Load(x_frac=0.2, kn=5000, axle_distances=[2, 3])],
-            [response_type])
+            loads=[Load(x_frac=0.2, kn=5000, axle_distances=[2, 3])],
+            response_types=[response_type])
     ])
 
     # Run and read.
-    fem_runner = di_runner
     build_models(c, expt_params)
     with open(c.di_model_path) as f:
         lines = f.readlines()
@@ -45,4 +43,3 @@ def test_mobile_load():
     # Test AXDIST.
     assert not any("AXDIST 3000 2000" in line for line in lines)
     assert any("AXDIST 2000 3000" in line for line in lines)
-

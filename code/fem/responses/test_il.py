@@ -42,7 +42,7 @@ def test_os_il_matrices():
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
-    assert 1 < time and time < 3.5
+    assert 0.5 < time and time < 3.5
 
 
 def test_load_all_os_matrices():
@@ -54,4 +54,4 @@ def test_load_all_os_matrices():
     start = timer()
     ILMatrix.load(c, ResponseType.Strain, os_runner(c))
     time = timer() - start
-    assert 1.5 < time and time < 4
+    assert 1 < time and time < 4
