@@ -1,3 +1,2 @@
-cd code
-
-pytest
+pipenv run mypy code
+(cd code && pytest)
