@@ -30,7 +30,7 @@ class ILMatrix:
 
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-             num_loads: int = 12, save_all=True):
+             num_loads: int=12, save_all: bool=True):
         """Load ILMatrix from disk, running simulations if necessary.
 
         Args:

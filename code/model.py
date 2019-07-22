@@ -125,6 +125,19 @@ class MovingLoad:
         return bridge.x(self.x_frac_at(time, bridge))
 
 
+class DisplacementCtrl:
+    """Apply a load in simulation until the displacement is reached.
+
+    Args:
+        displacement: int, displacement in meters.
+        pier: int, index of the pier (fixed node) starting at 0.
+
+    """
+    def __init__(self, displacement: int, pier: int):
+        self.displacement = displacement
+        self.pier = pier
+
+
 class Material(Enum):
     Concrete = 1
     Steel = 2

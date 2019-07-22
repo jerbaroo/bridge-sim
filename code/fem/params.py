@@ -7,14 +7,19 @@ from model import *
 class FEMParams:
     """Parameters for a FEM simulation.
 
-    NOTE:
-      - Currently only static loads.
+    Either non-moving loads or a displacement control.
 
-    Attributes:
-        loads: [Load], a list of Load to place on the bridge.
+    Args:
+        loads: [Load], a list of Load to apply to the bridge.
+        disp_ctrl: DisplacementCtrl, apply a load until the displacement is
+            reached. If given then "loads" are ignored.
         response_types: [ResponseType], response types to record.
+
+    Attrs:
+        built_model_file: str, path of the model file built for simulation.
+
     """
-    def __init__(self, loads: [Load]=[],
+    def __init__(self, loads: [Load]=[], disp_ctrl: DisplacementCtrl=None,
                  response_types: [ResponseType]=[rt for rt in ResponseType]):
         self.loads=loads
         self.response_types = response_types
