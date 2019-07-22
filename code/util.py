@@ -13,17 +13,17 @@ init()
 
 def print_d(s):
     """Print some debug text."""
-    print(colored(s, "yellow"))
+    print(colored(f"DEBUG: {s}", "yellow"))
 
 
 def print_i(s):
     """Print some info text."""
-    print(colored(s, "green"))
+    print(colored(f"INFO: {s}", "green"))
 
 
 def print_w(s):
     """Print some warning text."""
-    print(colored(s, "orange"))
+    print(colored(f"WARN: {s}", "magenta"))
 
 
 def clean_generated(c: Config):
