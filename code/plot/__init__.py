@@ -13,6 +13,7 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
+from config import Config
 from model import *
 from util import *
 
@@ -24,11 +25,11 @@ pier_color = "green"
 rebar_color = "red"
 
 
-def sci_format_y_axis():
+def sci_format_y_axis(points=1):
     """Format an axis' ticks in scientific style."""
     class ScalarFormatterForceFormat(ScalarFormatter):
         def _set_format(self):
-            self.format = "%1.1f"
+            self.format = f"%1.{points}f"
     plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
 

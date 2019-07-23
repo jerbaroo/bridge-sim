@@ -1,4 +1,6 @@
 """Useful functions that don't belong anywhere else."""
+from __future__ import annotations
+
 import os
 import sys
 
@@ -6,7 +8,6 @@ import scipy.stats as stats
 from colorama import init
 from termcolor import colored
 
-from config import Config
 
 init()
 

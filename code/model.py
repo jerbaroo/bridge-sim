@@ -5,6 +5,8 @@ from typing import List
 
 import numpy as np
 
+from util import *
+
 
 class Fix:
     """A node fixed in some degrees of freedom, used to model a pier.
@@ -329,6 +331,7 @@ class Bridge:
         return x_frac * self.length
 
 
+# TODO: Make into a reusable function.
 def bridge_705() -> Bridge:
 
     _bridge_705_piers = [0]  # Pier locations in meters.

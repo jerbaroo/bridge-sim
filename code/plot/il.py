@@ -12,8 +12,8 @@ def plot_il(c: Config, il_matrix: ILMatrix, _i: int, response_frac: float,
             num_x: int, save: str=None, show: bool=False):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
-    rs = [il_matrix.response(response_frac, x_frac, c.il_unit_load_kn)
-          for x_frac in x_fracs]
+    rs = [il_matrix.response_to(response_frac, load_x_frac, c.il_unit_load_kn)
+          for load_x_frac in x_fracs]
     xs = [c.bridge.x(x_frac) for x_frac in x_fracs]
     response_ord = response_frac * c.bridge.length
     response_name = response_type_name(il_matrix.response_type)
@@ -55,8 +55,8 @@ def matrix_subplots(c: Config, resp_matrix: ResponsesMatrix, rows: int=4,
                     show: bool=False, plot_func=None):
     """For each subplot plot matrix responses using the given function."""
     if cols is None:
-        cols = int(resp_matrix.num_loads / rows)
-        if cols != resp_matrix.num_loads / rows:
+        cols = int(resp_matrix.num_expts / rows)
+        if cols != resp_matrix.num_expts / rows:
             print_w("Rows don't divide number of simulations")
             cols += 1
     response_name = response_type_name(resp_matrix.response_type).capitalize()
@@ -90,8 +90,8 @@ def imshow_il(c: Config, il_matrix: ILMatrix, num_ils: int=10, num_x: int=100,
     response_fracs = np.linspace(0, 1, num_ils)
     x_fracs = np.linspace(0, 1, num_x)
     matrix = [
-        [il_matrix.response(response_frac, x_frac, c.il_unit_load_kn)
-         for x_frac in x_fracs]
+        [il_matrix.response_to(response_frac, load_x_frac, c.il_unit_load_kn)
+         for load_x_frac in x_fracs]
         for response_frac in response_fracs]
     plt.imshow(matrix, aspect="auto")
     plt.colorbar()

@@ -14,6 +14,7 @@ from plot import *
 from util import *
 
 
+# TODO: Replace ExptResponses.
 class ResponsesMatrix:
     """Responses of one type for a number of related simulations."""
     def __init__(self, c: Config, response_type: ResponseType,
@@ -24,19 +25,36 @@ class ResponsesMatrix:
         self.expt_params = expt_params
         self.fem_runner_name = fem_runner_name
         self.expt_responses = expt_responses
-        self.num_loads = len(expt_responses)
+        self.num_expts = len(expt_responses)
 
     def filepaths(self):
-        """The file path of each simulation response."""
+        """The filepath of each simulation's responses."""
         return [fem_responses_path(
                     self.c, fem_params, self.response_type,
                     self.fem_runner_name)
                 for fem_params in self.expt_params.fem_params]
 
+    def response_(self, expt_frac, x_frac, y=0, z=0, t=0) -> Response:
+        """The response at a position for a simulation.
+
+        Args:
+            expt_frac: float, fraction of experiments in [0 1].
+            load_x_frac: float, load position as fraction of x-axis in [0 1].
+
+        """
+        assert 0 <= expt_frac and expt_frac <= 1
+        assert 0 <= x_frac and x_frac <= 1
+        # Determine experiment index.
+        expt_ind = int(np.interp(expt_frac, [0, 1], [0, self.num_expts - 1]))
+        # The simulation response * the load factor.
+        return self.expt_responses[expt_ind].at(x=x_frac, y=y, z=z, t=t)
+        # return (response.value * (load / self.c.il_unit_load_kn))
+
 
 class DCMatrix(ResponsesMatrix):
     """Responses of one type for displacement control simulations."""
 
+    # TODO Factor out to ResponsesMatrix.load.
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
              displacement: float=0.1, save_all: bool=True):
@@ -68,7 +86,7 @@ class DCMatrix(ResponsesMatrix):
                 response_types=response_types)
             for i in range(len(c.bridge.fixed_nodes))])
 
-        # Calculate ILMatrix, keep a reference and return.
+        # Calculate DCMatrix, keep a reference and return.
         c.il_matrices[id_] = DCMatrix(
             c, response_type, expt_params, fem_runner.name,
             load_expt_responses(c, expt_params, response_type, fem_runner)) 
@@ -116,24 +134,16 @@ class ILMatrix(ResponsesMatrix):
             load_expt_responses(c, expt_params, response_type, fem_runner))
         return c.il_matrices[id_]
 
-    # TODO: To collect.
-    def response(self, resp_x_frac, load_x_frac, load, y=0, z=0, t=0):
-        """The response at a position to a load at a position.
-
-        Point load response.
+    def response_to(self, resp_x_frac, load_x_frac, load, y=0, z=0, t=0):
+        """The response value at a position to a load at a position.
 
         Args:
-            resp_x_frac: float, fraction of x-axis response position in [0 1].
-            load_x_frac: float, fraction of x-axis load position in [0 1].
+            resp_x_frac: float, response position as fraction of x-axis [0 1].
+            load_x_frac: float, load position as fraction of x-axis [0 1].
             load: float, value of the load.
 
         """
         assert 0 <= resp_x_frac and resp_x_frac <= 1
         assert 0 <= load_x_frac and load_x_frac <= 1
-        # Determine load index.
-        load_ind = int(np.interp(
-            load_x_frac, [0, 1], [0, len(self.expt_responses) - 1]))
-        # The simulation response * the load factor.
-        response = self.expt_responses[load_ind].at(
-            x=resp_x_frac, y=y, z=z, t=t)
+        response = self.response_(resp_x_frac, load_x_frac, y=z, z=z, t=t)
         return (response.value * (load / self.c.il_unit_load_kn))
