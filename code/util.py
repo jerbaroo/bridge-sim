@@ -53,6 +53,11 @@ def kde_sampler(data, print_=False):
         yield kde.resample(1)[0][0]
 
 
+def pstr(s):
+    """A string with some characters removed, for use in file paths."""
+    return s.replace(".", "").replace(" ", "")
+
+
 def exit():
     """I don't want to import sys when I need sys.exit."""
     sys.exit()

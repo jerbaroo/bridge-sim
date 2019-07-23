@@ -97,7 +97,14 @@ class Load:
 
 
 class MovingLoad:
-    """A load with a constant speed."""
+    """A load with a constant speed.
+
+    Args:
+        load: Load, the load that is moving.
+        kmph: float, the load's initial speed in kilometers per hour.
+        left_to_right: bool, the direction of the load on the bridge.
+
+    """
     def __init__(self, load: Load, kmph: float, left_to_right: bool=True):
         self.load = load
         self.kmph = kmph
@@ -111,9 +118,8 @@ class MovingLoad:
             time: float, time in seconds.
         """
         delta_frac = (self.mps * time) / bridge.length
-        print(type(self))
         if not self.left_to_right:
-            delta_frac *= 1
+            delta_frac *= -1
         return self.load.x_frac + delta_frac
 
     def x_at(self, time: float, bridge: Bridge):
@@ -123,6 +129,10 @@ class MovingLoad:
             time: float, time in seconds.
         """
         return bridge.x(self.x_frac_at(time, bridge))
+
+    def str_id(self):
+        """String identifying this moving load."""
+        return f"{str(self.load)}-{self.kmph:.2f}-{self.left_to_right}"
 
 
 class DisplacementCtrl:
@@ -299,15 +309,18 @@ class Bridge:
     """A bridge specification.
 
     Args:
-        length: float, length of the beam in meters.
+        name: str, the name of the bridge.
+        length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
         fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
-        sections: [Section], description of the bridge's cross section.
+        sections: [Section], specification of the bridge's cross section.
         lanes: [Lane], lanes that span the bridge, where to place loads.
 
     """
-    def __init__(self, length: float, width: float, fixed_nodes: List[Fix]=[],
-                 sections: List[Section]=[], lanes: List[Lane]=[]):
+    def __init__(self, name: str, length: float, width: float,
+                 fixed_nodes: List[Fix]=[], sections: List[Section]=[],
+                 lanes: List[Lane]=[]):
+        self.name = name
         self.length = length
         self.width = width
         self.fixed_nodes = fixed_nodes
@@ -318,11 +331,14 @@ class Bridge:
         if not self.fixed_nodes[0].x:
             raise ValueError("First fixed node must be fixed in x direction")
 
-    def x_axis(self):
-        """Fixed points in meters along the bridge's length."""
+    def x_axis(self) -> List[float]:
+        """Fixed nodes in meters along the bridge's x-axis."""
         return np.interp(
-            [f.x_frac for f in self.fixed_nodes],
-            [0, 1], [0, self.length])
+            [f.x_frac for f in self.fixed_nodes], [0, 1], [0, self.length])
+
+    def x_axis_equi(self, n) -> List[float]:
+        """n equidistant values along the bridge's x-axis, in meters."""
+        return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
 
     def x_frac(self, x: float):
         return x / self.length
@@ -343,6 +359,7 @@ def bridge_705() -> Bridge:
     fixed_nodes[0].x = True
 
     bridge = Bridge(
+        name="Bridge 705",
         length=_bridge_705_length,
         width=33.2,
         lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],

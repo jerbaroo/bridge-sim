@@ -60,23 +60,24 @@ def make_dc_plots(c: Config):
                 + f"-{response_type_name(response_type)}"))
 
 
-def animate_mv_load():
-    pass
-    # at_load = 1
-    # at_fiber = 0
-    # response_type = Response.Stress
-    # runner = os_runner
-
-    # Plot response from the ILMatrix.
-    # il_matrix = ILMatrix.load(c, response_type, runner)
-    # data = np.array(il_matrix.fem_responses.responses[at_load][at_fiber])
-    # plot.animate_bridge_response(c.bridge, data)
-    # plot.plot_section(bridge_705_config.bridge.sections[0])
+def make_mv_load_animations(c: Config):
+    """Make animations of loads moving across a bridge."""
+    mv_load = MovingLoad(Load(x_frac=0, kn=100), kmph=20)
+    # for response_type in [ResponseType.YTranslation]:
+    for response_type in ResponseType:
+        animate_mv_load(
+            c, mv_load, response_type, os_runner(c),
+            show=True)
+            # save=c.image_path(
+            #     f"animations/-{c.bridge.name}"
+            #     + f"-{response_type_name(response_type)}-1load"
+            #     + f"-{mv_load.str_id()}"))
 
 
 if __name__ == "__main__":
     c = bridge_705_config()
     # clean_generated(c)
-    make_bridge_plots(c)
-    make_il_plots(c)
-    make_dc_plots(c)
+    make_mv_load_animations(c)
+    # make_bridge_plots(c)
+    # make_il_plots(c)
+    # make_dc_plots(c)

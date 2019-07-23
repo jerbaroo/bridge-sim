@@ -6,37 +6,40 @@ from fem.responses.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
+from util import *
 
 
 def response_at_time(
         c: Config, mv_load: MovingLoad, time: float, at: Point,
         response_type: ResponseType, fem_runner: FEMRunner):
-    """The response to a load at a given time."""
-    load_x_frac = mv_load.x_frac_at(time, c.bridge)
-    il_matrix = ILMatrix.load(c, response_type, fem_runner)
+    """The response to a moving load at a given time."""
     if not mv_load.load.is_point_load():
         raise ValueError("Can only calculate response to point load")
-    return il_matrix.response(
+    load_x_frac = mv_load.x_frac_at(time, c.bridge)
+    il_matrix = ILMatrix.load(c, response_type, fem_runner)
+    result = il_matrix.response_to(
         c.bridge.x_frac(at.x), load_x_frac, mv_load.load.kn)
+    # print_d(f"load_x_frac = {load_x_frac}, at = {at}, kn = {mv_load.load.kn}, result = {result}")
+    return result
 
 
 def responses_to_mv_load(
-        c: Config, mv_load: MovingLoad, time_step: float, time_end: float,
-        at: List[Point], response_type: ResponseType, fem_runner: FEMRunner):
+        c: Config, mv_load: MovingLoad, response_type: ResponseType,
+        fem_runner: FEMRunner, times: List[float], at: List[Point]):
     """The responses to a load over a number of time steps.
 
     Returns a numpy array of shape (time_end / time_step + 1, len(at)).
 
     """
-    num_times = (time_end / time_step) + 1
     responses = []
-    for time in np.linspace(0, time_end, num_times):
-        time_responses = [
+    for time in times:
+        responses.append([
             response_at_time(c, mv_load, time, at_, response_type, fem_runner)
-            for at_ in at]
-        responses.append(time_responses)
-        assert len(time_responses) == len(at)
-    return np.array(responses)
+            for at_ in at])
+    result = np.array(responses)
+    assert result.shape[0] == len(times)
+    assert result.shape[1] == len(at)
+    return result
 
 
 if __name__ == "__main__":

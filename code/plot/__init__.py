@@ -3,17 +3,21 @@
 More specific plotting functions are found in other modules.
 
 """
+import copy
 from collections import OrderedDict
-from typing import List
+from itertools import takewhile
+from typing import Callable, List
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FFMpegWriter, FuncAnimation, ImageMagickWriter
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
 from config import Config
+from fem.responses.collect import responses_to_mv_load
+from fem.run import FEMRunner
 from model import *
 from util import *
 
@@ -92,8 +96,8 @@ def plot_bridge_deck_top(bridge: Bridge, loads: List[Load]=[], save: str=None,
     if save or show: plt.close()
 
 
-def plot_bridge_first_section(bridge: Bridge, save: str=None,
-                              show: bool=False):
+def plot_bridge_first_section(
+        bridge: Bridge, save: str=None, show: bool=False):
     """Plot the first cross section of a bridge."""
     plot_section(bridge.sections[0], save=save, show=show)
 
@@ -119,15 +123,6 @@ def plot_section(section: Section, save: str=None, show: bool=False):
     if save or show: plt.close()
 
 
-def plot_responses_to_mv_load_bridge_side(
-        c: Config, responses: np.ndarray, mv_load: MovingLoad,
-        time_step: float, at: List[Point], response_type: ResponseType
-    ):
-    """Plot responses to a moving load from the bridge side."""
-
-    pass
-
-
 def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
     """Show an animation of translation of the nodes."""
 
@@ -141,28 +136,81 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
     animate_plot(len(x), plot_translation)
 
 
-def animate_bridge_response(bridge: Bridge, data):
-    """Show an animation of a bridge response over time."""
+# TODO: Plot multiple response lines.
+def animate_bridge_response(
+        bridge: Bridge, responses, time_step: float,
+        response_type: ResponseType, mv_loads: List[MovingLoad]=[],
+        save: str=None, show: bool=False):
+    """Animate a bridge's response to moving loads."""
+    # Find max and min of all responses.
+    top, bottom = np.amax(responses), np.amin(responses)
+    # Ensure top == -bottom, so bridge is vertically centered.
+    top, bottom = max(top, -bottom), min(bottom, -top)
+
+    # Non-moving loads, updated and plotted every timestep.
+    loads = [copy.deepcopy(mv_load.load) for mv_load in mv_loads]
+
+    def update_loads(t):
+        for i, mv_load in enumerate(mv_loads):
+            loads[i].x_frac = mv_load.x_frac_at(t * time_step, bridge)
+            assert 0 <= loads[i].x_frac and loads[i].x_frac <= 1
+
+    response_name = response_type_name(response_type).capitalize()
 
     def plot_bridge_response(t):
-        plt.ylim(top=np.amax(data), bottom=np.amin(data))
-        plt.plot(np.linspace(0, bridge.length, len(data[t])), data[t],
-                 color="b")
-        plot_bridge_deck_side(bridge)
+        update_loads(t)
+        plt.ylim(top=top, bottom=bottom)
+        plt.plot(bridge.x_axis_equi(len(responses[t])), responses[t])
+        plot_bridge_deck_side(bridge, loads=loads, equal_axis=False)
+        sci_format_y_axis()
+        plt.title(f"{response_name} at {t * time_step:.1f}s")
+        plt.xlabel("x-axis (m)")
+        plt.ylabel(f"{response_name} ({response_type_units(response_type)})")
 
-    animate_plot(len(data), plot_bridge_response)
+    animate_plot(len(responses), plot_bridge_response, save, show)
 
 
-def animate_plot(frames, f):
-    """Show an animation with the function f plotting data."""
+def animate_plot(
+        frames: int, plot: Callable[[int], None], save: str=None,
+        show: bool=True):
+    """Generate an animation with given plotting function."""
+
     def animate(t):
         """Plot at the given time index."""
         plt.cla()
-        plt.title(f"time = {t}")
-        f(t)
-    f(0)
-    ani = FuncAnimation(plt.gcf(), animate, frames, interval=1)
-    plt.show()
+        plot(t)
+
+    plot(0)
+    anim = FuncAnimation(plt.gcf(), animate, frames, interval=1)
+    if save:
+        writer = ImageMagickWriter()
+        print_d(pstr(save))
+        anim.save(pstr(save), writer=writer)
+    if show: plt.show()
+
+
+def animate_mv_load(
+        c: Config, mv_load: MovingLoad, response_type: ResponseType,
+        fem_runner: FEMRunner, time_step: float=0.1, time_end: float=20,
+        num_x_fracs: int=100, save: str=None, show: bool=False):
+    """Animate the bridge's response to a moving load."""
+    num_times = int((time_end / time_step) + 1)
+    times = np.linspace(0, time_end, num_times)
+
+    # Avoid times when load has moved off the bridge.
+    def on_bridge_at(time):
+        x_frac = mv_load.x_frac_at(time, c.bridge)
+        return 0 <= x_frac and x_frac <= 1
+
+    times = list(takewhile(on_bridge_at, times))
+    at = [Point(x=c.bridge.x(x_frac))
+          for x_frac in np.linspace(0, 1, num_x_fracs)]
+    responses = responses_to_mv_load(
+        c, mv_load, response_type, fem_runner, times, at)
+
+    animate_bridge_response(
+        c.bridge, responses, time_step, response_type, mv_loads=[mv_load],
+        save=save, show=show)
 
 
 def plot_hist(data, bins: int=None, density: bool=True, kde: bool=False,

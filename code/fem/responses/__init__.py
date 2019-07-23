@@ -15,6 +15,7 @@ from model import *
 from util import *
 
 
+# TODO: Rename to sim_responses_path.
 def fem_responses_path(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, runner_name: str):
     """Path of the influence line matrix on disk."""
@@ -22,6 +23,7 @@ def fem_responses_path(c: Config, fem_params: FEMParams,
             + f"-rt-{response_type.name}-ru-{runner_name}.npy")
 
 
+# TODO: Rename to SimResponses, move to fem.responses.sim.
 class FEMResponses:
     """Responses of one sensor type for one FEM simulation.
 
@@ -112,6 +114,7 @@ class FEMResponses:
         if show: plt.show()
 
 
+# TODO: Make a method of SimResponses.
 def load_fem_responses(c: Config, fem_params: FEMParams,
                        response_type: ResponseType, fem_runner: FEMRunner
                       ) -> FEMResponses:
@@ -152,9 +155,11 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
     return fem_responses
 
 
+# TODO: Replace by ResponsesMatrix.
 ExptResponses = List[FEMResponses]
 
 
+# TODO: Move to fem.responses.expt.
 def load_expt_responses(c: Config, expt_params: ExptParams,
                         response_type: ResponseType, fem_runner: FEMRunner
                        ) -> ExptResponses:

@@ -10,7 +10,6 @@ from fem.responses import ExptResponses, fem_responses_path, load_expt_responses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
-from plot import *
 from util import *
 
 
@@ -34,6 +33,7 @@ class ResponsesMatrix:
                     self.fem_runner_name)
                 for fem_params in self.expt_params.fem_params]
 
+    # TODO: Rename to response, later.
     def response_(self, expt_frac, x_frac, y=0, z=0, t=0) -> Response:
         """The response at a position for a simulation.
 
@@ -98,7 +98,7 @@ class ILMatrix(ResponsesMatrix):
 
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-             num_loads: int=12, save_all: bool=True):
+             num_loads: int=100, save_all: bool=True):
         """Load an ILMatrix from disk, running simulations first if necessary.
 
         Args:
@@ -146,4 +146,5 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= resp_x_frac and resp_x_frac <= 1
         assert 0 <= load_x_frac and load_x_frac <= 1
         response = self.response_(resp_x_frac, load_x_frac, y=z, z=z, t=t)
+        # print_d(f"resp_x_frac = {resp_x_frac}, load_x_frac = {load_x_frac}, load = {load}")
         return (response.value * (load / self.c.il_unit_load_kn))
