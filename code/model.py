@@ -1,7 +1,6 @@
 """Classes for modeling bridges and loads."""
 from __future__ import annotations
 from enum import Enum
-from typing import List
 
 import numpy as np
 
@@ -315,21 +314,33 @@ class Bridge:
         fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
         sections: [Section], specification of the bridge's cross section.
         lanes: [Lane], lanes that span the bridge, where to place loads.
+        load_frequencies: List[Tuple[float, float]], frequency of vehicles
+            below a length in meters.
+
+            Example: [(2.4, 0.5), (5.6, 94.5), (np.inf, 5)]
+
+            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+            2.4m and less than 5.6m, and the remaining 5% are greater than
+            5.6m.
 
     """
-    def __init__(self, name: str, length: float, width: float,
-                 fixed_nodes: List[Fix]=[], sections: List[Section]=[],
-                 lanes: List[Lane]=[]):
+    def __init__(
+            self, name: str, length: float, width: float,
+            fixed_nodes: List[Fix], sections: List[Section], lanes: List[Lane],
+            load_frequencies: List[Tuple[float, float]]):
         self.name = name
         self.length = length
         self.width = width
         self.fixed_nodes = fixed_nodes
         self.sections = sections
         self.lanes = lanes
+        self.load_frequencies = load_frequencies
         if len(sections) != 1:
             raise ValueError("Only single sections are supported")
-        if not self.fixed_nodes[0].x:
+        if self.fixed_nodes and not self.fixed_nodes[0].x:
             raise ValueError("First fixed node must be fixed in x direction")
+        if sum(map(lambda f: f[1], self.load_frequencies)) != 1:
+            raise ValueError("Load frequencies don't sum to 1")
 
     def x_axis(self) -> List[float]:
         """Fixed nodes in meters along the bridge's x-axis."""
@@ -369,10 +380,15 @@ def bridge_705() -> Bridge:
                 Patch(-0.2, -1.075, 0, 1.075),
                 Patch(-1.25, -0.25, -0.2, 0.25)
             ], layers=[
-                Layer(-0.04, -1.035, -0.04, 0.21, num_fibers=16, area_fiber=4.9e-4),
-                Layer(-1.21, -0.21, -1.21, 0.21, num_fibers=5, area_fiber=4.9e-4),
-                Layer(-1.16, -0.21, -1.16, 0.21, num_fibers=6, area_fiber=4.9e-4)
+                Layer(-0.04, -1.035, -0.04, 0.21, num_fibers=16,
+                      area_fiber=4.9e-4),
+                Layer(-1.21, -0.21, -1.21, 0.21, num_fibers=5,
+                      area_fiber=4.9e-4),
+                Layer(-1.16, -0.21, -1.16, 0.21, num_fibers=6,
+                      area_fiber=4.9e-4)
             ]
-        )]
+        )],
+        load_frequencies=[(2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3),
+                          (np.inf, 1.3)]
     )
     return bridge

@@ -18,8 +18,9 @@ class Config:
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
-        generated_dir: str, directory where to save all generated files.
+        generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
+        image_path: Callable[[str], str], a path relative to images_dir.
 
         # A16 data.
         a16_csv_path: str, path of the A16 CSV data.

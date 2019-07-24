@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Building a decision support system for bridge maintenance
+#+TITLE: Building an extensible decision support system for bridge maintenance
 #+LATEX_HEADER: \usepackage[backend=bibtex,style=alphabetic,citestyle=authoryear]{biblatex}
 #+LATEX_HEADER: \addbibresource{thesis-bib-refs.bib}
 
