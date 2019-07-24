@@ -4,6 +4,7 @@ from fem.responses.il import DCMatrix, ILMatrix
 from fem.run.opensees import os_runner
 from plot import *
 from plot.il import *
+from plot.traffic import *
 from model import *
 from util import *
 
@@ -67,11 +68,17 @@ def make_mv_load_animations(c: Config):
     for response_type in ResponseType:
         animate_mv_load(
             c, mv_load, response_type, os_runner(c),
-            show=True)
-            # save=c.image_path(
-            #     f"animations/-{c.bridge.name}"
-            #     + f"-{response_type_name(response_type)}-1load"
-            #     + f"-{mv_load.str_id()}"))
+            show=True,
+            save=pstr(c.image_path(
+                f"animations/-{c.bridge.name}"
+                + f"-{response_type_name(response_type)}-1load"
+                + f"-{mv_load.str_id()}")) + ".mp4")
+
+
+def make_traffic_plots(c: Config):
+    plot_frequency(c)
+    plot_length_v_axles(c, save=c.image_path(
+        "traffic/length-v-axles"))
 
 
 if __name__ == "__main__":

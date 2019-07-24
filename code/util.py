@@ -54,7 +54,7 @@ def kde_sampler(data, print_=False):
 
 
 def pstr(s):
-    """A string with some characters removed, for use in file paths."""
+    """A string with some characters removed, for use in filepaths."""
     return s.replace(".", "").replace(" ", "")
 
 

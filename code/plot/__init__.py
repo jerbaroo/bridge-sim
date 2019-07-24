@@ -11,7 +11,7 @@ from typing import Callable, List
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.animation import FFMpegWriter, FuncAnimation, ImageMagickWriter
+from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
@@ -183,9 +183,8 @@ def animate_plot(
     plot(0)
     anim = FuncAnimation(plt.gcf(), animate, frames, interval=1)
     if save:
-        writer = ImageMagickWriter()
-        print_d(pstr(save))
-        anim.save(pstr(save), writer=writer)
+        writer = FFMpegWriter()
+        anim.save(save, writer=writer)
     if show: plt.show()
 
 

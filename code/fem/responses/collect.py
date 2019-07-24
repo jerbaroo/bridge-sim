@@ -1,5 +1,6 @@
 """Collect responses based on the IL matrices."""
 import numpy as np
+from typing import List
 
 from config import Config, bridge_705_config
 from fem.responses.il import ILMatrix

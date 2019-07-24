@@ -24,8 +24,8 @@ def load_a16_data(c: Config):
         c.a16_csv_path, usecols=a16_col_names, index_col="number")
 
 
-def a16_length_groups(a16_data: DataFrame, col_name: str, lengths: List[int]):
-    """Return the A16 data grouped by given length ranges."""
+def length_groups(df: DataFrame, lengths: List[int]):
+    """Return the data grouped by maximum lengths."""
     assert sorted(lengths) == lengths
 
     def length_group(x):

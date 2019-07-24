@@ -314,8 +314,8 @@ class Bridge:
         fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
         sections: [Section], specification of the bridge's cross section.
         lanes: [Lane], lanes that span the bridge, where to place loads.
-        load_frequencies: List[Tuple[float, float]], frequency of vehicles
-            below a length in meters.
+        load_density: List[Tuple[float, float]], density of vehicles below a
+            certain length in meters.
 
             Example: [(2.4, 0.5), (5.6, 94.5), (np.inf, 5)]
 
@@ -327,20 +327,20 @@ class Bridge:
     def __init__(
             self, name: str, length: float, width: float,
             fixed_nodes: List[Fix], sections: List[Section], lanes: List[Lane],
-            load_frequencies: List[Tuple[float, float]]):
+            load_density: List[Tuple[float, float]]):
         self.name = name
         self.length = length
         self.width = width
         self.fixed_nodes = fixed_nodes
         self.sections = sections
         self.lanes = lanes
-        self.load_frequencies = load_frequencies
+        self.load_density = load_density
         if len(sections) != 1:
             raise ValueError("Only single sections are supported")
         if self.fixed_nodes and not self.fixed_nodes[0].x:
             raise ValueError("First fixed node must be fixed in x direction")
-        if sum(map(lambda f: f[1], self.load_frequencies)) != 1:
-            raise ValueError("Load frequencies don't sum to 1")
+        if sum(map(lambda f: f[1], self.load_density)) != 100:
+            raise ValueError("Load density does not sum to 100")
 
     def x_axis(self) -> List[float]:
         """Fixed nodes in meters along the bridge's x-axis."""
@@ -369,7 +369,7 @@ def bridge_705() -> Bridge:
                    for x in _bridge_705_piers]
     fixed_nodes[0].x = True
 
-    bridge = Bridge(
+    return Bridge(
         name="Bridge 705",
         length=_bridge_705_length,
         width=33.2,
@@ -388,7 +388,5 @@ def bridge_705() -> Bridge:
                       area_fiber=4.9e-4)
             ]
         )],
-        load_frequencies=[(2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3),
-                          (np.inf, 1.3)]
-    )
-    return bridge
+        load_density=[(2.4, 1.04), (5.6, 90.44), (11.5, 6.24), (12.2, 0.64),
+                      (43, 1.64)])
