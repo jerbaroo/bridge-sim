@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import pickle
 from collections import defaultdict
-from config import bridge_705_config
+from model.bridge_705 import bridge_705_config
 from timeit import default_timer as timer
 from typing import Callable, List
 

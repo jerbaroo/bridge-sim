@@ -1,7 +1,7 @@
 """Run FEM simulations with OpenSees."""
 import os
 
-from config import Config, bridge_705_config
+from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.responses import load_fem_responses
 from fem.run import FEMRunner, fem_file_path
@@ -10,6 +10,7 @@ from fem.run.opensees.convert import convert_responses
 from fem.run.opensees.parse import parse_responses
 from fem.run.opensees.run import run_model
 from model import *
+from model.bridge_705 import bridge_705_config
 
 
 def os_runner(c: Config):

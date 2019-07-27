@@ -4,12 +4,13 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import bridge_705_config, Config
+from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.responses import ExptResponses, fem_responses_path, load_expt_responses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
+from model.bridge_705 import bridge_705_config
 from util import *
 
 

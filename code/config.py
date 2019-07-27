@@ -1,8 +1,9 @@
 """Simulation configuration."""
 import os
-from typing import Callable
+from typing import Callable, List, Tuple
 
 import numpy as np
+import pandas as pd
 
 from model import *
 
@@ -10,29 +11,30 @@ from model import *
 class Config:
     """Simulation configuration.
 
-    NOTE:
-        - Paths are relative to this file.
-
     Args:
         bridge: Callable[[], Bridge], returns a bridge specification.
+        vehicle_data: pd.DataFrame, describes vehicles on the bridge.
+        TODO: Make vehicle density group a parameters.
+        vehicle_density: List[Tuple[float, float]], density of vehicles
+            below a maximum length in meters.
+
+            Example: [(2.4, 0.5), (5.6, 94.5), (np.inf, 5)]
+
+            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+            2.4m and less than 5.6m, and the remaining 5% are greater than
+            5.6m.
+        vehicle intensity: the total amount of vehicles per hour.
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
         generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
-
-        # A16 data.
-        a16_csv_path: str, path of the A16 CSV data.
-
-        # Responses & influence line.
         fem_responses_path_prefix: str, prefix of where to save responses.
         il_unit_load_kn: float, unit load to place on the bridge in kN.
-
-        # OpenSees.
-        os_node_step: float, distance between two nodes in meters.
+        os_node_step: float, distance between two OpenSees nodes in meters.
         os_exe_path: str, path of the OpenSees executable.
-        os_model_template_path: str, path of the model template file.
+        os_model_template_path: str, path of the OpenSees model template file.
 
         # Diana.
         di_exe_path: str, path of the Diana executable.
@@ -44,9 +46,20 @@ class Config:
         di_max_x_elem: int, index of maximum x-axis element.
 
     """
-    def __init__(self, bridge: Callable[[], Bridge]):
+    def __init__(
+            self, bridge: Callable[[], Bridge], vehicle_data: pd.DataFrame,
+            vehicle_density: List[Tuple[float, float]],
+            vehicle_intensity: float):
         reset_model_ids()
         self.bridge = bridge()
+        self.vehicle_data = vehicle_data
+        self.vehicle_density=vehicle_density
+        self.vehicle_intensity=vehicle_intensity
+
+        density_sum = sum(map(lambda f: f[1], self.vehicle_density))
+        if int(density_sum) != 100:
+            print_w(
+                f"Vehicle density did not sum to 100, was {density_sum}")
 
         self.il_matrices = dict()
         self.generated_dir = "generated/"
@@ -55,12 +68,10 @@ class Config:
             self.images_dir, filename)
 
         # Make directories.
+        # TODO: create savefig which created directories as needed.
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
-
-        # A16 data.
-        self.a16_csv_path = "../data/a16-data/A16.csv"
 
         # Responses & influence line.
         self.fem_responses_path_prefix = os.path.join(
@@ -68,9 +79,9 @@ class Config:
         self.il_unit_load_kn = 1000
 
         # OpenSees.
+        self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
         self.os_model_template_path = "model-template.tcl"
-        self.os_node_step = 0.2
 
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():
@@ -86,6 +97,7 @@ class Config:
         assert len(list(self.os_elem_ids())) == self.os_num_elems()
 
         # Diana.
+        # TODO: Move all this to Diana FEMRunner.
         self.di_exe_path = "c:/Program Files/Diana 10.3/bin/diana.exe"
         self.di_model_template_path = "diana-705-template.dat"
         self.di_model_path = "diana-705.dat"
@@ -94,7 +106,3 @@ class Config:
         self.di_filos_path = "diana.ff"
         self.di_translation_path = "displa_paths.tb"
         self.di_strain_path = "strains_paths.tb"
-
-
-def bridge_705_config() -> Config:
-    return Config(bridge_705)

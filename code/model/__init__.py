@@ -1,5 +1,6 @@
 """Classes for modeling bridges and loads."""
 from __future__ import annotations
+
 from enum import Enum
 
 import numpy as np
@@ -314,33 +315,22 @@ class Bridge:
         fixed_nodes: [Fix], nodes fixed in some degrees of freedom (piers).
         sections: [Section], specification of the bridge's cross section.
         lanes: [Lane], lanes that span the bridge, where to place loads.
-        load_density: List[Tuple[float, float]], density of vehicles below a
-            certain length in meters.
-
-            Example: [(2.4, 0.5), (5.6, 94.5), (np.inf, 5)]
-
-            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
-            2.4m and less than 5.6m, and the remaining 5% are greater than
-            5.6m.
 
     """
     def __init__(
             self, name: str, length: float, width: float,
-            fixed_nodes: List[Fix], sections: List[Section], lanes: List[Lane],
-            load_density: List[Tuple[float, float]]):
+            fixed_nodes: List[Fix], sections: List[Section],
+            lanes: List[Lane]):
         self.name = name
         self.length = length
         self.width = width
         self.fixed_nodes = fixed_nodes
         self.sections = sections
         self.lanes = lanes
-        self.load_density = load_density
         if len(sections) != 1:
             raise ValueError("Only single sections are supported")
         if self.fixed_nodes and not self.fixed_nodes[0].x:
             raise ValueError("First fixed node must be fixed in x direction")
-        if sum(map(lambda f: f[1], self.load_density)) != 100:
-            raise ValueError("Load density does not sum to 100")
 
     def x_axis(self) -> List[float]:
         """Fixed nodes in meters along the bridge's x-axis."""
@@ -356,37 +346,3 @@ class Bridge:
 
     def x(self, x_frac: float):
         return x_frac * self.length
-
-
-# TODO: Make into a reusable function.
-def bridge_705() -> Bridge:
-
-    _bridge_705_piers = [0]  # Pier locations in meters.
-    for span_distance in [12.75, 15.30, 15.30, 15.30, 15.30, 15.30, 12.75]:
-        _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
-    _bridge_705_length = 102
-    fixed_nodes = [Fix(x / _bridge_705_length, y=True)
-                   for x in _bridge_705_piers]
-    fixed_nodes[0].x = True
-
-    return Bridge(
-        name="Bridge 705",
-        length=_bridge_705_length,
-        width=33.2,
-        lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
-        fixed_nodes=fixed_nodes,
-        sections=[Section(
-            patches=[
-                Patch(-0.2, -1.075, 0, 1.075),
-                Patch(-1.25, -0.25, -0.2, 0.25)
-            ], layers=[
-                Layer(-0.04, -1.035, -0.04, 0.21, num_fibers=16,
-                      area_fiber=4.9e-4),
-                Layer(-1.21, -0.21, -1.21, 0.21, num_fibers=5,
-                      area_fiber=4.9e-4),
-                Layer(-1.16, -0.21, -1.16, 0.21, num_fibers=6,
-                      area_fiber=4.9e-4)
-            ]
-        )],
-        load_density=[(2.4, 1.04), (5.6, 90.44), (11.5, 6.24), (12.2, 0.64),
-                      (43, 1.64)])

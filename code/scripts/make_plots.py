@@ -1,11 +1,12 @@
 """Make all plots for the thesis."""
-from config import Config, bridge_705_config
+from config import Config
 from fem.responses.il import DCMatrix, ILMatrix
 from fem.run.opensees import os_runner
 from plot import *
-from plot.il import *
+from plot.matrices import imshow_il
 from plot.traffic import *
 from model import *
+from model.bridge_705 import bridge_705_config
 from util import *
 
 
@@ -68,7 +69,6 @@ def make_mv_load_animations(c: Config):
     for response_type in ResponseType:
         animate_mv_load(
             c, mv_load, response_type, os_runner(c),
-            show=True,
             save=pstr(c.image_path(
                 f"animations/-{c.bridge.name}"
                 + f"-{response_type_name(response_type)}-1load"
@@ -76,15 +76,25 @@ def make_mv_load_animations(c: Config):
 
 
 def make_traffic_plots(c: Config):
-    plot_frequency(c)
-    plot_length_v_axles(c, save=c.image_path(
-        "traffic/length-v-axles"))
+    plot_density(c, save=c.image_path(
+        f"traffic/{c.bridge.name}-density"))
+    plot_length_vs_axles(c, save=c.image_path(
+        f"traffic/{c.bridge.name}-length-vs-axles"))
+    plot_length_vs_weight(c, save=c.image_path(
+        f"traffic/{c.bridge.name}-length-vs-weight"))
+    plot_weight_vs_axles(c, save=c.image_path(
+        f"traffic/{c.bridge.name}-weight-vs-axles"))
 
 
-if __name__ == "__main__":
-    c = bridge_705_config()
-    # clean_generated(c)
-    make_mv_load_animations(c)
+def make_plots(c: Config, clean=True):
+    """Make all plots for the thesis."""
+    if clean: clean_generated(c)
     # make_bridge_plots(c)
     # make_il_plots(c)
     # make_dc_plots(c)
+    # make_mv_load_animations(c)
+    make_traffic_plots(c)
+
+
+if __name__ == "__main__":
+    make_plots(bridge_705_config(), clean=False)

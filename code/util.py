@@ -24,7 +24,7 @@ def print_i(s):
 
 def print_w(s):
     """Print some warning text."""
-    print(colored(f"WARN: {s}", "magenta"))
+    print(colored(f"WARN: {s}", "red"))
 
 
 def clean_generated(c: Config):

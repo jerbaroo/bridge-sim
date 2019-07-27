@@ -1,10 +1,11 @@
-"""Plot responses from the IL matrices."""
+"""Plot responses from the response matrices."""
 import matplotlib.pyplot as plt
 
-from config import Config, bridge_705_config
+from config import Config
 from fem.responses.il import ILMatrix, ResponsesMatrix
 from fem.run.opensees import os_runner
 from model import *
+from model.bridge_705 import bridge_705_config
 from plot import *
 
 

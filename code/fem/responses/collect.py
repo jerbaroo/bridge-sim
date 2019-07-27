@@ -2,11 +2,12 @@
 import numpy as np
 from typing import List
 
-from config import Config, bridge_705_config
+from config import Config
 from fem.responses.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
+from model.bridge_705 import bridge_705_config
 from util import *
 
 
