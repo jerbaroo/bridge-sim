@@ -328,7 +328,8 @@ class Bridge:
         self.sections = sections
         self.lanes = lanes
         if len(sections) != 1:
-            raise ValueError("Only single sections are supported")
+            raise ValueError(
+                f"Only 1 section is currently supported, was {len(sections)}")
         if self.fixed_nodes and not self.fixed_nodes[0].x:
             raise ValueError("First fixed node must be fixed in x direction")
 

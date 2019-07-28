@@ -86,7 +86,7 @@ def make_traffic_plots(c: Config):
         f"traffic/{c.bridge.name}-weight-vs-axles"))
 
 
-def make_plots(c: Config, clean=True):
+def make_all(c: Config, clean=True):
     """Make all plots for the thesis."""
     if clean: clean_generated(c)
     # make_bridge_plots(c)
@@ -97,4 +97,4 @@ def make_plots(c: Config, clean=True):
 
 
 if __name__ == "__main__":
-    make_plots(bridge_705_config(), clean=False)
+    make_all(bridge_705_config(), clean=False)

@@ -95,7 +95,7 @@ class DCMatrix(ResponsesMatrix):
 
 
 class ILMatrix(ResponsesMatrix):
-    """Responses of one type for influence line simulations."""
+    """Responses of one sensor type for influence line simulations."""
 
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
@@ -103,7 +103,7 @@ class ILMatrix(ResponsesMatrix):
         """Load an ILMatrix from disk, running simulations first if necessary.
 
         Args:
-            response_type: ResponseType, the type of response to load.
+            response_type: ResponseType, the type of sensor response to load.
             fem_runner: FEMRunner, the FEM program to run simulations with.
             num_loads: int, the number of equidistant positions to apply load.
             save_all: bool, save all response types when running a simulation.

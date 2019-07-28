@@ -18,12 +18,12 @@ class Config:
         vehicle_density: List[Tuple[float, float]], density of vehicles
             below a maximum length in meters.
 
-            Example: [(2.4, 0.5), (5.6, 94.5), (np.inf, 5)]
+            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
 
             Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
-            2.4m and less than 5.6m, and the remaining 5% are greater than
-            5.6m.
+            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
         vehicle intensity: the total amount of vehicles per hour.
+        vehicle_density_col: str, column of vehicle_data to group on.
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
@@ -49,17 +49,19 @@ class Config:
     def __init__(
             self, bridge: Callable[[], Bridge], vehicle_data: pd.DataFrame,
             vehicle_density: List[Tuple[float, float]],
-            vehicle_intensity: float):
+            vehicle_intensity: float, vehicle_density_col: str="length"):
         reset_model_ids()
         self.bridge = bridge()
         self.vehicle_data = vehicle_data
         self.vehicle_density=vehicle_density
         self.vehicle_intensity=vehicle_intensity
+        self.vehicle_density_col=vehicle_density_col
 
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
             print_w(
-                f"Vehicle density did not sum to 100, was {density_sum}")
+                f"Vehicle density did not sum to 100, was {density_sum},"
+                + " TODO adjusting...")
 
         self.il_matrices = dict()
         self.generated_dir = "generated/"

@@ -1,38 +1,92 @@
-"""
-Manipulate and sample A16 load distribution data.
-"""
+"""Manipulate and sample vehicle information."""
 import os
 from typing import List
 
+import numpy as np
 import pandas as pd
+from scipy import stats
 
+from config import Config
 from util import *
 
 
-a16_col_names = [
+# All column names of the vehicle data.
+col_names = [
     "month", "day", "year", "hour", "min", "sec", "number", "lane", "type",
     "speed", "length", "total_weight", "weight_per_axle", "axle_distance"]
+
+
+# Column names of the vehicle data which are floats.
+float_col_names = ["speed", "length", "total_weight"]
 
 
 def load_a16_data():
     """Load the A16 data from disk."""
     return pd.read_csv(
-         "../data/a16-data/A16.csv", usecols=a16_col_names, index_col="number")
+         "../data/a16-data/A16.csv", usecols=col_names, index_col="number")
 
 
-def length_groups(data: pd.DataFrame, lengths: List[int]):
-    """Return the data grouped by maximum lengths."""
+def length_groups(data: pd.DataFrame, lengths: List[int], col):
+    """Return the data grouped by maximum values for each group."""
+    print_d(f"Vehicle density col is {col}")
     assert sorted(lengths) == lengths
     # TODO Better A16 data format, should be meters.
-    lengths = [l * 100 for l in lengths]
+    if col == "length":
+        lengths = [l * 100 for l in lengths]
 
     def length_group(x):
-        length = data.loc[x, "length"]
+        length = data.loc[x, col]
         for i, l in enumerate(lengths):
             if length < l:
                 return i
 
-    return data.groupby(by=length_group)
+    return data[col].groupby(by=length_group)
+
+
+def vehicle_density_stats(c: Config):
+    """Human readable statistics on vehicle density."""
+    data = c.vehicle_data
+    num_bins = len(c.vehicle_density)
+    groups = length_groups(
+        data,
+        list(map(lambda x: x[0], c.vehicle_density)),
+        c.vehicle_density_col)
+    lengths_dict = {i: 0 for i in range(num_bins)}
+    for i, group in groups:
+        lengths_dict[i-1] = len(group)
+    lengths_list = list(lengths_dict.values())
+    return (
+        "\n".join([f"Vehicles < than {length} in {c.vehicle_density_col}:"
+                   + f"\t{lengths_dict[i]}"
+                   for i, length
+                   in enumerate(map(lambda x: x[0], c.vehicle_density))]) +
+        f"\nmean vehicles per bin:\t{int(np.mean(lengths_list))}"
+        + f"\nmin vehicles per bin:\t{np.min(lengths_list)}"
+        + f"\nmax vehicles per bin:\t{np.max(lengths_list)}"
+        + f"\nstd vehicles per bin:\t{np.std(lengths_list):.2f}")
+
+
+def vehicle_data_noise_stats(c: Config, col_names=float_col_names):
+    """Human readable statistics on noise for vehicle data columns."""
+    noise_data = noise_per_column(c, col_names)
+    return "hi"
+
+
+
+def noise_per_column(c: Config, col_names):
+    """Return (#outliers removed, stddev of remaining) for each column."""
+    data = c.vehicle_data
+    result = []
+    for col_name in col_names:
+        col = data[col]
+        amount_before_removal = len(col)
+        print_d(f"name={col_name}, len={len(col)}")
+        col = col[np.abs(stats.zscore(df)) < 3]
+        amount_removed = amount_before_removal - len(col)
+        print_d(f"len after outlier removal = {len(col)}")
+        print_d(np.std(col))
+        result.append((amount_removed, np.std(col)))
+    return result
 
 
 # def gen_hist_per_type(c: Config, a16_data: DataFrame):
