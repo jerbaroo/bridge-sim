@@ -98,30 +98,37 @@ def noise_per_column(c: Config, col_names):
     return result
 
 
-def sample_vehicle(c: Config, noise=1) -> Vehicle:
+def sample_vehicle(
+        c: Config, noise: float=1, init_group_index: int=None) -> Vehicle:
     """Return a sample vehicle from a c.vehicle_density group."""
-    rand = np.random.uniform()
-    min, max = 0, c.vehicle_density[-1][0]
-    print_d(f"rand = {rand}")
-    print_d(f"min = {min}, max = {max}")
-    running_fraction = 0
-    print_d(f"vehicle density = {c.vehicle_density}")
-    for i, (_, percent) in enumerate(c.vehicle_density):
-        running_fraction += percent / 100
-        print(f"i = {i}, running_fraction = {running_fraction}")
-        if rand < running_fraction:
-            group = i
-            print_d(f"Group is {i}")
-            break
+    # Select a group based on density, if none given.
+    if init_group_index is None:
+        rand = np.random.uniform()
+        min, max = 0, c.vehicle_density[-1][0]
+        print_d(f"rand = {rand}")
+        print_d(f"min = {min}, max = {max}")
+        running_fraction = 0
+        print_d(f"vehicle density = {c.vehicle_density}")
+        for i, (_, group_fraction) in enumerate(c.vehicle_density):
+            running_fraction += group_fraction
+            print(f"i = {i}, running_fraction = {running_fraction}")
+            if rand < running_fraction:
+                group_index = i
+                break
+    else: group_index = init_group_index
+    print_d(f"group_index = {group_index}")
+
+    # Sample a vehicle uniformly randomly from the group.
     groups_dict = {i: None for _ in range(len(c.vehicle_density))}
     print_d(groups_dict.items())
     for i, group in length_groups(c):
         print_d(f"i = {i}")
         groups_dict[i] = group
-    group = groups_dict[i]
+    group = groups_dict[group_index]
     print(f"group = {type(group)}")
     if group is None:
         print_w(f"Sampled group is None, resampling...")
+        return sample_vehicle(c, noise, init_group_index)
     sample = c.vehicle_data.loc[group.sample().index]
     return sample
     

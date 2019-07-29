@@ -60,8 +60,14 @@ class Config:
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
             print_w(
-                f"Vehicle density did not sum to 100, was {density_sum},"
-                + " TODO adjusting...")
+                f"Vehicle density did not sum to 1, was {density_sum},"
+                + " adjusting...")
+            for i in range(len(self.vehicle_density)):
+                self.vehicle_density[i] = (
+                    self.vehicle_density[i][0],
+                    self.vehicle_density[i][1] / density_sum)
+            density_sum = sum(map(lambda f: f[1], self.vehicle_density))
+            print_w(f"Vehicle density sums to {density_sum:.2f}")
 
         self.il_matrices = dict()
         self.generated_dir = "generated/"
