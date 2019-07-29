@@ -1,12 +1,12 @@
 """Run FEM simulations of bridge 705 with Diana."""
-from config import bridge_705_config
 from fem.params import ExptParams, FEMParams
 from fem.run import FEMRunner
 from fem.run.diana.build import build_models
 from fem.run.diana.convert import convert_responses
 from fem.run.diana.run import run_model
 from fem.run.diana.parse import parse_responses
-from model import *
+from model import Load
+from model.bridge_705 import bridge_705_config
 
 
 di_runner = FEMRunner(

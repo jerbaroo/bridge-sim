@@ -1,12 +1,12 @@
 """Test that OpenSees builds model files correctly."""
 import pytest
 
-from config import bridge_705_config
 from fem.params import ExptParams, FEMParams
 from fem.run import fem_file_path
 from fem.run.opensees import os_runner
 from fem.run.opensees.build import build_model
 from model import *
+from model.bridge_705 import bridge_705_config
 from util import *
 
 

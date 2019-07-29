@@ -2,11 +2,11 @@
 import os
 from timeit import default_timer as timer
 
-from config import bridge_705_config
 from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import os_runner
 from model import *
+from model.bridge_705 import bridge_705_config
 from util import *
 
 

@@ -1,9 +1,9 @@
-"""Collect responses based on the IL matrices."""
+"""Collect responses from ResponsesMatrix."""
 import numpy as np
 from typing import List
 
 from config import Config
-from fem.responses.il import ILMatrix
+from fem.responses.matrix import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import *
@@ -33,12 +33,10 @@ def responses_to_mv_load(
     Returns a numpy array of shape (time_end / time_step + 1, len(at)).
 
     """
-    responses = []
-    for time in times:
-        responses.append([
-            response_at_time(c, mv_load, time, at_, response_type, fem_runner)
-            for at_ in at])
-    result = np.array(responses)
+    result = np.array([
+        [response_at_time(c, mv_load, time, at_, response_type, fem_runner)
+         for at_ in at]
+        for time in times])
     assert result.shape[0] == len(times)
     assert result.shape[1] == len(at)
     return result

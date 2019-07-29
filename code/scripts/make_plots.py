@@ -1,9 +1,9 @@
 """Make all plots for the thesis."""
 from config import Config
-from fem.responses.il import DCMatrix, ILMatrix
+from fem.responses.matrix import DCMatrix, ILMatrix
 from fem.run.opensees import os_runner
 from plot import *
-from plot.matrices import imshow_il
+from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.vehicles import *
 from model import *
 from model.bridge_705 import bridge_705_config
@@ -89,10 +89,10 @@ def make_vehicle_plots(c: Config):
 def make_all(c: Config, clean=True):
     """Make all plots for the thesis."""
     if clean: clean_generated(c)
-    # make_bridge_plots(c)
-    # make_il_plots(c)
-    # make_dc_plots(c)
-    # make_mv_load_animations(c)
+    make_bridge_plots(c)
+    make_il_plots(c)
+    make_dc_plots(c)
+    make_mv_load_animations(c)
     make_vehicle_plots(c)
 
 

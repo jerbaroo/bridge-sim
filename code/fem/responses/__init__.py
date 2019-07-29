@@ -1,4 +1,4 @@
-"""Load and save responses from FEM simulation(s)."""
+"""Responses of one sensor type for one FEM simulation."""
 from __future__ import annotations
 
 import os

@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 
 from config import Config
-from fem.responses.il import ILMatrix, ResponsesMatrix
+from fem.responses.matrix import ILMatrix, ResponsesMatrix
 from fem.run.opensees import os_runner
 from model import *
 from model.bridge_705 import bridge_705_config

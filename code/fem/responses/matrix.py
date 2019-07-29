@@ -1,4 +1,4 @@
-"""Load and save response matrices."""
+"""Responses of one type for a number of related simulations."""
 from typing import List
 
 import matplotlib.pyplot as plt

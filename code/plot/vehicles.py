@@ -101,7 +101,6 @@ def plot_length_vs_axles(c: Config, cols: int=2, save: str=None):
 
 def plot_length_vs_weight(c: Config, cols: int=2, save: str=None):
     """Plot length vs number of axles for each length group."""
-    groups = lambda vehicle_data: length_groups(c)
     group_length = lambda group: group["length"] / 100
     group_weight = lambda group: group["total_weight"]
     group_scatter_plots(
@@ -114,8 +113,6 @@ def plot_length_vs_weight(c: Config, cols: int=2, save: str=None):
 
 def plot_weight_vs_axles(c: Config, cols: int=2, save: str=None):
     """Plot length vs number of axles for each length group."""
-    groups = lambda vehicle_data: length_groups(
-        vehicle_data, list(map(lambda x: x[0], c.vehicle_density)))
     group_weight = lambda group: group["total_weight"]
     group_num_axles = (lambda group:
         group["weight_per_axle"].apply(lambda s: axle_array_and_count(s)[1]))
