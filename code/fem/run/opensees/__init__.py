@@ -17,26 +17,26 @@ def os_runner(c: Config):
     """A FEMRunner based on OpenSees."""
 
     fem_runner = FEMRunner(
-        "OpenSees", build_model, run_model, parse_responses, convert_responses,
-        "tcl", c.generated_dir)
+        c, "OpenSees", build_model, run_model, parse_responses,
+        convert_responses, "tcl")
 
     def translation_path(fem_params: FEMParams, axis: str):
-        return os.path.splitext(
-            fem_file_path(fem_params, fem_runner))[0] + f"node-{axis}.out"
+        return fem_file_path(fem_params, fem_runner, f"node-{axis}.out")
 
     def patch_path(fem_params: FEMParams, patch: Patch):
         center = patch.center()
-        return (os.path.splitext(fem_file_path(fem_params, fem_runner))[0]
-                + f"-patch-{center.y:.5f}-{center.z:.5f}.out")
+        return fem_file_path(
+            fem_params, fem_runner,
+            f"-patch-{center.y:.5f}-{center.z:.5f}.out")
 
     def layer_paths(fem_params: FEMParams, layer: Layer):
-        return [os.path.splitext(fem_file_path(fem_params, fem_runner))[0]
-                + f"-layer-{point.y:.5f}-{point.z:.5f}.out"
+        return [fem_file_path(
+                    fem_params, fem_runner,
+                    f"-layer-{point.y:.5f}-{point.z:.5f}.out")
                 for point in layer.points()]
 
     def element_path(fem_params: FEMParams):
-        return os.path.splitext(
-            fem_file_path(fem_params, fem_runner))[0] + f"-elems.out"
+        return fem_file_path(fem_params, fem_runner, f"-elems.out")
 
     fem_runner.x_translation_path = lambda fp: translation_path(fp, "x")
     fem_runner.y_translation_path = lambda fp: translation_path(fp, "y")

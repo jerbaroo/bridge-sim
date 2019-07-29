@@ -13,10 +13,11 @@ from vehicles import load_vehicle_data
 class Config:
     """Simulation configuration.
 
+    NOTE: All paths are relative to the root directory.
+
     Args:
         bridge: Callable[[], Bridge], returns a bridge specification.
         vehicle_data_path: str, path of the vehicle data CSV file.
-        TODO: Make vehicle density group a parameters.
         vehicle_density: List[Tuple[float, float]], density of vehicles
             below a maximum length in meters.
 
@@ -73,8 +74,8 @@ class Config:
             print_w(f"Vehicle density adjusted to sum to {density_sum:.2f}")
 
         self.il_matrices = dict()
-        self.generated_dir = "generated/"
-        self.images_dir = "images/"
+        self.generated_dir = "generated-data/"
+        self.images_dir = "generated-images/"
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 
@@ -91,7 +92,7 @@ class Config:
         # OpenSees.
         self.os_node_step = 0.2
         self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
-        self.os_model_template_path = "model-template.tcl"
+        self.os_model_template_path = "code/model-template.tcl"
 
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():
@@ -109,10 +110,10 @@ class Config:
         # Diana.
         # TODO: Move all this to Diana FEMRunner.
         self.di_exe_path = "c:/Program Files/Diana 10.3/bin/diana.exe"
-        self.di_model_template_path = "diana-705-template.dat"
-        self.di_model_path = "diana-705.dat"
-        self.di_cmd_path = "diana-cmd.dcf"
-        self.di_out_path = "diana-out.out"
-        self.di_filos_path = "diana.ff"
-        self.di_translation_path = "displa_paths.tb"
-        self.di_strain_path = "strains_paths.tb"
+        self.di_model_template_path = "code/diana-705-template.dat"
+        self.di_model_path = "code/diana-705.dat"
+        self.di_cmd_path = "code/diana-cmd.dcf"
+        self.di_out_path = "code/diana-out.out"
+        self.di_filos_path = "code/diana.ff"
+        self.di_translation_path = "code/displa_paths.tb"
+        self.di_strain_path = "code/strains_paths.tb"

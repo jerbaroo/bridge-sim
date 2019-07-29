@@ -14,20 +14,30 @@ from util import *
 Parsed = TypeVar("parsed")
 
 
-def fem_id(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
-    """A string unique to this FEMRunner and parameters."""
+def _fem_id(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
+    """A string unique to this FEMParams and FEMRunner."""
     load_str: str = fem_params.load_str()
     for char in "[]()":
         load_str = load_str.replace(char, "")
     return (f"{fem_runner.name}-{load_str}")
 
 
-def fem_file_path(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
-    """A file path based on FEM parameters and runner."""
+def fem_file_path(
+        fem_params: FEMParams, fem_runner: FEMRunner, ext: Optional[str]=None
+        ) -> str:
+    """A file path based on FEMParams and FEMRunner.
+
+    Args:
+        fem_params: FEMParams, parameters for the FEM simulation.
+        fem_runner: FEMRunner, program to run the FEM simulation.
+        ext: Optional[str], if None then use fem_runner.built_model_ext, else
+            the given file extension is used.
+
+    """
+    ext = "." + fem_runner.built_model_ext if ext is None else ext
     return os.path.join(
-        fem_runner.built_model_dir,
-        f"{fem_id(fem_params, fem_runner)}.{fem_runner.built_model_ext}"
-    ).replace(" ", "")
+        fem_runner.built_files_dir, f"{_fem_id(fem_params, fem_runner)}{ext}"
+    ).replace(" ", "").lower()
 
 
 class FEMRunner():
@@ -37,36 +47,39 @@ class FEMRunner():
         built_model_dir: str, directory to save the built model file in.
 
     """
-    def __init__(self,
-                 name: str,
-                 build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
-                 run: Callable[[Config, ExptParams, FEMRunner], ExptParams],
-                 parse: Callable[[Config, ExptParams, FEMRunner], Parsed],
-                 convert: Callable[
-                     [Config, Parsed],
-                     Dict[int, Dict[ResponseType, List[Response]]]],
-                 built_model_ext: str=None,
-                 built_model_dir: str="."):
+    def __init__(
+            self, c: Config, name: str,
+            build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
+            run: Callable[[Config, ExptParams, FEMRunner], ExptParams],
+            parse: Callable[[Config, ExptParams, FEMRunner], Parsed],
+            convert: Callable[
+                [Config, Parsed],
+                Dict[int, Dict[ResponseType, List[Response]]]],
+            built_model_ext: str=None, built_files_dir: Optional[str]=None):
+        self.c = c
         self._build = build
         self._run = run
         self._parse = parse
         self._convert = convert
         self.name = name
         self.built_model_ext = built_model_ext
-        self.built_model_dir = built_model_dir
+        if built_files_dir is None:
+            built_files_dir = os.path.join(
+                self.c.generated_dir, f"{self.name}/").lower()
+        self.built_files_dir = built_files_dir
+        assert self.built_files_dir.endswith("/")
 
-    def run(self, c: Config, expt_params: ExptParams, run=True, save=True,
-            remove=False):
+    def run(self, expt_params: ExptParams, run=True, save=True, remove=False):
 
         start = timer()
-        expt_params = self._build(c, expt_params, self)
+        expt_params = self._build(self.c, expt_params, self)
         print_i(f"FEMRunner: built {self.name} model file(s) in"
                 + f" {timer() - start:.2f}s")
 
         if run:
             for sim_ind, _ in enumerate(expt_params.fem_params):
                 start = timer()
-                expt_params = self._run(c, expt_params, self, sim_ind)
+                expt_params = self._run(self.c, expt_params, self, sim_ind)
                 print_i(f"FEMRunner: ran {self.name}"
                         + f" {sim_ind + 1}/{len(expt_params.fem_params)}"
                         + f" simulation in {timer() - start:.2f}s")
@@ -79,12 +92,12 @@ class FEMRunner():
             return
 
         start = timer()
-        parsed_by_type = self._parse(c, expt_params, self)
+        parsed_by_type = self._parse(self.c, expt_params, self)
         print_i(f"FEMRunner: parsed all responses in"
                 + f" {timer() - start:.2f}s")
 
         start = timer()
-        sim_responses = self._convert(c, parsed_by_type)
+        sim_responses = self._convert(self.c, parsed_by_type)
         print_i(f"FEMRunner: converted all responses to [Response] in"
                 + f" {timer() - start:.2f}s")
 
@@ -98,7 +111,7 @@ class FEMRunner():
                 #         + f" in {timer() - start:.2f}s, ({response_type})")
 
                 start = timer()
-                fem_responses.save(c)
+                fem_responses.save(self.c)
                 print_i(f"FEMRunner: saved simulation {sim + 1} FEMResponses"
                         + f" in ([Response]) in {timer() - start:.2f}s,"
                         + f"({response_type})")

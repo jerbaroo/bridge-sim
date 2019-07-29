@@ -1,23 +1,26 @@
-* Thesis MSc Computational Science [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* Building an extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
 My thesis for the University of Amsterdam and TNO.
 
-Code is in /code/ with a README describing the files [[./code/README.org][here]].
+Code is in [[code]] with a README describing the files [[./code/README.org][here]].
 
-Supporting data is in /data/.
+Supporting data is in [[data]].
 
-PDFs and source files are in /writing/, rendered thesis PDF [[./writing/thesis/thesis.pdf][here]].
+PDFs and source files are in [[writing]], rendered thesis PDF [[./writing/thesis/thesis.pdf][here]].
 
 ** Quickstart
 
-If you don't have pipenv: =pip install pipenv=.
+If you don't have pipenv install with =pip install pipenv=.
 
-If you don't have Git LFS: [[https://git-lfs.github.com/][download it here]].
+If you don't have Git LFS download from [[https://git-lfs.github.com/][here]].
+
+Install OpenSees from [[http://opensees.berkeley.edu/wiki/index.php/Getting_Started_with_OpenSees_--_Download_OpenSees][here]] and ensure =Config:os_exe_path= in [[code/config.py]]
+points to the installed executable.
 
 #+BEGIN_SRC bash
   git clone git@github.com:barischrooneyj/thesis-msc-computational-science
   cd thesis-msc-computational-science
   pipenv install
   git lfs install
-  (cd code && pytest)
+  ./scripts/make-all.sh
 #+END_SRC

@@ -136,7 +136,7 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
 
     path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
     if (not os.path.exists(path)):
-        fem_runner.run(c, ExptParams([fem_params]))
+        fem_runner.run(ExptParams([fem_params]))
 
     # And set the node as fixed again after running.
     if set_y_false:
