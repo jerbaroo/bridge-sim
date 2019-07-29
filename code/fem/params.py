@@ -12,7 +12,7 @@ class FEMParams:
     Args:
         loads: [Load], a list of Load to apply to the bridge.
         displacement_ctrl: DisplacementCtrl, apply a load until the
-            displacement is reached. If given then "loads" are ignored.
+            displacement is reached. If not None "loads" are ignored.
         response_types: [ResponseType], response types to record.
 
     Attrs:

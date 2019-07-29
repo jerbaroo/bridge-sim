@@ -7,6 +7,7 @@ import pandas as pd
 from scipy import stats
 
 from config import Config
+from model import *
 from util import *
 
 
@@ -21,56 +22,67 @@ float_col_names = ["speed", "length", "total_weight"]
 
 
 def load_a16_data():
-    """Load the A16 data from disk."""
+    """Load the vehicle data from disk."""
     return pd.read_csv(
          "../data/a16-data/A16.csv", usecols=col_names, index_col="number")
 
 
-def length_groups(data: pd.DataFrame, lengths: List[int], col):
-    """Return the data grouped by maximum values for each group."""
-    print_d(f"Vehicle density col is {col}")
+def length_groups(c: Config, col=None, lengths: List[int]=None):
+    """Return vehicle data grouped by a maximum value per group."""
+    if col is None:
+        col = c.vehicle_density_col
+    if lengths is None:
+        lengths = list(map(lambda x: x[0], c.vehicle_density))
+    print_d(f"Vehicle density col is \"{col}\"")
+    print_d(lengths)
     assert sorted(lengths) == lengths
-    # TODO Better A16 data format, should be meters.
+    # TODO Better vehicle data format, should be meters.
     if col == "length":
         lengths = [l * 100 for l in lengths]
 
     def length_group(x):
-        length = data.loc[x, col]
+        length = c.vehicle_data.loc[x, col]
         for i, l in enumerate(lengths):
             if length < l:
                 return i
 
-    return data[col].groupby(by=length_group)
+    return c.vehicle_data[col].groupby(by=length_group)
 
 
 def vehicle_density_stats(c: Config):
     """Human readable statistics on vehicle density."""
     data = c.vehicle_data
     num_bins = len(c.vehicle_density)
-    groups = length_groups(
-        data,
-        list(map(lambda x: x[0], c.vehicle_density)),
-        c.vehicle_density_col)
+    groups = length_groups(c, c.vehicle_density_col)
     lengths_dict = {i: 0 for i in range(num_bins)}
     for i, group in groups:
-        lengths_dict[i-1] = len(group)
+        lengths_dict[i] = len(group)
     lengths_list = list(lengths_dict.values())
     return (
-        "\n".join([f"Vehicles < than {length} in {c.vehicle_density_col}:"
-                   + f"\t{lengths_dict[i]}"
-                   for i, length
-                   in enumerate(map(lambda x: x[0], c.vehicle_density))]) +
-        f"\nmean vehicles per bin:\t{int(np.mean(lengths_list))}"
-        + f"\nmin vehicles per bin:\t{np.min(lengths_list)}"
-        + f"\nmax vehicles per bin:\t{np.max(lengths_list)}"
-        + f"\nstd vehicles per bin:\t{np.std(lengths_list):.2f}")
+        "Vehicle density info:"
+        + "\n" + "\n".join([
+            f"Vehicles < than {length} in {c.vehicle_density_col}:"
+            + f" {lengths_dict[i]}"
+            for i, length
+            in enumerate(map(lambda x: x[0], c.vehicle_density))])
+        + f"\nmean vehicles per group: {int(np.mean(lengths_list))}"
+        + f"\nmin vehicles per group: {np.min(lengths_list)}"
+        + f"\nmax vehicles per group: {np.max(lengths_list)}"
+        + f"\nstd vehicles per group: {np.std(lengths_list):.2f}")
 
 
 def vehicle_data_noise_stats(c: Config, col_names=float_col_names):
     """Human readable statistics on noise for vehicle data columns."""
     noise_data = noise_per_column(c, col_names)
-    return "hi"
-
+    data_len = len(c.vehicle_data[col_names[0]])
+    return (
+        "Noise info:"
+        + "\n" + "\n".join([
+            f"\"{col_name}\":"
+            + f"\n\tremoved {noise_data[i][0]}"
+            + f" or {noise_data[i][0] / data_len:.4f}% outliers"
+            + f"\n\tstd. dev. of remaining is {noise_data[i][1]:.4f}"
+            for i, col_name in enumerate(col_names)]))
 
 
 def noise_per_column(c: Config, col_names):
@@ -78,16 +90,41 @@ def noise_per_column(c: Config, col_names):
     data = c.vehicle_data
     result = []
     for col_name in col_names:
-        col = data[col]
+        col = data[col_name]
         amount_before_removal = len(col)
-        print_d(f"name={col_name}, len={len(col)}")
-        col = col[np.abs(stats.zscore(df)) < 3]
+        col = col[np.abs(stats.zscore(col)) < 3]
         amount_removed = amount_before_removal - len(col)
-        print_d(f"len after outlier removal = {len(col)}")
-        print_d(np.std(col))
         result.append((amount_removed, np.std(col)))
     return result
 
+
+def sample_vehicle(c: Config, noise=1) -> Vehicle:
+    """Return a sample vehicle from a c.vehicle_density group."""
+    rand = np.random.uniform()
+    min, max = 0, c.vehicle_density[-1][0]
+    print_d(f"rand = {rand}")
+    print_d(f"min = {min}, max = {max}")
+    running_fraction = 0
+    print_d(f"vehicle density = {c.vehicle_density}")
+    for i, (_, percent) in enumerate(c.vehicle_density):
+        running_fraction += percent / 100
+        print(f"i = {i}, running_fraction = {running_fraction}")
+        if rand < running_fraction:
+            group = i
+            print_d(f"Group is {i}")
+            break
+    groups_dict = {i: None for _ in range(len(c.vehicle_density))}
+    print_d(groups_dict.items())
+    for i, group in length_groups(c):
+        print_d(f"i = {i}")
+        groups_dict[i] = group
+    group = groups_dict[i]
+    print(f"group = {type(group)}")
+    if group is None:
+        print_w(f"Sampled group is None, resampling...")
+    sample = c.vehicle_data.loc[group.sample().index]
+    return sample
+    
 
 # def gen_hist_per_type(c: Config, a16_data: DataFrame):
 #     """Plot a histogram per vehicle type."""

@@ -50,6 +50,19 @@ class Lane:
         return self.z0 + (self.width() / 2)
 
 
+# TODO: Make a dataclass.
+class Vehicle:
+    """Specification of a vehicle."""
+    def __init__(
+            self, kn_per_axle: float, axle_distances: List[float],
+            axle_width: float=2, quadim: Tuple[float, float]=(0.4, 0.2)):
+        self.kn_per_axle = kn_per_axle
+        self.axle_distances = axle_distances
+        self.axle_width = axle_width
+        self.quadim = quadim
+
+
+# TODO: Rename to StaticLoad with PointLoad and Vehicle subclasses.
 class Load:
     """A load to apply to a bridge, either a point or axle-based load.
 
@@ -74,6 +87,14 @@ class Load:
                           else len(self.axle_distances) + 1)
         self.axle_width = axle_width
         self.quadim = quadim
+
+    @staticmethod
+    def from_vehicle(x_frac: float, vehicle: Vehicle, lane: int=0):
+        """Construct a Load from a Vehicle."""
+        return Load(
+            x_frac=x_frac, kn=vehicle.kn_per_axle, lane=lane,
+            axle_distances=vehicle.axle_distances,
+            axle_width=vehicle.axle_width, quadim=vehicle.quadim)
 
     def is_point_load(self):
         """Whether this load is a point load."""
@@ -299,7 +320,7 @@ class Section:
 
 
 def reset_model_ids():
-    """Call this before constructing a bridge/loads etc.."""
+    """Called automatically when constructing a Config."""
     global _fiber_cmd_id
     _fiber_cmd_id = 1
     Section.next_id = 1
