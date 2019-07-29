@@ -1,4 +1,4 @@
-* Building an extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* An extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
 My thesis for the University of Amsterdam and TNO.
 
