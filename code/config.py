@@ -1,11 +1,13 @@
 """Simulation configuration."""
 import os
+from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 
 import numpy as np
 import pandas as pd
 
 from model import *
+from vehicles import load_vehicle_data
 
 
 class Config:
@@ -13,7 +15,7 @@ class Config:
 
     Args:
         bridge: Callable[[], Bridge], returns a bridge specification.
-        vehicle_data: pd.DataFrame, describes vehicles on the bridge.
+        vehicle_data_path: str, path of the vehicle data CSV file.
         TODO: Make vehicle density group a parameters.
         vehicle_density: List[Tuple[float, float]], density of vehicles
             below a maximum length in meters.
@@ -47,27 +49,28 @@ class Config:
 
     """
     def __init__(
-            self, bridge: Callable[[], Bridge], vehicle_data: pd.DataFrame,
+            self, bridge: Callable[[], Bridge], vehicle_data_path: str,
             vehicle_density: List[Tuple[float, float]],
             vehicle_intensity: float, vehicle_density_col: str="length"):
         reset_model_ids()
         self.bridge = bridge()
-        self.vehicle_data = vehicle_data
+        start = timer()
+        self.vehicle_data = load_vehicle_data(vehicle_data_path)
+        print_i(f"Loaded vehicle data from {vehicle_data_path} in"
+                + f" {timer() - start:.2f}s")
         self.vehicle_density=vehicle_density
         self.vehicle_intensity=vehicle_intensity
         self.vehicle_density_col=vehicle_density_col
 
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
-            print_w(
-                f"Vehicle density did not sum to 1, was {density_sum},"
-                + " adjusting...")
+            print_w(f"Vehicle density sums to {density_sum}, not to 1")
             for i in range(len(self.vehicle_density)):
                 self.vehicle_density[i] = (
                     self.vehicle_density[i][0],
                     self.vehicle_density[i][1] / density_sum)
             density_sum = sum(map(lambda f: f[1], self.vehicle_density))
-            print_w(f"Vehicle density sums to {density_sum:.2f}")
+            print_w(f"Vehicle density adjusted to sum to {density_sum:.2f}")
 
         self.il_matrices = dict()
         self.generated_dir = "generated/"
@@ -76,7 +79,6 @@ class Config:
             self.images_dir, filename)
 
         # Make directories.
-        # TODO: create savefig which created directories as needed.
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)

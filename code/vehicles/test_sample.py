@@ -1,7 +1,7 @@
 """Test the sampling of vehicles."""
-from data.normal.a16 import noise_col_names, sample_vehicle
 from model.bridge_705 import bridge_705_config
-from util import *
+from vehicles.sample import noise_col_names, sample_vehicle
+
 
 def test_sample_vehicle():
     c = bridge_705_config()

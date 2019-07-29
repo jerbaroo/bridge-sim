@@ -4,7 +4,7 @@ from fem.responses.il import DCMatrix, ILMatrix
 from fem.run.opensees import os_runner
 from plot import *
 from plot.matrices import imshow_il
-from plot.traffic import *
+from plot.vehicles import *
 from model import *
 from model.bridge_705 import bridge_705_config
 from util import *
@@ -75,15 +75,15 @@ def make_mv_load_animations(c: Config):
                 + f"-{mv_load.str_id()}")) + ".mp4")
 
 
-def make_traffic_plots(c: Config):
+def make_vehicle_plots(c: Config):
     plot_density(c, save=c.image_path(
-        f"traffic/{c.bridge.name}-density"))
+        f"vehicles/{c.bridge.name}-density"))
     plot_length_vs_axles(c, save=c.image_path(
-        f"traffic/{c.bridge.name}-length-vs-axles"))
+        f"vehicles/{c.bridge.name}-length-vs-axles"))
     plot_length_vs_weight(c, save=c.image_path(
-        f"traffic/{c.bridge.name}-length-vs-weight"))
+        f"vehicles/{c.bridge.name}-length-vs-weight"))
     plot_weight_vs_axles(c, save=c.image_path(
-        f"traffic/{c.bridge.name}-weight-vs-axles"))
+        f"vehicles/{c.bridge.name}-weight-vs-axles"))
 
 
 def make_all(c: Config, clean=True):
@@ -93,7 +93,7 @@ def make_all(c: Config, clean=True):
     # make_il_plots(c)
     # make_dc_plots(c)
     # make_mv_load_animations(c)
-    make_traffic_plots(c)
+    make_vehicle_plots(c)
 
 
 if __name__ == "__main__":
