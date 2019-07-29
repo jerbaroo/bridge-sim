@@ -10,11 +10,11 @@ PDFs and source files are in [[writing]], rendered thesis PDF [[./writing/thesis
 
 ** Quickstart
 
-If you don't have pipenv install with =pip install pipenv=.
+If you don't have pipenv, install it with =pip install pipenv=.
 
-If you don't have Git LFS download from [[https://git-lfs.github.com/][here]].
+If you don't have Git LFS, you can download it from [[https://git-lfs.github.com/][here]].
 
-Install OpenSees from [[http://opensees.berkeley.edu/wiki/index.php/Getting_Started_with_OpenSees_--_Download_OpenSees][here]] and ensure =Config:os_exe_path= in [[code/config.py]]
+Install OpenSees from [[http://opensees.berkeley.edu/wiki/index.php/Getting_Started_with_OpenSees_--_Download_OpenSees][here]] and ensure =Config.os_exe_path= in [[code/config.py]]
 points to the installed executable.
 
 #+BEGIN_SRC bash

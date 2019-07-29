@@ -1,1 +1,1 @@
-pipenv run python code/scripts/make_all.py
+pipenv run python code/make/make_all.py
