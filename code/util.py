@@ -12,9 +12,13 @@ from termcolor import colored
 init()
 
 
+DEBUG = True
+
+
 def print_d(s):
     """Print some debug text."""
-    print(colored(f"DEBUG: {s}", "yellow"))
+    if DEBUG:
+        print(colored(f"DEBUG: {s}", "yellow"))
 
 
 def print_i(s):

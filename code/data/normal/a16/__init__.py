@@ -17,8 +17,8 @@ col_names = [
     "speed", "length", "total_weight", "weight_per_axle", "axle_distance"]
 
 
-# Column names of the vehicle data which are floats.
-float_col_names = ["speed", "length", "total_weight"]
+# Column names of the vehicle data to add noise.
+noise_col_names = ["speed", "length", "total_weight"]
 
 
 def load_a16_data():
@@ -71,10 +71,11 @@ def vehicle_density_stats(c: Config):
         + f"\nstd vehicles per group: {np.std(lengths_list):.2f}")
 
 
-def vehicle_data_noise_stats(c: Config, col_names=float_col_names):
+def vehicle_data_noise_stats(
+        c: Config, noise_col_names: List[str]=noise_col_names):
     """Human readable statistics on noise for vehicle data columns."""
-    noise_data = noise_per_column(c, col_names)
-    data_len = len(c.vehicle_data[col_names[0]])
+    noise_data = noise_per_column(c, noise_col_names)
+    data_len = len(c.vehicle_data[noise_col_names[0]])
     return (
         "Noise info:"
         + "\n" + "\n".join([
@@ -82,10 +83,10 @@ def vehicle_data_noise_stats(c: Config, col_names=float_col_names):
             + f"\n\tremoved {noise_data[i][0]}"
             + f" or {noise_data[i][0] / data_len:.4f}% outliers"
             + f"\n\tstd. dev. of remaining is {noise_data[i][1]:.4f}"
-            for i, col_name in enumerate(col_names)]))
+            for i, col_name in enumerate(noise_col_names)]))
 
 
-def noise_per_column(c: Config, col_names):
+def noise_per_column(c: Config, col_names: List[str]):
     """Return (#outliers removed, stddev of remaining) for each column."""
     data = c.vehicle_data
     result = []
@@ -99,8 +100,17 @@ def noise_per_column(c: Config, col_names):
 
 
 def sample_vehicle(
-        c: Config, noise: float=1, init_group_index: int=None) -> Vehicle:
-    """Return a sample vehicle from a c.vehicle_density group."""
+        c: Config, noise_stddevs: float=0.1, init_group_index: int=None,
+        noise_col_names: List[str]=noise_col_names) -> Vehicle:
+    """Return a sample vehicle from a c.vehicle_density group.
+
+    Args:
+        c: Config, config from which to load vehicle data and density info.
+        noise_std: float, standard deviation of noise added per column.
+        init_group_index: int, sample from a given group index or all (None).
+        noise_col_names: List[str], a list of columns to apply noise to.
+
+    """
     # Select a group based on density, if none given.
     if init_group_index is None:
         rand = np.random.uniform()
@@ -130,6 +140,18 @@ def sample_vehicle(
         print_w(f"Sampled group is None, resampling...")
         return sample_vehicle(c, noise, init_group_index)
     sample = c.vehicle_data.loc[group.sample().index]
+
+    # Add noise to the sample if requested.
+    if noise_stddevs:
+        for col_name, (_, stddev) in zip(
+                noise_col_names, noise_per_column(c, noise_col_names)):
+            print_d(
+                f"col_name = {col_name}, stddev = {stddev:.2f},"
+                + f"{noise_stddevs} x stddev = {noise_stddevs * stddev:.2f}")
+            noise = np.random.normal(loc=0, scale=noise_stddevs * stddev)
+            print_d(f"before =\n{sample[col_name]},\nnoise = {noise}")
+            sample[col_name] = sample[col_name] + noise
+            print_d(f"after =\n{sample[col_name]}")
     return sample
     
 
