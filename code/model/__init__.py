@@ -52,10 +52,11 @@ class Lane:
 
 # TODO: Make a dataclass.
 class Vehicle:
-    """Specification of a vehicle."""
+    """Specification of a vehicle with speed."""
     def __init__(
-            self, kn_per_axle: float, axle_distances: List[float],
+            self, kmph: float, kn_per_axle: float, axle_distances: List[float],
             axle_width: float=2, quadim: Tuple[float, float]=(0.4, 0.2)):
+        self.kmph = kmph
         self.kn_per_axle = kn_per_axle
         self.axle_distances = axle_distances
         self.axle_width = axle_width
@@ -87,14 +88,6 @@ class Load:
                           else len(self.axle_distances) + 1)
         self.axle_width = axle_width
         self.quadim = quadim
-
-    @staticmethod
-    def from_vehicle(x_frac: float, vehicle: Vehicle, lane: int=0):
-        """Construct a Load from a Vehicle."""
-        return Load(
-            x_frac=x_frac, kn=vehicle.kn_per_axle, lane=lane,
-            axle_distances=vehicle.axle_distances,
-            axle_width=vehicle.axle_width, quadim=vehicle.quadim)
 
     def is_point_load(self):
         """Whether this load is a point load."""
@@ -131,6 +124,18 @@ class MovingLoad:
         self.kmph = kmph
         self.mps = self.kmph / 3.6
         self.left_to_right = left_to_right
+
+    @staticmethod
+    def from_vehicle(
+            x_frac: float, vehicle: Vehicle, lane: int,
+            left_to_right: bool=True):
+        """Construct a Load from a Vehicle."""
+        load = Load(
+            x_frac=x_frac, kn=vehicle.kn_per_axle, lane=lane,
+            axle_distances=vehicle.axle_distances,
+            axle_width=vehicle.axle_width, quadim=vehicle.quadim)
+        return MovingLoad(
+            load=load, kmph=vehicle.kmph, left_to_right=left_to_right)
 
     def x_frac_at(self, time: float, bridge: Bridge):
         """Fraction of bridge length after given time.

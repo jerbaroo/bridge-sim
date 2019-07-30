@@ -9,17 +9,8 @@ from pandas import DataFrame
 from config import Config
 from model.bridge_705 import bridge_705_config
 from util import *
+from vehicles import axle_array_and_count
 from vehicles.sample import length_groups
-
-
-# TODO: Store axle number directly in data.
-def axle_array_and_count(axle_array_str: str) -> int:
-    """Return an axle array and count of non zero values from a string."""
-    axle_array_str = axle_array_str.replace(
-        "'", "").replace("[", "").replace("]", "")
-    axle_array = list(map(float, axle_array_str.split(",")))
-    count_non_zero = len(list(filter(lambda x: x != 0, axle_array)))
-    return axle_array, count_non_zero
 
 
 def plot_density(c: Config, save: str=None, show: bool=False):
@@ -47,7 +38,7 @@ def group_scatter_plots(
         group_x_label: str=None, group_y_label: str=None,
         cols: int=2, save: str=None, title: str=None):
     """Scatter plots for each group of data and for the full data."""
-    print(type(groups))
+    print_d(type(groups))
     # Setup groups, rows and columns.
     num_groups = max(map(lambda x: x[0], groups)) + 1  # + 1 for the 0 index.
     rows = ceil(num_groups / cols)
@@ -95,8 +86,7 @@ def plot_length_vs_axles(c: Config, cols: int=2, save: str=None):
         c=c, groups=length_groups(c),
         group_x=group_num_axles, group_y=group_length,
         group_x_label="number of axles", group_y_label="length (m)",
-        cols=cols, save=save, title="Vehicle length against number of axles"
-    )
+        cols=cols, save=save, title="Vehicle length against number of axles")
 
 
 def plot_length_vs_weight(c: Config, cols: int=2, save: str=None):
@@ -104,11 +94,10 @@ def plot_length_vs_weight(c: Config, cols: int=2, save: str=None):
     group_length = lambda group: group["length"] / 100
     group_weight = lambda group: group["total_weight"]
     group_scatter_plots(
-        c=c, groups=length_groups(c), 
+        c=c, groups=length_groups(c),
         group_x=group_weight, group_y=group_length,
         group_x_label="weight (kN)", group_y_label="length (m)",
-        cols=cols, save=save, title="Vehicle length against weight"
-    )
+        cols=cols, save=save, title="Vehicle length against weight")
 
 
 def plot_weight_vs_axles(c: Config, cols: int=2, save: str=None):
@@ -120,5 +109,4 @@ def plot_weight_vs_axles(c: Config, cols: int=2, save: str=None):
         c=c, groups=length_groups(c),
         group_x=group_weight, group_y=group_num_axles,
         group_x_label="weight (kN)", group_y_label="number of axles",
-        cols=cols, save=save, title="Vehicle number of axles against weight"
-    )
+        cols=cols, save=save, title="Vehicle number of axles against weight")

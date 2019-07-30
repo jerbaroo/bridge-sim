@@ -1,16 +1,17 @@
 """Sample vehicles from the vehicle data."""
-from typing import List
+from typing import List, Optional
 
 from config import Config
 from model import *
 from util import *
+from vehicles import axle_array_and_count
 
 
 # Column names of the vehicle data to add noise.
 noise_col_names = ["speed", "length", "total_weight"]
 
 
-def length_groups(c: Config, col=None, lengths: List[int]=None):
+def length_groups(c: Config, col: Optional[str]=None, lengths: List[int]=None):
     """Return vehicle data grouped by a maximum value per group."""
     if col is None:
         col = c.vehicle_density_col
@@ -47,7 +48,8 @@ def noise_per_column(c: Config, col_names: List[str]):
 
 def sample_vehicle(
         c: Config, noise_stddevs: float=0.1, init_group_index: int=None,
-        noise_col_names: List[str]=noise_col_names) -> Vehicle:
+        noise_col_names: List[str]=noise_col_names, pd_row: bool=False
+    ) -> Vehicle:
     """Return a sample vehicle from a c.vehicle_density group.
 
     Args:
@@ -84,7 +86,7 @@ def sample_vehicle(
     print(f"group = {type(group)}")
     if group is None:
         print_w(f"Sampled group is None, resampling...")
-        return sample_vehicle(c, noise, init_group_index)
+        return sample_vehicle(c, noise_stddevs, init_group_index)
     sample = c.vehicle_data.loc[group.sample().index]
 
     # Add noise to the sample if requested.
@@ -98,4 +100,13 @@ def sample_vehicle(
             print_d(f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
             print_d(f"after =\n{sample[col_name]}")
-    return sample
+
+    # Convert sample to Vehicle and return it.
+    row = sample.iloc[0]
+    kmph = row["speed"]
+    axle_distances = axle_array_and_count(row["axle_distance"])
+    num_axles = len(axle_distances) + 1
+    total_kn = row["total_weight"]
+    vehicle = Vehicle(
+        kmph, kn_per_axle=total_kn / num_axles, axle_distances=axle_distances)
+    return (vehicle, sample) if pd_row else vehicle

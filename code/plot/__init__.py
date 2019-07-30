@@ -5,7 +5,6 @@ More specific plotting functions are found in other modules.
 """
 import copy
 from collections import OrderedDict
-from itertools import takewhile
 from typing import Callable, List
 
 import matplotlib.patches as patches
@@ -15,12 +14,12 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
+from classify.responses import times_on_bridge
 from config import Config
 from fem.responses.collect import responses_to_mv_load
 from fem.run import FEMRunner
 from model import *
 from util import *
-
 
 bridge_color = "green"
 lane_color = "yellow"
@@ -29,11 +28,13 @@ pier_color = "green"
 rebar_color = "red"
 
 
-def sci_format_y_axis(points=1):
+def sci_format_y_axis(points: int=1):
     """Format an axis' ticks in scientific style."""
+
     class ScalarFormatterForceFormat(ScalarFormatter):
         def _set_format(self):
             self.format = f"%1.{points}f"
+
     plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
 
@@ -194,14 +195,8 @@ def animate_mv_load(
         num_x_fracs: int=100, save: str=None, show: bool=False):
     """Animate the bridge's response to a moving load."""
     num_times = int((time_end / time_step) + 1)
-    times = np.linspace(0, time_end, num_times)
+    times = times_on_bridge(c, mv_load, np.linspace(0, time_end, num_times))
 
-    # Avoid times when load has moved off the bridge.
-    def on_bridge_at(time):
-        x_frac = mv_load.x_frac_at(time, c.bridge)
-        return 0 <= x_frac and x_frac <= 1
-
-    times = list(takewhile(on_bridge_at, times))
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_load(
@@ -212,9 +207,10 @@ def animate_mv_load(
         save=save, show=show)
 
 
-def plot_hist(data, bins: int=None, density: bool=True, kde: bool=False,
-              title: str=None, ylabel: str=None, xlabel: str=None,
-              save: str=None, show: bool=False):
+def plot_hist(
+        data, bins: int=None, density: bool=True, kde: bool=False,
+        title: str=None, ylabel: str=None, xlabel: str=None, save: str=None,
+        show: bool=False):
     """Plot a histogram and optionally a KDE of given data."""
     _, x, _ = plt.hist(data, bins=bins, density=density)
     data_kde = stats.gaussian_kde(data)
@@ -227,8 +223,9 @@ def plot_hist(data, bins: int=None, density: bool=True, kde: bool=False,
     if save or show: plt.close()
 
 
-def plot_kde_and_kde_samples_hist(data, samples=5000, title=None, ylabel=None,
-                                  xlabel=None, save=None, show=None):
+def plot_kde_and_kde_samples_hist(
+        data, samples=5000, title=None, ylabel=None, xlabel=None, save=None,
+        show=None):
     """Plot the KDE of given data and a histogram of samples from the KDE."""
     kde = stats.gaussian_kde(data)
     x = np.linspace(data.min(), data.max(), 100)

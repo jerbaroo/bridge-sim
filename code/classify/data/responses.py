@@ -1,19 +1,24 @@
-"""Collect responses from ResponsesMatrix."""
-import numpy as np
+"""Time series of responses to moving loads."""
+from itertools import takewhile
 from typing import List
+
+import numpy as np
 
 from config import Config
 from fem.responses.matrix import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
-from model import *
+from model import MovingLoad, Point, Response, ResponseType
 from model.bridge_705 import bridge_705_config
 from util import *
+
+print_w("TODO: classify.data.responses.response_at_time: implement for vehicle load")
 
 
 def response_at_time(
         c: Config, mv_load: MovingLoad, time: float, at: Point,
-        response_type: ResponseType, fem_runner: FEMRunner):
+        response_type: ResponseType, fem_runner: FEMRunner
+    ) -> Response:
     """The response to a moving load at a given time."""
     if not mv_load.load.is_point_load():
         raise ValueError("Can only calculate response to point load")
@@ -42,14 +47,11 @@ def responses_to_mv_load(
     return result
 
 
-if __name__ == "__main__":
-    c = bridge_705_config()
-    mv_load = MovingLoad(Load(x_frac=0, kn=5000), kmph=20)
-    at = [Point(x_frac) for x_frac in np.linspace(0, 1, 10)]
-    response_type = ResponseType.XTranslation
-    fem_runner = os_runner(c)
+def times_on_bridge(c: Config, mv_load: MovingLoad, times: List[float]):
+    """Return only the times the moving load is on the bridge."""
 
-    responses = responses_to_mv_load(
-        c, mv_load, time_step=0.1, time_end=10, at=at,
-        response_type=response_type, fem_runner=fem_runner)
-    print(responses)
+    def on_bridge_at(time):
+        x_frac = mv_load.x_frac_at(time, c.bridge)
+        return 0 <= x_frac and x_frac <= 1
+
+    return list(takewhile(on_bridge_at, times))

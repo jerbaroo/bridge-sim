@@ -1,4 +1,5 @@
 """Run FEM simulations of bridge 705 with Diana."""
+from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.run import FEMRunner
 from fem.run.diana.build import build_models
@@ -9,8 +10,10 @@ from model import Load
 from model.bridge_705 import bridge_705_config
 
 
-di_runner = FEMRunner(
-    "Diana", build_models, run_model, parse_responses, convert_responses)
+def di_runner(c: Config):
+    return FEMRunner(
+        c, "Diana", build_models, run_model, parse_responses,
+        convert_responses)
 
 
 if __name__ == "__main__":
@@ -27,4 +30,4 @@ if __name__ == "__main__":
             [Load(0.2, 87375)],
             [response_type])
     ])
-    di_runner.run(c, expt_params)
+    di_runner(c).run(expt_params)
