@@ -29,14 +29,14 @@ rebar_color = "red"
 
 
 def sci_format_y_axis(points: int=1):
-    """Format an axis' ticks in scientific style."""
+    """Format y-axis ticks in scientific style."""
 
     class ScalarFormatterForceFormat(ScalarFormatter):
         def _set_format(self):
             self.format = f"%1.{points}f"
 
     plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
-    plt.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
+    plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
 
 def _plot_load_deck_side(bridge: Bridge, load: Load):

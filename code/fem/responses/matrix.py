@@ -1,4 +1,5 @@
 """Responses of one type for a number of related simulations."""
+from __future__ import annotations
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -99,7 +100,7 @@ class ILMatrix(ResponsesMatrix):
 
     @staticmethod
     def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-             num_loads: int=100, save_all: bool=True):
+             num_loads: int=100, save_all: bool=True) -> ILMatrix:
         """Load an ILMatrix from disk, running simulations first if necessary.
 
         Args:

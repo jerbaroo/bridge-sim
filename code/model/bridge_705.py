@@ -8,7 +8,8 @@ def bridge_705_config() -> Config:
         bridge_705,
         vehicle_data_path="data/a16-data/a16.csv",
         vehicle_density=[
-            (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
+            # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
+            (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
         vehicle_intensity=None
     )
 

@@ -7,8 +7,9 @@ from fem.run import FEMRunner, fem_file_path
 from util import *
 
 
-def run_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner,
-              sim_ind: int):
+def run_model(
+        c: Config, expt_params: ExptParams, fem_runner: FEMRunner,
+        sim_ind: int):
     """Run an OpenSees simulation."""
     subprocess.run(
         [c.os_exe_path,

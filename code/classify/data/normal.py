@@ -11,17 +11,16 @@ from model import MovingLoad, Point, ResponseType
 from model.bridge_705 import bridge_705_config
 from vehicles.sample import sample_vehicle
 
-
 Array2D = TypeVar("Array2D")
 
 
 def responses_to_normal_mv_load(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        time_step: float, time_end: float, lane: int, at: List[Point],
+        lane: int, at: List[Point], time_step: float, time_end: float=np.inf,
         noise_stddevs: float=0.1, group_index: Optional[int]=None,
         left_to_right: bool=True
     ) -> Array2D:
-    """Yield time series of responses to a sampled moving load.
+    """The responses to a sampled normal load over a number of time steps.
 
     NOTE: The responses are collected until time_end or until the vehicle is no
         longer on the bridge, whichever comes first.
@@ -41,12 +40,12 @@ def responses_to_normal_mv_load(
     mv_load = MovingLoad.from_vehicle(x_frac=0, vehicle=vehicle, lane=lane)
     num_times = int((time_end / time_step) + 1)
     times = times_on_bridge(c, mv_load, np.linspace(0, time_end, num_times))
-    responses_to_mv_load(c, mv_load, response_type, fem_runner, times, at)
+    r = responses_to_mv_load(c, mv_load, response_type, fem_runner, times, at)
+    print(r.shape)
 
 
 if __name__ == "__main__":
     c = bridge_705_config()
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, 100)]
-    gen = responses_to_normal_mv_load(
-        c, ResponseType.Strain, os_runner(c), 0.1, 10, 0, at)
-    next(gen)
+    resp = responses_to_normal_mv_load(
+        c, ResponseType.Strain, os_runner(c), 0, at, 0.1, 10)

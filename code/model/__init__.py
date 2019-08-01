@@ -102,8 +102,9 @@ class Load:
     def __repr__(self):
         """Human readable representation of this load."""
         load_type = ("point" if self.is_point_load()
-                     else f"{len(self.axle_distances) + 1}-axle")
-        return f"{self.total_kn()} kN, lane {self.lane}, {load_type} load"
+                     else f"{self.num_axles}-axle")
+        units = "kN per axle" if self.is_point_load() else "kN"
+        return f"{load_type}, {self.total_kn():.2f} {units}, lane {self.lane}"
 
     def __str__(self):
         """String uniquely respresenting this load."""
@@ -142,6 +143,7 @@ class MovingLoad:
 
         Args:
             time: float, time in seconds.
+
         """
         delta_frac = (self.mps * time) / bridge.length
         if not self.left_to_right:
@@ -153,11 +155,12 @@ class MovingLoad:
 
         Args:
             time: float, time in seconds.
+
         """
         return bridge.x(self.x_frac_at(time, bridge))
 
     def str_id(self):
-        """String identifying this moving load."""
+        """String ID for this moving load."""
         return f"{str(self.load)}-{self.kmph:.2f}-{self.left_to_right}"
 
 
