@@ -38,7 +38,8 @@ def sci_format_y_axis(points: int=1):
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
 
-def _plot_load_deck_side(bridge: Bridge, load: Load):
+def _plot_load_deck_side(
+        bridge: Bridge, load: Load, normalize_vehicle_height: bool=False):
     xl = load.x_frac * bridge.length
     if load.is_point_load():
         plt.plot(xl, 0, "o", color=load_color)
@@ -46,21 +47,38 @@ def _plot_load_deck_side(bridge: Bridge, load: Load):
     else:
         width = sum(load.axle_distances)
         height = width / 2
+        if normalize_vehicle_height and not load.is_point_load():
+            y_min, y_max = plt.ylim()
+            y_length = np.abs(y_min - y_max)
+            x_min, x_max = plt.xlim()
+            x_length = np.abs(x_min - x_max)
+            width_frac = width / x_length
+            height_frac = (height / width) * width_frac
+            height = height_frac * y_length
         plt.gca().add_patch(patches.Rectangle(
             (xl, 0), width, height, facecolor=load_color))
 
 
-def plot_bridge_deck_side(bridge: Bridge, loads: List[Load]=[], save: str=None,
-                          show: bool=False, equal_axis: bool=True):
-    """Plot the deck of a bridge from the side with optional loads."""
+def plot_bridge_deck_side(
+        bridge: Bridge, loads: List[Load]=[], save: str=None, show: bool=False,
+        equal_axis: bool=True, normalize_vehicle_height: bool=False):
+    """Plot the deck of a bridge from the side with optional loads.
+
+    Args:
+        equal_axis: bool, if true set both axes to have the same scale.
+        normalize_vehicle_height: bool, plot the height of a vehicle relative
+            to the height of the y-axis.
+
+    """
     plt.hlines(0, 0, bridge.length, color=bridge_color)
     plt.plot(
         [f.x_frac * bridge.length for f in bridge.fixed_nodes],
         [0 for _ in range(len(bridge.fixed_nodes))],
         "o", color=pier_color)
-    for load in loads:
-        _plot_load_deck_side(bridge, load)
     if equal_axis: plt.axis("equal")
+    for load in loads:
+        _plot_load_deck_side(
+            bridge, load, normalize_vehicle_height=normalize_vehicle_height)
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
@@ -87,8 +105,9 @@ def plot_bridge_deck_top(bridge: Bridge, loads: List[Load]=[], save: str=None,
     plt.vlines([0, bridge.length], 0, bridge.width, color=bridge_color)
     for lane in bridge.lanes:
         plt.gca().add_patch(
-            patches.Rectangle((0, lane.z0), bridge.length, lane.z1 - lane.z0,
-                              facecolor=lane_color))
+            patches.Rectangle(
+                (0, lane.z0), bridge.length, lane.z1 - lane.z0,
+                facecolor=lane_color))
     for load in loads:
         _plot_load_deck_top(bridge, load)
     plt.axis("equal")
@@ -162,7 +181,9 @@ def animate_bridge_response(
         update_loads(t)
         plt.ylim(top=top, bottom=bottom)
         plt.plot(bridge.x_axis_equi(len(responses[t])), responses[t])
-        plot_bridge_deck_side(bridge, loads=loads, equal_axis=False)
+        plot_bridge_deck_side(
+            bridge, loads=loads, equal_axis=False,
+            normalize_vehicle_height=True)
         sci_format_y_axis()
         plt.title(f"{response_name} at {t * time_step:.1f}s")
         plt.xlabel("x-axis (m)")
