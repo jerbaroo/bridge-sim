@@ -8,6 +8,7 @@ from plot.vehicles import *
 from model import *
 from model.bridge_705 import bridge_705_config
 from util import *
+from vehicles.sample import sample_vehicle
 
 
 def make_bridge_plots(c: Config):
@@ -62,17 +63,18 @@ def make_dc_plots(c: Config):
                 + f"-{response_type_name(response_type)}"))
 
 
-def make_mv_load_animations(c: Config):
-    """Make animations of loads moving across a bridge."""
-    mv_load = MovingLoad(Load(x_frac=0, kn=100), kmph=20)
-    # for response_type in [ResponseType.YTranslation]:
-    for response_type in ResponseType:
-        animate_mv_load(
-            c, mv_load, response_type, os_runner(c),
-            save=pstr(c.image_path(
-                f"animations/-{c.bridge.name}"
-                + f"-{response_type_name(response_type)}-1load"
-                + f"-{mv_load.str_id()}")) + ".mp4")
+def make_normal_mv_load_animations(c: Config):
+    """Make animations of a load moving across a bridge."""
+    mv_load = MovingLoad.from_vehicle(
+        x_frac=0, vehicle=sample_vehicle(c), lane=0)
+    for fem_runner in [os_runner(c)]:
+        for response_type in ResponseType:
+            animate_mv_load(
+                c, mv_load, response_type, fem_runner,
+                save=pstr(c.image_path(
+                    f"animations/{c.bridge.name}-{fem_runner.name}"
+                    + f"-{response_type_name(response_type)}-load"
+                    + f"-{mv_load.str_id()}")).lower() + ".mp4")
 
 
 def make_vehicle_plots(c: Config):
@@ -89,10 +91,10 @@ def make_vehicle_plots(c: Config):
 def make_all(c: Config, clean=True):
     """Make all plots for the thesis."""
     if clean: clean_generated(c)
-    make_bridge_plots(c)
-    make_il_plots(c)
-    make_dc_plots(c)
-    make_mv_load_animations(c)
+    # make_bridge_plots(c)
+    # make_il_plots(c)
+    # make_dc_plots(c)
+    make_normal_mv_load_animations(c)
     make_vehicle_plots(c)
 
 

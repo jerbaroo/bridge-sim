@@ -10,8 +10,7 @@ def bridge_705_config() -> Config:
         vehicle_density=[
             # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
             (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
-        vehicle_intensity=None
-    )
+        vehicle_intensity=None)
 
 
 # TODO: Make into a reusable function.

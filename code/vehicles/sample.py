@@ -108,5 +108,8 @@ def sample_vehicle(
     num_axles = len(axle_distances) + 1
     total_kn = row["total_weight"]
     vehicle = Vehicle(
-        kmph, kn_per_axle=total_kn / num_axles, axle_distances=axle_distances)
+        kmph=kmph,
+        kn_per_axle=total_kn / num_axles,
+        # TODO: Fix units in database.
+        axle_distances=np.array(axle_distances) / 100)
     return (vehicle, sample) if pd_row else vehicle

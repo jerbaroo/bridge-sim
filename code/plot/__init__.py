@@ -14,9 +14,8 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-from classify.responses import times_on_bridge
+from classify.data.responses import responses_to_mv_load, times_on_bridge_
 from config import Config
-from fem.responses.collect import responses_to_mv_load
 from fem.run import FEMRunner
 from model import *
 from util import *
@@ -45,9 +44,10 @@ def _plot_load_deck_side(bridge: Bridge, load: Load):
         plt.plot(xl, 0, "o", color=load_color)
     # A vehicle load.
     else:
+        width = sum(load.axle_distances)
+        height = width / 2
         plt.gca().add_patch(patches.Rectangle(
-            (xl, 0), sum(load.axle_distances), load.axle_width,
-            facecolor=load_color))
+            (xl, 0), width, height, facecolor=load_color))
 
 
 def plot_bridge_deck_side(bridge: Bridge, loads: List[Load]=[], save: str=None,
@@ -187,6 +187,8 @@ def animate_plot(
         writer = FFMpegWriter()
         anim.save(save, writer=writer)
     if show: plt.show()
+    if save or show:
+        plt.close()
 
 
 def animate_mv_load(
@@ -194,14 +196,12 @@ def animate_mv_load(
         fem_runner: FEMRunner, time_step: float=0.1, time_end: float=20,
         num_x_fracs: int=100, save: str=None, show: bool=False):
     """Animate the bridge's response to a moving load."""
-    num_times = int((time_end / time_step) + 1)
-    times = times_on_bridge(c, mv_load, np.linspace(0, time_end, num_times))
-
+    times = times_on_bridge_(
+        c, mv_load, time_step=time_step, time_end=time_end)
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_load(
         c, mv_load, response_type, fem_runner, times, at)
-
     animate_bridge_response(
         c.bridge, responses, time_step, response_type, mv_loads=[mv_load],
         save=save, show=show)

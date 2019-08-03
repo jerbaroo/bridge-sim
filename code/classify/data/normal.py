@@ -38,10 +38,10 @@ def responses_to_normal_mv_load(
     """
     vehicle = sample_vehicle(c, noise_stddevs, group_index)
     mv_load = MovingLoad.from_vehicle(x_frac=0, vehicle=vehicle, lane=lane)
-    num_times = int((time_end / time_step) + 1)
-    times = times_on_bridge(c, mv_load, np.linspace(0, time_end, num_times))
-    r = responses_to_mv_load(c, mv_load, response_type, fem_runner, times, at)
-    print(r.shape)
+    times = times_on_bridge_(
+        c, mv_load, time_step=time_step, time_end=time_end)
+    return responses_to_mv_load(
+        c, mv_load, response_type, fem_runner, times, at)
 
 
 if __name__ == "__main__":

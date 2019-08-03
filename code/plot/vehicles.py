@@ -38,13 +38,13 @@ def group_scatter_plots(
         group_x_label: str=None, group_y_label: str=None,
         cols: int=2, save: str=None, title: str=None):
     """Scatter plots for each group of data and for the full data."""
-    print_d(type(groups))
     # Setup groups, rows and columns.
     num_groups = max(map(lambda x: x[0], groups)) + 1  # + 1 for the 0 index.
-    rows = ceil(num_groups / cols)
+    rows = ceil(num_groups / cols) + 1
     row, col = 0, 0
 
     # Add a wide header plot of all the data.
+    print_d(f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
     plt.subplot2grid((rows, cols), (row, col), colspan=cols)
     plt.scatter(group_x(c.vehicle_data), group_y(c.vehicle_data), s=10)
     if title: plt.title(f"{title} (all data)")
@@ -58,11 +58,14 @@ def group_scatter_plots(
         nonlocal row
         col = 0 if col == cols - 1 else col + 1
         if col == 0: row += 1
+
     row += 1  # For the wide header plot.
     last_i = 0
     for (i, group) in [(int(i), g) for i, g in groups]:
+        print_d(f"i = {i}")
         [add_1() for _ in range(last_i + 1, i)]  # For any empty groups.
         last_i = i
+        print_d(f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
         plt.subplot2grid((rows, cols), (row, col))
         plt.scatter(group_x(group), group_y(group), s=10)
         if title: plt.title(f"{title} (group {i})")
@@ -81,11 +84,11 @@ def plot_length_vs_axles(c: Config, cols: int=2, save: str=None):
     """Plot length vs number of axles for each length group."""
     group_length = lambda group: group["length"] / 100
     group_num_axles = (lambda group:
-        group["weight_per_axle"].apply(lambda s: axle_array_and_count(s)[1]))
+        group["weight_per_axle"].apply(lambda s: len(axle_array_and_count(s))))
     group_scatter_plots(
         c=c, groups=length_groups(c),
-        group_x=group_num_axles, group_y=group_length,
-        group_x_label="number of axles", group_y_label="length (m)",
+        group_y=group_num_axles, group_x=group_length,
+        group_y_label="number of axles", group_x_label="length (m)",
         cols=cols, save=save, title="Vehicle length against number of axles")
 
 
@@ -95,8 +98,8 @@ def plot_length_vs_weight(c: Config, cols: int=2, save: str=None):
     group_weight = lambda group: group["total_weight"]
     group_scatter_plots(
         c=c, groups=length_groups(c),
-        group_x=group_weight, group_y=group_length,
-        group_x_label="weight (kN)", group_y_label="length (m)",
+        group_y=group_weight, group_x=group_length,
+        group_y_label="weight (kN)", group_x_label="length (m)",
         cols=cols, save=save, title="Vehicle length against weight")
 
 
@@ -104,7 +107,7 @@ def plot_weight_vs_axles(c: Config, cols: int=2, save: str=None):
     """Plot length vs number of axles for each length group."""
     group_weight = lambda group: group["total_weight"]
     group_num_axles = (lambda group:
-        group["weight_per_axle"].apply(lambda s: axle_array_and_count(s)[1]))
+        group["weight_per_axle"].apply(lambda s: len(axle_array_and_count(s))))
     group_scatter_plots(
         c=c, groups=length_groups(c),
         group_x=group_weight, group_y=group_num_axles,
