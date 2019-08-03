@@ -1,5 +1,5 @@
 """Time series of responses to normal moving loads."""
-from typing import Iterable, List, Optional, TypeVar
+from typing import Iterable, List, NewType, Optional
 
 import numpy as np
 
@@ -11,7 +11,7 @@ from model import MovingLoad, Point, ResponseType
 from model.bridge_705 import bridge_705_config
 from vehicles.sample import sample_vehicle
 
-Array2D = TypeVar("Array2D")
+Array2D = NewType("Array2D", np.ndarray)
 
 
 def responses_to_normal_mv_load(

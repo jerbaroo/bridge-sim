@@ -173,8 +173,10 @@ def animate_bridge_response(
             for each vehicle axle.
 
     """
-    response_per_axle = isinstance(responses[0][0][0], float)
-    responses_per_load = np.apply_along_axis(sum, axis=3, arr=responses)
+    per_axle = not isinstance(responses[0][0][0], float)
+    responses_per_load = (
+        np.apply_along_axis(sum, axis=3, arr=responses) if per_axle
+        else responses)
     # Find max and min of all responses.
     top, bottom = np.amax(responses_per_load), np.amin(responses_per_load)
     # Ensure top == -bottom, so bridge is vertically centered.
@@ -197,13 +199,8 @@ def animate_bridge_response(
             t_load_responses = responses[i][t]
             x_axis = bridge.x_axis_equi(len(t_load_responses))
 
-            # One response for the moving load. 
-            if isinstance(t_load_responses[0], float):
-                print(type(t_load_responses[0]))
-                plt.plot(x_axis, t_load_responses)
-
-            # A responses per axle and one sum of responses.
-            else:
+            # Plot responses per axle and one sum of responses.
+            if per_axle:
                 for axle in range(mv_loads[i].load.num_axles):
                     print_d(f"axle_num = {axle}")
                     plt.plot(
@@ -213,6 +210,11 @@ def animate_bridge_response(
                 plt.plot(
                     x_axis, responses_per_load[i][t], color=response_color,
                     linewidth=1)
+
+            # Plot one response for the moving load. 
+            else:
+                print(type(t_load_responses[0]))
+                plt.plot(x_axis, t_load_responses)
 
         # Plot the bridge and loads.
         plot_bridge_deck_side(

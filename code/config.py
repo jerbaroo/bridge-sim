@@ -20,7 +20,7 @@ class Config:
         vehicle_data_path: str, path of the vehicle data CSV file.
         vehicle_density: List[Tuple[float, float]], density of vehicles
             below a maximum length in meters.
-
+    
             Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
 
             Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
@@ -59,9 +59,9 @@ class Config:
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(f"Loaded vehicle data from {vehicle_data_path} in"
                 + f" {timer() - start:.2f}s")
-        self.vehicle_density=vehicle_density
-        self.vehicle_intensity=vehicle_intensity
-        self.vehicle_density_col=vehicle_density_col
+        self.vehicle_density = vehicle_density
+        self.vehicle_intensity = vehicle_intensity
+        self.vehicle_density_col = vehicle_density_col
 
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
@@ -79,20 +79,24 @@ class Config:
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 
+        # Response & event recording.
+        self.time_step: float = 0.02  # 50 Hz.
+        self.time_record: float = 1  # 1 second.
+
         # Make directories.
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
         # Responses & influence line.
-        self.fem_responses_path_prefix = os.path.join(
+        self.fem_responses_path_prefix: str = os.path.join(
             self.generated_dir, "responses/responses")
-        self.il_unit_load_kn = 1000
+        self.il_unit_load_kn: float = 1000
 
         # OpenSees.
-        self.os_node_step = 0.2
-        self.os_exe_path = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
-        self.os_model_template_path = "code/model-template.tcl"
+        self.os_node_step: float = 0.2
+        self.os_exe_path: str = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
+        self.os_model_template_path: str = "code/model-template.tcl"
 
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():

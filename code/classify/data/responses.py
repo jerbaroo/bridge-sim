@@ -1,6 +1,6 @@
 """Time series of responses to moving loads."""
 from itertools import takewhile
-from typing import List
+from typing import List, NewType
 
 import numpy as np
 

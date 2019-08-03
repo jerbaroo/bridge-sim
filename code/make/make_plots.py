@@ -1,6 +1,6 @@
 """Make all plots for the thesis."""
 from config import Config
-from fem.responses.matrix import DCMatrix, ILMatrix
+from fem.responses.matrix import DCMatrix, load_il_matrix
 from fem.run.opensees import os_runner
 from plot import *
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
@@ -31,7 +31,7 @@ def make_bridge_plots(c: Config):
 def make_il_plots(c: Config):
     """Make plots of the influence lines."""
     for response_type in ResponseType:
-        il_matrix = ILMatrix.load(
+        il_matrix = load_il_matrix(
             c, response_type, os_runner(c), num_loads=100)
         num_ils, num_x = 10, 100
         imshow_il(c, il_matrix, save=c.image_path(
@@ -67,14 +67,15 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool=False):
     """Make animations of a load moving across a bridge."""
     mv_load = MovingLoad.from_vehicle(
         x_frac=0, vehicle=sample_vehicle(c), lane=0)
+    per_axle_str = f"-peraxle" if per_axle else ""
     for fem_runner in [os_runner(c)]:
         for response_type in ResponseType:
             animate_mv_load(
                 c, mv_load, response_type, fem_runner, per_axle=per_axle,
                 save=pstr(c.image_path(
                     f"animations/{c.bridge.name}-{fem_runner.name}"
-                    + f"-{response_type_name(response_type)}-load"
-                    + f"-{mv_load.str_id()}")).lower() + ".mp4")
+                    + f"-{response_type_name(response_type)}{per_axle_str}"
+                    + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
 
 
 def make_vehicle_plots(c: Config):
@@ -91,10 +92,10 @@ def make_vehicle_plots(c: Config):
 def make_all(c: Config, clean=True):
     """Make all plots for the thesis."""
     if clean: clean_generated(c)
-    # make_bridge_plots(c)
-    # make_il_plots(c)
-    # make_dc_plots(c)
-    # make_normal_mv_load_animations(c)
+    make_bridge_plots(c)
+    make_il_plots(c)
+    make_dc_plots(c)
+    make_normal_mv_load_animations(c)
     make_normal_mv_load_animations(c, per_axle=True)
     make_vehicle_plots(c)
 
