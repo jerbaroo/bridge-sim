@@ -20,11 +20,13 @@ from fem.run import FEMRunner
 from model import *
 from util import *
 
-bridge_color = "green"
-lane_color = "yellow"
-load_color = "red"
-pier_color = "green"
-rebar_color = "red"
+bridge_color = "limegreen"
+lane_color = "gold"
+load_color = "crimson"
+pier_color = "limegreen"
+rebar_color = "crimson"
+response_color = "mediumorchid"
+response_axle_color = "cornflowerblue"
 
 
 def sci_format_y_axis(points: int=1):
@@ -40,6 +42,7 @@ def sci_format_y_axis(points: int=1):
 
 def _plot_load_deck_side(
         bridge: Bridge, load: Load, normalize_vehicle_height: bool=False):
+    """Plot a load on the side of the deck (but don't plot the deck)."""
     xl = load.x_frac * bridge.length
     if load.is_point_load():
         plt.plot(xl, 0, "o", color=load_color)
@@ -161,12 +164,21 @@ def animate_bridge_response(
         bridge: Bridge, responses, time_step: float,
         response_type: ResponseType, mv_loads: List[MovingLoad]=[],
         save: str=None, show: bool=False):
-    """Animate a bridge's response to moving loads."""
+    """Animate a bridge's response to moving loads.
+
+    Args:
+        responses: a 3 or 4 dimensional list. The first index is the load,
+            followed by time, then x position. Then there is either a float
+            representing the response to the load, or a list of responses
+            for each vehicle axle.
+
+    """
+    response_per_axle = isinstance(responses[0][0][0], float)
+    responses_per_load = np.apply_along_axis(sum, axis=3, arr=responses)
     # Find max and min of all responses.
-    top, bottom = np.amax(responses), np.amin(responses)
+    top, bottom = np.amax(responses_per_load), np.amin(responses_per_load)
     # Ensure top == -bottom, so bridge is vertically centered.
     top, bottom = max(top, -bottom), min(bottom, -top)
-
     # Non-moving loads, updated and plotted every timestep.
     loads = [copy.deepcopy(mv_load.load) for mv_load in mv_loads]
 
@@ -175,26 +187,54 @@ def animate_bridge_response(
             loads[i].x_frac = mv_load.x_frac_at(t * time_step, bridge)
             assert 0 <= loads[i].x_frac and loads[i].x_frac <= 1
 
-    response_name = response_type_name(response_type).capitalize()
-
+    # TODO: This should be a global function.
     def plot_bridge_response(t):
         update_loads(t)
         plt.ylim(top=top, bottom=bottom)
-        plt.plot(bridge.x_axis_equi(len(responses[t])), responses[t])
+
+        # Plot responses for each moving load.
+        for i in range(len(mv_loads)):
+            t_load_responses = responses[i][t]
+            x_axis = bridge.x_axis_equi(len(t_load_responses))
+
+            # One response for the moving load. 
+            if isinstance(t_load_responses[0], float):
+                print(type(t_load_responses[0]))
+                plt.plot(x_axis, t_load_responses)
+
+            # A responses per axle and one sum of responses.
+            else:
+                for axle in range(mv_loads[i].load.num_axles):
+                    print_d(f"axle_num = {axle}")
+                    plt.plot(
+                        x_axis, list(map(lambda x: x[axle], t_load_responses)),
+                        color=response_axle_color, linewidth=1)
+                print_d(f"Response per axle")
+                plt.plot(
+                    x_axis, responses_per_load[i][t], color=response_color,
+                    linewidth=1)
+
+        # Plot the bridge and loads.
         plot_bridge_deck_side(
             bridge, loads=loads, equal_axis=False,
             normalize_vehicle_height=True)
         sci_format_y_axis()
+        response_name = response_type_name(response_type).capitalize()
         plt.title(f"{response_name} at {t * time_step:.1f}s")
         plt.xlabel("x-axis (m)")
         plt.ylabel(f"{response_name} ({response_type_units(response_type)})")
+        plt.gcf().set_size_inches(16, 10)
 
-    animate_plot(len(responses), plot_bridge_response, save, show)
+    print_w(f"num time steps = {len(responses[0])}")
+    print_w(f"interval = {time_step}")
+    print_w(f"total time = {len(responses[0]) * time_step}")
+    animate_plot(
+        len(responses[0]), plot_bridge_response, time_step, save, show)
 
 
 def animate_plot(
-        frames: int, plot: Callable[[int], None], save: str=None,
-        show: bool=True):
+        frames: int, plot: Callable[[int], None], time_step: float,
+        save: str=None, show: bool=True):
     """Generate an animation with given plotting function."""
 
     def animate(t):
@@ -203,7 +243,7 @@ def animate_plot(
         plot(t)
 
     plot(0)
-    anim = FuncAnimation(plt.gcf(), animate, frames, interval=1)
+    anim = FuncAnimation(plt.gcf(), animate, frames, interval=time_step * 1000)
     if save:
         writer = FFMpegWriter()
         anim.save(save, writer=writer)
@@ -215,16 +255,17 @@ def animate_plot(
 def animate_mv_load(
         c: Config, mv_load: MovingLoad, response_type: ResponseType,
         fem_runner: FEMRunner, time_step: float=0.1, time_end: float=20,
-        num_x_fracs: int=100, save: str=None, show: bool=False):
+        num_x_fracs: int=100, per_axle: bool=False, save: str=None,
+        show: bool=False):
     """Animate the bridge's response to a moving load."""
     times = times_on_bridge_(
         c, mv_load, time_step=time_step, time_end=time_end)
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_load(
-        c, mv_load, response_type, fem_runner, times, at)
+        c, mv_load, response_type, fem_runner, times, at, per_axle=per_axle)
     animate_bridge_response(
-        c.bridge, responses, time_step, response_type, mv_loads=[mv_load],
+        c.bridge, [responses], time_step, response_type, mv_loads=[mv_load],
         save=save, show=show)
 
 

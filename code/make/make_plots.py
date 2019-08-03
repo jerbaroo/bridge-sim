@@ -63,14 +63,14 @@ def make_dc_plots(c: Config):
                 + f"-{response_type_name(response_type)}"))
 
 
-def make_normal_mv_load_animations(c: Config):
+def make_normal_mv_load_animations(c: Config, per_axle: bool=False):
     """Make animations of a load moving across a bridge."""
     mv_load = MovingLoad.from_vehicle(
         x_frac=0, vehicle=sample_vehicle(c), lane=0)
     for fem_runner in [os_runner(c)]:
         for response_type in ResponseType:
             animate_mv_load(
-                c, mv_load, response_type, fem_runner,
+                c, mv_load, response_type, fem_runner, per_axle=per_axle,
                 save=pstr(c.image_path(
                     f"animations/{c.bridge.name}-{fem_runner.name}"
                     + f"-{response_type_name(response_type)}-load"
@@ -94,7 +94,8 @@ def make_all(c: Config, clean=True):
     # make_bridge_plots(c)
     # make_il_plots(c)
     # make_dc_plots(c)
-    make_normal_mv_load_animations(c)
+    # make_normal_mv_load_animations(c)
+    make_normal_mv_load_animations(c, per_axle=True)
     make_vehicle_plots(c)
 
 

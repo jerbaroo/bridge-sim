@@ -1,5 +1,4 @@
 """Responses of one type for a number of related simulations."""
-from __future__ import annotations
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -98,44 +97,6 @@ class DCMatrix(ResponsesMatrix):
 class ILMatrix(ResponsesMatrix):
     """Responses of one sensor type for influence line simulations."""
 
-    @staticmethod
-    def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-             num_loads: int=100, save_all: bool=True) -> ILMatrix:
-        """Load an ILMatrix from disk, running simulations first if necessary.
-
-        Args:
-            response_type: ResponseType, the type of sensor response to load.
-            fem_runner: FEMRunner, the FEM program to run simulations with.
-            num_loads: int, the number of equidistant positions to apply load.
-            save_all: bool, save all response types when running a simulation.
-
-        """
-
-        def il_matrix_id() -> str:
-            return (f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
-                    + f"-{num_loads}")
-
-        # Return ILMatrix if already calculated.
-        id_ = il_matrix_id()
-        if id_ in c.il_matrices:
-            return c.il_matrices[id_]
-
-        # Determine simulation parameters.
-        # If save_all is true pass all response types.
-        response_types=(
-            [rt for rt in ResponseType] if save_all else [response_type])
-        expt_params = ExptParams([
-            FEMParams(
-                loads=[Load(x_frac, c.il_unit_load_kn)],
-                response_types=response_types)
-            for x_frac in np.linspace(0, 1, num_loads)])
-
-        # Calculate ILMatrix, keep a reference and return.
-        c.il_matrices[id_] = ILMatrix(
-            c, response_type, expt_params, fem_runner.name,
-            load_expt_responses(c, expt_params, response_type, fem_runner))
-        return c.il_matrices[id_]
-
     def response_to(self, resp_x_frac, load_x_frac, load, y=0, z=0, t=0):
         """The response value at a position to a load at a position.
 
@@ -150,3 +111,42 @@ class ILMatrix(ResponsesMatrix):
         response = self.response_(resp_x_frac, load_x_frac, y=z, z=z, t=t)
         # print_d(f"resp_x_frac = {resp_x_frac}, load_x_frac = {load_x_frac}, load = {load}")
         return (response.value * (load / self.c.il_unit_load_kn))
+
+
+def load_il_matrix(
+        c: Config, response_type: ResponseType, fem_runner: FEMRunner,
+        num_loads: int=100, save_all: bool=True) -> ILMatrix:
+    """Load an ILMatrix from disk, running simulations first if necessary.
+
+    Args:
+        response_type: ResponseType, the type of sensor response to load.
+        fem_runner: FEMRunner, the FEM program to run simulations with.
+        num_loads: int, the number of equidistant positions to apply load.
+        save_all: bool, save all response types when running a simulation.
+
+    """
+
+    def il_matrix_id() -> str:
+        return (f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
+                + f"-{num_loads}")
+
+    # Return ILMatrix if already calculated.
+    id_ = il_matrix_id()
+    if id_ in c.il_matrices:
+        return c.il_matrices[id_]
+
+    # Determine simulation parameters.
+    # If save_all is true pass all response types.
+    response_types=(
+        [rt for rt in ResponseType] if save_all else [response_type])
+    expt_params = ExptParams([
+        FEMParams(
+            loads=[Load(x_frac, c.il_unit_load_kn)],
+            response_types=response_types)
+        for x_frac in np.linspace(0, 1, num_loads)])
+
+    # Calculate ILMatrix, keep a reference and return.
+    c.il_matrices[id_] = ILMatrix(
+        c, response_type, expt_params, fem_runner.name,
+        load_expt_responses(c, expt_params, response_type, fem_runner))
+    return c.il_matrices[id_]
