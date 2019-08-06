@@ -16,28 +16,29 @@ Array2D = NewType("Array2D", np.ndarray)
 
 def responses_to_normal_mv_load(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        lane: int, at: List[Point], time_step: float, time_end: float=np.inf,
-        noise_stddevs: float=0.1, group_index: Optional[int]=None,
-        left_to_right: bool=True
+        lane: int, at: List[Point], group_index: Optional[int]=None,
+        l_to_r: bool=True
     ) -> Array2D:
     """The responses to a sampled normal load over a number of time steps.
 
-    NOTE: The responses are collected until time_end or until the vehicle is no
-        longer on the bridge, whichever comes first.
+    Indexed first by time and then by sensor position. The responses are
+    collected until time_end or until the vehicle is no longer on the bridge,
+    whichever comes first.
 
     Args:
         c: Config, simulation configuration.
         response_type: ResponseType, type of the response to collect.
         fem_runner: FEMRunner, program the run the FEM simulation.
-        time_step: float, interval between recording responses.
-        time_end: float, max time to record responses, recording is also
-            stopped if the vehicle is no longer on the bridge.
         lane: int, index of the lane on the bridge.
         at: List[Point], points at which to collect responses.
+        group_index: Optional[int], if given sample from that group index.
+        l_to_r: bool, direction of the vehicle, left to right or opposite.
+     
 
     """
-    vehicle = sample_vehicle(c, noise_stddevs, group_index)
-    mv_load = MovingLoad.from_vehicle(x_frac=0, vehicle=vehicle, lane=lane)
+    vehicle = sample_vehicle(c, group_index)
+    mv_load = MovingLoad.from_vehicle(
+        x_frac=0, vehicle=vehicle, lane=lane, l_to_r=l_to_r)
     times = times_on_bridge_(
         c, mv_load, time_step=time_step, time_end=time_end)
     return responses_to_mv_load(

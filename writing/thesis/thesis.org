@@ -1,7 +1,9 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Building an extensible decision support system for bridge maintenance
+#+TITLE: An extensible decision support system for bridge maintenance
+#+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \usepackage[backend=bibtex,style=alphabetic,citestyle=authoryear]{biblatex}
 #+LATEX_HEADER: \addbibresource{thesis-bib-refs.bib}
+#+LATEX_HEADER: \newcommand{\code}{\texttt}
 
 * Introduction
    # Introduction of the research question/title.
@@ -78,13 +80,16 @@
    includes the model and a cost-benefit analysis is presented of the system.
    Finally (stretch-goal) an investigation is conducted into how such a system
    can be generalized to bridges other than bridge 705.
-
-* Literature review
+* Abbreviations and terminology
+* Related material
   This section contains a review of the most relevant material studied during
-  this thesis work. The aim of presenting a review of this material is to place
-  this thesis in context and to provide background information to the reader on
-  techniques that are employed in this thesis. After reviewing the most relevant
-  material this section closes with a more general overview of related material.
+  this thesis work. The section begins with an overview of related works
+  followed by a more in-depth look at the most relevant material. The aim of
+  this section is to place the thesis in context and to provide background
+  information to the reader on employed techniques. The section concludes by
+  relating the reviewed material back to this thesis.
+** An overview
+   \textcolor{red}{TODO: overview of related works}
 ** The application of machine learning to structural health monitoring
    # Introduction.
    cite:worden2006application illustrates the utility of a data-driven approach
@@ -385,114 +390,193 @@
    #+ATTR_LATEX: :width 200pt
    [[../images/shb-71-joint-map.png]]
 
-** Conclusion
-* Methods
-  # How the classification model was built.
-  # Why simulated responses and how they are simulated.
-** Simulated responses
-  # What data is neccessary and how it was collected.
-*** Neccessary data
-  # How the FEM is used to simulate sensor measurements.
-*** Finite element model
-  # How the simulated responses compare to reality.
-*** Collected data
-*** Data analysis
-** Damage identification
-   # Section overview.
-   In this section the process of building the damage identification model is
-   described. First there is an introduction to the damage scenarios that it is
-   desirable for the model to identify, followed by a description of the setup
-   for testing iterations of the model. After this an analysis is presented of
-   the sensor responses with respect to the useful information in different
-   sensor types for each damage scenario. Finally the damage identification
-   model that is built is discussed.
-*** Damage scenarios
-    # TODO: verify content when Leziria bridge document is published.
-    # Outline of short-term and long-term events.
-    The goal of the damage identification model is to identify damage in a
-    number of selected damage scenarios. Damage scenarios can be classified as
-    short-term or long-term events. Short-term events are defined as a change of
-    the properties of structural materials and elements, and of the behaviour of
-    the whole structure, due to effects that occur during a very short period of
-    time. Long-term events are time-dependent and may not only be related to
-    external factors but also due to a change of state of materials with time.
-    Tables [[table:short-term-events]] and [[table:long-term-events]] cite:sousa2019tool
-    outline some of the predominant types of damage due to short-term and
-    long-term events respectively.
+** DSS
+   \textcolor{red}{TODO: Overview of bridge DSS}
+** Summary
+   \textcolor{red}{TODO: conclude the literature review}
+* Simulated responses
+  This section discusses how simulated sensor responses are collected. The
+  section begins with a description of the FE programs used to run simulations,
+  followed by an overview of the system engineered for data collection. The goal
+  of running these simulations is to collect responses from sensors distributed
+  across the bridge under a number of labelled damage scenarios, including the
+  undamaged scenario. For each damage scenario, vehicles are sampled from a data
+  source that represents the expected vehicles on the bridge. The vehicles are
+  "driven" over the bridge and responses collected under different damage
+  scenarios. The final parts of this section discuss the vehicle data and how
+  the different damage scenarios are simulated.
+** Finite element programs
+   # Two finite element programs.
+   Two FE programs are used for the collection of sensor responses, OpenSees
+   (cite:mazzoni2006opensees) and DIANA (cite:diana2019diana). OpenSees is used
+   because it is open source software, such that anyone can download and use the
+   software without a licence. On the other hand is proprietary software, if you
+   want to do research with Diana a licence must be purchased. The reason Diana
+   is supported is because a verified 3D FEM of bridge 705 is available for
+   Diana. In this thesis the Diana FEM is used in limited capacity for the
+   verification of results obtained via OpenSees. The focus is instead on
+   OpenSees because it is software that anyone with a laptop can use for free to
+   extend this research. In addition it is useful to have two FE programs
+   available, one (OpenSees) can be used to run less accurate but faster 2D FE
+   simulations, allowing for a more rapid research cycle. The results can then
+   be compared and verified against results from more accurate but also more
+   computationally expensive 3D FE simulations (Diana). It is noted that the 2D
+   model will ignore some aspects in the transverse direction of the bridge
+   deck. For example the 3D model of bridge 705 has two lanes, but the 2D model
+   ignores the concept of lanes entirely.
+  
+   # OpenSees.
+   OpenSees stands for the /Open Sysem for Earthquake Engineering Simulation/,
+   it is "an open source software framework for creating applications for the
+   nonlinear analysis of structural and soil systems using either a standard FEM
+   or an FE reliability analysis. It is object-oriented by design and—in
+   addition to achieving computationally efficiency—it’s designed to be
+   flexible, extensible, and portable" cite:mckenna2011opensees.
+   
+   # DIANA.
+   DIANA (\textbf{DI}splacement \textbf{ANA}lyzer) is developed by DIANA FEA BV
+   which is a spin-off company from the Computational Mechanics department of
+   TNO Building and Conctruction Research Institute in Delft, The Netherlands.
+   DIANA is a FE software package that is dedicated to problems in civil
+   engineering, inlcuding structural, geotechnical, tunnelling, earthquake and
+   oil & gas.
+   
+   \textcolor{red}{TODO: Image of the 705 Diana model.}
+** Data collection system
+   # Purpose of the system and included types.
+   A maintainable and extensible system was engineered for the purpose of data
+   collection. At the center of this system is a programatic model of the
+   problem domain. The model includes the types \code{Vehicle}, \code{Load},
+   \code{MovingLoad}, \code{Lane, \code{Fix}, \code{Bridge}, \code{Section},
+   \code{Patch}, \code{Layer}, \code{Material}, \code{Response} and
+   \code{ResponseType}. These types are used to model traffic, bridges and
+   sensor responses.
+  
+   # Parameters and modeling a bridge.
+   The data collection system is parameterized by the traffic on the bridge and
+   a specification of a bridge itself. A bridge is modeled by length, width,
+   \code{Fix}es, \code{Lane}s, and \code{Patch}es and\code{Layer}s that are
+   combined to form a \code{Section}. The \code{Fix}es are used to define fixed
+   nodes of the FEM which represent a bridge's piers. The \code{Lane}s define
+   where vehicles are "driven" along in simulation. A \code{Section} determines
+   the cross-sectional area of the bridge in terms of \code{Patch}es
+   (rectangular patches with a number of fibers) and \code{Layer}s (a number of
+   fibers along a line). Listing [[lst:bridge-705]] shows the programatic
+   specification of bridge 705. Figure [[fig:bridge-705-spec]] shows the bridge that
+   is modeled based on the specification.
+      
+   #+NAME: lst:bridge-705
+   #+BEGIN_SRC python
+     bridge_705 = Bridge(
+         length=102,
+         width=33.2,
+         lanes=[Lane(4, 12.4), Lane(20.8, 29.2)],
+         spans=[12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75],
+         cross=Section(...)
+     )
+   #+END_SRC
+   
+   #+CAPTION: Cross section of bridge 705.
+   #+NAME: fig:bridge-705-spec
+   [[../images/bridge-705-spec.png]]
+   
+   # Modelling traffic.
+   A vehicle is represented by a number of variables.
+** Vehicle data
+   To train a classifier to distinguish between normal and abnormal traffic
+   conditions it is necessary to define normal traffic conditions.
+** Damage scenarios
+   # TODO: verify content when Leziria bridge document is published.
+   # Outline of short-term and long-term events.
+   The goal of the damage identification model is to identify damage in a number
+   of selected damage scenarios. Damage scenarios can be classified as
+   short-term or long-term. Short-term events are defined as a change of the
+   properties of structural materials and elements, and of the behaviour of the
+   whole structure, due to effects that occur during a very short period of
+   time. Long-term events are time-dependent and may not only be related to
+   external factors but also due to a change of state of materials with time.
+   Tables [[table:short-term-events]] and [[table:long-term-events]] cite:sousa2019tool
+   outline some of the predominant types of damage due to short-term and
+   long-term events respectively.
     
-    # TODO: Use table.el to fix tables.
-    #+NAME: table:short-term-events
-    #+CAPTION: Types of damage due to short-term events.
-    | Event                       | Examples/Consequences                                                        | Critical component |
-    |-----------------------------+------------------------------------------------------------------------------+--------------------|
-    | Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
-    | Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
-    | Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
-    | Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
-    | Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
-    | Excessive vibration         | Earthquake                                                                   | Pier               |
-    | Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
+   \textcolor{red}{TODO: Use table.el to fix tables}
+   #+NAME: table:short-term-events
+   #+CAPTION: Types of damage due to short-term events.
+   | Event                       | Examples/Consequences                                                        | Critical component |
+   |-----------------------------+------------------------------------------------------------------------------+--------------------|
+   | Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
+   | Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
+   | Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
+   | Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
+   | Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
+   | Excessive vibration         | Earthquake                                                                   | Pier               |
+   | Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
 
-    #+NAME: table:long-term-events
-    #+CAPTION: Types of damage due to long-term events.
-    | Event                        | Examples/Consequences                                  | Critical component |
-    |------------------------------+--------------------------------------------------------+--------------------|
-    | Corrosion                    | Degradation of the bearings                            | Deck               |
-    |                              | Loss of cross-section area in the prestressing tendons | Deck               |
-    | Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
-    | the structural materials     | Concrete deterioration                                 | All                |
-    | Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
-    | fatigue                      |                                                        |                    |
-    | High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
-    | fatigue                      |                                                        |                    |
-    | Environmental effects        | Freezing water leading to concrete expansion           | All                |
-    | Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
-    |                              | degradation in the zone of the tendon anchorages       | Deck               |
-    | Pier settlement              | Change in the soil properties                          | Deck               |
+   #+NAME: table:long-term-events
+   #+CAPTION: Types of damage due to long-term events.
+   | Event                        | Examples/Consequences                                  | Critical component |
+   |------------------------------+--------------------------------------------------------+--------------------|
+   | Corrosion                    | Degradation of the bearings                            | Deck               |
+   |                              | Loss of cross-section area in the prestressing tendons | Deck               |
+   | Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
+   | the structural materials     | Concrete deterioration                                 | All                |
+   | Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
+   | fatigue                      |                                                        |                    |
+   | High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
+   | fatigue                      |                                                        |                    |
+   | Environmental effects        | Freezing water leading to concrete expansion           | All                |
+   | Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
+   |                              | degradation in the zone of the tendon anchorages       | Deck               |
+   | Pier settlement              | Change in the soil properties                          | Deck               |
     
-  Of the damage scenarios listed in Tables [[table:short-term-events]] and
-  [[table:long-term-events]], four scenarios are selected for identification by the
-  DIM in addition to one unlisted damage scenario. These scenarios are chosen
-  due to the practicality of simulating them in a FEM of bridge 705.
+ Of the damage scenarios listed in Tables [[table:short-term-events]] and
+ [[table:long-term-events]], four scenarios are selected for identification by the
+ DIM in addition to one unlisted damage scenario. These scenarios are chosen
+ due to the practicality of simulating them in a FEM of bridge 705.
 
-  /Pier settlement/ can be simulated by displacing a pier by a fixed amount,
-  this is achieved in practice by applying an increasing vertical force known as
-  a /displacement load/ to the deck until the desired displacement is achieved.
+ /Pier settlement/ can be simulated by displacing a pier by a fixed amount,
+ this is achieved in practice by applying an increasing vertical force known as
+ a /displacement load/ to the deck until the desired displacement is achieved.
   
-  /Abnormal loading conditions/ can be simulated relatively easily by applying
-  the heavy loads in the FE simulation. Care must be taken regarding the axle
-  configuration because extreme heavy loads typically have a different axle
-  configuration than less heavy vehicles.
+ /Abnormal loading conditions/ can be simulated relatively easily by applying
+ the heavy loads in the FE simulation. Care must be taken regarding the axle
+ configuration because extreme heavy loads typically have a different axle
+ configuration than less heavy vehicles.
   
-  /Cracked concrete/ can be simulated by reducing the value of Young's modulus
-  for the cracked concrete section. In practice, Young's modulus is often
-  reduced to $\frac{1}{3}$ of its original value (cite:li2010predicting).
+ /Cracked concrete/ can be simulated by reducing the value of Young's modulus
+ for the cracked concrete section. In practice, Young's modulus is often
+ reduced to $\frac{1}{3}$ of its original value (cite:li2010predicting).
   
-  /Corrosion/ of the reinforment bars can be simulated by increasing the size of
-  the reinforcement bars TODO:WHY. Finally, a damage scenario is considered
-  where it is not the bridge that is damaged but rather a sensor is
-  malfunctioning.
+ /Corrosion/ of the reinforment bars can be simulated by increasing the size of
+ the reinforcement bars TODO:WHY. Finally, a damage scenario is considered
+ where it is not the bridge that is damaged but rather a sensor is
+ malfunctioning.
 
-  A /malfunctioning sensor/ can be simulated by adding a significant amount of
-  noise to the simulated sensor responses or adding a constant offset to the
-  responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
-  malfunctioning sensors is useful to accomplish.
+ A /malfunctioning sensor/ can be simulated by adding a significant amount of
+ noise to the simulated sensor responses or adding a constant offset to the
+ responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
+ malfunctioning sensors is useful to accomplish.
 
-  # How to test/score the models.
-*** Test setup
-*** Data analysis
-*** Damage identification model
-    # The model used for classification.
-** Decision support system
-*** Sensor placement
-    # The optimal placement for classification.
-*** Cost-benefit analysis
-*** Uncertainty
-    # What is the uncertainty in the system.
-* Results
-** Simulated responses
-** Damage identification
-** Decision support system
+ # How to test/score the models.
+** Collected data
+* Damage identification
+  # Section overview.
+  In this section the process of building the damage identification model is
+  described. First there is an introduction to the damage scenarios that it is
+  desirable for the model to identify, followed by a description of the setup
+  for testing iterations of the model. After this an analysis is presented of
+  the sensor responses with respect to the useful information in different
+  sensor types for each damage scenario. Finally the damage identification model
+  that is built is discussed.
+** Feature extraction
+** Test setup
+** Data analysis
+** Damage identification model
+* Decision support system
+** Sensor placement
+** Cost-benefit analysis
+** Uncertainty
+** Generalizability
 * Conclusion
 
 \printbibliography

@@ -1,5 +1,7 @@
 """Sample vehicles from the vehicle data."""
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
+
+import pandas as pd
 
 from config import Config
 from model import *
@@ -47,20 +49,21 @@ def noise_per_column(c: Config, col_names: List[str]):
 
 
 def sample_vehicle(
-        c: Config, noise_stddevs: float=0.1, init_group_index: int=None,
+        c: Config, group_index: int=None,
         noise_col_names: List[str]=noise_col_names, pd_row: bool=False
-    ) -> Vehicle:
+    ) -> Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
     """Return a sample vehicle from a c.vehicle_density group.
 
     Args:
         c: Config, config from which to load vehicle data and density info.
-        noise_std: float, standard deviation of noise added per column.
         init_group_index: int, sample from a given group index or all (None).
         noise_col_names: List[str], a list of columns to apply noise to.
+        pd_row: bool, if true return a tuple of Vehicle and the corresponding
+            row from the Pandas DataFrame, else just the Vehicle.
 
     """
     # Select a group based on density, if none given.
-    if init_group_index is None:
+    if group_index is None:
         rand = np.random.uniform()
         min, max = 0, c.vehicle_density[-1][0]
         print_d(f"rand = {rand}")
@@ -86,17 +89,17 @@ def sample_vehicle(
     print(f"group = {type(group)}")
     if group is None:
         print_w(f"Sampled group is None, resampling...")
-        return sample_vehicle(c, noise_stddevs, init_group_index)
+        return sample_vehicle(c, init_group_index)
     sample = c.vehicle_data.loc[group.sample().index]
 
     # Add noise to the sample if requested.
-    if noise_stddevs:
+    if c.noise_stddevs:
         for col_name, (_, stddev) in zip(
                 noise_col_names, noise_per_column(c, noise_col_names)):
             print_d(
                 f"col_name = {col_name}, stddev = {stddev:.2f},"
-                + f"{noise_stddevs} x stddev = {noise_stddevs * stddev:.2f}")
-            noise = np.random.normal(loc=0, scale=noise_stddevs * stddev)
+                + f"{c.noise_stddevs} x stddev = {c.noise_stddevs * stddev:.2f}")
+            noise = np.random.normal(loc=0, scale=c.noise_stddevs * stddev)
             print_d(f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
             print_d(f"after =\n{sample[col_name]}")

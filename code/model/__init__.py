@@ -117,26 +117,24 @@ class MovingLoad:
     Args:
         load: Load, the load that is moving.
         kmph: float, the load's initial speed in kilometers per hour.
-        left_to_right: bool, the direction of the load on the bridge.
+        l_to_r: bool, the direction of the load on the bridge.
 
     """
-    def __init__(self, load: Load, kmph: float, left_to_right: bool=True):
+    def __init__(self, load: Load, kmph: float, l_to_r: bool=True):
         self.load = load
         self.kmph = kmph
         self.mps = self.kmph / 3.6
-        self.left_to_right = left_to_right
+        self.l_to_r = l_to_r
 
     @staticmethod
     def from_vehicle(
-            x_frac: float, vehicle: Vehicle, lane: int,
-            left_to_right: bool=True):
+            x_frac: float, vehicle: Vehicle, lane: int, l_to_r: bool=True):
         """Construct a Load from a Vehicle."""
         load = Load(
             x_frac=x_frac, kn=vehicle.kn_per_axle, lane=lane,
             axle_distances=vehicle.axle_distances,
             axle_width=vehicle.axle_width, quadim=vehicle.quadim)
-        return MovingLoad(
-            load=load, kmph=vehicle.kmph, left_to_right=left_to_right)
+        return MovingLoad(load=load, kmph=vehicle.kmph, l_to_r=l_to_r)
 
     def x_frac_at(self, time: float, bridge: Bridge):
         """Fraction of bridge length after given time.
@@ -146,7 +144,7 @@ class MovingLoad:
 
         """
         delta_frac = (self.mps * time) / bridge.length
-        if not self.left_to_right:
+        if not self.l_to_r:
             delta_frac *= -1
         return self.load.x_frac + delta_frac
 
@@ -161,7 +159,7 @@ class MovingLoad:
 
     def str_id(self):
         """String ID for this moving load."""
-        return f"{str(self.load)}-{self.kmph:.2f}-{self.left_to_right}"
+        return f"{str(self.load)}-{self.kmph:.2f}-{self.l_to_r}"
 
 
 class DisplacementCtrl:

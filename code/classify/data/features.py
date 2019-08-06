@@ -1,7 +1,8 @@
-"""Extract features from time series of responses."""
-from typing import List, NewType
+"""Extract features from a time series of responses."""
+from typing import Callable, List, NewType, Tuple, Union
 
 from config import Config
+from util import *
 
 # A time series of responses after a trigger.
 Event = NewType("Event", List[float]) 
@@ -14,7 +15,8 @@ class Trigger:
     """A method of deciding when to start and stop recording an event."""
     def __init__(
             self, name: str, description: str,
-            trigger: start[[TimeSeries], bool]):
+            start: Callable[[TimeSeries], bool],
+            end: Callable[[TimeSeries], bool]):
         self.name = name
         self.description = description
         self.start = start
@@ -26,13 +28,14 @@ def abs_threshold_trigger(threshold: float) -> Trigger:
     return Trigger(
         f"abs-threshold-{threshold:.2f}",
         f"When |response| exceeds {threshold:.2f}",
-        lambda xs: abs(x[-1]) > threshold,
-        lambda xs: abs(x[-1]) < threshold)
+        lambda xs: abs(xs[-1]) > threshold,
+        lambda xs: abs(xs[-1]) < threshold)
 
 
-def events(
+def events_from_time_series(
         c: Config, trigger: Trigger, time_series: TimeSeries,
-        with_time: bool=False) -> Union[List[Event], List[Tuple[Event, int]]]:
+        with_time: bool=False
+    ) -> Union[List[Event], Tuple[List[Event], List[int]]]:
     """Return all events found in a time series of responses.
 
     Args:
@@ -46,20 +49,29 @@ def events(
     event_start_times = []
     event_start_time = None
     event_recording = False
-    event_max_length = c.time_record / c.time_step + 1
+    event_max_length = c.time_end / c.time_step + 1
     for t in range(len(time_series)):
         time_series_so_far = time_series[:t + 1]
         if event_recording:
-            if (t - event_start_time > c.time_record
+            if (t * c.time_step - event_start_time * c.time_step > c.time_end
                     or trigger.end(time_series_so_far)):
-                events.append(time_series[event_start_time:])
+                events.append(time_series_so_far[event_start_time:])
+                event_start_times.append(event_start_time)
+                print_d(f"t - event_start_time = {t - event_start_time}")
+                print_d(f"c.time_end = {c.time_end}")
+                print_d(f"trigger end = {trigger.end(time_series_so_far)}")
+                print_d(f"len events = {len(events)}")
+                print_d(f"len event start times = {len(event_start_times)}")
                 event_recording = False
         # Not recording.
         else:
             if trigger.start(time_series_so_far):
                 event_start_time = t
-                event_start_times.append(t)
                 event_recording = True
+        print(f"t = {t}, value = {time_series[t]}, recording = {event_recording}")
+    if event_recording:
+        events.append(time_series_so_far[event_start_time:])
+        event_start_times.append(event_start_time)
     if with_time:
-        return zip(events, event_start_times)
+        return events, event_start_times
     return events

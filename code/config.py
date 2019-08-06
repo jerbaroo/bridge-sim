@@ -33,6 +33,9 @@ class Config:
         generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
+        time_step: float, time interval between recording sensor responses.
+        time_end: float, maximum time to record an event, may end earlier.
+        noise_stddevs: float, standard deviation of noise to perturb a column.
         fem_responses_path_prefix: str, prefix of where to save responses.
         il_unit_load_kn: float, unit load to place on the bridge in kN.
         os_node_step: float, distance between two OpenSees nodes in meters.
@@ -81,7 +84,8 @@ class Config:
 
         # Response & event recording.
         self.time_step: float = 0.02  # 50 Hz.
-        self.time_record: float = 1  # 1 second.
+        self.time_end: float = 1  # 1 second.
+        self.noise_stddevs: float = 0.1
 
         # Make directories.
         for directory in [self.generated_dir, self.images_dir]:

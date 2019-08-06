@@ -51,7 +51,7 @@ def responses_to_mv_load(
         per_axle: bool=False):
     """The responses to a load for a number of time steps.
 
-    Returns a numpy array of shape (len(times), len(at)) or if per_axle if
+    Returns a numpy array of shape (len(times), len(at)) or if per_axle is
     True then a numpy array of shape(len(times), len(at), number of axles).
 
     Args:
@@ -87,9 +87,7 @@ def times_on_bridge(
     return list(takewhile(on_bridge_at, times))
 
 
-def times_on_bridge_(
-        c: Config, mv_load: MovingLoad, time_step: float=0.05,
-        time_end: float=20) -> List[float]:
+def times_on_bridge_(c: Config, mv_load: MovingLoad) -> List[float]:
     """Return only the times the moving load is on the bridge."""
-    num_times = int((time_end / time_step) + 1)
-    return times_on_bridge(c, mv_load, np.linspace(0, time_end, num_times))
+    num_times = int((c.time_end / c.time_step) + 1)
+    return times_on_bridge(c, mv_load, np.linspace(0, c.time_end, num_times))

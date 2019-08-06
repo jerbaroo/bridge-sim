@@ -3,6 +3,7 @@ from config import Config
 from fem.responses.matrix import DCMatrix, load_il_matrix
 from fem.run.opensees import os_runner
 from plot import *
+from plot.features import plot_normal_threshold_distribution
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.vehicles import *
 from model import *
@@ -79,6 +80,7 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool=False):
 
 
 def make_vehicle_plots(c: Config):
+    """Plot vehicle information based on Config.vehicle_density."""
     plot_density(c, save=c.image_path(
         f"vehicles/{c.bridge.name}-density"))
     plot_length_vs_axles(c, save=c.image_path(
@@ -89,15 +91,24 @@ def make_vehicle_plots(c: Config):
         f"vehicles/{c.bridge.name}-weight-vs-axles"))
 
 
+def make_threshold_plots(c: Config):
+    """Plot threshold information."""
+    for response_type in [ResponseType.YTranslation]:
+        plot_normal_threshold_distribution(
+            c, response_type, os_runner(c), at=Point(x=c.bridge.x(0.4)),
+            num_loads=100, num_thresholds=1000)
+
+
 def make_all(c: Config, clean=True):
     """Make all plots for the thesis."""
     if clean: clean_generated(c)
-    make_bridge_plots(c)
-    make_il_plots(c)
-    make_dc_plots(c)
-    make_normal_mv_load_animations(c)
-    make_normal_mv_load_animations(c, per_axle=True)
-    make_vehicle_plots(c)
+    # make_bridge_plots(c)
+    # make_il_plots(c)
+    # make_dc_plots(c)
+    # make_normal_mv_load_animations(c)
+    # make_normal_mv_load_animations(c, per_axle=True)
+    # make_vehicle_plots(c)
+    make_threshold_plots(c)
 
 
 if __name__ == "__main__":

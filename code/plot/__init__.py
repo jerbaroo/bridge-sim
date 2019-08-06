@@ -63,8 +63,9 @@ def _plot_load_deck_side(
 
 
 def plot_bridge_deck_side(
-        bridge: Bridge, loads: List[Load]=[], save: str=None, show: bool=False,
-        equal_axis: bool=True, normalize_vehicle_height: bool=False):
+        bridge: Bridge, loads: List[Load]=[], equal_axis: bool=True,
+        normalize_vehicle_height: bool=False, save: str=None,
+        show: bool=False):
     """Plot the deck of a bridge from the side with optional loads.
 
     Args:
