@@ -12,7 +12,7 @@ from termcolor import colored
 init()
 
 
-DEBUG = True
+DEBUG = False
 
 
 def print_d(s):

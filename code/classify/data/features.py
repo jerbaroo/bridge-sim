@@ -16,11 +16,11 @@ class Trigger:
     def __init__(
             self, name: str, description: str,
             start: Callable[[TimeSeries], bool],
-            end: Callable[[TimeSeries], bool]):
+            end: Callable[[TimeSeries], bool]=None):
         self.name = name
         self.description = description
         self.start = start
-        self.end = end
+        self.end = end if end else lambda _: False
 
 
 def abs_threshold_trigger(threshold: float) -> Trigger:
@@ -28,8 +28,8 @@ def abs_threshold_trigger(threshold: float) -> Trigger:
     return Trigger(
         f"abs-threshold-{threshold:.2f}",
         f"When |response| exceeds {threshold:.2f}",
-        lambda xs: abs(xs[-1]) > threshold,
-        lambda xs: abs(xs[-1]) < threshold)
+        lambda xs: abs(xs[-1]) > threshold)
+        # lambda xs: abs(xs[-1]) < threshold)
 
 
 def events_from_time_series(
@@ -68,7 +68,7 @@ def events_from_time_series(
             if trigger.start(time_series_so_far):
                 event_start_time = t
                 event_recording = True
-        print(f"t = {t}, value = {time_series[t]}, recording = {event_recording}")
+        print_d(f"t = {t}, value = {time_series[t]}, recording = {event_recording}")
     if event_recording:
         events.append(time_series_so_far[event_start_time:])
         event_start_times.append(event_start_time)

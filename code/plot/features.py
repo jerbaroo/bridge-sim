@@ -19,8 +19,8 @@ def plot_threshold_distribution(
         use_lengths: bool=False, save: str=None, show: bool=False):
     """Plot distribution of distance to a sensor while varying threshold.
 
-    Plot the mean distance to the sensor each threshold value when the event
-    is triggered is collected. Alternatively the mean lengths of the collected
+    Plot the mean distance to the sensor each threshold value when the event is
+    triggered is collected. Alternatively the mean lengths of the collected
     events per threshold value can be plotted. For each plot also include on a
     separate y-axis the amount of missed and phantom events recorded per
     threshold value.
@@ -46,7 +46,8 @@ def plot_threshold_distribution(
     # print_d(f"num events = {len(events)}")
 
     missed, extra, distances, lengths = [], [], [], []
-    for threshold in thresholds:
+    for thresh_i, threshold in enumerate(thresholds):
+        print_i(f"threshold = {threshold:.2f}, {thresh_i / len(thresholds)}")
         missed_events = 0
         extra_events = 0
         event_distances = []
@@ -101,6 +102,12 @@ def plot_threshold_distribution(
         list(map(np.mean, secondary_data)),
         label=secondary_data_name,
         color="green")
+    secondary_data = lengths if not use_lengths else distances
+    secondary_data_name = "lengths" if not use_lengths else "distances"
+    ax2.plot(
+        list(map(np.mean, secondary_data)),
+        label=secondary_data_name,
+        color="red")
     plt.legend()
     plt.show()
 
