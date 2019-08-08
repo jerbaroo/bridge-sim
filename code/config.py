@@ -30,12 +30,12 @@ class Config:
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
+        noise_stddevs: float, standard deviation to perturb a vehicle column.
         generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
         time_step: float, time interval between recording sensor responses.
         time_end: float, maximum time to record an event, may end earlier.
-        noise_stddevs: float, standard deviation of noise to perturb a column.
         fem_responses_path_prefix: str, prefix of where to save responses.
         il_unit_load_kn: float, unit load to place on the bridge in kN.
         os_node_step: float, distance between two OpenSees nodes in meters.
@@ -65,6 +65,7 @@ class Config:
         self.vehicle_density = vehicle_density
         self.vehicle_intensity = vehicle_intensity
         self.vehicle_density_col = vehicle_density_col
+        self.noise_stddevs: float = 0.1
 
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
@@ -83,9 +84,10 @@ class Config:
             self.images_dir, filename)
 
         # Response & event recording.
-        self.time_step: float = 0.02  # 50 Hz.
-        self.time_end: float = 1  # 1 second.
-        self.noise_stddevs: float = 0.1
+        self.time_step: float = 1/ 250  # Record at 250 Hz.
+        self.time_end: float = 2  # Seconds.
+        self.time_overlap: float = self.time_end * 0.1  # Seconds.
+        assert self.time_overlap < self.time_end
 
         # Make directories.
         for directory in [self.generated_dir, self.images_dir]:
@@ -107,6 +109,7 @@ class Config:
             result = int(self.bridge.length / self.os_node_step)
             assert result * self.os_node_step == self.bridge.length
             return result
+
         os_get_num_elems()
         self.os_num_elems = os_get_num_elems
         self.os_num_nodes = lambda: self.os_num_elems() + 1

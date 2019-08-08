@@ -5,7 +5,7 @@ from config import Config
 from util import *
 
 # A time series of responses after a trigger.
-Event = NewType("Event", List[float]) 
+Event = NewType("Event", List[float])
 
 # A more general time series of responses.
 TimeSeries = NewType("Responses", List[float])
@@ -16,20 +16,74 @@ class Trigger:
     def __init__(
             self, name: str, description: str,
             start: Callable[[TimeSeries], bool],
-            end: Callable[[TimeSeries], bool]=None):
+            stop: Callable[[TimeSeries, Event], bool]=None):
         self.name = name
         self.description = description
         self.start = start
-        self.end = end if end else lambda _: False
+        self.stop = (lambda _, _: False) if stop is None else stop
+
+
+def always_trigger() -> Trigger:
+    """A trigger that always fires."""
+    return Trigger("always", "always", lambda _: True)
 
 
 def abs_threshold_trigger(threshold: float) -> Trigger:
     """A trigger that fires when an absolute threshold is exceeded."""
     return Trigger(
         f"abs-threshold-{threshold:.2f}",
-        f"When |response| exceeds {threshold:.2f}",
+        f"when |response| exceeds {threshold:.2f}",
         lambda xs: abs(xs[-1]) > threshold)
-        # lambda xs: abs(xs[-1]) < threshold)
+
+
+class Recorder:
+    """Receives real-time responses and emits events."""
+    def __init__(self, c: Config, trigger: Trigger, max_history: int=10000):
+        self.c = c
+        self.trigger = trigger
+        self.recording = lambda: len(responses) > 0
+        self.history = []
+        self.responses = []
+
+    def receive(self, response):
+        """Receive a new response."""
+        # If recording, record the response.
+        if self.recording():
+            self.responses.append(response)
+        # Else if not recording.
+        else:
+            self.history.append(response)
+            # Start recording.
+            if trigger.start(self.history):
+                self.responses.append(self.history.pop())
+            # Do not start recording.
+
+    def maybe_event(self) -> Optional[TimeSeries]:
+        """Return an event if a new event is available."""
+        if self.recording():
+            event_time = len(responses) * c.time_step
+            print_d(f"event time = {event_time}")
+            # Check if an event is ready to be returned.
+            if (event_time => self.c.time_end or
+                    trigger.stop(self.responses, self.history)):
+                event = self.responses
+                overlap_length = int(self.c.time_overlap / self.c.time_step)
+                print_d(f"overlap length = {overlap_length}")
+                new_history = event[:-overlap_length]
+                overlap = event[-overlap_length:]
+                assert len(overlap) + len(new_history) == len(event)
+                # Reset responses, receive the overlap and update history.
+                self.responses = []
+                self.history.extend(new_history)
+                if len(self.history) > self.max_history:
+                    print_w(f"Shortening history")
+                    self.history = self.history[-self.max_history:]
+                for response in overlap:
+                    self.receive(response)
+
+
+# def events_from_mv_load(
+#         c: Config, trigger: Trigger, mv_load: MovingLoad):
 
 
 def events_from_time_series(
@@ -43,6 +97,8 @@ def events_from_time_series(
         time_series: TimeSeries, the history of responses to search for events.
         with_time: bool, return the start time of each event. So the return
             type is List[Tuple[Event, int]].
+
+    TODO: Rewrite using recorder or deprecate.
 
     """
     events = []
