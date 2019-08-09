@@ -1,6 +1,6 @@
 """Time series of responses to moving loads."""
 from itertools import takewhile
-from typing import List, NewType
+from typing import List, NewType, Optional
 
 import numpy as np
 
@@ -8,7 +8,7 @@ from config import Config
 from fem.responses.matrix import load_il_matrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
-from model import MovingLoad, Point, Response, ResponseType
+from model import Bridge, MovingLoad, Point, Response, ResponseType
 from model.bridge_705 import bridge_705_config
 from util import *
 
@@ -47,47 +47,59 @@ def response_at_time(
 
 def responses_to_mv_load(
         c: Config, mv_load: MovingLoad, response_type: ResponseType,
-        fem_runner: FEMRunner, times: List[float], at: List[Point],
-        per_axle: bool=False):
+        fem_runner: FEMRunner, at: List[Point], per_axle: bool=False,
+        times: Optional[List[float]]=None):
     """The responses to a load for a number of time steps.
 
     Returns a numpy array of shape (len(times), len(at)) or if per_axle is
     True then a numpy array of shape(len(times), len(at), number of axles).
 
     Args:
+        times: Optional[List[float]], times to record responses at. If None
+            then select all times when the MovingLoad is on the bridge.
         per_axle: bool, if true then return a response per axle, otherwise
             return a single response for the vehicle.
 
     """
+    assert isinstance(c, Config)
+    assert isinstance(mv_load, MovingLoad)
+    assert isinstance(response_type, ResponseType)
+    assert isinstance(fem_runner, FEMRunner)
+    assert isinstance(at, list)
+    assert isinstance(at[0], Point)
+    if times is None:
+        print_w(f"times is None")
+        times = list(times_on_bridge(c=c, mv_load=mv_load))
+        print_w(f"times = {times}")
     result = np.array([
         [response_at_time(
-            c, mv_load, time, at_, response_type, fem_runner,
+            c=c, mv_load=mv_load, time=time, at=at_,
+            response_type=response_type, fem_runner=fem_runner,
             per_axle=per_axle)
          for at_ in at]
         for time in times])
+    assert len(result.shape) == 3 if per_axle else 2
     assert result.shape[0] == len(times)
     assert result.shape[1] == len(at)
     return result
 
 
-def times_on_bridge(
-        c: Config, mv_load: MovingLoad, times: List[float]) -> List[float]:
-    """Return only the times the moving load is on the bridge."""
-
-    def on_bridge_at(time):
-        min_x_frac = mv_load.x_frac_at(time, c.bridge)
-        max_x_frac = min_x_frac
-        if not mv_load.load.is_point_load():
-            vehicle_length = sum(mv_load.load.axle_distances)
-            max_x_frac += c.bridge.x_frac(vehicle_length)
-        return (
-            0 <= min_x_frac and min_x_frac <= 1 and
-            0 <= max_x_frac and max_x_frac <= 1)
-
-    return list(takewhile(on_bridge_at, times))
+def on_bridge(bridge: Bridge, mv_load: MovingLoad, time: float):
+    """Whether a moving load is on a bridge at a given time."""
+    # Find leftmost and rightmost points of the load.
+    left_x_frac = mv_load.x_frac_at(time, bridge)
+    right_x_frac = left_x_frac
+    if not mv_load.load.is_point_load():
+        vehicle_length = sum(mv_load.load.axle_distances)
+        right_x_frac += bridge.x_frac(vehicle_length)
+    return (
+        0 <= left_x_frac and left_x_frac <= 1 and
+        0 <= right_x_frac and right_x_frac <= 1)
 
 
-def times_on_bridge_(c: Config, mv_load: MovingLoad) -> List[float]:
-    """Return only the times the moving load is on the bridge."""
-    num_times = int((c.time_end / c.time_step) + 1)
-    return times_on_bridge(c, mv_load, np.linspace(0, c.time_end, num_times))
+def times_on_bridge(c: Config, mv_load: MovingLoad) -> List[float]:
+    """Yield the times when a moving load is on a bridge."""
+    time = 0
+    while on_bridge(c.bridge, mv_load, time):
+        yield time
+        time += c.time_step

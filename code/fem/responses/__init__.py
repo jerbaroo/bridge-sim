@@ -16,11 +16,12 @@ from util import *
 
 
 # TODO: Rename to sim_responses_path.
-def fem_responses_path(c: Config, fem_params: FEMParams,
-                       response_type: ResponseType, runner_name: str):
+def fem_responses_path(
+        c: Config, fem_params: FEMParams, response_type: ResponseType,
+        runner_name: str):
     """Path of the influence line matrix on disk."""
     return (f"{c.fem_responses_path_prefix}-pa-{fem_params.load_str()}"
-            + f"-rt-{response_type.name}-ru-{runner_name}.npy")
+            + f"-rt-{response_type.name()}-ru-{runner_name}.npy")
 
 
 # TODO: Rename to SimResponses, move to fem.responses.sim.
@@ -28,7 +29,7 @@ class FEMResponses:
     """Responses of one sensor type for one FEM simulation.
 
     FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
-    axis ordinates. But it is better to use the .at method to access responses.
+    axis ordinates, but it is better to use the .at method to access responses.
 
     Args:
         fem_params: FEMParams, the parameters of the simulation.

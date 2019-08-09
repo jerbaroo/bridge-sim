@@ -8,17 +8,43 @@ from collections import OrderedDict
 from typing import Callable, List
 
 import matplotlib.patches as patches
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as _plt
 import numpy as np
 from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-from classify.data.responses import responses_to_mv_load, times_on_bridge_
+from classify.data.responses import responses_to_mv_load, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
 from model import *
 from util import *
+
+###### Apply modifications to matplotlib.pyplot. ##############################
+
+_og_savefig = _plt.savefig
+
+
+def _savefig(*args, **kwargs):
+    _plt.gcf().set_size_inches(16, 10)
+    _plt.tight_layout()
+    _og_savefig(*args, **kwargs)
+
+
+_og_show = _plt.show
+
+
+def _show(*args, **kwargs):
+    _plt.gcf().set_size_inches(16, 10)
+    _plt.tight_layout()
+    _og_show(*args, **kwargs)
+
+
+plt = _plt
+plt.savefig = _savefig
+plt.show = _show
+
+###############################################################################
 
 bridge_color = "limegreen"
 lane_color = "gold"
@@ -160,7 +186,6 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
     animate_plot(len(x), plot_translation)
 
 
-# TODO: Plot multiple response lines.
 def animate_bridge_response(
         bridge: Bridge, responses, time_step: float,
         response_type: ResponseType, mv_loads: List[MovingLoad]=[],
@@ -261,7 +286,7 @@ def animate_mv_load(
         num_x_fracs: int=100, per_axle: bool=False, save: str=None,
         show: bool=False):
     """Animate the bridge's response to a moving load."""
-    times = times_on_bridge_(
+    times = times_on_bridge(
         c, mv_load, time_step=time_step, time_end=time_end)
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]

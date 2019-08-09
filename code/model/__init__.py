@@ -104,7 +104,8 @@ class Load:
         load_type = ("point" if self.is_point_load()
                      else f"{self.num_axles}-axle")
         units = "kN per axle" if self.is_point_load() else "kN"
-        return f"{load_type}, {self.total_kn():.2f} {units}, lane {self.lane}"
+        return (f"<Load type: {load_type}, kN: {self.total_kn():.2f} {units}"
+                + f", lane: {self.lane}>")
 
     def __str__(self):
         """String uniquely respresenting this load."""
@@ -121,10 +122,15 @@ class MovingLoad:
 
     """
     def __init__(self, load: Load, kmph: float, l_to_r: bool=True):
+        print_d(f"Moving")
         self.load = load
         self.kmph = kmph
         self.mps = self.kmph / 3.6
         self.l_to_r = l_to_r
+
+    def __repr__(self):
+        return (f"<MovingLoad kmph: {self.kmph}, l_to_r: {self.l_to_r}"
+                + f", load: {self.load}")
 
     @staticmethod
     def from_vehicle(
@@ -289,30 +295,30 @@ class Response:
 
 
 class ResponseType(Enum):
+    """Sensor response type."""
+
     XTranslation = "xtrans"
     YTranslation = "ytrans"
     Stress = "stress"
     Strain = "strain"
 
+    def name(self):
+        """Human readable name for a response type."""
+        return {
+            ResponseType.XTranslation: "X translation",
+            ResponseType.YTranslation: "Y translation",
+            ResponseType.Stress: "Stress",
+            ResponseType.Strain: "Strain",
+        }[self]
 
-def response_type_name(response_type: ResponseType):
-    """Human readable name for a response type."""
-    return {
-        ResponseType.XTranslation: "x translation",
-        ResponseType.YTranslation: "y translation",
-        ResponseType.Stress: "stress",
-        ResponseType.Strain: "strain",
-    }[response_type]
-
-
-def response_type_units(response_type: ResponseType, short: bool=True):
-    """Human readable units (long or short) for a response type."""
-    return {
-        ResponseType.XTranslation: ("meters", "m"),
-        ResponseType.YTranslation: ("meters", "m"),
-        ResponseType.Stress: ("kilo newton", "kN"),
-        ResponseType.Strain: ("kilo newton", "kN")
-    }[response_type][int(short)]
+    def units(self, short: bool=True):
+        """Human readable units (long or short) for a response type."""
+        return {
+            ResponseType.XTranslation: ("meters", "m"),
+            ResponseType.YTranslation: ("meters", "m"),
+            ResponseType.Stress: ("kilo newton", "kN"),
+            ResponseType.Strain: ("kilo newton", "kN")
+        }[self][int(short)]
 
 
 class Section:

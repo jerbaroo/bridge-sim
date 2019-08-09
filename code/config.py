@@ -20,7 +20,7 @@ class Config:
         vehicle_data_path: str, path of the vehicle data CSV file.
         vehicle_density: List[Tuple[float, float]], density of vehicles
             below a maximum length in meters.
-    
+
             Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
 
             Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
@@ -84,7 +84,7 @@ class Config:
             self.images_dir, filename)
 
         # Response & event recording.
-        self.time_step: float = 1/ 250  # Record at 250 Hz.
+        self.time_step: float = 1 / 250  # Record at 250 Hz.
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
         assert self.time_overlap < self.time_end
