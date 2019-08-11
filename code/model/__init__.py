@@ -1,7 +1,7 @@
 """Classes for modeling bridges and loads."""
 from __future__ import annotations
-
 from enum import Enum
+from typing import List, NewType
 
 import numpy as np
 
@@ -292,6 +292,10 @@ class Response:
                + str_if(f" section_id={self.section_id}", self.section_id)
                + str_if(f" fiber_cmd_id={self.fiber_cmd_id}",
                         self.fiber_cmd_id))
+
+
+# A time series of responses without additional information.
+TimeSeries = NewType("Responses", List[float])
 
 
 class ResponseType(Enum):

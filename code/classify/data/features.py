@@ -1,17 +1,41 @@
 """Extract features from a time series of responses."""
-from typing import Callable, List, Optional, NewType, Tuple, Union
+from typing import Callable, Iterable, List, Optional, NewType, Tuple, Union
+
+import numpy as np
 
 from classify.data.responses import responses_to_mv_load
 from config import Config
 from fem.run import FEMRunner
-from model import MovingLoad, Point, ResponseType
+from model import MovingLoad, Point, ResponseType, TimeSeries
 from util import *
 
-# A time series of responses after a trigger.
-Event = NewType("Event", List[float])
 
-# A more general time series of responses.
-TimeSeries = NewType("Responses", List[float])
+class Event:
+    """A recorded time series of responses."""
+    def __init__(
+            self, time_series: TimeSeries = None, noise: TimeSeries = None,
+            axle_time_series: List[TimeSeries] = None,
+            axle_noise: List[TimeSeries] = None, overlap: int = None,
+            start_index: int = None):
+        self.time_series = time_series
+        self.noise = noise
+        self.axle_time_series = axle_time_series
+        self.axle_noise = axle_noise
+        self.overlap = overlap
+        self.start_index = start_index
+
+    def get_time_series(self, noise: bool = True):
+        """Return the time series optionally with noise."""
+        if not noise:
+            return self.time_series
+        return list(sum(x) for x in zip(self.time_series, self.noise))
+
+    def get_axle_time_series(self, noise: bool = True):
+        """Return the axle time series optionally with noise."""
+        if not noise:
+            return self.axle_time_series
+        return list(
+            sum(x) for x in zip(self.axle_time_series, self.axle_noise))
 
 
 class Trigger:
@@ -19,7 +43,7 @@ class Trigger:
     def __init__(
             self, name: str, description: str,
             start: Callable[[TimeSeries], bool],
-            stop: Callable[[TimeSeries, Event], bool]=None):
+            stop: Callable[[TimeSeries, Event], bool] = None):
         self.name = name
         self.description = description
         self.start = start
@@ -40,21 +64,34 @@ def abs_threshold_trigger(threshold: float) -> Trigger:
 
 
 class Recorder:
-    """Receive real-time responses and emit events."""
+    """Receive real-time responses and emit events, optionally with noise."""
     def __init__(
-            self, c: Config, trigger: Trigger = always_trigger(),
-            max_history: int = 10000):
-        self.c = c
-        self.trigger = trigger  # Decides to start/stop recording.
-        self.max_history = max_history  # Soft-limit on history length.
-        self.recording = lambda: len(self.responses) > 0  # If currently recording.
-        self.overlap = 0  # Amount of current event which overlaps previous event.
-        self.start_index = None  # Start index of current event.
-        self.index = 0  # Current time index.
-        self.history = []  # Responses prior to the current event.
-        self.responses = []  # Responses of current event so far.
+            self, c: Config, response_type: ResponseType,
+            trigger: Trigger = always_trigger(), max_history: int = 10000,
+            add_noise: bool = True):
+        self.c: Config = c
+        self.response_type = response_type
+        # Decides to start/stop recording.
+        self.trigger: Trigger = trigger
+        # Soft-limit on history length.
+        self.max_history: int = max_history
+        # Add noise to the Event.
+        self.add_noise = add_noise
+        # If currently recording.
+        self.recording: Callable[[], bool] = lambda: len(self.responses) > 0
+        # Amount of responses which overlap previous event.
+        self.overlap: int = 0
+        # Start index of current event.
+        self.start_index: int = None
+        # Current time index.
+        self.index: int = 0
+        # Responses prior to the current event.
+        self.history: Union[List[float], List[List[float]]] = []
+        # Responses of current event so far.
+        self.responses: Union[List[float], List[List[float]]] = []  
 
-    def receive(self, response: float, overlap: bool = False):
+    def receive(
+            self, response: Union[float, List[float]], overlap: bool = False):
         """Receive a new response."""
         # If already recording, record the response.
         if self.recording():
@@ -75,7 +112,7 @@ class Recorder:
         # Increment time index.
         self.index += 1
 
-    def maybe_event(self, info: bool = False) -> Optional[TimeSeries]:
+    def maybe_event(self) -> Optional[Event]:
         """Return an event if a new event is available."""
         if self.recording():
             event_time = len(self.responses) * self.c.time_step
@@ -101,27 +138,48 @@ class Recorder:
                 self.index -= len(new_overlap)
                 for response in new_overlap:
                     self.receive(response, overlap=True)
-                # Structure and return result.
-                if info:
-                    return [event, prev_overlap, prev_start_index]
-                return event
+                # Return an event with additional info.
+                print(type(event[0]))
+                by_axle = False
+                try:
+                    len(event[0])
+                    by_axle = True
+                except:
+                    pass
+                assert isinstance(event, list)
+                assert isinstance(event[0], float)
+                assert not by_axle
+                if self.add_noise:
+                    noise = np.random.normal(
+                        self.c.noise_mean(self.response_type),
+                        self.c.noise_stddev(self.response_type),
+                        len(event))
+                print_w(f"TODO: Axle noise")
+                return Event(
+                    time_series = event if not by_axle else None,
+                    noise = noise if not by_axle else None,
+                    axle_time_series = event if by_axle else None,
+                    axle_noise = None,
+                    overlap = prev_overlap,
+                    start_index = prev_start_index)
 
 
 def events_from_mv_load(
         c: Config, mv_load: MovingLoad, response_type: ResponseType,
-        fem_runner: FEMRunner, at: List[Point], per_axle: bool = False,
-        trigger: Trigger = always_trigger(), info: bool = False) -> List[Event]:
+        fem_runner: FEMRunner, at: Point, per_axle: bool = False,
+        trigger: Trigger = always_trigger()) -> Iterable[Event]:
     """Yield events from a moving load."""
-    responses = responses_to_mv_load(
+    responses = list(map(lambda x: x[0], responses_to_mv_load(
         c=c, mv_load=mv_load, response_type=response_type,
-        fem_runner=fem_runner, at=at)
+        fem_runner=fem_runner, at=[at])))
+    print(np.array(responses).shape)
     print_w(f"**")
     print_w(f"length responses = {len(responses)}")
     print_w(f"**")
-    recorder = Recorder(c, trigger)
+    recorder = Recorder(c=c, trigger=trigger, response_type=response_type)
     for response in responses:
         recorder.receive(response)
-        maybe_event = recorder.maybe_event(info=info)
+        maybe_event = recorder.maybe_event()
         if maybe_event is not None:
             yield maybe_event
 

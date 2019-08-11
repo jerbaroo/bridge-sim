@@ -15,28 +15,32 @@ from vehicles.sample import sample_vehicle
 
 def plot_event(
         c: Config, event: Event, start_index: int, num_loads: int,
-        response_type: ResponseType, at: Point, noise: Event,
-        overlap: Tuple[int, int], y_max: float, y_min: float):
+        response_type: ResponseType, at: Point, overlap: Tuple[int, int],
+        y_max: float, y_min: float):
     """Plot a single event with timing and overlap information."""
+    time_series = event.get_time_series(noise=False)
+    time_series_with_noise = event.get_time_series(noise=True)
     x_min = start_index * c.time_step
-    x_max = (start_index + len(event)) * c.time_step
+    x_max = (start_index + len(time_series)) * c.time_step
     overlap_height = y_max - y_min
     # Plot LHS overlap.
     if overlap[0]:
-        overlap_width = (x_max - x_min) * (overlap[0] / len(event))
+        overlap_width = (x_max - x_min) * (overlap[0] / len(time_series))
         plt.gca().add_patch(patches.Rectangle(
             xy=(x_min, y_min), width=overlap_width, height=overlap_height,
             alpha=0.1))
     # Plot RHS overlap.
     if overlap[1]:
-        overlap_width = (x_max - x_min) * (overlap[1] / len(event))
+        overlap_width = (x_max - x_min) * (overlap[1] / len(time_series))
         plt.gca().add_patch(patches.Rectangle(
             xy=(x_max - overlap_width, y_min), width=overlap_width,
             height=overlap_height, alpha=0.1))
     print_i(f"x_min = {x_min}")
     print_i(f"x_max = {x_max}")
-    print_i(f"x.shape = {np.linspace(x_min, x_max, len(event)).shape}")
-    plt.plot(np.linspace(x_min, x_max, num=len(event)), event)
+    print_i(f"x.shape = {np.linspace(x_min, x_max, len(time_series)).shape}")
+    x_axis = np.linspace(x_min, x_max, num=len(time_series))
+    plt.plot(x_axis, time_series_with_noise, color="tab:orange")
+    plt.plot(x_axis, time_series, color="tab:blue")
     s = "s" if num_loads > 1 else ""
     plt.title(
         f"{response_type.name()} at {at.x:.2f}m from {num_loads} vehicle{s}")
@@ -47,7 +51,7 @@ def plot_event(
 def plot_events_from_mv_loads(
         c: Config, mv_loads: List[List[MovingLoad]],
         response_type: ResponseType, fem_runner: FEMRunner, at: Point,
-        noise: bool, save: str = None, show: bool = False):
+        save: str = None, show: bool = False):
     """Plot events from each set of moving loads on a row."""
     print_d(f"TODO: Support multiple vehicles")
     # Determine rows, cols and events per row.
@@ -55,36 +59,37 @@ def plot_events_from_mv_loads(
     events = [
         list(events_from_mv_load(
             c=c, mv_load=mv_loads[row][0], response_type=response_type,
-            fem_runner=fem_runner, at=[at], info=True))
+            fem_runner=fem_runner, at=at))
         for row in range(rows)]
-    cols = max(len(events) for events in events)
-    # Extract length of overlaps, and start indices.
-    overlaps = [[x[1] for x in xs] for xs in events]
-    start_indices = [[x[2] for x in xs] for xs in events]
-    events = np.array([[x[0] for x in xs] for xs in events])
-    y_min = np.min([np.min(es) for es in events])
-    y_max = np.max([np.max(es) for es in events])
+    cols = max(len(es) for es in events)
+    assert isinstance(events[0][0], Event)
+    assert isinstance(events[0][0].time_series, list)
+    print_i(f"first time series = {events[0][0].time_series}")
+    y_min, y_max = 0, 0
+    for es in events:
+        for e in es:
+            y_min = np.min([y_min, np.min(e.get_time_series(noise=True))])
+            y_max = np.max([y_max, np.max(e.get_time_series(noise=True))])
     assert isinstance(y_min, float)
     assert isinstance(y_max, float)
     y_min, y_max = np.min([y_min, -y_max]), np.max([y_max, -y_min])
-    print_i(overlaps)
-    print_i(start_indices)
     print_i(f"rows, cols = {rows}, {cols}")
     # Plot each event, including overlap.
     for row in range(rows):
         for col, event in enumerate(events[row]):
             print_i(f"row, col = {row}, {col}")
-            print_i(f"overlap = {overlaps}")
             plt.subplot2grid((rows, cols), (row, col))
             print(len(events[row]) - 1)
             print(col)
             print(col < len(events[row]) - 1)
             end_overlap = (
-                overlaps[row][col + 1] if col < len(events[row]) - 1 else 0)
+                events[row][col + 1].overlap
+                if col < len(events[row]) - 1
+                else 0)
             plot_event(
-                c=c, event=event, start_index=start_indices[row][col],
-                num_loads=1, response_type=response_type, at=at, noise=noise,
-                overlap=(overlaps[row][col], end_overlap), y_min=y_min,
+                c=c, event=event, start_index=events[row][col].start_index,
+                num_loads=1, response_type=response_type, at=at,
+                overlap=(events[row][col].overlap, end_overlap), y_min=y_min,
                 y_max=y_max)
     if save: plt.savefig(save)
     if show: plt.show()
@@ -93,8 +98,8 @@ def plot_events_from_mv_loads(
 
 def plot_events_from_normal_mv_loads(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        at: Point, rows: int=5, loads_per_row: int=1, noise: bool=False,
-        save: str=None, show: bool=False):
+        at: Point, rows: int=5, loads_per_row: int=1, save: str=None,
+        show: bool=False):
     """Plot events from each set of sampled normal loads on a row."""
     mv_loads = [
         [MovingLoad.from_vehicle(
@@ -103,7 +108,7 @@ def plot_events_from_normal_mv_loads(
         for _ in range(rows)]
     plot_events_from_mv_loads(
         c=c, mv_loads=mv_loads, response_type=response_type,
-        fem_runner=fem_runner, at=at, noise=noise, save=save, show=show)
+        fem_runner=fem_runner, at=at, save=save, show=show)
 
 
 # def plot_threshold_distribution(

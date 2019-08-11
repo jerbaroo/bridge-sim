@@ -13,7 +13,7 @@ from vehicles import load_vehicle_data
 class Config:
     """Simulation configuration.
 
-    NOTE: All paths are relative to the root directory.
+    NOTE: All paths are relative to the project root directory.
 
     Args:
         bridge: Callable[[], Bridge], returns a bridge specification.
@@ -26,11 +26,11 @@ class Config:
             Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
             2.4m and less than 5.6m, and the remaining 5% are less than 16m.
         vehicle intensity: the total amount of vehicles per hour.
-        vehicle_density_col: str, column of vehicle_data to group on.
+        vehicle_density_col: str, column of vehicle_data to group by.
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
-        noise_stddevs: float, standard deviation to perturb a vehicle column.
+        perturb_stddev: float, standard deviation to perturb a vehicle column.
         generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
@@ -41,6 +41,10 @@ class Config:
         os_node_step: float, distance between two OpenSees nodes in meters.
         os_exe_path: str, path of the OpenSees executable.
         os_model_template_path: str, path of the OpenSees model template file.
+        noise_mean: Callable[[ResponseType], float], return the mean of the
+            distribution of the noise for a sensor type.
+        noise_stddev: Callable[[ResponseType], float], return the standard
+            deviation of the distribution of the noise for a sensor type.
 
         # Diana.
         di_exe_path: str, path of the Diana executable.
@@ -55,9 +59,12 @@ class Config:
     def __init__(
             self, bridge: Callable[[], Bridge], vehicle_data_path: str,
             vehicle_density: List[Tuple[float, float]],
-            vehicle_intensity: float, vehicle_density_col: str="length"):
+            vehicle_intensity: float, vehicle_density_col: str):
+        # Bridge.
         reset_model_ids()
         self.bridge = bridge()
+
+        # Vehicles.
         start = timer()
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(f"Loaded vehicle data from {vehicle_data_path} in"
@@ -65,8 +72,9 @@ class Config:
         self.vehicle_density = vehicle_density
         self.vehicle_intensity = vehicle_intensity
         self.vehicle_density_col = vehicle_density_col
-        self.noise_stddevs: float = 0.1
+        self.perturb_stddev: float = 0.1
 
+        # Ensure vehicle probability density sums to 1.
         density_sum = sum(map(lambda f: f[1], self.vehicle_density))
         if int(density_sum) != 100:
             print_w(f"Vehicle density sums to {density_sum}, not to 1")
@@ -77,32 +85,44 @@ class Config:
             density_sum = sum(map(lambda f: f[1], self.vehicle_density))
             print_w(f"Vehicle density adjusted to sum to {density_sum:.2f}")
 
-        self.il_matrices = dict()
+        # Generated data.
         self.generated_dir = "generated-data/"
         self.images_dir = "generated-images/"
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 
-        # Response & event recording.
+        # Influence lines.
+        self.fem_responses_path_prefix: str = os.path.join(
+            self.generated_dir, "responses/responses")
+        self.il_matrices = dict()
+        self.il_unit_load_kn: float = 1000
+
+        # Event recording.
         self.time_step: float = 1 / 250  # Record at 250 Hz.
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
-        assert self.time_overlap < self.time_end
+        self.noise_mean = lambda rt: {
+            ResponseType.Strain: 0,
+            ResponseType.Stress: 0,
+            ResponseType.XTranslation: 0,
+            ResponseType.YTranslation: 0
+        }[rt]
+        self.noise_stddev = lambda rt: {
+            ResponseType.Strain: 1e-5,
+            ResponseType.Stress: 1e6,
+            ResponseType.XTranslation: 5e-8,
+            ResponseType.YTranslation: 2e-4
+        }[rt]
+
+        # OpenSees.
+        self.os_node_step: float = 0.2
+        self.os_exe_path: str = "/Users/jeremy/Downloads/OpenSees3.0.3/OpenSees"
+        self.os_model_template_path: str = "code/model-template.tcl"
 
         # Make directories.
         for directory in [self.generated_dir, self.images_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
-
-        # Responses & influence line.
-        self.fem_responses_path_prefix: str = os.path.join(
-            self.generated_dir, "responses/responses")
-        self.il_unit_load_kn: float = 1000
-
-        # OpenSees.
-        self.os_node_step: float = 0.2
-        self.os_exe_path: str = "c:/Program Files/OpenSees3.0.3-x64/OpenSees.exe"
-        self.os_model_template_path: str = "code/model-template.tcl"
 
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():

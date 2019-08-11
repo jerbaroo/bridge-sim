@@ -93,13 +93,13 @@ def sample_vehicle(
     sample = c.vehicle_data.loc[group.sample().index]
 
     # Add noise to the sample if requested.
-    if c.noise_stddevs:
+    if c.perturb_stddev:
         for col_name, (_, stddev) in zip(
                 noise_col_names, noise_per_column(c, noise_col_names)):
             print_d(
                 f"col_name = {col_name}, stddev = {stddev:.2f},"
-                + f"{c.noise_stddevs} x stddev = {c.noise_stddevs * stddev:.2f}")
-            noise = np.random.normal(loc=0, scale=c.noise_stddevs * stddev)
+                + f"{c.perturb_stddev} x stddev = {c.perturb_stddev * stddev:.2f}")
+            noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
             print_d(f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
             print_d(f"after =\n{sample[col_name]}")

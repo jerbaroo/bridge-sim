@@ -9,5 +9,6 @@ diana-705.dat
 .mypy_cache/
 __pycache__/
 dss.egg-info/
+generated/
 generated-data/
 generated-images/

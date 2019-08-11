@@ -112,8 +112,9 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                         rows=4, loads_per_row=num_loads, save=(
                             c.image_path(pstr(
                                 f"events/{fem_runner.name}"
-                                + f"-rt-{response_type.name()}-at-{x_frac:.2f}"
-                                + f"-numloads-{num_loads}"))))
+                                + f"-rt-{response_type.name()}"
+                                + f"-numloads-{num_loads}"
+                                + f"-at-{x_frac:.2f}"))))
 
 
 def make_all(c: Config, clean=True):

@@ -4,6 +4,7 @@ import pytest
 from classify.data.features import Recorder
 from config import Config
 from fem.run.opensees import os_runner
+from model import ResponseType
 from model.bridge_705 import bridge_705_config
 from util import print_i
 
@@ -13,7 +14,7 @@ fem_runner = os_runner(c)
 
 def test_recorder():
     # Test one response is recorded.
-    recorder = Recorder(c)
+    recorder = Recorder(c, ResponseType.Strain)
     response = 1
 
     def add_response():
@@ -38,11 +39,11 @@ def test_recorder():
     # Add one more response, should return an event.
     add_response()
     event = recorder.maybe_event()
-    assert isinstance(event, list)
+    assert isinstance(event.time_series, list)
     overlap_length = int(c.time_overlap / c.time_step)
     assert len(recorder.history) == event_length - overlap_length
     assert len(recorder.responses) == overlap_length
-    assert recorder.responses[-1] == event[-1]
+    assert recorder.responses[-1] == event.time_series[-1]
 
     # Add responses until a second event is reached.
     event = recorder.maybe_event()

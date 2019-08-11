@@ -22,5 +22,6 @@ points to the installed executable.
   cd thesis-msc-computational-science
   pipenv install
   git lfs install
+  git lfs pull
   ./scripts/make-all.sh
 #+END_SRC
