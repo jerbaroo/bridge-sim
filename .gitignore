@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *.tb
+config.py
 diana*.out
 diana.ff
 diana-705.dat
