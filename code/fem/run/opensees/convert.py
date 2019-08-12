@@ -3,11 +3,13 @@ from typing import Dict, List
 
 from config import Config
 from fem.run import Parsed
-from model import *
+from model import Response
+from model.response import ResponseType
 
 
-def convert_responses(c: Config, parsed: Parsed
-                     ) -> Dict[int, Dict[ResponseType, List[Response]]]:
+def convert_responses(
+        c: Config, parsed: Parsed
+    ) -> Dict[int, Dict[ResponseType, List[Response]]]:
     """Convert parsed OpenSees responses to [Response]."""
     sim_inds = list(parsed.keys())
     for sim_ind in sim_inds:

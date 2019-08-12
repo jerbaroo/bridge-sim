@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 mypy = "*"
+pydoc = "*"
 
 [packages]
 colorama = "*"
@@ -14,7 +15,9 @@ numpy = "*"
 scipy = "*"
 termcolor = "*"
 pandas = "*"
-mycode = {editable = true,path = "./code"}
+mycode = {path = "./code",editable = true}
+pydoc2 = "*"
+pydoc = "*"
 
 [requires]
 python_version = "3.7"

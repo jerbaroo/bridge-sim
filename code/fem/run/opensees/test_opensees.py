@@ -5,9 +5,10 @@ from fem.params import ExptParams, FEMParams
 from fem.run import fem_file_path
 from fem.run.opensees import os_runner
 from fem.run.opensees.build import build_model
-from model import *
-from model.bridge_705 import bridge_705_config
-from util import *
+from model.bridge import Fix
+from model.bridge.bridge_705 import bridge_705_config
+from model.load import DisplacementCtrl, Load
+from model.response import ResponseType
 
 
 def test_build():
@@ -51,6 +52,7 @@ def test_build_displacement_ctrl():
     c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
     expt_params = ExptParams([
         FEMParams(displacement_ctrl=DisplacementCtrl(0.1, 1),
+                  loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
 
@@ -68,6 +70,7 @@ def test_build_displacement_ctrl():
     c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
     expt_params = ExptParams([
         FEMParams(displacement_ctrl=DisplacementCtrl(0.1, 1),
+                  loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
     with pytest.raises(ValueError):

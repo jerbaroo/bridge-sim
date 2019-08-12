@@ -1,17 +1,19 @@
 """Run FEM simulations and generate responses."""
 from __future__ import annotations
 
+import os
 from timeit import default_timer as timer
-from typing import Callable, TypeVar
+from typing import Callable, Dict, List, Optional, TypeVar
 
 from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.responses import FEMResponses
-from model import *
-from util import *
+from model import Response
+from model.response import ResponseType
+from util import print_i
 
 
-Parsed = TypeVar("parsed")
+Parsed = TypeVar("Parsed")
 
 
 def _fem_id(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
@@ -19,11 +21,11 @@ def _fem_id(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
     load_str: str = fem_params.load_str()
     for char in "[]()":
         load_str = load_str.replace(char, "")
-    return (f"{fem_runner.name}-{load_str}")
+    return f"{fem_runner.name}-{load_str}"
 
 
 def fem_file_path(
-        fem_params: FEMParams, fem_runner: FEMRunner, ext: Optional[str]=None
+        fem_params: FEMParams, fem_runner: FEMRunner, ext: Optional[str] = None
         ) -> str:
     """A file path based on FEMParams and FEMRunner.
 
@@ -40,22 +42,23 @@ def fem_file_path(
     ).replace(" ", "").lower()
 
 
-class FEMRunner():
+class FEMRunner:
     """Run FEM simulations with an external program and generate responses.
 
     Args:
-        built_model_dir: str, directory to save the built model file in.
+        built_model_ext: str, extension of the built model file.
+        built_files_dir: str, directory to save any built files in.
 
     """
     def __init__(
             self, c: Config, name: str,
             build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
-            run: Callable[[Config, ExptParams, FEMRunner], ExptParams],
+            run: Callable[[Config, ExptParams, FEMRunner, int], ExptParams],
             parse: Callable[[Config, ExptParams, FEMRunner], Parsed],
             convert: Callable[
                 [Config, Parsed],
                 Dict[int, Dict[ResponseType, List[Response]]]],
-            built_model_ext: str=None, built_files_dir: Optional[str]=None):
+            built_model_ext: str = None, built_files_dir: Optional[str] = None):
         self.c = c
         self._build = build
         self._run = run
@@ -69,7 +72,7 @@ class FEMRunner():
         self.built_files_dir = built_files_dir
         assert self.built_files_dir.endswith("/")
 
-    def run(self, expt_params: ExptParams, run=True, save=True, remove=False):
+    def run(self, expt_params: ExptParams, run=True, save=True):
 
         start = timer()
         expt_params = self._build(self.c, expt_params, self)
@@ -83,10 +86,6 @@ class FEMRunner():
                 print_i(f"FEMRunner: ran {self.name}"
                         + f" {sim_ind + 1}/{len(expt_params.fem_params)}"
                         + f" simulation in {timer() - start:.2f}s")
-
-        if remove:
-            for fem_params in expt_params.fem_params:
-                os.remove(built_model_path(fem_params, self))
 
         if not save:
             return
@@ -103,7 +102,7 @@ class FEMRunner():
 
         for sim in sim_responses:
             for response_type, responses in sim_responses[sim].items():
-                start = timer()
+                # start = timer()
                 fem_responses = FEMResponses(
                     expt_params.fem_params[sim], self.name, response_type,
                     responses, skip_build=True)

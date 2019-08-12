@@ -4,10 +4,11 @@ from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 
 import numpy as np
-import pandas as pd
 
-from model import *
+from model.bridge import Bridge, reset_model_ids
+from model.response import ResponseType
 from vehicles import load_vehicle_data
+from util import print_i, print_w
 
 
 class Config:

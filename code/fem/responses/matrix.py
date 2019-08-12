@@ -9,17 +9,20 @@ from fem.params import ExptParams, FEMParams
 from fem.responses import ExptResponses, fem_responses_path, load_expt_responses
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
-from model import *
-from model.bridge_705 import bridge_705_config
+from model import Response
+from model.bridge.bridge_705 import bridge_705_config
+from model.load import Load
+from model.response import ResponseType
 from util import *
 
 
 # TODO: Replace ExptResponses.
 class ResponsesMatrix:
     """Responses of one type for a number of related simulations."""
-    def __init__(self, c: Config, response_type: ResponseType,
-                 expt_params: ExptParams, fem_runner_name: str,
-                 expt_responses: ExptResponses):
+    def __init__(
+            self, c: Config, response_type: ResponseType,
+            expt_params: ExptParams, fem_runner_name: str,
+            expt_responses: ExptResponses):
         self.c = c
         self.response_type = response_type
         self.expt_params = expt_params

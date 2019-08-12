@@ -1,6 +1,6 @@
-"""Model and configuration for bridge 705 in Amsterdam."""
+"""Bridge and Config for bridge 705 in Amsterdam."""
 from config import Config
-from model import *
+from model.bridge import Bridge, Fix, Lane, Layer, Patch, Section
 
 
 def bridge_705_config() -> Config:
@@ -21,8 +21,8 @@ def bridge_705() -> Bridge:
     for span_distance in [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]:
         _bridge_705_piers.append(_bridge_705_piers[-1] + span_distance)
     _bridge_705_length = 102
-    fixed_nodes = [Fix(x / _bridge_705_length, y=True)
-                   for x in _bridge_705_piers]
+    fixed_nodes = [
+        Fix(x / _bridge_705_length, y=True) for x in _bridge_705_piers]
     fixed_nodes[0].x = True
 
     return Bridge(

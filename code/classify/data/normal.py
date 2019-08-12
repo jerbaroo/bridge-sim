@@ -33,7 +33,7 @@ def responses_to_normal_mv_load(
         at: List[Point], points at which to collect responses.
         group_index: Optional[int], if given sample from that group index.
         l_to_r: bool, direction of the vehicle, left to right or opposite.
-     
+
 
     """
     vehicle = sample_vehicle(c, group_index)
@@ -43,10 +43,3 @@ def responses_to_normal_mv_load(
         c, mv_load, time_step=time_step, time_end=time_end)
     return responses_to_mv_load(
         c, mv_load, response_type, fem_runner, times, at)
-
-
-if __name__ == "__main__":
-    c = bridge_705_config()
-    at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, 100)]
-    resp = responses_to_normal_mv_load(
-        c, ResponseType.Strain, os_runner(c), 0, at, 0.1, 10)

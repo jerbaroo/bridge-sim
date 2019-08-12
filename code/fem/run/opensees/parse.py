@@ -1,16 +1,19 @@
 """Parse responses from an OpenSees simulation."""
+from __future__ import annotations
 import itertools
 from collections import defaultdict
 from timeit import default_timer as timer
 
+import numpy as np
+
 from config import Config
 from fem.params import ExptParams
-from fem.run import FEMRunner, Parsed
-from model import *
-from util import *
+from fem.run import Parsed
+from model.response import ResponseType
+from util import print_i
 
 
-def openSeesToNumpy(path):
+def opensees_to_numpy(path):
     """Convert OpenSees output to 2d array."""
     with open(path) as f:
         x = f.read()
@@ -22,8 +25,8 @@ def openSeesToNumpy(path):
     return np.array(x)
 
 
-def parse_responses(c: Config, expt_params: ExptParams, fem_runner: FEMRunner
-                   ) -> Parsed:
+def parse_responses(
+        c: Config, expt_params: ExptParams, fem_runner: OSRunner) -> Parsed:
     """Parse responses from an OpenSees simulation."""
     results = defaultdict(dict)
 
@@ -34,13 +37,13 @@ def parse_responses(c: Config, expt_params: ExptParams, fem_runner: FEMRunner
 
         if parse_type(ResponseType.XTranslation):
             start = timer()
-            x = openSeesToNumpy(fem_runner.x_translation_path(fem_params))
+            x = opensees_to_numpy(fem_runner.x_translation_path(fem_params))
             print_i("OpenSees: Parsed XTranslation responses in"
                     + f" {timer() - start:.2f}s")
 
         if parse_type(ResponseType.YTranslation):
             start = timer()
-            y = openSeesToNumpy(fem_runner.y_translation_path(fem_params))
+            y = opensees_to_numpy(fem_runner.y_translation_path(fem_params))
             print_i("OpenSees: Parsed YTranslation responses in "
                     + f"{timer() - start:.2f}s")
 
@@ -66,7 +69,7 @@ def parse_responses(c: Config, expt_params: ExptParams, fem_runner: FEMRunner
                 # For each fiber: collect and append the Responses.
                 for path, fiber_cmd_id, point in (
                         patch_paths_and_more + layer_paths_and_more):
-                    stress_strain = openSeesToNumpy(path)
+                    stress_strain = opensees_to_numpy(path)
                     num_time = len(stress_strain)
                     num_measurements = len(stress_strain[0]) // 2
                     if parse_type(ResponseType.Stress):

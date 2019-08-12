@@ -8,9 +8,11 @@ from config import Config
 from fem.responses.matrix import load_il_matrix
 from fem.run import FEMRunner
 from fem.run.opensees import os_runner
-from model import Bridge, MovingLoad, Point, Response, ResponseType
-from model.bridge_705 import bridge_705_config
-from util import *
+from model import Response
+from model.bridge import Bridge, Point
+from model.load import MovingLoad
+from model.response import ResponseType
+from util import print_w
 
 
 def response_to_mv_load(
@@ -22,6 +24,7 @@ def response_to_mv_load(
     Args:
         per_axle: bool, if true then return a list of response per axle,
             otherwise return a single response for the vehicle.
+
     """
     assert on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)
 
@@ -73,42 +76,46 @@ def response_to_mv_loads(
 
 
 def responses_to_mv_loads(
-        c: Config, mv_loads: List[MovingLoad], response_type: ResponseType,
-        fem_runner: FEMRunner, at: List[Point], per_axle: bool=False,
-        times: Optional[List[float]]=None):
+        c: Config, mv_loads: List[MovingLoad],
+        response_types: List[ResponseType],
+        fem_runner: FEMRunner, at: List[Point], per_axle: bool = False,
+        times: Optional[List[float]] = None):
     """The responses to a load for a number of time steps.
 
-    Returns a numpy array of shape (len(times), len(at)) or if per_axle is
-    True then a numpy array of shape(len(times), len(at), number of axles).
+    Returns either a 3 or 4 dimensional numpy array, of shape (len(times),
+    len(at), len(response_types)) if per_axle is False else of shape
+    (len(times), len(at), len(response_types), #axles).
 
     Args:
-        times: Optional[List[float]], times to record responses at. If None
-            then select all times when the MovingLoad is on the bridge.
         per_axle: bool, if true then return a response per axle, otherwise
             return a single response for the vehicle.
+        times: Optional[List[float]], times to record responses at. If None
+            (default) then select all times when a MovingLoad is on the bridge.
 
     """
     assert isinstance(c, Config)
     assert isinstance(mv_loads[0], MovingLoad)
-    assert isinstance(response_type, ResponseType)
+    assert isinstance(response_types[0], ResponseType)
     assert isinstance(fem_runner, FEMRunner)
     assert isinstance(at, list)
     assert isinstance(at[0], Point)
+
     if times is None:
-        print_w(f"times is None")
         times = list(times_on_bridge(c=c, mv_loads=mv_loads))
-        print_w(f"max_time = {times[-1]}")
-    # TODO: Make this a generator.
+
     result = np.array([
-        [response_to_mv_loads(
+        [[response_to_mv_loads(
             c=c, mv_loads=mv_loads, time=time, at=at_,
             response_type=response_type, fem_runner=fem_runner,
             per_axle=per_axle)
+          for response_type in response_types]
          for at_ in at]
         for time in times])
-    assert len(result.shape) == 3 if per_axle else 2
+
+    assert len(result.shape) == 4 if per_axle else 3
     assert result.shape[0] == len(times)
     assert result.shape[1] == len(at)
+    assert result.shape[2] == len(response_types)
     return result
 
 
@@ -116,13 +123,10 @@ def on_bridge(bridge: Bridge, mv_load: MovingLoad, time: float):
     """Whether a moving load is on a bridge at a given time."""
     # Find leftmost and rightmost points of the load.
     left_x_frac = mv_load.x_frac_at(time, bridge)
-    print_w(f"x_frac = {mv_load.x_frac_at(0, bridge)} @ {time}")
-    print_w(f"left_x_frac = {left_x_frac}")
     right_x_frac = left_x_frac
     if not mv_load.load.is_point_load():
         vehicle_length = sum(mv_load.load.axle_distances)
         right_x_frac += bridge.x_frac(vehicle_length)
-    print_w(f"right_x_frac = {right_x_frac}")
     return (
         0 <= left_x_frac and left_x_frac <= 1 and
         0 <= right_x_frac and right_x_frac <= 1)

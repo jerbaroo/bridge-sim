@@ -1,11 +1,12 @@
-"""Test features.py."""
+"""Test recorder.py."""
 import pytest
 
-from classify.data.features import Recorder
+from classify.data.recorder import Recorder
+from classify.data.trigger import always_trigger
 from config import Config
 from fem.run.opensees import os_runner
-from model import ResponseType
-from model.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_config
+from model.response import ResponseType
 from util import print_i
 
 c = bridge_705_config()
@@ -14,7 +15,8 @@ fem_runner = os_runner(c)
 
 def test_recorder():
     # Test one response is recorded.
-    recorder = Recorder(c, ResponseType.Strain)
+    recorder = Recorder(
+        c=c, response_type=ResponseType.Strain, trigger=always_trigger())
     response = 1
 
     def add_response():

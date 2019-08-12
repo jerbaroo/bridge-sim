@@ -4,18 +4,19 @@ from __future__ import annotations
 import os
 import pickle
 from collections import defaultdict
-from model.bridge_705 import bridge_705_config
 from timeit import default_timer as timer
-from typing import Callable, List
+from typing import List
 
 import matplotlib.pyplot as plt
+import numpy as np
 
+from config import Config
 from fem.params import ExptParams, FEMParams
-from model import *
-from util import *
+from model import Response
+from model.response import ResponseType
+from util import print_i
 
 
-# TODO: Rename to sim_responses_path.
 def fem_responses_path(
         c: Config, fem_params: FEMParams, response_type: ResponseType,
         runner_name: str):
@@ -24,7 +25,6 @@ def fem_responses_path(
             + f"-rt-{response_type.name()}-ru-{runner_name}.npy")
 
 
-# TODO: Rename to SimResponses, move to fem.responses.sim.
 class FEMResponses:
     """Responses of one sensor type for one FEM simulation.
 
@@ -38,9 +38,10 @@ class FEMResponses:
         skip_build: bool, reduces time if responses will only be saved.
 
     """
-    def __init__(self, fem_params: FEMParams, runner_name: str,
-                 response_type: ResponseType, responses: [Response],
-                 skip_build=False):
+    def __init__(
+            self, fem_params: FEMParams, runner_name: str,
+            response_type: ResponseType, responses: [Response],
+            skip_build=False):
         assert isinstance(responses, list)
         assert isinstance(responses[0], Response)
 
@@ -52,7 +53,8 @@ class FEMResponses:
         self.response_type = response_type
         self.num_sensors = len(responses)
 
-        if skip_build: return
+        if skip_build:
+            return
 
         # Nested dictionaries for indexing responses by ordinates.
         self.responses = defaultdict(
@@ -69,12 +71,13 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
-    def at(self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=0,
-           time=None):
+    def at(
+            self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=0,
+            time=None):
         """Access responses with axis fractions in [0 1] or with ordinates."""
-        assert 0 <= x and x <= 1
-        assert 0 <= y and y <= 1
-        assert 0 <= z and z <= 1
+        assert 0 <= x <= 1
+        assert 0 <= y <= 1
+        assert 0 <= z <= 1
         # print(f"({x}, {y}, {z}) ({x_ord}, {y_ord}, {z_ord}) t={time}")
 
         # Convert to x ordinate if necessary.
@@ -115,10 +118,9 @@ class FEMResponses:
         if show: plt.show()
 
 
-# TODO: Make a method of SimResponses.
-def load_fem_responses(c: Config, fem_params: FEMParams,
-                       response_type: ResponseType, fem_runner: FEMRunner
-                      ) -> FEMResponses:
+def load_fem_responses(
+        c: Config, fem_params: FEMParams, response_type: ResponseType,
+        fem_runner: FEMRunner) -> FEMResponses:
     """Load responses of one type for a simulation.
 
     The FEMParams determine which responses are saved.
@@ -136,7 +138,7 @@ def load_fem_responses(c: Config, fem_params: FEMParams,
             set_y_false = True
 
     path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
-    if (not os.path.exists(path)):
+    if not os.path.exists(path):
         fem_runner.run(ExptParams([fem_params]))
 
     # And set the node as fixed again after running.
@@ -161,9 +163,9 @@ ExptResponses = List[FEMResponses]
 
 
 # TODO: Move to fem.responses.expt.
-def load_expt_responses(c: Config, expt_params: ExptParams,
-                        response_type: ResponseType, fem_runner: FEMRunner
-                       ) -> ExptResponses:
+def load_expt_responses(
+        c: Config, expt_params: ExptParams, response_type: ResponseType,
+        fem_runner: FEMRunner) -> ExptResponses:
     """Load responses of one type for an experiment."""
     results = []
     for i, fem_params in enumerate(expt_params.fem_params):
