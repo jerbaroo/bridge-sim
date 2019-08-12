@@ -1,9 +1,10 @@
-"""Extract features from a time series of responses."""
+"""Extract events from a time series of responses."""
+# TODO: Split between events, event, trigger, recorder.
 from typing import Callable, Iterable, List, Optional, NewType, Tuple, Union
 
 import numpy as np
 
-from classify.data.responses import responses_to_mv_load
+from classify.data.responses import responses_to_mv_loads
 from config import Config
 from fem.run import FEMRunner
 from model import MovingLoad, Point, ResponseType, TimeSeries
@@ -88,7 +89,7 @@ class Recorder:
         # Responses prior to the current event.
         self.history: Union[List[float], List[List[float]]] = []
         # Responses of current event so far.
-        self.responses: Union[List[float], List[List[float]]] = []  
+        self.responses: Union[List[float], List[List[float]]] = []
 
     def receive(
             self, response: Union[float, List[float]], overlap: bool = False):
@@ -141,6 +142,7 @@ class Recorder:
                 # Return an event with additional info.
                 print(type(event[0]))
                 by_axle = False
+                # TODO: if hasattr(event[0], "__len__")
                 try:
                     len(event[0])
                     by_axle = True
@@ -164,13 +166,14 @@ class Recorder:
                     start_index = prev_start_index)
 
 
-def events_from_mv_load(
-        c: Config, mv_load: MovingLoad, response_type: ResponseType,
+def events_from_mv_loads(
+        c: Config, mv_loads: List[MovingLoad], response_type: ResponseType,
         fem_runner: FEMRunner, at: Point, per_axle: bool = False,
         trigger: Trigger = always_trigger()) -> Iterable[Event]:
     """Yield events from a moving load."""
-    responses = list(map(lambda x: x[0], responses_to_mv_load(
-        c=c, mv_load=mv_load, response_type=response_type,
+    # Map from a list of points to a single point.
+    responses = list(map(lambda x: x[0], responses_to_mv_loads(
+        c=c, mv_loads=mv_loads, response_type=response_type,
         fem_runner=fem_runner, at=[at])))
     print(np.array(responses).shape)
     print_w(f"**")
@@ -182,50 +185,3 @@ def events_from_mv_load(
         maybe_event = recorder.maybe_event()
         if maybe_event is not None:
             yield maybe_event
-
-
-# def events_from_time_series(
-#         c: Config, trigger: Trigger, time_series: TimeSeries,
-#         with_time: bool=False
-#     ) -> Union[List[Event], Tuple[List[Event], List[int]]]:
-#     """Return all events found in a time series of responses.
-
-#     Args:
-#         trigger: Trigger, when to start and stop recording an event.
-#         time_series: TimeSeries, the history of responses to search for events.
-#         with_time: bool, return the start time of each event. So the return
-#             type is List[Tuple[Event, int]].
-
-#     TODO: Rewrite using recorder or deprecate.
-
-#     """
-#     events = []
-#     event_start_times = []
-#     event_start_time = None
-#     event_recording = False
-#     event_max_length = c.time_end / c.time_step + 1
-#     for t in range(len(time_series)):
-#         time_series_so_far = time_series[:t + 1]
-#         if event_recording:
-#             if (t * c.time_step - event_start_time * c.time_step > c.time_end
-#                     or trigger.end(time_series_so_far)):
-#                 events.append(time_series_so_far[event_start_time:])
-#                 event_start_times.append(event_start_time)
-#                 print_d(f"t - event_start_time = {t - event_start_time}")
-#                 print_d(f"c.time_end = {c.time_end}")
-#                 print_d(f"trigger end = {trigger.end(time_series_so_far)}")
-#                 print_d(f"len events = {len(events)}")
-#                 print_d(f"len event start times = {len(event_start_times)}")
-#                 event_recording = False
-#         # Not recording.
-#         else:
-#             if trigger.start(time_series_so_far):
-#                 event_start_time = t
-#                 event_recording = True
-#         print_d(f"t = {t}, value = {time_series[t]}, recording = {event_recording}")
-#     if event_recording:
-#         events.append(time_series_so_far[event_start_time:])
-#         event_start_times.append(event_start_time)
-#     if with_time:
-#         return events, event_start_times
-#     return events

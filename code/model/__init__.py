@@ -79,7 +79,7 @@ class Load:
     def __init__(self, x_frac: float, kn: float, lane: int=0,
                  axle_distances: List[float]=None, axle_width: float=2,
                  quadim: (float, float)=(0.4, 0.2)):
-        assert x_frac >= 0 and x_frac <= 1
+        # assert x_frac >= 0 and x_frac <= 1
         self.x_frac = x_frac
         self.kn = kn
         self.lane = lane

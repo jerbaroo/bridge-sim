@@ -13,16 +13,18 @@ from model.bridge_705 import bridge_705_config
 from util import *
 
 
-def response_at_time(
+def response_to_mv_load(
         c: Config, mv_load: MovingLoad, time: float, at: Point,
         response_type: ResponseType, fem_runner: FEMRunner,
         per_axle: bool=False) -> Response:
-    """The response to a moving load at a given time.
+    """The response to one or more moving loads at a single time.
 
     Args:
         per_axle: bool, if true then return a list of response per axle,
             otherwise return a single response for the vehicle.
     """
+    assert on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)
+
     load_x_frac = mv_load.x_frac_at(time, c.bridge)
     il_matrix = load_il_matrix(c, response_type, fem_runner)
 
@@ -45,8 +47,33 @@ def response_at_time(
     return axle_responses if per_axle else sum(axle_responses)
 
 
-def responses_to_mv_load(
-        c: Config, mv_load: MovingLoad, response_type: ResponseType,
+def response_to_mv_loads(
+        c: Config, mv_loads: List[MovingLoad], time: float, at: Point,
+        response_type: ResponseType, fem_runner: FEMRunner,
+        per_axle: bool=False) -> Response:
+    """The response to one or more moving loads at a single time.
+
+    Args:
+        per_axle: bool, if true then return a list of response per axle,
+            otherwise return a single response for the vehicle.
+
+    """
+    responses = [
+        response_to_mv_load(
+            c=c, mv_load=mv_load, time=time, at=at,
+            response_type=response_type, fem_runner=fem_runner,
+            per_axle=per_axle)
+        for mv_load in mv_loads
+        if on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)]
+    if per_axle:
+        return responses
+    else:
+        return np.sum(responses)
+
+
+
+def responses_to_mv_loads(
+        c: Config, mv_loads: List[MovingLoad], response_type: ResponseType,
         fem_runner: FEMRunner, at: List[Point], per_axle: bool=False,
         times: Optional[List[float]]=None):
     """The responses to a load for a number of time steps.
@@ -62,18 +89,19 @@ def responses_to_mv_load(
 
     """
     assert isinstance(c, Config)
-    assert isinstance(mv_load, MovingLoad)
+    assert isinstance(mv_loads[0], MovingLoad)
     assert isinstance(response_type, ResponseType)
     assert isinstance(fem_runner, FEMRunner)
     assert isinstance(at, list)
     assert isinstance(at[0], Point)
     if times is None:
         print_w(f"times is None")
-        times = list(times_on_bridge(c=c, mv_load=mv_load))
-        print_w(f"times = {times}")
+        times = list(times_on_bridge(c=c, mv_loads=mv_loads))
+        print_w(f"max_time = {times[-1]}")
+    # TODO: Make this a generator.
     result = np.array([
-        [response_at_time(
-            c=c, mv_load=mv_load, time=time, at=at_,
+        [response_to_mv_loads(
+            c=c, mv_loads=mv_loads, time=time, at=at_,
             response_type=response_type, fem_runner=fem_runner,
             per_axle=per_axle)
          for at_ in at]
@@ -88,18 +116,23 @@ def on_bridge(bridge: Bridge, mv_load: MovingLoad, time: float):
     """Whether a moving load is on a bridge at a given time."""
     # Find leftmost and rightmost points of the load.
     left_x_frac = mv_load.x_frac_at(time, bridge)
+    print_w(f"x_frac = {mv_load.x_frac_at(0, bridge)} @ {time}")
+    print_w(f"left_x_frac = {left_x_frac}")
     right_x_frac = left_x_frac
     if not mv_load.load.is_point_load():
         vehicle_length = sum(mv_load.load.axle_distances)
         right_x_frac += bridge.x_frac(vehicle_length)
+    print_w(f"right_x_frac = {right_x_frac}")
     return (
         0 <= left_x_frac and left_x_frac <= 1 and
         0 <= right_x_frac and right_x_frac <= 1)
 
 
-def times_on_bridge(c: Config, mv_load: MovingLoad) -> List[float]:
+def times_on_bridge(c: Config, mv_loads: List[MovingLoad]) -> List[float]:
     """Yield the times when a moving load is on a bridge."""
     time = 0
-    while on_bridge(c.bridge, mv_load, time):
+    while any(
+            on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)
+            for mv_load in mv_loads):
         yield time
         time += c.time_step

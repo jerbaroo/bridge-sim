@@ -104,7 +104,7 @@ def make_event_plots_from_normal_mv_loads(c: Config):
     """Make plots of events from a moving load."""
     for fem_runner in [os_runner(c)]:
         for response_type in ResponseType:
-            for num_loads in [1]:
+            for num_loads in [5]:
                 for x_frac in np.linspace(0, 1, num=10):
                     plot_events_from_normal_mv_loads(
                         c=c, response_type=response_type,

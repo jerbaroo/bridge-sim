@@ -14,7 +14,7 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-from classify.data.responses import responses_to_mv_load, times_on_bridge
+from classify.data.responses import responses_to_mv_loads, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
 from model import *
@@ -290,8 +290,9 @@ def animate_mv_load(
         c, mv_load, time_step=time_step, time_end=time_end)
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
-    responses = responses_to_mv_load(
-        c, mv_load, response_type, fem_runner, times, at, per_axle=per_axle)
+    responses = responses_to_mv_loads(
+        c=c, mv_loads=[mv_load], response_type=response_type,
+        fem_runner=fem_runner, times=times, at=at, per_axle=per_axle)
     animate_bridge_response(
         c.bridge, [responses], time_step, response_type, mv_loads=[mv_load],
         save=save, show=show)
