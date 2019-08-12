@@ -167,7 +167,7 @@ class Recorder:
 
 
 def events_from_mv_loads(
-        c: Config, mv_loads: List[MovingLoad], response_type: ResponseType,
+        c: Config, mv_loads: List[MovingLoad], response_type: List[ResponseType],
         fem_runner: FEMRunner, at: Point, per_axle: bool = False,
         trigger: Trigger = always_trigger()) -> Iterable[Event]:
     """Yield events from a moving load."""

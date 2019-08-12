@@ -101,12 +101,14 @@ class Config:
         self.time_step: float = 1 / 250  # Record at 250 Hz.
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
+
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
             ResponseType.Stress: 0,
             ResponseType.XTranslation: 0,
             ResponseType.YTranslation: 0
         }[rt]
+
         self.noise_stddev = lambda rt: {
             ResponseType.Strain: 1e-5,
             ResponseType.Stress: 1e6,
