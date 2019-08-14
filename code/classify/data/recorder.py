@@ -3,7 +3,7 @@ from typing import Callable, List, Optional, Union
 
 import numpy as np
 
-from classify.data.trigger import Trigger, always_trigger
+from classify.data.trigger import Trigger
 from config import Config
 from model.response import Event, ResponseType
 from util import print_w
@@ -27,7 +27,7 @@ class Recorder:
         # Amount of responses which overlap previous event.
         self.overlap: int = 0
         # Start index of current event.
-        self.start_index: int = None
+        self.start_index: Optional[int] = None
         # Current time index.
         self.index: int = 0
         # Responses prior to the current event.
@@ -90,7 +90,7 @@ class Recorder:
                 try:
                     len(event[0])
                     by_axle = True
-                except:
+                except TypeError:
                     pass
                 assert isinstance(event, list)
                 print_w(type(event[0]))
@@ -104,9 +104,9 @@ class Recorder:
                         len(event)))
                 print_w(f"TODO: Axle noise")
                 return Event(
-                    time_series = event if not by_axle else None,
-                    noise = noise if not by_axle else None,
-                    axle_time_series = event if by_axle else None,
-                    axle_noise = None,
-                    overlap = prev_overlap,
-                    start_index = prev_start_index)
+                    time_series=event if not by_axle else None,
+                    noise=noise if not by_axle else None,
+                    axle_time_series=event if by_axle else None,
+                    axle_noise=None,
+                    overlap=prev_overlap,
+                    start_index=prev_start_index)

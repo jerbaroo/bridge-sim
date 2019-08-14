@@ -1,13 +1,9 @@
 """Test recorder.py."""
-import pytest
-
 from classify.data.recorder import Recorder
 from classify.data.trigger import always_trigger
-from config import Config
 from fem.run.opensees import os_runner
 from model.bridge.bridge_705 import bridge_705_config
 from model.response import ResponseType
-from util import print_i
 
 c = bridge_705_config()
 fem_runner = os_runner(c)

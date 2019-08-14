@@ -1,18 +1,15 @@
 """Time series of responses to moving loads."""
-from itertools import takewhile
-from typing import List, NewType, Optional
+from typing import List, Optional
 
 import numpy as np
 
 from config import Config
 from fem.responses.matrix import load_il_matrix
 from fem.run import FEMRunner
-from fem.run.opensees import os_runner
 from model import Response
 from model.bridge import Bridge, Point
 from model.load import MovingLoad
 from model.response import ResponseType
-from util import print_w
 
 
 def response_to_mv_load(
@@ -68,11 +65,7 @@ def response_to_mv_loads(
             per_axle=per_axle)
         for mv_load in mv_loads
         if on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)]
-    if per_axle:
-        return responses
-    else:
-        return np.sum(responses)
-
+    return responses if per_axle else np.sum(responses)
 
 
 def responses_to_mv_loads(
