@@ -1,15 +1,18 @@
 """Scenarios for the traffic and bridge."""
-from enum import Enum
+from typing import Callable
 
-from model.load import DisplacementCtrl
+from model.load import DisplacementCtrl, Vehicle
 
 
-class TrafficScenario(Enum):
-    Normal = "Normal"
-    Heavy = "Heavy"
+class TrafficScenario:
+    """A named traffic scenario that generates vehicles."""
+    def __init__(self, name: str, vehicle: Callable[[Config], Vehicle]):
+        self.name = name
+        self.vehicle = vehicle
 
 
 class _BridgeScenario:
+    """Base class for bridge scenarios. Do not construct directly."""
     pass
 
 

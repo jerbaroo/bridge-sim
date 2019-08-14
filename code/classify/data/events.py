@@ -1,6 +1,8 @@
 """Generate, save and load events."""
+import os
 from typing import List
 
+import pandas as pd
 import numpy as np
 
 from classify.data.recorder import Recorder
@@ -59,3 +61,23 @@ def events_from_mv_loads(
                 if maybe_event is not None:
                     events[a][r].append(maybe_event)
     return events
+
+
+class Events:
+    """A class for generating, saving and loading events for scenarios."""
+    def __init__(self, c: Config):
+        self.c = c
+        if not os.path.exists(c.event_metadata_path):
+            self.meta_data = pd.DataFrame()
+
+    def make_events(
+            self, traffic_scenario: TrafficScenario,
+            bridge_scenario: BridgeScenario, at: List[Point],
+            response_types: List[ResponseType], fem_runner: FEMRunner,
+            num_vehicles: int = 2, lane: int = 0):
+        mv_loads = [
+            MovingLoad.from_vehicle(x_frac=0, traffic_scenario(c), lane=lane)
+            for _ in range(num_vehicles)]
+        events = events_from_mv_loads(
+            c=c, mv_loads=mv_loads, response_types=response_types,
+            fem_runner=fem_runner, at=at)

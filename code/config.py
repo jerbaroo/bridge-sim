@@ -102,6 +102,8 @@ class Config:
         self.time_step: float = 1 / 250  # Record at 250 Hz.
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
+        self.event_metadata_path = os.path.join(
+            self.generated_dir, "eventmetadata")
 
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
