@@ -52,12 +52,16 @@ class Event:
 
     def get_time_series(self, noise: bool = True):
         """Return the time series optionally with noise."""
+        if self.time_series is None:
+            raise ValueError("Time series not defined")
         if not noise:
             return self.time_series
         return list(sum(x) for x in zip(self.time_series, self.noise))
 
     def get_axle_time_series(self, noise: bool = True):
         """Return the axle time series optionally with noise."""
+        if self.axle_time_series is None:
+            raise ValueError("Axle time series not defined")
         if not noise:
             return self.axle_time_series
         return list(

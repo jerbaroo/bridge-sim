@@ -88,6 +88,7 @@ class Config:
 
         # Generated data.
         self.generated_dir = "generated-data/"
+        self.events_dir = os.path.join(self.generated_dir, "events/")
         self.images_dir = "generated-images/"
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
@@ -103,7 +104,7 @@ class Config:
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
         self.event_metadata_path = os.path.join(
-            self.generated_dir, "eventmetadata")
+            self.generated_dir, "events-metadata.txt")
 
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
