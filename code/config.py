@@ -4,10 +4,11 @@ from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 
 import numpy as np
-import pandas as pd
 
-from model import *
+from model.bridge import Bridge, reset_model_ids
+from model.response import ResponseType
 from vehicles import load_vehicle_data
+from util import print_i, print_w
 
 
 class Config:
@@ -87,6 +88,7 @@ class Config:
 
         # Generated data.
         self.generated_dir = "generated-data/"
+        self.events_dir = os.path.join(self.generated_dir, "events/")
         self.images_dir = "generated-images/"
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
@@ -101,12 +103,16 @@ class Config:
         self.time_step: float = 1 / 250  # Record at 250 Hz.
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
+        self.event_metadata_path = os.path.join(
+            self.generated_dir, "events-metadata.txt")
+
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
             ResponseType.Stress: 0,
             ResponseType.XTranslation: 0,
             ResponseType.YTranslation: 0
         }[rt]
+
         self.noise_stddev = lambda rt: {
             ResponseType.Strain: 1e-5,
             ResponseType.Stress: 1e6,

@@ -4,7 +4,6 @@ import subprocess
 from config import Config
 from fem.params import ExptParams
 from fem.run import FEMRunner, fem_file_path
-from util import *
 
 
 def run_model(

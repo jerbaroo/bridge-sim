@@ -117,7 +117,7 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-at-{x_frac:.2f}"))))
 
 
-def make_all(c: Config, clean=True):
+def make_all(c: Config, clean = True):
     """Make all plots for the thesis."""
     if clean:
         clean_generated(c)
@@ -131,4 +131,4 @@ def make_all(c: Config, clean=True):
 
 
 if __name__ == "__main__":
-    make_all(bridge_705_config(), clean=False)
+    make_all(bridge_705_config(), clean=True)

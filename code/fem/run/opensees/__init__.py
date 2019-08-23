@@ -1,52 +1,57 @@
 """Run FEM simulations with OpenSees."""
-import os
-
 from config import Config
-from fem.params import ExptParams, FEMParams
-from fem.responses import load_fem_responses
+from fem.params import FEMParams
 from fem.run import FEMRunner, fem_file_path
 from fem.run.opensees.build import build_model
 from fem.run.opensees.convert import convert_responses
 from fem.run.opensees.parse import parse_responses
 from fem.run.opensees.run import run_model
-from model import *
-from model.bridge_705 import bridge_705_config
+from model.bridge import Layer, Patch
 
 
-def os_runner(c: Config):
-    """A FEMRunner based on OpenSees."""
+class OSRunner(FEMRunner):
+    def __init__(self, c: Config):
+        super().__init__(
+            c=c, name="OpenSees", build=build_model, run=run_model,
+            parse=parse_responses, convert=convert_responses,
+            built_model_ext="tcl")
 
-    fem_runner = FEMRunner(
-        c, "OpenSees", build_model, run_model, parse_responses,
-        convert_responses, "tcl")
+    def translation_path(self, fem_params: FEMParams, axis: str):
+        return fem_file_path(fem_params, self, f"node-{axis}.out")
 
-    def translation_path(fem_params: FEMParams, axis: str):
-        return fem_file_path(fem_params, fem_runner, f"node-{axis}.out")
+    def x_translation_path(self, fem_params: FEMParams):
+        return self.translation_path(fem_params, "x")
 
-    def patch_path(fem_params: FEMParams, patch: Patch):
+    def y_translation_path(self, fem_params: FEMParams):
+        return self.translation_path(fem_params, "y")
+
+    def patch_path(self, fem_params: FEMParams, patch: Patch):
         center = patch.center()
         return fem_file_path(
-            fem_params, fem_runner,
-            f"-patch-{center.y:.5f}-{center.z:.5f}.out")
+            fem_params, self, f"-patch-{center.y:.5f}-{center.z:.5f}.out")
 
-    def layer_paths(fem_params: FEMParams, layer: Layer):
-        return [fem_file_path(
-                    fem_params, fem_runner,
-                    f"-layer-{point.y:.5f}-{point.z:.5f}.out")
-                for point in layer.points()]
+    def layer_paths(self, fem_params: FEMParams, layer: Layer):
+        return [
+            fem_file_path(
+                fem_params, self, f"-layer-{point.y:.5f}-{point.z:.5f}.out")
+            for point in layer.points()]
 
-    def element_path(fem_params: FEMParams):
-        return fem_file_path(fem_params, fem_runner, f"-elems.out")
+    def element_path(self, fem_params: FEMParams):
+        return fem_file_path(fem_params, self, f"-elems.out")
 
-    fem_runner.x_translation_path = lambda fp: translation_path(fp, "x")
-    fem_runner.y_translation_path = lambda fp: translation_path(fp, "y")
-    fem_runner.patch_path = patch_path
-    fem_runner.layer_paths = layer_paths
-    fem_runner.element_path = element_path
-    return fem_runner
+
+def os_runner(c: Config) -> OSRunner:
+    """TODO: Remove, for backwards compatibility."""
+    return OSRunner(c)
 
 
 if __name__ == "__main__":
+    from fem.params import ExptParams
+    from fem.responses import load_fem_responses
+    from model.bridge.bridge_705 import bridge_705_config
+    from model.load import Load
+    from model.response import ResponseType
+
     c = bridge_705_config()
     response_type = ResponseType.XTranslation
     expt_params = ExptParams([
@@ -58,7 +63,7 @@ if __name__ == "__main__":
         #     [response_type]),
         FEMParams(
             [Load(0.2, 87375)],
-            [ResponseType.XTranslation, response_type])
+            response_types=[ResponseType.XTranslation, response_type])
     ])
 
     # os_runner(c).run(c, expt_params, run=True, save=True)

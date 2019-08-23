@@ -11,10 +11,10 @@ mypy = "*"
 colorama = "*"
 matplotlib = "*"
 numpy = "*"
+pandas = "*"
 scipy = "*"
 termcolor = "*"
-pandas = "*"
-mycode = {editable = true,path = "./code"}
+mycode = {path = "./code",editable = true}
 
 [requires]
 python_version = "3.7"

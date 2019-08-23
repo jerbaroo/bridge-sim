@@ -1,11 +1,13 @@
 """Sample vehicles from the vehicle data."""
 from typing import List, Optional, Tuple, Union
 
+import numpy as np
 import pandas as pd
+import scipy.stats as stats
 
 from config import Config
-from model import *
-from util import *
+from util import print_d, print_w
+from model.load import Vehicle
 from vehicles import axle_array_and_count
 
 
@@ -13,7 +15,8 @@ from vehicles import axle_array_and_count
 noise_col_names = ["speed", "length", "total_weight"]
 
 
-def length_groups(c: Config, col: Optional[str]=None, lengths: List[int]=None):
+def length_groups(
+        c: Config, col: Optional[str] = None, lengths: List[int] = None):
     """Return vehicle data grouped by a maximum value per group."""
     if col is None:
         col = c.vehicle_density_col
@@ -49,17 +52,17 @@ def noise_per_column(c: Config, col_names: List[str]):
 
 
 def sample_vehicle(
-        c: Config, group_index: int=None,
-        noise_col_names: List[str]=noise_col_names, pd_row: bool=False
+        c: Config, group_index: int = None,
+        noise_col_names: List[str] = noise_col_names, pd_row: bool = False
     ) -> Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
-    """Return a sample vehicle from a c.vehicle_density group.
+    """Sample a vehicle from a c.vehicle_density group.
 
     Args:
         c: Config, config from which to load vehicle data and density info.
         init_group_index: int, sample from a given group index or all (None).
         noise_col_names: List[str], a list of columns to apply noise to.
         pd_row: bool, if true return a tuple of Vehicle and the corresponding
-            row from the Pandas DataFrame, else just the Vehicle.
+            row from the Pandas DataFrame, else return just a Vehicle.
 
     """
     # Select a group based on density, if none given.
