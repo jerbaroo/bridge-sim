@@ -75,9 +75,9 @@ def responses_to_mv_loads(
         times: Optional[List[float]] = None):
     """The responses to a load for a number of time steps.
 
-    Returns either a 3 or 4 dimensional numpy array, of shape (len(times),
-    len(at), len(response_types)) if per_axle is False else of shape
-    (len(times), len(at), len(response_types), #axles).
+    Returns either a 4 or 5 dimensional numpy array, of shape (len(times),
+    len(at), len(response_types), len(mv_loads)) if per_axle is False, else of
+    shape (len(times), len(at), len(response_types), len(mv_loads), #axles).
 
     Args:
         per_axle: bool, if true then return a response per axle, otherwise
@@ -105,7 +105,7 @@ def responses_to_mv_loads(
          for at_ in at]
         for time in times])
 
-    assert len(result.shape) == 4 if per_axle else 3
+    assert len(result.shape) == 5 if per_axle else 4
     assert result.shape[0] == len(times)
     assert result.shape[1] == len(at)
     assert result.shape[2] == len(response_types)

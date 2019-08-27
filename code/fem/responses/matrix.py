@@ -11,9 +11,8 @@ from fem.run import FEMRunner
 from fem.run.opensees import os_runner
 from model import Response
 from model.bridge.bridge_705 import bridge_705_config
-from model.load import Load
+from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
-from util import *
 
 
 # TODO: Replace ExptResponses.
@@ -86,6 +85,7 @@ class DCMatrix(ResponsesMatrix):
             [rt for rt in ResponseType] if save_all else [response_type])
         expt_params = ExptParams([
             FEMParams(
+                loads=[],
                 displacement_ctrl=DisplacementCtrl(displacement, i),
                 response_types=response_types)
             for i in range(len(c.bridge.fixed_nodes))])

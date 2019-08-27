@@ -4,12 +4,14 @@ from typing import List, Tuple
 import matplotlib.patches as patches
 import numpy as np
 
-from classify.data.features import Event, events_from_mv_loads
+from classify.data.events import events_from_mv_loads
 from config import Config
 from fem.run import FEMRunner
-from model import MovingLoad, Point, ResponseType
+from model.bridge import Point
+from model.load import MovingLoad
+from model.response import Event, ResponseType
 from plot import plt
-from util import *
+from util import print_d, print_i
 from vehicles.sample import sample_vehicle
 
 
@@ -58,8 +60,8 @@ def plot_events_from_mv_loads(
     rows = len(mv_loads)
     events = [
         list(events_from_mv_loads(
-            c=c, mv_loads=mv_loads[row], response_type=response_type,
-            fem_runner=fem_runner, at=at))
+            c=c, mv_loads=mv_loads[row], response_types=[response_type],
+            fem_runner=fem_runner, at=[at]))[0][0]
         for row in range(rows)]
     cols = max(len(es) for es in events)
     assert isinstance(events[0][0], Event)

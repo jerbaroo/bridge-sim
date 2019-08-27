@@ -17,8 +17,10 @@ from scipy import stats
 from classify.data.responses import responses_to_mv_loads, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
-from model import *
-from util import *
+from model.bridge import Bridge, Point, Section
+from model.load import Load, MovingLoad
+from model.response import Event, ResponseType
+from util import print_d, print_w
 
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
@@ -55,7 +57,7 @@ response_color = "mediumorchid"
 response_axle_color = "cornflowerblue"
 
 
-def sci_format_y_axis(points: int=1):
+def sci_format_y_axis(points: int = 1):
     """Format y-axis ticks in scientific style."""
 
     class ScalarFormatterForceFormat(ScalarFormatter):
@@ -67,7 +69,7 @@ def sci_format_y_axis(points: int=1):
 
 
 def _plot_load_deck_side(
-        bridge: Bridge, load: Load, normalize_vehicle_height: bool=False):
+        bridge: Bridge, load: Load, normalize_vehicle_height: bool = False):
     """Plot a load on the side of the deck (but don't plot the deck)."""
     xl = load.x_frac * bridge.length
     if load.is_point_load():
@@ -89,9 +91,9 @@ def _plot_load_deck_side(
 
 
 def plot_bridge_deck_side(
-        bridge: Bridge, loads: List[Load]=[], equal_axis: bool=True,
-        normalize_vehicle_height: bool=False, save: str=None,
-        show: bool=False):
+        bridge: Bridge, loads: List[Load] = [], equal_axis: bool = True,
+        normalize_vehicle_height: bool = False, save: str = None,
+        show: bool = False):
     """Plot the deck of a bridge from the side with optional loads.
 
     Args:
@@ -128,8 +130,9 @@ def _plot_load_deck_top(bridge: Bridge, load: Load):
             facecolor=load_color))
 
 
-def plot_bridge_deck_top(bridge: Bridge, loads: List[Load]=[], save: str=None,
-                         show: bool=False):
+def plot_bridge_deck_top(
+        bridge: Bridge, loads: List[Load]=[], save: str = None,
+        show: bool = False):
     """Plot the deck of a bridge from the top."""
     plt.hlines([0, bridge.width], 0, bridge.length, color=bridge_color)
     plt.vlines([0, bridge.length], 0, bridge.width, color=bridge_color)
@@ -147,12 +150,12 @@ def plot_bridge_deck_top(bridge: Bridge, loads: List[Load]=[], save: str=None,
 
 
 def plot_bridge_first_section(
-        bridge: Bridge, save: str=None, show: bool=False):
+        bridge: Bridge, save: str = None, show: bool = False):
     """Plot the first cross section of a bridge."""
     plot_section(bridge.sections[0], save=save, show=show)
 
 
-def plot_section(section: Section, save: str=None, show: bool=False):
+def plot_section(section: Section, save: str = None, show: bool = False):
     """Plot the cross section of a bridge."""
     for p in section.patches:
         plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=bridge_color)  # Bottom.
@@ -187,10 +190,9 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
 
 
 def animate_bridge_response(
-        bridge: Bridge, responses, time_step: float,
-        response_type: ResponseType, mv_loads: List[MovingLoad]=[],
-        save: str=None, show: bool=False):
-    """Animate a bridge's response to moving loads.
+        c: Config, responses, response_type: ResponseType,
+        mv_loads: List[MovingLoad] = [], save: str = None, show: bool = False):
+    """Animate a bridge's response, of one response type, to moving loads.
 
     Args:
         responses: a 3 or 4 dimensional list. The first index is the load,
@@ -212,7 +214,7 @@ def animate_bridge_response(
 
     def update_loads(t):
         for i, mv_load in enumerate(mv_loads):
-            loads[i].x_frac = mv_load.x_frac_at(t * time_step, bridge)
+            loads[i].x_frac = mv_load.x_frac_at(t * c.time_step, c.bridge)
             assert 0 <= loads[i].x_frac and loads[i].x_frac <= 1
 
     # TODO: This should be a global function.
@@ -223,7 +225,7 @@ def animate_bridge_response(
         # Plot responses for each moving load.
         for i in range(len(mv_loads)):
             t_load_responses = responses[i][t]
-            x_axis = bridge.x_axis_equi(len(t_load_responses))
+            x_axis = c.bridge.x_axis_equi(len(t_load_responses))
 
             # Plot responses per axle and one sum of responses.
             if per_axle:
@@ -244,25 +246,26 @@ def animate_bridge_response(
 
         # Plot the bridge and loads.
         plot_bridge_deck_side(
-            bridge, loads=loads, equal_axis=False,
+            c.bridge, loads=loads, equal_axis=False,
             normalize_vehicle_height=True)
         sci_format_y_axis()
-        response_name = response_type_name(response_type).capitalize()
-        plt.title(f"{response_name} at {t * time_step:.1f}s")
+        response_name = response_type.name().capitalize()
+        plt.title(f"{response_name} at {t * c.time_step:.1f}s")
         plt.xlabel("x-axis (m)")
-        plt.ylabel(f"{response_name} ({response_type_units(response_type)})")
+        plt.ylabel(f"{response_name} ({response_type.units()})")
         plt.gcf().set_size_inches(16, 10)
 
     print_w(f"num time steps = {len(responses[0])}")
-    print_w(f"interval = {time_step}")
-    print_w(f"total time = {len(responses[0]) * time_step}")
+    print_w(f"interval = {c.time_step}")
+    print_w(f"total time = {len(responses[0]) * c.time_step}")
     animate_plot(
-        len(responses[0]), plot_bridge_response, time_step, save, show)
+        frames=len(responses[0]), plot=plot_bridge_response,
+        time_step=c.time_step, save=save, show=show)
 
 
 def animate_plot(
         frames: int, plot: Callable[[int], None], time_step: float,
-        save: str=None, show: bool=True):
+        save: str = None, show: bool = True):
     """Generate an animation with given plotting function."""
 
     def animate(t):
@@ -282,26 +285,27 @@ def animate_plot(
 
 def animate_mv_load(
         c: Config, mv_load: MovingLoad, response_type: ResponseType,
-        fem_runner: FEMRunner, time_step: float=0.1, time_end: float=20,
-        num_x_fracs: int=100, per_axle: bool=False, save: str=None,
-        show: bool=False):
+        fem_runner: FEMRunner, num_x_fracs: int = 100, per_axle: bool = False,
+        save: str = None, show: bool = False):
     """Animate the bridge's response to a moving load."""
-    times = times_on_bridge(
-        c, mv_load, time_step=time_step, time_end=time_end)
+    times = list(times_on_bridge(c=c, mv_loads=[mv_load]))
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_loads(
-        c=c, mv_loads=[mv_load], response_type=response_type,
+        c=c, mv_loads=[mv_load], response_types=[response_type],
         fem_runner=fem_runner, times=times, at=at, per_axle=per_axle)
+    # Reshape to have only a single response type and moving load.
+    new_shape = [d for d in responses.shape if d != 1]
+    responses = responses.reshape(new_shape)
     animate_bridge_response(
-        c.bridge, [responses], time_step, response_type, mv_loads=[mv_load],
-        save=save, show=show)
+        c=c, responses=[responses], response_type=response_type,
+        mv_loads=[mv_load], save=save, show=show)
 
 
 def plot_hist(
-        data, bins: int=None, density: bool=True, kde: bool=False,
-        title: str=None, ylabel: str=None, xlabel: str=None, save: str=None,
-        show: bool=False):
+        data, bins: int = None, density: bool = True, kde: bool = False,
+        title: str = None, ylabel: str = None, xlabel: str = None,
+        save: str = None, show: bool = False):
     """Plot a histogram and optionally a KDE of given data."""
     _, x, _ = plt.hist(data, bins=bins, density=density)
     data_kde = stats.gaussian_kde(data)
@@ -315,8 +319,8 @@ def plot_hist(
 
 
 def plot_kde_and_kde_samples_hist(
-        data, samples=5000, title=None, ylabel=None, xlabel=None, save=None,
-        show=None):
+        data, samples = 5000, title = None, ylabel = None, xlabel = None,
+        save = None, show = None):
     """Plot the KDE of given data and a histogram of samples from the KDE."""
     kde = stats.gaussian_kde(data)
     x = np.linspace(data.min(), data.max(), 100)

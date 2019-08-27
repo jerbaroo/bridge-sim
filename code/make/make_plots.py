@@ -1,14 +1,18 @@
 """Make all plots for the thesis."""
+import numpy as np
+
 from config import Config
 from fem.responses.matrix import DCMatrix, load_il_matrix
 from fem.run.opensees import os_runner
-from plot import *
+from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
-from plot.vehicles import *
-from model import *
-from model.bridge_705 import bridge_705_config
-from util import *
+from plot.vehicles import plot_density, plot_length_vs_axles, plot_length_vs_weight, plot_weight_vs_axles
+from model.bridge import Point
+from model.bridge.bridge_705 import bridge_705_config
+from model.load import Load, MovingLoad
+from model.response import ResponseType
+from util import pstr
 from vehicles.sample import sample_vehicle
 
 
@@ -66,7 +70,7 @@ def make_dc_plots(c: Config):
                 + f"-{response_type.name()}"))
 
 
-def make_normal_mv_load_animations(c: Config, per_axle: bool=False):
+def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a load moving across a bridge."""
     mv_load = MovingLoad.from_vehicle(
         x_frac=0, vehicle=sample_vehicle(c), lane=0)
@@ -108,8 +112,9 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                 for x_frac in np.linspace(0, 1, num=10):
                     plot_events_from_normal_mv_loads(
                         c=c, response_type=response_type,
-                        fem_runner=os_runner(c), at=Point(x=c.bridge.x(x_frac)),
-                        rows=4, loads_per_row=num_loads, save=(
+                        fem_runner=os_runner(c),
+                        at=Point(x=c.bridge.x(x_frac)), rows=4,
+                        loads_per_row=num_loads, save=(
                             c.image_path(pstr(
                                 f"events/{fem_runner.name}"
                                 + f"-rt-{response_type.name()}"
@@ -121,12 +126,12 @@ def make_all(c: Config, clean = True):
     """Make all plots for the thesis."""
     if clean:
         clean_generated(c)
-    # make_bridge_plots(c)
-    # make_il_plots(c)
-    # make_dc_plots(c)
-    # make_normal_mv_load_animations(c)
-    # make_normal_mv_load_animations(c, per_axle=True)
-    # make_vehicle_plots(c)
+    make_bridge_plots(c)
+    make_il_plots(c)
+    make_dc_plots(c)
+    make_normal_mv_load_animations(c)
+    make_normal_mv_load_animations(c, per_axle=True)
+    make_vehicle_plots(c)
     make_event_plots_from_normal_mv_loads(c)
 
 

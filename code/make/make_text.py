@@ -1,7 +1,6 @@
 """Make all textual information for the thesis."""
 from config import Config
-from model.bridge_705 import bridge_705_config
-from util import *
+from model.bridge.bridge_705 import bridge_705_config
 from vehicles.stats import vehicle_data_noise_stats, vehicle_density_stats
 
 

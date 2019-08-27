@@ -1,7 +1,7 @@
 """Make all generated things."""
 import make.make_plots as make_plots
 import make.make_text as make_text
-from model.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_config
 
 
 if __name__ == "__main__":

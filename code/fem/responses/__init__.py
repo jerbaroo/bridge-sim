@@ -79,12 +79,13 @@ class FEMResponses:
         are the indices for accessing the _true values.
 
         """
-        x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
+        x_ind = int(np.interp(x_frac, [0, 1], [0, len(self.xs) - 1]))
         x_true = self.xs[x_ind]
-        y_ind = int(np.interp(y, [0, 1], [0, len(self.ys[x_true]) - 1]))
+        y_ind = int(np.interp(y_frac, [0, 1], [0, len(self.ys[x_true]) - 1]))
         y_true = self.ys[x_true][y_ind]
         z_ind = int(
-            np.interp(z, [0, 1], [0, len(self.zs[x_true][y_true]) - 1]))
+            np.interp(z_frac, [0, 1], [0, len(self.zs[x_true][y_true]) - 1]))
+        z_true = self.zs[x_true][y_true][y_ind]
         return (x_ind, x_true, y_ind, y_true, z_ind, z_true)
 
     def at(

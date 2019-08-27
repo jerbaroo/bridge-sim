@@ -7,10 +7,10 @@ import pandas as pd
 from pandas import DataFrame
 
 from config import Config
-from model.bridge_705 import bridge_705_config
-from util import *
+from model.bridge.bridge_705 import bridge_705_config
 from vehicles import axle_array_and_count
 from vehicles.sample import length_groups
+from util import print_d
 
 
 def plot_density(c: Config, save: str=None, show: bool=False):

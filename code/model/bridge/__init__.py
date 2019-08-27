@@ -2,6 +2,8 @@
 from typing import List
 from enum import Enum
 
+import numpy as np
+
 # ID for all fiber commands.
 _fiber_cmd_id = 1
 
