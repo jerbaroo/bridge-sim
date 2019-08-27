@@ -71,6 +71,22 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
+    def indices(self, x_frac=0, y_frac=0, z_frac=0):
+        """Return the indices and values of the closest available values.
+
+        Return a 6-tuple of (x_ind, x_true, y_ind, y_true, z_ind, z_true) where
+        the _true values are the closest available values, and the _ind values
+        are the indices for accessing the _true values.
+
+        """
+        x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
+        x_true = self.xs[x_ind]
+        y_ind = int(np.interp(y, [0, 1], [0, len(self.ys[x_true]) - 1]))
+        y_true = self.ys[x_true][y_ind]
+        z_ind = int(
+            np.interp(z, [0, 1], [0, len(self.zs[x_true][y_true]) - 1]))
+        return (x_ind, x_true, y_ind, y_true, z_ind, z_true)
+
     def at(
             self, x=0, x_ord=None, y=0, y_ord=None, z=0, z_ord=None, t=0,
             time=None):
@@ -78,27 +94,16 @@ class FEMResponses:
         assert 0 <= x <= 1
         assert 0 <= y <= 1
         assert 0 <= z <= 1
-        # print(f"({x}, {y}, {z}) ({x_ord}, {y_ord}, {z_ord}) t={time}")
-
-        # Convert to x ordinate if necessary.
+        x_ind, x_ord_, y_ind, y_ord_, z_ind, z_ord_ = self.indices(
+            x_frac=x, y_frac=y, z_frac=z)
         if x_ord is None:
-            x_ind = int(np.interp(x, [0, 1], [0, len(self.xs) - 1]))
-            x_ord = self.xs[x_ind]
-
-        # Convert to y ordinate if necessary.
+            x_ord = x_ord_
         if y_ord is None:
-            y_ind = int(np.interp(y, [0, 1], [0, len(self.ys[x_ord]) - 1]))
-            y_ord = self.ys[x_ord][y_ind]
-
-        # Convert to z ordinate if necessary.
+            y_ord = y_ord_
         if z_ord is None:
-            z_ind = int(
-                np.interp(z, [0, 1], [0, len(self.zs[x_ord][y_ord]) - 1]))
-            z_ord = self.zs[x_ord][y_ord][z_ind]
-
+            z_ord = z_ord_
         if time is None:
             time = self.times[t]
-
         return self.responses[time][x_ord][y_ord][z_ord]
 
     def save(self, c: Config):
@@ -158,7 +163,7 @@ def load_fem_responses(
     return fem_responses
 
 
-# TODO: Replace by ResponsesMatrix.
+# TODO: Replace by ExptMatrix/Responses.
 ExptResponses = List[FEMResponses]
 
 

@@ -25,7 +25,7 @@ def response_to_mv_load(
     """
     assert on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)
 
-    load_x_frac = mv_load.x_frac_at(time, c.bridge)
+    load_x_frac = mv_load.x_frac_at(time=time, bridge=c.bridge)
     il_matrix = load_il_matrix(c, response_type, fem_runner)
 
     # Point load.

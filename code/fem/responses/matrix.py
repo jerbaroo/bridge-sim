@@ -50,9 +50,8 @@ class ResponsesMatrix:
         assert 0 <= x_frac and x_frac <= 1
         # Determine experiment index.
         expt_ind = int(np.interp(expt_frac, [0, 1], [0, self.num_expts - 1]))
-        # The simulation response * the load factor.
+        # Return simulation response.
         return self.expt_responses[expt_ind].at(x=x_frac, y=y, z=z, t=t)
-        # return (response.value * (load / self.c.il_unit_load_kn))
 
 
 class DCMatrix(ResponsesMatrix):
@@ -60,8 +59,9 @@ class DCMatrix(ResponsesMatrix):
 
     # TODO Factor out to ResponsesMatrix.load.
     @staticmethod
-    def load(c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-             displacement: float=0.1, save_all: bool=True):
+    def load(
+            c: Config, response_type: ResponseType, fem_runner: FEMRunner,
+            displacement: float=0.1, save_all: bool=True):
         """Load a DCMatrix from disk, running simulations first if necessary.
 
         Args:

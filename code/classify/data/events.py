@@ -67,7 +67,7 @@ def events_from_mv_loads(
 
 
 def filepath(c: Config, series: pd.Series):
-    """Return a filepath for a row from the Metadata."""
+    """Return a filepath for a row from the _MetaData."""
     assert isinstance(series, pd.Series)
     return os.path.join(c.events_dir, (
         series["traffic-scenario"]
