@@ -38,13 +38,16 @@ def make_bridge_plots(c: Config):
 def make_il_plots(c: Config):
     """Make plots of the influence lines."""
     for response_type in ResponseType:
-        il_matrix = load_il_matrix(
-            c, response_type, os_runner(c), num_loads=100)
         num_ils, num_x = 10, 100
-        imshow_il(c, il_matrix, save=c.image_path(
-            f"ils/il-imshow-{il_matrix.fem_runner_name}"
-            + f"-{response_type.name()}"
-            + f"-{num_ils}-{num_x}"))
+        il_matrix = load_il_matrix(
+            c=c, response_type=response_type, fem_runner=os_runner(c),
+            num_loads=num_ils)
+        imshow_il(
+            c=c, il_matrix=il_matrix, num_ils=num_ils, num_x=num_x,
+            save=c.image_path(
+                f"ils/il-imshow-{il_matrix.fem_runner_name}"
+                + f"-{response_type.name()}"
+                + f"-{num_ils}-{num_x}"))
         rows, cols = 4, 3
         matrix_subplots(
             c, il_matrix, rows=rows, cols=cols, plot_func=plot_il,
@@ -126,13 +129,13 @@ def make_all(c: Config, clean = True):
     """Make all plots for the thesis."""
     if clean:
         clean_generated(c)
-    make_bridge_plots(c)
+    # make_bridge_plots(c)
     make_il_plots(c)
-    make_dc_plots(c)
-    make_normal_mv_load_animations(c)
-    make_normal_mv_load_animations(c, per_axle=True)
-    make_vehicle_plots(c)
-    make_event_plots_from_normal_mv_loads(c)
+    # make_dc_plots(c)
+    # make_normal_mv_load_animations(c)
+    # make_normal_mv_load_animations(c, per_axle=True)
+    # make_vehicle_plots(c)
+    # make_event_plots_from_normal_mv_loads(c)
 
 
 if __name__ == "__main__":

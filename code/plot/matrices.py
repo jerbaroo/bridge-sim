@@ -6,6 +6,7 @@ from fem.responses.matrix import ILMatrix, ResponsesMatrix
 from fem.run.opensees import os_runner
 from model.bridge.bridge_705 import bridge_705_config
 from plot import plt, plot_bridge_deck_side, sci_format_y_axis
+from util import print_d, print_i
 
 
 def plot_il(
@@ -37,7 +38,8 @@ def plot_dc(
     """Plot the IL for a response at some position."""
     fem_responses = resp_matrix.expt_responses[i]
     xs = fem_responses.xs
-    rs = [resp_matrix.expt_responses[i].at(x_ord=x).value for x in xs]
+    rs = [resp_matrix.expt_responses[i].at(x_frac=c.bridge.x_frac(x))
+          for x in xs]
     response_name = resp_matrix.response_type.name()
     response_units = resp_matrix.response_type.units()
     plt.title(f"{response_name.capitalize()} at simulation {i}")
@@ -86,15 +88,28 @@ def matrix_subplots(
 
 
 def imshow_il(
-        c: Config, il_matrix: ILMatrix, num_ils: int=10, num_x: int=100,
-        save: str=None, show: bool=False):
+        c: Config, il_matrix: ILMatrix, num_ils: int = 10, num_x: int = 100,
+        save: str = None, show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
     response_fracs = np.linspace(0, 1, num_ils)
     x_fracs = np.linspace(0, 1, num_x)
-    matrix = [
-        [il_matrix.response_to(response_frac, load_x_frac, c.il_unit_load_kn)
-         for load_x_frac in x_fracs]
-        for response_frac in response_fracs]
+    matrix = []
+    for response_frac in response_fracs:
+        matrix.append([])
+        for load_x_frac in x_fracs:
+            value = il_matrix.response_to(
+                resp_x_frac=response_frac, load_x_frac=load_x_frac,
+                load=c.il_unit_load_kn)
+            print_i(f"value = {value}, response_frac = {response_frac}, load_x_frac = {load_x_frac}")
+            matrix[-1].append(value)
+    # matrix = [
+    #     [il_matrix.response_to(
+    #         resp_x_frac=response_frac, load_x_frac=load_x_frac,
+    #         load=c.il_unit_load_kn)
+    #      for load_x_frac in x_fracs]
+    #     for response_frac in response_fracs]
+    print(np.amax(np.array(matrix)))
+    print(np.amin(np.array(matrix)))
     plt.imshow(matrix, aspect="auto")
     plt.colorbar()
     plt.ylabel("load index")

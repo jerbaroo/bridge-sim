@@ -18,19 +18,18 @@ class TrafficScenario:
         self.vehicle = vehicle
 
 
-# TODO: Use adt library.
-
 class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
-    pass
+    def __init__(self, name: str):
+        self.name = name
 
 
 class BridgeScenarioNormal(BridgeScenario):
     def __init__(self):
-        self.name = "normal"
+        super().__init__(name="normal")
 
 
-class BridgeScenarioDisplacement(BridgeScenario):
+class BridgeScenarioDisplacementCtrl(BridgeScenario):
     def __init__(self, displacement_ctrl: DisplacementCtrl):
-        self.name = "displacement"
+        super().__init__(name="displacement")
         self.displacement_ctrl = displacement_ctrl

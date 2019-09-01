@@ -2,12 +2,13 @@
 import os
 from timeit import default_timer as timer
 
-from fem.responses.matrix import DCMatrix, ILMatrix
+from fem.responses.matrix import DCMatrix, load_il_matrix
 from fem.run.opensees import os_runner
-from model import *
-from model.bridge_705 import bridge_705_config
-from util import *
+from model.bridge.bridge_705 import bridge_705_config
+from model.response import ResponseType
+from util import print_d
 
+# TODO: This is a very bad test.
 
 c = bridge_705_config()
 path = os.path.join(c.generated_dir,
@@ -31,9 +32,11 @@ def test_os_il_matrix():
 
     # Test time for one simulation.
     start = timer()
-    ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=False)
+    load_il_matrix(
+        c=c, response_type=response_type, fem_runner=fem_runner, num_loads=1,
+        save_all=False)
     time = timer() - start
-    assert 0.1 < time and time < 1.5
+    assert 0.1 < time and time < 2
 
     # Test file is created.
     assert os.path.exists(path)
@@ -43,7 +46,7 @@ def test_os_il_matrix():
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
-    assert 0.5 < time and time < 3.5
+    assert 0.5 < time and time < 4
 
 
 

@@ -152,7 +152,7 @@ class ILMatrix(ResponsesMatrix):
 
 def load_il_matrix(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        num_loads: int=100, save_all: bool=True) -> ILMatrix:
+        num_loads: int = 100, save_all: bool = True) -> ILMatrix:
     """Load an ILMatrix from disk, running simulations first if necessary.
 
     Args:

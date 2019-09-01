@@ -30,19 +30,23 @@ class FEMResponses:
     """Responses of one sensor type for one FEM simulation.
 
     FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
-    axis ordinates, but it is better to use the .at method to access responses.
+    axis positions in meters, but it is better to use the .at method to access
+    responses, which will compute a weighted response between the 8 closest
+    points of a cube.
 
     Args:
         fem_params: FEMParams, the parameters of the simulation.
         runner_name: str, the FEMRunner used to run the simulation.
         response_type: ResponseType, the type of sensor responses collected.
+        responses: List[Response], the raw responses from simulation.
         skip_build: bool, reduces time if responses will only be saved.
 
-    TODO: Warn about assumption.
+    TODO: Warn about assumption of equidistant points?
+
     """
     def __init__(
             self, c: Config, fem_params: FEMParams, runner_name: str,
-            response_type: ResponseType, responses: [Response],
+            response_type: ResponseType, responses: List[Response],
             skip_build: bool = False):
         assert isinstance(responses, list)
         assert isinstance(responses[0], Response)
@@ -74,87 +78,78 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
-    # def indices(self, x_frac: float = 0, y_frac: float = 0, z_frac: float = 0):
-    #     """Return the indices and values of the closest available values.
-
-    #     Return a 6-tuple of (x_ind, x_true, y_ind, y_true, z_ind, z_true) where
-    #     the _true values are the closest available values, and the _ind values
-    #     are the indices for accessing the resective _true values.
-
-    #     """
-    #     x_ind = int(np.interp(x_frac, [0, 1], [0, len(self.xs) - 1]))
-    #     x_true = self.xs[x_ind]
-    #     y_ind = int(np.interp(y_frac, [0, 1], [0, len(self.ys[x_true]) - 1]))
-    #     y_true = self.ys[x_true][y_ind]
-    #     z_ind = int(
-    #         np.interp(z_frac, [0, 1], [0, len(self.zs[x_true][y_true]) - 1]))
-    #     z_true = self.zs[x_true][y_true][y_ind]
-    #     return (x_ind, x_true, y_ind, y_true, z_ind, z_true)
-
     def _x_indices(self, x: float) -> Tuple[int, int]:
         """Indices of the x positions of sensors either side of x.
 
-        TODO: Test this, and switch to numpy.searchsorted.
+        TODO: Test this, and switch to numpy.searchsorted for performance.
 
         """
+        # If only one point, return that.
+        if len(self.xs) == 1:
+            return 0, 0
+        # Points are sorted, so find the first equal or greater.
         for i in range(len(self.xs)):
             if self.xs[i] == x:
                 return i, i
             if self.xs[i] > x and i > 0:
                 return i - 1, i
-        # x_ind_f = np.interp(x_frac, [0, 1], [0, len(self.xs) - 1])
-        # x_ind = int(x_ind_f)
-        # return (x_ind, x_ind) if x_ind_f == x_ind else (x_ind, x_ind + 1)
+        # Else the last point.
+        return i, i
 
     def _y_indices(self, x: float, y: float) -> Tuple[int, int]:
         """Indices of the y positions of sensors either side of y.
 
-        TODO: Test this, and switch to numpy.searchsorted.
+        TODO: Test this, and switch to numpy.searchsorted for performance.
 
         """
-        # print(f"x = {x}")
-        # print(self.ys[x])
+        print(self.ys[x])
+        print(f"x = {x}, y = {y}")
+        # If only one point, return that.
         if len(self.ys[x]) == 1:
             return 0, 0
+        # Points are sorted, so find the first equal or greater.
         for i in range(len(self.ys[x])):
             if self.ys[x][i] == y:
                 return i, i
             if self.ys[x][i] > y and i > 0:
                 return i - 1, i
-        # y_ind_f = np.interp(y_frac, [0, 1], [0, len(self.ys[x]) - 1])
-        # y_ind = int(y_ind_f)
-        # return (y_ind, y_ind) if y_ind_f == y_ind else (y_ind, y_ind + 1)
+        # Else the last point.
+        return i, i
 
     def _z_indices(self, x: float, y: float, z: float) -> Tuple[int, int]:
         """Indices of the z positions of sensors either side of z.
 
-        TODO: Test this, and switch to numpy.searchsorted.
+        TODO: Test this, and switch to numpy.searchsorted for performance.
 
         """
+        # If only one point, return that.
         if len(self.zs[x][y]) == 1:
             return 0, 0
+        # Points are sorted, so find the first equal or greater.
         for i in range(len(self.zs[x][y])):
             if self.zs[x][y][i] == z:
                 return i, i
             if self.zs[x][y][i] > z and i > 0:
                 return i - 1, i
-        # z_ind_f = np.interp(z_frac, [0, 1], [0, len(self.zs[x][y]) - 1])
-        # z_ind = int(z_lo_ind_f)
-        # return (z_ind, z_ind) if z_ind_f == z_ind else (z_ind, z_ind + 1)
+        # Else the last point.
+        return i, i
 
     def at(
             self, x_frac: float = 0, y_frac: float = 1, z_frac: float = 0.5,
             time_index: int = 0):
-        """Compute an interpolated response via axis fractions in [0 1]."""
+        """Compute an interpolated response via axis fractions in [0 1].
+
+        The response is calulated as a weighted response between the 8 closest
+        points of a cube.
+
+        """
         assert 0 <= x_frac <= 1
         assert 0 <= y_frac <= 1
-        assert self.c.bridge.z_min <= z_frac <= self.c.bridge.z_max
+        assert 0 <= z_frac <= 1
 
         x = self.c.bridge.x(x_frac=x_frac)
         y = self.c.bridge.y(y_frac=y_frac)
         z = self.c.bridge.z(z_frac=z_frac)
-        # print_i(f"x_frac, y_frac, z_frac = ({x_frac}, {y_frac}, {z_frac})")
-        print_i(f"x, y, z = ({x}, {y}, {z})")
 
         x_lo_ind, x_hi_ind = self._x_indices(x=x)
         x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]
@@ -181,12 +176,26 @@ class FEMResponses:
             Point(x=x_lo, y=y_lo_x_lo, z=z_hi_y_lo_x_lo),  # 1 0 0
             Point(x=x_hi, y=y_lo_x_hi, z=z_hi_y_lo_x_hi),  # 1 0 1
             Point(x=x_lo, y=y_hi_x_lo, z=z_hi_y_hi_x_lo),  # 1 1 0
-            Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi)   # 1 1 1
-        ]
+            Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi)]  # 1 1 1
+        [print(f"point = {point}") for point in points]
         request = Point(x=x, y=y, z=z)
-        distances = [p.distance(request) for p in points]
-        [print(p) for p in points]
-        print(distances)
+        print(f"request = {request}")
+        distances = [point.distance(request) for point in points]
+        print(f"distances = {distances}")
+        sum_distances = sum(distances)
+        if sum_distances == 0:
+            p = points[0]
+            return self.responses[time_index][p.x][p.y][p.z].value
+        print(f"sum distances = {sum_distances}")
+        responses = [
+            self.responses[time_index][point.x][point.y][point.z].value
+            for point in points]
+        print(f"responses = {responses}")
+        response = sum([
+            response * (distance / sum_distances)
+            for response, distance in zip(responses, distances)])
+        print(f"response = {response}")
+        return response
 
     def at_(
             self, x_frac: float = 0, y_frac: float = 0, z_frac: float = 0,

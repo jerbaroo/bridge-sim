@@ -108,6 +108,8 @@ def plot_bridge_deck_side(
         [0 for _ in range(len(bridge.fixed_nodes))],
         "o", color=pier_color)
     if equal_axis: plt.axis("equal")
+    plt.xlabel("x position (m)")
+    plt.ylabel("y position (m)")
     for load in loads:
         _plot_load_deck_side(
             bridge, load, normalize_vehicle_height=normalize_vehicle_height)
@@ -139,11 +141,13 @@ def plot_bridge_deck_top(
     for lane in bridge.lanes:
         plt.gca().add_patch(
             patches.Rectangle(
-                (0, lane.z0), bridge.length, lane.z1 - lane.z0,
+                (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
                 facecolor=lane_color))
     for load in loads:
         _plot_load_deck_top(bridge, load)
     plt.axis("equal")
+    plt.xlabel("x position (m)")
+    plt.ylabel("z position (m)")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
@@ -171,6 +175,8 @@ def plot_section(section: Section, save: str = None, show: bool = False):
     by_label = OrderedDict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
     plt.axis("equal")
+    plt.xlabel("z position (m)")
+    plt.ylabel("y position (m)")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
