@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import sys
 
 import scipy.stats as stats
 from colorama import init
@@ -60,8 +59,3 @@ def kde_sampler(data, print_=False):
 def pstr(s):
     """A string with some characters removed, for use in filepaths."""
     return s.replace(".", "").replace(" ", "")
-
-
-def exit():
-    """I don't want to import sys when I need sys.exit."""
-    sys.exit()
