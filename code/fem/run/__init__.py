@@ -104,8 +104,9 @@ class FEMRunner:
             for response_type, responses in sim_responses[sim].items():
                 # start = timer()
                 fem_responses = FEMResponses(
-                    expt_params.fem_params[sim], self.name, response_type,
-                    responses, skip_build=True)
+                    c=self.c, fem_params=expt_params.fem_params[sim],
+                    runner_name=self.name, response_type=response_type,
+                    responses=responses, skip_build=True)
                 # print_i(f"FEMRunner: built simulation {sim + 1} FEMResponses"
                 #         + f" in {timer() - start:.2f}s, ({response_type})")
 

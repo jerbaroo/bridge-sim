@@ -1,5 +1,5 @@
 """Parameters for FEM simulations."""
-from typing import List
+from typing import List, Optional
 
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
@@ -22,10 +22,8 @@ class FEMParams:
     """
     def __init__(
             self, loads: List[Load],
-            displacement_ctrl: DisplacementCtrl = None,
-            response_types: List[ResponseType] = None):
-        if response_types is None:
-            response_types = [rt for rt in ResponseType]
+            displacement_ctrl: Optional[DisplacementCtrl] = None,
+            response_types: List[ResponseType] = list(ResponseType)):
         self.loads = loads
         self.displacement_ctrl = displacement_ctrl
         assert not (len(loads) > 0 and displacement_ctrl is not None)

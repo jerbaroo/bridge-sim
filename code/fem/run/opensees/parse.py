@@ -38,12 +38,14 @@ def parse_responses(
         if parse_type(ResponseType.XTranslation):
             start = timer()
             x = opensees_to_numpy(fem_runner.x_translation_path(fem_params))
+            x *= -1
             print_i("OpenSees: Parsed XTranslation responses in"
                     + f" {timer() - start:.2f}s")
 
         if parse_type(ResponseType.YTranslation):
             start = timer()
             y = opensees_to_numpy(fem_runner.y_translation_path(fem_params))
+            y *= -1
             print_i("OpenSees: Parsed YTranslation responses in "
                     + f"{timer() - start:.2f}s")
 
@@ -74,13 +76,13 @@ def parse_responses(
                     num_measurements = len(stress_strain[0]) // 2
                     if parse_type(ResponseType.Stress):
                         stress += [
-                            (stress_strain[time][i * 2], i, section.id,
+                            (-stress_strain[time][i * 2], i, section.id,
                              time, fiber_cmd_id, point)
                             for i in range(num_measurements)
                             for time in range(num_time)]
                     if parse_type(ResponseType.Strain):
                         strain += [
-                            (stress_strain[time][i * 2 + 1], i, section.id,
+                            (-stress_strain[time][i * 2 + 1], i, section.id,
                              time, fiber_cmd_id, point)
                             for i in range(num_measurements)
                             for time in range(num_time)]
