@@ -61,7 +61,7 @@ def test_events_class():
         fem_runner=os_runner(c), at=[Point(x=1)]))[0][0]
 
     # Save and load the created events to a file.
-    events.save_events(some_events, "./tmp")
+    save_events(some_events, "./tmp")
     with open("./tmp", "rb") as f:
         some_loaded_events = pickle.load(f)
     assert len(some_loaded_events) == len(some_events)

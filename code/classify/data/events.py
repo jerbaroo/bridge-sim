@@ -93,19 +93,26 @@ class _MetaData:
                 "traffic-scenario", "bridge-scenario", "at",
                 "response-type", "fem-runner", "lane", "simulation"])
 
-    def add_filepath(
+    def add_file_path(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
-            highest_sim: bool = False
-        ) -> Union[str, int]:
-        """Add and return a filepath to the metadata for given parameters.
+            highest_sim: bool = False) -> Union[str, int]:
+        """Add and return a file path to the metadata for given parameters.
         
         Args:
+            traffic_scenario: TrafficScenario, the traffic scenario under which
+                events are generated.
+            bridge_scenario: BridgeScenario: the bridge scenario under which
+                events are generated.
+            at: Point, the sensor position at which events are recorded.
+            response_type: ResponseType, the sensor type of recorded events.
+            fem_runner: FEMRunner, the FE program used to simulate events.
+            lane: int, the index of the lane on which traffic is driven.
             highest_sim: bool, if True instead return the simulation index.
             
         """
-        highest_sim_num, df = self.filepaths(
+        highest_sim_num, df = self.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
             lane=lane, highest_sim=True)
@@ -123,17 +130,25 @@ class _MetaData:
             return highest_sim_num + 1
         return filepath(self.c, row)
 
-    def filepaths(
+    def file_paths(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
             highest_sim: bool = False
     ) -> Union[List[str], Tuple[int, pd.DataFrame]]:
-        """The filepaths for events of given simulation parameters.
+        """The file paths for events of given simulation parameters.
 
         Args:
-            highest_sim: bool, if True instead return a tuple of the highest
-            simulation index saved so far and the metadata DataFrame.
+            traffic_scenario: TrafficScenario, the traffic scenario under which
+                events are generated.
+            bridge_scenario: BridgeScenario: the bridge scenario under which
+                events are generated.
+            at: Point, the sensor position at which events are recorded.
+            response_type: ResponseType, the sensor type of recorded events.
+            fem_runner: FEMRunner, the FE program used to simulate events.
+            lane: int, the index of the lane on which traffic is driven.
+            highest_sim: bool, if True instead return a tuple of, the highest
+            simulation index saved so far, and the metadata DataFrame.
 
         """
         df = self.load()
@@ -149,8 +164,15 @@ class _MetaData:
             highest_sim_num = np.amax(rows["simulation"])
             if np.isnan(highest_sim_num):
                 highest_sim_num = 0
-            return (highest_sim_num, df)
+            return highest_sim_num, df
         return [filepath(self.c, row) for _, row in rows.iterrows()]
+
+
+def save_events(events: List[Event], file_path: str):
+    """Save events for one simulation to the given file path."""
+    s = pickletools.optimize(pickle.dumps(events))
+    with open(file_path, "wb") as f:
+        f.write(s)
 
 
 class Events:
@@ -170,16 +192,16 @@ class Events:
         separate simulation.
 
         """
-        filepaths = self.metadata.filepaths(
+        file_paths = self.metadata.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
             lane=lane)
 
-        def load_events(filepath):
-            with open(filepath, "rb") as f:
+        def load_events(file_path):
+            with open(file_path, "rb") as f:
                 return pickle.load(f)
 
-        return [load_events(filepath) for filepath in filepaths]
+        return [load_events(file_path) for file_path in file_paths]
 
     def make_events(
             self, traffic_scenario: TrafficScenario,
@@ -196,15 +218,9 @@ class Events:
             fem_runner=fem_runner, at=at)
         for a in range(len(at)):
             for r in range(len(response_types)):
-                filepath = self.metadata.add_filepath(
+                file_path = self.metadata.add_file_path(
                     traffic_scenario=traffic_scenario,
                     bridge_scenario=bridge_scenario, at=at[a],
                     response_type=response_types[r], fem_runner=fem_runner,
                     lane=lane)
-                self.save_events(events[a][r], filepath)
-
-    def save_events(self, events: List[Event], filepath: str):
-        """Save events for one simulation to the given filepath."""
-        s = pickletools.optimize(pickle.dumps(events))
-        with open(filepath, "wb") as f:
-            f.write(s)
+                save_events(events=events[a][r], file_path=file_path)
