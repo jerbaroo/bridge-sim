@@ -5,27 +5,90 @@ from timeit import default_timer as timer
 from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import os_runner
-from model import *
-from model.bridge_705 import bridge_705_config
-from util import *
+from model.bridge import Layer
+from model.bridge.bridge_705 import bridge_705_config
+from model.load import Load
+from model.response import ResponseType
 
 
 def test_fem_responses():
     # Setup.
+    layer = Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10)
+    c = bridge_705_config(layers=[layer])
+    fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
+    fem_runner = os_runner(c)
+
+    for response_type in ResponseType:
+        # Remove results on disk.
+        path = fem_responses_path(
+            c=c, fem_params=fem_params, response_type=response_type,
+            runner_name=fem_runner.name)
+        if os.path.exists(path):
+            os.remove(path)
+
+        # Load simulation responses for each ResponseType.
+        fem_responses = load_fem_responses(
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner)
+        # Check length of simulation results.
+        assert len(fem_responses.times) == 1
+        assert fem_responses.times[0] == 0
+        assert os.path.exists(path)
+
+    # For the x and y translation responses there should be one response for
+    # each element, with only one response for each y and z axis.
+    def assert_translation_responses_shape(response_type: ResponseType):
+        fem_responses = load_fem_responses(
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner)
+        assert len(fem_responses.xs) == c.bridge.length / c.os_node_step + 1
+        assert len(fem_responses.ys[fem_responses.xs[0]]) == 1
+        assert len(fem_responses.zs[fem_responses.xs[0]]) == 1
+        assert len(fem_responses.zs[fem_responses.xs[0]][
+            fem_responses.ys[fem_responses.xs[0]][0]]) == 1
+    
+    assert_translation_responses_shape(ResponseType.XTranslation)
+    assert_translation_responses_shape(ResponseType.YTranslation)
+
+    # For the stress and strain responses there should be one response for each
+    # node, with one response for each y and z point of the layers and patches.
+    def assert_stress_strain_responses_shape(response_type: ResponseType):
+        fem_responses = load_fem_responses(
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner)
+        assert len(fem_responses.xs) == c.bridge.length / c.os_node_step
+        assert len(fem_responses.ys[fem_responses.xs[0]]) == (
+            len(c.bridge.sections[0].patches) +
+            len(c.bridge.sections[0].layers))
+        assert len(fem_responses.zs[fem_responses.xs[0]]) == (
+            len(c.bridge.sections[0].patches) +
+            len(c.bridge.sections[0].layers))
+        assert len(fem_responses.zs[fem_responses.xs[0]][
+            fem_responses.ys[fem_responses.xs[0]][0]]) == len(layer.points())
+
+    assert_stress_strain_responses_shape(ResponseType.Strain)
+    assert_stress_strain_responses_shape(ResponseType.Stress)
+
+
+def test_fem_responses_at():
+    # Setup.
     c = bridge_705_config()
-    fem_params = FEMParams([Load(0.1, 1000)])
+    fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
     response_type = ResponseType.XTranslation
     fem_runner = os_runner(c)
 
-    # Remove results on disk.
-    path = fem_responses_path(
-        c, fem_params, response_type, fem_runner.name)
-    if os.path.exists(path):
-        os.remove(path)
+    # Load simulation responses.
+    fem_responses = load_fem_responses(
+        c=c, fem_params=fem_params, response_type=response_type,
+        fem_runner=fem_runner)
 
-    # Run tests for each ResponseType.
-    for response_type in ResponseType:
-        fem_responses = load_fem_responses(
-            c, fem_params, response_type, fem_runner)
-        assert len(fem_responses.times) == 1
-        assert fem_responses.times[0] == 0
+    # Retrieve a response.
+    x, y, z = fem_responses.xs[len(fem_responses.xs) // 2], 0, 0
+    response_true = fem_responses.responses[0][x][y][z].value
+    print(x)
+    print(response_true)
+
+    x_frac, y_frac, z_frac = c.bridge.x_frac(x), 0, 0
+    print(x_frac, y_frac, z_frac)
+    response_at = fem_responses.at(x_frac=x_frac, y_frac=y_frac, z_frac=z_frac)
+    print(response_at)

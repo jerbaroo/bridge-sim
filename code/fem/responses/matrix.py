@@ -13,6 +13,7 @@ from model import Response
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
+from util import print_w
 
 
 # TODO: Replace ExptResponses.
@@ -37,20 +38,48 @@ class ResponsesMatrix:
                 for fem_params in self.expt_params.fem_params]
 
     # TODO: Rename to response, later.
-    def response_(self, expt_frac, x_frac, y=0, z=0, t=0) -> Response:
+    def response_(
+            self, expt_frac: float, x_frac: float, y_frac: float = 0,
+            z_frac: float = 0, time_index: int = 0) -> Response:
         """The response at a position for a simulation.
+
+        Note that if expt_frac (e.g. 0.5) does not correspond exactly to a
+        simulation index (e.g. 4.2 instead of 4), then the result will be
+        interpolated from the results of the indices on both sides (e.g. 4 and
+        5).
 
         Args:
             expt_frac: float, fraction of experiments in [0 1].
-            load_x_frac: float, load position as fraction of x-axis in [0 1].
+            x_frac: float, response position on x-axis in [0 1].
 
         """
         assert 0 <= expt_frac and expt_frac <= 1
         assert 0 <= x_frac and x_frac <= 1
-        # Determine experiment index.
-        expt_ind = int(np.interp(expt_frac, [0, 1], [0, self.num_expts - 1]))
-        # Return simulation response.
-        return self.expt_responses[expt_ind].at(x=x_frac, y=y, z=z, t=t)
+        # If an exact experiment index is available, or interpolation is not
+        # being used then return the response for the calculated experiment
+        # index.
+        expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
+        if expt_ind == int(expt_ind):
+            print_w(f"Not interpolating, expt_frac = {expt_frac}, expt_ind = {expt_ind}")
+            return self.expt_responses[int(expt_ind)].at(
+                x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
+                time_index=time_index)
+        # Else interpolate responses between two experiment indices.
+        expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
+        expt_lo_frac, expt_hi_frac = np.interp(
+            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1])
+        print_w(f"Interpolating between loads at indices {expt_ind_lo} & {expt_ind_hi}")
+        print_w(f"Interpolating between loads at {expt_lo_frac} & {expt_hi_frac}, real = {expt_frac}")
+        response_lo = self.expt_responses[expt_ind_lo].at(
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+        response_hi = self.expt_responses[expt_ind_hi].at(
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+        response = np.interp(
+            expt_frac,
+            [expt_lo_frac, expt_hi_frac],
+            [response_lo, response_hi])
+        print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
+        return response
 
 
 class DCMatrix(ResponsesMatrix):
@@ -100,20 +129,25 @@ class DCMatrix(ResponsesMatrix):
 class ILMatrix(ResponsesMatrix):
     """Responses of one sensor type for influence line simulations."""
 
-    def response_to(self, resp_x_frac, load_x_frac, load, y=0, z=0, t=0):
+    def response_to(
+            self, resp_x_frac: float, load_x_frac: float, load: float,
+            y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
         """The response value at a position to a load at a position.
 
         Args:
-            resp_x_frac: float, response position as fraction of x-axis [0 1].
-            load_x_frac: float, load position as fraction of x-axis [0 1].
+            resp_x_frac: float, response position on x-axis in [0 1].
+            load_x_frac: float, load position on x-axis in [0 1].
             load: float, value of the load.
 
         """
         assert 0 <= resp_x_frac and resp_x_frac <= 1
         assert 0 <= load_x_frac and load_x_frac <= 1
-        response = self.response_(resp_x_frac, load_x_frac, y=z, z=z, t=t)
+        # TODO: Check arguments.
+        response = self.response_(
+            expt_frac=load_x_frac, x_frac=resp_x_frac, y_frac=y_frac,
+            z_frac=z_frac, time_index=time_index)
         # print_d(f"resp_x_frac = {resp_x_frac}, load_x_frac = {load_x_frac}, load = {load}")
-        return (response.value * (load / self.c.il_unit_load_kn))
+        return (response * (load / self.c.il_unit_load_kn))
 
 
 def load_il_matrix(
