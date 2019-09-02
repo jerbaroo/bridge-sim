@@ -12,34 +12,7 @@ from model import Response
 from model.response import ResponseType
 from util import print_i
 
-
 Parsed = TypeVar("Parsed")
-
-
-def _fem_id(fem_params: FEMParams, fem_runner: FEMRunner) -> str:
-    """A string unique to this FEMParams and FEMRunner."""
-    load_str: str = fem_params.load_str()
-    for char in "[]()":
-        load_str = load_str.replace(char, "")
-    return f"{fem_runner.name}-{load_str}"
-
-
-def fem_file_path(
-        fem_params: FEMParams, fem_runner: FEMRunner, ext: Optional[str] = None
-        ) -> str:
-    """A file path based on FEMParams and FEMRunner.
-
-    Args:
-        fem_params: FEMParams, parameters for the FEM simulation.
-        fem_runner: FEMRunner, program to run the FEM simulation.
-        ext: Optional[str], if None then use fem_runner.built_model_ext, else
-            the given file extension is used.
-
-    """
-    ext = "." + fem_runner.built_model_ext if ext is None else ext
-    return os.path.join(
-        fem_runner.built_files_dir, f"{_fem_id(fem_params, fem_runner)}{ext}"
-    ).replace(" ", "").lower()
 
 
 class FEMRunner:
@@ -50,6 +23,7 @@ class FEMRunner:
         built_files_dir: str, directory to save any built files in.
 
     """
+
     def __init__(
             self, c: Config, name: str,
             build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
@@ -102,16 +76,32 @@ class FEMRunner:
 
         for sim in sim_responses:
             for response_type, responses in sim_responses[sim].items():
-                # start = timer()
                 fem_responses = FEMResponses(
                     c=self.c, fem_params=expt_params.fem_params[sim],
                     runner_name=self.name, response_type=response_type,
                     responses=responses, skip_build=True)
-                # print_i(f"FEMRunner: built simulation {sim + 1} FEMResponses"
-                #         + f" in {timer() - start:.2f}s, ({response_type})")
 
                 start = timer()
                 fem_responses.save(self.c)
                 print_i(f"FEMRunner: saved simulation {sim + 1} FEMResponses"
                         + f" in ([Response]) in {timer() - start:.2f}s,"
                         + f"({response_type})")
+
+    def fem_file_path(
+            self, fem_params: FEMParams, ext: Optional[str] = None) -> str:
+        """A file path based on a FEMParams and this FEMRunner .
+
+        Args:
+            fem_params: FEMParams, parameters for the FEM simulation.
+            ext: Optional[str], if None then use fem_runner.built_model_ext,
+                else the given file extension is used.
+
+        """
+        load_str: str = fem_params.load_str()
+        for char in "[]()":
+            load_str = load_str.replace(char, "")
+        fem_id = f"{self.name}-{load_str}"
+
+        ext = "." + self.built_model_ext if ext is None else ext
+        return os.path.join(
+            self.built_files_dir, f"{fem_id}{ext}").replace(" ", "").lower()

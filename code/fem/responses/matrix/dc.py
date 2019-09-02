@@ -20,7 +20,7 @@ class DCMatrix(ResponsesMatrix):
             c: Config, global configuration.
             response_type: ResponseType, the type of response to load.
             fem_runner: FEMRunner, the FEM program to run simulations with.
-            displacement: float, the extent of the displacement at each pier.
+            displacement: float, the displacement at each pier in meters.
             save_all: bool, save all response types when running a simulation.
 
         """

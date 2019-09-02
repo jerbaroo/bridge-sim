@@ -53,7 +53,7 @@ class ResponsesMatrix:
     def response_(
             self, expt_frac: float, x_frac: float, y_frac: float = 0,
             z_frac: float = 0, time_index: int = 0, interpolate: bool = False
-        ) -> Response:
+            ) -> Response:
         """The response at a position for a simulation.
 
         Note that if expt_frac (e.g. 0.5) does not correspond exactly to a
@@ -101,5 +101,3 @@ class ResponsesMatrix:
             [response_lo, response_hi])
         print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
         return response
-
-

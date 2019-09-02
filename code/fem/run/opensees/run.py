@@ -3,7 +3,7 @@ import subprocess
 
 from config import Config
 from fem.params import ExptParams
-from fem.run import FEMRunner, fem_file_path
+from fem.run import FEMRunner
 
 
 def run_model(
@@ -12,5 +12,5 @@ def run_model(
     """Run an OpenSees simulation."""
     subprocess.run(
         [c.os_exe_path,
-         fem_file_path(expt_params.fem_params[sim_ind], fem_runner)])
+         fem_runner.fem_file_path(expt_params.fem_params[sim_ind])])
     return expt_params

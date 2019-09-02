@@ -2,7 +2,6 @@
 import pytest
 
 from fem.params import ExptParams, FEMParams
-from fem.run import fem_file_path
 from fem.run.opensees import os_runner
 from fem.run.opensees.build import build_model
 from model.bridge import Fix
@@ -25,7 +24,7 @@ def test_build():
     # Build model file and read.
     fem_runner = os_runner(c)
     build_model(c, expt_params, fem_runner)
-    with open(fem_file_path(expt_params.fem_params[0], fem_runner)) as f:
+    with open(fem_runner.fem_file_path(expt_params.fem_params[0])) as f:
         lines = f.readlines()
     print([line for line in lines if "dof" in line])
 
@@ -58,7 +57,7 @@ def test_build_displacement_ctrl():
 
     # Build model file and read.
     build_model(c, expt_params, os_runner(c))
-    with open(fem_file_path(expt_params.fem_params[0], os_runner(c))) as f:
+    with open(os_runner(c).fem_file_path(expt_params.fem_params[0])) as f:
         lines = f.readlines()
 
     assert any(line == "load 11 0 10000 0\n" for line in lines)
