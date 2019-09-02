@@ -2,35 +2,46 @@
 from __future__ import annotations
 
 import os
+import math
+import numpy as np
 
 import scipy.stats as stats
 from colorama import init
 from termcolor import colored
 
-
 init()
-
 
 DEBUG = False
 
 
-def print_d(s):
+def print_d(s: str):
     """Print some debug text."""
     if DEBUG:
         print(colored(f"DEBUG: {s}", "yellow"))
 
 
-def print_i(s):
+def print_i(s: str):
     """Print some info text."""
     print(colored(f"INFO: {s}", "green"))
 
 
-def print_w(s):
+def print_w(s: str):
     """Print some warning text."""
     print(colored(f"WARN: {s}", "red"))
 
 
-def clean_generated(c: Config):
+def nearest_index(array, value):
+    """Return the index of the nearest value in a sorted array."""
+    i = np.searchsorted(array, value, side="left")
+    if i > 0 and (
+            i == len(array) or
+            math.fabs(value - array[i - 1]) < math.fabs(value - array[i])):
+        return i - 1
+    else:
+        return i
+
+
+def clean_generated(c: "Config"):
     """Remove generated files but keep folders."""
     print_i(f"Removing all files in: {c.generated_dir}")
 
@@ -45,7 +56,7 @@ def clean_generated(c: Config):
     clean_dir(c.generated_dir)
 
 
-def kde_sampler(data, print_=False):
+def kde_sampler(data, print_: bool = False):
     """A generator which returns samples from a KD estimate of the data."""
     kde = stats.gaussian_kde(data)
     i = 1
@@ -56,6 +67,6 @@ def kde_sampler(data, print_=False):
         yield kde.resample(1)[0][0]
 
 
-def pstr(s):
+def pstr(s: str) -> str:
     """A string with some characters removed, for use in filepaths."""
     return s.replace(".", "").replace(" ", "")

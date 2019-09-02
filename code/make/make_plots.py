@@ -2,7 +2,8 @@
 import numpy as np
 
 from config import Config
-from fem.responses.matrix import DCMatrix, load_il_matrix
+from fem.responses.matrix.dc import DCMatrix
+from fem.responses.matrix.il import load_il_matrix
 from fem.run.opensees import os_runner
 from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
@@ -12,7 +13,7 @@ from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import Load, MovingLoad
 from model.response import ResponseType
-from util import pstr
+from util import pstr, clean_generated
 from vehicles.sample import sample_vehicle
 
 

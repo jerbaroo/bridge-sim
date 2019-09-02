@@ -5,25 +5,67 @@ import os
 import pickle
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import List
-
-import matplotlib.pyplot as plt
-import numpy as np
+from typing import List, Tuple
 
 from config import Config
 from fem.params import ExptParams, FEMParams
 from model import Response
 from model.bridge import Point
 from model.response import ResponseType
-from util import print_i, print_w
+from util import nearest_index, print_i
 
 
 def fem_responses_path(
         c: Config, fem_params: FEMParams, response_type: ResponseType,
-        runner_name: str):
-    """Path of the influence line matrix on disk."""
+        runner_name: str) -> str:
+    """Path of the responses of one sensor type for one FEM simulation."""
     return (f"{c.fem_responses_path_prefix}-pa-{fem_params.load_str()}"
             + f"-rt-{response_type.name()}-ru-{runner_name}.npy")
+
+
+def load_fem_responses(
+        c: Config, fem_params: FEMParams, response_type: ResponseType,
+        fem_runner: "FEMRunner") -> FEMResponses:
+    """Load the responses of one sensor type for one FEM simulation from disk.
+
+    The FEMParams determine which responses are generated and saved, while the
+    ResponseType determines which responses to load from disk and return.
+
+    TODO: Test if FEMParams contains ResponseType.
+
+    """
+    assert response_type in fem_params.response_types
+
+    # May need to free a node in y direction.
+    set_y_false = False
+    if fem_params.displacement_ctrl is not None:
+        pier = fem_params.displacement_ctrl.pier
+        fix = c.bridge.fixed_nodes[pier]
+        if fix.y:
+            fix.y = False
+            set_y_false = True
+
+    path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
+    # Run an experiment with a single FEM simulation.
+    if not os.path.exists(path):
+        fem_runner.run(ExptParams([fem_params]))
+
+    # And set the node as fixed again after running.
+    if set_y_false:
+        fix.y = True
+
+    start = timer()
+    with open(path, "rb") as f:
+        responses = pickle.load(f)
+    print_i(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
+
+    start = timer()
+    fem_responses = FEMResponses(
+        c=c, fem_params=fem_params, runner_name=fem_runner.name,
+        response_type=response_type, responses=responses)
+    print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
+
+    return fem_responses
 
 
 class FEMResponses:
@@ -32,12 +74,12 @@ class FEMResponses:
     FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
     axis positions in meters, but it is better to use the .at method to access
     responses, which will compute a weighted response between the 8 closest
-    points of a cube.
+    points of a cuboid.
 
     Args:
         fem_params: FEMParams, the parameters of the simulation.
         runner_name: str, the FEMRunner used to run the simulation.
-        response_type: ResponseType, the type of sensor responses collected.
+        response_type: ResponseType, the type of sensor responses to collect.
         responses: List[Response], the raw responses from simulation.
         skip_build: bool, reduces time if responses will only be saved.
 
@@ -78,71 +120,10 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
-    def _x_indices(self, x: float) -> Tuple[int, int]:
-        """Indices of the x positions of sensors either side of x.
-
-        TODO: Test this, and switch to numpy.searchsorted for performance.
-
-        """
-        # If only one point, return that.
-        if len(self.xs) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.xs)):
-            if self.xs[i] == x:
-                return i, i
-            if self.xs[i] > x and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
-
-    def _y_indices(self, x: float, y: float) -> Tuple[int, int]:
-        """Indices of the y positions of sensors either side of y.
-
-        TODO: Test this, and switch to numpy.searchsorted for performance.
-
-        """
-        print(self.ys[x])
-        print(f"x = {x}, y = {y}")
-        # If only one point, return that.
-        if len(self.ys[x]) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.ys[x])):
-            if self.ys[x][i] == y:
-                return i, i
-            if self.ys[x][i] > y and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
-
-    def _z_indices(self, x: float, y: float, z: float) -> Tuple[int, int]:
-        """Indices of the z positions of sensors either side of z.
-
-        TODO: Test this, and switch to numpy.searchsorted for performance.
-
-        """
-        # If only one point, return that.
-        if len(self.zs[x][y]) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.zs[x][y])):
-            if self.zs[x][y][i] == z:
-                return i, i
-            if self.zs[x][y][i] > z and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
-
     def at(
             self, x_frac: float = 0, y_frac: float = 1, z_frac: float = 0.5,
-            time_index: int = 0):
-        """Compute an interpolated response via axis fractions in [0 1].
-
-        The response is calulated as a weighted response between the 8 closest
-        points of a cube.
-
-        """
+            time_index: int = 0, interpolate: bool = False):
+        """Return a response from a sensor at a given position."""
         assert 0 <= x_frac <= 1
         assert 0 <= y_frac <= 1
         assert 0 <= z_frac <= 1
@@ -150,6 +131,29 @@ class FEMResponses:
         x = self.c.bridge.x(x_frac=x_frac)
         y = self.c.bridge.y(y_frac=y_frac)
         z = self.c.bridge.z(z_frac=z_frac)
+
+        if interpolate:
+            return self.at_interpolate(x=x, y=y, z=z, time_index=time_index)
+
+        x_ind = nearest_index(self.xs, x)
+        x_near = self.xs[x_ind]
+        y_ind = nearest_index(self.ys[x_near], y)
+        y_near = self.ys[x_near][y_ind]
+        z_ind = nearest_index(self.zs[x_near][y_near], z)
+        z_near = self.zs[x_near][y_near][z_ind]
+
+        return self.responses[time_index][x_near][y_near][z_near].value
+
+    def at_interpolate(
+            self, x: float = 0, y: float = 1, z: float = 0.5,
+            time_index: int = 0):
+        """Compute an interpolated response via axis fractions in [0 1].
+
+        The response is calculated as a weighted response between the 8 closest
+        points of a cuboid.
+
+        """
+        raise RuntimeError("Interpolation does not work!")
 
         x_lo_ind, x_hi_ind = self._x_indices(x=x)
         x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]
@@ -197,171 +201,53 @@ class FEMResponses:
         print(f"response = {response}")
         return response
 
-    def at_(
-            self, x_frac: float = 0, y_frac: float = 0, z_frac: float = 0,
-            time_index: int = 0):
-        """Compute an interpolated response via axis fractions in [0 1]."""
-        assert 0 <= x_frac <= 1
-        assert 0 <= y_frac <= 1
-        assert 0 <= z_frac <= 1
 
-        # Set the low and high values if an exact index is available.
-        x_ind_f = np.interp(x_frac, [0, 1], [0, len(self.xs) - 1])
-        x_ind = int(x_ind_f)
-        if x_ind_f == x_ind:
-            x_lo_ind, x_hi_ind = x_ind, x_ind
-            x = self.xs[x_ind]
-            x_lo, x_hi = x, x
-        # Else set the low and high values separately.
-        else:
-            x_lo_ind, x_hi_ind = x_ind, x_ind + 1
-            x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]
-        print_w(
-            f"x_frac = {x_frac}\n"
-            + f"x_ind_f = {x_ind_f}\n"
-            + f"x_ind = {x_ind}\n"
-            + f"x_lo, x_hi = {x_lo}, {x_hi}\n")
+    def _x_indices(self, x: float) -> Tuple[int, int]:
+        """Indices of the x positions of sensors either side of x."""
+        # If only one point, return that.
+        if len(self.xs) == 1:
+            return 0, 0
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(self.xs)):
+            if self.xs[i] == x:
+                return i, i
+            if self.xs[i] > x and i > 0:
+                return i - 1, i
+        # Else the last point.
+        return i, i
 
-        # Y index for the low x value.
-        y_lo_ind_f = np.interp(y_frac, [0, 1], [0, len(self.ys[x_lo]) - 1])
-        y_lo_ind = int(y_lo_ind_f)
-        if abs(y_lo_ind_f - y_lo_ind) > abs(y_lo_ind_f - y_lo_ind + 1):
-            y_lo_ind += 1
+    def _y_indices(self, x: float, y: float) -> Tuple[int, int]:
+        """Indices of the y positions of sensors either side of y."""
+        print(self.ys[x])
+        print(f"x = {x}, y = {y}")
+        # If only one point, return that.
+        if len(self.ys[x]) == 1:
+            return 0, 0
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(self.ys[x])):
+            if self.ys[x][i] == y:
+                return i, i
+            if self.ys[x][i] > y and i > 0:
+                return i - 1, i
+        # Else the last point.
+        return i, i
 
-        # Y index for the high x value.
-        y_hi_ind_f = np.interp(y_frac, [0, 1], [0, len(self.ys[x_hi]) - 1])
-        y_hi_ind = int(y_hi_ind_f)
-        if abs(y_hi_ind_f - y_hi_ind) > abs(y_hi_ind_f - y_hi_ind + 1):
-            y_hi_ind += 1
+    def _z_indices(self, x: float, y: float, z: float) -> Tuple[int, int]:
+        """Indices of the z positions of sensors either side of z.
 
-        # Low and high y values.
-        y_lo, y_hi = self.ys[x_lo][y_lo_ind], self.ys[x_hi][y_lo_ind]
-        print_w(
-            f"y_frac = {y_frac}\n"
-            + f"y_lo_ind_f = {y_lo_ind_f}\n"
-            + f"y_lo_ind = {y_lo_ind}\n"
-            + f"y_hi_ind_f = {y_hi_ind_f}\n"
-            + f"y_hi_ind = {y_hi_ind}\n"
-            + f"y_lo, y_hi = {y_lo}, {y_hi}\n")
+        TODO: Test this.
+        TODO: Switch to numpy.searchsorted for performance.
+        TODO: Factor out into a method re-usable for x, y, z.
 
-        # Z index for the low x value.
-        z_lo_ind_f = np.interp(
-            z_frac, [0, 1], [0, len(self.zs[x_lo][y_lo]) - 1])
-        z_lo_ind = int(z_lo_ind_f)
-        if abs(z_lo_ind_f - z_lo_ind) > abs(z_lo_ind_f - z_lo_ind + 1):
-            z_lo_ind += 1
-
-        # Z index for the high x value.
-        z_hi_ind_f = np.interp(
-            z_frac, [0, 1], [0, len(self.zs[x_hi][y_hi]) - 1])
-        z_hi_ind = int(z_hi_ind_f)
-        if abs(z_hi_ind_f - z_hi_ind) > abs(z_hi_ind_f - z_hi_ind + 1):
-            z_hi_ind += 1
-
-        # Low and high z values.
-        z_lo, z_hi = (
-            self.zs[x_lo][y_lo][z_lo_ind], self.zs[x_hi][y_hi][z_lo_ind])
-        print_w(
-            f"z_frac = {z_frac}\n"
-            + f"z_lo_ind_f = {z_lo_ind_f}\n"
-            + f"z_lo_ind = {z_lo_ind}\n"
-            + f"z_hi_ind_f = {z_hi_ind_f}\n"
-            + f"z_hi_ind = {z_hi_ind}\n"
-            + f"z_lo, z_hi = {z_lo}, {z_hi}\n")
-
-        x_frac_lo = np.interp(x_lo_ind, [0, len(self.xs) - 1], [0, 1])
-        x_frac_hi = np.interp(x_hi_ind, [0, len(self.xs) - 1], [0, 1])
-        y_frac_lo = np.interp(y_lo_ind, [0, len(self.ys[x_lo]) - 1], [0, 1])
-        y_frac_hi = np.interp(y_hi_ind, [0, len(self.ys[x_hi]) - 1], [0, 1])
-        z_frac_lo = np.interp(z_lo_ind, [0, len(self.zs[x_lo][y_lo]) - 1], [0, 1])
-        z_frac_hi = np.interp(y_hi_ind, [0, len(self.zs[x_hi][y_hi]) - 1], [0, 1])
-        p_lo = Point(x=x_frac_lo, y=y_frac_lo, z=z_frac_lo)
-        p_hi = Point(x=x_frac_hi, y=y_frac_hi, z=z_frac_hi)
-        p = Point(x=x_frac, y=y_frac, z=z_frac)
-        print_w(
-            f"p_lo = {p_lo}\n"
-            + f"p_hi = {p_hi}\n"
-            + f"p = {p}\n")
-        response_lo = self.responses[self.times[time_index]][x_lo][y_lo][z_lo]
-        response_hi = self.responses[self.times[time_index]][x_hi][y_hi][z_hi]
-        print_w(
-            f"response_lo = {response_lo}\n"
-            + f"response_hi = {response_hi}\n")
-        return (
-            (response_lo.value * (p.distance(p_lo) / p_lo.distance(p_hi)))
-            + (response_hi.value * (p.distance(p_hi) / p_lo.distance(p_hi))))
-
-    def save(self, c: Config):
-        path = fem_responses_path(
-            c, self.fem_params, self.response_type, self.runner_name)
-        with open(path, "wb") as f:
-            pickle.dump(self._responses, f)
-
-    # TODO: Remove.
-    def plot_x(
-            self, y=0, y_ord=None, z=0, z_ord=None, t=0, time=None, show=True):
-        """Plot responses along the x axis at some (y, z, t)."""
-        data = [self.at(
-                    x_ord=x_ord, y=y, y_ord=y_ord, z=z, z_ord=z_ord, t=t).value
-                for x_ord in self.xs]
-        plt.plot(self.xs, data)
-        if show: plt.show()
-
-
-def load_fem_responses(
-        c: Config, fem_params: FEMParams, response_type: ResponseType,
-        fem_runner: FEMRunner) -> FEMResponses:
-    """Load responses of one type for a simulation.
-
-    The FEMParams determine which responses are saved.
-
-    """
-    assert response_type in fem_params.response_types
-
-    # May need to free a node in y direction.
-    set_y_false = False
-    if fem_params.displacement_ctrl is not None:
-        pier = fem_params.displacement_ctrl.pier
-        fix = c.bridge.fixed_nodes[pier]
-        if fix.y:
-            fix.y = False
-            set_y_false = True
-
-    path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
-    # Run an experiment with a single simulation.
-    if not os.path.exists(path):
-        fem_runner.run(ExptParams([fem_params]))
-
-    # And set the node as fixed again after running.
-    if set_y_false:
-        fix.y = True
-
-    start = timer()
-    with open(path, "rb") as f:
-        responses = pickle.load(f)
-    print_i(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
-
-    start = timer()
-    fem_responses = FEMResponses(
-        c=c, fem_params=fem_params, runner_name=fem_runner.name,
-        response_type=response_type, responses=responses)
-    print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
-
-    return fem_responses
-
-
-# TODO: Replace by ExptMatrix/Responses.
-ExptResponses = List[FEMResponses]
-
-
-# TODO: Move to fem.responses.expt.
-def load_expt_responses(
-        c: Config, expt_params: ExptParams, response_type: ResponseType,
-        fem_runner: FEMRunner) -> ExptResponses:
-    """Load responses of one type for an experiment."""
-    results = []
-    for i, fem_params in enumerate(expt_params.fem_params):
-        results.append(load_fem_responses(
-            c, fem_params, response_type, fem_runner))
-        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
-    return results
+        """
+        # If only one point, return that.
+        if len(self.zs[x][y]) == 1:
+            return 0, 0
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(self.zs[x][y])):
+            if self.zs[x][y][i] == z:
+                return i, i
+            if self.zs[x][y][i] > z and i > 0:
+                return i - 1, i
+        # Else the last point.
+        return i, i

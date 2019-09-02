@@ -4,7 +4,7 @@ from typing import List, Optional
 import numpy as np
 
 from config import Config
-from fem.responses.matrix import load_il_matrix
+from fem.responses.matrix.il import load_il_matrix
 from fem.run import FEMRunner
 from model import Response
 from model.bridge import Bridge, Point
@@ -51,7 +51,7 @@ def response_to_mv_loads(
         c: Config, mv_loads: List[MovingLoad], time: float, at: Point,
         response_type: ResponseType, fem_runner: FEMRunner,
         per_axle: bool=False) -> Response:
-    """The response to one or more moving loads at a single time.
+    """The response to one or more moving loads at one simulation time.
 
     Args:
         per_axle: bool, if true then return a list of response per axle,
@@ -120,9 +120,7 @@ def on_bridge(bridge: Bridge, mv_load: MovingLoad, time: float):
     if not mv_load.load.is_point_load():
         vehicle_length = sum(mv_load.load.axle_distances)
         right_x_frac += bridge.x_frac(vehicle_length)
-    return (
-        0 <= left_x_frac and left_x_frac <= 1 and
-        0 <= right_x_frac and right_x_frac <= 1)
+    return 0 <= left_x_frac <= 1 and 0 <= right_x_frac <= 1
 
 
 def times_on_bridge(c: Config, mv_loads: List[MovingLoad]) -> List[float]:

@@ -33,13 +33,13 @@ def bridge_705(
         patches: Optional[List[Patch]] = None,
         layers: Optional[List[Layer]] = None) -> Bridge:
 
-    if length == None:
+    if length is None:
         length = 102
 
-    if lanes == None:
-        lanes=[Lane(4, 12.4), Lane(20.8, 29.2)]
+    if lanes is None:
+        lanes = [Lane(4, 12.4), Lane(20.8, 29.2)]
 
-    if piers == None:
+    if piers is None:
         piers = [0]  # Pier locations in meters.
         for span_distance in [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]:
             piers.append(piers[-1] + span_distance)
@@ -47,12 +47,12 @@ def bridge_705(
     fixed_nodes = [Fix(x / length, y=True) for x in piers]
     fixed_nodes[0].x = True
 
-    if patches == None:
+    if patches is None:
         patches = [
             Patch(y_min=-1, y_max=0, z_min=-16.6, z_max=16.6),
             Patch(y_min=-10, y_max=-1, z_min=-5, z_max=5)]
 
-    if layers == None:
+    if layers is None:
         layers = [
             Layer(
                 y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15,
