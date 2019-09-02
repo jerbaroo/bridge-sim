@@ -14,6 +14,9 @@ from plot import plt
 from util import print_d, print_i
 from vehicles.sample import sample_vehicle
 
+# Print debug information for this file.
+D: bool = False
+
 
 def plot_event(
         c: Config, event: Event, start_index: int, num_loads: int,
@@ -55,7 +58,7 @@ def plot_events_from_mv_loads(
         response_type: ResponseType, fem_runner: FEMRunner, at: Point,
         save: str = None, show: bool = False):
     """Plot events from each set of moving loads on a row."""
-    print_d(f"TODO: Support multiple vehicles")
+    print_d(D, f"TODO: Support multiple vehicles")
     # Determine rows, cols and events per row.
     rows = len(mv_loads)
     events = [

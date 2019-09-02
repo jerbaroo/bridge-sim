@@ -1,8 +1,11 @@
 """Test the sampling of vehicles."""
-from model import Vehicle
-from model.bridge_705 import bridge_705_config
+from model.load import Vehicle
+from model.bridge.bridge_705 import bridge_705_config
 from vehicles.sample import noise_col_names, sample_vehicle
-from util import *
+from util import print_d
+
+# Print debug information for this file.
+D: bool = False
 
 
 def test_sample_vehicle():
@@ -11,7 +14,7 @@ def test_sample_vehicle():
 
     # Test a vehicle is returned.
     vehicle = sample_vehicle(c, noise_stddevs=0)
-    print_d(vehicle)
+    print_d(D, vehicle)
     assert isinstance(vehicle, Vehicle)
 
     # Test noise is added.

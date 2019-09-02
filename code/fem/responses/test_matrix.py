@@ -2,11 +2,15 @@
 import os
 from timeit import default_timer as timer
 
-from fem.responses.matrix import DCMatrix, load_il_matrix
+from fem.responses.matrix.dc import DCMatrix
+from fem.responses.matrix.il import load_il_matrix
 from fem.run.opensees import os_runner
 from model.bridge.bridge_705 import bridge_705_config
 from model.response import ResponseType
 from util import print_d
+
+# Print debug information for this file.
+D: bool = False
 
 # TODO: This is a very bad test.
 
@@ -36,7 +40,7 @@ def test_os_il_matrix():
         c=c, response_type=response_type, fem_runner=fem_runner, num_loads=1,
         save_all=False)
     time = timer() - start
-    assert 0.1 < time and time < 2
+    assert 0.1 < time < 2
 
     # Test file is created.
     assert os.path.exists(path)
@@ -44,10 +48,9 @@ def test_os_il_matrix():
     # Test time for saving all responses.
     clean()
     start = timer()
-    ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
+    load_il_matrix(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
-    assert 0.5 < time and time < 4
-
+    assert 0.5 < time < 4
 
 
 def test_os_dc_matrices():
@@ -63,7 +66,7 @@ def test_os_dc_matrices():
     start = timer()
     dc_matrix = DCMatrix.load(c, response_type, fem_runner, save_all=False)
     time = timer() - start
-    print_d(time)
+    print_d(D, time)
     # TODO: Fix timing and assertion.
     # assert 1 < time and time < 3
 
@@ -72,12 +75,12 @@ def test_load_all_os_matrices():
     c.il_matrices = dict()
     # Should run fast after the first time (may also be fast).
     # The second time should only require loading from disk.
-    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    load_il_matrix(c, ResponseType.Strain, os_runner(c), num_loads=10)
     c.il_matrices = dict()
     start = timer()
-    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    load_il_matrix(c, ResponseType.Strain, os_runner(c), num_loads=10)
     time = timer() - start
-    assert 1 < time and time < 4
+    assert 1 < time < 4
 
 
 if __name__ == "__main__":

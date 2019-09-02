@@ -13,8 +13,10 @@ def plot_il(
         num_x: int, save: str = None, show: bool = False):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
-    rs = [il_matrix.response_to(response_frac, load_x_frac, c.il_unit_load_kn)
-          for load_x_frac in x_fracs]
+    rs = [il_matrix.response_to(
+        x_frac=response_frac, load_x_frac=load_x_frac,
+        load=c.il_unit_load_kn)
+        for load_x_frac in x_fracs]
     xs = [c.bridge.x(x_frac) for x_frac in x_fracs]
     response_ord = response_frac * c.bridge.length
     response_name = il_matrix.response_type.name()
@@ -53,8 +55,9 @@ def plot_dc(
 
 
 def matrix_subplots(
-        c: Config, resp_matrix: ResponsesMatrix, rows: int = 4, cols: int = None,
-        num_x: int = 100, save: str = None, show: bool = False, plot_func=None):
+        c: Config, resp_matrix: ResponsesMatrix, rows: int = 4,
+        cols: int = None, num_x: int = 100, save: str = None,
+        show: bool = False, plot_func=None):
     """For each subplot plot matrix responses using the given function."""
     if cols is None:
         cols = int(resp_matrix.num_expts / rows)

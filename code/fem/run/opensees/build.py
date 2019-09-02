@@ -10,6 +10,9 @@ from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
 from util import print_d, print_i
 
+# Print debug information for this file.
+D: bool = False
+
 
 def opensees_nodes(c: Config):
     """OpenSees node commands for a .tcl file."""
@@ -165,7 +168,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: OSRunner):
         # For displacement control check that the required pier is not fixed
         # for displacement.
         if fem_params.displacement_ctrl is not None:
-            print_d("Displacmenet control!!")
+            print_d(D, "Displacmenet control!!")
             fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
             if fix.y:
                 nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))

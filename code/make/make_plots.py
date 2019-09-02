@@ -43,12 +43,12 @@ def make_il_plots(c: Config):
         il_matrix = load_il_matrix(
             c=c, response_type=response_type, fem_runner=os_runner(c),
             num_loads=num_ils)
-        imshow_il(
-            c=c, il_matrix=il_matrix, num_ils=num_ils, num_x=num_x,
-            save=c.image_path(
-                f"ils/il-imshow-{il_matrix.fem_runner_name}"
-                + f"-{response_type.name()}"
-                + f"-{num_ils}-{num_x}"))
+        # imshow_il(
+        #     c=c, il_matrix=il_matrix, num_ils=num_ils, num_x=num_x,
+        #     save=c.image_path(
+        #         f"ils/il-imshow-{il_matrix.fem_runner_name}"
+        #         + f"-{response_type.name()}"
+        #         + f"-{num_ils}-{num_x}"))
         rows, cols = 4, 3
         matrix_subplots(
             c, il_matrix, rows=rows, cols=cols, plot_func=plot_il,

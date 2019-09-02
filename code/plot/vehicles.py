@@ -4,16 +4,17 @@ from typing import Callable, List, Tuple, TypeVar
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from pandas import DataFrame
 
 from config import Config
-from model.bridge.bridge_705 import bridge_705_config
 from vehicles import axle_array_and_count
 from vehicles.sample import length_groups
 from util import print_d
 
+# Print debug information for this file.
+D: bool = False
 
-def plot_density(c: Config, save: str=None, show: bool=False):
+
+def plot_density(c: Config, save: str = None, show: bool = False):
     """Plot the vehicle density."""
     plt.bar(
         range(len(c.vehicle_density)),
@@ -44,7 +45,7 @@ def group_scatter_plots(
     row, col = 0, 0
 
     # Add a wide header plot of all the data.
-    print_d(f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
+    print_d(D, f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
     plt.subplot2grid((rows, cols), (row, col), colspan=cols)
     plt.scatter(group_x(c.vehicle_data), group_y(c.vehicle_data), s=10)
     if title: plt.title(f"{title} (all data)")
@@ -62,10 +63,10 @@ def group_scatter_plots(
     row += 1  # For the wide header plot.
     last_i = 0
     for (i, group) in [(int(i), g) for i, g in groups]:
-        print_d(f"i = {i}")
+        print_d(D, f"i = {i}")
         [add_1() for _ in range(last_i + 1, i)]  # For any empty groups.
         last_i = i
-        print_d(f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
+        print_d(D, f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
         plt.subplot2grid((rows, cols), (row, col))
         plt.scatter(group_x(group), group_y(group), s=10)
         if title: plt.title(f"{title} (group {i})")

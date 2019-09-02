@@ -6,10 +6,12 @@ import pandas as pd
 import scipy.stats as stats
 
 from config import Config
-from util import print_d, print_w
 from model.load import Vehicle
 from vehicles import axle_array_and_count
+from util import print_d, print_w
 
+# Print debug information for this file.
+D: bool = False
 
 # Column names of the vehicle data to add noise.
 noise_col_names = ["speed", "length", "total_weight"]
@@ -22,8 +24,8 @@ def length_groups(
         col = c.vehicle_density_col
     if lengths is None:
         lengths = list(map(lambda x: x[0], c.vehicle_density))
-    print_d(f"Vehicle density col is \"{col}\"")
-    print_d(lengths)
+    print_d(D, f"Vehicle density col is \"{col}\"")
+    print_d(D, lengths)
     assert sorted(lengths) == lengths
     # TODO Better vehicle data format, should be meters.
     if col == "length":
@@ -69,10 +71,10 @@ def sample_vehicle(
     if group_index is None:
         rand = np.random.uniform()
         min, max = 0, c.vehicle_density[-1][0]
-        print_d(f"rand = {rand}")
-        print_d(f"min = {min}, max = {max}")
+        print_d(D, f"rand = {rand}")
+        print_d(D, f"min = {min}, max = {max}")
         running_fraction = 0
-        print_d(f"vehicle density = {c.vehicle_density}")
+        print_d(D, f"vehicle density = {c.vehicle_density}")
         for i, (_, group_fraction) in enumerate(c.vehicle_density):
             running_fraction += group_fraction
             print(f"i = {i}, running_fraction = {running_fraction}")
@@ -80,13 +82,13 @@ def sample_vehicle(
                 group_index = i
                 break
     else: group_index = init_group_index
-    print_d(f"group_index = {group_index}")
+    print_d(D, f"group_index = {group_index}")
 
     # Sample a vehicle uniformly randomly from the group.
     groups_dict = {i: None for _ in range(len(c.vehicle_density))}
-    print_d(groups_dict.items())
+    print_d(D, groups_dict.items())
     for i, group in length_groups(c):
-        print_d(f"i = {i}")
+        print_d(D, f"i = {i}")
         groups_dict[i] = group
     group = groups_dict[group_index]
     print(f"group = {type(group)}")
@@ -99,13 +101,13 @@ def sample_vehicle(
     if c.perturb_stddev:
         for col_name, (_, stddev) in zip(
                 noise_col_names, noise_per_column(c, noise_col_names)):
-            print_d(
+            print_d(D,
                 f"col_name = {col_name}, stddev = {stddev:.2f},"
                 + f"{c.perturb_stddev} x stddev = {c.perturb_stddev * stddev:.2f}")
             noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
-            print_d(f"before =\n{sample[col_name]},\nnoise = {noise}")
+            print_d(D, f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
-            print_d(f"after =\n{sample[col_name]}")
+            print_d(D, f"after =\n{sample[col_name]}")
 
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]

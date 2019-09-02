@@ -5,6 +5,9 @@ from config import Config
 from model.bridge import Bridge
 from util import print_d
 
+# Print debug information for this file.
+D: bool = False
+
 
 class Vehicle:
     """Specification of a vehicle with speed."""
@@ -83,7 +86,7 @@ class MovingLoad:
 
     """
     def __init__(self, load: Load, kmph: float, l_to_r: bool = True):
-        print_d(f"Moving")
+        print_d(D, f"Moving")
         self.load = load
         self.kmph = kmph
         self.mps = self.kmph / 3.6

@@ -22,6 +22,9 @@ from model.load import Load, MovingLoad
 from model.response import Event, ResponseType
 from util import print_d, print_w
 
+# Print debug information for this file.
+D: bool = False
+
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
 _og_savefig = _plt.savefig
@@ -236,11 +239,11 @@ def animate_bridge_response(
             # Plot responses per axle and one sum of responses.
             if per_axle:
                 for axle in range(mv_loads[i].load.num_axles):
-                    print_d(f"axle_num = {axle}")
+                    print_d(D, f"axle_num = {axle}")
                     plt.plot(
                         x_axis, list(map(lambda x: x[axle], t_load_responses)),
                         color=response_axle_color, linewidth=1)
-                print_d(f"Response per axle")
+                print_d(D, f"Response per axle")
                 plt.plot(
                     x_axis, responses_per_load[i][t], color=response_color,
                     linewidth=1)

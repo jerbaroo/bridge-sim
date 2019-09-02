@@ -11,12 +11,10 @@ from termcolor import colored
 
 init()
 
-DEBUG = False
 
-
-def print_d(s: str):
+def print_d(debug: bool, s: str):
     """Print some debug text."""
-    if DEBUG:
+    if debug:
         print(colored(f"DEBUG: {s}", "yellow"))
 
 
