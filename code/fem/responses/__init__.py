@@ -120,6 +120,13 @@ class FEMResponses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
+    def save(self, c: Config):
+        path = fem_responses_path(
+            c=c, fem_params=self.fem_params, response_type=self.response_type,
+            runner_name=self.runner_name)
+        with open(path, "wb") as f:
+            pickle.dump(self._responses, f)
+
     def at(
             self, x_frac: float = 0, y_frac: float = 1, z_frac: float = 0.5,
             time_index: int = 0, interpolate: bool = False):

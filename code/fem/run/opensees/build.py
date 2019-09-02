@@ -7,7 +7,7 @@ from fem.params import ExptParams, FEMParams
 from model.bridge import Fix, Layer, Patch, Section
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
-from util import print_d, print_i
+from util import print_i, print_w
 
 # Print debug information for this file.
 D: bool = False
@@ -59,12 +59,14 @@ def opensees_sections(c: Config):
     """OpenSees section commands for a .tcl file."""
 
     def opensees_patch(p: Patch):
+        # NOTE: the y and x coordinates are opposite to OpenSees documentation.
         return (f"patch rect {p.material.value} 1 {p.num_sub_div_z}"
-                + f" {p.p0.y} {p.p0.z} {p.p1.y} {p.p1.z}")
+                + f" {p.p0.z} {p.p0.y} {p.p1.z} {p.p1.y}")
 
     def opensees_layer(l: Layer):
+        # NOTE: the y and x coordinates are opposite to OpenSees documentation.
         return (f"layer straight {l.material.value} {l.num_fibers}"
-                + f" {l.area_fiber} {l.p0.y} {l.p0.z} {l.p1.y} {l.p1.z}")
+                + f" {l.area_fiber} {l.p0.z} {l.p0.y} {l.p1.z} {l.p1.y}")
 
     def opensees_section(s: Section):
         return (f"section Fiber {s.id} {{"
@@ -85,9 +87,11 @@ def opensees_recorders(
     if ResponseType.XTranslation in response_types:
         node_recorders.append(
             (fem_runner.x_translation_path(fem_params), 1))
+
     if ResponseType.YTranslation in response_types:
         node_recorders.append(
             (fem_runner.y_translation_path(fem_params), 2))
+
     if len(node_recorders) > 0:
         for node_out_file, dof in node_recorders:
             recorders += f"\nrecorder Node -file {node_out_file}"
@@ -100,20 +104,22 @@ def opensees_recorders(
 
     if (ResponseType.Stress in response_types or
             ResponseType.Strain in response_types):
+
         # Record stress and strain for each patch.
         for patch in c.bridge.sections[0].patches:
             point = patch.center()
             recorders += (f"\nrecorder Element -file"
                           + f" {fem_runner.patch_path(fem_params, patch)}"
                           + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                          + f" section 1 fiber {point.y} {point.z} stressStrain")
+                          + f" section 1 fiber {point.z} {point.y} stressStrain")
+
         # Record stress and strain for each fiber in a layer.
         for layer in c.bridge.sections[0].layers:
             for (point, point_path) in zip(
                     layer.points(), fem_runner.layer_paths(fem_params, layer)):
                 recorders += (f"\nrecorder Element -file {point_path}"
                               + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                              + f" section 1 fiber {point.y} {point.z}"
+                              + f" section 1 fiber {point.z} {point.y}"
                               + " stressStrain")
     return recorders
 
@@ -159,7 +165,7 @@ uniaxialMaterial Elastic 2 2.0000000e+11
 """
 
 
-def build_model(c: Config, expt_params: ExptParams, fem_runner: OSRunner):
+def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
     """Build OpenSees model files."""
     for fem_params in expt_params.fem_params:
         print_i(f"OpenSees: building model file with"
@@ -169,7 +175,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: OSRunner):
         # For displacement control check that the required pier is not fixed
         # for displacement.
         if fem_params.displacement_ctrl is not None:
-            print_d(D, "Displacmenet control!!")
+            print_w(D, "Displacement control!")
             fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
             if fix.y:
                 nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))

@@ -5,6 +5,10 @@ from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.run import FEMRunner
 from model.load import Load
 from model.response import ResponseType
+from util import print_d
+
+# Print debug information for this file.
+D: bool = False
 
 
 class ILMatrix(ResponsesMatrix):
@@ -26,6 +30,7 @@ class ILMatrix(ResponsesMatrix):
         """
         assert 0 <= x_frac <= 1
         assert 0 <= load_x_frac <= 1
+        print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
         response = self.response_(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
             time_index=time_index)
@@ -34,7 +39,7 @@ class ILMatrix(ResponsesMatrix):
 
 def load_il_matrix(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        num_loads: int = 100, save_all: bool = True) -> ILMatrix:
+        num_loads: int = 1000, save_all: bool = True) -> ILMatrix:
     """Load an ILMatrix from disk, running simulations first if necessary.
 
     Args:

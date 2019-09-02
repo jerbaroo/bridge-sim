@@ -102,6 +102,7 @@ class FEMRunner:
             load_str = load_str.replace(char, "")
         fem_id = f"{self.name}-{load_str}"
 
-        ext = "." + self.built_model_ext if ext is None else ext
+        if ext is None:
+            ext = "." + self.built_model_ext
         return os.path.join(
             self.built_files_dir, f"{fem_id}{ext}").replace(" ", "").lower()

@@ -78,7 +78,7 @@ class ResponsesMatrix:
         # If an experiment index matches exactly, or not interpolating.
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
         if expt_ind == int(expt_ind) or not interpolate:
-            print_w(f"Not interpolating, expt_frac = {expt_frac}, expt_ind = {expt_ind}")
+            # print_w(f"Not interpolating, expt_frac = {expt_frac}, expt_ind = {expt_ind}")
             return self.expt_responses[int(expt_ind)].at(
                 x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
                 time_index=time_index)
