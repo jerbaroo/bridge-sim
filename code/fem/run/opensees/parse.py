@@ -26,7 +26,7 @@ def opensees_to_numpy(path):
 
 
 def parse_responses(
-        c: Config, expt_params: ExptParams, fem_runner: OSRunner) -> Parsed:
+        c: Config, expt_params: ExptParams, fem_runner: "OSRunner") -> Parsed:
     """Parse responses from an OpenSees simulation."""
     results = defaultdict(dict)
 

@@ -19,8 +19,10 @@ def convert_responses(
             """Convert data indexed as [time][node] to a list of Response."""
             node_ids = c.os_node_ids()
             return [
-                Response(trans[time][i], x=i * c.os_node_step, y=0, z=0,
-                         time=time, node_id=node_ids[i])
+                Response(
+                    trans[time][i], x=c.bridge.x_min + (i * c.os_node_step),
+                    y=c.bridge.y_max, z=c.bridge.z_center, time=time,
+                    node_id=node_ids[i])
                 for time in range(len(trans))
                 for i in range(len(trans[time]))]
 
@@ -33,14 +35,15 @@ def convert_responses(
                 translation_to_responses(
                     sim_responses[ResponseType.YTranslation]))
 
-        ##### Stress and strain for each section's fiber. #####
+        # Stress and strain for each section's fiber.
 
         def stress_to_responses(stress):
             """Stress or strain data to a list of Response."""
             elem_ids = c.os_elem_ids()
             return [
                 Response(
-                    val, x=i * c.os_node_step + (c.os_node_step / 2),
+                    val, x=(c.bridge.x_min
+                            + (i * c.os_node_step) + (c.os_node_step / 2)),
                     y=point.y, z=point.z, time=time, elem_id=elem_ids[i],
                     section_id=section_id, fiber_cmd_id=fiber_cmd_id)
                 for _, (val, i, section_id, time, fiber_cmd_id, point)

@@ -201,7 +201,6 @@ class FEMResponses:
         print(f"response = {response}")
         return response
 
-
     def _x_indices(self, x: float) -> Tuple[int, int]:
         """Indices of the x positions of sensors either side of x."""
         # If only one point, return that.

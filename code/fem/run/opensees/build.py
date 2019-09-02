@@ -50,6 +50,8 @@ def opensees_loads(c: Config, fem_params: FEMParams):
     if fem_params.displacement_ctrl is not None:
         fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
         return opensees_load(Load(x_frac=fix.x_frac, kn=10))
+    # TODO: Why 10 kN?
+
     return "\n".join(opensees_load(l) for l in fem_params.loads)
 
 

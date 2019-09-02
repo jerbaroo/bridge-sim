@@ -10,6 +10,14 @@ from util import print_i
 _fiber_cmd_id = 1
 
 
+def next_fiber_id():
+    """Return a new unique fiber ID."""
+    global _fiber_cmd_id
+    result = _fiber_cmd_id
+    _fiber_cmd_id += 1
+    return result
+
+
 class Fix:
     """A node fixed in some degrees of freedom, used to model a pier.
 
@@ -23,7 +31,7 @@ class Fix:
     def __init__(
             self, x_frac: float, x: bool = False, y: bool = False,
             rot: bool = False):
-        assert x_frac >= 0 and x_frac <= 1
+        assert 0 <= x_frac <= 1
         self.x_frac = x_frac
         self.x = x
         self.y = y
@@ -36,17 +44,17 @@ class Lane:
     Args:
         z0: float, z ordinate of one edge of the lane in meters.
         z1: float, z ordinate of the other edge of the lane in meters.
-        left_to_right: bool, whether traffic moves left to right, or opposite.
+        ltr: bool, whether traffic moves left to right, or opposite.
 
     Attrs:
         z_min, lower z position of the bridge in meters.
         z_min, upper z position of the bridge in meters.
 
     """
-    def __init__(self, z0: float, z1: float, left_to_right: bool=True):
+    def __init__(self, z0: float, z1: float, ltr: bool = True):
         self.z_min = min(z0, z1)
         self.z_max = max(z0, z1)
-        self.left_to_right = left_to_right
+        self.ltr = ltr
 
     def width(self):
         """Width of the lane in meters."""
@@ -75,10 +83,10 @@ class Layer:
     def __init__(
             self, y_min: float, z_min: float, y_max: float, z_max: float,
             num_fibers: int, area_fiber: float = 4.9e-4,
-            material: Material=Material.Steel):
-        global _fiber_cmd_id
-        self.fiber_cmd_id = _fiber_cmd_id
-        _fiber_cmd_id += 1
+            material: Material = Material.Steel):
+        assert y_min <= y_max
+        assert z_min <= z_max
+        self.fiber_cmd_id = next_fiber_id()
         self.p0 = Point(y=y_min, z=z_min)
         self.p1 = Point(y=y_max, z=z_max)
         self.num_fibers = num_fibers
@@ -86,7 +94,7 @@ class Layer:
         self.material = material
 
     def points(self):
-        """The points respresenting each fiber."""
+        """The points representing each fiber."""
         dy = (self.p1.y - self.p0.y) / (self.num_fibers - 1)
         dz = (self.p1.z - self.p0.z) / (self.num_fibers - 1)
         y, z = self.p0.y, self.p0.z
@@ -102,10 +110,10 @@ class Patch:
     """A rectangular patch, used to describe a Section."""
     def __init__(
             self, y_min: float, z_min: float, y_max: float, z_max: float,
-            num_sub_div_z: int=30, material: Material=Material.Concrete):
-        global _fiber_cmd_id
-        self.fiber_cmd_id = _fiber_cmd_id
-        _fiber_cmd_id += 1
+            num_sub_div_z: int = 30, material: Material = Material.Concrete):
+        assert y_min <= y_max
+        assert z_min <= z_max
+        self.fiber_cmd_id = next_fiber_id()
         self.p0 = Point(y=y_min, z=z_min)
         self.p1 = Point(y=y_max, z=z_max)
         self.num_sub_div_z = num_sub_div_z
@@ -117,10 +125,12 @@ class Patch:
         dz = abs(self.p0.z - self.p1.z)
         point = Point(y=min(self.p0.y, self.p1.y) + (dy / 2),
                       z=min(self.p0.z, self.p1.z) + (dz / 2))
-        def assertBetween(a, b, c):
-            assert (a < c and c < b) or (b < c and c < a)
-        assertBetween(self.p0.y, self.p1.y, point.y)
-        assertBetween(self.p0.z, self.p1.z, point.z)
+
+        def assert_between(a, b, c):
+            assert (a < c < b) or (b < c < a)
+
+        assert_between(self.p0.y, self.p1.y, point.y)
+        assert_between(self.p0.z, self.p1.z, point.z)
         return point
 
 
@@ -147,7 +157,9 @@ class Point:
 
 class Section:
     """A section composed of fibers."""
+
     next_id = 1
+
     def __init__(self, patches: List[Patch] = [], layers: List[Layer] = []):
         self.id = Section.next_id
         Section.next_id += 1
@@ -205,8 +217,11 @@ class Bridge:
         self.sections = sections
         self.lanes = lanes
         self.x_min, self.x_max = 0, length
+        self.x_center = (self.x_min + self.x_max) / 2
         self.y_min, self.y_max = self.sections[0].y_min_max()
+        self.y_center = (self.y_min + self.y_max) / 2
         self.z_min, self.z_max = self.sections[0].z_min_max()
+        self.z_center = (self.z_min + self.z_max) / 2
         self.length = self.x_max - self.x_min
         self.height = self.y_max - self.y_min
         self.width = self.z_max - self.z_min
@@ -215,7 +230,12 @@ class Bridge:
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
+
         assert self.length == length  # Sanity check.
+        assert self.x_min < self.x_max
+        assert self.y_min < self.y_max
+        assert self.z_min < self.z_max
+
         if len(sections) != 1:
             raise ValueError(f"Max 1 section supported, was {len(sections)}")
         if self.fixed_nodes and not self.fixed_nodes[0].x:
@@ -248,19 +268,25 @@ class Bridge:
         return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
 
     def x_frac(self, x: float):
-        return x / self.length
+        assert self.x_min <= x <= self.x_max
+        return np.interp(x, [self.x_min, self.x_max], [0, 1])
 
     def x(self, x_frac: float):
-        return x_frac * self.length
+        assert 0 <= x_frac <= 1
+        return np.interp(x_frac, [0, 1], [self.x_min, self.x_max])
 
     def y_frac(self, y: float):
+        assert self.y_min <= y <= self.y_max
         return np.interp(y, [self.y_min, self.y_max], [0, 1])
 
     def y(self, y_frac: float):
+        assert 0 <= y_frac <= 1
         return np.interp(y_frac, [0, 1], [self.y_min, self.y_max])
 
     def z_frac(self, z: float):
+        assert self.z_min <= z <= self.z_max
         return np.interp(z, [self.z_min, self.z_max], [0, 1])
 
     def z(self, z_frac: float):
+        assert 0 <= z_frac <= 1
         return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
