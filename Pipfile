@@ -15,6 +15,7 @@ pandas = "*"
 scipy = "*"
 termcolor = "*"
 mycode = {path = "./code",editable = true}
+pycodestyle = "*"
 
 [requires]
 python_version = "3.7"

@@ -5,7 +5,7 @@ More specific plotting functions are found in other modules.
 """
 import copy
 from collections import OrderedDict
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as _plt
@@ -20,7 +20,7 @@ from fem.run import FEMRunner
 from model.bridge import Bridge, Point, Section
 from model.load import Load, MovingLoad
 from model.response import Event, ResponseType
-from util import print_d, print_w
+from util import print_d, print_w, kde_sampler
 
 # Print debug information for this file.
 D: bool = False
@@ -328,8 +328,9 @@ def plot_hist(
 
 
 def plot_kde_and_kde_samples_hist(
-        data, samples = 5000, title = None, ylabel = None, xlabel = None,
-        save = None, show = None):
+        data, samples: int = 5000, title: Optional[str] = None,
+        ylabel: Optional[str] = None, xlabel: Optional[str] = None,
+        save: Optional[str] = None, show: bool = False):
     """Plot the KDE of given data and a histogram of samples from the KDE."""
     kde = stats.gaussian_kde(data)
     x = np.linspace(data.min(), data.max(), 100)

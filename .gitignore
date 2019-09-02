@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *.tb
+*.egg-info/
 config.py
 diana*.out
 diana.ff
@@ -8,7 +9,6 @@ diana-705.dat
 .idea/
 .mypy_cache/
 __pycache__/
-dss.egg-info/
 generated/
 generated-data/
 generated-images/
