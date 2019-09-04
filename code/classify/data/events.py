@@ -140,8 +140,8 @@ class _MetaData:
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
             get_sim_num: bool = False
-            ) -> Union[List[str], Tuple[int, pd.DataFrame]]:
-        """The file paths for events of given simulation parameters.
+            ) -> Union[List[Tuple[str, int]], Tuple[int, pd.DataFrame]]:
+        """The file paths and number of events for given simulation parameters.
 
         Args:
             traffic_scenario: TrafficScenario, the traffic scenario under which
@@ -169,7 +169,8 @@ class _MetaData:
             for sim_num in itertools.count(start=0):
                 if sim_num not in set(rows["simulation"]):
                     return sim_num, df
-        return [file_path(self.c, row) for _, row in rows.iterrows()]
+        return [(file_path(self.c, row), row["num-events"])
+                for _, row in rows.iterrows()]
 
 
 def save_events(events: List[Event], events_file_path: str):
@@ -184,6 +185,17 @@ class Events:
     def __init__(self, c: Config):
         self.c = c
         self.metadata = _MetaData(self.c)
+
+    def num_events(
+            self, traffic_scenario: TrafficScenario,
+            bridge_scenario: BridgeScenario, at: Point,
+            response_type: ResponseType, fem_runner: FEMRunner, lane: int,
+            ) -> List[int]:
+        """Number of events per simulation available for given parameters."""
+        return list(map(lambda x: x[0], self.metadata.file_paths(
+            traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
+            at=at, response_type=response_type, fem_runner=fem_runner,
+            lane=lane)))
 
     def get_events(
             self, traffic_scenario: TrafficScenario,
@@ -206,7 +218,7 @@ class Events:
                 return pickle.load(f)
 
         return [load_events(events_file_path)
-                for events_file_path in events_file_paths]
+                for events_file_path, _ in events_file_paths]
 
     def make_events(
             self, traffic_scenario: TrafficScenario,

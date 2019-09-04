@@ -36,6 +36,8 @@ def test_events_class():
     c.il_num_loads = 10
     c.event_metadata_path += ".test"
     events = Events(c)
+    lane = 0
+    num_vehicles = 2
 
     # Delete metadata.
     if os.path.exists(c.event_metadata_path):
@@ -52,12 +54,12 @@ def test_events_class():
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
             response_type=ResponseType.XTranslation, fem_runner=os_runner(c),
-            lane=0, num_events=0, get_sim_num=True)
+            lane=lane, num_events=0, get_sim_num=True)
         assert sim_num == i
         assert len(events.metadata.load()) == i + 1
 
     # Create some events, not using the Events class.
-    mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=0) for _ in range(2)]
+    mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=lane) for _ in range(2)]
     some_events = list(events_from_mv_loads(
         c=c, mv_loads=mv_loads, response_types=[ResponseType.Strain],
         fem_runner=os_runner(c), at=[Point(x=1)]))[0][0]
@@ -77,11 +79,10 @@ def test_events_class():
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation]
     iterations = 3
     for _ in range(iterations):
-        print(events.metadata.load())
         events.make_events(
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=at,
-            response_types=response_types, fem_runner=os_runner(c), lane=0,
+            response_types=response_types, fem_runner=os_runner(c), lane=lane,
             num_vehicles=2)
     metadata = events.metadata.load()
     assert len(metadata) == len(at) * len(response_types) * iterations
@@ -90,12 +91,23 @@ def test_events_class():
             len([x for x in list(metadata["simulation"]) if x == i]) ==
             len(at) * len(response_types))
 
+    # Test events.num_events.
+    for a in range(len(at)):
+        for r in range(len(response_types)):
+            num_events = events.num_events(
+                traffic_scenario=normal_traffic,
+                bridge_scenario=BridgeScenarioNormal(), at=at[a],
+                response_type=response_types[r], fem_runner=os_runner(c),
+                lane=lane)
+            assert isinstance(num_events, list)
+            assert len(num_events) == iterations
+
     # Get the previously made events using the Events class. There should be a
     # list of Event for each iteration of Event.make_events.
     got_events = events.get_events(
         traffic_scenario=normal_traffic,
         bridge_scenario=BridgeScenarioNormal(), at=at[0],
-        response_type=response_types[0], fem_runner=os_runner(c), lane=0)
+        response_type=response_types[0], fem_runner=os_runner(c), lane=lane)
     assert len(np.array(got_events).shape) == 2
     assert len(got_events) == iterations
     assert isinstance(got_events[0], list)
