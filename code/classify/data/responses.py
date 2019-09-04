@@ -15,7 +15,7 @@ from model.response import ResponseType
 def response_to_mv_load(
         c: Config, mv_load: MovingLoad, time: float, at: Point,
         response_type: ResponseType, fem_runner: FEMRunner,
-        per_axle: bool=False) -> Response:
+        per_axle: bool = False) -> Response:
     """The response to one or more moving loads at a single time.
 
     Args:
@@ -53,7 +53,7 @@ def response_to_mv_load(
 def response_to_mv_loads(
         c: Config, mv_loads: List[MovingLoad], time: float, at: Point,
         response_type: ResponseType, fem_runner: FEMRunner,
-        per_axle: bool=False) -> Response:
+        per_axle: bool = False) -> Response:
     """The response to one or more moving loads at one simulation time.
 
     Args:
@@ -61,6 +61,11 @@ def response_to_mv_loads(
             otherwise return a single response for the vehicle.
 
     """
+    lane = mv_loads[0].load.lane
+    for mv_load in mv_loads:
+        if mv_load.load.lane != lane:
+            raise ValueError("Only single lane is supported per simulation")
+
     responses = [
         response_to_mv_load(
             c=c, mv_load=mv_load, time=time, at=at,

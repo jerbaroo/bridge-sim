@@ -139,6 +139,8 @@ class Point:
 
     X is along the deck, y is the height, and z is across the deck.
 
+    TODO: Remove default arguments.
+
     """
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.x = x
