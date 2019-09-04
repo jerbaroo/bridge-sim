@@ -1,4 +1,5 @@
 """Generate, save and load events."""
+import itertools
 import os
 import pickle
 from typing import List, Tuple, Union
@@ -55,7 +56,7 @@ def events_from_mv_loads(
         [[] for _r in range(len(response_types))]
         for _a in range(len(at))]
 
-    # For the responses at each time.
+    # Record the response at each time.
     for response in responses:
         for a in range(len(at)):
             for r in range(len(response_types)):
@@ -66,8 +67,8 @@ def events_from_mv_loads(
     return events
 
 
-def filepath(c: Config, series: pd.Series):
-    """Return a filepath for a row from the _MetaData."""
+def file_path(c: Config, series: pd.Series):
+    """Return a file path for a row from the _MetaData."""
     assert isinstance(series, pd.Series)
     return os.path.join(c.events_dir, (
         series["traffic-scenario"]
@@ -91,15 +92,16 @@ class _MetaData:
         else:
             return pd.DataFrame(columns=[
                 "traffic-scenario", "bridge-scenario", "at",
-                "response-type", "fem-runner", "lane", "simulation"])
+                "response-type", "fem-runner", "lane", "simulation",
+                "num-events"])
 
     def add_file_path(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
-            highest_sim: bool = False) -> Union[str, int]:
+            num_events: int, get_sim_num: bool = False) -> Union[str, int]:
         """Add and return a file path to the metadata for given parameters.
-        
+
         Args:
             traffic_scenario: TrafficScenario, the traffic scenario under which
                 events are generated.
@@ -109,13 +111,15 @@ class _MetaData:
             response_type: ResponseType, the sensor type of recorded events.
             fem_runner: FEMRunner, the FE program used to simulate events.
             lane: int, the index of the lane on which traffic is driven.
-            highest_sim: bool, if True instead return the simulation index.
-            
+            num_events: int, the the number of events from the simulation.
+            get_sim_num: bool, if True return the next available simulation
+                index instead of the file path that was added.
+
         """
-        highest_sim_num, df = self.file_paths(
+        next_sim_num, df = self.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
-            lane=lane, highest_sim=True)
+            lane=lane, get_sim_num=True)
         row = pd.Series({
             "traffic-scenario": traffic_scenario.name,
             "bridge-scenario": bridge_scenario.name,
@@ -123,19 +127,20 @@ class _MetaData:
             "response-type": response_type.name(),
             "fem-runner": fem_runner.name,
             "lane": lane,
-            "simulation": highest_sim_num + 1})
+            "simulation": next_sim_num,
+            "num-events": num_events})
         df = df.append(row, ignore_index=True)
         df.to_csv(self.c.event_metadata_path)
-        if highest_sim:
-            return highest_sim_num + 1
-        return filepath(self.c, row)
+        if get_sim_num:
+            return next_sim_num
+        return file_path(self.c, row)
 
     def file_paths(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
-            highest_sim: bool = False
-    ) -> Union[List[str], Tuple[int, pd.DataFrame]]:
+            get_sim_num: bool = False
+            ) -> Union[List[str], Tuple[int, pd.DataFrame]]:
         """The file paths for events of given simulation parameters.
 
         Args:
@@ -147,8 +152,8 @@ class _MetaData:
             response_type: ResponseType, the sensor type of recorded events.
             fem_runner: FEMRunner, the FE program used to simulate events.
             lane: int, the index of the lane on which traffic is driven.
-            highest_sim: bool, if True instead return a tuple of, the highest
-            simulation index saved so far, and the metadata DataFrame.
+            get_sim_num: bool, if True instead return a tuple of, the next
+                available simulation index, and the metadata DataFrame.
 
         """
         df = self.load()
@@ -160,18 +165,17 @@ class _MetaData:
             & (df["response-type"] == response_type.name())
             & (df["fem-runner"] == fem_runner.name)
             & (df["lane"] == lane)]
-        if highest_sim:
-            highest_sim_num = np.amax(rows["simulation"])
-            if np.isnan(highest_sim_num):
-                highest_sim_num = 0
-            return highest_sim_num, df
-        return [filepath(self.c, row) for _, row in rows.iterrows()]
+        if get_sim_num:
+            for sim_num in itertools.count(start=0):
+                if sim_num not in set(rows["simulation"]):
+                    return sim_num, df
+        return [file_path(self.c, row) for _, row in rows.iterrows()]
 
 
-def save_events(events: List[Event], file_path: str):
+def save_events(events: List[Event], events_file_path: str):
     """Save events for one simulation to the given file path."""
     s = pickletools.optimize(pickle.dumps(events))
-    with open(file_path, "wb") as f:
+    with open(events_file_path, "wb") as f:
         f.write(s)
 
 
@@ -185,29 +189,30 @@ class Events:
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int
-    ) -> List[List[Event]]:
+            ) -> List[List[Event]]:
         """Get events from a simulation of a bridge in a scenario.
 
         Returns a list of list of Event. Each inner list of Event is for a
         separate simulation.
 
         """
-        file_paths = self.metadata.file_paths(
+        events_file_paths = self.metadata.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
             lane=lane)
 
-        def load_events(file_path):
-            with open(file_path, "rb") as f:
+        def load_events(events_file_path):
+            with open(events_file_path, "rb") as f:
                 return pickle.load(f)
 
-        return [load_events(file_path) for file_path in file_paths]
+        return [load_events(events_file_path)
+                for events_file_path in events_file_paths]
 
     def make_events(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: List[Point],
             response_types: List[ResponseType], fem_runner: FEMRunner,
-            lane: int, num_vehicles: int = 2):
+            lane: int, num_vehicles: int):
         """Make events from a simulation of a bridge in a scenario."""
         mv_loads = [
             MovingLoad.from_vehicle(
@@ -218,9 +223,10 @@ class Events:
             fem_runner=fem_runner, at=at)
         for a in range(len(at)):
             for r in range(len(response_types)):
-                file_path = self.metadata.add_file_path(
+                events_file_path = self.metadata.add_file_path(
                     traffic_scenario=traffic_scenario,
                     bridge_scenario=bridge_scenario, at=at[a],
                     response_type=response_types[r], fem_runner=fem_runner,
-                    lane=lane)
-                save_events(events=events[a][r], file_path=file_path)
+                    lane=lane, num_events=len(events[a][r]))
+                save_events(
+                    events=events[a][r], events_file_path=events_file_path)

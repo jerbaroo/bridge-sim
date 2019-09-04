@@ -48,12 +48,12 @@ def test_events_class():
 
     # Check simulation numbers and length of metadata after adding rows.
     for i in range(10):
-        highest_sim_num = events.metadata.add_file_path(
+        sim_num = events.metadata.add_file_path(
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
             response_type=ResponseType.XTranslation, fem_runner=os_runner(c),
-            lane=0, highest_sim=True)
-        assert highest_sim_num == i + 1
+            lane=0, num_events=0, get_sim_num=True)
+        assert sim_num == i
         assert len(events.metadata.load()) == i + 1
 
     # Create some events, not using the Events class.
@@ -77,6 +77,7 @@ def test_events_class():
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation]
     iterations = 3
     for _ in range(iterations):
+        print(events.metadata.load())
         events.make_events(
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=at,
@@ -84,6 +85,10 @@ def test_events_class():
             num_vehicles=2)
     metadata = events.metadata.load()
     assert len(metadata) == len(at) * len(response_types) * iterations
+    for i in range(iterations):
+        assert (
+            len([x for x in list(metadata["simulation"]) if x == i]) ==
+            len(at) * len(response_types))
 
     # Get the previously made events using the Events class. There should be a
     # list of Event for each iteration of Event.make_events.
@@ -93,5 +98,5 @@ def test_events_class():
         response_type=response_types[0], fem_runner=os_runner(c), lane=0)
     assert len(np.array(got_events).shape) == 2
     assert len(got_events) == iterations
+    assert isinstance(got_events[0], list)
     assert isinstance(got_events[0][0], Event)
-

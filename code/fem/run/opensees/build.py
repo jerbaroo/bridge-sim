@@ -7,7 +7,7 @@ from fem.params import ExptParams, FEMParams
 from model.bridge import Fix, Layer, Patch, Section
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
-from util import print_d, print_i, print_w
+from util import print_d, print_i
 
 # Print debug information for this file.
 D: bool = False
