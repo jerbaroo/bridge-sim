@@ -12,7 +12,7 @@ from fem.params import ExptParams, FEMParams
 from model import Response
 from model.bridge import Point
 from model.response import ResponseType
-from util import nearest_index, print_i
+from util import nearest_index, print_i, print_w
 
 
 def fem_responses_path(
@@ -30,8 +30,6 @@ def load_fem_responses(
 
     The FEMParams determine which responses are generated and saved, while the
     ResponseType determines which responses to load from disk and return.
-
-    TODO: Test if FEMParams contains ResponseType.
 
     """
     assert response_type in fem_params.response_types
@@ -156,11 +154,10 @@ class FEMResponses:
             time_index: int = 0):
         """Compute an interpolated response via axis fractions in [0 1].
 
-        The response is calculated as a weighted response between the 8 closest
-        points of a cuboid.
+        Interpolate the response between the 8 closest points of a cuboid.
 
         """
-        raise RuntimeError("Interpolation does not work!")
+        print_w(f"Interpolating")
 
         x_lo_ind, x_hi_ind = self._x_indices(x=x)
         x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]

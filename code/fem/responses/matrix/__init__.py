@@ -52,14 +52,10 @@ class ResponsesMatrix:
     # TODO: Rename to response, later.
     def response_(
             self, expt_frac: float, x_frac: float, y_frac: float = 0,
-            z_frac: float = 0, time_index: int = 0, interpolate: bool = False
+            z_frac: float = 0, time_index: int = 0,
+            interpolate_load: bool = False, interpolate_response: bool = False
             ) -> Response:
         """The response at a position for a simulation.
-
-        Note that if expt_frac (e.g. 0.5) does not correspond exactly to a
-        simulation index (e.g. 4.2 instead of 4), then the result will be
-        interpolated from the results of the indices on both sides (e.g. 4 and
-        5).
 
         Args:
             expt_frac: float, fraction of experiments in [0 1].
@@ -67,9 +63,10 @@ class ResponsesMatrix:
             y_frac: float, response position on y-axis in [0 1].
             z_frac: float, response position on z-axis in [0 1].
             time_index: float, response position on z-axis in [0 1].
-            interpolate: bool, whether to interpolate the response between
-            responses from two simulations (true), or return the response from
-            the closes simulation (false).
+            interpolate_load: bool, whether to interpolate the response between
+                responses from two simulations.
+            interpolate_response: bool, whether to interpolate the response
+                between the 8 closest points of a cuboid.
 
         """
         assert 0 <= expt_frac <= 1
@@ -77,27 +74,31 @@ class ResponsesMatrix:
 
         # If an experiment index matches exactly, or not interpolating.
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        if expt_ind == int(expt_ind) or not interpolate:
-            # print_w(f"Not interpolating, expt_frac = {expt_frac}, expt_ind = {expt_ind}")
+        if expt_ind == int(expt_ind) or not interpolate_load:
             return self.expt_responses[int(expt_ind)].at(
                 x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-                time_index=time_index)
+                time_index=time_index, interpolate=interpolate_response)
 
-        if interpolate:
-            raise RuntimeError("Should not be interpolating.")
+        assert interpolate_load
         # Else interpolate responses between two experiment indices.
         expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
         expt_lo_frac, expt_hi_frac = np.interp(
             [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1])
-        print_w(f"Interpolating between loads at indices {expt_ind_lo} & {expt_ind_hi}")
-        print_w(f"Interpolating between loads at {expt_lo_frac} & {expt_hi_frac}, real = {expt_frac}")
+
+        # print_w(f"Interpolating between loads at indices {expt_ind_lo} & {expt_ind_hi}")
+        # print_w(f"Interpolating between loads at {expt_lo_frac} & {expt_hi_frac}, real = {expt_frac}")
+
         response_lo = self.expt_responses[expt_ind_lo].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index,
+            interpolate=interpolate_response)
         response_hi = self.expt_responses[expt_ind_hi].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index,
+            interpolate=interpolate_response)
         response = np.interp(
             expt_frac,
             [expt_lo_frac, expt_hi_frac],
             [response_lo, response_hi])
-        print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
+
+        # print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
+
         return response

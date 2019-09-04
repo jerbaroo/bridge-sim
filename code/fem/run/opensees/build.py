@@ -7,7 +7,7 @@ from fem.params import ExptParams, FEMParams
 from model.bridge import Fix, Layer, Patch, Section
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
-from util import print_i, print_w
+from util import print_d, print_i, print_w
 
 # Print debug information for this file.
 D: bool = False
@@ -175,7 +175,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
         # For displacement control check that the required pier is not fixed
         # for displacement.
         if fem_params.displacement_ctrl is not None:
-            print_w(D, "Displacement control!")
+            print_d(D, "Displacement control!")
             fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
             if fix.y:
                 nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))

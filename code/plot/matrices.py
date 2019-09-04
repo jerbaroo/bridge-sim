@@ -5,22 +5,28 @@ from config import Config
 from fem.responses.matrix.il import ResponsesMatrix
 from fem.responses.matrix.il import ILMatrix
 from plot import plt, plot_bridge_deck_side, sci_format_y_axis
-from util import print_i, print_w
+from util import print_d, print_i, print_w
+
+# Print debug information for this file.
+D: bool = False
 
 
 def plot_il(
-        c: Config, il_matrix: ILMatrix, _i: int, response_frac: float,
-        num_x: int, save: str = None, show: bool = False):
+        c: Config, resp_matrix: ILMatrix, expt_index: int,
+        response_frac: float, num_x: int, interpolate_load: bool,
+        interpolate_response: bool, save: str = None, show: bool = False):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
-    rs = [il_matrix.response_to(
-        x_frac=response_frac, load_x_frac=load_x_frac,
-        load=c.il_unit_load_kn)
+    rs = [
+        resp_matrix.response_to(
+            x_frac=response_frac, load_x_frac=load_x_frac,
+            load=c.il_unit_load_kn, interpolate_load=interpolate_load,
+            interpolate_response=interpolate_response)
         for load_x_frac in x_fracs]
-    xs = [c.bridge.x(x_frac) for x_frac in x_fracs]
+    xs = [c.bridge.x(x_frac=x_frac) for x_frac in x_fracs]
     response_ord = response_frac * c.bridge.length
-    response_name = il_matrix.response_type.name()
-    response_units = il_matrix.response_type.units()
+    response_name = resp_matrix.response_type.name()
+    response_units = resp_matrix.response_type.units()
     plt.title(f"{response_name.capitalize()} at {response_ord:.2f}m")
     plt.xlabel(f"{c.il_unit_load_kn}kN load position (m)")
     plt.ylabel(f"{response_name.capitalize()} at {response_ord:.2f}m"
@@ -34,16 +40,27 @@ def plot_il(
 
 
 def plot_dc(
-        c: Config, resp_matrix: ResponsesMatrix, i: int, _response_frac: float,
-        num_x: int, save: str = None, show: bool = False):
-    """Plot the IL for a response at some position."""
-    fem_responses = resp_matrix.expt_responses[i]
+        c: Config, resp_matrix: ResponsesMatrix, expt_index: int,
+        response_frac: float, num_x: int, interpolate_load: bool,
+        interpolate_response: bool, save: str = None, show: bool = False):
+    """Plot the IL for a response at some position.
+
+    This function ignores the interpolate_load as it just return the response
+    due to the displacement load which was placed in the simulation, and is
+    determined by the expt_index parameter. The ignored parameters exist just
+    so the function definition is consistent with plot_il and can be passed to
+    the same functions.
+
+    """
+    fem_responses = resp_matrix.expt_responses[expt_index]
     xs = fem_responses.xs
-    rs = [resp_matrix.expt_responses[i].at(x_frac=c.bridge.x_frac(x))
+    rs = [
+        resp_matrix.expt_responses[expt_index].at(
+            x_frac=c.bridge.x_frac(x), interpolate=interpolate_load)
           for x in xs]
     response_name = resp_matrix.response_type.name()
     response_units = resp_matrix.response_type.units()
-    plt.title(f"{response_name.capitalize()} at simulation {i}")
+    plt.title(f"{response_name.capitalize()} at simulation {expt_index}")
     plt.xlabel(f"x-axis (m)")
     plt.ylabel(f"{response_name.capitalize()} ({response_units})")
     sci_format_y_axis()
@@ -55,9 +72,9 @@ def plot_dc(
 
 
 def matrix_subplots(
-        c: Config, resp_matrix: ResponsesMatrix, rows: int = 4,
-        cols: int = None, num_x: int = 100, save: str = None,
-        show: bool = False, plot_func=None):
+        c: Config, resp_matrix: ResponsesMatrix, num_x: int, rows: int = 4,
+        cols: int = None, save: str = None, show: bool = False, plot_func=None
+        ):
     """For each subplot plot matrix responses using the given function."""
     if cols is None:
         cols = int(resp_matrix.num_expts / rows)
@@ -89,8 +106,9 @@ def matrix_subplots(
 
 
 def imshow_il(
-        c: Config, il_matrix: ILMatrix, num_ils: int = 10, num_x: int = 100,
-        save: str = None, show: bool = False):
+        c: Config, il_matrix: ILMatrix, num_ils: int, num_x: int,
+        interpolate_load: bool, interpolate_response: bool, save: str = None,
+        show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
     response_fracs = np.linspace(0, 1, num_ils)
     x_fracs = np.linspace(0, 1, num_x)
@@ -98,11 +116,12 @@ def imshow_il(
     for response_frac in response_fracs:
         matrix.append([])
         for load_x_frac in x_fracs:
-            print_w(f"response frac = {response_frac}, load_x_frac = {load_x_frac}")
+            print_d(D, f"response frac = {response_frac}, load_x_frac = {load_x_frac}")
             value = il_matrix.response_to(
                 x_frac=response_frac, load_x_frac=load_x_frac,
-                load=c.il_unit_load_kn)
-            print_i(f"value = {value}, response_frac = {response_frac}, load_x_frac = {load_x_frac}")
+                load=c.il_unit_load_kn, interpolate_load=interpolate_load,
+                interpolate_response=interpolate_response)
+            print_d(D, f"value = {value}, response_frac = {response_frac}, load_x_frac = {load_x_frac}")
             matrix[-1].append(value)
     # matrix = [
     #     [il_matrix.response_to(
