@@ -6,7 +6,7 @@ from classify.data.scenarios import normal_traffic
 from fem.run.opensees import os_runner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
-from model.load import Load, MovingLoad
+from model.load import MovingLoad
 from model.response import ResponseType
 
 

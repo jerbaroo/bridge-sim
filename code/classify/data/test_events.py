@@ -4,12 +4,12 @@ import pickle
 
 import numpy as np
 
-from classify.data.scenarios import BridgeScenarioNormal, normal_traffic
+from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic
 from classify.data.events import Events, events_from_mv_loads, save_events
 from fem.run.opensees import os_runner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
-from model.load import MovingLoad
+from model.load import DisplacementCtrl, MovingLoad
 from model.response import Event, ResponseType
 
 
@@ -111,3 +111,15 @@ def test_events_class():
     assert len(got_events) == iterations
     assert isinstance(got_events[0], list)
     assert isinstance(got_events[0][0], Event)
+
+    # Test different bridge scenarios.
+    assert len(set(events.metadata.load()["bridge-scenario"])) == 1
+    events.make_events(
+        traffic_scenario=normal_traffic,
+        bridge_scenario=BridgeScenarioDisplacementCtrl(
+            displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1)),
+        at=at, response_types=response_types, fem_runner=os_runner(c),
+        lane=lane, num_vehicles=num_vehicles)
+    assert len(set(events.metadata.load()["bridge-scenario"])) == 2
+    assert "displacement-0.100000m-pier-1" in set(
+        events.metadata.load()["bridge-scenario"])

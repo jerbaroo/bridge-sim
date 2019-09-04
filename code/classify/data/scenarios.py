@@ -14,5 +14,7 @@ class BridgeScenarioNormal(BridgeScenario):
 
 class BridgeScenarioDisplacementCtrl(BridgeScenario):
     def __init__(self, displacement_ctrl: DisplacementCtrl):
-        super().__init__(name="displacement")
+        super().__init__(
+            name=f"displacement-{displacement_ctrl.displacement:.6f}m"
+                 + f"-pier-{displacement_ctrl.pier}")
         self.displacement_ctrl = displacement_ctrl
