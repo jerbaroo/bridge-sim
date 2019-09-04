@@ -189,7 +189,7 @@ class Events:
     def num_events(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
-            response_type: ResponseType, fem_runner: FEMRunner, lane: int,
+            response_type: ResponseType, fem_runner: FEMRunner, lane: int
             ) -> List[int]:
         """Number of events per simulation available for given parameters."""
         return list(map(lambda x: x[0], self.metadata.file_paths(

@@ -1,15 +1,18 @@
 """Different scenarios for data generation."""
-from model.scenario import TrafficScenario
+from model.load import DisplacementCtrl
+from model.scenario import BridgeScenario, TrafficScenario
 from vehicles.sample import sample_vehicle
 
 normal_traffic = TrafficScenario(name="normal", vehicle=sample_vehicle)
 heavy_traffic = TrafficScenario(name="heavy", vehicle=None)
 
-"""Idea for a Python library:
 
-A dataclass X with a decorator, or a subclass of dataclass.
+class BridgeScenarioNormal(BridgeScenario):
+    def __init__(self):
+        super().__init__(name="normal")
 
-Creates a method with the same arguments getX, and if saved to a file return
-it, else generates the data with a method makeX and save to a file.
 
-"""
+class BridgeScenarioDisplacementCtrl(BridgeScenario):
+    def __init__(self, displacement_ctrl: DisplacementCtrl):
+        super().__init__(name="displacement")
+        self.displacement_ctrl = displacement_ctrl

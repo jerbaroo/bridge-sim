@@ -2,7 +2,7 @@
 from typing import Callable, Tuple
 
 from config import Config
-from model.load import DisplacementCtrl, Vehicle
+from model.load import Vehicle
 
 
 class TrafficScenario:
@@ -22,14 +22,3 @@ class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
     def __init__(self, name: str):
         self.name = name
-
-
-class BridgeScenarioNormal(BridgeScenario):
-    def __init__(self):
-        super().__init__(name="normal")
-
-
-class BridgeScenarioDisplacementCtrl(BridgeScenario):
-    def __init__(self, displacement_ctrl: DisplacementCtrl):
-        super().__init__(name="displacement")
-        self.displacement_ctrl = displacement_ctrl

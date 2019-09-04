@@ -4,14 +4,13 @@ import pickle
 
 import numpy as np
 
-from classify.data.scenarios import normal_traffic
+from classify.data.scenarios import BridgeScenarioNormal, normal_traffic
 from classify.data.events import Events, events_from_mv_loads, save_events
 from fem.run.opensees import os_runner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import MovingLoad
 from model.response import Event, ResponseType
-from model.scenario import BridgeScenarioNormal
 
 
 def test_events_from_mv_loads():
@@ -83,7 +82,7 @@ def test_events_class():
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=at,
             response_types=response_types, fem_runner=os_runner(c), lane=lane,
-            num_vehicles=2)
+            num_vehicles=num_vehicles)
     metadata = events.metadata.load()
     assert len(metadata) == len(at) * len(response_types) * iterations
     for i in range(iterations):
