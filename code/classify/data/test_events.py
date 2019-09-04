@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 
 from classify.data.scenarios import normal_traffic
-from classify.data.events import Events, events_from_mv_loads
+from classify.data.events import Events, events_from_mv_loads, save_events
 from fem.run.opensees import os_runner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
@@ -16,6 +16,7 @@ from model.scenario import BridgeScenarioNormal
 
 def test_events_from_mv_loads():
     c = bridge_705_config()
+    c.il_num_loads = 10
     mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=0) for _ in range(2)]
     response_types = [ResponseType.Strain, ResponseType.Stress]
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
@@ -32,6 +33,7 @@ def test_events_from_mv_loads():
 
 def test_events_class():
     c = bridge_705_config()
+    c.il_num_loads = 10
     c.event_metadata_path += ".test"
     events = Events(c)
 
@@ -46,7 +48,7 @@ def test_events_class():
 
     # Check simulation numbers and length of metadata after adding rows.
     for i in range(10):
-        highest_sim_num = events.metadata.add_filepath(
+        highest_sim_num = events.metadata.add_file_path(
             traffic_scenario=normal_traffic,
             bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
             response_type=ResponseType.XTranslation, fem_runner=os_runner(c),
@@ -92,3 +94,4 @@ def test_events_class():
     assert len(np.array(got_events).shape) == 2
     assert len(got_events) == iterations
     assert isinstance(got_events[0][0], Event)
+

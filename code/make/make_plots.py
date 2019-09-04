@@ -20,7 +20,7 @@ from vehicles.sample import sample_vehicle
 def make_bridge_plots(c: Config):
     """Make plots of the bridge with and without load."""
     plot_bridge_first_section(
-        c.bridge, save=c.image_path("bridges/bridge-section"))
+        c=c.bridge, save=c.image_path("bridges/bridge-section"))
     for loads in [
             [],
             [Load(0.4, 500)],

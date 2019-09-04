@@ -38,6 +38,7 @@ class Config:
         time_step: float, time interval between recording sensor responses.
         time_end: float, maximum time to record an event, may end earlier.
         fem_responses_path_prefix: str, prefix of where to save responses.
+        il_num_loads: int, the number of equidistant positions to apply load.
         il_unit_load_kn: float, unit load to place on the bridge in kN.
         os_node_step: float, distance between two OpenSees nodes in meters.
         os_exe_path: str, path of the OpenSees executable.
@@ -97,6 +98,7 @@ class Config:
         self.fem_responses_path_prefix: str = os.path.join(
             self.generated_dir, "responses/responses")
         self.il_matrices = dict()
+        self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000
 
         # Event recording.

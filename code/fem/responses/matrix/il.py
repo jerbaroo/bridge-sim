@@ -16,7 +16,7 @@ class ILMatrix(ResponsesMatrix):
 
     def response_to(
             self, x_frac: float, load_x_frac: float, load: float,
-            interpolate_load: bool, interpolate_response: bool,
+            interpolate_load: bool = False, interpolate_response: bool = False,
             y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
         """The response value in kN at a position to a load at a position.
 
@@ -41,21 +41,20 @@ class ILMatrix(ResponsesMatrix):
 
 def load_il_matrix(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        num_loads: int = 1000, save_all: bool = True) -> ILMatrix:
+        save_all: bool = True) -> ILMatrix:
     """Load an ILMatrix from disk, running simulations first if necessary.
 
     Args:
         c: Config, global configuration object.
         response_type: ResponseType, the type of sensor response to load.
         fem_runner: FEMRunner, the FEM program to run simulations with.
-        num_loads: int, the number of equidistant positions to apply load.
         save_all: bool, save all response types when running a simulation.
 
     """
 
     def il_matrix_id() -> str:
         return (f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
-                + f"-{num_loads}")
+                + f"-{c.il_num_loads}")
 
     # Return ILMatrix if already calculated.
     id_ = il_matrix_id()
@@ -70,7 +69,7 @@ def load_il_matrix(
         FEMParams(
             loads=[Load(x_frac, c.il_unit_load_kn)],
             response_types=response_types)
-        for x_frac in np.linspace(0, 1, num_loads)])
+        for x_frac in np.linspace(0, 1, c.il_num_loads)])
 
     # Calculate ILMatrix, keep a reference and return.
     c.il_matrices[id_] = ILMatrix(
