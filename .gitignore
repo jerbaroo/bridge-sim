@@ -12,3 +12,5 @@ __pycache__/
 generated/
 generated-data/
 generated-images/
+
+/venv/
