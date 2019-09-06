@@ -13,6 +13,8 @@ generated/
 generated-data/
 generated-images/
 
+# Axis related
 *.axr
+**/Revisions/
 
 /venv/
