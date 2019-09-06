@@ -13,4 +13,6 @@ generated/
 generated-data/
 generated-images/
 
+*.axr
+
 /venv/
