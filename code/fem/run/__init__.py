@@ -32,7 +32,8 @@ class FEMRunner:
             convert: Callable[
                 [Config, Parsed],
                 Dict[int, Dict[ResponseType, List[Response]]]],
-            built_model_ext: str = None, built_files_dir: Optional[str] = None):
+            built_model_ext: str = None,
+            built_files_dir: Optional[str] = None):
         self.c = c
         self._build = build
         self._run = run
@@ -89,7 +90,7 @@ class FEMRunner:
 
     def fem_file_path(
             self, fem_params: FEMParams, ext: Optional[str] = None) -> str:
-        """A file path based on a FEMParams and this FEMRunner .
+        """A file path based on a FEMParams and this FEMRunner's name.
 
         Args:
             fem_params: FEMParams, parameters for the FEM simulation.
@@ -100,9 +101,7 @@ class FEMRunner:
         load_str: str = fem_params.load_str()
         for char in "[]()":
             load_str = load_str.replace(char, "")
-        fem_id = f"{self.name}-{load_str}"
-
         if ext is None:
             ext = "." + self.built_model_ext
         return os.path.join(
-            self.built_files_dir, f"{fem_id}{ext}").replace(" ", "").lower()
+            self.built_files_dir, f"{self.name}-{load_str}{ext}").replace(" ", "").lower()

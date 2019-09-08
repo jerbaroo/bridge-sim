@@ -25,10 +25,11 @@ class OSRunner(FEMRunner):
     def y_translation_path(self, fem_params: FEMParams):
         return self.translation_path(fem_params, "y")
 
-    def patch_path(self, fem_params: FEMParams, patch: Patch):
-        center = patch.center()
-        return self.fem_file_path(
-            fem_params, f"-patch-{center.y:.5f}-{center.z:.5f}.out")
+    def patch_paths(self, fem_params: FEMParams, patch: Patch):
+        return [
+            self.fem_file_path(
+                fem_params, f"-patch-{point.y:.5f}-{point.z:.5f}.out")
+            for point in patch.points()]
 
     def layer_paths(self, fem_params: FEMParams, layer: Layer):
         return [

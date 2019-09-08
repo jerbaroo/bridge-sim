@@ -12,6 +12,11 @@ from termcolor import colored
 init()
 
 
+def round_m(x):
+    """Round meters to supported accuracy."""
+    return np.round(x, decimals=6)
+
+
 def print_d(debug: bool, s: str):
     """Print some debug text."""
     if debug:

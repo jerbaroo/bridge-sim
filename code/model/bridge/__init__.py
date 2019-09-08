@@ -4,7 +4,7 @@ from enum import Enum
 
 import numpy as np
 
-from util import print_i
+from util import print_i, round_m
 
 # ID for all fiber commands.
 _fiber_cmd_id = 1
@@ -32,31 +32,31 @@ class Fix:
             self, x_frac: float, x: bool = False, y: bool = False,
             z: bool = False, rot: bool = False):
         assert 0 <= x_frac <= 1
-        self.x_frac = x_frac
-        self.x = x
-        self.y = y
-        self.z = z
-        self.rot = rot
+        self.x_frac: float = x_frac
+        self.x: bool = x
+        self.y: bool = y
+        self.z: bool = z
+        self.rot: bool = rot
 
 
 class Point:
-    """A point described by three values: (x, y, z).
+    """A point described by three positions in meters: (x, y, z).
 
     X is along the deck, y is the height, and z is across the deck.
 
-    TODO: Remove default arguments.
+    TODO: Change default arguments to None.
 
     """
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x: float = round_m(x)
+        self.y: float = round_m(y)
+        self.z: float = round_m(z)
 
     def distance(self, point):
-        return np.sqrt(
+        return round_m(np.sqrt(
             ((self.x - point.x) ** 2)
             + ((self.y - point.y) ** 2)
-            + ((self.z - point.z) ** 2))
+            + ((self.z - point.z) ** 2)))
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
@@ -76,17 +76,17 @@ class Lane:
 
     """
     def __init__(self, z0: float, z1: float, ltr: bool = True):
-        self.z_min = min(z0, z1)
-        self.z_max = max(z0, z1)
-        self.ltr = ltr
+        self.z_min: float = round_m(min(z0, z1))
+        self.z_max: float = round_m(max(z0, z1))
+        self.ltr: bool = ltr
 
     def width(self):
         """Width of the lane in meters."""
-        return self.z_max - self.z_min
+        return round_m(self.z_max - self.z_min)
 
     def z_center(self):
         """Z ordinate of the center of the lane in meters."""
-        return self.z_min + (self.width() / 2)
+        return round_m(self.z_min + (self.width() / 2))
 
 
 class Material(Enum):
@@ -103,6 +103,7 @@ class Layer:
         num_fibers: int, number of fibers along line.
         area_fiber: float, area of each fiber.
         material: Material, material of the fibers.
+
     """
     def __init__(
             self, y_min: float, z_min: float, y_max: float, z_max: float,
@@ -151,24 +152,11 @@ class Patch:
         d_sub_div_z = abs(self.p0.z - self.p1.z) / self.num_sub_div_z
         # Center of y and center of z for first fiber.
         point = Point(y=self.p0.y + (dy / 2), z=self.p0.z + (d_sub_div_z / 2))
-        return [Point(y=point.y, z=point.z + (d_sub_div_z * sub_div_z))
-                for sub_div_z in range(self.num_sub_div_z)]
-
-    def center(self):
-        """Point in the center of this patch."""
-        dy = abs(self.p0.y - self.p1.y)
-        print(f"dy = {dy}")
-        dz = abs(self.p0.z - self.p1.z)
-        print(f"dz = {dz}")
-        point = Point(y=min(self.p0.y, self.p1.y) + (dy / 2),
-                      z=min(self.p0.z, self.p1.z) + (dz / 2))
-
-        def assert_between(a, b, c):
-            assert (a < c < b) or (b < c < a)
-
-        assert_between(self.p0.y, self.p1.y, point.y)
-        assert_between(self.p0.z, self.p1.z, point.z)
-        return point
+        return [
+            Point(
+                y=point.y,
+                z=point.z + (d_sub_div_z * sub_div_z))
+            for sub_div_z in range(self.num_sub_div_z)]
 
 
 class Section:

@@ -1,7 +1,7 @@
 """Simulation configuration."""
 import os
 from timeit import default_timer as timer
-from typing import Callable, List, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
@@ -28,11 +28,11 @@ class Config:
             2.4m and less than 5.6m, and the remaining 5% are less than 16m.
         vehicle intensity: the total amount of vehicles per hour.
         vehicle_density_col: str, column of vehicle_data to group by.
+        generated_dir: str, directory where to save generated files.
 
     Attrs:
         il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
         perturb_stddev: float, standard deviation to perturb a vehicle column.
-        generated_dir: str, directory where to save generated files.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
         time_step: float, time interval between recording sensor responses.
@@ -61,7 +61,8 @@ class Config:
     def __init__(
             self, bridge: Callable[[], Bridge], vehicle_data_path: str,
             vehicle_density: List[Tuple[float, float]],
-            vehicle_intensity: float, vehicle_density_col: str):
+            vehicle_intensity: float, vehicle_density_col: str,
+            generated_dir: Optional[str] = None):
         # Bridge.
         reset_model_ids()
         self.bridge = bridge()
@@ -89,6 +90,8 @@ class Config:
 
         # Generated data.
         self.generated_dir = "generated-data/"
+        if generated_dir is not None:
+            self.generated_dir = generated_dir
         self.events_dir = os.path.join(self.generated_dir, "events/")
         self.images_dir = "generated-images/"
         self.image_path = lambda filename: os.path.join(

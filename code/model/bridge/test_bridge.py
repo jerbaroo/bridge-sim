@@ -28,5 +28,5 @@ def test_bridge_fixed_x_dof():
             sections=sections, lanes=lanes)
 
     with pytest.raises(ValueError):
-        mk_bridge(fixed_nodes=[Fix(1, x=False)])
-    mk_bridge(fixed_nodes=[Fix(0, x=True), Fix(1, x=False)])
+        mk_bridge(fixed_nodes=[Fix(x_frac=1, x=False)])
+    mk_bridge(fixed_nodes=[Fix(x_frac=0, x=True), Fix(x_frac=1, x=False)])
