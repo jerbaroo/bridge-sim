@@ -19,10 +19,10 @@ def next_fiber_id():
 
 
 class Fix:
-    """A node fixed in some degrees of freedom, used to model a pier.
+    """A position fixed in some degrees of freedom, used to model a pier.
 
     Args:
-        x_frac: float, fraction in [0 1] of x length.
+        x_frac: float, fraction of x position in [0 1].
         x: bool, whether to fix x translation.
         y: bool, whether to fix y translation.
         rot: bool, whether to fix rotation.
@@ -30,12 +30,36 @@ class Fix:
     """
     def __init__(
             self, x_frac: float, x: bool = False, y: bool = False,
-            rot: bool = False):
+            z: bool = False, rot: bool = False):
         assert 0 <= x_frac <= 1
         self.x_frac = x_frac
         self.x = x
         self.y = y
+        self.z = z
         self.rot = rot
+
+
+class Point:
+    """A point described by three values: (x, y, z).
+
+    X is along the deck, y is the height, and z is across the deck.
+
+    TODO: Remove default arguments.
+
+    """
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def distance(self, point):
+        return np.sqrt(
+            ((self.x - point.x) ** 2)
+            + ((self.y - point.y) ** 2)
+            + ((self.z - point.z) ** 2))
+
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
 
 
 class Lane:
@@ -93,7 +117,7 @@ class Layer:
         self.area_fiber = area_fiber
         self.material = material
 
-    def points(self):
+    def points(self) -> List[Point]:
         """The points representing each fiber."""
         dy = (self.p1.y - self.p0.y) / (self.num_fibers - 1)
         dz = (self.p1.z - self.p0.z) / (self.num_fibers - 1)
@@ -119,10 +143,23 @@ class Patch:
         self.num_sub_div_z = num_sub_div_z
         self.material = material
 
+    def points(self) -> List[Point]:
+        """Points for the center of each subdivision, starting at min z."""
+        # Difference of min and max y.
+        dy = abs(self.p0.y - self.p1.y)
+        # Difference of one z subdivision.
+        d_sub_div_z = abs(self.p0.z - self.p1.z) / self.num_sub_div_z
+        # Center of y and center of z for first fiber.
+        point = Point(y=self.p0.y + (dy / 2), z=self.p0.z + (d_sub_div_z / 2))
+        return [Point(y=point.y, z=point.z + (d_sub_div_z * sub_div_z))
+                for sub_div_z in range(self.num_sub_div_z)]
+
     def center(self):
         """Point in the center of this patch."""
         dy = abs(self.p0.y - self.p1.y)
+        print(f"dy = {dy}")
         dz = abs(self.p0.z - self.p1.z)
+        print(f"dz = {dz}")
         point = Point(y=min(self.p0.y, self.p1.y) + (dy / 2),
                       z=min(self.p0.z, self.p1.z) + (dz / 2))
 
@@ -132,29 +169,6 @@ class Patch:
         assert_between(self.p0.y, self.p1.y, point.y)
         assert_between(self.p0.z, self.p1.z, point.z)
         return point
-
-
-class Point:
-    """A point described by three values: (x, y, z).
-
-    X is along the deck, y is the height, and z is across the deck.
-
-    TODO: Remove default arguments.
-
-    """
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def distance(self, point):
-        return np.sqrt(
-            ((self.x - point.x) ** 2)
-            + ((self.y - point.y) ** 2)
-            + ((self.z - point.z) ** 2))
-
-    def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
 
 
 class Section:
@@ -198,6 +212,11 @@ def reset_model_ids():
     Section.next_id = 1
 
 
+class Dimensions(Enum):
+    D2 = "2D"
+    D3 = "3D"
+
+
 class Bridge:
     """A bridge specification.
 
@@ -213,11 +232,13 @@ class Bridge:
     """
     def __init__(
             self, name: str, length: float, fixed_nodes: List[Fix],
-            sections: List[Section], lanes: List[Lane]):
+            sections: List[Section], lanes: List[Lane],
+            dimensions: Dimensions = Dimensions.D2):
         self.name = name
         self.fixed_nodes = fixed_nodes
         self.sections = sections
         self.lanes = lanes
+        self.dimensions = dimensions
         self.x_min, self.x_max = 0, length
         self.x_center = (self.x_min + self.x_max) / 2
         self.y_min, self.y_max = self.sections[0].y_min_max()

@@ -16,14 +16,14 @@ def test_build():
     c.bridge.length = 10
     c.os_node_step = 0.5
     c.bridge.fixed_nodes = [Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]
-    expt_params = ExptParams([
-        FEMParams(loads=[Load(0.65, 1234)],
-                  response_types=[
-                      ResponseType.YTranslation, ResponseType.Strain])])
+    expt_params = ExptParams([FEMParams(
+        loads=[Load(0.65, 1234)],
+        response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read.
     fem_runner = os_runner(c)
-    build_model(c, expt_params, fem_runner)
+    build_model(c=c, expt_params=expt_params, fem_runner=fem_runner)
     with open(fem_runner.fem_file_path(expt_params.fem_params[0])) as f:
         lines = f.readlines()
     print([line for line in lines if "dof" in line])

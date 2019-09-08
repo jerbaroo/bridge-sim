@@ -9,7 +9,7 @@ from fem.responses import fem_responses_path, FEMResponses, load_fem_responses
 from fem.run import FEMRunner
 from model import Response
 from model.response import ResponseType
-from util import print_w, print_i
+from util import print_i
 
 # TODO: Replace by ResponsesMatrix (renamed to ExptResponses).
 ExptResponses = List[FEMResponses]
@@ -23,7 +23,8 @@ def load_expt_responses(
     results = []
     for i, fem_params in enumerate(expt_params.fem_params):
         results.append(load_fem_responses(
-            c, fem_params, response_type, fem_runner))
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner))
         print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
     return results
 
@@ -49,8 +50,7 @@ class ResponsesMatrix:
                     self.fem_runner_name)
                 for fem_params in self.expt_params.fem_params]
 
-    # TODO: Rename to response, later.
-    def response_(
+    def response(
             self, expt_frac: float, x_frac: float, y_frac: float = 0,
             z_frac: float = 0, time_index: int = 0,
             interpolate_load: bool = False, interpolate_response: bool = False

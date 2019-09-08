@@ -52,12 +52,13 @@ def plot_dc(
     the same functions.
 
     """
+    print_w(f"plt.matrices.plot_dc: expt_index = {expt_index}")
     fem_responses = resp_matrix.expt_responses[expt_index]
     xs = fem_responses.xs
     rs = [
         resp_matrix.expt_responses[expt_index].at(
             x_frac=c.bridge.x_frac(x), interpolate=interpolate_load)
-          for x in xs]
+        for x in xs]
     response_name = resp_matrix.response_type.name()
     response_units = resp_matrix.response_type.units()
     plt.title(f"{response_name.capitalize()} at simulation {expt_index}")
@@ -73,15 +74,18 @@ def plot_dc(
 
 def matrix_subplots(
         c: Config, resp_matrix: ResponsesMatrix, num_x: int, rows: int = 4,
-        cols: int = None, save: str = None, show: bool = False, plot_func=None
+        cols: int = None, save: str = None, show: bool = False, plot_func = None
         ):
     """For each subplot plot matrix responses using the given function."""
+    print_w(f"num_expts = {resp_matrix.num_expts}")
     if cols is None:
         cols = int(resp_matrix.num_expts / rows)
         if cols != resp_matrix.num_expts / rows:
             print_w("Rows don't divide number of simulations")
             cols += 1
     y_min, y_max = 0, 0
+    print_w(f"rows = {rows}")
+    print_w(f"cols = {cols}")
     # Plot each IL and bridge deck side.
     for i, response_frac in enumerate(np.linspace(0, 1, rows * cols)):
         plt.subplot(rows, cols, i + 1)

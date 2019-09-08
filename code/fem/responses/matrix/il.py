@@ -14,7 +14,7 @@ D: bool = False
 class ILMatrix(ResponsesMatrix):
     """Responses of one sensor type for influence line simulations."""
 
-    def response_to(
+    def response(
             self, x_frac: float, load_x_frac: float, load: float,
             interpolate_load: bool = False, interpolate_response: bool = False,
             y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
@@ -32,9 +32,10 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= x_frac <= 1
         assert 0 <= load_x_frac <= 1
         print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
-        response = self.response_(
-            expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index, interpolate_load=interpolate_load,
+        response = super().response(
+            self, expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac,
+            z_frac=z_frac, time_index=time_index,
+            interpolate_load=interpolate_load,
             interpolate_response=interpolate_response)
         return response * (load / self.c.il_unit_load_kn)
 
@@ -63,7 +64,7 @@ def load_il_matrix(
 
     # Determine simulation parameters.
     # If save_all is true pass all response types.
-    response_types=(
+    response_types = (
         [rt for rt in ResponseType] if save_all else [response_type])
     expt_params = ExptParams([
         FEMParams(
