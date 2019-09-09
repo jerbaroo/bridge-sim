@@ -1,6 +1,6 @@
 # Minimal shell model for testing.
 #
-# Units:
+# 
 # 
 #    1     2
 #    o-----o
