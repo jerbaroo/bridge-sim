@@ -128,10 +128,20 @@ class Events:
             with open(events_file_path, "rb") as f:
                 return pickle.load(f)
 
-        return {
+        result = {
             bridge_scenario: [
                 load_events(fp) for fp, t in file_paths if t in traffic_nums]
             for bridge_scenario, file_paths in events_dict.items()}
+
+        # Some assertions.
+        _lists = [l for _, l in result.items()]
+        if len(_lists) >= 1:
+            for i in range(len(_lists)):
+                assert len(_lists[i]) == len(_lists[0])
+                for j in range(len(_lists[0])):
+                    assert len(_lists[i][j]) == len(_lists[0][j])
+
+        return result
 
     def make_events(
             self, traffic_scenario: TrafficScenario,
