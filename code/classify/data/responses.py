@@ -44,7 +44,7 @@ def response_to_mv_load(
             if i != 0:
                 axle_distance = mv_load.load.axle_distances[i - 1] / 100
                 load_x_frac += c.bridge.x_frac(axle_distance)
-            axle_responses.append(il_matrix.response_to(
+            axle_responses.append(il_matrix.response(
                 x_frac=c.bridge.x_frac(x=at.x), load_x_frac=load_x_frac,
                 load=mv_load.load.kn))
 

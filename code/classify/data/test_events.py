@@ -12,10 +12,12 @@ from model.bridge.bridge_705 import bridge_705_config
 from model.load import DisplacementCtrl, MovingLoad
 from model.response import Event, ResponseType
 
+c = bridge_705_config()
+c.il_num_loads = 10
+c.event_metadata_path += ".test"
+
 
 def test_events_from_mv_loads():
-    c = bridge_705_config()
-    c.il_num_loads = 10
     mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=0) for _ in range(2)]
     response_types = [ResponseType.Strain, ResponseType.Stress]
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
@@ -31,9 +33,6 @@ def test_events_from_mv_loads():
 
 
 def test_events_class():
-    c = bridge_705_config()
-    c.il_num_loads = 10
-    c.event_metadata_path += ".test"
     events = Events(c)
     lane = 0
     num_vehicles = 2

@@ -10,7 +10,7 @@ from model.response import ResponseType
 from util import clean_generated
 
 
-def test_opensees():
+def test_opensees_patch():
     num_sub_div_z = 20
     patch = Patch(
         y_min=-1, y_max=0, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z)
