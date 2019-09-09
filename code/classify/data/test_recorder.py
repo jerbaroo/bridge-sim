@@ -6,6 +6,7 @@ from model.bridge.bridge_705 import bridge_705_config
 from model.response import ResponseType
 
 c = bridge_705_config()
+c.il_num_loads = 10
 fem_runner = os_runner(c)
 
 
