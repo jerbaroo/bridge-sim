@@ -58,7 +58,6 @@ def test_events_class():
         assert next_param_sim_num == i
         assert next_traffic_sim_num == i
         assert len(events.metadata.load()) == i + 1
-    print(events.metadata.load())
 
     # Create some events, not using the Events class.
     mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=lane) for _ in range(2)]
@@ -109,12 +108,14 @@ def test_events_class():
     # list of Event for each iteration of Event.make_events.
     got_events = events.get_events(
         traffic_scenario=normal_traffic,
-        bridge_scenario=BridgeScenarioNormal(), at=at[0],
+        bridge_scenarios=[BridgeScenarioNormal()], at=at[0],
         response_type=response_types[0], fem_runner=os_runner(c), lane=lane)
-    assert len(np.array(got_events).shape) == 2
-    assert len(got_events) == iterations
-    assert isinstance(got_events[0], list)
-    assert isinstance(got_events[0][0], Event)
+    assert isinstance(got_events, dict)
+    for _, list_of_list_of_event in got_events.items():
+        assert len(list_of_list_of_event) == iterations
+        assert isinstance(list_of_list_of_event, list)
+        assert isinstance(list_of_list_of_event[0], list)
+        assert isinstance(list_of_list_of_event[0][0], Event)
 
     # Test different bridge scenarios.
     assert len(set(events.metadata.load()["bridge-scenario"])) == 1

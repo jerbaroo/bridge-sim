@@ -131,5 +131,6 @@ class Metadata:
             for maybe_next_traffic_sim_num in itertools.count(start=0):
                 if maybe_next_traffic_sim_num not in traffic_sim_nums:
                     return next_param_sim_num, maybe_next_traffic_sim_num, df
-        return [(file_path(self.c, row), row["num-events"])
-                for _, row in rows.iterrows()]
+        return [
+            (file_path(self.c, row), row["num-events"], row["traffic-sim-num"])
+            for _, row in rows.iterrows()]

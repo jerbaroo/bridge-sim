@@ -1,6 +1,6 @@
 """Generate, save and load events."""
 import pickle
-from typing import List
+from typing import Dict, List
 
 import pickletools
 import numpy as np
@@ -84,33 +84,54 @@ class Events:
             response_type: ResponseType, fem_runner: FEMRunner, lane: int
             ) -> List[int]:
         """Number of events per simulation available for given parameters."""
-        return list(map(lambda x: x[0], self.metadata.file_paths(
+        return list(map(lambda x: x[1], self.metadata.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
             lane=lane)))
 
     def get_events(
             self, traffic_scenario: TrafficScenario,
-            bridge_scenario: BridgeScenario, at: Point,
+            bridge_scenarios: List[BridgeScenario], at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int
-            ) -> List[List[Event]]:
+            ) -> Dict[BridgeScenario, List[List[Event]]]:
         """Get events from a simulation of a bridge in a scenario.
 
-        Returns a list of list of Event. Each inner list of Event is for a
-        separate simulation.
+        Returns a dictionary of BridgeScenario to list of list of Event. Each
+        inner list of Event is for a separate simulation. The lists for each
+        BridgeScenario correspond to the same simulations.
 
         """
-        events_file_paths = self.metadata.file_paths(
-            traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
-            at=at, response_type=response_type, fem_runner=fem_runner,
-            lane=lane)
+        # A list of tuples of file path and traffic simulation number, for each
+        # BridgeScenario.
+        events_dict = {
+            bridge_scenario: list(map(
+                lambda x: [x[0], x[2]],  # Ignore number of events.
+                self.metadata.file_paths(
+                    traffic_scenario=traffic_scenario,
+                    bridge_scenario=bridge_scenario, at=at,
+                    response_type=response_type, fem_runner=fem_runner,
+                    lane=lane)))
+            for bridge_scenario in bridge_scenarios
+        }
+        # Traffic simulation numbers for each BridgeScenario.
+        traffic_dict = {
+            bridge_scenario: set(map(
+                lambda x: x[1], events_dict[bridge_scenario]))
+            for bridge_scenario in bridge_scenarios
+        }
+        # Traffic simulation numbers used in all BridgeScenarios.
+        traffic_nums = set(
+            t for _, ts in traffic_dict.items() for t in ts
+            if all(t in traffic_dict[bs] for bs in bridge_scenarios))
 
         def load_events(events_file_path):
             with open(events_file_path, "rb") as f:
                 return pickle.load(f)
 
-        return [load_events(events_file_path)
-                for events_file_path, _ in events_file_paths]
+        return {
+            bridge_scenario: [
+                load_events(fp) for fp, t in file_paths if t in traffic_nums]
+            for bridge_scenario, file_paths in events_dict.items()}
 
     def make_events(
             self, traffic_scenario: TrafficScenario,
