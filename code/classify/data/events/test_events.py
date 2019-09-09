@@ -22,8 +22,8 @@ def test_events_from_mv_loads():
     response_types = [ResponseType.Strain, ResponseType.Stress]
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
     events = list(events_from_mv_loads(
-        c=c, mv_loads=mv_loads, response_types=response_types,
-        fem_runner=os_runner(c), at=at))
+        c=c, mv_loads=mv_loads, bridge_scenario=None,
+        response_types=response_types, fem_runner=os_runner(c), at=at))
     shape = np.array(events).shape
     assert len(shape) == 3
     assert shape[0] == len(at)
@@ -48,7 +48,7 @@ def test_events_class():
 
     # Check simulation numbers and length of metadata after adding rows.
     for i in range(10):
-        next_param_sim_num, next_global_sim_num = (
+        next_param_sim_num, next_traffic_sim_num, _file_path = (
             events.metadata.add_file_path(
                 traffic_scenario=normal_traffic,
                 bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
@@ -56,14 +56,16 @@ def test_events_class():
                 fem_runner=os_runner(c), lane=lane, num_events=0,
                 get_sim_num=True))
         assert next_param_sim_num == i
-        assert next_global_sim_num == i
+        assert next_traffic_sim_num == i
         assert len(events.metadata.load()) == i + 1
+    print(events.metadata.load())
 
     # Create some events, not using the Events class.
     mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=lane) for _ in range(2)]
     some_events = list(events_from_mv_loads(
-        c=c, mv_loads=mv_loads, response_types=[ResponseType.Strain],
-        fem_runner=os_runner(c), at=[Point(x=1)]))[0][0]
+        c=c, mv_loads=mv_loads, bridge_scenario=None,
+        response_types=[ResponseType.Strain], fem_runner=os_runner(c),
+        at=[Point(x=1)]))[0][0]
 
     # Save and load the created events to a file.
     save_events(some_events, "./tmp")
@@ -82,7 +84,7 @@ def test_events_class():
     for _ in range(iterations):
         events.make_events(
             traffic_scenario=normal_traffic,
-            bridge_scenario=BridgeScenarioNormal(), at=at,
+            bridge_scenarios=[BridgeScenarioNormal()], at=at,
             response_types=response_types, fem_runner=os_runner(c), lane=lane,
             num_vehicles=num_vehicles)
     metadata = events.metadata.load()
@@ -118,8 +120,8 @@ def test_events_class():
     assert len(set(events.metadata.load()["bridge-scenario"])) == 1
     events.make_events(
         traffic_scenario=normal_traffic,
-        bridge_scenario=BridgeScenarioDisplacementCtrl(
-            displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1)),
+        bridge_scenarios=[BridgeScenarioDisplacementCtrl(
+            displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))],
         at=at, response_types=response_types, fem_runner=os_runner(c),
         lane=lane, num_vehicles=num_vehicles)
     assert len(set(events.metadata.load()["bridge-scenario"])) == 2
