@@ -48,12 +48,15 @@ def test_events_class():
 
     # Check simulation numbers and length of metadata after adding rows.
     for i in range(10):
-        sim_num = events.metadata.add_file_path(
-            traffic_scenario=normal_traffic,
-            bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
-            response_type=ResponseType.XTranslation, fem_runner=os_runner(c),
-            lane=lane, num_events=0, get_sim_num=True)
-        assert sim_num == i
+        next_param_sim_num, next_global_sim_num = (
+            events.metadata.add_file_path(
+                traffic_scenario=normal_traffic,
+                bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
+                response_type=ResponseType.XTranslation,
+                fem_runner=os_runner(c), lane=lane, num_events=0,
+                get_sim_num=True))
+        assert next_param_sim_num == i
+        assert next_global_sim_num == i
         assert len(events.metadata.load()) == i + 1
 
     # Create some events, not using the Events class.
@@ -86,7 +89,7 @@ def test_events_class():
     assert len(metadata) == len(at) * len(response_types) * iterations
     for i in range(iterations):
         assert (
-            len([x for x in list(metadata["simulation"]) if x == i]) ==
+            len([x for x in list(metadata["param-sim-num"]) if x == i]) ==
             len(at) * len(response_types))
 
     # Test events.num_events.
@@ -122,3 +125,4 @@ def test_events_class():
     assert len(set(events.metadata.load()["bridge-scenario"])) == 2
     assert "displacement-0.100000m-pier-1" in set(
         events.metadata.load()["bridge-scenario"])
+    print(events.metadata.load())

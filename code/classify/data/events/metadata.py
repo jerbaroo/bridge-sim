@@ -13,7 +13,7 @@ from model.scenario import BridgeScenario, TrafficScenario
 
 
 def file_path(c: Config, series: pd.Series):
-    """Return a file path for a row from the _MetaData."""
+    """Return a file path for a row from the Metadata."""
     assert isinstance(series, pd.Series)
     return os.path.join(c.events_dir, (
             series["traffic-scenario"]
@@ -22,7 +22,9 @@ def file_path(c: Config, series: pd.Series):
             + f"-{series['response-type']}"
             + f"-{series['fem-runner']}"
             + f"-{series['lane']}"
-            + f"-{series['simulation']}"))
+            + f"-{series['param-sim-num']}"
+            + f"-{series['global-sim-num']}"
+            + f"-{series['num-events']}"))
 
 
 class Metadata:
@@ -37,14 +39,15 @@ class Metadata:
         else:
             return pd.DataFrame(columns=[
                 "traffic-scenario", "bridge-scenario", "at",
-                "response-type", "fem-runner", "lane", "simulation",
-                "num-events"])
+                "response-type", "fem-runner", "lane", "param-sim-num",
+                "global-sim-num", "num-events"])
 
     def add_file_path(
             self, traffic_scenario: TrafficScenario,
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
-            num_events: int, get_sim_num: bool = False) -> Union[str, int]:
+            num_events: int, get_sim_num: bool = False
+            ) -> Union[str, Tuple[int, int]]:
         """Add and return a file path to the metadata for given parameters.
 
         Args:
@@ -56,12 +59,12 @@ class Metadata:
             response_type: ResponseType, the sensor type of recorded events.
             fem_runner: FEMRunner, the FE program used to simulate events.
             lane: int, the index of the lane on which traffic is driven.
-            num_events: int, the the number of events from the simulation.
-            get_sim_num: bool, if True return the next available simulation
-                index instead of the file path that was added.
+            num_events: int, the number of events from the ran simulation.
+            get_sim_num: bool, return a tuple of the next parameter-specific
+                simulation index and next global simulation index.
 
         """
-        next_sim_num, df = self.file_paths(
+        next_param_sim_num, next_global_sim_num, df = self.file_paths(
             traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
             at=at, response_type=response_type, fem_runner=fem_runner,
             lane=lane, get_sim_num=True)
@@ -72,12 +75,13 @@ class Metadata:
             "response-type": response_type.name(),
             "fem-runner": fem_runner.name,
             "lane": lane,
-            "simulation": next_sim_num,
+            "param-sim-num": next_param_sim_num,
+            "global-sim-num": next_global_sim_num,
             "num-events": num_events})
         df = df.append(row, ignore_index=True)
         df.to_csv(self.c.event_metadata_path)
         if get_sim_num:
-            return next_sim_num
+            return next_param_sim_num, next_global_sim_num
         return file_path(self.c, row)
 
     def file_paths(
@@ -85,7 +89,7 @@ class Metadata:
             bridge_scenario: BridgeScenario, at: Point,
             response_type: ResponseType, fem_runner: FEMRunner, lane: int,
             get_sim_num: bool = False
-    ) -> Union[List[Tuple[str, int]], Tuple[int, pd.DataFrame]]:
+            ) -> Union[List[Tuple[str, int]], Tuple[int, pd.DataFrame]]:
         """The file paths and number of events for given simulation parameters.
 
         Args:
@@ -97,8 +101,9 @@ class Metadata:
             response_type: ResponseType, the sensor type of recorded events.
             fem_runner: FEMRunner, the FE program used to simulate events.
             lane: int, the index of the lane on which traffic is driven.
-            get_sim_num: bool, if True instead return a tuple of, the next
-                available simulation index, and the metadata DataFrame.
+            get_sim_num: bool, return a tuple of the next parameter-specific
+                simulation index, next global simulation index, and the
+                metadata DataFrame.
 
         """
         df = self.load()
@@ -111,8 +116,14 @@ class Metadata:
             & (df["fem-runner"] == fem_runner.name)
             & (df["lane"] == lane)]
         if get_sim_num:
-            for sim_num in itertools.count(start=0):
-                if sim_num not in set(rows["simulation"]):
-                    return sim_num, df
+            param_sim_nums = set(rows["param-sim-num"])
+            for maybe_next_param_sim_num in itertools.count(start=0):
+                if maybe_next_param_sim_num not in param_sim_nums:
+                    next_param_sim_num = maybe_next_param_sim_num
+                    break
+            global_sim_nums = set(df["global-sim-num"])
+            for maybe_next_global_sim_num in itertools.count(start=0):
+                if maybe_next_global_sim_num not in global_sim_nums:
+                    return next_param_sim_num, maybe_next_global_sim_num, df
         return [(file_path(self.c, row), row["num-events"])
                 for _, row in rows.iterrows()]
