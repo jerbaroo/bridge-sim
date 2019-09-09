@@ -17,6 +17,7 @@ def file_path(c: Config, series: pd.Series):
     assert isinstance(series, pd.Series)
     return os.path.join(c.events_dir, (
             series["traffic-scenario"]
+            + f"-{series['bridge-name']}"
             + f"-{series['bridge-scenario']}"
             + f"-{series['at']}"
             + f"-{series['response-type']}"
@@ -38,7 +39,7 @@ class Metadata:
             return pd.read_csv(self.c.event_metadata_path, index_col=0)
         else:
             return pd.DataFrame(columns=[
-                "traffic-scenario", "bridge-scenario", "at",
+                "traffic-scenario", "bridge-name", "bridge-scenario", "at",
                 "response-type", "fem-runner", "lane", "param-sim-num",
                 "traffic-sim-num", "num-events"])
 
@@ -73,6 +74,7 @@ class Metadata:
             next_traffic_sim_num = traffic_sim_num
         row = pd.Series({
             "traffic-scenario": traffic_scenario.name,
+            "bridge-name": self.c.bridge.name,
             "bridge-scenario": bridge_scenario.name,
             "at": str(at),
             "response-type": response_type.name(),
@@ -116,6 +118,7 @@ class Metadata:
         assert isinstance(df, pd.DataFrame)
         rows = df.loc[
             (df["traffic-scenario"] == traffic_scenario.name)
+            & (df["bridge-name"] == self.c.bridge.name)
             & (df["bridge-scenario"] == bridge_scenario.name)
             & (df["at"] == str(at))
             & (df["response-type"] == response_type.name())
