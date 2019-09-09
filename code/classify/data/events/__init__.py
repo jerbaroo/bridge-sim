@@ -111,8 +111,7 @@ class Events:
                     bridge_scenario=bridge_scenario, at=at,
                     response_type=response_type, fem_runner=fem_runner,
                     lane=lane)))
-            for bridge_scenario in bridge_scenarios
-        }
+            for bridge_scenario in bridge_scenarios}
         # Traffic simulation numbers for each BridgeScenario.
         traffic_dict = {
             bridge_scenario: set(map(
@@ -149,7 +148,7 @@ class Events:
             response_types: List[ResponseType], fem_runner: FEMRunner,
             lane: int, num_vehicles: int):
         """Make events via bridge simulation under different scenarios."""
-        # Construct traffic under the traffic scenario.
+        # Construct traffic under the given traffic scenario.
         mv_loads = [
             MovingLoad.from_vehicle(
                 x_frac=0, vehicle=traffic_scenario.vehicle(self.c), lane=lane)
@@ -163,8 +162,9 @@ class Events:
                 at=at, response_types=response_types, fem_runner=fem_runner)
             for a in range(len(at)):
                 for r in range(len(response_types)):
-                    # traffic_sim_num will be assigned, and the subsequently
-                    # non-None value passed in to add_file_path each time.
+                    # traffic_sim_num will be assigned the first iteration, and
+                    # then the non-None value passed to add_file_path in each
+                    # subsequent iteration.
                     _, traffic_sim_num, events_file_path = (
                         self.metadata.add_file_path(
                             traffic_scenario=traffic_scenario,
