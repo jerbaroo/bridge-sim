@@ -4,9 +4,15 @@
 *.egg-info/
 diana*.out
 diana.ff
-diana-705.dat
+diana*.dat
 .idea/
 .mypy_cache/
 __pycache__/
 generated-data/
+generated-images/
 generated-data-test/
+venv/
+
+# Axis related
+*.axr
+**/Revisions/
