@@ -12,7 +12,10 @@ from fem.params import ExptParams, FEMParams
 from model import Response
 from model.bridge import Point
 from model.response import ResponseType
-from util import nearest_index, print_i, print_w
+from util import nearest_index, print_d, print_i, print_w
+
+# Print debug information for this file.
+D: bool = False
 
 
 def fem_responses_path(
@@ -157,7 +160,7 @@ class FEMResponses:
         Interpolate the response between the 8 closest points of a cuboid.
 
         """
-        print_w(f"Interpolating")
+        print_d(D, f"Interpolating")
 
         x_lo_ind, x_hi_ind = self._x_indices(x=x)
         x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]
@@ -185,24 +188,24 @@ class FEMResponses:
             Point(x=x_hi, y=y_lo_x_hi, z=z_hi_y_lo_x_hi),  # 1 0 1
             Point(x=x_lo, y=y_hi_x_lo, z=z_hi_y_hi_x_lo),  # 1 1 0
             Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi)]  # 1 1 1
-        [print(f"point = {point}") for point in points]
+        [print(D, f"point = {point}") for point in points]
         request = Point(x=x, y=y, z=z)
-        print(f"request = {request}")
+        print(D, f"request = {request}")
         distances = [point.distance(request) for point in points]
-        print(f"distances = {distances}")
+        print(D, f"distances = {distances}")
         sum_distances = sum(distances)
         if sum_distances == 0:
             p = points[0]
             return self.responses[time_index][p.x][p.y][p.z].value
-        print(f"sum distances = {sum_distances}")
+        print(D, f"sum distances = {sum_distances}")
         responses = [
             self.responses[time_index][point.x][point.y][point.z].value
             for point in points]
-        print(f"responses = {responses}")
+        print(D, f"responses = {responses}")
         response = sum([
             response * (distance / sum_distances)
             for response, distance in zip(responses, distances)])
-        print(f"response = {response}")
+        print(D, f"response = {response}")
         return response
 
     def _x_indices(self, x: float) -> Tuple[int, int]:
@@ -221,8 +224,8 @@ class FEMResponses:
 
     def _y_indices(self, x: float, y: float) -> Tuple[int, int]:
         """Indices of the y positions of sensors either side of y."""
-        print(self.ys[x])
-        print(f"x = {x}, y = {y}")
+        print(D, self.ys[x])
+        print(D, f"x = {x}, y = {y}")
         # If only one point, return that.
         if len(self.ys[x]) == 1:
             return 0, 0
