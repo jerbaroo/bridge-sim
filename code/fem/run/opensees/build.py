@@ -107,11 +107,12 @@ def opensees_recorders(
 
         # Record stress and strain for each patch.
         for patch in c.bridge.sections[0].patches:
-            point = patch.center()
-            recorders += (f"\nrecorder Element -file"
-                          + f" {fem_runner.patch_path(fem_params, patch)}"
-                          + " -ele " + " ".join(map(str, c.os_elem_ids()))
-                          + f" section 1 fiber {point.z} {point.y} stressStrain")
+            for (point, point_path) in zip(
+                    patch.points(), fem_runner.patch_paths(fem_params, patch)):
+                recorders += (f"\nrecorder Element -file {point_path}"
+                            + " -ele " + " ".join(map(str, c.os_elem_ids()))
+                            + f" section 1 fiber {point.z} {point.y}"
+                            + " stressStrain")
 
         # Record stress and strain for each fiber in a layer.
         for layer in c.bridge.sections[0].layers:

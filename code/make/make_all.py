@@ -6,7 +6,7 @@ from model.bridge.bridge_705 import bridge_705_config
 
 if __name__ == "__main__":
     c = bridge_705_config()
-    clean = True
+    clean = False
 
     make_plots.make_all(c, clean)
     make_text.make_all(c, clean)

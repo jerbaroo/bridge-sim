@@ -56,10 +56,12 @@ def parse_responses(
             for section in c.bridge.sections:
                 # Convert fiber commands to (path, fiber_cmd_id, Point).
                 patch_paths_and_more = [
-                    (fem_runner.patch_path(fem_params, patch),
-                     patch.fiber_cmd_id,
-                     patch.center())
+                    zip(fem_runner.patch_paths(fem_params, patch),
+                        itertools.repeat(patch.fiber_cmd_id),
+                        patch.points())
                     for patch in section.patches]
+                patch_paths_and_more = list(
+                    itertools.chain.from_iterable(patch_paths_and_more))
                 layer_paths_and_more = [
                     zip(fem_runner.layer_paths(fem_params, layer),
                         itertools.repeat(layer.fiber_cmd_id),

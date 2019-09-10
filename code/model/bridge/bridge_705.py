@@ -11,17 +11,20 @@ def bridge_705_config(
         lanes: Optional[List[Lane]] = None,
         piers: Optional[List[float]] = None,
         patches: Optional[List[Patch]] = None,
-        layers: Optional[List[Layer]] = None) -> Config:
+        layers: Optional[List[Layer]] = None,
+        generated_dir: Optional[str] = None
+        ) -> Config:
     return Config(
         lambda: bridge_705(
             name=name, length=length, lanes=lanes, piers=piers,
             patches=patches, layers=layers),
         vehicle_data_path="data/a16-data/a16.csv",
         vehicle_density=[
-            # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
             (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
+            # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
         vehicle_density_col="length",
-        vehicle_intensity=None)
+        vehicle_intensity=None,
+        generated_dir=generated_dir)
 
 
 # TODO: Make into a reusable function.

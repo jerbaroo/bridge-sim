@@ -9,9 +9,11 @@ from model.bridge.bridge_705 import bridge_705_config
 from model.load import MovingLoad
 from model.response import ResponseType
 
+c = bridge_705_config()
+c.il_num_loads = 10
+
 
 def test_response_to_mv_loads():
-    c = bridge_705_config()
 
     # All lanes are the same, so no error should be raised.
     mv_loads = [

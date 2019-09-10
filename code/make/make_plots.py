@@ -61,7 +61,6 @@ def make_il_plots(c: Config):
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
-                rows, cols = 4, 3
 
                 # A plotting function with interpolation arguments filled in.
                 def plot_func(
@@ -74,10 +73,11 @@ def make_il_plots(c: Config):
                         interpolate_response=interpolate_response)
 
                 matrix_subplots(
-                    c=c, resp_matrix=il_matrix, num_x=num_x, rows=rows,
-                    cols=cols, plot_func=plot_func, save=c.image_path(
+                    c=c, resp_matrix=il_matrix, num_x=num_x,
+                    plot_func=plot_func, save=c.image_path(
                         f"ils/il-subplots-{il_matrix.fem_runner_name}"
-                        + f"-{response_type.name()}-{rows}-{cols}"
+                        + f"-{response_type.name()}"
+                        + f"-numexpts-{il_matrix.num_expts}"
                         + interp_load_str + interp_response_str))
 
 
@@ -105,7 +105,6 @@ def make_dc_plots(c: Config):
                 #         + interp_response_str))
 
                 # Make the matrix of influence lines.
-                rows, cols = 4, 3
 
                 # A plotting function with interpolation arguments filled in.
                 def plot_func(
@@ -118,10 +117,11 @@ def make_dc_plots(c: Config):
                         interpolate_response=interpolate_response)
 
                 matrix_subplots(
-                    c=c, resp_matrix=dc_matrix, num_x=num_x, rows=rows,
-                    cols=cols, plot_func=plot_func, save=c.image_path(
+                    c=c, resp_matrix=dc_matrix, num_x=num_x,
+                    plot_func=plot_func, save=c.image_path(
                         f"dcs/dc-subplots-{dc_matrix.fem_runner_name}"
-                        + f"-{response_type.name()}-{rows}-{cols}"
+                        + f"-{response_type.name()}"
+                        + f"-numexpts-{dc_matrix.num_expts}"
                         + interp_load_str + interp_response_str))
 
 
