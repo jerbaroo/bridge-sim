@@ -30,8 +30,9 @@ def events_from_mv_loads(
     """
     # Collect responses for each sensor position and response type.
     responses = responses_to_mv_loads(
-        c=c, mv_loads=mv_loads, response_types=response_types,
-        fem_runner=fem_runner, at=at, per_axle=per_axle)
+        c=c, mv_loads=mv_loads, bridge_scenario=bridge_scenario,
+        response_types=response_types, fem_runner=fem_runner, at=at,
+        per_axle=per_axle)
 
     shape = np.array(responses).shape
     assert len(shape) == 3
@@ -148,11 +149,9 @@ class Events:
             response_types: List[ResponseType], fem_runner: FEMRunner,
             lane: int, num_vehicles: int):
         """Make events via bridge simulation under different scenarios."""
-        # Construct traffic under the given traffic scenario.
-        mv_loads = [
-            MovingLoad.from_vehicle(
-                x_frac=0, vehicle=traffic_scenario.vehicle(self.c), lane=lane)
-            for _ in range(num_vehicles)]
+        # Construct moving loads under the given traffic scenario.
+        mv_loads = traffic_scenario.mv_loads(
+            num_vehicles=num_vehicles, lane=lane)
 
         # Save events for each bridge scenario under the same traffic index.
         traffic_sim_num = None

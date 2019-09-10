@@ -16,7 +16,7 @@ class ILMatrix(ResponsesMatrix):
 
     def response(
             self, x_frac: float, load_x_frac: float, load: float,
-            interpolate_load: bool = False, interpolate_response: bool = False,
+            interp_load: bool = False, interp_response: bool = False,
             y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
         """The response value in kN at a position to a load at a position.
 
@@ -35,8 +35,8 @@ class ILMatrix(ResponsesMatrix):
         response = super().response(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac,
             z_frac=z_frac, time_index=time_index,
-            interpolate_load=interpolate_load,
-            interpolate_response=interpolate_response)
+            interp_load=interp_load,
+            interp_response=interp_response)
         return response * (load / self.c.il_unit_load_kn)
 
 

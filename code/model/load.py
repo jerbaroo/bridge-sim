@@ -17,14 +17,9 @@ class Vehicle:
         self.kmph = kmph
         self.kn_per_axle = kn_per_axle
         self.axle_distances = axle_distances
+        self.length = sum(self.axle_distances)
         self.axle_width = axle_width
         self.quadim = quadim
-
-    @staticmethod
-    def sample(c: Config):
-        """Sample a vehicle from a Config.vehicle_density group."""
-        from vehicles.sample import sample_vehicle
-        return sample_vehicle(c)
 
 
 class Load:

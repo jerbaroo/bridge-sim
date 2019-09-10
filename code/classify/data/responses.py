@@ -10,12 +10,13 @@ from model import Response
 from model.bridge import Bridge, Point
 from model.load import MovingLoad
 from model.response import ResponseType
+from model.scenario import BridgeScenario
 
 
 def response_to_mv_load(
-        c: Config, mv_load: MovingLoad, time: float, at: Point,
-        response_type: ResponseType, fem_runner: FEMRunner,
-        per_axle: bool = False) -> Response:
+        c: Config, mv_load: MovingLoad, bridge_scenario: BridgeScenario,
+        time: float, at: Point, response_type: ResponseType,
+        fem_runner: FEMRunner, per_axle: bool = False) -> Response:
     """The response to one or more moving loads at a single time.
 
     Args:
@@ -31,7 +32,7 @@ def response_to_mv_load(
 
     # Point load.
     if mv_load.load.is_point_load():
-        return il_matrix.response_to(
+        return il_matrix.response(
             x_frac=c.bridge.x_frac(at.x), load_x_frac=load_x_frac,
             load=mv_load.load.kn)
 
@@ -51,9 +52,9 @@ def response_to_mv_load(
 
 
 def response_to_mv_loads(
-        c: Config, mv_loads: List[MovingLoad], time: float, at: Point,
-        response_type: ResponseType, fem_runner: FEMRunner,
-        per_axle: bool = False) -> Response:
+        c: Config, mv_loads: List[MovingLoad], bridge_scenario: BridgeScenario,
+        time: float, at: Point, response_type: ResponseType,
+        fem_runner: FEMRunner, per_axle: bool = False) -> Response:
     """The response to one or more moving loads at one simulation time.
 
     Args:
@@ -68,8 +69,8 @@ def response_to_mv_loads(
 
     responses = [
         response_to_mv_load(
-            c=c, mv_load=mv_load, time=time, at=at,
-            response_type=response_type, fem_runner=fem_runner,
+            c=c, mv_load=mv_load, bridge_scenario=bridge_scenario, time=time,
+            at=at, response_type=response_type, fem_runner=fem_runner,
             per_axle=per_axle)
         for mv_load in mv_loads
         if on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)]
@@ -77,9 +78,9 @@ def response_to_mv_loads(
 
 
 def responses_to_mv_loads(
-        c: Config, mv_loads: List[MovingLoad],
-        response_types: List[ResponseType],
-        fem_runner: FEMRunner, at: List[Point], per_axle: bool = False,
+        c: Config, mv_loads: List[MovingLoad], bridge_scenario: BridgeScenario,
+        response_types: List[ResponseType], fem_runner: FEMRunner,
+        at: List[Point], per_axle: bool = False,
         times: Optional[List[float]] = None):
     """The responses to a load for a number of time steps.
 
@@ -106,8 +107,8 @@ def responses_to_mv_loads(
 
     result = np.array([
         [[response_to_mv_loads(
-            c=c, mv_loads=mv_loads, time=time, at=at_,
-            response_type=response_type, fem_runner=fem_runner,
+            c=c, mv_loads=mv_loads, bridge_scenario=bridge_scenario, time=time,
+            at=at_, response_type=response_type, fem_runner=fem_runner,
             per_axle=per_axle)
           for response_type in response_types]
          for at_ in at]

@@ -5,7 +5,8 @@ from typing import Dict, List
 from config import Config
 from fem.params import ExptParams
 from fem.run import Parsed
-from model import *
+from model import Response
+from model.response import ResponseType
 
 
 def convert_responses(c: Config, expt_params: ExptParams, parsed: Parsed,

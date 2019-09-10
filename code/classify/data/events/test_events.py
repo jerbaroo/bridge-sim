@@ -50,7 +50,7 @@ def test_events_class():
     for i in range(10):
         next_param_sim_num, next_traffic_sim_num, _file_path = (
             events.metadata.add_file_path(
-                traffic_scenario=normal_traffic,
+                traffic_scenario=normal_traffic(c),
                 bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
                 response_type=ResponseType.XTranslation,
                 fem_runner=os_runner(c), lane=lane, num_events=0,
@@ -82,7 +82,7 @@ def test_events_class():
     iterations = 3
     for _ in range(iterations):
         events.make_events(
-            traffic_scenario=normal_traffic,
+            traffic_scenario=normal_traffic(c),
             bridge_scenarios=[BridgeScenarioNormal()], at=at,
             response_types=response_types, fem_runner=os_runner(c), lane=lane,
             num_vehicles=num_vehicles)
@@ -97,7 +97,7 @@ def test_events_class():
     for a in range(len(at)):
         for r in range(len(response_types)):
             num_events = events.num_events(
-                traffic_scenario=normal_traffic,
+                traffic_scenario=normal_traffic(c),
                 bridge_scenario=BridgeScenarioNormal(), at=at[a],
                 response_type=response_types[r], fem_runner=os_runner(c),
                 lane=lane)
@@ -107,7 +107,7 @@ def test_events_class():
     # Get the previously made events using the Events class. There should be a
     # list of Event for each iteration of Event.make_events.
     got_events = events.get_events(
-        traffic_scenario=normal_traffic,
+        traffic_scenario=normal_traffic(c),
         bridge_scenarios=[BridgeScenarioNormal()], at=at[0],
         response_type=response_types[0], fem_runner=os_runner(c), lane=lane)
     assert isinstance(got_events, dict)
@@ -120,12 +120,12 @@ def test_events_class():
     # Test different bridge scenarios.
     assert len(set(events.metadata.load()["bridge-scenario"])) == 1
     events.make_events(
-        traffic_scenario=normal_traffic,
+        traffic_scenario=normal_traffic(c),
         bridge_scenarios=[BridgeScenarioDisplacementCtrl(
             displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))],
         at=at, response_types=response_types, fem_runner=os_runner(c),
         lane=lane, num_vehicles=num_vehicles)
     assert len(set(events.metadata.load()["bridge-scenario"])) == 2
-    assert "displacement-0.100000m-pier-1" in set(
+    assert "displacement-0.1m-pier-1" in set(
         events.metadata.load()["bridge-scenario"])
     print(events.metadata.load())

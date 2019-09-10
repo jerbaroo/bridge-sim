@@ -13,12 +13,12 @@ def test_sample_vehicle():
     c.vehicle_density = [(11.5, 0.7), (12.2, 0.2), (43, 0.1)]
 
     # Test a vehicle is returned.
-    vehicle = sample_vehicle(c, noise_stddevs=0)
+    vehicle = sample_vehicle(c)
     print_d(D, vehicle)
     assert isinstance(vehicle, Vehicle)
 
     # Test noise is added.
-    _, vehicle = sample_vehicle(c, pd_row=True)
+    _, vehicle = sample_vehicle(c=c, pd_row=True)
     true_vehicle = c.vehicle_data.loc[vehicle.index]
     for col_name in noise_col_names:
         # DataFrame is only of length 1, still need .all applied.
@@ -26,7 +26,8 @@ def test_sample_vehicle():
                 c.vehicle_data.loc[vehicle.index, col_name]).all()
 
     # Test noise is not added.
-    _, vehicle = sample_vehicle(c, noise_stddevs=0, pd_row=True)
+    c.perturb_stddev = 0
+    _, vehicle = sample_vehicle(c=c, pd_row=True)
     true_vehicle = c.vehicle_data.loc[vehicle.index]
     for col_name in noise_col_names:
         # DataFrame is only of length 1, still need .all applied.

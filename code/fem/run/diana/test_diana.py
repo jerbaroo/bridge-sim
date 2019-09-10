@@ -1,12 +1,4 @@
 """Test that Diana builds model files correctly."""
-from config import Config
-from fem.params import ExptParams, FEMParams
-from fem.run import fem_file_path
-from fem.run.diana.build import build_models
-from model import *
-from model.bridge_705 import bridge_705_config
-
-
 def test_mobile_load():
     return
     # Setup.

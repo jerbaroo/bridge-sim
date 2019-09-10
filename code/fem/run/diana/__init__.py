@@ -6,8 +6,8 @@ from fem.run.diana.build import build_models
 from fem.run.diana.convert import convert_responses
 from fem.run.diana.run import run_model
 from fem.run.diana.parse import parse_responses
-from model import Load
-from model.bridge_705 import bridge_705_config
+from model.load import Load
+from model.bridge.bridge_705 import bridge_705_config
 
 
 def di_runner(c: Config):
