@@ -5,7 +5,7 @@ from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
-from model.bridge import Bridge, reset_model_ids
+from model.bridge import Bridge, _reset_model_ids
 from model.response import ResponseType
 from vehicles import load_vehicle_data
 from util import print_i, print_w
@@ -26,7 +26,7 @@ class Config:
 
             Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
             2.4m and less than 5.6m, and the remaining 5% are less than 16m.
-        vehicle intensity: the total amount of vehicles per hour.
+        vehicle_intensity: the total amount of vehicles per hour.
         vehicle_density_col: str, column of vehicle_data to group by.
         generated_dir: str, directory where to save generated files.
 
@@ -64,7 +64,7 @@ class Config:
             vehicle_intensity: float, vehicle_density_col: str,
             generated_dir: Optional[str] = None):
         # Bridge.
-        reset_model_ids()
+        _reset_model_ids()
         self.bridge = bridge()
 
         # Vehicles.

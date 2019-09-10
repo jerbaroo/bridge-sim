@@ -4,10 +4,10 @@ from model.bridge import Point
 
 class Response:
     """A sensor response collected from a simulation."""
-    def __init__(self, value: float, x: float=None, y: float=None,
-                 z: float=None, time: int=0, elem_id: int=None,
-                 srf_id: int=None, node_id: int=None, section_id: int=None,
-                 fiber_cmd_id: int=None):
+    def __init__(
+            self, value: float, x: float=None, y: float=None, z: float=None,
+            time: int=0, elem_id: int=None, srf_id: int=None,
+            node_id: int=None, section_id: int=None, fiber_cmd_id: int=None):
         self.value = value
         self.point = Point(x=x, y=y, z=z)
         self.time = time

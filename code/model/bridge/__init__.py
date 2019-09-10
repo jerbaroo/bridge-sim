@@ -1,5 +1,5 @@
 """Model of a bridge."""
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union
 from enum import Enum
 
 import numpy as np
@@ -10,7 +10,7 @@ from util import print_i, round_m
 _fiber_cmd_id = 1
 
 
-def next_fiber_id():
+def _next_fiber_id():
     """Return a new unique fiber ID."""
     global _fiber_cmd_id
     result = _fiber_cmd_id
@@ -18,14 +18,22 @@ def next_fiber_id():
     return result
 
 
+class Dimensions(Enum):
+    """Whether modeling in 2D or 3D."""
+    D2 = "2D"
+    D3 = "3D"
+
+
 class Fix:
-    """A position fixed in some degrees of freedom, used to model a pier.
+    """A node fixed in some degrees of freedom, when 2D modeling.
 
     Args:
         x_frac: float, fraction of x position in [0 1].
         x: bool, whether to fix x translation.
         y: bool, whether to fix y translation.
         rot: bool, whether to fix rotation.
+
+    TODO: Rename to Support2D and move to absolute position.
 
     """
     def __init__(
@@ -37,6 +45,49 @@ class Fix:
         self.y: bool = y
         self.z: bool = z
         self.rot: bool = rot
+
+
+class Support3D:
+    """A support of the bridge deck, when 3D modeling.
+
+    Args:
+        x: float, x position in meters of the center of the support.
+        z: float, z position in meters of the support.
+        width: float, width in meters of the support.
+        height: float, height in meters of the support.
+
+        SIDE_VIEW:
+        <------------x----------->
+                           <---width--->
+        |------------------|-----|-----|----------------------| ↑ h
+                            \    |    /                         | e
+                             \   |   /                          | i
+                              \  |  /                           | g
+                               \ | /                            | h
+                                \|/                             ↓ t
+
+        TOP_VIEW:
+        |-----------------------------------------------------| ↑+
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| 0
+        |-----------------------------------------------------| |
+        |------------------|-----------|----------------------| | z = -2
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| ↓-
+
+    """
+    def __init__(
+            self, x: float, y: float, width: float, height: float):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+
+# Supports are either a list of 2D or 3D supports.
+Supports = Union[List[Fix], List[Support3D]]
 
 
 class Point:
@@ -85,7 +136,7 @@ class Lane:
         return round_m(self.z_max - self.z_min)
 
     def z_center(self):
-        """Z ordinate of the center of the lane in meters."""
+        """Z position of the center of the lane in meters."""
         return round_m(self.z_min + (self.width() / 2))
 
 
@@ -95,7 +146,7 @@ class Material(Enum):
 
 
 class Layer:
-    """A straight line of fibers, used to describe a Section.
+    """A straight line of fibers when describing a Section, when 2D modeling.
 
     Args:
         y_i, z_i: float, y and z-coordinates of first fiber in line.
@@ -111,7 +162,7 @@ class Layer:
             material: Material = Material.Steel):
         assert y_min <= y_max
         assert z_min <= z_max
-        self.fiber_cmd_id = next_fiber_id()
+        self.fiber_cmd_id = _next_fiber_id()
         self.p0 = Point(y=y_min, z=z_min)
         self.p1 = Point(y=y_max, z=z_max)
         self.num_fibers = num_fibers
@@ -132,13 +183,13 @@ class Layer:
 
 
 class Patch:
-    """A rectangular patch, used to describe a Section."""
+    """A rectangular patch when describing a Section, when 2D modeling."""
     def __init__(
             self, y_min: float, z_min: float, y_max: float, z_max: float,
             num_sub_div_z: int = 30, material: Material = Material.Concrete):
         assert y_min <= y_max
         assert z_min <= z_max
-        self.fiber_cmd_id = next_fiber_id()
+        self.fiber_cmd_id = _next_fiber_id()
         self.p0 = Point(y=y_min, z=z_min)
         self.p1 = Point(y=y_max, z=z_max)
         self.num_sub_div_z = num_sub_div_z
@@ -160,7 +211,7 @@ class Patch:
 
 
 class Section:
-    """A section composed of fibers."""
+    """A section composed of fibers (Patch and Layer), when 2D modeling."""
 
     next_id = 1
 
@@ -193,18 +244,6 @@ class Section:
         return self._min_max(lambda p: p.z)
 
 
-def reset_model_ids():
-    """Called automatically when constructing a Config."""
-    global _fiber_cmd_id
-    _fiber_cmd_id = 1
-    Section.next_id = 1
-
-
-class Dimensions(Enum):
-    D2 = "2D"
-    D3 = "3D"
-
-
 class Bridge:
     """A bridge specification.
 
@@ -213,13 +252,14 @@ class Bridge:
         length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
         height: float, height of the bridge in meters.
-        fixed_nodes: List[Fix], nodes fixed in some degrees of freedom (piers).
-        sections: List[Section], specification of the bridge's cross section.
+        supports: Supports, a list of supports for 2D or 3D modeling.
         lanes: List[Lane], lanes that span the bridge, where to place loads.
+        sections: List[Section], specification of the bridge's cross section,
+            only used in 2D modeling.
 
     """
     def __init__(
-            self, name: str, length: float, fixed_nodes: List[Fix],
+            self, name: str, length: float, fixed_nodes: Supports,
             sections: List[Section], lanes: List[Lane],
             dimensions: Dimensions = Dimensions.D2):
         self.name = name
@@ -270,7 +310,7 @@ class Bridge:
         #             + f" {self.z_max}")
 
     def x_axis(self) -> List[float]:
-        """Fixed nodes in meters along the bridge's x-axis."""
+        """Position of supports in meters along the bridge's x-axis."""
         return np.interp(
             [f.x_frac for f in self.fixed_nodes], [0, 1], [0, self.length])
 
@@ -301,3 +341,10 @@ class Bridge:
     def z(self, z_frac: float):
         assert 0 <= z_frac <= 1
         return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+
+
+def _reset_model_ids():
+    """Gets called for you when constructing a Config."""
+    global _fiber_cmd_id
+    _fiber_cmd_id = 1
+    Section.next_id = 1
