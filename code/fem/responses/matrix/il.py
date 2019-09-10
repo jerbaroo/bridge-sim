@@ -33,9 +33,8 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= load_x_frac <= 1
         print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
         response = super().response(
-            expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac,
-            z_frac=z_frac, time_index=time_index,
-            interp_load=interp_load,
+            expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
+            time_index=time_index, interp_load=interp_load,
             interp_response=interp_response)
         return response * (load / self.c.il_unit_load_kn)
 
