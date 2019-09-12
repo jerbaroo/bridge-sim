@@ -107,8 +107,8 @@ def plot_bridge_deck_side(
     """
     plt.hlines(0, 0, bridge.length, color=bridge_color)
     plt.plot(
-        [f.x_frac * bridge.length for f in bridge.fixed_nodes],
-        [0 for _ in range(len(bridge.fixed_nodes))],
+        [f.x_frac * bridge.length for f in bridge.supports],
+        [0 for _ in range(len(bridge.supports))],
         "o", color=pier_color)
     if equal_axis: plt.axis("equal")
     plt.xlabel("x position (m)")

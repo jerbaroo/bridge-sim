@@ -4,7 +4,7 @@ model basic -ndm 2 -ndf 3
 
 <<NODES>>
 
-<<FIX>>
+<<SUPPORTS>>
 
 geomTransf Linear 1
 

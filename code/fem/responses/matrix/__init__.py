@@ -31,7 +31,7 @@ def load_expt_responses(
 
 # TODO: Replace ExptResponses.
 class ResponsesMatrix:
-    """Responses of one sensor type for related simulations."""
+    """Responses of one sensor type for a number of simulations."""
     def __init__(
             self, c: Config, response_type: ResponseType,
             expt_params: ExptParams, fem_runner_name: str,
@@ -44,7 +44,7 @@ class ResponsesMatrix:
         self.num_expts = len(expt_responses)
 
     def file_paths(self):
-        """A file path for each simulation's responses."""
+        """A unique file path for each simulation's responses."""
         return [fem_responses_path(
                     self.c, fem_params, self.response_type,
                     self.fem_runner_name)

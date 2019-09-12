@@ -4,7 +4,7 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from model.bridge import Fix, Layer, Patch, Section
+from model.bridge import Dimensions, Fix, Layer, Patch, Section
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
 from util import print_d, print_i
@@ -20,14 +20,21 @@ def opensees_nodes(c: Config):
         for i in np.arange(c.os_num_nodes()))
 
 
-def opensees_fixed_nodes(c: Config):
-    """OpenSees fixed node commands for a .tcl file."""
+def opensees_supports(c: Config):
+    """OpenSees support command for a .tcl file.
+
+    When 2D modeling these are fixed node commands.
+
+    """
 
     def opensees_fixed_node(f: Fix):
         node = np.interp(f.x_frac, (0, 1), (1, c.os_num_nodes()))
         return f"fix {int(node)} {int(f.x)} {int(f.y)} {int(f.rot)}"
 
-    return "\n".join(opensees_fixed_node(f) for f in c.bridge.fixed_nodes)
+    if c.bridge.dimensions == Dimensions.D2:
+        return "\n".join(opensees_fixed_node(f) for f in c.bridge.supports)
+    else:
+        raise ValueError("We don't support 3D supports.")
 
 
 def opensees_elements(c: Config):
@@ -47,10 +54,10 @@ def opensees_loads(c: Config, fem_params: FEMParams):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
         return f"load {nid} 0 {l.kn * 1000} 0"
 
+    # TODO: Why 10 kN for displacement control?
     if fem_params.displacement_ctrl is not None:
         fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
         return opensees_load(Load(x_frac=fix.x_frac, kn=10))
-    # TODO: Why 10 kN?
 
     return "\n".join(opensees_load(l) for l in fem_params.loads)
 
@@ -190,7 +197,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
         out_tcl = (
             in_tcl
             .replace("<<NODES>>", opensees_nodes(c))
-            .replace("<<FIX>>", opensees_fixed_nodes(c))
+            .replace("<<SUPPORTS>>", opensees_supports(c))
             .replace("<<MATERIALS>>", opensees_materials(
                 c, fem_params.displacement_ctrl))
             .replace("<<ELEMENTS>>", opensees_elements(c))

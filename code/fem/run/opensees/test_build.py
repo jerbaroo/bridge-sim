@@ -13,11 +13,15 @@ from model.response import ResponseType
 def test_build():
     # Setup.
     num_sub_div_z = 20
-    c = bridge_705_config(patches=[Patch(
-        y_min=-1, y_max=1, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z)])
-    c.bridge.length = 10
+    c = bridge_705_config(
+        width=2,
+        length=10,
+        layers=[],
+        patches=[Patch(
+            y_min=-1, y_max=1, z_min=-1, z_max=1,
+            num_sub_div_z=num_sub_div_z)],
+        supports=[Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)])
     c.os_node_step = 0.5
-    c.bridge.fixed_nodes = [Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 1234)],
         response_types=[
@@ -28,6 +32,7 @@ def test_build():
     build_model(c=c, expt_params=expt_params, fem_runner=fem_runner)
     with open(fem_runner.fem_file_path(expt_params.fem_params[0])) as f:
         lines = f.readlines()
+    [print(line) for line in lines]
 
     # Test nodes.
     expected_nodes = c.bridge.length / c.os_node_step + 1
@@ -90,4 +95,3 @@ def test_build_displacement_ctrl():
                       ResponseType.YTranslation, ResponseType.Strain])])
     with pytest.raises(ValueError):
         build_model(c=c, expt_params=expt_params, fem_runner=os_runner(c))
-

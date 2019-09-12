@@ -50,21 +50,15 @@ class Fix:
 class Support3D:
     """A support of the bridge deck, when 3D modeling.
 
-    Args:
-        x: float, x position in meters of the center of the support.
-        z: float, z position in meters of the support.
-        width: float, width in meters of the support.
-        height: float, height in meters of the support.
-
         SIDE_VIEW:
         <------------x----------->
-                           <---width--->
-        |------------------|-----|-----|----------------------| ↑ h
-                            \    |    /                         | e
-                             \   |   /                          | i
-                              \  |  /                           | g
-                               \ | /                            | h
-                                \|/                             ↓ t
+                           <---length-->
+        |------------------|-----------|----------------------| ↑ h
+                            \         /                         | e
+                             \       /                          | i
+                              \     /                           | g
+                               \   /                            | h
+                                \ /                             ↓ t
 
         TOP_VIEW:
         |-----------------------------------------------------| ↑+
@@ -77,17 +71,22 @@ class Support3D:
         |-----------------------------------------------------| |
         |-----------------------------------------------------| ↓-
 
+    Args:
+        x: float, x position of the center of the support in meters.
+        z: float, z position of the support in meters.
+        length: float, length of the support in meters.
+        height: float, height of the support in meters.
+
     """
-    def __init__(
-            self, x: float, y: float, width: float, height: float):
+    def __init__(self, x: float, z: float, length: float, height: float):
         self.x = x
-        self.y = y
-        self.width = width
+        self.z = z
+        self.length = length
         self.height = height
 
 
-# Supports are either a list of 2D or 3D supports.
-Supports = Union[List[Fix], List[Support3D]]
+# Supports are either 2D or 3D supports.
+Support = Union[Fix, Support3D]
 
 
 class Point:
@@ -149,11 +148,13 @@ class Layer:
     """A straight line of fibers when describing a Section, when 2D modeling.
 
     Args:
-        y_i, z_i: float, y and z-coordinates of first fiber in line.
-        y_j, z_j: float, y and z-coordinates of last fiber in line.
-        num_fibers: int, number of fibers along line.
+        y_i, z_i: float, y and z positions in meters of the first fiber.
+        y_j, z_j: float, y and z positions in meters of the last fiber.
+        num_fibers: int, number of fibers along the line.
         area_fiber: float, area of each fiber.
         material: Material, material of the fibers.
+
+    TODO: Avoid default argument of area_fiber.
 
     """
     def __init__(
@@ -251,7 +252,6 @@ class Bridge:
         name: str, the name of the bridge.
         length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
-        height: float, height of the bridge in meters.
         supports: Supports, a list of supports for 2D or 3D modeling.
         lanes: List[Lane], lanes that span the bridge, where to place loads.
         sections: List[Section], specification of the bridge's cross section,
@@ -259,11 +259,11 @@ class Bridge:
 
     """
     def __init__(
-            self, name: str, length: float, fixed_nodes: Supports,
-            sections: List[Section], lanes: List[Lane],
-            dimensions: Dimensions = Dimensions.D2):
+            self, name: str, length: float, width: float,
+            supports: List[Support], sections: List[Section], lanes: List[Lane],
+            dimensions: Dimensions):
         self.name = name
-        self.fixed_nodes = fixed_nodes
+        self.supports = supports
         self.sections = sections
         self.lanes = lanes
         self.dimensions = dimensions
@@ -272,47 +272,23 @@ class Bridge:
         self.y_min, self.y_max = self.sections[0].y_min_max()
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_min, self.z_max = self.sections[0].z_min_max()
+        print_i(f"z_min, z_max = {self.z_min}, {self.z_max}")
         self.z_center = (self.z_min + self.z_max) / 2
-        self.length = self.x_max - self.x_min
+        self.length = length
+        self.width = width
+        print_i(f"width = {self.width}")
         self.height = self.y_max - self.y_min
-        self.width = self.z_max - self.z_min
         print_i(
             f"Bridge dimensions:"
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
-
-        assert self.length == length  # Sanity check.
-        assert self.x_min < self.x_max
-        assert self.y_min < self.y_max
-        assert self.z_min < self.z_max
-
-        if len(sections) != 1:
-            raise ValueError(f"Max 1 section supported, was {len(sections)}")
-        if self.fixed_nodes and not self.fixed_nodes[0].x:
-            raise ValueError("First fixed node must be fixed in x direction")
-        # for i, lane in enumerate(lanes):
-        #     if lane.z_min < self.z_min:
-        #         raise ValueError(
-        #             f"Lane {i} lower position {lane.z_min} less than bridge"
-        #             + f" {self.z_min}")
-        #     if lane.z_min > self.z_max:
-        #         raise ValueError(
-        #             f"Lane {i} lower position {lane.z_min} greater than bridge"
-        #             + f" {self.z_max}")
-        #     if lane.z_max < self.z_min:
-        #         raise ValueError(
-        #             f"Lane {i} upper position {lane.z_max} less than bridge"
-        #             + f" {self.z_min}")
-        #     if lane.z_min > self.z_max:
-        #         raise ValueError(
-        #             f"Lane {i} upper position {lane.z_max} greater than bridge"
-        #             + f" {self.z_max}")
+        self.assert_bridge()
 
     def x_axis(self) -> List[float]:
         """Position of supports in meters along the bridge's x-axis."""
         return np.interp(
-            [f.x_frac for f in self.fixed_nodes], [0, 1], [0, self.length])
+            [f.x_frac for f in self.supports], [0, 1], [0, self.length])
 
     def x_axis_equi(self, n) -> List[float]:
         """n equidistant values along the bridge's x-axis, in meters."""
@@ -341,6 +317,50 @@ class Bridge:
     def z(self, z_frac: float):
         assert 0 <= z_frac <= 1
         return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+
+    def assert_bridge(self):
+        """Assert this bridge makes sense."""
+        assert self.x_min < self.x_max
+        assert self.y_min < self.y_max
+        assert self.z_min < self.z_max
+        assert self.length == self.x_max - self.x_min
+        assert self.width == self.z_max - self.z_min
+        if len(self.sections) != 1:
+            raise ValueError(f"Max 1 section, was {len(self.sections)}")
+        if self.dimensions == Dimensions.D2:
+            self.assert_2d()
+        else:
+            self.assert_3d()
+
+    def assert_2d(self):
+        if self.supports and not self.supports[0].x:
+            raise ValueError("First fixed node must be fixed in x direction")
+        for support in self.supports:
+            if not isinstance(support, Fix):
+                raise ValueError("2D bridge must use Fix supports")
+
+    def assert_3d(self):
+        for support in self.supports:
+            if not isinstance(support, Support3D):
+                raise ValueError("3D bridge must use Support3D supports")
+
+        # for i, lane in enumerate(lanes):
+        #     if lane.z_min < self.z_min:
+        #         raise ValueError(
+        #             f"Lane {i} lower position {lane.z_min} less than bridge"
+        #             + f" {self.z_min}")
+        #     if lane.z_min > self.z_max:
+        #         raise ValueError(
+        #             f"Lane {i} lower position {lane.z_min} greater than bridge"
+        #             + f" {self.z_max}")
+        #     if lane.z_max < self.z_min:
+        #         raise ValueError(
+        #             f"Lane {i} upper position {lane.z_max} less than bridge"
+        #             + f" {self.z_min}")
+        #     if lane.z_min > self.z_max:
+        #         raise ValueError(
+        #             f"Lane {i} upper position {lane.z_max} greater than bridge"
+        #             + f" {self.z_max}")
 
 
 def _reset_model_ids():
