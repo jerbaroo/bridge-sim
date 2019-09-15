@@ -85,7 +85,7 @@ def make_dc_plots(c: Config):
     """Make plots of the displacement control responses."""
     num_ils, num_x = 100, 100
     for response_type in ResponseType:
-        for interpolate_load in [True, False]:
+        for interpolate_load in [False]:
             for interpolate_response in [True, False]:
                 interp_load_str = "-interp-load" if interpolate_load else ""
                 interp_response_str = (
@@ -94,15 +94,15 @@ def make_dc_plots(c: Config):
                 # Make the influence line imshow matrix.
                 dc_matrix = DCMatrix.load(
                     c=c, response_type=response_type, fem_runner=os_runner(c))
-                # imshow_il(
-                #     c, il_matrix=dc_matrix, num_ils=num_ils, num_x=num_x,
-                #     interpolate_load=interpolate_load,
-                #     interpolate_response=interpolate_response,
-                #     save=c.image_path(
-                #         f"ils/il-imshow-{il_matrix.fem_runner_name}"
-                #         + f"-{response_type_name(response_type)}"
-                #         + f"-{num_ils}-{num_x}" + interp_load_str
-                #         + interp_response_str))
+                imshow_il(
+                    c, il_matrix=dc_matrix, num_ils=num_ils, num_x=num_x,
+                    interpolate_load=interpolate_load,
+                    interpolate_response=interpolate_response,
+                    save=c.image_path(
+                        f"ils/il-imshow-{dc_matrix.fem_runner_name}"
+                        + f"-{response_type.name()}"
+                        + f"-{num_ils}-{num_x}" + interp_load_str
+                        + interp_response_str))
 
                 # Make the matrix of influence lines.
 

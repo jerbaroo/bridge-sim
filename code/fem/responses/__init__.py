@@ -41,7 +41,7 @@ def load_fem_responses(
     set_y_false = False
     if fem_params.displacement_ctrl is not None:
         pier = fem_params.displacement_ctrl.pier
-        fix = c.bridge.fixed_nodes[pier]
+        fix = c.bridge.supports[pier]
         if fix.y:
             fix.y = False
             set_y_false = True

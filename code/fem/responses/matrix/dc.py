@@ -42,7 +42,7 @@ class DCMatrix(ResponsesMatrix):
                 loads=[],
                 displacement_ctrl=DisplacementCtrl(displacement, i),
                 response_types=response_types)
-            for i in range(len(c.bridge.fixed_nodes))])
+            for i in range(len(c.bridge.supports))])
 
         # Calculate DCMatrix, keep a reference and return.
         c.il_matrices[id_] = DCMatrix(
