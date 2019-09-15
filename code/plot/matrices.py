@@ -13,15 +13,15 @@ D: bool = False
 
 def plot_il(
         c: Config, resp_matrix: ILMatrix, expt_index: int,
-        response_frac: float, num_x: int, interpolate_load: bool,
-        interpolate_response: bool, save: str = None, show: bool = False):
+        response_frac: float, num_x: int, interp_sim: bool,
+        interp_response: bool, save: str = None, show: bool = False):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
     rs = [
         resp_matrix.response_to(
             x_frac=response_frac, load_x_frac=load_x_frac,
-            load=c.il_unit_load_kn, interpolate_load=interpolate_load,
-            interpolate_response=interpolate_response)
+            load=c.il_unit_load_kn, interp_sim=interp_sim,
+            interp_response=interp_response)
         for load_x_frac in x_fracs]
     xs = [c.bridge.x(x_frac=x_frac) for x_frac in x_fracs]
     response_ord = response_frac * c.bridge.length
@@ -41,15 +41,15 @@ def plot_il(
 
 def plot_dc(
         c: Config, resp_matrix: ResponsesMatrix, expt_index: int,
-        response_frac: float, num_x: int, interpolate_load: bool,
-        interpolate_response: bool, save: str = None, show: bool = False):
+        response_frac: float, num_x: int, interp_sim: bool,
+        interp_response: bool, save: str = None, show: bool = False):
     """Plot the IL for a response at some position.
 
-    This function ignores the interpolate_load as it just return the response
-    due to the displacement load which was placed in the simulation, and is
-    determined by the expt_index parameter. The ignored parameters exist just
-    so the function definition is consistent with plot_il and can be passed to
-    the same functions.
+    This function ignores the interp_sim as it just return the response due to
+    the displacement load which was placed in the simulation, and is determined
+    by the expt_index parameter. The ignored parameters exist just so the
+    function definition is consistent with plot_il and can be passed to the
+    same functions.
 
     """
     print_w(f"plt.matrices.plot_dc: expt_index = {expt_index}")
@@ -57,7 +57,7 @@ def plot_dc(
     xs = fem_responses.xs
     rs = [
         resp_matrix.expt_responses[expt_index].at(
-            x_frac=c.bridge.x_frac(x), interpolate=interpolate_load)
+            x_frac=c.bridge.x_frac(x), interpolate=interp_sim)
         for x in xs]
     response_name = resp_matrix.response_type.name()
     response_units = resp_matrix.response_type.units()
@@ -111,7 +111,7 @@ def matrix_subplots(
 
 def imshow_il(
         c: Config, il_matrix: ILMatrix, num_ils: int, num_x: int,
-        interpolate_load: bool, interpolate_response: bool, save: str = None,
+        interp_sim: bool, interp_response: bool, save: str = None,
         show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
     response_fracs = np.linspace(0, 1, num_ils)
@@ -123,8 +123,8 @@ def imshow_il(
             print_d(D, f"response frac = {response_frac}, load_x_frac = {load_x_frac}")
             value = il_matrix.response_to(
                 x_frac=response_frac, load_x_frac=load_x_frac,
-                load=c.il_unit_load_kn, interpolate_load=interpolate_load,
-                interpolate_response=interpolate_response)
+                load=c.il_unit_load_kn, interp_sim=interp_sim,
+                interp_response=interp_response)
             print_d(D, f"value = {value}, response_frac = {response_frac}, load_x_frac = {load_x_frac}")
             matrix[-1].append(value)
     # matrix = [
@@ -139,7 +139,7 @@ def imshow_il(
     plt.colorbar()
     plt.ylabel("load index")
     plt.xlabel("sensor index")
-    plt.title(f"{il_matrix.fem_runner_name} influence lines")
+    plt.title(f"{il_matrix.fem_runner.name} influence lines")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()

@@ -3,7 +3,7 @@ import numpy as np
 
 from config import Config
 from fem.responses.matrix.dc import DCMatrix
-from fem.responses.matrix.il import load_il_matrix
+from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import os_runner
 from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
@@ -20,7 +20,7 @@ from vehicles.sample import sample_vehicle
 def make_bridge_plots(c: Config):
     """Make plots of the bridge with and without load."""
     plot_bridge_first_section(
-        c=c.bridge, save=c.image_path("bridges/bridge-section"))
+        bridge=c.bridge, save=c.image_path("bridges/bridge-section"))
     for loads in [
             [],
             [Load(0.4, 500)],
@@ -36,28 +36,28 @@ def make_bridge_plots(c: Config):
             save=c.image_path(f"bridges/top-{load_str}"))
 
 
-def make_il_plots(c: Config):
+def make_il_plots(c: Config, num_ils: int = 100, num_x: int = 100):
     """Make plots of the influence lines."""
-    num_ils, num_x = 100, 100
+    num_ils, num_x = 10, 10
+    original_num_ils = c.il_num_loads
+    c.il_num_loads = num_ils
     for response_type in ResponseType:
-        for interpolate_load in [True, False]:
-            for interpolate_response in [True, False]:
-                interp_load_str = "-interp-load" if interpolate_load else ""
+        for interp_sim in [False]:
+            for interp_response in [False]:
+                interp_sim_str = "-interp-sim" if interp_sim else ""
                 interp_response_str = (
-                    "-interp-response" if interpolate_response else "")
+                    "-interp-response" if interp_response else "")
 
                 # Make the influence line imshow matrix.
-                il_matrix = load_il_matrix(
-                    c=c, response_type=response_type, fem_runner=os_runner(c),
-                    num_loads=num_ils)
+                il_matrix = ILMatrix.load(
+                    c=c, response_type=response_type, fem_runner=os_runner(c))
                 imshow_il(
                     c=c, il_matrix=il_matrix, num_ils=num_ils, num_x=num_x,
-                    interpolate_load=interpolate_load,
-                    interpolate_response=interpolate_response,
+                    interp_sim=interp_sim, interp_response=interp_response,
                     save=c.image_path(
-                        f"ils/il-imshow-{il_matrix.fem_runner_name}"
+                        f"ils/il-imshow-{il_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
-                        + f"-{num_ils}-{num_x}" + interp_load_str
+                        + f"-{num_ils}-{num_x}" + interp_sim_str
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
@@ -69,39 +69,40 @@ def make_il_plots(c: Config):
                     return plot_il(
                         c=c, resp_matrix=resp_matrix, expt_index=expt_index,
                         response_frac=response_frac, num_x=num_x,
-                        interpolate_load=interpolate_load,
-                        interpolate_response=interpolate_response)
+                        interp_sim=interp_sim, interp_response=interp_response)
 
                 matrix_subplots(
                     c=c, resp_matrix=il_matrix, num_x=num_x,
                     plot_func=plot_func, save=c.image_path(
-                        f"ils/il-subplots-{il_matrix.fem_runner_name}"
+                        f"ils/il-subplots-{il_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
                         + f"-numexpts-{il_matrix.num_expts}"
-                        + interp_load_str + interp_response_str))
+                        + interp_sim_str + interp_response_str))
+    c.il_num_loads = original_num_ils
 
 
-def make_dc_plots(c: Config):
+def make_dc_plots(c: Config, num_ils: int = 100, num_x: int = 100):
     """Make plots of the displacement control responses."""
-    num_ils, num_x = 100, 100
+    num_ils, num_x = 10, 10
+    original_num_ils = c.il_num_loads
+    c.il_num_loads = num_ils
     for response_type in ResponseType:
-        for interpolate_load in [False]:
-            for interpolate_response in [True, False]:
-                interp_load_str = "-interp-load" if interpolate_load else ""
+        for interp_sim in [False]:
+            for interp_response in [False]:
+                interp_sim_str = "-interp-sim" if interp_sim else ""
                 interp_response_str = (
-                    "-interp-response" if interpolate_response else "")
+                    "-interp-response" if interp_response else "")
 
                 # Make the influence line imshow matrix.
                 dc_matrix = DCMatrix.load(
                     c=c, response_type=response_type, fem_runner=os_runner(c))
                 imshow_il(
                     c, il_matrix=dc_matrix, num_ils=num_ils, num_x=num_x,
-                    interpolate_load=interpolate_load,
-                    interpolate_response=interpolate_response,
+                    interp_sim=interp_sim, interp_response=interp_response,
                     save=c.image_path(
-                        f"ils/il-imshow-{dc_matrix.fem_runner_name}"
+                        f"ils/il-imshow-{dc_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
-                        + f"-{num_ils}-{num_x}" + interp_load_str
+                        + f"-{num_ils}-{num_x}" + interp_sim_str
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
@@ -113,16 +114,16 @@ def make_dc_plots(c: Config):
                     return plot_dc(
                         c=c, resp_matrix=resp_matrix, expt_index=expt_index,
                         response_frac=response_frac, num_x=num_x,
-                        interpolate_load=interpolate_load,
-                        interpolate_response=interpolate_response)
+                        interp_sim=interp_sim, interp_response=interp_response)
 
                 matrix_subplots(
                     c=c, resp_matrix=dc_matrix, num_x=num_x,
                     plot_func=plot_func, save=c.image_path(
-                        f"dcs/dc-subplots-{dc_matrix.fem_runner_name}"
+                        f"dcs/dc-subplots-{dc_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
                         + f"-numexpts-{dc_matrix.num_expts}"
-                        + interp_load_str + interp_response_str))
+                        + interp_sim_str + interp_response_str))
+    c.il_num_loads = original_num_ils
 
 
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
@@ -181,14 +182,10 @@ def make_all(c: Config, clean = True):
     """Make all plots for the thesis."""
     if clean:
         clean_generated(c)
-    # make_bridge_plots(c)
-    # make_il_plots(c)
+    make_bridge_plots(c)
+    make_il_plots(c)
     make_dc_plots(c)
     # make_normal_mv_load_animations(c)
     # make_normal_mv_load_animations(c, per_axle=True)
     # make_vehicle_plots(c)
     # make_event_plots_from_normal_mv_loads(c)
-
-
-if __name__ == "__main__":
-    make_all(bridge_705_config(), clean=True)

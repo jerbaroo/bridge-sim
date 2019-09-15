@@ -16,25 +16,26 @@ class ResponsesMatrix:
     """Indexed responses of one sensor type for a number of simulations."""
     def __init__(
             self, c: Config, response_type: ResponseType,
-            expt_params: ExptParams, fem_runner_name: str,
-            expt_responses: List[FEMResponses]):
+            expt_params: ExptParams, fem_runner: FEMRunner,
+            expt_responses: List[FEMResponses], save_all: bool):
         self.c = c
         self.response_type = response_type
         self.expt_params = expt_params
-        self.fem_runner_name = fem_runner_name
+        self.fem_runner = fem_runner
         self.expt_responses = expt_responses
         self.num_expts = len(expt_responses)
+        self.save_all = save_all
 
     def file_paths(self):
         """A unique file path for each simulation's responses."""
         return [fem_responses_path(
                     self.c, fem_params, self.response_type,
-                    self.fem_runner_name)
+                    self.fem_runner.name)
                 for fem_params in self.expt_params.fem_params]
 
-    def _response(
+    def sim_response(
             self, expt_frac: float, x_frac: float, y_frac: float = 0,
-            z_frac: float = 0, time_index: int = 0, interp_load: bool = False,
+            z_frac: float = 0, time_index: int = 0, interp_sim: bool = False,
             interp_response: bool = False) -> Response:
         """The response at a position for a simulation.
 
@@ -44,7 +45,7 @@ class ResponsesMatrix:
             y_frac: float, response position on y-axis in [0 1].
             z_frac: float, response position on z-axis in [0 1].
             time_index: float, response position on z-axis in [0 1].
-            interp_load: bool, whether to interpolate response from two
+            interp_sim: bool, whether to interpolate response from two
                 simulations.
             interp_response: bool, whether to interpolate the response from the
                 8 closest points of a cuboid.
@@ -55,12 +56,12 @@ class ResponsesMatrix:
 
         # If an experiment index matches exactly, or not interpolating.
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        if expt_ind == int(expt_ind) or not interp_load:
+        if expt_ind == int(expt_ind) or not interp_sim:
             return self.expt_responses[int(expt_ind)].at(
                 x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
                 time_index=time_index, interpolate=interp_response)
 
-        assert interp_load
+        assert interp_sim
         # Else interpolate responses between two experiment indices.
         expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
         expt_lo_frac, expt_hi_frac = np.interp(

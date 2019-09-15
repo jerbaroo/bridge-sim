@@ -4,7 +4,7 @@ from typing import List, Optional
 import numpy as np
 
 from config import Config
-from fem.responses.matrix.il import load_il_matrix
+from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model import Response
 from model.bridge import Bridge, Point
@@ -27,12 +27,12 @@ def response_to_mv_load(
     assert on_bridge(bridge=c.bridge, mv_load=mv_load, time=time)
 
     load_x_frac = mv_load.x_frac_at(time=time, bridge=c.bridge)
-    il_matrix = load_il_matrix(
+    il_matrix = ILMatrix.load(
         c=c, response_type=response_type, fem_runner=fem_runner)
 
     # Point load.
     if mv_load.load.is_point_load():
-        return il_matrix.response(
+        return il_matrix.response_to(
             x_frac=c.bridge.x_frac(at.x), load_x_frac=load_x_frac,
             load=mv_load.load.kn)
 
@@ -44,7 +44,7 @@ def response_to_mv_load(
             if i != 0:
                 axle_distance = mv_load.load.axle_distances[i - 1] / 100
                 load_x_frac += c.bridge.x_frac(axle_distance)
-            axle_responses.append(il_matrix.response(
+            axle_responses.append(il_matrix.response_to(
                 x_frac=c.bridge.x_frac(x=at.x), load_x_frac=load_x_frac,
                 load=mv_load.load.kn))
 

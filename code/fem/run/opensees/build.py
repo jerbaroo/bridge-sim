@@ -54,9 +54,9 @@ def opensees_loads(c: Config, fem_params: FEMParams):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
         return f"load {nid} 0 {l.kn * 1000} 0"
 
-    # TODO: Why 10 kN for displacement control?
     if fem_params.displacement_ctrl is not None:
-        fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
+        fix = c.bridge.supports[fem_params.displacement_ctrl.pier]
+        # The applied load is ignored for displacement control, I think..
         return opensees_load(Load(x_frac=fix.x_frac, kn=10))
 
     return "\n".join(opensees_load(l) for l in fem_params.loads)
@@ -150,7 +150,7 @@ def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
     """OpenSees integrator command."""
     if displacement_ctrl is None:
         return "integrator LoadControl 1"
-    fix = c.bridge.fixed_nodes[displacement_ctrl.pier]
+    fix = c.bridge.supports[displacement_ctrl.pier]
     nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
     return (f"integrator DisplacementControl {nid} 2"
             + f" {displacement_ctrl.displacement}")
@@ -184,7 +184,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
         # for displacement.
         if fem_params.displacement_ctrl is not None:
             print_d(D, "Displacement control!")
-            fix = c.bridge.fixed_nodes[fem_params.displacement_ctrl.pier]
+            fix = c.bridge.supports[fem_params.displacement_ctrl.pier]
             if fix.y:
                 nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
                 raise ValueError(

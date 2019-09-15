@@ -1,13 +1,15 @@
-"""Test that OpenSees builds model files correctly."""
+"""Test that response matrices are loaded correctly."""
 import os
 from timeit import default_timer as timer
 
 from fem.responses.matrix.dc import DCMatrix
-from fem.responses.matrix.il import load_il_matrix
+from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import os_runner
 from model.bridge.bridge_705 import bridge_705_config
 from model.response import ResponseType
 from util import print_d
+
+# TODO: Very bad test!
 
 # Print debug information for this file.
 D: bool = False
@@ -31,7 +33,7 @@ def test_os_il_matrix():
 
     # Test time for one simulation.
     start = timer()
-    load_il_matrix(
+    ILMatrix.load(
         c=c, response_type=response_type, fem_runner=fem_runner, num_loads=1,
         save_all=False)
     time = timer() - start
@@ -43,7 +45,7 @@ def test_os_il_matrix():
     # Test time for saving all responses.
     clean()
     start = timer()
-    load_il_matrix(c, response_type, fem_runner, num_loads=1, save_all=True)
+    ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)
     time = timer() - start
     assert 0.5 < time < 4
 
@@ -72,9 +74,9 @@ def test_load_all_os_matrices():
     c.il_matrices = dict()
     # Should run fast after the first time (may also be fast).
     # The second time should only require loading from disk.
-    load_il_matrix(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
     c.il_matrices = dict()
     start = timer()
-    load_il_matrix(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
     time = timer() - start
     assert 1 < time < 4
