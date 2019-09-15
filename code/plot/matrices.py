@@ -114,8 +114,8 @@ def imshow_il(
         interp_sim: bool, interp_response: bool, save: str = None,
         show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
-    response_fracs = np.linspace(0, 1, num_ils)
-    x_fracs = np.linspace(0, 1, num_x)
+    response_fracs = np.linspace(0, 1, num_x)
+    x_fracs = np.linspace(0, 1, num_ils)
     matrix = []
     for response_frac in response_fracs:
         matrix.append([])

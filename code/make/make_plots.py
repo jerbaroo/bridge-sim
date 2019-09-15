@@ -5,7 +5,7 @@ from config import Config
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import os_runner
-from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
+from plot import animate_mv_load, plt, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.vehicles import plot_density, plot_length_vs_axles, plot_length_vs_weight, plot_weight_vs_axles
@@ -19,6 +19,7 @@ from vehicles.sample import sample_vehicle
 
 def make_bridge_plots(c: Config):
     """Make plots of the bridge with and without load."""
+    plt.close()
     plot_bridge_first_section(
         bridge=c.bridge, save=c.image_path("bridges/bridge-section"))
     for loads in [
@@ -36,9 +37,15 @@ def make_bridge_plots(c: Config):
             save=c.image_path(f"bridges/top-{load_str}"))
 
 
-def make_il_plots(c: Config, num_ils: int = 100, num_x: int = 100):
-    """Make plots of the influence lines."""
-    num_ils, num_x = 10, 10
+def make_il_plots(c: Config, num_ils: int = 10, num_x: int = 100):
+    """Make plots of the influence lines.
+
+    Args:
+        num_ils: int, the number of simulations to load via ILMatrix.
+        num_x: int, the number of points on x-axis to plot.
+
+    """
+    plt.close()
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_ils
     for response_type in ResponseType:
@@ -57,7 +64,7 @@ def make_il_plots(c: Config, num_ils: int = 100, num_x: int = 100):
                     save=c.image_path(
                         f"ils/il-imshow-{il_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
-                        + f"-{num_ils}-{num_x}" + interp_sim_str
+                        + f"-{c.il_num_loads}-{num_x}" + interp_sim_str
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
@@ -81,9 +88,16 @@ def make_il_plots(c: Config, num_ils: int = 100, num_x: int = 100):
     c.il_num_loads = original_num_ils
 
 
-def make_dc_plots(c: Config, num_ils: int = 100, num_x: int = 100):
-    """Make plots of the displacement control responses."""
-    num_ils, num_x = 10, 10
+def make_dc_plots(c: Config, num_ils: int = 10, num_x: int = 100):
+    """Make plots of the displacement control responses.
+
+    Args:
+        num_ils: int, the number of simulations to load via ILMatrix.
+        num_x: int, the number of points on x-axis to plot.
+
+    """
+    plt.close()
+    num_dcs = len(c.bridge.supports)
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_ils
     for response_type in ResponseType:
@@ -97,12 +111,12 @@ def make_dc_plots(c: Config, num_ils: int = 100, num_x: int = 100):
                 dc_matrix = DCMatrix.load(
                     c=c, response_type=response_type, fem_runner=os_runner(c))
                 imshow_il(
-                    c, il_matrix=dc_matrix, num_ils=num_ils, num_x=num_x,
+                    c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
                     interp_sim=interp_sim, interp_response=interp_response,
                     save=c.image_path(
-                        f"ils/il-imshow-{dc_matrix.fem_runner.name}"
+                        f"dcs/dc-imshow-{dc_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
-                        + f"-{num_ils}-{num_x}" + interp_sim_str
+                        + f"-{num_dcs}-{num_x}" + interp_sim_str
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
@@ -128,6 +142,7 @@ def make_dc_plots(c: Config, num_ils: int = 100, num_x: int = 100):
 
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a load moving across a bridge."""
+    plt.close()
     mv_load = MovingLoad.from_vehicle(
         x_frac=0, vehicle=sample_vehicle(c), lane=0)
     per_axle_str = f"-peraxle" if per_axle else ""
@@ -141,6 +156,7 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
 
 
 def make_vehicle_plots(c: Config):
+    plt.close()
     """Plot vehicle information based on Config.vehicle_density."""
     plot_density(c, save=c.image_path(
         f"vehicles/{c.bridge.name}-density"))
