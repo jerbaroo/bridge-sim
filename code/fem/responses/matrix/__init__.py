@@ -1,41 +1,23 @@
 """Responses of one type for a number of related simulations."""
-from typing import List
+from typing import Callable, List
 
 import numpy as np
 
 from config import Config
 from fem.params import ExptParams
-from fem.responses import fem_responses_path, FEMResponses, load_fem_responses
+from fem.responses import FEMResponses, fem_responses_path, load_fem_responses
 from fem.run import FEMRunner
 from model import Response
 from model.response import ResponseType
 from util import print_i
 
-# TODO: Replace by ResponsesMatrix (renamed to ExptResponses).
-ExptResponses = List[FEMResponses]
 
-
-# TODO: return ResponsesMatrix.
-def load_expt_responses(
-        c: Config, expt_params: ExptParams, response_type: ResponseType,
-        fem_runner: FEMRunner) -> ExptResponses:
-    """Load responses of one sensor type for related simulations."""
-    results = []
-    for i, fem_params in enumerate(expt_params.fem_params):
-        results.append(load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner))
-        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
-    return results
-
-
-# TODO: Replace ExptResponses.
 class ResponsesMatrix:
-    """Responses of one sensor type for a number of simulations."""
+    """Indexed responses of one sensor type for a number of simulations."""
     def __init__(
             self, c: Config, response_type: ResponseType,
             expt_params: ExptParams, fem_runner_name: str,
-            expt_responses: ExptResponses):
+            expt_responses: List[FEMResponses]):
         self.c = c
         self.response_type = response_type
         self.expt_params = expt_params
@@ -50,11 +32,10 @@ class ResponsesMatrix:
                     self.fem_runner_name)
                 for fem_params in self.expt_params.fem_params]
 
-    def response(
+    def _response(
             self, expt_frac: float, x_frac: float, y_frac: float = 0,
-            z_frac: float = 0, time_index: int = 0,
-            interp_load: bool = False, interp_response: bool = False
-            ) -> Response:
+            z_frac: float = 0, time_index: int = 0, interp_load: bool = False,
+            interp_response: bool = False) -> Response:
         """The response at a position for a simulation.
 
         Args:
@@ -63,10 +44,10 @@ class ResponsesMatrix:
             y_frac: float, response position on y-axis in [0 1].
             z_frac: float, response position on z-axis in [0 1].
             time_index: float, response position on z-axis in [0 1].
-            interp_load: bool, whether to interpolate the response between
-                responses from two simulations.
-            interp_response: bool, whether to interpolate the response between
-                the 8 closest points of a cuboid.
+            interp_load: bool, whether to interpolate response from two
+                simulations.
+            interp_response: bool, whether to interpolate the response from the
+                8 closest points of a cuboid.
 
         """
         assert 0 <= expt_frac <= 1
@@ -98,3 +79,39 @@ class ResponsesMatrix:
             [response_lo, response_hi])
         # print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
         return response
+
+    @staticmethod
+    def load(
+            c: Config, id_str: str, expt_params: ExptParams,
+            load_func: Callable[[ExptParams], "ResponsesMatrix"],
+            save_all: bool
+            ) -> "ResponsesMatrix":
+        """Load a ResponsesMatrix, running simulations first if necessary."""
+        # Load ResponsesMatrix if already available.
+        if id_str in c.resp_matrices:
+            return c.resp_matrices[id_str]
+        # If save_all then set each FEMParams to all ResponseTypes.
+        if save_all:
+            response_types = [rt for rt in ResponseType]
+            for fem_params in expt_params.fem_params:
+                fem_params.response_types = response_types
+        resp_matrix = load_func(expt_params)
+        c.resp_matrices[id_str] = resp_matrix
+        return resp_matrix
+
+
+def load_expt_responses(
+        c: Config, expt_params: ExptParams, response_type: ResponseType,
+        fem_runner: FEMRunner) -> List[FEMResponses]:
+    """Load responses of one sensor type for related simulations.
+
+    Returns a list of FEMResponses for constructing a ResponsesMatrix.
+
+    """
+    results = []
+    for i, fem_params in enumerate(expt_params.fem_params):
+        results.append(load_fem_responses(
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner))
+        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
+    return results

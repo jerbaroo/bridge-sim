@@ -9,7 +9,6 @@ from model.response import ResponseType
 class DCMatrix(ResponsesMatrix):
     """Responses of one sensor type for displacement control simulations."""
 
-    # TODO Factor out to ResponsesMatrix.load.
     @staticmethod
     def load(
             c: Config, response_type: ResponseType, fem_runner: FEMRunner,
@@ -17,8 +16,8 @@ class DCMatrix(ResponsesMatrix):
         """Load a DCMatrix from disk, running simulations first if necessary.
 
         Args:
-            c: Config, global configuration.
-            response_type: ResponseType, the type of response to load.
+            c: Config, global configuration object.
+            response_type: ResponseType, the type of sensor response to load.
             fem_runner: FEMRunner, the FEM program to run simulations with.
             displacement: float, the displacement at each pier in meters.
             save_all: bool, save all response types when running a simulation.
@@ -30,8 +29,8 @@ class DCMatrix(ResponsesMatrix):
 
         # Return ILMatrix if already calculated.
         id_ = dc_matrix_id()
-        if id_ in c.il_matrices:
-            return c.il_matrices[id_]
+        if id_ in c.resp_matrices:
+            return c.resp_matrices[id_]
 
         # Determine simulation parameters.
         # If save_all is true pass all response types.
@@ -45,7 +44,7 @@ class DCMatrix(ResponsesMatrix):
             for i in range(len(c.bridge.supports))])
 
         # Calculate DCMatrix, keep a reference and return.
-        c.il_matrices[id_] = DCMatrix(
+        c.resp_matrices[id_] = DCMatrix(
             c, response_type, expt_params, fem_runner.name,
             load_expt_responses(c, expt_params, response_type, fem_runner))
-        return c.il_matrices[id_]
+        return c.resp_matrices[id_]

@@ -32,7 +32,7 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= x_frac <= 1
         assert 0 <= load_x_frac <= 1
         print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
-        response = super().response(
+        response = super()._response(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
             time_index=time_index, interp_load=interp_load,
             interp_response=interp_response)
@@ -51,28 +51,24 @@ def load_il_matrix(
         save_all: bool, save all response types when running a simulation.
 
     """
+    id_str = (
+        f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
+        + f"-{c.il_num_loads}")
 
-    def il_matrix_id() -> str:
-        return (f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
-                + f"-{c.il_num_loads}")
-
-    # Return ILMatrix if already calculated.
-    id_ = il_matrix_id()
-    if id_ in c.il_matrices:
-        return c.il_matrices[id_]
-
-    # Determine simulation parameters.
-    # If save_all is true pass all response types.
-    response_types = (
-        [rt for rt in ResponseType] if save_all else [response_type])
-    expt_params = ExptParams([
+    # Determine experiment simulation parameters.
+    _expt_params = ExptParams([
         FEMParams(
             loads=[Load(x_frac, c.il_unit_load_kn)],
-            response_types=response_types)
+            response_types=[response_type])
         for x_frac in np.linspace(0, 1, c.il_num_loads)])
 
-    # Calculate ILMatrix, keep a reference and return.
-    c.il_matrices[id_] = ILMatrix(
-        c, response_type, expt_params, fem_runner.name,
-        load_expt_responses(c, expt_params, response_type, fem_runner))
-    return c.il_matrices[id_]
+    def load_func(expt_params):
+        return ILMatrix(
+            c=c, response_type=response_type, expt_params=expt_params,
+            fem_runner_name=fem_runner.name,
+            expt_responses=load_expt_responses(
+                c, expt_params, response_type, fem_runner))
+
+    return ResponsesMatrix.load(
+        c=c, id_str=id_str, expt_params=_expt_params, load_func=load_func,
+        save_all=save_all)

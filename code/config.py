@@ -31,7 +31,7 @@ class Config:
         generated_dir: str, directory where to save generated files.
 
     Attrs:
-        il_matrices: Dict[str, ILMatrix], IL matrices kept in memory.
+        resp_matrices: Dict[str, ResponsesMatrix], response matrices kept in memory.
         perturb_stddev: float, standard deviation to perturb a vehicle column.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
@@ -100,7 +100,7 @@ class Config:
         # Influence lines.
         self.fem_responses_path_prefix: str = os.path.join(
             self.generated_dir, "responses/responses")
-        self.il_matrices = dict()
+        self.resp_matrices = dict()
         self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000
 
