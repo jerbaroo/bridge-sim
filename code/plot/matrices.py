@@ -73,14 +73,15 @@ def plot_dc(
 
 
 def matrix_subplots(
-        c: Config, resp_matrix: ResponsesMatrix, num_x: int, rows: int = 4,
-        cols: int = None, save: str = None, show: bool = False, plot_func = None
+        c: Config, resp_matrix: ResponsesMatrix, num_subplots: int, num_x: int,
+        rows: int = 4, cols: int = None, save: str = None, show: bool = False,
+        plot_func = None
         ):
     """For each subplot plot matrix responses using the given function."""
     print_w(f"num_expts = {resp_matrix.num_expts}")
     if cols is None:
-        cols = int(resp_matrix.num_expts / rows)
-        if cols != resp_matrix.num_expts / rows:
+        cols = int(num_subplots / rows)
+        if cols != num_subplots / rows:
             print_w("Rows don't divide number of simulations")
             cols += 1
     y_min, y_max = 0, 0
@@ -114,25 +115,18 @@ def imshow_il(
         interp_sim: bool, interp_response: bool, save: str = None,
         show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
-    response_fracs = np.linspace(0, 1, num_x)
-    x_fracs = np.linspace(0, 1, num_ils)
+    il_fracs = np.linspace(0, 1, num_ils)
+    load_x_fracs = np.linspace(0, 1, num_x)
     matrix = []
-    for response_frac in response_fracs:
+    for il_frac in il_fracs:
         matrix.append([])
-        for load_x_frac in x_fracs:
-            print_d(D, f"response frac = {response_frac}, load_x_frac = {load_x_frac}")
+        for load_x_frac in load_x_fracs:
             value = il_matrix.response_to(
-                x_frac=response_frac, load_x_frac=load_x_frac,
+                x_frac=il_frac, load_x_frac=load_x_frac,
                 load=c.il_unit_load_kn, interp_sim=interp_sim,
                 interp_response=interp_response)
-            print_d(D, f"value = {value}, response_frac = {response_frac}, load_x_frac = {load_x_frac}")
+            print_d(D, f"value = {value}, il_frac = {il_frac}, load_x_frac = {load_x_frac}")
             matrix[-1].append(value)
-    # matrix = [
-    #     [il_matrix.response_to(
-    #         resp_x_frac=response_frac, load_x_frac=load_x_frac,
-    #         load=c.il_unit_load_kn)
-    #      for load_x_frac in x_fracs]
-    #     for response_frac in response_fracs]
     print(np.amax(np.array(matrix)))
     print(np.amin(np.array(matrix)))
     plt.imshow(matrix, aspect="auto")

@@ -10,7 +10,7 @@ from model.response import ResponseType
 class DCMatrix(ResponsesMatrix):
     """Responses of one sensor type for displacement control simulations.
 
-    Note the displacement is set when loading an instance of this class.
+    Note displacement meters is set when loading an instance of this class.
 
     """
 
