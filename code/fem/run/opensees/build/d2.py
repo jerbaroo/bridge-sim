@@ -1,5 +1,6 @@
 """Build OpenSees 2D model files."""
 from __future__ import annotations
+
 import numpy as np
 
 from config import Config
@@ -174,14 +175,16 @@ uniaxialMaterial Elastic 2 2.0000000e+11
 
 
 def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
-    """Build OpenSees model files."""
+    """Build OpenSees 2D model files."""
+    # Read in the template model file.
+    with open(c.os_model_template_path) as f:
+        in_tcl = f.read()
+    # Build a model file for each simulation.
     for fem_params in expt_params.fem_params:
-        print_i(f"OpenSees: building model file with"
-                + f" {c.os_num_elems()} elements,"
-                + f" {c.os_node_step} element length")
-
-        # For displacement control the support must not be fixed in y
-        # translation.
+        print_i(f"OpenSees: building 2D model, {c.os_num_nodes()} nodes,"
+                + f" {c.os_node_step} node step")
+        # For displacement control the support in question must not be fixed in
+        # y translation.
         if fem_params.displacement_ctrl is not None:
             print_d(D, "Displacement control!")
             fix = c.bridge.supports[fem_params.displacement_ctrl.pier]
@@ -190,10 +193,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
                 raise ValueError(
                     f"Displacement control node ({nid}) not fixed in y"
                     + " direction.")
-
-        with open(c.os_model_template_path) as f:
-            in_tcl = f.read()
-
+        # Replace template with generated TCL code.
         out_tcl = (
             in_tcl
             .replace("<<NODES>>", opensees_nodes(c))
@@ -211,9 +211,9 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
                 c, fem_params.displacement_ctrl))
             .replace("<<RECORDERS>>", opensees_recorders(
                 c, fem_runner, fem_params)))
-
+        # Write the generated model file.
         model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
-        print_i(f"OpenSees: saving model file to {model_path}")
         with open(model_path, "w") as f:
             f.write(out_tcl)
+        print_i(f"OpenSees: saved 2D model file to {model_path}")
     return expt_params

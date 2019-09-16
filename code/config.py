@@ -129,6 +129,7 @@ class Config:
         self.os_node_step: float = 0.2
         self.os_exe_path: str = "/Users/jeremy/Downloads/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
+        self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
         # Make directories.
         for directory in [self.generated_dir, self.images_dir]:

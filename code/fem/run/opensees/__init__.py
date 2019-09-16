@@ -20,10 +20,10 @@ class OSRunner(FEMRunner):
             fem_params=fem_params, ext="out", append=f"node-{axis}")
 
     def x_translation_path(self, fem_params: FEMParams):
-        return self.translation_path(fem_params, "x")
+        return self.translation_path(fem_params=fem_params, axis="x")
 
     def y_translation_path(self, fem_params: FEMParams):
-        return self.translation_path(fem_params, "y")
+        return self.translation_path(fem_params=fem_params, axis="y")
 
     def patch_paths(self, fem_params: FEMParams, patch: Patch):
         return [
