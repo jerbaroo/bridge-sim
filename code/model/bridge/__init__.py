@@ -1,5 +1,5 @@
 """Model of a bridge."""
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 from enum import Enum
 
 import numpy as np
@@ -46,6 +46,14 @@ class Fix:
         self.z: bool = z
         self.rot: bool = rot
 
+    def y_min_max(self) -> Tuple[None, None]:
+        """The min and max values in y direction for this support."""
+        return None, None
+
+    def z_min_max(self) -> Tuple[None, None]:
+        """The min and max values in z direction for this support."""
+        return None, None
+
 
 class Support3D:
     """A support of the bridge deck, when 3D modeling.
@@ -66,23 +74,52 @@ class Support3D:
         |-----------------------------------------------------| |
         |-----------------------------------------------------| |
         |-----------------------------------------------------| 0
-        |-----------------------------------------------------| |
+        |------------------|-----------|----------------------| |
         |------------------|-----------|----------------------| | z = -2
-        |-----------------------------------------------------| |
+        |------------------|-----------|----------------------| |
         |-----------------------------------------------------| ↓-
+
+        FRONT_VIEW:
+                           <---width-top---->
+                           |----------------|
+                            \              /
+                             \            /
+                              \          /
+                               \        /
+                                \______/
+                                <------>
+                              width-bottom
 
     Args:
         x: float, x position of the center of the support in meters.
         z: float, z position of the support in meters.
         length: float, length of the support in meters.
         height: float, height of the support in meters.
+        width_top: float, width of the top of the support in meters.
+        width_bottom: float, width of the bottom of the support in meters.
 
     """
-    def __init__(self, x: float, z: float, length: float, height: float):
+    def __init__(
+            self, x: float, z: float, length: float, height: float,
+            width_top: float, width_bottom: float):
         self.x = x
         self.z = z
         self.length = length
         self.height = height
+        self.width_top = width_top
+        self.width_bottom = width_bottom
+        if self.width_top < self.width_bottom:
+            raise ValueError(
+                "Support3D: top width must be greater than bottom width")
+
+    def y_min_max(self) -> Tuple[float, float]:
+        """The min and max values in y direction for this section."""
+        return -self.height, 0
+
+    def z_min_max(self) -> Tuple[float, float]:
+        """The min and max values in z direction for this section."""
+        half_width = self.width_top / 2
+        return self.z - half_width, self.z + half_width
 
 
 # Supports are either 2D or 3D supports.
@@ -211,14 +248,14 @@ class Patch:
             for sub_div_z in range(self.num_sub_div_z)]
 
 
-class Section:
-    """A section composed of fibers (Patch and Layer), when 2D modeling."""
+class Section2D:
+    """A section when 2D modeling, composed of fibers (Patch and Layer)."""
 
     next_id = 1
 
     def __init__(self, patches: List[Patch] = [], layers: List[Layer] = []):
-        self.id = Section.next_id
-        Section.next_id += 1
+        self.id = Section2D.next_id
+        Section2D.next_id += 1
         self.patches = patches
         self.layers = layers
 
@@ -245,6 +282,36 @@ class Section:
         return self._min_max(lambda p: p.z)
 
 
+class Section3D:
+    """A section when 3D modeling, density, thickness and young's modulus.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young's modulus of the section MPa.
+        start_x_frac: float, start of this section as a fraction of x position
+            in meters.
+
+    """
+    def __init__(
+            self, density: float, thickness: float, youngs: float,
+            start_x_frac: float = 0):
+        self.density = density
+        self.thickness = thickness
+        self.youngs = youngs
+
+    def y_min_max(self) -> Tuple[float, float]:
+        """The min and max values in y for this section."""
+        return -self.thickness, 0
+
+    def z_min_max(self) -> Tuple[None, None]:
+        return None, None
+
+
+# Sections are either 2D or 3D sections.
+Section = Union[Section2D, Section3D]
+
+
 class Bridge:
     """A bridge specification.
 
@@ -252,7 +319,7 @@ class Bridge:
         name: str, the name of the bridge.
         length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
-        supports: Supports, a list of supports for 2D or 3D modeling.
+        supports: List[Support], a list of supports for 2D or 3D modeling.
         lanes: List[Lane], lanes that span the bridge, where to place loads.
         sections: List[Section], specification of the bridge's cross section,
             only used in 2D modeling.
@@ -260,8 +327,8 @@ class Bridge:
     """
     def __init__(
             self, name: str, length: float, width: float,
-            supports: List[Support], sections: List[Section], lanes: List[Lane],
-            dimensions: Dimensions):
+            supports: List[Support], sections: List[Section],
+            lanes: List[Lane], dimensions: Dimensions):
         self.name = name
         self.supports = supports
         self.sections = sections
@@ -269,9 +336,9 @@ class Bridge:
         self.dimensions = dimensions
         self.x_min, self.x_max = 0, length
         self.x_center = (self.x_min + self.x_max) / 2
-        self.y_min, self.y_max = self.sections[0].y_min_max()
+        self.y_min, self.y_max = self.y_min_max()
         self.y_center = (self.y_min + self.y_max) / 2
-        self.z_min, self.z_max = self.sections[0].z_min_max()
+        self.z_min, self.z_max = self.z_min_max()
         print_i(f"z_min, z_max = {self.z_min}, {self.z_max}")
         self.z_center = (self.z_min + self.z_max) / 2
         self.length = length
@@ -283,7 +350,15 @@ class Bridge:
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
-        self.assert_bridge()
+        self._assert_bridge()
+
+    def y_min_max(self):
+        """The min and max values in y direction from supports and sections."""
+        return self._min_max(lambda s: s.y_min_max())
+
+    def z_min_max(self):
+        """The min and max values in z direction from supports and sections."""
+        return self._min_max(lambda s: s.z_min_max())
 
     def x_axis(self) -> List[float]:
         """Position of supports in meters along the bridge's x-axis."""
@@ -318,28 +393,63 @@ class Bridge:
         assert 0 <= z_frac <= 1
         return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
 
-    def assert_bridge(self):
+    def _min_max(
+            self,
+            f: Callable[
+                [Union[Support, Section]],
+                Tuple[Optional[float], Optional[float]]]
+            ) -> Tuple[float, float]:
+        """The min and max values in a direction from supports and sections."""
+        z_min, z_max = None, None
+
+        def set_z_min(z: float):
+            nonlocal z_min
+            if z is None: return
+            z_min = z if z_min is None or z < z_min else z_min
+            print(f"z_min = {z_min}")
+
+        def set_z_max(z: float):
+            nonlocal z_max
+            if z is None: return
+            z_max = z if z_max is None or z > z_max else z_max
+            print(f"z_max = {z_max}")
+
+        for section in self.sections:
+            s_z_min, s_z_max = f(section)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        for support in self.supports:
+            s_z_min, s_z_max = f(support)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        return z_min, z_max
+
+    def _assert_bridge(self):
         """Assert this bridge makes sense."""
         assert self.x_min < self.x_max
         assert self.y_min < self.y_max
         assert self.z_min < self.z_max
         assert self.length == self.x_max - self.x_min
         assert self.width == self.z_max - self.z_min
-        if len(self.sections) != 1:
-            raise ValueError(f"Max 1 section, was {len(self.sections)}")
         if self.dimensions == Dimensions.D2:
-            self.assert_2d()
+            self._assert_2d()
         else:
-            self.assert_3d()
+            self._assert_3d()
 
-    def assert_2d(self):
+    def _assert_2d(self):
         if self.supports and not self.supports[0].x:
-            raise ValueError("First fixed node must be fixed in x direction")
+            # TODO: Check self.supports[0].x == 0.
+            raise ValueError(
+                "2D bridge must have node at x=0 fixed in x direction")
+        if len(self.sections) != 1:
+            raise ValueError("2D bridge must have exactly 1 section")
         for support in self.supports:
             if not isinstance(support, Fix):
                 raise ValueError("2D bridge must use Fix supports")
 
-    def assert_3d(self):
+    def _assert_3d(self):
         for support in self.supports:
             if not isinstance(support, Support3D):
                 raise ValueError("3D bridge must use Support3D supports")
@@ -367,4 +477,4 @@ def _reset_model_ids():
     """Gets called for you when constructing a Config."""
     global _fiber_cmd_id
     _fiber_cmd_id = 1
-    Section.next_id = 1
+    Section2D.next_id = 1
