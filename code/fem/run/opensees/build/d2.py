@@ -1,4 +1,4 @@
-"""Build an OpenSees model file from a configuration."""
+"""Build OpenSees 2D model files."""
 from __future__ import annotations
 import numpy as np
 
@@ -180,8 +180,8 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
                 + f" {c.os_num_elems()} elements,"
                 + f" {c.os_node_step} element length")
 
-        # For displacement control check that the required pier is not fixed
-        # for displacement.
+        # For displacement control the support must not be fixed in y
+        # translation.
         if fem_params.displacement_ctrl is not None:
             print_d(D, "Displacement control!")
             fix = c.bridge.supports[fem_params.displacement_ctrl.pier]
