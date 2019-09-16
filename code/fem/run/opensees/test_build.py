@@ -60,12 +60,11 @@ def test_build_displacement_ctrl():
     c = bridge_705_config()
     c.bridge.length = 10
     c.os_node_step = 0.5
-    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
-    expt_params = ExptParams([
-        FEMParams(displacement_ctrl=DisplacementCtrl(0.1, 1),
-                  loads=[],
-                  response_types=[
-                      ResponseType.YTranslation, ResponseType.Strain])])
+    c.bridge.supports = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
+    expt_params = ExptParams([FEMParams(
+        displacement_ctrl=DisplacementCtrl(0.1, 1),
+        loads=[],
+        response_types=[ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read.
     build_model(c, expt_params, os_runner(c))
@@ -78,7 +77,7 @@ def test_build_displacement_ctrl():
                for line in lines)
 
     # No error if the displacement control node is not fixed in y direction.
-    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5, y=False), Fix(1, y=True)]
+    c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=False), Fix(1, y=True)]
     expt_params = ExptParams([
         FEMParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
                   loads=[],
@@ -87,7 +86,7 @@ def test_build_displacement_ctrl():
     build_model(c=c, expt_params=expt_params, fem_runner=os_runner(c))
 
     # Error if the displacement control node is fixed in y direction.
-    c.bridge.fixed_nodes = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
+    c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
     expt_params = ExptParams([
         FEMParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
                   loads=[],

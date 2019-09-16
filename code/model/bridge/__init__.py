@@ -339,11 +339,9 @@ class Bridge:
         self.y_min, self.y_max = self.y_min_max()
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_min, self.z_max = self.z_min_max()
-        print_i(f"z_min, z_max = {self.z_min}, {self.z_max}")
         self.z_center = (self.z_min + self.z_max) / 2
         self.length = length
         self.width = width
-        print_i(f"width = {self.width}")
         self.height = self.y_max - self.y_min
         print_i(
             f"Bridge dimensions:"
@@ -406,13 +404,11 @@ class Bridge:
             nonlocal z_min
             if z is None: return
             z_min = z if z_min is None or z < z_min else z_min
-            print(f"z_min = {z_min}")
 
         def set_z_max(z: float):
             nonlocal z_max
             if z is None: return
             z_max = z if z_max is None or z > z_max else z_max
-            print(f"z_max = {z_max}")
 
         for section in self.sections:
             s_z_min, s_z_max = f(section)

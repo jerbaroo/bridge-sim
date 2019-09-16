@@ -46,7 +46,7 @@ def test_fem_responses():
         assert len(fem_responses.zs[fem_responses.xs[0]]) == 1
         assert len(fem_responses.zs[fem_responses.xs[0]][
             fem_responses.ys[fem_responses.xs[0]][0]]) == 1
-    
+
     assert_translation_responses_shape(ResponseType.XTranslation)
     assert_translation_responses_shape(ResponseType.YTranslation)
 
