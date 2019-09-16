@@ -6,7 +6,7 @@ import numpy as np
 
 from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic
 from classify.data.events import Events, events_from_mv_loads, save_events
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import DisplacementCtrl, MovingLoad
@@ -23,7 +23,7 @@ def test_events_from_mv_loads():
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
     events = list(events_from_mv_loads(
         c=c, mv_loads=mv_loads, bridge_scenario=None,
-        response_types=response_types, fem_runner=os_runner(c), at=at))
+        response_types=response_types, fem_runner=OSRunner(c), at=at))
     shape = np.array(events).shape
     assert len(shape) == 3
     assert shape[0] == len(at)
@@ -53,7 +53,7 @@ def test_events_class():
                 traffic_scenario=normal_traffic(c),
                 bridge_scenario=BridgeScenarioNormal(), at=Point(x=1),
                 response_type=ResponseType.XTranslation,
-                fem_runner=os_runner(c), lane=lane, num_events=0,
+                fem_runner=OSRunner(c), lane=lane, num_events=0,
                 get_sim_num=True))
         assert next_param_sim_num == i
         assert next_traffic_sim_num == i
@@ -63,7 +63,7 @@ def test_events_class():
     mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=lane) for _ in range(2)]
     some_events = list(events_from_mv_loads(
         c=c, mv_loads=mv_loads, bridge_scenario=None,
-        response_types=[ResponseType.Strain], fem_runner=os_runner(c),
+        response_types=[ResponseType.Strain], fem_runner=OSRunner(c),
         at=[Point(x=1)]))[0][0]
 
     # Save and load the created events to a file.
@@ -84,7 +84,7 @@ def test_events_class():
         events.make_events(
             traffic_scenario=normal_traffic(c),
             bridge_scenarios=[BridgeScenarioNormal()], at=at,
-            response_types=response_types, fem_runner=os_runner(c), lane=lane,
+            response_types=response_types, fem_runner=OSRunner(c), lane=lane,
             num_vehicles=num_vehicles)
     metadata = events.metadata.load()
     assert len(metadata) == len(at) * len(response_types) * iterations
@@ -99,7 +99,7 @@ def test_events_class():
             num_events = events.num_events(
                 traffic_scenario=normal_traffic(c),
                 bridge_scenario=BridgeScenarioNormal(), at=at[a],
-                response_type=response_types[r], fem_runner=os_runner(c),
+                response_type=response_types[r], fem_runner=OSRunner(c),
                 lane=lane)
             assert isinstance(num_events, list)
             assert len(num_events) == iterations
@@ -109,7 +109,7 @@ def test_events_class():
     got_events = events.get_events(
         traffic_scenario=normal_traffic(c),
         bridge_scenarios=[BridgeScenarioNormal()], at=at[0],
-        response_type=response_types[0], fem_runner=os_runner(c), lane=lane)
+        response_type=response_types[0], fem_runner=OSRunner(c), lane=lane)
     assert isinstance(got_events, dict)
     for _, list_of_list_of_event in got_events.items():
         assert len(list_of_list_of_event) == iterations
@@ -123,7 +123,7 @@ def test_events_class():
         traffic_scenario=normal_traffic(c),
         bridge_scenarios=[BridgeScenarioDisplacementCtrl(
             displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))],
-        at=at, response_types=response_types, fem_runner=os_runner(c),
+        at=at, response_types=response_types, fem_runner=OSRunner(c),
         lane=lane, num_vehicles=num_vehicles)
     assert len(set(events.metadata.load()["bridge-scenario"])) == 2
     assert "displacement-0.1m-pier-1" in set(

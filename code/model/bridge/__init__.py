@@ -23,6 +23,12 @@ class Dimensions(Enum):
     D2 = "2D"
     D3 = "3D"
 
+    def name(self):
+        return {
+            Dimensions.D2: "2D",
+            Dimensions.D3: "23"
+        }[self]
+
 
 class Fix:
     """A node fixed in some degrees of freedom, when 2D modeling.

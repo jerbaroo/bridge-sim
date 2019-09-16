@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 
 from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from model.bridge import Layer
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import Load
@@ -16,7 +16,7 @@ def test_fem_responses():
     layer = Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10)
     c = bridge_705_config(layers=[layer])
     fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
 
     for response_type in ResponseType:
         # Remove results on disk.
@@ -75,7 +75,7 @@ def test_fem_responses_at():
     c = bridge_705_config()
     fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
     response_type = ResponseType.XTranslation
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
 
     # Load simulation responses.
     fem_responses = load_fem_responses(

@@ -207,8 +207,8 @@ def make_all(c: Config, clean = True):
     if clean:
         clean_generated(c)
     make_bridge_plots(c)
-    # make_il_plots(c)
-    make_dc_plots(c)
+    make_il_plots(c)
+    # make_dc_plots(c)
     # make_normal_mv_load_animations(c)
     # make_normal_mv_load_animations(c, per_axle=True)
     # make_vehicle_plots(c)

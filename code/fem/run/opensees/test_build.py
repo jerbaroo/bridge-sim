@@ -2,7 +2,7 @@
 import pytest
 
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model
 from model.bridge import Fix, Patch, Section
 from model.bridge.bridge_705 import bridge_705_config
@@ -28,9 +28,10 @@ def test_build():
             ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read it into memory.
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
     build_model(c=c, expt_params=expt_params, fem_runner=fem_runner)
-    with open(fem_runner.fem_file_path(expt_params.fem_params[0])) as f:
+    with open(fem_runner.fem_file_path(
+            fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
     [print(line) for line in lines]
 
@@ -67,8 +68,9 @@ def test_build_displacement_ctrl():
         response_types=[ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read.
-    build_model(c, expt_params, os_runner(c))
-    with open(os_runner(c).fem_file_path(expt_params.fem_params[0])) as f:
+    build_model(c, expt_params, OSRunner(c))
+    with open(OSRunner(c).fem_file_path(
+            fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
 
     assert any(line == "load 11 0 10000 0\n" for line in lines)
@@ -83,7 +85,7 @@ def test_build_displacement_ctrl():
                   loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, fem_runner=os_runner(c))
+    build_model(c=c, expt_params=expt_params, fem_runner=OSRunner(c))
 
     # Error if the displacement control node is fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
@@ -93,4 +95,4 @@ def test_build_displacement_ctrl():
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
     with pytest.raises(ValueError):
-        build_model(c=c, expt_params=expt_params, fem_runner=os_runner(c))
+        build_model(c=c, expt_params=expt_params, fem_runner=OSRunner(c))

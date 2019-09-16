@@ -2,7 +2,7 @@
 
 from fem.params import ExptParams, FEMParams
 from fem.responses import load_fem_responses
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from model.bridge import Fix, Patch
 from model.bridge.bridge_705 import Layer, Patch, bridge_705_config
 from model.load import Load
@@ -27,7 +27,7 @@ def test_opensees_patch():
             ResponseType.YTranslation, ResponseType.Strain])
     fem_responses = load_fem_responses(
         c=c, fem_params=fem_params, response_type=ResponseType.Strain,
-        fem_runner=os_runner(c))
+        fem_runner=OSRunner(c))
     # Ensure each patch point is accessible in results.
     x = c.os_node_step / 2  # Collected on the first element.
     for point in patch.points():

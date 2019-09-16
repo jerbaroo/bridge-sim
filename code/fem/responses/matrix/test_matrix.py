@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from model.bridge.bridge_705 import bridge_705_config
 from model.response import ResponseType
 from util import print_d
@@ -25,7 +25,7 @@ def test_os_il_matrix():
     return
     # Setup.
     response_type = ResponseType.XTranslation
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
 
     # Remove file first.
     clean()
@@ -53,7 +53,7 @@ def test_os_il_matrix():
 def test_os_dc_matrices():
     return
     # Setup.
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
     response_type = ResponseType.XTranslation
 
     # Remove all response files.
@@ -74,9 +74,9 @@ def test_load_all_os_matrices():
     c.il_matrices = dict()
     # Should run fast after the first time (may also be fast).
     # The second time should only require loading from disk.
-    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    ILMatrix.load(c, ResponseType.Strain, OSRunner(c), num_loads=10)
     c.il_matrices = dict()
     start = timer()
-    ILMatrix.load(c, ResponseType.Strain, os_runner(c), num_loads=10)
+    ILMatrix.load(c, ResponseType.Strain, OSRunner(c), num_loads=10)
     time = timer() - start
     assert 1 < time < 4

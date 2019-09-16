@@ -25,26 +25,23 @@ class FEMRunner:
     """
 
     def __init__(
-            self, c: Config, name: str,
+            self,
+            c: Config,
+            name: str,
             build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
             run: Callable[[Config, ExptParams, FEMRunner, int], ExptParams],
             parse: Callable[[Config, ExptParams, FEMRunner], Parsed],
             convert: Callable[
                 [Config, Parsed],
-                Dict[int, Dict[ResponseType, List[Response]]]],
-            built_model_ext: str = None,
-            built_files_dir: Optional[str] = None):
+                Dict[int, Dict[ResponseType, List[Response]]]]):
         self.c = c
         self._build = build
         self._run = run
         self._parse = parse
         self._convert = convert
         self.name = name
-        self.built_model_ext = built_model_ext
-        if built_files_dir is None:
-            built_files_dir = os.path.join(
-                self.c.generated_dir, f"{self.name}/").lower()
-        self.built_files_dir = built_files_dir
+        self.built_files_dir = os.path.join(
+            self.c.generated_dir, f"{self.name}/").lower()
         assert self.built_files_dir.endswith("/")
 
     def run(self, expt_params: ExptParams, run=True, save=True):
@@ -89,19 +86,21 @@ class FEMRunner:
                         + f"({response_type})")
 
     def fem_file_path(
-            self, fem_params: FEMParams, ext: Optional[str] = None) -> str:
-        """A file path based on a FEMParams and this FEMRunner's name.
+            self, fem_params: FEMParams, ext: str, append: str = "") -> str:
+        """A file path based on a bridge, FEMParams and this FEMRunner.
 
         Args:
-            fem_params: FEMParams, parameters for the FEM simulation.
-            ext: Optional[str], if None then use fem_runner.built_model_ext,
-                else the given file extension is used.
+            fem_params: FEMParams, parameters for a FEM simulation.
+            ext: str, the file extension of the file.
+            append: str, a string to append before the file extension.
 
         """
         load_str: str = fem_params.load_str()
         for char in "[]()":
             load_str = load_str.replace(char, "")
-        if ext is None:
-            ext = "." + self.built_model_ext
+        append = append if len(append) == 0 else f"-{append}"
         return os.path.join(
-            self.built_files_dir, f"{self.name}-{load_str}{ext}").replace(" ", "").lower()
+            self.built_files_dir,
+            f"{self.name}-{self.c.bridge.name}"
+            + f"-{self.c.bridge.dimensions.name()}-{load_str}{append}.{ext}"
+        ).replace(" ", "").lower()

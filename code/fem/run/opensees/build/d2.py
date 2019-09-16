@@ -212,7 +212,7 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
             .replace("<<RECORDERS>>", opensees_recorders(
                 c, fem_runner, fem_params)))
 
-        model_path = fem_runner.fem_file_path(fem_params)
+        model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         print_i(f"OpenSees: saving model file to {model_path}")
         with open(model_path, "w") as f:
             f.write(out_tcl)

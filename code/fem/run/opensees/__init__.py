@@ -13,11 +13,11 @@ class OSRunner(FEMRunner):
     def __init__(self, c: Config):
         super().__init__(
             c=c, name="OpenSees", build=build_model, run=run_model,
-            parse=parse_responses, convert=convert_responses,
-            built_model_ext="tcl")
+            parse=parse_responses, convert=convert_responses)
 
     def translation_path(self, fem_params: FEMParams, axis: str):
-        return self.fem_file_path(fem_params, f"node-{axis}.out")
+        return self.fem_file_path(
+            fem_params=fem_params, ext="out", append=f"node-{axis}")
 
     def x_translation_path(self, fem_params: FEMParams):
         return self.translation_path(fem_params, "x")
@@ -28,19 +28,17 @@ class OSRunner(FEMRunner):
     def patch_paths(self, fem_params: FEMParams, patch: Patch):
         return [
             self.fem_file_path(
-                fem_params, f"-patch-{point.y:.5f}-{point.z:.5f}.out")
+                fem_params=fem_params, ext="out",
+                append=f"-patch-{point.y:.5f}-{point.z:.5f}")
             for point in patch.points()]
 
     def layer_paths(self, fem_params: FEMParams, layer: Layer):
         return [
             self.fem_file_path(
-                fem_params, f"-layer-{point.y:.5f}-{point.z:.5f}.out")
+                fem_params=fem_params, ext="out",
+                append=f"-layer-{point.y:.5f}-{point.z:.5f}")
             for point in layer.points()]
 
     def element_path(self, fem_params: FEMParams):
-        return self.fem_file_path(fem_params, f"-elems.out")
-
-
-def os_runner(c: Config) -> OSRunner:
-    """TODO: Remove. For backwards compatibility."""
-    return OSRunner(c)
+        return self.fem_file_path(
+            fem_params=fem_params, ext="out", append="-elems")

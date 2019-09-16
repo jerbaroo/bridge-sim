@@ -17,6 +17,7 @@ class FEMParams:
         response_types: [ResponseType], response types to record.
 
     Attrs:
+        TODO: Do we need this?
         built_model_file: str, path of the model file built for simulation.
 
     """
