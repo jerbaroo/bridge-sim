@@ -2,45 +2,35 @@
 from typing import List, Optional
 
 from config import Config
-from model.bridge import Dimensions, Bridge, Fix, Lane, Layer, Patch, Section, Section2D, Support
+from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Support
+
+
+def bridge_705_test_config(
+        bridge: Callable[[], Bridge] = bridge_705) -> Config:
+    """A testing Config for bridge 705 in Amsterdam."""
+    return bridge_705_config(
+        bridge=bridge, generated_dir="generated-data-test")
 
 
 def bridge_705_config(
-        name: str = "Bridge 705",
-        length: Optional[float] = None,
-        width: Optional[float] = None,
-        lanes: Optional[List[Lane]] = None,
-        piers: Optional[List[float]] = None,
-        sections: Optional[List[Section]] = None,
-        layers: Optional[List[Layer]] = None,
-        patches: Optional[List[Patch]] = None,
-        supports: Optional[List[Support]] = None,
-        dimensions: Dimensions = Dimensions.D2,
-        generated_dir: Optional[str] = None
-        ) -> Config:
+        bridge: Callable[[], Bridge] = bridge_705,
+        generated_dir: str = "generated-data") -> Config:
     """A Config for bridge 705 in Amsterdam."""
     return Config(
-        lambda: bridge_705(
-            name=name, length=length, width=width, lanes=lanes, piers=piers,
-            sections=sections, layers=layers, patches=patches,
-            supports=supports, dimensions=dimensions),
-        vehicle_data_path="data/a16-data/a16.csv",
+        bridge=bridge, vehicle_data_path="data/a16-data/a16.csv",
         vehicle_density=[(11.5, 5.9), (12.2, 0.3), (43, 0.1)],
             # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
-        vehicle_density_col="length",
-        vehicle_intensity=None,
+        vehicle_density_col="length", vehicle_intensity=None,
         generated_dir=generated_dir)
 
 
 def bridge_705(
-        name: str = "Bridge 705",
-        length: Optional[float] = None,
-        width: Optional[float] = None,
-        lanes: Optional[List[Lane]] = None,
+        name: str = "Bridge 705", length: Optional[float] = None,
+        width: Optional[float] = None, lanes: Optional[List[Lane]] = None,
         piers: Optional[List[float]] = None,
-        sections: Optional[List[Section]] = None,
         layers: Optional[List[Layer]] = None,
         patches: Optional[List[Patch]] = None,
+        sections: Optional[List[Section]] = None,
         supports: Optional[List[Support]] = None,
         dimensions: Dimensions = Dimensions.D2) -> Bridge:
     """A specification of bridge 705 in Amsterdam."""
@@ -83,10 +73,6 @@ def bridge_705(
             raise ValueError("No default sections for 3D model")
     # Put it all together.
     return Bridge(
-        name=name,
-        length=length,
-        width=width,
-        lanes=lanes,
-        supports=supports,
-        sections=sections,
-        dimensions=dimensions)
+        name=name, length=length, width=width, lanes=lanes, supports=supports,
+        sections=sections, dimensions=dimensions)
+
