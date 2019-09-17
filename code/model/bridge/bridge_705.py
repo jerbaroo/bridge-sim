@@ -20,6 +20,8 @@ for _i in range(len(bridge_705_spans)):
 bridge_705_supports_2d = [
     Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
+
+# NOTE: These patches and layers are incorrect!
 bridge_705_patches = [
     Patch(y_min=-1, y_max=0, z_min=-16.6, z_max=16.6),
     Patch(y_min=-10, y_max=-1, z_min=-5, z_max=5)]
@@ -56,12 +58,12 @@ def bridge_705(
 
 bridge_705_sections_3d = [
     Section3D(density=2.724E-03, thickness=0.75, youngs=38400)]
-bridge_705_supports_3d = []
 bridge_705_supports_z = [2.167 + 3.666/2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):
     bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
 # Ignoring beginning and end of bridge.
+bridge_705_supports_3d = []
 for _support_x in bridge_705_piers[1:-1]:
     for _support_z in bridge_705_supports_z:
         bridge_705_supports_3d.append(Support3D(

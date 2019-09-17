@@ -334,13 +334,17 @@ class Bridge:
         self.lanes = lanes
         self.dimensions = dimensions
         self.x_min, self.x_max = 0, length
-        self.x_center = (self.x_min + self.x_max) / 2
+        # The following functions y_min_max and z_min_max calculate the min and
+        # max values in a direction, from the supports and sections. In the
+        # case of a 3D bridge neither supports nor sections contain information
+        # on the min or max values in z (transverse) direction of this bridge.
         self.y_min, self.y_max = self.y_min_max()
-        self.y_center = (self.y_min + self.y_max) / 2
         if dimensions == Dimensions.D2:
             self.z_min, self.z_max = self.z_min_max()
         else:
             self.z_min, self.z_max = - width / 2, width / 2
+        self.x_center = (self.x_min + self.x_max) / 2
+        self.y_center = (self.y_min + self.y_max) / 2
         self.z_center = (self.z_min + self.z_max) / 2
         self.length = length
         self.width = width
@@ -437,20 +441,48 @@ class Bridge:
             self._assert_3d()
 
     def _assert_2d(self):
-        if self.supports and not self.supports[0].x:
-            # TODO: Check self.supports[0].x == 0.
-            raise ValueError(
-                "2D bridge must have node at x=0 fixed in x direction")
-        if len(self.sections) != 1:
-            raise ValueError("2D bridge must have exactly 1 section")
+        # All supports are Fix.
         for support in self.supports:
             if not isinstance(support, Fix):
                 raise ValueError("2D bridge must use Fix supports")
 
+        # All sections are Section2D.
+        for section in self.sections:
+            if not isinstance(section, Section2D):
+                raise ValueError("2D bridge must use Section2D sections")
+
+        # First node must be fixed in x direction.
+        if self.supports and not self.supports[0].x:
+            # TODO: Remove first check in line above.
+            # TODO: Check self.supports[0].x_frac == 0.
+            raise ValueError(
+                "2D bridge must have node at x=0 fixed in x direction")
+
+        # 2D bridge has 1 section.
+        if len(self.sections) != 1:
+            raise ValueError("2D bridge must have exactly 1 section")
+
     def _assert_3d(self):
+        # All supports are Support3D.
         for support in self.supports:
             if not isinstance(support, Support3D):
                 raise ValueError("3D bridge must use Support3D supports")
+
+        # All sections are Section3D.
+        for section in self.sections:
+            if not isinstance(section, Section3D):
+                raise ValueError("3D bridge must use Section3D sections")
+
+        # First section must start at 0.
+        if self.sections[0].start_x_frac != 0:
+            raise ValueError("First section of 3D bridge must start at 0")
+
+        # Section must be in order.
+        last_start_x_frac = self.sections[0].start_x_frac
+        for section in self.sections[1:]:
+            if section.start_x_frac < last_start_x_frac:
+                raise ValueError("Sections not in order of start_x_frac")
+            last_start_x_frac = section.start_x_frac
 
         # for i, lane in enumerate(lanes):
         #     if lane.z_min < self.z_min:

@@ -102,6 +102,9 @@ def opensees_nodes(c: Config):
 ##### Begin elements #####
 
 
+
+
+
 ##### End elements #####
 
 

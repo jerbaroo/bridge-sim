@@ -6,6 +6,8 @@ import pytest
 
 from model.bridge import Bridge, Dimensions, Fix, Patch, Section, Section2D, Section3D, Support3D, Support
 
+# Some sections and supports to reuse.
+
 a_2d_section = Section2D(
     patches=[Patch(y_min=-1, y_max=0, z_min=-10, z_max=10)])
 a_3d_section = Section3D(density=1, thickness=2, youngs=3)
@@ -39,31 +41,70 @@ def test_2d_bridge_fixed_x_dof():
 
 
 def test_2d_bridge_mixed_supports():
-    """A 2D bridge with 2D (Fix) and 3D supports."""
-    with pytest.raises(ValueError) as e:
+    """A 2D bridge with mixed 2D and 3D supports."""
+    with pytest.raises(AttributeError) as e:
         mk_bridge(supports=[Fix(x_frac=1, x=True), a_3d_support])
-    assert "Fix supports" in str(e.value)
+    assert "'Support3D' object has no attribute 'z_min_max'" in str(e.value)
     mk_bridge(supports=[Fix(x_frac=0, x=True), Fix(x_frac=1, x=False)])
 
 
 def test_3d_bridge_mixed_supports():
-    """A 3D bridge with 2D (Fix) and 3D supports."""
+    """A 3D bridge with mixed 2D and 3D supports."""
     with pytest.raises(ValueError) as e:
-        mk_bridge(
-            supports=[Fix(x_frac=1, x=True), a_3d_support],
-            dimensions=Dimensions.D3)
+        bridge = Bridge(
+            name="test", length=12, width=50,
+            supports=[a_3d_support, Fix(0, True)], sections=[a_3d_section],
+            lanes=[], dimensions=Dimensions.D3)
     assert "Support3D supports" in str(e.value)
-    mk_bridge(supports=[], dimensions=Dimensions.D3)
-
-
-def test_3d_bridge_length_width():
-    """A 3D bridge has length and width."""
     bridge = Bridge(
-        name="test", length=12, width=a_3d_support.width_top,
-        supports=[a_3d_support], sections=[a_3d_section], lanes=[],
-        dimensions=Dimensions.D3)
-    assert bridge.length == 12
-    assert bridge.width == a_3d_support.width_top
+        name="test", length=12, width=50,
+        supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
+        lanes=[], dimensions=Dimensions.D3)
+
+
+def test_3d_bridge_height():
+    """A 3D bridge has correct computed height."""
+    # Bridge should have height of the support.
+    support = Support3D(
+        x=50, z=0, length=4, height=2.1, width_top=3, width_bottom=1)
+    section = Section3D(density=1, thickness=0.6, youngs=3)
+    bridge = Bridge(
+        name="test", length=12, width=1, supports=[support],
+        sections=[section], lanes=[], dimensions=Dimensions.D3)
+    assert bridge.height == support.height
+
+    # Bridge should have height of the section.
+    section.thickness = 3
+    bridge = Bridge(
+        name="test", length=12, width=1, supports=[support],
+        sections=[section], lanes=[], dimensions=Dimensions.D3)
+    assert bridge.height == section.thickness
+
+
+def test_3d_bridge_sections():
+    """A 3D bridge must have correctly constructed sections."""
+    # First section doesn't start at 0.
+    with pytest.raises(ValueError) as e:
+        section_1 = Section3D(
+            density=1, thickness=2, youngs=3, start_x_frac=0.1)
+        bridge = Bridge(
+            name="test", length=12, width=7, supports=[a_3d_support],
+            sections=[section_1], lanes=[], dimensions=Dimensions.D3)
+    assert "must start at 0" in str(e.value)
+
+    # Order of sections is incorrect.
+    with pytest.raises(ValueError) as e:
+        section_1 = Section3D(
+            density=1, thickness=2, youngs=3, start_x_frac=0)
+        section_2 = Section3D(
+            density=1, thickness=2, youngs=3, start_x_frac=0.5)
+        section_3 = Section3D(
+            density=1, thickness=2, youngs=3, start_x_frac=0.2)
+        bridge = Bridge(
+            name="test", length=12, width=7, supports=[a_3d_support],
+            sections=[section_1, section_2, section_3], lanes=[],
+            dimensions=Dimensions.D3)
+    assert "Sections not in order" in str(e.value)
 
 
 def test_patch_points():
