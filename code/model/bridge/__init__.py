@@ -305,6 +305,7 @@ class Section3D:
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
+        self.start_x_frac = start_x_frac
 
     def y_min_max(self) -> Tuple[float, float]:
         """The min and max values in y for this section."""

@@ -49,8 +49,7 @@ def opensees_deck_nodes(c: Config):
             x_pos += c.os_node_step
         y_pos += c.os_node_step
     return "\n".join(map(
-        lambda (n_id, x, y, z): f"node {n_id} {x} {y} {z}",
-        nodes))
+        lambda n: f"node {n[0]} {n[1]} {n[2]} {n[3]}", nodes))
 
 
 def opensees_nodes(c: Config):

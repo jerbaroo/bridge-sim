@@ -1,8 +1,86 @@
 """Specification and Config for bridge 705 in Amsterdam."""
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from config import Config
-from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Support
+from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Section3D, Support, Support3D
+
+# Values and a constructor for a 2D model of bridge 705.
+
+bridge_705_length = 102.75
+bridge_705_width = 33.2
+bridge_705_lanes = [Lane(4, 12.4), Lane(20.8, 29.2)]
+# Pier locations in meters (includes bridge beginning and end).
+bridge_705_piers = [0]
+bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
+for _span_distance in bridge_705_spans:
+    bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
+print(bridge_705_spans)
+for i in range(len(bridge_705_spans)):
+    print(sum(bridge_705_spans[:i+1]))
+bridge_705_supports_2d = [
+    Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
+bridge_705_supports_2d[0].x = True
+bridge_705_patches = [
+    Patch(y_min=-1, y_max=0, z_min=-16.6, z_max=16.6),
+    Patch(y_min=-10, y_max=-1, z_min=-5, z_max=5)]
+bridge_705_layers = [
+    Layer(
+        y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15, num_fibers=20,
+        area_fiber=4.9e-4),
+    Layer(
+        y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10,
+        area_fiber=4.9e-4),
+    Layer(
+        y_min=-9, y_max=-9, z_min=-4.5, z_max=4.5, num_fibers=10,
+        area_fiber=4.9e-4)]
+
+
+def bridge_705(
+        name: str = "Bridge 705", length: float = bridge_705_length,
+        width: float = bridge_705_width, lanes: List[Lane] = bridge_705_lanes,
+        piers: List[float] = bridge_705_piers,
+        layers: List[Layer] = bridge_705_layers,
+        patches: List[Patch] = bridge_705_patches,
+        sections: Optional[List[Section2D]] = None,
+        supports: List[Fix] = bridge_705_supports_2d) -> Bridge:
+    """A 2D model of bridge 705 in Amsterdam."""
+    if sections is None:
+        sections = [Section2D(patches=patches, layers=layers)]
+    return Bridge(
+        name=name, length=length, width=width, lanes=lanes, supports=supports,
+        sections=sections, dimensions=Dimensions.D2)
+
+
+# Values and a constructor for a 3D model of bridge 705.
+
+
+bridge_705_sections_3d = [
+    Section3D(density=2.724E-03, thickness=0.75, youngs=38400)]
+bridge_705_supports_3d = []
+bridge_705_supports_z = [2.167 + 3.666/2]  # To first support + half support.
+# For remaining supports add space between support and support width.
+for _ in range(3):
+    bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
+# Ignoring beginning and end of bridge.
+for _support_x in bridge_705_piers[1:-1]:
+    for _support_z in [bridge_705_supports_z]:
+        bridge_705_supports_3d.append(Support3D(
+            x=_support_x, z=_support_z, length=3.1, height=3.5,
+            width_top=3.666, width_bottom=1.8))
+
+
+def bridge_705_3d(
+        name: str = "Bridge 705", length: float = bridge_705_length,
+        width: float = bridge_705_width, lanes: List[Lane] = bridge_705_lanes,
+        sections: Optional[List[Section3D]] = bridge_705_sections_3d,
+        supports: List[Support3D] = bridge_705_supports_3d) -> Bridge:
+    """A 3D model of bridge 705 in Amsterdam."""
+    return Bridge(
+        name=name, length=length, width=width, lanes=lanes, supports=supports,
+        sections=sections, dimensions=Dimensions.D3)
+
+
+# Configs (normal and testing) for bridge 705.
 
 
 def bridge_705_test_config(
@@ -19,60 +97,6 @@ def bridge_705_config(
     return Config(
         bridge=bridge, vehicle_data_path="data/a16-data/a16.csv",
         vehicle_density=[(11.5, 5.9), (12.2, 0.3), (43, 0.1)],
-            # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
+        # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
         vehicle_density_col="length", vehicle_intensity=None,
         generated_dir=generated_dir)
-
-
-def bridge_705(
-        name: str = "Bridge 705", length: Optional[float] = None,
-        width: Optional[float] = None, lanes: Optional[List[Lane]] = None,
-        piers: Optional[List[float]] = None,
-        layers: Optional[List[Layer]] = None,
-        patches: Optional[List[Patch]] = None,
-        sections: Optional[List[Section]] = None,
-        supports: Optional[List[Support]] = None,
-        dimensions: Dimensions = Dimensions.D2) -> Bridge:
-    """A specification of bridge 705 in Amsterdam."""
-    # Length & width.
-    if length is None:
-        length = 102
-    if width is None:
-        width = 33.2
-    # Lanes.
-    if lanes is None:
-        lanes = [Lane(4, 12.4), Lane(20.8, 29.2)]
-    # Supports.
-    if piers is None:
-        piers = [0]  # Pier locations in meters.
-        for span_distance in [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]:
-            piers.append(piers[-1] + span_distance)
-    if supports is None:
-        supports = [Fix(x / length, y=True) for x in piers]
-        supports[0].x = True
-    # Sections.
-    if sections is None:
-        if dimensions == Dimensions.D2:
-            if patches is None:
-                patches = [
-                    Patch(y_min=-1, y_max=0, z_min=-16.6, z_max=16.6),
-                    Patch(y_min=-10, y_max=-1, z_min=-5, z_max=5)]
-            if layers is None:
-                layers = [
-                    Layer(
-                        y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15,
-                        num_fibers=20, area_fiber=4.9e-4),
-                    Layer(
-                        y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5,
-                        num_fibers=10, area_fiber=4.9e-4),
-                    Layer(
-                        y_min=-9, y_max=-9, z_min=-4.5, z_max=4.5,
-                        num_fibers=10, area_fiber=4.9e-4)]
-            sections = [Section2D(patches=patches, layers=layers)]
-        else:
-            raise ValueError("No default sections for 3D model")
-    # Put it all together.
-    return Bridge(
-        name=name, length=length, width=width, lanes=lanes, supports=supports,
-        sections=sections, dimensions=dimensions)
-
