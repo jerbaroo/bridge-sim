@@ -1,7 +1,7 @@
 """Build OpenSees 3D model files."""
 from config import Config
 from fem.params import ExptParams
-from util import print_d
+from util import print_d, print_i, round_m
 
 # Print debug information for this file.
 D: bool = False
@@ -32,24 +32,53 @@ def ff_node_ids(mod: int):
         _node_id += 1
 
 
+def next_pow_10(n: int):
+    """Power of 10 greater than n."""
+    pow_10 = 1
+    while pow_10 <= n:
+        pow_10 = pow_10 * 10
+    return pow_10
+
+
 # End node IDs #
 
 
 def opensees_deck_nodes(c: Config):
     """OpenSees node commands for the bridge deck for a .tcl file."""
-    nodes = []  # A list of tuples (node_id, x_coord, y_coord, z_coord).
-    num_nodes_x = c.bridge.length / c.os_node_step
-    num_nodes_y = c.bridge.width / c.os_node_step
-    y_pos = 0
-    for num_y in range(num_nodes_y):
-        ff_node_ids() # Fast forward node IDs on each transverse (y) increment.
+    num_nodes_x = c.bridge.length / c.os_node_step + 1
+    num_nodes_z = c.bridge.width / c.os_node_step_z + 1
+    if num_nodes_x != int(num_nodes_x):
+        raise ValueError(
+            f"Bridge length {c.bridge.length} not evenly divisible by"
+            + f" c.os_node_step {c.os_node_step}")
+    if num_nodes_z != int(num_nodes_z):
+        raise ValueError(
+            f"Bridge width {c.bridge.width} not evenly divisible by"
+            + f" c.os_node_step_z {c.os_node_step_z}")
+    num_nodes_x = int(num_nodes_x)
+    num_nodes_z = int(num_nodes_z)
+    ff_mod = next_pow_10(num_nodes_x)
+    print_i(ff_mod)
+    z_pos = 0
+    class Node:
+        def __init__(self, n_id: int, x: float, y: float, z: float):
+            self.n_id = n_id
+            self.x = x
+            self.y = y
+            self.z = z
+        def tcl(self):
+            return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
+                    + f" {round_m(self.z)}")
+    nodes = []
+    for num_z in range(num_nodes_z):
+        # Fast forward node IDs on each transverse (y) increment.
+        ff_node_ids(ff_mod) 
         x_pos = 0
         for num_x in range(num_nodes_x):
-            nodes.append((next_node_id(), x_pos, y_pos, 0))
+            nodes.append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
             x_pos += c.os_node_step
-        y_pos += c.os_node_step
-    return "\n".join(map(
-        lambda n: f"node {n[0]} {n[1]} {n[2]} {n[3]}", nodes))
+        z_pos += c.os_node_step_z
+    return "\n".join(map(lambda n: n.tcl(), nodes))
 
 
 def opensees_nodes(c: Config):

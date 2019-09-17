@@ -119,13 +119,8 @@ class Support3D:
                 "Support3D: top width must be greater than bottom width")
 
     def y_min_max(self) -> Tuple[float, float]:
-        """The min and max values in y direction for this section."""
+        """The min and max values in y direction for this support."""
         return -self.height, 0
-
-    def z_min_max(self) -> Tuple[float, float]:
-        """The min and max values in z direction for this section."""
-        half_width = self.width_top / 2
-        return self.z - half_width, self.z + half_width
 
 
 # Supports are either 2D or 3D supports.
@@ -311,9 +306,6 @@ class Section3D:
         """The min and max values in y for this section."""
         return -self.thickness, 0
 
-    def z_min_max(self) -> Tuple[None, None]:
-        return None, None
-
 
 # Sections are either 2D or 3D sections.
 Section = Union[Section2D, Section3D]
@@ -345,7 +337,10 @@ class Bridge:
         self.x_center = (self.x_min + self.x_max) / 2
         self.y_min, self.y_max = self.y_min_max()
         self.y_center = (self.y_min + self.y_max) / 2
-        self.z_min, self.z_max = self.z_min_max()
+        if dimensions == Dimensions.D2:
+            self.z_min, self.z_max = self.z_min_max()
+        else:
+            self.z_min, self.z_max = - width / 2, width / 2
         self.z_center = (self.z_min + self.z_max) / 2
         self.length = length
         self.width = width

@@ -15,8 +15,8 @@ bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
 print(bridge_705_spans)
-for i in range(len(bridge_705_spans)):
-    print(sum(bridge_705_spans[:i+1]))
+for _i in range(len(bridge_705_spans)):
+    print(sum(bridge_705_spans[:_i + 1]))
 bridge_705_supports_2d = [
     Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
@@ -63,7 +63,7 @@ for _ in range(3):
     bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
 # Ignoring beginning and end of bridge.
 for _support_x in bridge_705_piers[1:-1]:
-    for _support_z in [bridge_705_supports_z]:
+    for _support_z in bridge_705_supports_z:
         bridge_705_supports_3d.append(Support3D(
             x=_support_x, z=_support_z, length=3.1, height=3.5,
             width_top=3.666, width_bottom=1.8))
