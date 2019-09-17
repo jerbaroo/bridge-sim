@@ -1,4 +1,4 @@
-"""Test that OpenSees builds model files correctly."""
+"""Test that OpenSees builds 2D model files correctly."""
 import pytest
 
 from fem.params import ExptParams, FEMParams
@@ -10,7 +10,7 @@ from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
 
 
-def test_build():
+def test_build_2d():
     # Setup.
     num_sub_div_z = 20
     c = bridge_705_config(
@@ -33,7 +33,7 @@ def test_build():
     with open(fem_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
-    [print(line) for line in lines]
+    # [print(line) for line in lines]
 
     # Test nodes.
     expected_nodes = c.bridge.length / c.os_node_step + 1
@@ -56,7 +56,7 @@ def test_build():
     assert len(set(patch_lines)) == num_sub_div_z
 
 
-def test_build_displacement_ctrl():
+def test_build_2d_displacement_ctrl():
     # Setup.
     c = bridge_705_config()
     c.bridge.length = 10
