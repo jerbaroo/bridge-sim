@@ -22,4 +22,8 @@ def test_build_d3():
     with open(fem_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
-    [print(line) for line in lines]
+
+    # Assert first and last nodes have correct coordinates.
+    node_lines = [line for line in lines if "node " in line]
+    assert "node 0 0 0 0" in node_lines[0]
+    assert "102.75 0 33.2" in node_lines[-1]

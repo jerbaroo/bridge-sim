@@ -1,4 +1,7 @@
 """Build OpenSees 3D model files."""
+import itertools
+from typing import List, Tuple
+
 from config import Config
 from fem.params import ExptParams
 from util import print_d, print_i, round_m
@@ -40,10 +43,22 @@ def next_pow_10(n: int):
     return pow_10
 
 
-# End node IDs #
+##### End node IDs #####
+##### Begin nodes #####
 
 
-def opensees_deck_nodes(c: Config):
+class Node:
+    def __init__(self, n_id: int, x: float, y: float, z: float):
+        self.n_id = n_id
+        self.x = x
+        self.y = y
+        self.z = z
+    def tcl(self):
+        return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
+                + f" {round_m(self.z)}")
+
+
+def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for the bridge deck for a .tcl file."""
     num_nodes_x = c.bridge.length / c.os_node_step + 1
     num_nodes_z = c.bridge.width / c.os_node_step_z + 1
@@ -60,30 +75,34 @@ def opensees_deck_nodes(c: Config):
     ff_mod = next_pow_10(num_nodes_x)
     print_i(ff_mod)
     z_pos = 0
-    class Node:
-        def __init__(self, n_id: int, x: float, y: float, z: float):
-            self.n_id = n_id
-            self.x = x
-            self.y = y
-            self.z = z
-        def tcl(self):
-            return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
-                    + f" {round_m(self.z)}")
     nodes = []
     for num_z in range(num_nodes_z):
         # Fast forward node IDs on each transverse (y) increment.
         ff_node_ids(ff_mod) 
         x_pos = 0
+        nodes.append([])
         for num_x in range(num_nodes_x):
-            nodes.append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
+            nodes[-1].append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
             x_pos += c.os_node_step
         z_pos += c.os_node_step_z
-    return "\n".join(map(lambda n: n.tcl(), nodes))
+    return (
+        "\n".join(map(
+            lambda n: n.tcl(),
+            itertools.chain.from_iterable(nodes))),
+        nodes)
 
 
 def opensees_nodes(c: Config):
     reset_node_ids()
-    return opensees_deck_nodes(c)
+    deck_node_str, deck_nodes = opensees_deck_nodes(c)
+    return deck_node_str
+
+
+##### End nodes #####
+##### Begin elements #####
+
+
+##### End elements #####
 
 
 def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
