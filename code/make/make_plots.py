@@ -6,7 +6,7 @@ import numpy as np
 from config import Config
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from plot import animate_mv_load, plt, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
@@ -62,7 +62,7 @@ def make_il_plots(
 
                 # Make the influence line imshow matrix.
                 il_matrix = ILMatrix.load(
-                    c=c, response_type=response_type, fem_runner=os_runner(c))
+                    c=c, response_type=response_type, fem_runner=OSRunner(c))
                 imshow_il(
                     c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
                     num_x=num_loads, interp_sim=interp_sim,
@@ -117,7 +117,7 @@ def make_dc_plots(
 
                 # Make the influence line imshow matrix.
                 dc_matrix = DCMatrix.load(
-                    c=c, response_type=response_type, fem_runner=os_runner(c))
+                    c=c, response_type=response_type, fem_runner=OSRunner(c))
                 imshow_il(
                     c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
                     interp_sim=interp_sim, interp_response=interp_response,
@@ -156,9 +156,9 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     per_axle_str = f"-peraxle" if per_axle else ""
     for response_type in ResponseType:
         animate_mv_load(
-            c, mv_load, response_type, os_runner(c), per_axle=per_axle,
+            c, mv_load, response_type, OSRunner(c), per_axle=per_axle,
             save=pstr(c.image_path(
-                f"animations/{c.bridge.name}-{os_runner(c).name}"
+                f"animations/{c.bridge.name}-{OSRunner(c).name}"
                 + f"-{response_type.name()}{per_axle_str}"
                 + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
 
@@ -180,19 +180,19 @@ def make_vehicle_plots(c: Config):
 #     """Plot threshold information."""
 #     for response_type in [ResponseType.YTranslation]:
 #         plot_normal_threshold_distribution(
-#             c, response_type, os_runner(c), at=Point(x=c.bridge.x(0.4)),
+#             c, response_type, OSRunner(c), at=Point(x=c.bridge.x(0.4)),
 #             num_loads=100, num_thresholds=1000)
 
 
 def make_event_plots_from_normal_mv_loads(c: Config):
     """Make plots of events from a moving load."""
-    for fem_runner in [os_runner(c)]:
+    for fem_runner in [OSRunner(c)]:
         for response_type in ResponseType:
             for num_loads in [5]:
                 for x_frac in np.linspace(0, 1, num=10):
                     plot_events_from_normal_mv_loads(
                         c=c, response_type=response_type,
-                        fem_runner=os_runner(c),
+                        fem_runner=OSRunner(c),
                         at=Point(x=c.bridge.x(x_frac)), rows=4,
                         loads_per_row=num_loads, save=(
                             c.image_path(pstr(

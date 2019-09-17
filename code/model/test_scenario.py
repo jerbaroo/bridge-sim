@@ -2,12 +2,12 @@
 from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic, heavy_traffic
 from model.load import DisplacementCtrl, MovingLoad, Vehicle
 from model.scenario import TrafficScenario
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_test_config
 
 
 def test_scenario():
     # TODO: Fix & test heavy traffic.
-    c = bridge_705_config()
+    c = bridge_705_test_config()
 
     traffic_scenarios = [normal_traffic(c)]
     for traffic_scenario in traffic_scenarios:

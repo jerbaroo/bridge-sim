@@ -5,7 +5,7 @@ from timeit import default_timer as timer
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import OSRunner
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_test_config
 from model.response import ResponseType
 from util import print_d
 
@@ -14,7 +14,7 @@ from util import print_d
 # Print debug information for this file.
 D: bool = False
 
-c = bridge_705_config(generated_dir="generated-data-test")
+c = bridge_705_test_config()
 
 
 def clean():
