@@ -45,6 +45,33 @@ def next_pow_10(n: int):
 
 
 ##### End node IDs #####
+##### Begin element IDs #####
+
+_elem_id = None
+
+
+def next_elem_id() -> int:
+    """Return the next element ID and increment the counter."""
+    global _elem_id
+    result = _elem_id
+    _elem_id = result + 1
+    return result
+
+
+def reset_elem_ids():
+    """Reset element IDs to 0, e.g. when building a new model file."""
+    global _elem_id
+    _elem_id = 0
+
+
+def ff_elem_ids(mod: int):
+    """Fast forward element IDs until divisible by "mod"."""
+    global _elem_id
+    while _elem_id % mod != 0:
+        _elem_id += 1
+
+
+##### End element IDs #####
 
 opensees_intro = """
 # Programatically generated file.
@@ -104,8 +131,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
 
 def opensees_nodes(c: Config):
     reset_node_ids()
-    deck_node_str, deck_nodes = opensees_deck_nodes(c)
-    return deck_node_str
+    return opensees_deck_nodes(c)
 
 
 ##### End nodes #####
@@ -126,10 +152,48 @@ def opensees_sections(c: Config):
 
 
 ##### End sections #####
-##### Begin elements #####
+##### Begin shell elements #####
 
 
-##### End elements #####
+def deck_elements(
+        c: Config, first_node_z_0: int, first_node_z_1: int,
+        last_node_z_0: int, z_skip: int) -> str:
+    deck_elements = ["# Begin deck elements\n"]
+    # Shell nodes are input in counter-clockwise order starting bottom left
+    # with i, then bottom right with j, top right k, top left with l.
+    # From first until second last x_node where z=0.
+    for z_node in range(first_node_z_0, first_node_z_1, z_skip):
+        for x_node in range(first_node_z_0, last_node_z_0):
+        # From first until second last z_node where x=0.
+            # print(f"y_node = {y_node}")
+            i_node = z_node + x_node
+            j_node = i_node + 1
+            k_node, l_node = j_node + z_skip, i_node + z_skip
+            # print(f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
+            deck_elements.append(
+                f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
+                + f" {k_node} {l_node} 0")
+        ff_elem_ids(z_skip)
+    deck_elements.append("\n# End deck elements")
+    return "\n".join(deck_elements)
+
+
+def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
+    reset_elem_ids()
+    first_node_z_0 = deck_nodes[0][0].n_id
+    first_node_z_1 = deck_nodes[-1][0].n_id
+    last_node_z_0 = deck_nodes[0][-1].n_id
+    z_skip = deck_nodes[1][0].n_id - deck_nodes[0][0].n_id
+    print(f"first_node_z_0 = {first_node_z_0}")
+    print(f"first_node_z_1 = {first_node_z_1}")
+    print(f"last_node_z_0 = {last_node_z_0}")
+    print(f"z_skip = {z_skip}")
+    return deck_elements(
+        c=c, first_node_z_0=first_node_z_0, first_node_z_1=first_node_z_1,
+        last_node_z_0=last_node_z_0, z_skip=z_skip)
+
+
+##### End shell elements #####
 
 
 def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
@@ -147,11 +211,14 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
         # Replace template with generated TCL code.
+        nodes_str, deck_nodes = opensees_nodes(c=c)
         out_tcl = (
             in_tcl
             .replace("<<INTRO>>", opensees_intro)
-            .replace("<<NODES>>", opensees_nodes(c))
-            .replace("<<SECTIONS>>", opensees_sections(c)))
+            .replace("<<NODES>>", nodes_str)
+            .replace("<<SECTIONS>>", opensees_sections(c=c))
+            .replace("<<ELEMENTS>>", opensees_elements(
+                c=c, deck_nodes=deck_nodes)))
         # Write the generated model file.
         model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:

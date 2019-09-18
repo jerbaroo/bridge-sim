@@ -2,6 +2,7 @@
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model
+from fem.run.opensees.build.d3 import next_node_id, reset_node_ids, ff_node_ids, next_pow_10
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -29,9 +30,15 @@ def test_build_d3():
     assert "node 1 0.25 0 0" in node_lines[1]
     assert "102.5 0 33.2" in node_lines[-2]
     assert "102.75 0 33.2" in node_lines[-1]
+    # [print(line) for line in node_lines]
 
     # Assert section 0 is inserted.
     section_lines = [line for line in lines if "section " in line]
     assert (
         f"section ElasticMembranePlateSection 0 38400 0.2 0.75 0.002724"
         in section_lines[0])
+
+    # Assert first shell is inserted.
+    pow_10 = next_pow_10(c.bridge.length / c.os_node_step)
+    first_element = f"element ShellMITC4 0 0 1 {pow_10 + 1} {pow_10} 0"
+    assert any((first_element in line) for line in lines)
