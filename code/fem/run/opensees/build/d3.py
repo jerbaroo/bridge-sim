@@ -3,8 +3,9 @@ import itertools
 from typing import List, Tuple
 
 from config import Config
-from fem.params import ExptParams
+from fem.params import ExptParams, FEMParams
 from model.bridge import Section3D
+from model.response import ResponseType
 from util import print_d, print_i, round_m
 
 # Print debug information for this file.
@@ -122,11 +123,12 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
             nodes[-1].append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
             x_pos += c.os_node_step
         z_pos += c.os_node_step_z
-    return (
-        "\n".join(map(
-            lambda node: node.tcl(),
-            itertools.chain.from_iterable(nodes))),
-        nodes)
+    node_strings = ["# Begin deck nodes\n"]
+    node_strings += list(map(
+        lambda node: node.tcl(),
+        itertools.chain.from_iterable(nodes)))
+    node_strings.append("\n# End deck nodes")
+    return "\n".join(node_strings), nodes
 
 
 def opensees_nodes(c: Config):
@@ -161,6 +163,7 @@ def deck_elements(
     deck_elements = ["# Begin deck elements\n"]
     # Shell nodes are input in counter-clockwise order starting bottom left
     # with i, then bottom right with j, top right k, top left with l.
+
     # From first until second last x_node where z=0.
     for z_node in range(first_node_z_0, first_node_z_1, z_skip):
         for x_node in range(first_node_z_0, last_node_z_0):
@@ -194,9 +197,39 @@ def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
 
 
 ##### End shell elements #####
+##### Begin recorders #####
 
 
-def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
+def opensees_recorders(
+        c: Config, fem_params: FEMParams, os_runner: "OSRunner",
+        deck_nodes: List[List[Node]]):
+    # A list of tuples of ResponseType and OpenSees direction index, for
+    # translation response types, if requested in fem_params.response_types.
+    trans_response_types = []
+    if ResponseType.XTranslation in fem_params.response_types:
+        trans_response_types.append((
+            os_runner.x_translation_path(fem_params), 1))
+    if ResponseType.YTranslation in fem_params.response_types:
+        trans_response_types.append((
+            os_runner.y_translation_path(fem_params), 2))
+    if ResponseType.ZTranslation in fem_params.response_types:
+        trans_response_types.append((
+            os_runner.z_translation_path(fem_params), 3))
+    # Append a recorder string for each response type (recording nodes).
+    recorder_strs = ["# Begin translation recorders\n"]
+    node_str = " ".join(
+        str(n.n_id) for n in itertools.chain.from_iterable(deck_nodes))
+    for response_path, i in trans_response_types:
+        recorder_strs.append(
+            f"recorder Node -f {response_path} -node {node_str} -dof {i} disp")
+    recorder_strs.append("\n# End translation recorders")
+    return "\n".join(recorder_strs)
+
+
+##### End recorders #####
+
+
+def build_model(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build OpenSees 3D model files."""
     # Read in the template model file.
     with open(c.os_3d_model_template_path) as f:
@@ -216,11 +249,15 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
             in_tcl
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<NODES>>", nodes_str)
+            .replace("<<SUPPORTS>>", "")  # TODO
             .replace("<<SECTIONS>>", opensees_sections(c=c))
+            .replace("<<RECORDERS>>", opensees_recorders(
+                c=c, fem_params=fem_params, os_runner=os_runner,
+                deck_nodes=deck_nodes))
             .replace("<<ELEMENTS>>", opensees_elements(
                 c=c, deck_nodes=deck_nodes)))
         # Write the generated model file.
-        model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
+        model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")

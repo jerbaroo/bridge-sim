@@ -1,4 +1,6 @@
 """Test that OpenSees builds 3D model files correctly."""
+from typing import List, Optional
+
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model
@@ -9,28 +11,47 @@ from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
 
 
+def get_lines(
+        contains: str, lines: List[str], after: str = "",
+        before: Optional[str] = None):
+    """Return lines that contain a string, after and before a string."""
+    started = False
+    result = []
+    for line in lines:
+        if not started:
+            if after in line:
+                started = True
+        else:
+            if before is not None and before in line:
+                return result
+            if contains in line:
+                result.append(line)
+    return result
+
+
 def test_build_d3():
     # Setup.
     c = bridge_705_test_config(bridge=bridge_705_3d)
-    fem_runner = OSRunner(c=c)
+    os_runner = OSRunner(c=c)
 
     # Build model file.
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 1234)],
         response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, fem_runner=fem_runner)
-    with open(fem_runner.fem_file_path(
+    build_model(c=c, expt_params=expt_params, os_runner=os_runner)
+    with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
 
     # Assert first and last nodes have correct coordinates.
-    node_lines = [line for line in lines if "node " in line]
-    assert "node 0 0 0 0" in node_lines[0]
-    assert "node 1 0.25 0 0" in node_lines[1]
-    assert "102.5 0 33.2" in node_lines[-2]
-    assert "102.75 0 33.2" in node_lines[-1]
-    # [print(line) for line in node_lines]
+    deck_node_lines = get_lines(
+        contains="node ", lines=lines, after="Begin deck nodes",
+        before="End deck nodes")
+    assert "node 0 0 0 0" in deck_node_lines[0]
+    assert "node 1 0.25 0 0" in deck_node_lines[1]
+    assert "102.5 0 33.2" in deck_node_lines[-2]
+    assert "102.75 0 33.2" in deck_node_lines[-1]
 
     # Assert section 0 is inserted.
     section_lines = [line for line in lines if "section " in line]
@@ -42,3 +63,14 @@ def test_build_d3():
     pow_10 = next_pow_10(c.bridge.length / c.os_node_step)
     first_element = f"element ShellMITC4 0 0 1 {pow_10 + 1} {pow_10} 0"
     assert any((first_element in line) for line in lines)
+
+    # Should have y-translation but not other translations.
+    y_out_line = next(line for line in lines if "y.out" in line)
+    assert not any(("x.out" in line) for line in lines)
+    # Check all nodes are recorded.
+    deck_node_str = y_out_line.split(" -node ")[1].split(" -dof ")[0].strip()
+    deck_node_ids = list(map(int, deck_node_str.split()))
+    num_decknodes = (
+        ((c.bridge.length / c.os_node_step) + 1)
+        * ((c.bridge.width / c.os_node_step_z) + 1))
+    assert len(deck_node_ids) == num_decknodes

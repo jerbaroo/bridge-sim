@@ -14,6 +14,7 @@ class ResponseType(Enum):
 
     XTranslation = "xtrans"
     YTranslation = "ytrans"
+    ZTranslation = "ztrans"
     Stress = "stress"
     Strain = "strain"
 
@@ -22,6 +23,7 @@ class ResponseType(Enum):
         return {
             ResponseType.XTranslation: "X translation",
             ResponseType.YTranslation: "Y translation",
+            ResponseType.ZTranslation: "Z translation",
             ResponseType.Stress: "Stress",
             ResponseType.Strain: "Strain",
         }[self]
@@ -31,6 +33,7 @@ class ResponseType(Enum):
         return {
             ResponseType.XTranslation: ("meters", "m"),
             ResponseType.YTranslation: ("meters", "m"),
+            ResponseType.ZTranslation: ("meters", "m"),
             ResponseType.Stress: ("kilo newton", "kN"),
             ResponseType.Strain: ("kilo newton", "kN")
         }[self][int(short)]

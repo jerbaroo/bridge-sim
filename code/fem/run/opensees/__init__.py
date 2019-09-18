@@ -25,6 +25,9 @@ class OSRunner(FEMRunner):
     def y_translation_path(self, fem_params: FEMParams):
         return self.translation_path(fem_params=fem_params, axis="y")
 
+    def z_translation_path(self, fem_params: FEMParams):
+        return self.translation_path(fem_params=fem_params, axis="z")
+
     def patch_paths(self, fem_params: FEMParams, patch: Patch):
         return [
             self.fem_file_path(
@@ -42,3 +45,4 @@ class OSRunner(FEMRunner):
     def element_path(self, fem_params: FEMParams):
         return self.fem_file_path(
             fem_params=fem_params, ext="out", append="-elems")
+
