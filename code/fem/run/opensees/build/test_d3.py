@@ -13,7 +13,7 @@ def test_build_d3():
     c = bridge_705_test_config(bridge=bridge_705_3d)
     fem_runner = OSRunner(c=c)
 
-    # Build and model file.
+    # Build model file.
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 1234)],
         response_types=[
@@ -26,4 +26,12 @@ def test_build_d3():
     # Assert first and last nodes have correct coordinates.
     node_lines = [line for line in lines if "node " in line]
     assert "node 0 0 0 0" in node_lines[0]
+    assert "node 1 0.25 0 0" in node_lines[1]
+    assert "102.5 0 33.2" in node_lines[-2]
     assert "102.75 0 33.2" in node_lines[-1]
+
+    # Assert section 0 is inserted.
+    section_lines = [line for line in lines if "section " in line]
+    assert (
+        f"section ElasticMembranePlateSection 0 38400 0.2 0.75 0.002724"
+        in section_lines[0])

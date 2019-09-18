@@ -6,10 +6,6 @@ model basic -ndm 3 -ndf 6
 
 <<SUPPORTS>>
 
-geomTransf Linear 1
-
-<<MATERIALS>>
-
 <<SECTIONS>>
 
 <<ELEMENTS>>

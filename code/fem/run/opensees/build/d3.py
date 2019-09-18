@@ -4,12 +4,13 @@ from typing import List, Tuple
 
 from config import Config
 from fem.params import ExptParams
+from model.bridge import Section3D
 from util import print_d, print_i, round_m
 
 # Print debug information for this file.
 D: bool = False
 
-# Begin node IDs #
+##### Begin node IDs #####
 
 _node_id = None
 
@@ -44,6 +45,15 @@ def next_pow_10(n: int):
 
 
 ##### End node IDs #####
+
+opensees_intro = """
+# Programatically generated file.
+#
+# Units:
+# - dimension: m
+# - force: N
+"""
+
 ##### Begin nodes #####
 
 
@@ -78,7 +88,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     nodes = []
     for num_z in range(num_nodes_z):
         # Fast forward node IDs on each transverse (y) increment.
-        ff_node_ids(ff_mod) 
+        ff_node_ids(ff_mod)
         x_pos = 0
         nodes.append([])
         for num_x in range(num_nodes_x):
@@ -87,7 +97,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
         z_pos += c.os_node_step_z
     return (
         "\n".join(map(
-            lambda n: n.tcl(),
+            lambda node: node.tcl(),
             itertools.chain.from_iterable(nodes))),
         nodes)
 
@@ -99,10 +109,24 @@ def opensees_nodes(c: Config):
 
 
 ##### End nodes #####
+##### Begin sections #####
+
+
+def section_tcl(section: Section3D, section_id: int):
+    return (
+        f"section ElasticMembranePlateSection {section_id}"
+        + f" {section.youngs} {section.poissons} {section.thickness}"
+        + f" {section.density}")
+
+
+def opensees_sections(c: Config):
+    return "\n".join([
+        section_tcl(section, section_id)
+        for section_id, section in enumerate(c.bridge.sections)])
+
+
+##### End sections #####
 ##### Begin elements #####
-
-
-
 
 
 ##### End elements #####
@@ -125,7 +149,9 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
         # Replace template with generated TCL code.
         out_tcl = (
             in_tcl
-            .replace("<<NODES>>", opensees_nodes(c)))
+            .replace("<<INTRO>>", opensees_intro)
+            .replace("<<NODES>>", opensees_nodes(c))
+            .replace("<<SECTIONS>>", opensees_sections(c)))
         # Write the generated model file.
         model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:

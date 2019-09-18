@@ -57,7 +57,7 @@ def bridge_705(
 
 
 bridge_705_sections_3d = [
-    Section3D(density=2.724E-03, thickness=0.75, youngs=38400)]
+    Section3D(density=2.724E-03, thickness=0.75, youngs=38400, poissons=0.2)]
 bridge_705_supports_z = [2.167 + 3.666/2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):

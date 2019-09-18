@@ -289,17 +289,18 @@ class Section3D:
     Args:
         density: float, section density in kg/m.
         thickness: float, section thickness in m.
-        youngs: float, Young's modulus of the section MPa.
-        start_x_frac: float, start of this section as a fraction of x position
-            in meters.
+        youngs: float, Young's modulus of the section in MPa.
+        poisson: float, Poisson's ratio.
+        start_x_frac: float, start of the section as a fraction of x position.
 
     """
     def __init__(
             self, density: float, thickness: float, youngs: float,
-            start_x_frac: float = 0):
+            poissons: float, start_x_frac: float = 0):
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
+        self.poissons = poissons
         self.start_x_frac = start_x_frac
 
     def y_min_max(self) -> Tuple[float, float]:
@@ -458,7 +459,7 @@ class Bridge:
             raise ValueError(
                 "2D bridge must have node at x=0 fixed in x direction")
 
-        # 2D bridge has 1 section.
+        # 2D bridge has exactly 1 section.
         if len(self.sections) != 1:
             raise ValueError("2D bridge must have exactly 1 section")
 
