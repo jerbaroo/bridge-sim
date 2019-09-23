@@ -1,16 +1,26 @@
-"""Test fem.run.opensees."""
-
+"""Full pipeline tests for OpenSees FEMRunner."""
 from fem.params import ExptParams, FEMParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Fix, Layer, Patch
-from model.bridge.bridge_705 import bridge_705, bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705, bridge_705_3d, bridge_705_test_config
 from model.load import Load
 from model.response import ResponseType
 from util import clean_generated
 
 
+def test_run_3d_model():
+    """Test that OpenSees can run a 3D bridge model."""
+    c = bridge_705_test_config(bridge_705_3d)
+    expt_params = ExptParams([FEMParams(
+        loads=[Load(0.65, 1234)],
+        response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
+    OSRunner(c).run(expt_params)
+
+
 def test_opensees_patch():
+    """Test that all patch points are recorded."""
     num_sub_div_z = 20
     patch = Patch(
         y_min=-1, y_max=0, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z)

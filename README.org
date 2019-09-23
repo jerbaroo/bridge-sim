@@ -23,5 +23,6 @@ points to the installed executable.
   pipenv install
   git lfs install
   git lfs pull
+  pipenv shell
   ./scripts/make-all.sh
 #+END_SRC

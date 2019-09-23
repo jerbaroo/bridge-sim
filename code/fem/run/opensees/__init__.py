@@ -16,7 +16,7 @@ def supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
     d2_response_types = [
         ResponseType.XTranslation, ResponseType.YTranslation,
-        ResponseType.Strain, ResponseType.Strain]
+        ResponseType.Strain, ResponseType.Stress]
     if bridge.dimensions == Dimensions.D2:
         return d2_response_types
     elif bridge.dimensions == Dimensions.D3:

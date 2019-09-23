@@ -35,9 +35,8 @@ def load_fem_responses(
     ResponseType determines which responses to load from disk and return.
 
     """
-    print(f"Loading fem reponses of type {response_type}")
-    print(f"FEM params.response_types = {fem_params.response_types}")
-    assert response_type in fem_params.response_types
+    if response_type not in fem_params.response_types:
+        raise ValueError(f"Can't load {response_type} if not in FEMParams")
 
     # May need to free a node in y direction.
     set_y_false = False
