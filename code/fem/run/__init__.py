@@ -43,6 +43,8 @@ class FEMRunner:
         self.built_files_dir = os.path.join(
             self.c.generated_dir, f"{self.name}/").lower()
         assert self.built_files_dir.endswith("/")
+        if not os.path.exists(self.built_files_dir):
+            os.makedirs(self.built_files_dir)
 
     def run(self, expt_params: ExptParams, run=True, save=True):
 

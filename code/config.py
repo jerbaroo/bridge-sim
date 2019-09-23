@@ -31,7 +31,7 @@ class Config:
         generated_dir: str, directory where to save generated files.
 
     Attrs:
-        resp_matrices: Dict[str, ResponsesMatrix], response matrices kept in memory.
+        resp_matrices: Dict[str, ResponsesMatrix], response matrices in memory.
         perturb_stddev: float, standard deviation to perturb a vehicle column.
         images_dir: str, directory where to save generated images.
         image_path: Callable[[str], str], a path relative to images_dir.
@@ -100,6 +100,8 @@ class Config:
         # Influence lines.
         self.fem_responses_path_prefix: str = os.path.join(
             self.generated_dir, "responses/responses")
+        if not os.path.exists(self.fem_responses_path_prefix):
+            os.makedirs(self.fem_responses_path_prefix)
         self.resp_matrices = dict()
         self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000
@@ -128,7 +130,7 @@ class Config:
         # OpenSees.
         self.os_node_step: float = 0.25  # In x direction.
         self.os_node_step_z: float = 0.2  # In z (transverse) direction.
-        self.os_exe_path: str = "/Users/jeremy/Downloads/OpenSees3.0.3/OpenSees"
+        self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
