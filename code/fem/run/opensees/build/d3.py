@@ -5,11 +5,12 @@ from typing import List, Tuple
 from config import Config
 from fem.params import ExptParams, FEMParams
 from model.bridge import Section3D
+from model.load import Load
 from model.response import ResponseType
 from util import print_d, print_i, round_m
 
 # Print debug information for this file.
-D: bool = False
+D: bool = True
 
 ##### Begin node IDs #####
 
@@ -86,6 +87,7 @@ opensees_intro = """
 
 
 class Node:
+    """A node as inserted into an OpenSees tcl file."""
     def __init__(self, n_id: int, x: float, y: float, z: float):
         self.n_id = n_id
         self.x = x
@@ -132,6 +134,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
 
 
 def opensees_nodes(c: Config):
+    """OpenSees node commands for a .tcl file."""
     reset_node_ids()
     return opensees_deck_nodes(c)
 
@@ -141,6 +144,7 @@ def opensees_nodes(c: Config):
 
 
 def section_tcl(section: Section3D, section_id: int):
+    """OpenSees ElasticMembranePlateSection command for a given Section3D."""
     return (
         f"section ElasticMembranePlateSection {section_id}"
         + f" {section.youngs} {section.poissons} {section.thickness}"
@@ -160,6 +164,7 @@ def opensees_sections(c: Config):
 def deck_elements(
         c: Config, first_node_z_0: int, first_node_z_1: int,
         last_node_z_0: int, z_skip: int) -> str:
+    """OpenSees element commands for the bridge deck for a .tcl file."""
     deck_elements = ["# Begin deck elements\n"]
     # Shell nodes are input in counter-clockwise order starting bottom left
     # with i, then bottom right with j, top right k, top left with l.
@@ -182,6 +187,7 @@ def deck_elements(
 
 
 def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
+    """OpenSees element commands for a .tcl file."""
     reset_elem_ids()
     first_node_z_0 = deck_nodes[0][0].n_id
     first_node_z_1 = deck_nodes[-1][0].n_id
@@ -197,6 +203,22 @@ def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
 
 
 ##### End shell elements #####
+##### Begin loads #####
+
+
+def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
+    print_d(D, f"Generating OpenSees load command for {load}")
+    return "hello"
+
+
+def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
+    """OpenSees load commands for a .tcl file."""
+    return "\n".join(
+        opensees_load(c=c, load=load, deck_nodes=deck_nodes)
+        for load in loads)
+
+
+##### End loads #####
 ##### Begin recorders #####
 
 
@@ -249,6 +271,8 @@ def build_model(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
             in_tcl
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<NODES>>", nodes_str)
+            .replace("<<LOAD>>", opensees_loads(
+                c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<SUPPORTS>>", "")  # TODO
             .replace("<<SECTIONS>>", opensees_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(

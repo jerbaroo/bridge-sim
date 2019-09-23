@@ -16,10 +16,6 @@ class FEMParams:
             displacement is reached. If not None "loads" are ignored.
         response_types: [ResponseType], response types to record.
 
-    Attrs:
-        TODO: Do we need this?
-        built_model_file: str, path of the model file built for simulation.
-
     """
     def __init__(
             self, loads: List[Load],
@@ -29,7 +25,6 @@ class FEMParams:
         self.displacement_ctrl = displacement_ctrl
         assert not (len(loads) > 0 and displacement_ctrl is not None)
         self.response_types = response_types
-        self.built_model_file = None
 
     def load_str(self):
         """String representing the parameters (that affect simulation)."""
