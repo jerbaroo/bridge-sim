@@ -19,6 +19,8 @@ class FEMRunner:
     """Run FEM simulations with an external program and generate responses.
 
     Args:
+        supported_response_types: Callable[[Bridge], List[ResponseType]], the
+            supported response types for a given bridge.
         built_model_ext: str, extension of the built model file.
         built_files_dir: str, directory to save any built files in.
 
@@ -28,6 +30,7 @@ class FEMRunner:
             self,
             c: Config,
             name: str,
+            supported_response_types: Callable[[Bridge], List[ResponseType]],
             build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
             run: Callable[[Config, ExptParams, FEMRunner, int], ExptParams],
             parse: Callable[[Config, ExptParams, FEMRunner], Parsed],
@@ -35,16 +38,18 @@ class FEMRunner:
                 [Config, Parsed],
                 Dict[int, Dict[ResponseType, List[Response]]]]):
         self.c = c
-        self._build = build
-        self._run = run
-        self._parse = parse
-        self._convert = convert
         self.name = name
+        self.supported_response_types = supported_response_types
         self.built_files_dir = os.path.join(
             self.c.generated_dir, f"{self.name}/").lower()
         assert self.built_files_dir.endswith("/")
         if not os.path.exists(self.built_files_dir):
             os.makedirs(self.built_files_dir)
+
+        self._build = build
+        self._run = run
+        self._parse = parse
+        self._convert = convert
 
     def run(self, expt_params: ExptParams, run=True, save=True):
 

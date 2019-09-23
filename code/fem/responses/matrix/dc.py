@@ -79,4 +79,4 @@ class DCMatrix(ResponsesMatrix):
 
         return ResponsesMatrix.load(
             c=c, id_str=id_str, expt_params=_expt_params, load_func=load_func,
-            save_all=save_all)
+            fem_runner=fem_runner, save_all=save_all)

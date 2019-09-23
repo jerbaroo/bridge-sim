@@ -18,17 +18,17 @@ class ResponseType(Enum):
     Stress = "stress"
     Strain = "strain"
 
-    def name(self):
+    def name(self) -> str:
         """Human readable name for a response type."""
         return {
             ResponseType.XTranslation: "X translation",
             ResponseType.YTranslation: "Y translation",
             ResponseType.ZTranslation: "Z translation",
             ResponseType.Stress: "Stress",
-            ResponseType.Strain: "Strain",
+            ResponseType.Strain: "Strain"
         }[self]
 
-    def units(self, short: bool = True):
+    def units(self, short: bool = True) -> str:
         """Human readable units (long or short) for a response type."""
         return {
             ResponseType.XTranslation: ("meters", "m"),

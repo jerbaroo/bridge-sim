@@ -320,9 +320,10 @@ class Bridge:
         length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
         supports: List[Support], a list of supports for 2D or 3D modeling.
-        lanes: List[Lane], lanes that span the bridge, where to place loads.
         sections: List[Section], specification of the bridge's cross section,
             only used in 2D modeling.
+        lanes: List[Lane], lanes that span the bridge, where to place loads.
+        dimensions: Dimensions, whether the model is 2D or 3D.
 
     """
     def __init__(

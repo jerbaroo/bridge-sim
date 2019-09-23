@@ -8,6 +8,7 @@ from fem.params import ExptParams
 from fem.responses import FEMResponses, fem_responses_path, load_fem_responses
 from fem.run import FEMRunner
 from model import Response
+from model.bridge import Dimensions
 from model.response import ResponseType
 from util import print_i
 
@@ -85,17 +86,21 @@ class ResponsesMatrix:
     def load(
             c: Config, id_str: str, expt_params: ExptParams,
             load_func: Callable[[ExptParams], "ResponsesMatrix"],
-            save_all: bool
+            fem_runner: FEMRunner, save_all: bool
             ) -> "ResponsesMatrix":
         """Load a ResponsesMatrix, running simulations first if necessary."""
+        if c.bridge.dimensions == Dimensions.D3:
+            # TODO: When it does support 3D, need to update save_all below.
+            raise ValueError(f"ResponsesMatrix doesn't yet support 3D models")
         # Load ResponsesMatrix if already available.
         if id_str in c.resp_matrices:
             return c.resp_matrices[id_str]
-        # If save_all then set each FEMParams to all ResponseTypes.
+        # If save_all then set each FEMParams to all ResponseTypes, which
+        # depends on the combination of FEMRunner and bridge.
         if save_all:
-            response_types = [rt for rt in ResponseType]
+            all_response_types = fem_runner.supported_response_types(c.bridge)
             for fem_params in expt_params.fem_params:
-                fem_params.response_types = response_types
+                fem_params.response_types = all_response_types
         resp_matrix = load_func(expt_params)
         c.resp_matrices[id_str] = resp_matrix
         return resp_matrix

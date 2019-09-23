@@ -1,11 +1,12 @@
 """Make all plots for the thesis."""
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
 from config import Config
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
+from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
 from plot import animate_mv_load, plt, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
@@ -41,7 +42,7 @@ def make_bridge_plots(
 
 def make_il_plots(
         c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_loads: int = 100):
+        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None):
     """Make plots of the influence lines.
 
     Args:
@@ -53,7 +54,9 @@ def make_il_plots(
     plt.close()
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_loads
-    for response_type in ResponseType:
+    if fem_runner is None:
+        fem_runner = OSRunner(c)
+    for response_type in fem_runner.supported_response_types(c.bridge):
         for interp_sim in [False]:
             for interp_response in [False]:
                 interp_sim_str = "-interp-sim" if interp_sim else ""
@@ -62,7 +65,7 @@ def make_il_plots(
 
                 # Make the influence line imshow matrix.
                 il_matrix = ILMatrix.load(
-                    c=c, response_type=response_type, fem_runner=OSRunner(c))
+                    c=c, response_type=response_type, fem_runner=fem_runner)
                 imshow_il(
                     c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
                     num_x=num_loads, interp_sim=interp_sim,
