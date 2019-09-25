@@ -4,7 +4,7 @@ from plot import plt
 
 from classify.data.events import Events
 from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic
-from fem.run.opensees import os_runner
+from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_config
 from model.load import DisplacementCtrl
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         BridgeScenarioDisplacementCtrl(
             displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))]
     response_type = ResponseType.XTranslation
-    fem_runner = os_runner(c)
+    fem_runner = OSRunner(c)
     lane = 0
     num_vehicles = 5
 

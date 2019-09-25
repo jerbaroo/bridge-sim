@@ -15,18 +15,24 @@ def test_fem_responses():
     # Setup.
     layer = Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10)
     c = bridge_705_test_config(lambda: bridge_705(layers=[layer]))
-    fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
     fem_runner = OSRunner(c)
+    response_types = fem_runner.supported_response_types(c.bridge)
+    fem_params = FEMParams(
+        loads=[Load(x_frac=0.1, kn=1000)], response_types=response_types)
 
-    for response_type in ResponseType:
+    # for response_type in list(ResponseType):
+    for response_type in response_types:
         # Remove results on disk.
         path = fem_responses_path(
             c=c, fem_params=fem_params, response_type=response_type,
             runner_name=fem_runner.name)
         if os.path.exists(path):
             os.remove(path)
+        print(response_type)
+        print(path)
 
         # Load simulation responses for each ResponseType.
+        print(f"Running load_fem_responses")
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
@@ -73,9 +79,11 @@ def test_fem_responses():
 def test_fem_responses_at():
     # Setup.
     c = bridge_705_test_config()
-    fem_params = FEMParams(loads=[Load(x_frac=0.1, kn=1000)])
-    response_type = ResponseType.XTranslation
     fem_runner = OSRunner(c)
+    response_types = fem_runner.supported_response_types(c.bridge)
+    fem_params = FEMParams(
+        loads=[Load(x_frac=0.1, kn=1000)], response_types=response_types)
+    response_type = ResponseType.XTranslation
 
     # Load simulation responses.
     fem_responses = load_fem_responses(

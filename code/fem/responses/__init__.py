@@ -12,24 +12,26 @@ from fem.params import ExptParams, FEMParams
 from model import Response
 from model.bridge import Point
 from model.response import ResponseType
-from util import nearest_index, print_d, print_i, print_w
+from util import nearest_index, print_d, print_i, pstr
 
 # Print debug information for this file.
-D: bool = False
+D: bool = True
 
 
 def fem_responses_path(
         c: Config, fem_params: FEMParams, response_type: ResponseType,
         runner_name: str) -> str:
     """Path of the responses of one sensor type for one FEM simulation."""
-    return (f"{c.fem_responses_path_prefix}-pa-{fem_params.load_str()}"
-            + f"-rt-{response_type.name()}-ru-{runner_name}.npy")
+    return os.path.join(
+        c.fem_responses_path_prefix,
+        pstr(f"{runner_name}-responses-params={fem_params.load_str()}"
+            + f"-type={response_type.name()}") + ".npy")
 
 
 def load_fem_responses(
         c: Config, fem_params: FEMParams, response_type: ResponseType,
         fem_runner: "FEMRunner") -> FEMResponses:
-    """Load the responses of one sensor type for one FEM simulation from disk.
+    """Load responses of one type from a FEM simulation.
 
     The FEMParams determine which responses are generated and saved, while the
     ResponseType determines which responses to load from disk and return.
@@ -37,6 +39,9 @@ def load_fem_responses(
     """
     if response_type not in fem_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
+    for rt in fem_params.response_types:
+        if rt not in fem_runner.supported_response_types(c.bridge):
+            raise ValueError(f"{rt} not supported by {fem_runner}")
 
     # May need to free a node in y direction.
     set_y_false = False
@@ -47,10 +52,17 @@ def load_fem_responses(
             fix.y = False
             set_y_false = True
 
-    path = fem_responses_path(c, fem_params, response_type, fem_runner.name)
+    path = fem_responses_path(
+        c=c, fem_params=fem_params, response_type=response_type,
+        runner_name=fem_runner.name)
+    print(path)
+
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
+        print_d(D, f"Running fem_runner.run")
         fem_runner.run(ExptParams([fem_params]))
+    else:
+        print_d(D, f"Not running fem_runner.run")
 
     # And set the node as fixed again after running.
     if set_y_false:

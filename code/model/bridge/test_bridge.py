@@ -10,7 +10,7 @@ from model.bridge import Bridge, Dimensions, Fix, Patch, Section, Section2D, Sec
 
 a_2d_section = Section2D(
     patches=[Patch(y_min=-1, y_max=0, z_min=-10, z_max=10)])
-a_3d_section = Section3D(density=1, thickness=2, youngs=3)
+a_3d_section = Section3D(density=1, thickness=2, youngs=3, poissons=4)
 a_3d_support = Support3D(
     x=50, z=0, length=4, height=2, width_top=3, width_bottom=1)
 
@@ -67,7 +67,7 @@ def test_3d_bridge_height():
     # Bridge should have height of the support.
     support = Support3D(
         x=50, z=0, length=4, height=2.1, width_top=3, width_bottom=1)
-    section = Section3D(density=1, thickness=0.6, youngs=3)
+    section = Section3D(density=1, thickness=0.6, youngs=3, poissons=4)
     bridge = Bridge(
         name="test", length=12, width=1, supports=[support],
         sections=[section], lanes=[], dimensions=Dimensions.D3)
@@ -86,7 +86,7 @@ def test_3d_bridge_sections():
     # First section doesn't start at 0.
     with pytest.raises(ValueError) as e:
         section_1 = Section3D(
-            density=1, thickness=2, youngs=3, start_x_frac=0.1)
+            density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.1)
         bridge = Bridge(
             name="test", length=12, width=7, supports=[a_3d_support],
             sections=[section_1], lanes=[], dimensions=Dimensions.D3)
@@ -95,11 +95,11 @@ def test_3d_bridge_sections():
     # Order of sections is incorrect.
     with pytest.raises(ValueError) as e:
         section_1 = Section3D(
-            density=1, thickness=2, youngs=3, start_x_frac=0)
+            density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0)
         section_2 = Section3D(
-            density=1, thickness=2, youngs=3, start_x_frac=0.5)
+            density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.5)
         section_3 = Section3D(
-            density=1, thickness=2, youngs=3, start_x_frac=0.2)
+            density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.2)
         bridge = Bridge(
             name="test", length=12, width=7, supports=[a_3d_support],
             sections=[section_1, section_2, section_3], lanes=[],

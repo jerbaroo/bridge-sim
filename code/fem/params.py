@@ -18,9 +18,8 @@ class FEMParams:
 
     """
     def __init__(
-            self, loads: List[Load],
-            displacement_ctrl: Optional[DisplacementCtrl] = None,
-            response_types: List[ResponseType] = list(ResponseType)):
+            self, loads: List[Load], response_types: List[ResponseType],
+            displacement_ctrl: Optional[DisplacementCtrl] = None):
         self.loads = loads
         self.displacement_ctrl = displacement_ctrl
         assert not (len(loads) > 0 and displacement_ctrl is not None)

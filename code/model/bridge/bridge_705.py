@@ -88,8 +88,10 @@ def bridge_705_3d(
 def bridge_705_test_config(
         bridge: Callable[[], Bridge] = bridge_705) -> Config:
     """A testing Config for bridge 705 in Amsterdam."""
-    return bridge_705_config(
+    config = bridge_705_config(
         bridge=bridge, generated_dir="generated-data-test")
+    config.event_metadata_path += ".test"
+    return config
 
 
 def bridge_705_config(

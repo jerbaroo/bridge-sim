@@ -2,6 +2,8 @@
 import itertools
 from typing import List, Tuple
 
+import numpy as np
+
 from config import Config
 from fem.params import ExptParams, FEMParams
 from model.bridge import Section3D
@@ -117,7 +119,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     z_pos = 0
     nodes = []
     for num_z in range(num_nodes_z):
-        # Fast forward node IDs on each transverse (y) increment.
+        # Fast forward node IDs on each transverse (z) increment.
         ff_node_ids(ff_mod)
         x_pos = 0
         nodes.append([])
@@ -207,8 +209,14 @@ def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
 
 
 def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
+    """An OpenSees load command for a .tcl file."""
+    # The deck nodes are first sorted by z position, then by x position.
+    x_pos = np.inf
+    for x_nodes in deck_nodes:
+        break
     print_d(D, f"Generating OpenSees load command for {load}")
-    return "hello"
+    assert load.is_point_load()
+    return f"load {load_node}"
 
 
 def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):

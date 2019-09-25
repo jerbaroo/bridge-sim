@@ -99,9 +99,7 @@ class Config:
 
         # Influence lines.
         self.fem_responses_path_prefix: str = os.path.join(
-            self.generated_dir, "responses/responses")
-        if not os.path.exists(self.fem_responses_path_prefix):
-            os.makedirs(self.fem_responses_path_prefix)
+            self.generated_dir, "responses/")
         self.resp_matrices = dict()
         self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000
@@ -135,7 +133,9 @@ class Config:
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
         # Make directories.
-        for directory in [self.generated_dir, self.images_dir]:
+        for directory in [
+                self.generated_dir, self.images_dir, self.events_dir,
+                self.fem_responses_path_prefix]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
