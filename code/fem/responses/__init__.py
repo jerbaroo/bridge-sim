@@ -15,7 +15,7 @@ from model.response import ResponseType
 from util import nearest_index, print_d, print_i, pstr
 
 # Print debug information for this file.
-D: bool = True
+D: bool = False
 
 
 def fem_responses_path(
@@ -25,7 +25,7 @@ def fem_responses_path(
     return os.path.join(
         c.fem_responses_path_prefix,
         pstr(f"{runner_name}-responses-params={fem_params.load_str()}"
-            + f"-type={response_type.name()}") + ".npy")
+             + f"-type={response_type.name()}") + ".npy")
 
 
 def load_fem_responses(

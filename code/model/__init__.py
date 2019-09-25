@@ -4,6 +4,7 @@ from model.bridge import Point
 
 class Response:
     """A sensor response collected from a simulation."""
+    # TODO: Move to fem.response
     def __init__(
             self, value: float, x: float=None, y: float=None, z: float=None,
             time: int=0, elem_id: int=None, srf_id: int=None,

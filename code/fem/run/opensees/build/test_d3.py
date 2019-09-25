@@ -29,15 +29,15 @@ def get_lines(
     return result
 
 
-def test_build_d3():
+def test_build_d3_deck_nodes_elems():
+    """Test the deck nodes and elements are built correctly."""
     # Setup.
     c = bridge_705_test_config(bridge=bridge_705_3d)
     os_runner = OSRunner(c=c)
 
     # Build model file.
     expt_params = ExptParams([FEMParams(
-        loads=[Load(0.65, 1234)],
-        response_types=[
+        loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model(c=c, expt_params=expt_params, os_runner=os_runner)
     with open(os_runner.fem_file_path(
@@ -48,10 +48,10 @@ def test_build_d3():
     deck_node_lines = get_lines(
         contains="node ", lines=lines, after="Begin deck nodes",
         before="End deck nodes")
-    assert "node 0 0 0 0" in deck_node_lines[0]
-    assert "node 1 0.25 0 0" in deck_node_lines[1]
-    assert "102.5 0 33.2" in deck_node_lines[-2]
-    assert "102.75 0 33.2" in deck_node_lines[-1]
+    assert "node 0 0 0 -16.6" in deck_node_lines[0]
+    assert "node 1 0.25 0 -16.6" in deck_node_lines[1]
+    assert "102.5 0 16.6" in deck_node_lines[-2]
+    assert "102.75 0 16.6" in deck_node_lines[-1]
 
     # Assert section 0 is inserted.
     section_lines = [line for line in lines if "section " in line]
@@ -74,3 +74,29 @@ def test_build_d3():
         ((c.bridge.length / c.os_node_step) + 1)
         * ((c.bridge.width / c.os_node_step_z) + 1))
     assert len(deck_node_ids) == num_decknodes
+
+
+def test_build_d3_loads():
+    """Test loads are placed correctly on the deck."""
+    # Setup.
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    # Nodes along z will jump to next 100, since we divide by 10.
+    c.os_node_step = c.bridge.length / 10
+    c.os_node_step_z = c.bridge.width / 10
+    os_runner = OSRunner(c=c)
+    load = Load(x_frac=0.5, kn=1234)
+    load.z_frac = 0.5
+
+    # Build model file.
+    expt_params = ExptParams([FEMParams(
+        loads=[load], response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
+    build_model(c=c, expt_params=expt_params, os_runner=os_runner)
+    with open(os_runner.fem_file_path(
+            fem_params=expt_params.fem_params[0], ext="tcl")) as f:
+        lines = f.readlines()
+
+    load_lines = [line.strip() for line in lines if "load" in line]
+    # 11 nodes along z, and along x. So we expect a load at node 505.
+    assert "load 505 0 1234000 0 0 0 0" in load_lines
+    print(load_lines)

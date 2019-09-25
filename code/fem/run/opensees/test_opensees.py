@@ -11,10 +11,12 @@ from util import clean_generated
 
 def test_run_3d_model():
     """Test that OpenSees can run a 3D bridge model."""
-    return
-    c = bridge_705_test_config(bridge_705_3d)
+    c = bridge_705_test_config(lambda: bridge_705_3d())
+    c.os_node_step = 10.275
+    c.os_node_step_z = 3.32
+    clean_generated(c)
     expt_params = ExptParams([FEMParams(
-        loads=[Load(0.65, 1234)],
+        loads=[Load(0.65, 100)],
         response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     OSRunner(c).run(expt_params)
@@ -30,7 +32,6 @@ def test_opensees_patch():
         patches=[patch],
         layers=[Layer(
             y_min=-0.5, y_max=-0.5, z_min=-0.5, z_max=0.5, num_fibers=2)]))
-    clean_generated(c)
     fem_params = FEMParams(
         loads=[Load(0.65, 1234)],
         response_types=[

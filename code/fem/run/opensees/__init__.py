@@ -12,7 +12,7 @@ from model.bridge import Bridge, Dimensions, Layer, Patch
 from model.response import ResponseType
 
 
-def supported_response_types(bridge: Bridge) -> List[ResponseType]:
+def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
     d2_response_types = [
         ResponseType.XTranslation, ResponseType.YTranslation,
@@ -29,9 +29,12 @@ class OSRunner(FEMRunner):
     def __init__(self, c: Config):
         super().__init__(
             c=c, name="OpenSees",
-            supported_response_types=supported_response_types,
+            supported_response_types=opensees_supported_response_types,
             build=build_model, run=run_model, parse=parse_responses,
             convert=convert_responses)
+
+    # NOTE: All of the path functions below are only used within the OpenSees
+    # FEMRunner, used to save results from OpenSees simulations.
 
     def translation_path(self, fem_params: FEMParams, axis: str):
         return self.fem_file_path(

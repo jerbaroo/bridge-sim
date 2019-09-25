@@ -39,6 +39,8 @@ class Load:
                  quadim: Tuple[float, float] = (0.4, 0.2)):
         # assert x_frac >= 0 and x_frac <= 1
         self.x_frac = x_frac
+        # TODO: z_frac.
+        self.z_frac = 0.1
         self.kn = kn
         self.lane = lane
         self.axle_distances = axle_distances
@@ -60,8 +62,8 @@ class Load:
 
     def __repr__(self):
         """Human readable representation of this load."""
-        load_type = ("point" if self.is_point_load()
-                     else f"{self.num_axles}-axle")
+        load_type = (
+            "point" if self.is_point_load() else f"{self.num_axles}-axle")
         units = "kN per axle" if self.is_point_load() else "kN"
         return (f"<Load type: {load_type}, kN: {self.total_kn():.2f} {units}"
                 + f", lane: {self.lane}>")
@@ -88,8 +90,9 @@ class MovingLoad:
         self.l_to_r = l_to_r
 
     def __repr__(self):
-        return (f"<MovingLoad kmph: {self.kmph}, l_to_r: {self.l_to_r}"
-                + f", load: {self.load}")
+        return (
+            f"<MovingLoad kmph: {self.kmph}, l_to_r: {self.l_to_r}"
+            + f", load: {self.load}")
 
     @staticmethod
     def from_vehicle(

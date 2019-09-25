@@ -29,9 +29,7 @@ class FEMRunner:
     """
 
     def __init__(
-            self,
-            c: Config,
-            name: str,
+            self, c: Config, name: str,
             supported_response_types: Callable[[Bridge], List[ResponseType]],
             build: Callable[[Config, ExptParams, FEMRunner], ExptParams],
             run: Callable[[Config, ExptParams, FEMRunner, int], ExptParams],

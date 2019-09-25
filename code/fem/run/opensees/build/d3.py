@@ -77,6 +77,7 @@ def ff_elem_ids(mod: int):
 
 ##### End element IDs #####
 
+
 opensees_intro = """
 # Programatically generated file.
 #
@@ -84,6 +85,7 @@ opensees_intro = """
 # - dimension: m
 # - force: N
 """
+
 
 ##### Begin nodes #####
 
@@ -104,11 +106,11 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for the bridge deck for a .tcl file."""
     num_nodes_x = c.bridge.length / c.os_node_step + 1
     num_nodes_z = c.bridge.width / c.os_node_step_z + 1
-    if num_nodes_x != int(num_nodes_x):
+    if not np.isclose(num_nodes_x, int(num_nodes_x)):
         raise ValueError(
             f"Bridge length {c.bridge.length} not evenly divisible by"
             + f" c.os_node_step {c.os_node_step}")
-    if num_nodes_z != int(num_nodes_z):
+    if not np.isclose(num_nodes_z, int(num_nodes_z)):
         raise ValueError(
             f"Bridge width {c.bridge.width} not evenly divisible by"
             + f" c.os_node_step_z {c.os_node_step_z}")
@@ -116,12 +118,12 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     num_nodes_z = int(num_nodes_z)
     ff_mod = next_pow_10(num_nodes_x)
     print_i(ff_mod)
-    z_pos = 0
+    z_pos = c.bridge.z_min
     nodes = []
     for num_z in range(num_nodes_z):
         # Fast forward node IDs on each transverse (z) increment.
         ff_node_ids(ff_mod)
-        x_pos = 0
+        x_pos = c.bridge.x_min
         nodes.append([])
         for num_x in range(num_nodes_x):
             nodes[-1].append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
@@ -210,13 +212,41 @@ def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
 
 def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
     """An OpenSees load command for a .tcl file."""
+    min_z_diff = np.inf  # Minimum difference in z of node to load.
+    min_x_diff = np.inf  # Minimum difference in x of node to load.
+    print_d(D, f"load.z_frac = {load.z_frac}")
+    load_z = c.bridge.z(z_frac=load.z_frac)
+    load_x = c.bridge.x(x_frac=load.x_frac)
+    best_node = None
     # The deck nodes are first sorted by z position, then by x position.
-    x_pos = np.inf
+    # First iterate through the z positions.
+    # TODO: Fix z positioning.
+    best_x_nodes = None
     for x_nodes in deck_nodes:
-        break
+        print_d(D, f"x_nodes[0].z = {x_nodes[0].z}")
+        print_d(D, f"load_z = {load_z}")
+        if abs(x_nodes[0].z - load_z) < min_z_diff:
+            min_z_diff = abs(x_nodes[0].z - load_z)
+            print_d(D, f"min_z_diff = {min_z_diff}")
+            best_x_nodes = x_nodes
+        else:
+            break
+    print_d(D, f"best_x_nodes.x = {best_x_nodes[0].x}")
+    print_d(D, f"best_x_nodes.z = {best_x_nodes[0].z}")
+    for x_ind, node in enumerate(best_x_nodes):
+        if abs(node.x - load_x) < min_x_diff:
+            min_x_diff = abs(node.x - load_x)
+            best_node = node
+            # print_d(D, f"min_x_diff = {min_x_diff}")
+            # print_d(D, f"{x_ind / len(x_nodes)}")
+            # print_d(D, f"load_x = {load_x}")
+        else:
+            break
+    print_d(D, f"best_node.x = {best_node.x}")
+    print_d(D, f"best_node.z = {best_node.z}")
     print_d(D, f"Generating OpenSees load command for {load}")
     assert load.is_point_load()
-    return f"load {load_node}"
+    return f"load {best_node.n_id} 0 {load.kn * 1000} 0 0 0 0"
 
 
 def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):

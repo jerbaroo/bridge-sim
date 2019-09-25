@@ -126,7 +126,7 @@ class Config:
         }[rt]
 
         # OpenSees.
-        self.os_node_step: float = 0.25  # In x direction.
+        self.os_node_step: float = 0.25  # In x (longitudinal) direction.
         self.os_node_step_z: float = 0.2  # In z (transverse) direction.
         self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
