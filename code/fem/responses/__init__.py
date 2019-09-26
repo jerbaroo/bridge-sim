@@ -87,9 +87,8 @@ class FEMResponses:
     """Responses of one sensor type for one FEM simulation.
 
     FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
-    axis positions in meters, but it is better to use the .at method to access
-    responses, which will compute a weighted response between the 8 closest
-    points of a cuboid.
+    axis positions in meters, while the .at method allows accessing responses
+    by fractional positions.
 
     Args:
         fem_params: FEMParams, the parameters of the simulation.
@@ -106,6 +105,8 @@ class FEMResponses:
             response_type: ResponseType, responses: List[Response],
             skip_build: bool = False):
         assert isinstance(responses, list)
+        if len(responses) == 0:
+            raise ValueError("No responses found")
         assert isinstance(responses[0], Response)
 
         # Used for de/serialization.

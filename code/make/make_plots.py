@@ -4,6 +4,8 @@ from typing import List, Optional
 import numpy as np
 
 from config import Config
+from fem.params import FEMParams
+from fem.responses import load_fem_responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
@@ -11,11 +13,12 @@ from fem.run.opensees import OSRunner
 from plot import animate_mv_load, plt, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
+from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles, plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Point
 from model.load import Load, MovingLoad
 from model.response import ResponseType
-from util import pstr, clean_generated
+from util import pstr
 from vehicles.sample import sample_vehicle
 
 
@@ -205,14 +208,29 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-at-{x_frac:.2f}"))))
 
 
-def make_all(c: Config, clean = True):
-    """Make all plots for the thesis."""
-    if clean:
-        clean_generated(c)
-    make_bridge_plots(c)
-    make_il_plots(c)
+def make_contour_plots(c: Config):
+    response_type = ResponseType.Strain
+    fem_runner = OSRunner(c)
+    fem_params = FEMParams(
+        loads=[Load(0.65, 100)], response_types=[response_type])
+    fem_responses = load_fem_responses(
+        c=c, fem_params=fem_params, response_type=response_type,
+        fem_runner=fem_runner)
+    plot_contour_deck(fem_responses)
+
+
+def make_all_2d(c: Config):
+    """Make all plots for a 2D bridge for the thesis."""
+    make_contour_plots(c)
+    # make_bridge_plots(c)
+    # make_il_plots(c)
     # make_dc_plots(c)
     # make_normal_mv_load_animations(c)
     # make_normal_mv_load_animations(c, per_axle=True)
     # make_vehicle_plots(c)
     # make_event_plots_from_normal_mv_loads(c)
+
+
+def make_all_3d(c: Config):
+    """Make all plots for a 3D bridge for the thesis."""
+    make_contour_plots(c)
