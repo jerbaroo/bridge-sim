@@ -26,7 +26,7 @@ class Dimensions(Enum):
     def name(self):
         return {
             Dimensions.D2: "2D",
-            Dimensions.D3: "23"
+            Dimensions.D3: "3D"
         }[self]
 
 
@@ -319,9 +319,8 @@ class Bridge:
         name: str, the name of the bridge.
         length: float, length of the bridge in meters.
         width: float, width of the bridge in meters.
-        supports: List[Support], a list of supports for 2D or 3D modeling.
-        sections: List[Section], specification of the bridge's cross section,
-            only used in 2D modeling.
+        supports: List[Support], a list of supports in 2D or 3D.
+        sections: List[Section], the bridge's cross section in 2D or 3D.
         lanes: List[Lane], lanes that span the bridge, where to place loads.
         dimensions: Dimensions, whether the model is 2D or 3D.
 
@@ -357,6 +356,10 @@ class Bridge:
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
         self._assert_bridge()
+
+    def long_name(self):
+        """Name with dimensions attached."""
+        return f"{self.name}-{self.dimensions.name()}"
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

@@ -1,6 +1,6 @@
 """Test the sampling of vehicles."""
 from model.load import Vehicle
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from vehicles.sample import noise_col_names, sample_vehicle
 from util import print_d
 
@@ -9,7 +9,7 @@ D: bool = False
 
 
 def test_sample_vehicle():
-    c = bridge_705_config()
+    c = bridge_705_test_config(bridge_705_2d)
     c.vehicle_density = [(11.5, 0.7), (12.2, 0.2), (43, 0.1)]
 
     # Test a vehicle is returned.

@@ -11,7 +11,7 @@ from fem.responses import FEMResponses
 from model import Response
 from model.bridge import Bridge
 from model.response import ResponseType
-from util import print_i
+from util import print_i, pstr
 
 Parsed = TypeVar("Parsed")
 
@@ -105,18 +105,21 @@ class FEMRunner:
             self, fem_params: FEMParams, ext: str, append: str = "") -> str:
         """A file path based on a bridge, FEMParams and this FEMRunner.
 
+        This function is used for file paths of raw responses saved by the
+        FEMRunner, you should not use this directly. Instead you may be
+        interested in load_fem_responses or fem_responses_path.
+
         Args:
             fem_params: FEMParams, parameters for a FEM simulation.
-            ext: str, the file extension of the file.
-            append: str, a string to append before the file extension.
+            ext: str, a file extension without the dot.
+            append: str, appended before the file extension.
 
         """
         load_str: str = fem_params.load_str()
         for char in "[]()":
             load_str = load_str.replace(char, "")
         append = append if len(append) == 0 else f"-{append}"
-        return os.path.join(
+        return pstr(os.path.join(
             self.built_files_dir,
-            f"{self.name}-{self.c.bridge.name}"
-            + f"-{self.c.bridge.dimensions.name()}-{load_str}{append}.{ext}"
-        ).replace(" ", "").lower()
+            f"{self.c.bridge.long_name()}-response-params={load_str}{append}"
+        )).lower() + f".{ext}"

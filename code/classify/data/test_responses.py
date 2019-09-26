@@ -5,11 +5,11 @@ from classify.data.responses import response_to_mv_loads
 from classify.data.scenarios import normal_traffic
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.load import MovingLoad
 from model.response import ResponseType
 
-c = bridge_705_config()
+c = bridge_705_test_config(bridge_705_2d)
 c.il_num_loads = 10
 
 
@@ -18,7 +18,7 @@ def test_response_to_mv_loads():
     # All lanes are the same, so no error should be raised.
     mv_loads = normal_traffic(c).mv_loads(num_vehicles=2, lane=0)
     response_to_mv_loads(
-        c=c, mv_loads=mv_loads, bridge_scenario=None, time=1, at=Point(x=1), 
+        c=c, mv_loads=mv_loads, bridge_scenario=None, time=1, at=Point(x=1),
         response_type=ResponseType.XTranslation, fem_runner=OSRunner(c))
 
     # Different lanes, so an error should be raised.

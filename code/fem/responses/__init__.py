@@ -24,7 +24,8 @@ def fem_responses_path(
     """Path of the responses of one sensor type for one FEM simulation."""
     return os.path.join(
         c.fem_responses_path_prefix,
-        pstr(f"{runner_name}-responses-params={fem_params.load_str()}"
+        pstr(f"{runner_name}-{c.bridge.long_name()}"
+             + f"-responses-params={fem_params.load_str()}"
              + f"-type={response_type.name()}") + ".npy")
 
 

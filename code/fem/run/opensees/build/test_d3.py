@@ -99,4 +99,3 @@ def test_build_d3_loads():
     load_lines = [line.strip() for line in lines if "load" in line]
     # 11 nodes along z, and along x. So we expect a load at node 505.
     assert "load 505 0 1234000 0 0 0 0" in load_lines
-    print(load_lines)

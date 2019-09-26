@@ -6,7 +6,7 @@ from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Layer
-from model.bridge.bridge_705 import bridge_705, bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.load import Load
 from model.response import ResponseType
 
@@ -14,7 +14,7 @@ from model.response import ResponseType
 def test_fem_responses():
     # Setup.
     layer = Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10)
-    c = bridge_705_test_config(lambda: bridge_705(layers=[layer]))
+    c = bridge_705_test_config(lambda: bridge_705_2d(layers=[layer]))
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = FEMParams(
@@ -78,7 +78,7 @@ def test_fem_responses():
 
 def test_fem_responses_at():
     # Setup.
-    c = bridge_705_test_config()
+    c = bridge_705_test_config(bridge_705_2d)
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = FEMParams(

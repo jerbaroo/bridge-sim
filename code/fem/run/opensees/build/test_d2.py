@@ -5,35 +5,34 @@ from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model
 from model.bridge import Fix, Patch, Section
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
+from util import clean_generated
 
 
 def test_build_2d():
     # Setup.
     num_sub_div_z = 20
-    c = bridge_705_config(
+    c = bridge_705_test_config(lambda: bridge_705_2d(
         width=2,
         length=10,
         layers=[],
         patches=[Patch(
             y_min=-1, y_max=1, z_min=-1, z_max=1,
             num_sub_div_z=num_sub_div_z)],
-        supports=[Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)])
+        supports=[Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]))
     c.os_node_step = 0.5
+    clean_generated(c)
     expt_params = ExptParams([FEMParams(
-        loads=[Load(0.65, 1234)],
-        response_types=[
+        loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read it into memory.
-    fem_runner = OSRunner(c)
-    build_model(c=c, expt_params=expt_params, fem_runner=fem_runner)
-    with open(fem_runner.fem_file_path(
+    build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))
+    with open(OSRunner(c).fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
-    # [print(line) for line in lines]
 
     # Test nodes.
     expected_nodes = c.bridge.length / c.os_node_step + 1
@@ -58,7 +57,7 @@ def test_build_2d():
 
 def test_build_2d_displacement_ctrl():
     # Setup.
-    c = bridge_705_config()
+    c = bridge_705_test_config(bridge_705_2d)
     c.bridge.length = 10
     c.os_node_step = 0.5
     c.bridge.supports = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
@@ -85,7 +84,7 @@ def test_build_2d_displacement_ctrl():
                   loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, fem_runner=OSRunner(c))
+    build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))
 
     # Error if the displacement control node is fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
@@ -95,4 +94,4 @@ def test_build_2d_displacement_ctrl():
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
     with pytest.raises(ValueError):
-        build_model(c=c, expt_params=expt_params, fem_runner=OSRunner(c))
+        build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))

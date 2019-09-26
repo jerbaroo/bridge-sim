@@ -37,7 +37,7 @@ bridge_705_layers = [
         area_fiber=4.9e-4)]
 
 
-def bridge_705(
+def bridge_705_2d(
         name: str = "Bridge 705", length: float = bridge_705_length,
         width: float = bridge_705_width, lanes: List[Lane] = bridge_705_lanes,
         piers: List[float] = bridge_705_piers,
@@ -85,8 +85,7 @@ def bridge_705_3d(
 # Configs (normal and testing) for bridge 705.
 
 
-def bridge_705_test_config(
-        bridge: Callable[[], Bridge] = bridge_705) -> Config:
+def bridge_705_test_config(bridge: Callable[[], Bridge]) -> Config:
     """A testing Config for bridge 705 in Amsterdam."""
     config = bridge_705_config(
         bridge=bridge, generated_dir="generated-data-test")
@@ -95,8 +94,8 @@ def bridge_705_test_config(
 
 
 def bridge_705_config(
-        bridge: Callable[[], Bridge] = bridge_705,
-        generated_dir: str = "generated-data") -> Config:
+        bridge: Callable[[], Bridge], generated_dir: str = "generated-data"
+        ) -> Config:
     """A Config for bridge 705 in Amsterdam."""
     return Config(
         bridge=bridge, vehicle_data_path="data/a16-data/a16.csv",

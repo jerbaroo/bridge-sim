@@ -265,23 +265,23 @@ def opensees_recorders(
         deck_nodes: List[List[Node]]):
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
-    trans_response_types = []
+    translation_response_types = []
     if ResponseType.XTranslation in fem_params.response_types:
-        trans_response_types.append((
+        translation_response_types.append((
             os_runner.x_translation_path(fem_params), 1))
     if ResponseType.YTranslation in fem_params.response_types:
-        trans_response_types.append((
+        translation_response_types.append((
             os_runner.y_translation_path(fem_params), 2))
     if ResponseType.ZTranslation in fem_params.response_types:
-        trans_response_types.append((
+        translation_response_types.append((
             os_runner.z_translation_path(fem_params), 3))
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = ["# Begin translation recorders\n"]
     node_str = " ".join(
         str(n.n_id) for n in itertools.chain.from_iterable(deck_nodes))
-    for response_path, i in trans_response_types:
+    for response_path, i in translation_response_types:
         recorder_strs.append(
-            f"recorder Node -f {response_path} -node {node_str} -dof {i} disp")
+            f"recorder Node -file {response_path} -node {node_str} -dof {i} disp")
     recorder_strs.append("\n# End translation recorders")
     return "\n".join(recorder_strs)
 

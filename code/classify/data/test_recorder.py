@@ -2,10 +2,10 @@
 from classify.data.recorder import Recorder
 from classify.data.trigger import always_trigger
 from fem.run.opensees import OSRunner
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.response import ResponseType
 
-c = bridge_705_config()
+c = bridge_705_test_config(bridge_705_2d)
 c.il_num_loads = 10
 fem_runner = OSRunner(c)
 

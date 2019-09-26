@@ -8,11 +8,11 @@ from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenar
 from classify.data.events import Events, events_from_mv_loads, save_events
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.load import DisplacementCtrl, MovingLoad
 from model.response import Event, ResponseType
 
-c = bridge_705_test_config()
+c = bridge_705_test_config(bridge_705_2d)
 c.il_num_loads = 10
 
 
