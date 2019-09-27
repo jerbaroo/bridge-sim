@@ -33,6 +33,8 @@ def test_build_d3_deck_nodes_elems():
     """Test the deck nodes and elements are built correctly."""
     # Setup.
     c = bridge_705_test_config(bridge=bridge_705_3d)
+    c.os_node_step = c.bridge.length / 10
+    c.os_node_step_z = c.bridge.width / 10
     os_runner = OSRunner(c=c)
 
     # Build model file.
@@ -48,9 +50,9 @@ def test_build_d3_deck_nodes_elems():
     deck_node_lines = get_lines(
         contains="node ", lines=lines, after="Begin deck nodes",
         before="End deck nodes")
-    assert "node 0 0 0 -16.6" in deck_node_lines[0]
-    assert "node 1 0.25 0 -16.6" in deck_node_lines[1]
-    assert "102.5 0 16.6" in deck_node_lines[-2]
+    assert "node 100 0 0 -16.6" in deck_node_lines[0]
+    assert "node 101 10.275 0 -16.6" in deck_node_lines[1]
+    assert "92.475 0 16.6" in deck_node_lines[-2]
     assert "102.75 0 16.6" in deck_node_lines[-1]
 
     # Assert section 0 is inserted.
@@ -60,9 +62,9 @@ def test_build_d3_deck_nodes_elems():
         in section_lines[0])
 
     # Assert first shell is inserted.
-    pow_10 = next_pow_10(c.bridge.length / c.os_node_step)
-    first_element = f"element ShellMITC4 0 0 1 {pow_10 + 1} {pow_10} 0"
-    assert any((first_element in line) for line in lines)
+    first_element = f"element ShellMITC4 1 100 101 201 200 0"
+    element_lines = [line for line in lines if "ShellMITC4 " in line]
+    assert first_element in element_lines[0]
 
     # Should have y-translation but not other translations.
     y_out_line = next(line for line in lines if "y.out" in line)
@@ -70,10 +72,10 @@ def test_build_d3_deck_nodes_elems():
     # Check all nodes are recorded.
     deck_node_str = y_out_line.split(" -node ")[1].split(" -dof ")[0].strip()
     deck_node_ids = list(map(int, deck_node_str.split()))
-    num_decknodes = (
+    num_deck_nodes = (
         ((c.bridge.length / c.os_node_step) + 1)
         * ((c.bridge.width / c.os_node_step_z) + 1))
-    assert len(deck_node_ids) == num_decknodes
+    assert len(deck_node_ids) == num_deck_nodes
 
 
 def test_build_d3_loads():
@@ -98,4 +100,4 @@ def test_build_d3_loads():
 
     load_lines = [line.strip() for line in lines if "load" in line]
     # 11 nodes along z, and along x. So we expect a load at node 505.
-    assert "load 505 0 1234000 0 0 0 0" in load_lines
+    assert "load 605 0 1234000 0 0 0 0" in load_lines

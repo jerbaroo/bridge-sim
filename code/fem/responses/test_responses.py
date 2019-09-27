@@ -2,6 +2,8 @@
 import os
 from timeit import default_timer as timer
 
+import numpy as np
+
 from fem.params import FEMParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import OSRunner
@@ -47,7 +49,8 @@ def test_fem_responses():
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
-        assert len(fem_responses.xs) == c.bridge.length / c.os_node_step + 1
+        assert np.isclose(
+            len(fem_responses.xs), c.bridge.length / c.os_node_step + 1)
         assert len(fem_responses.ys[fem_responses.xs[0]]) == 1
         assert len(fem_responses.zs[fem_responses.xs[0]]) == 1
         assert len(fem_responses.zs[fem_responses.xs[0]][
@@ -62,7 +65,8 @@ def test_fem_responses():
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
-        assert len(fem_responses.xs) == c.bridge.length / c.os_node_step
+        assert np.isclose(
+            len(fem_responses.xs), c.bridge.length / c.os_node_step)
         assert len(fem_responses.ys[fem_responses.xs[0]]) == (
             len(c.bridge.sections[0].patches) +
             len(c.bridge.sections[0].layers))

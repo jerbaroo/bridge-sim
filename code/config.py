@@ -148,7 +148,7 @@ class Config:
 
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():
-            result = np.round(self.bridge.length / self.os_node_step)
+            result = int(np.round(self.bridge.length / self.os_node_step))
             print_d(D, f"os_num_elems = {result}")
             assert np.isclose(result * self.os_node_step, self.bridge.length)
             return result
