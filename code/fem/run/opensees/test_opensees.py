@@ -12,8 +12,8 @@ from util import clean_generated
 def test_run_3d_model():
     """Test that OpenSees can run a 3D bridge model."""
     c = bridge_705_test_config(bridge_705_3d)
-    c.os_node_step = 10.275
-    c.os_node_step_z = 3.32
+    c.os_node_step = c.bridge.length / 10
+    c.os_node_step_z = c.bridge.width / 10
     clean_generated(c)
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 100)], response_types=[

@@ -8,7 +8,10 @@ import numpy as np
 from model.bridge import Bridge, _reset_model_ids
 from model.response import ResponseType
 from vehicles import load_vehicle_data
-from util import print_i, print_w
+from util import print_d, print_i, print_w
+
+# Print debug information for this file.
+D: bool = True
 
 
 class Config:
@@ -126,8 +129,8 @@ class Config:
         }[rt]
 
         # OpenSees.
-        self.os_node_step: float = 0.25  # In x (longitudinal) direction.
-        self.os_node_step_z: float = 0.2  # In z (transverse) direction.
+        self.os_node_step: float = self.bridge.length / 100
+        self.os_node_step_z: float = self.bridge.width / 100
         self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
@@ -139,10 +142,15 @@ class Config:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
+        #######################################################################
+        # TODO: Remove everything below this line #############################
+        #######################################################################
+
         # Put all this non-configuration in OpenSees FEMRunner.
         def os_get_num_elems():
-            result = int(self.bridge.length / self.os_node_step)
-            assert result * self.os_node_step == self.bridge.length
+            result = np.round(self.bridge.length / self.os_node_step)
+            print_d(D, f"os_num_elems = {result}")
+            assert np.isclose(result * self.os_node_step, self.bridge.length)
             return result
 
         os_get_num_elems()
