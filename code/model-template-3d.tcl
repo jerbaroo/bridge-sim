@@ -4,6 +4,8 @@ model basic -ndm 3 -ndf 6
 
 <<NODES>>
 
+<<FIX>>
+
 <<SUPPORTS>>
 
 <<SECTIONS>>
