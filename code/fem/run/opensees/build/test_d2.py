@@ -3,7 +3,7 @@ import pytest
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build import build_model
+from fem.run.opensees.build import build_model_2d
 from model.bridge import Fix, Patch, Section
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -29,7 +29,7 @@ def test_build_2d():
             ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read it into memory.
-    build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))
+    build_model_2d(c=c, expt_params=expt_params, os_runner=OSRunner(c))
     with open(OSRunner(c).fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -67,7 +67,7 @@ def test_build_2d_displacement_ctrl():
         response_types=[ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read.
-    build_model(c, expt_params, OSRunner(c))
+    build_model_2d(c, expt_params, OSRunner(c))
     with open(OSRunner(c).fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -84,7 +84,7 @@ def test_build_2d_displacement_ctrl():
                   loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))
+    build_model_2d(c=c, expt_params=expt_params, os_runner=OSRunner(c))
 
     # Error if the displacement control node is fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
@@ -94,4 +94,4 @@ def test_build_2d_displacement_ctrl():
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
     with pytest.raises(ValueError):
-        build_model(c=c, expt_params=expt_params, os_runner=OSRunner(c))
+        build_model_2d(c=c, expt_params=expt_params, os_runner=OSRunner(c))

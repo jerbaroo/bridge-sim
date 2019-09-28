@@ -3,8 +3,7 @@ from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build import build_model
-from fem.run.opensees.build.d3 import next_node_id, reset_node_ids, ff_node_ids, next_pow_10
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -41,7 +40,7 @@ def test_build_d3_deck_nodes_elems():
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, os_runner=os_runner)
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -93,7 +92,7 @@ def test_build_d3_loads():
     expt_params = ExptParams([FEMParams(
         loads=[load], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
-    build_model(c=c, expt_params=expt_params, os_runner=os_runner)
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()

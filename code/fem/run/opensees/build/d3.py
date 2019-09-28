@@ -1,6 +1,6 @@
 """Build OpenSees 3D model files."""
 import itertools
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -91,8 +91,9 @@ opensees_intro = """
 # - z: transverse"""
 
 
-def comment(c: str, inner: str):
+def comment(c: str, inner: str, units: Optional[str] = None):
     """Add Begin c and End c comments around an inner block."""
+    units_str = "" if units is None else f"# {units}\n"
     return f"# Begin {c}\n" + inner + f"\n# End {c}"
 
 
@@ -107,8 +108,8 @@ def num_nodes(c: Config):
         raise ValueError(
             f"Bridge width {c.bridge.width} not evenly divisible by"
             + f" c.os_node_step_z {c.os_node_step_z}, was {num_nodes_z}")
-    num_nodes_x = int(num_nodes_x)
-    num_nodes_z = int(num_nodes_z)
+    num_nodes_x = int(np.round(num_nodes_x))
+    num_nodes_z = int(np.round(num_nodes_z))
     return num_nodes_x, num_nodes_z
 
 
@@ -262,7 +263,7 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
     best_node = None
     # The deck nodes are first sorted by z position, then by x position.
     # First iterate through the z positions.
-    # TODO: Fix z positioning.
+    # TODO: Fix z positioning (Load).
     best_x_nodes = None
     for x_nodes in deck_nodes:
         print_d(D, f"x_nodes[0].z = {x_nodes[0].z}")
@@ -333,7 +334,7 @@ def opensees_recorders(
 ##### End recorders #####
 
 
-def build_model(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
+def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build OpenSees 3D model files."""
     # Read in the template model file.
     with open(c.os_3d_model_template_path) as f:

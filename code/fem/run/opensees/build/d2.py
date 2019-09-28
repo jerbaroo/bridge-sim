@@ -86,7 +86,7 @@ def opensees_sections(c: Config):
 
 
 def opensees_recorders(
-        c: Config, fem_runner: "OSRunner", fem_params: FEMParams):
+        c: Config, os_runner: "OSRunner", fem_params: FEMParams):
     """OpenSees recorder commands for a .tcl file."""
     response_types = fem_params.response_types
     recorders = ""
@@ -94,11 +94,11 @@ def opensees_recorders(
     node_recorders = []
     if ResponseType.XTranslation in response_types:
         node_recorders.append(
-            (fem_runner.x_translation_path(fem_params), 1))
+            (os_runner.x_translation_path(fem_params), 1))
 
     if ResponseType.YTranslation in response_types:
         node_recorders.append(
-            (fem_runner.y_translation_path(fem_params), 2))
+            (os_runner.y_translation_path(fem_params), 2))
 
     if len(node_recorders) > 0:
         for node_out_file, dof in node_recorders:
@@ -106,7 +106,7 @@ def opensees_recorders(
             recorders += " -node " + " ".join(map(str, c.os_node_ids()))
             recorders += f" -dof {dof} disp"
         recorders += f"\nrecorder Element -file"
-        recorders += f" {fem_runner.element_path(fem_params)}"
+        recorders += f" {os_runner.element_path(fem_params)}"
         recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
         recorders += " globalForce"
 
@@ -116,7 +116,7 @@ def opensees_recorders(
         # Record stress and strain for each patch.
         for patch in c.bridge.sections[0].patches:
             for (point, point_path) in zip(
-                    patch.points(), fem_runner.patch_paths(fem_params, patch)):
+                    patch.points(), os_runner.patch_paths(fem_params, patch)):
                 recorders += (f"\nrecorder Element -file {point_path}"
                             + " -ele " + " ".join(map(str, c.os_elem_ids()))
                             + f" section 1 fiber {point.z} {point.y}"
@@ -125,7 +125,7 @@ def opensees_recorders(
         # Record stress and strain for each fiber in a layer.
         for layer in c.bridge.sections[0].layers:
             for (point, point_path) in zip(
-                    layer.points(), fem_runner.layer_paths(fem_params, layer)):
+                    layer.points(), os_runner.layer_paths(fem_params, layer)):
                 recorders += (f"\nrecorder Element -file {point_path}"
                               + " -ele " + " ".join(map(str, c.os_elem_ids()))
                               + f" section 1 fiber {point.z} {point.y}"
@@ -174,7 +174,7 @@ uniaxialMaterial Elastic 2 2.0000000e+11
 """
 
 
-def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
+def build_model_2d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build OpenSees 2D model files."""
     # Read in the template model file.
     with open(c.os_model_template_path) as f:
@@ -210,9 +210,9 @@ def build_model(c: Config, expt_params: ExptParams, fem_runner: "OSRunner"):
             .replace("<<INTEGRATOR>>", opensees_integrator(
                 c, fem_params.displacement_ctrl))
             .replace("<<RECORDERS>>", opensees_recorders(
-                c, fem_runner, fem_params)))
+                c, os_runner, fem_params)))
         # Write the generated model file.
-        model_path = fem_runner.fem_file_path(fem_params=fem_params, ext="tcl")
+        model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 2D model file to {model_path}")
