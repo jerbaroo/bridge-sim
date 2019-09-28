@@ -222,8 +222,8 @@ def make_contour_plots(c: Config):
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
     make_contour_plots(c)
-    # make_bridge_plots(c)
-    # make_il_plots(c)
+    make_bridge_plots(c)
+    make_il_plots(c)
     # make_dc_plots(c)
     # make_normal_mv_load_animations(c)
     # make_normal_mv_load_animations(c, per_axle=True)

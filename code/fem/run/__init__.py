@@ -78,6 +78,7 @@ class FEMRunner:
             return
 
         start = timer()
+        print(self._parse)
         parsed_by_type = self._parse(self.c, expt_params, self)
         print_i(f"FEMRunner: parsed all responses in"
                 + f" {timer() - start:.2f}s")

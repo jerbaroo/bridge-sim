@@ -16,4 +16,4 @@ def plot_contour_deck(fem_responses: FEMResponses, y: float = -0.5):
             H[-1].append(fem_responses.responses[0][x][y][z].value)
     cs = plt.contourf(X, Z, H)
     plt.colorbar(cs)
-    plt.show()
+    # plt.show()

@@ -96,7 +96,10 @@ class Config:
         if generated_dir is not None:
             self.generated_dir = generated_dir
         self.events_dir = os.path.join(self.generated_dir, "events/")
-        self.images_dir = "generated-images/"
+        self.images_dir = self.generated_dir
+        if self.images_dir.endswith("/"):
+            self.images_dir = self.images_dir[:-1]
+        self.images_dir += "-images/"
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 
@@ -138,7 +141,9 @@ class Config:
         # Make directories.
         for directory in [
                 self.generated_dir, self.images_dir, self.events_dir,
-                self.fem_responses_path_prefix]:
+                self.fem_responses_path_prefix,
+                os.path.join(self.images_dir, "bridges/"),
+                os.path.join(self.images_dir, "ils/")]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 

@@ -31,6 +31,7 @@ def test_opensees_patch():
         patches=[patch],
         layers=[Layer(
             y_min=-0.5, y_max=-0.5, z_min=-0.5, z_max=0.5, num_fibers=2)]))
+    clean_generated(c)
     fem_params = FEMParams(
         loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])

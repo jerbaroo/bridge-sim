@@ -10,7 +10,7 @@ def build_model(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build an OpenSees 2D or 3D model file."""
     if c.bridge.dimensions == Dimensions.D2:
         return build_model_2d(
-            c=c, expt_params=expt_params, fem_runner=os_runner)
+            c=c, expt_params=expt_params, os_runner=os_runner)
     else:
         return build_model_3d(
             c=c, expt_params=expt_params, os_runner=os_runner)
