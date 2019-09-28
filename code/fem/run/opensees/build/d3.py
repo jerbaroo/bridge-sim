@@ -94,7 +94,7 @@ opensees_intro = """
 def comment(c: str, inner: str, units: Optional[str] = None):
     """Add Begin c and End c comments around an inner block."""
     units_str = "" if units is None else f"# {units}\n"
-    return f"# Begin {c}\n" + inner + f"\n# End {c}"
+    return f"# Begin {c}\n" + units_str + inner + f"\n# End {c}"
 
 
 def num_nodes(c: Config):
@@ -151,7 +151,12 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     node_strings += list(map(
         lambda node: node.tcl(),
         itertools.chain.from_iterable(nodes)))
-    return comment("deck nodes", "\n".join(node_strings)), nodes
+    return (
+        comment(
+            "deck nodes",
+            "\n".join(node_strings),
+            units="node nodeTag x y z"),
+        nodes)
 
 
 def opensees_nodes(c: Config):
@@ -183,7 +188,8 @@ def opensees_fixed_nodes(c: Config, deck_nodes: List[List[Node]]):
     """OpenSees fix commands for fixed deck and pier nodes."""
     return comment(
         "Fixed deck nodes",
-        opensees_fixed_deck_nodes(c=c, deck_nodes=deck_nodes))
+        opensees_fixed_deck_nodes(c=c, deck_nodes=deck_nodes),
+        units="fix nodeTag x y z rz ry rz")
 
 
 ##### End fixed nodes #####
@@ -199,9 +205,14 @@ def opensees_section(section: Section3D, section_id: int):
 
 
 def opensees_sections(c: Config):
-    return "\n".join([
-        opensees_section(section=section, section_id=section_id)
-        for section_id, section in enumerate(c.bridge.sections)])
+    return comment(
+        "sections",
+        "\n".join([
+            opensees_section(section=section, section_id=section_id)
+            for section_id, section in enumerate(c.bridge.sections)]),
+        units=(
+            "section ElasticMembranePlateSection secTag youngs_modulus"
+            +" poisson_ratio depth mass_density"))
 
 
 ##### End sections #####
@@ -230,7 +241,10 @@ def opensees_deck_elements(
                 f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
                 + f" {k_node} {l_node} 0")
         ff_elem_ids(z_skip)
-    return comment("deck elements", "\n".join(deck_elements))
+    return comment(
+        "deck elements",
+        "\n".join(deck_elements),
+        "element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
 def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
@@ -294,16 +308,19 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
 
 def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
     """OpenSees load commands for a .tcl file."""
-    return "\n".join(
-        opensees_load(c=c, load=load, deck_nodes=deck_nodes)
-        for load in loads)
+    return comment(
+        "loads",
+        "\n".join(
+            opensees_load(c=c, load=load, deck_nodes=deck_nodes)
+            for load in loads),
+        units="load nodeTag N_x N_y N_z N_rz N_ry N_rz")
 
 
 ##### End loads #####
 ##### Begin recorders #####
 
 
-def opensees_recorders(
+def opensees_translation_recorders(
         c: Config, fem_params: FEMParams, os_runner: "OSRunner",
         deck_nodes: List[List[Node]]):
     """OpenSees recorder commands for translation and stress and strain."""
@@ -320,15 +337,24 @@ def opensees_recorders(
         translation_response_types.append((
             os_runner.z_translation_path(fem_params), 3))
     # Append a recorder string for each response type (recording nodes).
-    recorder_strs = ["# Begin translation recorders\n"]
+    recorder_strs = []
     node_str = " ".join(
         str(n.n_id) for n in itertools.chain.from_iterable(deck_nodes))
     for response_path, i in translation_response_types:
         recorder_strs.append(
             f"recorder Node -file {response_path} -node {node_str} -dof {i}"
             + " disp")
-    recorder_strs.append("\n# End translation recorders")
-    return "\n".join(recorder_strs)
+    return comment(
+        "translation recorders",
+        "\n".join(recorder_strs),
+        units="recorder Node -file path -node nodeTags -dof direction disp")
+
+
+def opensees_recorders(
+        c: Config, fem_params: FEMParams, os_runner: "OSRunner",
+        deck_nodes: List[List[Node]]):
+    return opensees_translatin_recorders(
+        c=c, fem_params=fem_params, os_runner=os_runner, deck_nodes=deck_nodes)
 
 
 ##### End recorders #####
