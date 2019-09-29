@@ -208,20 +208,26 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-at-{x_frac:.2f}"))))
 
 
-def make_contour_plots(c: Config):
-    response_type = ResponseType.Strain
+def make_contour_plots(
+        c: Config, response_types: List[ResponseType], y: float):
+    """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
-    fem_params = FEMParams(
-        loads=[Load(0.65, 100)], response_types=[response_type])
-    fem_responses = load_fem_responses(
-        c=c, fem_params=fem_params, response_type=response_type,
-        fem_runner=fem_runner)
-    plot_contour_deck(fem_responses)
+    load_x = 0.65
+    load_kn = 100
+    for response_type in response_types:
+        fem_params = FEMParams(
+            loads=[Load(load_x, load_kn)], response_types=[response_type])
+        fem_responses = load_fem_responses(
+            c=c, fem_params=fem_params, response_type=response_type,
+            fem_runner=fem_runner)
+        plot_contour_deck(c=c, fem_responses=fem_responses, y=y, save=(
+            c.image_path(pstr(
+                f"contour-{response_type.name()}-load-{load_x}-{load_kn}"))))
 
 
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
-    make_contour_plots(c)
+    make_contour_plots(c, response_types=list(ResponseType), y=-0.5)
     make_bridge_plots(c)
     make_il_plots(c)
     # make_dc_plots(c)
@@ -233,4 +239,4 @@ def make_all_2d(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    make_contour_plots(c)
+    make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)

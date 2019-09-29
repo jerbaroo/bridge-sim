@@ -1,4 +1,5 @@
 """Plots for extracted events and features."""
+# TODO: rename to events.py.
 from typing import List, Tuple
 
 import matplotlib.patches as patches
