@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -117,10 +117,10 @@ def test_build_d3_loads():
 def test_x_positions_of_deck_support_nodes():
     """Test the x positions where the supports have deck nodes."""
     c = bridge_705_test_config(bridge=bridge_705_3d)
-    x_positions = itertools.chain.from_iterable(
-        x_positions_of_deck_support_nodes(c))
+    x_positions = list(itertools.chain.from_iterable(
+        x_positions_of_deck_support_nodes(c)))
     # There are 4 supports at each x position, with two lines of deck nodes.
-    assert len(x_positions) == ((len(c.bridge.supports) / 4) * 2)
+    assert len(x_positions) == len(c.bridge.supports) * 2
     # Check each of the supports explicitly.
     for support in c.bridge.supports:
         x_min = round_m(support.x - (support.length / 2))
@@ -132,10 +132,11 @@ def test_x_positions_of_deck_support_nodes():
 def test_z_positions_of_deck_support_nodes():
     """Test the z positions where the supports have deck nodes."""
     c = bridge_705_test_config(bridge=bridge_705_3d)
-    z_positions = itertools.chain.from_iterable(
-        z_positions_of_deck_support_nodes(c))
+    z_positions = list(itertools.chain.from_iterable(
+        z_positions_of_deck_support_nodes(c)))
     # There are 4 supports at each x position.
-    assert len(z_positions) == c.os_support_num_nodes_z * 4
+    assert len(z_positions) == (
+        len(c.bridge.supports) * c.os_support_num_nodes_z)
     # Check each of the supports explicitly.
     for support in c.bridge.supports:
         z_min = round_m(support.z - (support.width_top / 2))
@@ -159,11 +160,21 @@ def test_z_positions_of_bottom_support_nodes():
     c = bridge_705_test_config(bridge=bridge_705_3d)
     z_positions = list(itertools.chain.from_iterable(
         z_positions_of_bottom_support_nodes(c)))
-    # There are 4 supports at each x position.
-    assert len(z_positions) == c.os_support_num_nodes_z * 4
+    assert len(z_positions) == (
+        len(c.bridge.supports) * c.os_support_num_nodes_z)
     # Check each of the supports explicitly.
     for support in c.bridge.supports:
         z_min = round_m(support.z - (support.width_bottom / 2))
         z_max = round_m(support.z - (support.width_bottom / 2))
         assert z_min in z_positions
         assert z_max in z_positions
+
+
+def test_get_node():
+    """Test an already created node is returned."""
+    reset_node_ids()
+    node1 = get_node(1, 1, 1)
+    node2 = get_node(1, 1, 1)
+    node3 = get_node(1, 1, 2)
+    assert node1.n_id == node2.n_id
+    assert node3.n_id != node2.n_id

@@ -1,12 +1,13 @@
 """Build OpenSees 3D model files."""
 import itertools
+from collections import defaultdict
 from typing import List, Optional, Tuple
 
 import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees.common import Node, num_deck_nodes, traverse_3d_nodes
+from fem.run.opensees.common import Node, num_deck_nodes
 from model.bridge import Section3D
 from model.load import Load
 from model.response import ResponseType
@@ -15,6 +16,20 @@ from util import print_d, print_i, round_m
 # Print debug information for this file.
 D: bool = False
 
+##### Begin node factory #####
+
+# A dictionary of x position to y position to z position to Node.
+all_nodes = defaultdict(lambda: defaultdict(dict))
+
+
+def get_node(x: float, y: float, z: float):
+    """Get a node if already exists, else create and return."""
+    if z not in all_nodes[x][y]:
+        all_nodes[x][y][z] = Node(next_node_id(), x=x, y=y, z=z)
+    return all_nodes[x][y][z]
+
+
+##### End node factory #####
 ##### Begin node IDs #####
 
 _node_id = None
@@ -32,6 +47,8 @@ def reset_node_ids():
     """Reset node IDs to 0, e.g. when building a new model file."""
     global _node_id
     _node_id = 1
+    global all_nodes
+    all_nodes = defaultdict(lambda: defaultdict(dict))
 
 
 def ff_node_ids(mod: int):
@@ -78,7 +95,6 @@ def ff_elem_ids(mod: int):
 
 ##### End element IDs #####
 ##### Begin some unrelated things #####
-
 
 opensees_intro = """
 # Programatically generated file.
@@ -147,8 +163,10 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
     return z_positions
 
 
-def support_nodes(c: Config):
-    pass
+def support_nodes(c: Config) -> List[List[List[Node]]]:
+    """A 2d-list of Node for each support, ordered by z then y position."""
+    nodes = []
+    # for suppor
 
 
 def opensees_deck_nodes(
@@ -176,9 +194,11 @@ def opensees_deck_nodes(
             x_positions.add(x_pos)
     # If necessary add positions of deck support nodes.
     if support_nodes:
-        for z_pos in z_positions_of_deck_support_nodes(c):
+        for z_pos in itertools.chain.from_iterable(
+                z_positions_of_deck_support_nodes(c)):
             z_positions.add(z_pos)
-        for x_pos in x_positions_of_deck_support_nodes(c):
+        for x_pos in itertools.chain.from_iterable(
+                x_positions_of_deck_support_nodes(c)):
             x_positions.add(x_pos)
     x_positions = sorted(list(x_positions))
     z_positions = sorted(list(z_positions))
@@ -191,10 +211,11 @@ def opensees_deck_nodes(
         ff_node_ids(ff_mod)
         nodes.append([])
         for x_pos in x_positions:
-            nodes[-1].append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
+            nodes[-1].append(get_node(x=x_pos, y=0, z=z_pos))
     node_strings = []
     node_strings += list(map(
-        lambda node: node.command_3d(), traverse_3d_nodes(nodes)))
+        lambda node: node.command_3d(),
+        list(itertools.chain.from_iterable(nodes))))
     return (
         comment(
             "deck nodes",
