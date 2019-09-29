@@ -14,7 +14,9 @@ def test_convert_3d():
     fem_runner = OSRunner(c)
     fem_params = FEMParams(
         loads=[Load(0.65, 100)], response_types=[ResponseType.YTranslation])
-    converted = fem_runner.run(ExptParams([fem_params]), return_converted=True)
+    converted = fem_runner.run(
+        ExptParams([fem_params]), return_converted=True,
+        support_3d_nodes=False)
     # Index converted responses by simulation, here is only one simulation.
     converted_y_responses = converted[0][ResponseType.YTranslation]
     assert isinstance(converted_y_responses[0], Response)

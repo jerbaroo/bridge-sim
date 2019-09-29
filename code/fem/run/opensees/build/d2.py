@@ -174,7 +174,8 @@ uniaxialMaterial Elastic 2 2.0000000e+11
 """
 
 
-def build_model_2d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
+def build_model_2d(
+        c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build OpenSees 2D model files."""
     # Read in the template model file.
     with open(c.os_model_template_path) as f:

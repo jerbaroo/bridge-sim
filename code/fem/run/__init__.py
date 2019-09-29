@@ -53,13 +53,15 @@ class FEMRunner:
 
     def run(
             self, expt_params: ExptParams, return_parsed: bool = False,
-            return_converted: bool = False):
+            return_converted: bool = False, support_3d_nodes: bool = True):
         """Run simulations and save responses using this FEMRunner.
 
         Args:
             expt_params: ExptParams, parameters for a number of simulations.
             return_parsed: bool, return parsed responses, for testing.
             return_converted: bool, return converted responses, for testing.
+            support_3d_nodes: bool, for testing, if False don't include support
+                nodes.
             
         """
 
@@ -73,7 +75,9 @@ class FEMRunner:
 
         # Building.
         start = timer()
-        expt_params = self._build(self.c, expt_params, self)
+        expt_params = self._build(
+            c=self.c, expt_params=expt_params, fem_runner=self,
+            support_3d_nodes=support_3d_nodes)
         print_i(f"FEMRunner: built {self.name} model file(s) in"
                 + f" {timer() - start:.2f}s")
 

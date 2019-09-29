@@ -6,11 +6,20 @@ from fem.run.opensees.build.d3 import build_model_3d
 from model.bridge import Dimensions
 
 
-def build_model(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
-    """Build an OpenSees 2D or 3D model file."""
+def build_model(
+        c: Config, expt_params: ExptParams, fem_runner: "OSRunner",
+        support_3d_nodes: bool = True):
+    """Build an OpenSees 2D or 3D model file.
+
+    Args:
+        support_3d_nodes: bool, for testing, if False don't include support
+            nodes.
+
+    """
     if c.bridge.dimensions == Dimensions.D2:
         return build_model_2d(
-            c=c, expt_params=expt_params, os_runner=os_runner)
+            c=c, expt_params=expt_params, os_runner=fem_runner)
     else:
         return build_model_3d(
-            c=c, expt_params=expt_params, os_runner=os_runner)
+            c=c, expt_params=expt_params, os_runner=fem_runner,
+            support_3d_nodes=support_3d_nodes)

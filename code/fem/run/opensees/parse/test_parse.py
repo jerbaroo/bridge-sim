@@ -13,7 +13,8 @@ def test_parse_3d():
     fem_runner = OSRunner(c)
     fem_params = FEMParams(
         loads=[Load(0.65, 100)], response_types=[ResponseType.YTranslation])
-    parsed = fem_runner.run(ExptParams([fem_params]), return_parsed=True)
+    parsed = fem_runner.run(
+        ExptParams([fem_params]), return_parsed=True, support_3d_nodes=False)
     # Index parsed responses by simulation, here is only one simulation.
     parsed_y_responses = parsed[0][ResponseType.YTranslation]
     # There should only be one time step.

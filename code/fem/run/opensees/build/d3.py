@@ -131,22 +131,47 @@ def z_positions_of_deck_support_nodes(c: Config) -> List[float]:
     return sorted(z_positions)
 
 
-def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
-    """OpenSees node commands for a bridge deck."""
-    num_nodes_x, num_nodes_z = num_deck_nodes(c)
-    ff_mod = next_pow_10(num_nodes_x)
-    print_i(ff_mod)
+def opensees_deck_nodes(
+        c: Config, support_nodes: bool) -> Tuple[str, List[List[Node]]]:
+    """OpenSees node commands for a bridge deck.
+
+    Args:
+        support_nodes: bool, for testing, if False don't include support nodes.
+
+    """
+    # First collect all z and x positions.
+    z_positions = set()
+    x_positions = set()
+    # Collect positions of deck nodes without deck support nodes.
     z_pos = c.bridge.z_min
+    z_positions.add(z_pos)
+    num_deck_nodes_x, num_deck_nodes_z = num_deck_nodes(c)
+    for num_z in range(num_deck_nodes_z - 1):
+        z_pos += c.os_node_step_z
+        z_positions.add(z_pos)
+        x_pos = c.bridge.x_min
+        x_positions.add(x_pos)
+        for num_x in range(num_deck_nodes_x - 1):
+            x_pos += c.os_node_step
+            x_positions.add(x_pos)
+    # If necessary add positions of deck support nodes.
+    if support_nodes:
+        for z_pos in z_positions_of_deck_support_nodes(c):
+            z_positions.add(z_pos)
+        for x_pos in x_positions_of_deck_support_nodes(c):
+            x_positions.add(x_pos)
+    x_positions = sorted(list(x_positions))
+    z_positions = sorted(list(z_positions))
+    
+    ff_mod = next_pow_10(len(x_positions))
+    print_i(ff_mod)
     nodes = []
-    for num_z in range(num_nodes_z):
+    for z_pos in z_positions:
         # Fast forward node IDs on each transverse (z) increment.
         ff_node_ids(ff_mod)
-        x_pos = c.bridge.x_min
         nodes.append([])
-        for num_x in range(num_nodes_x):
+        for x_pos in x_positions:
             nodes[-1].append(Node(next_node_id(), x=x_pos, y=0, z=z_pos))
-            x_pos += c.os_node_step
-        z_pos += c.os_node_step_z
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(), traverse_3d_nodes(nodes)))
@@ -158,10 +183,15 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
         nodes)
 
 
-def opensees_nodes(c: Config):
-    """OpenSees node commands."""
+def opensees_nodes(c: Config, support_nodes: bool):
+    """OpenSees node commands.
+
+    Args:
+        support_nodes: bool, for testing, if False don't include support nodes.
+
+    """
     reset_node_ids()
-    return opensees_deck_nodes(c)
+    return opensees_deck_nodes(c=c, support_nodes=support_nodes)
 
 
 ##### End nodes #####
@@ -363,8 +393,16 @@ def opensees_recorders(
 ##### End recorders #####
 
 
-def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
-    """Build OpenSees 3D model files."""
+def build_model_3d(
+        c: Config, expt_params: ExptParams, os_runner: "OSRunner",
+        support_3d_nodes: bool = True):
+    """Build OpenSees 3D model files.
+
+    Args:
+        support_3d_nodes: bool, for testing, if False don't include support
+            nodes.
+
+    """
     # Read in the template model file.
     with open(c.os_3d_model_template_path) as f:
         in_tcl = f.read()
@@ -378,7 +416,8 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
         # Replace template with generated TCL code.
-        nodes_str, deck_nodes = opensees_nodes(c=c)
+        nodes_str, deck_nodes = opensees_nodes(
+            c=c, support_nodes=support_3d_nodes)
         # Attach deck nodes and support nodes to the FEMParams to be available
         # when converting raw responses to responses with positions attached.
         fem_params.deck_nodes = deck_nodes

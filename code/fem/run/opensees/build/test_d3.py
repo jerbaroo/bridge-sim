@@ -41,7 +41,8 @@ def test_build_d3_deck_nodes_elems():
     expt_params = ExptParams([FEMParams(
         loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
-    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
+    build_model_3d(
+        c=c, expt_params=expt_params, os_runner=os_runner, support_nodes=False)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -93,7 +94,8 @@ def test_build_d3_loads():
     expt_params = ExptParams([FEMParams(
         loads=[load], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
-    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
+    build_model_3d(
+        c=c, expt_params=expt_params, os_runner=os_runner, support_nodes=False)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
