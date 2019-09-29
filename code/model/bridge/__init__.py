@@ -97,8 +97,8 @@ class Support3D:
                               width-bottom
 
     Args:
-        x: float, x position of the center of the support in meters.
-        z: float, z position of the support in meters.
+        x: float, x position of center of the support in meters.
+        z: float, z position of center of the support in meters.
         length: float, length of the support in meters.
         height: float, height of the support in meters.
         width_top: float, width of the top of the support in meters.

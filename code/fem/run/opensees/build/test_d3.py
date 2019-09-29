@@ -3,11 +3,12 @@ from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_deck_support_nodes, z_positions_of_deck_support_nodes
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
 from model.response import ResponseType
+from util import round_m
 
 
 def get_lines(
@@ -98,5 +99,37 @@ def test_build_d3_loads():
         lines = f.readlines()
 
     load_lines = [line.strip() for line in lines if "load" in line]
-    # 11 nodes along z, and along x. So we expect a load at node 505.
+    # 11 nodes along z, and along x. So we expect a load at node 605:
+    # 100, 200, 300, 400, 500, 600 <- 5th along z
+    # 600, 601, 602, 603, 604, 605 <- 5th along x
     assert "load 605 0 1234000 0 0 0 0" in load_lines
+
+
+def test_x_positions_of_deck_support_nodes():
+    """Test the x positions where the supports have deck nodes."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    x_positions = x_positions_of_deck_support_nodes(c)
+    # There are 4 supports at each x position, with two lines of deck nodes.
+    assert len(x_positions) == ((len(c.bridge.supports) / 4) * 2)
+    # Check each of the supports explicitly.
+    for support in c.bridge.supports:
+        x_min = round_m(support.x - (support.length / 2))
+        x_max = round_m(support.x + (support.length / 2))
+        assert x_min in x_positions
+        assert x_max in x_positions
+
+
+def test_z_positions_of_deck_support_nodes():
+    """Test the z positions where the supports have deck nodes."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    z_positions = z_positions_of_deck_support_nodes(c)
+    num_z_per_support = 1 + (
+        c.bridge.supports[0].width_top // c.os_support_node_step_z)
+    # There are 4 supports at each x position.
+    assert len(z_positions) == num_z_per_support * 4
+    # Check each of the supports explicitly.
+    for support in c.bridge.supports:
+        z_min = round_m(support.z - (support.width_top / 2))
+        z_max = round_m(support.z - (support.width_top / 2))
+        assert z_min in z_positions
+        assert z_max in z_positions

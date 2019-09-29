@@ -5,7 +5,7 @@ from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
-from model.bridge import Bridge, _reset_model_ids
+from model.bridge import Bridge, Dimensions, _reset_model_ids
 from model.response import ResponseType
 from vehicles import load_vehicle_data
 from util import print_d, print_i, print_w
@@ -134,6 +134,9 @@ class Config:
         # OpenSees.
         self.os_node_step: float = self.bridge.length / 100
         self.os_node_step_z: float = self.bridge.width / 100
+        if self.bridge.dimensions == Dimensions.D3:
+            self.os_support_node_step_z: float = (
+                self.bridge.supports[0].width_top / 100)
         self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"

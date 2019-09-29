@@ -89,8 +89,10 @@ def bridge_705_test_config(bridge: Callable[[], Bridge]) -> Config:
     """A testing Config for bridge 705 in Amsterdam."""
     c = bridge_705_config(bridge=bridge, generated_dir="generated-data-test")
     c.event_metadata_path += ".test"
-    c.os_node_step = c.bridge.length / 10
-    c.os_node_step_z = c.bridge.width / 10
+    c.os_node_step = c.bridge.length / 5
+    c.os_node_step_z = c.bridge.width / 5
+    if c.bridge.dimensions == Dimensions.D3:
+        c.os_support_node_step_z = c.bridge.supports[0].width_top / 3
     return c
 
 

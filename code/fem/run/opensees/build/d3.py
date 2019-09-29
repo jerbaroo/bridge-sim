@@ -79,6 +79,7 @@ def ff_elem_ids(mod: int):
 ##### End element IDs #####
 ##### Begin some unrelated things #####
 
+
 opensees_intro = """
 # Programatically generated file.
 #
@@ -100,6 +101,35 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 
 ##### End some unrelated things #####
 ##### Begin nodes #####
+
+
+def x_positions_of_deck_support_nodes(c: Config) -> List[float]:
+    """A list of ordered x positions where the supports have deck nodes."""
+    x_positions = set()
+    for support in c.bridge.supports:
+        support_half_length = support.length / 2
+        x_positions.add(round_m(support.x - support_half_length))
+        x_positions.add(round_m(support.x + support_half_length))
+    return sorted(x_positions)
+
+
+def z_positions_of_deck_support_nodes(c: Config) -> List[float]:
+    """A list of ordered z positions where the supports have deck nodes."""
+    z_positions = set()
+    for support in c.bridge.supports:
+        if not np.isclose(support.width_top % c.os_support_node_step_z, 0):
+            raise ValueError(
+                f"Config.os_support_node_step_z {c.os_support_node_step_z} "
+                + f"does not evenly divide support width {support.width_top}")
+        z_0 = support.z - (support.width_top / 2)
+        z_positions.add(round_m(z_0))
+        num_z_steps = int(support.width_top // c.os_support_node_step_z)
+        assert num_z_steps * c.os_support_node_step_z == support.width_top
+        for _ in range(num_z_steps):
+            z_0 += c.os_support_node_step_z
+            z_positions.add(round_m(z_0))
+    return sorted(z_positions)
+
 
 def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck."""
