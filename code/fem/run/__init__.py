@@ -51,7 +51,15 @@ class FEMRunner:
         self._parse = parse
         self._convert = convert
 
-    def run(self, expt_params: ExptParams, run=True, save=True):
+    def run(
+            self, expt_params: ExptParams, return_parsed: bool = False):
+        """Run simulations and save responses using this FEMRunner.
+
+        Args:
+            expt_params: ExptParams, parameters for a number of simulations.
+            return_parsed: bool, return the parsed responses, for testing.
+            
+        """
 
         supported_response_types = self.supported_response_types(self.c.bridge)
         # Check that all FEMParams contain supported response types.
@@ -61,33 +69,35 @@ class FEMRunner:
                     raise ValueError(
                         f"{response_type} not supported by {self}")
 
+        # Building.
         start = timer()
         expt_params = self._build(self.c, expt_params, self)
         print_i(f"FEMRunner: built {self.name} model file(s) in"
                 + f" {timer() - start:.2f}s")
 
-        if run:
-            for sim_ind, _ in enumerate(expt_params.fem_params):
-                start = timer()
-                expt_params = self._run(self.c, expt_params, self, sim_ind)
-                print_i(f"FEMRunner: ran {self.name}"
-                        + f" {sim_ind + 1}/{len(expt_params.fem_params)}"
-                        + f" simulation in {timer() - start:.2f}s")
+        # Running.
+        for sim_ind, _ in enumerate(expt_params.fem_params):
+            start = timer()
+            expt_params = self._run(self.c, expt_params, self, sim_ind)
+            print_i(f"FEMRunner: ran {self.name}"
+                    + f" {sim_ind + 1}/{len(expt_params.fem_params)}"
+                    + f" simulation in {timer() - start:.2f}s")
 
-        if not save:
-            return
-
+        # Parsing.
         start = timer()
-        print(self._parse)
         parsed_by_type = self._parse(self.c, expt_params, self)
         print_i(f"FEMRunner: parsed all responses in"
                 + f" {timer() - start:.2f}s")
+        if return_parsed:
+            return parsed_by_type
 
+        # Converting.
         start = timer()
         sim_responses = self._convert(self.c, parsed_by_type)
         print_i(f"FEMRunner: converted all responses to [Response] in"
                 + f" {timer() - start:.2f}s")
 
+        # Saving.
         for sim_ind in sim_responses:
             for response_type, responses in sim_responses[sim_ind].items():
                 fem_responses = FEMResponses(

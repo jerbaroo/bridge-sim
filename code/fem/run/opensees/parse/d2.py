@@ -18,6 +18,7 @@ D: bool = True
 def parse_responses_2d(
         c: Config, expt_params: ExptParams, os_runner: "OSRunner") -> Parsed:
     """Parse responses from a 2D OpenSees simulation."""
+    # A dictionary of simulation index to ResponseType to parsed responses.
     results = defaultdict(dict)
 
     # Iterate through each simulation and collect results.
@@ -39,8 +40,8 @@ def parse_responses_2d(
             start = timer()
             y = opensees_to_numpy(os_runner.y_translation_path(fem_params))
             y *= -1
-            print_i("OpenSees: Parsed YTranslation responses in "
-                    + f"{timer() - start:.2f}s")
+            print_i("OpenSees: Parsed YTranslation responses in"
+                    + f" {timer() - start:.2f}s")
 
         stress = []
         strain = []

@@ -6,13 +6,14 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
+from fem.run.opensees.common import num_deck_nodes
 from model.bridge import Section3D
 from model.load import Load
 from model.response import ResponseType
 from util import print_d, print_i, round_m
 
 # Print debug information for this file.
-D: bool = True
+D: bool = False
 
 ##### Begin node IDs #####
 
@@ -97,22 +98,6 @@ def comment(c: str, inner: str, units: Optional[str] = None):
     return f"# Begin {c}\n" + units_str + inner + f"\n# End {c}"
 
 
-def num_nodes(c: Config):
-    num_nodes_x = c.bridge.length / c.os_node_step + 1
-    num_nodes_z = c.bridge.width / c.os_node_step_z + 1
-    if not np.isclose(num_nodes_x, np.round(num_nodes_x)):
-        raise ValueError(
-            f"Bridge length {c.bridge.length} not evenly divisible by"
-            + f" c.os_node_step {c.os_node_step}, was {num_nodes_x}")
-    if not np.isclose(num_nodes_z, np.round(num_nodes_z)):
-        raise ValueError(
-            f"Bridge width {c.bridge.width} not evenly divisible by"
-            + f" c.os_node_step_z {c.os_node_step_z}, was {num_nodes_z}")
-    num_nodes_x = int(np.round(num_nodes_x))
-    num_nodes_z = int(np.round(num_nodes_z))
-    return num_nodes_x, num_nodes_z
-
-
 ##### End some unrelated things #####
 ##### Begin nodes #####
 
@@ -133,7 +118,7 @@ class Node:
 
 def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck."""
-    num_nodes_x, num_nodes_z = num_nodes(c)
+    num_nodes_x, num_nodes_z = num_deck_nodes(c)
     ff_mod = next_pow_10(num_nodes_x)
     print_i(ff_mod)
     z_pos = c.bridge.z_min
@@ -229,14 +214,14 @@ def opensees_deck_elements(
 
     # From first until second last node along z (when x == 0).
     for z_node in range(first_node_z_0, first_node_z_1, z_skip):
-        print_d(D, f"deck element z_node = {z_node}")
+        # print_d(D, f"deck element z_node = {z_node}")
         # Count from first node at 0 until second last node along x.
         for x_node in range(last_node_z_0 - first_node_z_0):
-            print_d(D, f"deck element x_node = {x_node}")
+            # print_d(D, f"deck element x_node = {x_node}")
             i_node = z_node + x_node
             j_node = i_node + 1
             k_node, l_node = j_node + z_skip, i_node + z_skip
-            print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
+            # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
             deck_elements.append(
                 f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
                 + f" {k_node} {l_node} 0")
@@ -323,27 +308,30 @@ def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
 def opensees_translation_recorders(
         c: Config, fem_params: FEMParams, os_runner: "OSRunner",
         deck_nodes: List[List[Node]]):
-    """OpenSees recorder commands for translation and stress and strain."""
+    """OpenSees recorder commands for translation."""
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
     if ResponseType.XTranslation in fem_params.response_types:
-        translation_response_types.append((
-            os_runner.x_translation_path(fem_params), 1))
+        x_path = os_runner.x_translation_path(fem_params)
+        translation_response_types.append((x_path, 1))
+        print_i(f"OpenSees: saving x translation at {x_path}")
     if ResponseType.YTranslation in fem_params.response_types:
-        translation_response_types.append((
-            os_runner.y_translation_path(fem_params), 2))
+        y_path = os_runner.y_translation_path(fem_params)
+        translation_response_types.append((y_path, 2))
+        print_i(f"OpenSees: saving y translation at {y_path}")
     if ResponseType.ZTranslation in fem_params.response_types:
-        translation_response_types.append((
-            os_runner.z_translation_path(fem_params), 3))
+        z_path = os_runner.z_translation_path(fem_params)
+        translation_response_types.append((z_path, 3))
+        print_i(f"OpenSees: saving z translation at {y_path}")
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = []
     node_str = " ".join(
         str(n.n_id) for n in itertools.chain.from_iterable(deck_nodes))
-    for response_path, i in translation_response_types:
+    for response_path, direction in translation_response_types:
         recorder_strs.append(
-            f"recorder Node -file {response_path} -node {node_str} -dof {i}"
-            + " disp")
+            f"recorder Node -file {response_path} -node {node_str} -dof"
+            + f" {direction} disp")
     return comment(
         "translation recorders",
         "\n".join(recorder_strs),
@@ -353,7 +341,8 @@ def opensees_translation_recorders(
 def opensees_recorders(
         c: Config, fem_params: FEMParams, os_runner: "OSRunner",
         deck_nodes: List[List[Node]]):
-    return opensees_translatin_recorders(
+    """OpenSees recorder commands for translation, stress and strain."""
+    return opensees_translation_recorders(
         c=c, fem_params=fem_params, os_runner=os_runner, deck_nodes=deck_nodes)
 
 
@@ -367,8 +356,10 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
         in_tcl = f.read()
     # Build a model file for each simulation.
     for fem_params in expt_params.fem_params:
-        num_nodes_x, num_nodes_z = num_nodes(c)
-        print_i(f"OpenSees: building 3D model, {num_nodes_x} * {num_nodes_z}")
+        num_nodes_x, num_nodes_z = num_deck_nodes(c)
+        print_i(
+            f"OpenSees: building 3D model, {num_nodes_x} * {num_nodes_z} deck"
+            + " nodes")
         # Displacement control is not supported.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
