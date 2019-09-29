@@ -1,9 +1,10 @@
 """Test that OpenSees builds 3D model files correctly."""
+import itertools
 from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_deck_support_nodes, z_positions_of_deck_support_nodes
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -42,7 +43,8 @@ def test_build_d3_deck_nodes_elems():
         loads=[Load(0.65, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(
-        c=c, expt_params=expt_params, os_runner=os_runner, support_nodes=False)
+        c=c, expt_params=expt_params, os_runner=os_runner,
+        support_3d_nodes=False)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -57,14 +59,18 @@ def test_build_d3_deck_nodes_elems():
     assert "102.75 0 16.6" in deck_node_lines[-1]
 
     # Assert section 0 is inserted.
-    section_lines = [line for line in lines if "section " in line]
+    section_lines = get_lines(
+        contains="section ", lines=lines, after="Begin sections",
+        before="End sections")
     assert (
         f"section ElasticMembranePlateSection 0 38400 0.2 0.75 0.002724"
         in section_lines[0])
 
     # Assert first shell is inserted.
     first_element = f"element ShellMITC4 1 100 101 201 200 0"
-    element_lines = [line for line in lines if "ShellMITC4 " in line]
+    element_lines = get_lines(
+        contains="ShellMITC4 ", lines=lines, after="Begin deck elements",
+        before="End deck elements")
     assert first_element in element_lines[0]
 
     # Should have y-translation but not other translations.
@@ -95,7 +101,8 @@ def test_build_d3_loads():
         loads=[load], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(
-        c=c, expt_params=expt_params, os_runner=os_runner, support_nodes=False)
+        c=c, expt_params=expt_params, os_runner=os_runner,
+        support_3d_nodes=False)
     with open(os_runner.fem_file_path(
             fem_params=expt_params.fem_params[0], ext="tcl")) as f:
         lines = f.readlines()
@@ -110,7 +117,8 @@ def test_build_d3_loads():
 def test_x_positions_of_deck_support_nodes():
     """Test the x positions where the supports have deck nodes."""
     c = bridge_705_test_config(bridge=bridge_705_3d)
-    x_positions = x_positions_of_deck_support_nodes(c)
+    x_positions = itertools.chain.from_iterable(
+        x_positions_of_deck_support_nodes(c))
     # There are 4 supports at each x position, with two lines of deck nodes.
     assert len(x_positions) == ((len(c.bridge.supports) / 4) * 2)
     # Check each of the supports explicitly.
@@ -124,14 +132,38 @@ def test_x_positions_of_deck_support_nodes():
 def test_z_positions_of_deck_support_nodes():
     """Test the z positions where the supports have deck nodes."""
     c = bridge_705_test_config(bridge=bridge_705_3d)
-    z_positions = z_positions_of_deck_support_nodes(c)
-    num_z_per_support = 1 + (
-        c.bridge.supports[0].width_top // c.os_support_node_step_z)
+    z_positions = itertools.chain.from_iterable(
+        z_positions_of_deck_support_nodes(c))
     # There are 4 supports at each x position.
-    assert len(z_positions) == num_z_per_support * 4
+    assert len(z_positions) == c.os_support_num_nodes_z * 4
     # Check each of the supports explicitly.
     for support in c.bridge.supports:
         z_min = round_m(support.z - (support.width_top / 2))
-        z_max = round_m(support.z - (support.width_top / 2))
+        z_max = round_m(support.z + (support.width_top / 2))
+        assert z_min in z_positions
+        assert z_max in z_positions
+
+
+def test_x_positions_of_bottom_support_nodes():
+    """Test the x positions where the supports have deck nodes."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    x_positions = x_positions_of_bottom_support_nodes(c)
+    assert len(x_positions) == len(c.bridge.supports)
+    # Each support meets at a point.
+    for positions in x_positions:
+        assert len(positions) == 1
+
+
+def test_z_positions_of_bottom_support_nodes():
+    """Test the z positions where the supports have deck nodes."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    z_positions = list(itertools.chain.from_iterable(
+        z_positions_of_bottom_support_nodes(c)))
+    # There are 4 supports at each x position.
+    assert len(z_positions) == c.os_support_num_nodes_z * 4
+    # Check each of the supports explicitly.
+    for support in c.bridge.supports:
+        z_min = round_m(support.z - (support.width_bottom / 2))
+        z_max = round_m(support.z - (support.width_bottom / 2))
         assert z_min in z_positions
         assert z_max in z_positions

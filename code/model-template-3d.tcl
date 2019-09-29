@@ -4,7 +4,7 @@ wipe
 
 model basic -ndm 3 -ndf 6
 
-<<NODES>>
+<<DECK_NODES>>
 
 <<FIX>>
 

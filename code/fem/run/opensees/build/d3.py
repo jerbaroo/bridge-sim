@@ -96,7 +96,7 @@ opensees_intro = """
 def comment(c: str, inner: str, units: Optional[str] = None):
     """Add Begin c and End c comments around an inner block."""
     units_str = "" if units is None else f"# {units}\n"
-    return f"# Begin {c}\n" + units_str + inner + f"\n# End {c}"
+    return units_str + f"# Begin {c}\n" + inner + f"\n# End {c}"
 
 
 ##### End some unrelated things #####
@@ -105,30 +105,50 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 
 def x_positions_of_deck_support_nodes(c: Config) -> List[float]:
     """A list of ordered x positions where the supports have deck nodes."""
-    x_positions = set()
+    x_positions = []
     for support in c.bridge.supports:
+        x_positions.append([])
         support_half_length = support.length / 2
-        x_positions.add(round_m(support.x - support_half_length))
-        x_positions.add(round_m(support.x + support_half_length))
-    return sorted(x_positions)
+        x_positions[-1].append(round_m(support.x - support_half_length))
+        x_positions[-1].append(round_m(support.x + support_half_length))
+    return x_positions
 
 
-def z_positions_of_deck_support_nodes(c: Config) -> List[float]:
-    """A list of ordered z positions where the supports have deck nodes."""
-    z_positions = set()
+def z_positions_of_deck_support_nodes(c: Config) -> List[List[float]]:
+    """A list of z positions of deck nodes for each support."""
+    z_positions = []
     for support in c.bridge.supports:
-        if not np.isclose(support.width_top % c.os_support_node_step_z, 0):
-            raise ValueError(
-                f"Config.os_support_node_step_z {c.os_support_node_step_z} "
-                + f"does not evenly divide support width {support.width_top}")
+        z_positions.append([])
         z_0 = support.z - (support.width_top / 2)
-        z_positions.add(round_m(z_0))
-        num_z_steps = int(support.width_top // c.os_support_node_step_z)
-        assert num_z_steps * c.os_support_node_step_z == support.width_top
-        for _ in range(num_z_steps):
-            z_0 += c.os_support_node_step_z
-            z_positions.add(round_m(z_0))
-    return sorted(z_positions)
+        z_positions[-1].append(round_m(z_0))
+        z_step = support.width_top / (c.os_support_num_nodes_z - 1)
+        for _ in range(c.os_support_num_nodes_z - 1):
+            z_0 += z_step
+            z_positions[-1].append(round_m(z_0))
+    return z_positions
+
+
+def x_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
+    """A list of x positions of bottom nodes for each support."""
+    return [[support.x] for support in c.bridge.supports]
+
+
+def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
+    """A list of x positions of bottom nodes for each support."""
+    z_positions = []
+    for support in c.bridge.supports:
+        z_positions.append([])
+        z_0 = support.z - (support.width_bottom / 2)
+        z_positions[-1].append(round_m(z_0))
+        z_step = support.width_bottom / (c.os_support_num_nodes_z - 1)
+        for _ in range(c.os_support_num_nodes_z - 1):
+            z_0 += z_step
+            z_positions[-1].append(round_m(z_0))
+    return z_positions
+
+
+def support_nodes(c: Config):
+    pass
 
 
 def opensees_deck_nodes(
@@ -183,15 +203,15 @@ def opensees_deck_nodes(
         nodes)
 
 
-def opensees_nodes(c: Config, support_nodes: bool):
-    """OpenSees node commands.
+def opensees_support_nodes_bottom(c: Config):
+    """The nodes on the supports, on the bottom, shared."""
+    z_positions = z_positions_of_deck_support_nodes(c)
+    x_positions = x_positions_of_deck_support_nodes(c)
 
-    Args:
-        support_nodes: bool, for testing, if False don't include support nodes.
 
-    """
-    reset_node_ids()
-    return opensees_deck_nodes(c=c, support_nodes=support_nodes)
+def opensees_support_nodes_shared(c: Config):
+    """The nodes on the supports, but not on the deck."""
+    return None, None
 
 
 ##### End nodes #####
@@ -415,8 +435,8 @@ def build_model_3d(
         # Displacement control is not supported.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
-        # Replace template with generated TCL code.
-        nodes_str, deck_nodes = opensees_nodes(
+        reset_node_ids()
+        deck_nodes_str, deck_nodes = opensees_deck_nodes(
             c=c, support_nodes=support_3d_nodes)
         # Attach deck nodes and support nodes to the FEMParams to be available
         # when converting raw responses to responses with positions attached.
@@ -427,7 +447,7 @@ def build_model_3d(
         out_tcl = (
             in_tcl
             .replace("<<INTRO>>", opensees_intro)
-            .replace("<<NODES>>", nodes_str)
+            .replace("<<DECK_NODES>>", deck_nodes_str)
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<FIX>>", opensees_fixed_nodes(
