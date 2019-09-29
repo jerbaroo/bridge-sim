@@ -6,7 +6,7 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees.common import num_deck_nodes
+from fem.run.opensees.common import Node, num_deck_nodes, traverse_3d_nodes
 from model.bridge import Section3D
 from model.load import Load
 from model.response import ResponseType
@@ -101,21 +101,6 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 ##### End some unrelated things #####
 ##### Begin nodes #####
 
-
-class Node:
-    """A node that can be converted to an OpenSees command."""
-    def __init__(self, n_id: int, x: float, y: float, z: float):
-        self.n_id = n_id
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def tcl(self):
-        """OpenSees node command."""
-        return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
-                + f" {round_m(self.z)}")
-
-
 def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck."""
     num_nodes_x, num_nodes_z = num_deck_nodes(c)
@@ -134,8 +119,7 @@ def opensees_deck_nodes(c: Config) -> Tuple[str, List[List[Node]]]:
         z_pos += c.os_node_step_z
     node_strings = []
     node_strings += list(map(
-        lambda node: node.tcl(),
-        itertools.chain.from_iterable(nodes)))
+        lambda node: node.command_3d(), traverse_3d_nodes(nodes)))
     return (
         comment(
             "deck nodes",
@@ -365,6 +349,12 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
             raise ValueError("OpenSees: Displacement not supported in 3D")
         # Replace template with generated TCL code.
         nodes_str, deck_nodes = opensees_nodes(c=c)
+        # Attach deck nodes and support nodes to the FEMParams to be available
+        # when converting raw responses to responses with positions attached.
+        fem_params.deck_nodes = deck_nodes
+        # TODO: Attach support nodes.
+        # Build the 3D model file by replacing each placeholder in the model
+        # template file with OpenSees commands.
         out_tcl = (
             in_tcl
             .replace("<<INTRO>>", opensees_intro)

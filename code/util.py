@@ -1,5 +1,6 @@
 """Useful functions that don't belong anywhere else."""
 from __future__ import annotations
+from typing import Union
 
 import os
 import math
@@ -17,10 +18,13 @@ def round_m(x):
     return np.round(x, decimals=6)
 
 
-def print_d(debug: bool, s: str):
+def print_d(debug: Union[bool, str], s: str):
     """Print some debug text."""
     if debug:
-        print(colored(f"DEBUG: {s}", "yellow"))
+        path_str = ""
+        if isinstance(debug, str):
+            path_str = debug
+        print(colored(f"DEBUG: {debug}: {s}", "yellow"))
 
 
 def print_i(s: str):

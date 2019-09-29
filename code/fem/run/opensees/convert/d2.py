@@ -1,4 +1,4 @@
-"""Convert parsed OpenSees responses to [Response]."""
+"""Convert parsed 2D OpenSees responses to [Response]."""
 from typing import Dict, List
 
 from config import Config
@@ -7,13 +7,13 @@ from model import Response
 from model.response import ResponseType
 
 
-def convert_responses(
-        c: Config, parsed: Parsed
-    ) -> Dict[int, Dict[ResponseType, List[Response]]]:
-    """Convert parsed OpenSees responses to [Response]."""
-    sim_inds = list(parsed.keys())
+def convert_responses_2d(
+        c: Config, parsed_responses: Parsed
+        ) -> Dict[int, Dict[ResponseType, List[Response]]]:
+    """Convert parsed 2D OpenSees responses to [Response]."""
+    sim_inds = list(parsed_responses.keys())
     for sim_ind in sim_inds:
-        sim_responses = parsed[sim_ind]
+        sim_responses = parsed_responses[sim_ind]
 
         def translation_to_responses(trans):
             """Convert data indexed as [time][node] to a list of Response."""
@@ -56,4 +56,4 @@ def convert_responses(
             sim_responses[ResponseType.Strain] = stress_to_responses(
                 sim_responses[ResponseType.Strain])
 
-    return parsed
+    return parsed_responses

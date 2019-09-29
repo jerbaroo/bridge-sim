@@ -52,12 +52,14 @@ class FEMRunner:
         self._convert = convert
 
     def run(
-            self, expt_params: ExptParams, return_parsed: bool = False):
+            self, expt_params: ExptParams, return_parsed: bool = False,
+            return_converted: bool = False):
         """Run simulations and save responses using this FEMRunner.
 
         Args:
             expt_params: ExptParams, parameters for a number of simulations.
-            return_parsed: bool, return the parsed responses, for testing.
+            return_parsed: bool, return parsed responses, for testing.
+            return_converted: bool, return converted responses, for testing.
             
         """
 
@@ -85,21 +87,26 @@ class FEMRunner:
 
         # Parsing.
         start = timer()
-        parsed_by_type = self._parse(self.c, expt_params, self)
+        parsed_expt_responses = self._parse(self.c, expt_params, self)
         print_i(f"FEMRunner: parsed all responses in"
                 + f" {timer() - start:.2f}s")
         if return_parsed:
-            return parsed_by_type
+            return parsed_expt_responses
 
         # Converting.
         start = timer()
-        sim_responses = self._convert(self.c, parsed_by_type)
+        converted_responses = self._convert(
+            c=self.c, expt_params=expt_params,
+            parsed_expt_responses=parsed_expt_responses)
         print_i(f"FEMRunner: converted all responses to [Response] in"
                 + f" {timer() - start:.2f}s")
+        if return_converted:
+            return converted_responses
 
         # Saving.
-        for sim_ind in sim_responses:
-            for response_type, responses in sim_responses[sim_ind].items():
+        for sim_ind in converted_responses:
+            for response_type, responses in (
+                    converted_responses[sim_ind].items()):
                 fem_responses = FEMResponses(
                     c=self.c, fem_params=expt_params.fem_params[sim_ind],
                     runner_name=self.name, response_type=response_type,

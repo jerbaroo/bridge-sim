@@ -1,7 +1,9 @@
 """Common functions used by OpenSees FEMRunner components."""
-from typing import Tuple
+import itertools
+from typing import Tuple, List
 
 from config import Config
+from util import round_m
 
 import numpy as np
 
@@ -21,3 +23,23 @@ def num_deck_nodes(c: Config) -> Tuple[int, int]:
     num_nodes_x = int(np.round(num_nodes_x))
     num_nodes_z = int(np.round(num_nodes_z))
     return num_nodes_x, num_nodes_z
+
+
+class Node:
+    """A node that can be converted to an OpenSees command."""
+    def __init__(self, n_id: int, x: float, y: float, z: float):
+        self.n_id = n_id
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def command_3d(self):
+        """OpenSees node command."""
+        return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
+                + f" {round_m(self.z)}")
+
+
+def traverse_3d_nodes(deck_nodes: List[List[Node]]):
+    """Traverse built nodes in a deterministic order."""
+    return list(itertools.chain.from_iterable(deck_nodes))
+
