@@ -22,10 +22,11 @@ D: bool = False
 all_nodes = defaultdict(lambda: defaultdict(dict))
 
 
-def get_node(x: float, y: float, z: float):
+def get_node(x: float, y: float, z: float, comment_str: Optional[str] = None):
     """Get a node if already exists, else create and return."""
     if z not in all_nodes[x][y]:
-        all_nodes[x][y][z] = Node(next_node_id(), x=x, y=y, z=z)
+        all_nodes[x][y][z] = Node(
+            n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str)
     return all_nodes[x][y][z]
 
 
@@ -193,15 +194,28 @@ def opensees_deck_nodes(
             x_pos += c.os_node_step
             x_positions.add(x_pos)
     # If necessary add positions of deck support nodes.
+    x_positions_supports, z_positions_supports = None, None
     if support_nodes:
-        for z_pos in itertools.chain.from_iterable(
-                z_positions_of_deck_support_nodes(c)):
+        z_positions_supports = list(itertools.chain.from_iterable(
+            z_positions_of_deck_support_nodes(c)))
+        for z_pos in z_positions_supports:
             z_positions.add(z_pos)
-        for x_pos in itertools.chain.from_iterable(
-                x_positions_of_deck_support_nodes(c)):
+        x_positions_supports = list(itertools.chain.from_iterable(
+            x_positions_of_deck_support_nodes(c)))
+        for x_pos in x_positions_supports:
             x_positions.add(x_pos)
     x_positions = sorted(list(x_positions))
     z_positions = sorted(list(z_positions))
+
+
+    def is_support_node(x_: float, z_: float):
+        """Does a position belong to a support node on the deck?"""
+        return (
+            x_positions_supports is not None
+            and z_positions_supports is not None
+            and x_ in x_positions_supports
+            and z_ in z_positions_supports)
+
     
     ff_mod = next_pow_10(len(x_positions))
     print_i(ff_mod)
@@ -211,7 +225,11 @@ def opensees_deck_nodes(
         ff_node_ids(ff_mod)
         nodes.append([])
         for x_pos in x_positions:
-            nodes[-1].append(get_node(x=x_pos, y=0, z=z_pos))
+            comment_str = (
+                "support node" if is_support_node(x_=x_pos, z_=z_pos)
+                else None)
+            nodes[-1].append(get_node(
+                x=x_pos, y=0, z=z_pos, comment_str=comment_str))
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(),
