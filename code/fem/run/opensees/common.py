@@ -38,9 +38,9 @@ class Node:
 
     def command_3d(self):
         """OpenSees node command."""
-        comment_str = "" if self.comment is None else f" # {self.comment}"
+        comment = "" if self.comment is None else f"; # {self.comment}"
         return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
-                + f" {round_m(self.z)}{comment_str}")
+                + f" {round_m(self.z)}{comment}")
 
 
 def traverse_3d_nodes(deck_nodes: List[List[Node]]):

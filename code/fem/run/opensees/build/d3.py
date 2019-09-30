@@ -174,6 +174,16 @@ WallNodes = NewType("WallNodes", List[List[Node]])
 SupportNodes = NewType("SupportNodes", List[Tuple[WallNodes, WallNodes]])
 
 
+def assert_support_nodes(c: Config, all_s_nodes: SupportNodes):
+    assert len(all_s_nodes) == len(c.bridge.supports)
+    for s_nodes in all_s_nodes:
+        assert len(s_nodes) == 2
+        assert isinstance(s_nodes, tuple)
+        for w_nodes in s_nodes:
+            assert isinstance(w_nodes, list)
+            assert isinstance(w_nodes[0], list)
+
+
 def support_nodes(c: Config) -> SupportNodes:
     """A tuple of wall nodes for each support.
 
@@ -219,10 +229,13 @@ def support_nodes(c: Config) -> SupportNodes:
                         x=x_pos, y=y_pos, z=z_pos, comment_str=(
                             f"support {i + 1} wall {w + 1} z {z + 1} "
                             + f"y {y + 1}")))
+    assert_support_nodes(c, nodes)
     return nodes
 
 
-def opensees_support_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
+def opensees_support_nodes(
+        c: Config, deck_nodes: List[List[Node]], all_s_nodes: SupportNodes
+        ) -> str:
     """Opensees node commands for the supports (ignoring deck).
 
     Args:
@@ -230,7 +243,6 @@ def opensees_support_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
 
     """
     deck_nodes = set(itertools.chain.from_iterable(deck_nodes))
-    all_s_nodes = support_nodes(c)
     nodes = OrderedDict()
     for s_nodes in all_s_nodes:  # For each support.
         for w_nodes in s_nodes:  # For each wall.
@@ -241,7 +253,10 @@ def opensees_support_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
                         # ..and if not already added (incase the node is shared
                         # by both walls).
                         nodes[node] = None
-    return "\n".join(map(lambda n: n.command_3d(), nodes.keys()))
+    return comment(
+        "support nodes",
+        "\n".join(map(lambda n: n.command_3d(), nodes.keys())),
+        units="node nodeTag x y z")
 
 
 def opensees_deck_nodes(
@@ -324,21 +339,45 @@ def opensees_deck_nodes(
 ##### Begin fixed nodes #####
 
 
-def opensees_fixed_deck_node(node: Node):
-    """OpenSees fix command for a fixed deck node."""
-    return f"fix {node.n_id} 1 1 1 0 0 0"
+class FixNode:
+    """A node to fix."""
+    def __init__(self, node: Node, comment_: Optional[str] = None):
+        self.node = node
+        self.comment = comment_
+    def command_3d(self):
+        comment_ = "" if self.comment is None else f"; # {self.comment}"
+        return f"fix {self.node.n_id} 1 1 1 0 0 0{comment_}"
 
 
-def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]):
+def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
     """OpenSees fix commands for fixed deck nodes."""
-    fixed_nodes = []
+    fixed_nodes: List[FixNode] = []
     for x_nodes in deck_nodes:
         assert len(x_nodes) >= 2
-        fixed_nodes.append(x_nodes[0])
-        fixed_nodes.append(x_nodes[-1])
+        fixed_nodes.append(FixNode(x_nodes[0]))
+        fixed_nodes.append(FixNode(x_nodes[-1]))
     return comment(
         "fixed deck nodes",
-        "\n".join(map(opensees_fixed_deck_node, fixed_nodes)),
+        "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
+        units="fix nodeTag x y z rz ry rz")
+
+
+def opensees_fixed_support_nodes(
+        c: Config, support_nodes: SupportNodes) -> str:
+    """OpenSees fix commands for fixed support nodes."""
+    fixed_nodes: List[FixNode] = []
+    assert_support_nodes(c=c, all_s_nodes=support_nodes)
+    # For each support.
+    for s, s_nodes in enumerate(support_nodes):
+        # For each transverse line of one wall of the support.
+        for z, z_nodes in enumerate(s_nodes[0]):  
+            # We will fix the bottom node.
+            fixed_nodes.append(FixNode(
+                node=z_nodes[-1],
+                comment_=f"support {s+1} wall 1 z {z+1}"))
+    return comment(
+        "fixed support nodes",
+        "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
         units="fix nodeTag x y z rz ry rz")
 
 
@@ -536,10 +575,15 @@ def build_model_3d(
         reset_node_ids()
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
             c=c, support_nodes=support_3d_nodes)
+        support_nodes_ = support_nodes(c)
+        assert_support_nodes(c=c, all_s_nodes=support_nodes_)
         # Attach deck nodes and support nodes to the FEMParams to be available
         # when converting raw responses to responses with positions attached.
+        # Note, that there are some overlap between deck nodes and support
+        # nodes, and some over lap between nodes of both walls of one support
+        # (at the bottom where they meet).
         fem_params.deck_nodes = deck_nodes
-        # TODO: Attach support nodes.
+        fem_params.support_nodes = support_nodes_
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -547,11 +591,13 @@ def build_model_3d(
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<DECK_NODES>>", deck_nodes_str)
             .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
-                c=c, deck_nodes=deck_nodes))
+                c=c, deck_nodes=deck_nodes, all_s_nodes=support_nodes_))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
+            .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
+                c=c, support_nodes=support_nodes_))
             .replace("<<SUPPORTS>>", "")
             .replace("<<SECTIONS>>", opensees_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(

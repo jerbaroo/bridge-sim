@@ -10,6 +10,8 @@ model basic -ndm 3 -ndf 6
 
 <<FIX_DECK>>
 
+<<FIX_SUPPORTS>>
+
 <<SUPPORTS>>
 
 <<SECTIONS>>
