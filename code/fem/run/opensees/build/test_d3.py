@@ -89,11 +89,11 @@ def test_build_d3_deck_nodes_elems():
 
 
 def test_build_d3_fixed_nodes():
-    """Test the deck nodes and elements are built correctly."""
+    """Test the fixed nodes of the deck and supports."""
     # Setup.
     c = bridge_705_test_config(bridge=bridge_705_3d)
     c.os_node_step = c.bridge.length / 3
-    c.os_node_step_z = c.bridge.width
+    c.os_node_step_z = c.bridge.width  # Ensures no overlap with supports.
     c.os_support_num_nodes_z = 5
     os_runner = OSRunner(c=c)
 
@@ -110,11 +110,17 @@ def test_build_d3_fixed_nodes():
     deck_fix_lines = get_lines(
         contains="fix ", lines=lines, after="Begin fixed deck nodes",
         before="End fixed deck nodes")
-
     one_side_deck_fix = (c.bridge.width / c.os_node_step_z) + 1
     one_side_supports_fix = c.os_support_num_nodes_z * 4
     one_side_fix = one_side_deck_fix + one_side_supports_fix
     assert len(deck_fix_lines) == one_side_fix * 2
+
+    # Check amount of fixed deck nodes.
+    support_fix_lines = get_lines(
+        contains="fix ", lines=lines, after="Begin fixed support nodes",
+        before="End fixed support nodes")
+    assert len(support_fix_lines) == (
+        len(c.bridge.supports) * c.os_support_num_nodes_z)
 
 
 def test_build_d3_loads():
@@ -200,6 +206,9 @@ def test_z_positions_of_bottom_support_nodes():
         z_max = round_m(support.z - (support.width_bottom / 2))
         assert z_min in z_positions
         assert z_max in z_positions
+    # Check each z position is in range of bridge.
+    for z_position in z_positions:
+        assert c.bridge.z_min <= z_position <= c.bridge.z_max
 
 
 def test_get_node():
@@ -261,4 +270,3 @@ def test_make_small_example():
         loads=[Load(x_frac=0.5, kn=1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
-

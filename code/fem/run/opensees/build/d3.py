@@ -11,7 +11,7 @@ from fem.run.opensees.common import Node, num_deck_nodes
 from model.bridge import Section3D
 from model.load import Load
 from model.response import ResponseType
-from util import print_d, print_i, round_m
+from util import round_m, print_d, print_i, print_w
 
 # Print debug information for this file.
 D: bool = False
@@ -55,6 +55,7 @@ def reset_node_ids():
     all_nodes = defaultdict(lambda: defaultdict(dict))
 
 
+# Amount to fast forward Node IDs by.
 ff_mod = None
 
 
@@ -117,7 +118,7 @@ opensees_intro = """
 
 
 def comment(c: str, inner: str, units: Optional[str] = None):
-    """Add Begin c and End c comments around an inner block."""
+    """Add 'Begin c' and 'End c' comments around an inner block."""
     units_str = "" if units is None else f"# {units}\n"
     return units_str + f"# Begin {c}\n" + inner + f"\n# End {c}"
 
@@ -162,6 +163,7 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
     for support in c.bridge.supports:
         z_positions.append([])
         z_0 = support.z - (support.width_bottom / 2)
+        print_w(f"support_z = {support.z}")
         z_positions[-1].append(round_m(z_0))
         z_step = support.width_bottom / (c.os_support_num_nodes_z - 1)
         for _ in range(c.os_support_num_nodes_z - 1):
@@ -373,8 +375,7 @@ def opensees_fixed_support_nodes(
         for z, z_nodes in enumerate(s_nodes[0]):  
             # We will fix the bottom node.
             fixed_nodes.append(FixNode(
-                node=z_nodes[-1],
-                comment_=f"support {s+1} wall 1 z {z+1}"))
+                node=z_nodes[-1], comment_=f"support {s+1} z {z+1}"))
     return comment(
         "fixed support nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),

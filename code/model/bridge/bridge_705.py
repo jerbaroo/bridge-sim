@@ -8,7 +8,10 @@ from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, S
 
 bridge_705_length = 102.75
 bridge_705_width = 33.2
-bridge_705_lanes = [Lane(4, 12.4), Lane(20.8, 29.2)]
+half_width = bridge_705_width / 2
+bridge_705_lanes = [
+    Lane(4 - half_width, 12.4 - half_width),
+    Lane(20.8 - half_width, 29.2 - half_width)]
 # Pier locations in meters (includes bridge beginning and end).
 bridge_705_piers = [0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
@@ -62,6 +65,8 @@ bridge_705_supports_z = [2.167 + 3.666/2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):
     bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
+bridge_705_supports_z = list(map(
+    lambda x: x - half_width, bridge_705_supports_z))
 # Ignoring beginning and end of bridge.
 bridge_705_supports_3d = []
 for _support_x in bridge_705_piers[1:-1]:

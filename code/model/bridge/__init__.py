@@ -122,6 +122,11 @@ class Support3D:
         """The min and max values in y direction for this support."""
         return -self.height, 0
 
+    def z_min_max_top(self) -> Tuple[float, float]:
+        """The min and max values in z direction for this support top."""
+        half_top = self.width_top / 2
+        return self.z - half_top, self.z + half_top
+
 
 # Supports are either 2D or 3D supports.
 Support = Union[Fix, Support3D]
@@ -489,23 +494,44 @@ class Bridge:
                 raise ValueError("Sections not in order of start_x_frac")
             last_start_x_frac = section.start_x_frac
 
-        # for i, lane in enumerate(lanes):
-        #     if lane.z_min < self.z_min:
-        #         raise ValueError(
-        #             f"Lane {i} lower position {lane.z_min} less than bridge"
-        #             + f" {self.z_min}")
-        #     if lane.z_min > self.z_max:
-        #         raise ValueError(
-        #             f"Lane {i} lower position {lane.z_min} greater than bridge"
-        #             + f" {self.z_max}")
-        #     if lane.z_max < self.z_min:
-        #         raise ValueError(
-        #             f"Lane {i} upper position {lane.z_max} less than bridge"
-        #             + f" {self.z_min}")
-        #     if lane.z_min > self.z_max:
-        #         raise ValueError(
-        #             f"Lane {i} upper position {lane.z_max} greater than bridge"
-        #             + f" {self.z_max}")
+        # Lanes must be in range.
+        for i, lane in enumerate(self.lanes):
+            if lane.z_min < self.z_min:
+                raise ValueError(
+                    f"Lane {i} lower position {lane.z_min} less than bridge"
+                    + f" {self.z_min}")
+            if lane.z_min > self.z_max:
+                raise ValueError(
+                    f"Lane {i} lower position {lane.z_min} greater than bridge"
+                    + f" {self.z_max}")
+            if lane.z_max < self.z_min:
+                raise ValueError(
+                    f"Lane {i} upper position {lane.z_max} less than bridge"
+                    + f" {self.z_min}")
+            if lane.z_max > self.z_max:
+                raise ValueError(
+                    f"Lane {i} upper position {lane.z_max} greater than bridge"
+                    + f" {self.z_max}")
+
+        # Supports must be in range.
+        for i, support in enumerate(self.supports):
+            support_z_min, support_z_max = support.z_min_max_top()
+            if support_z_min < self.z_min:
+                raise ValueError(
+                    f"Support {i} lower position {support_z_min} less than"
+                    + f" bridge {self.z_min}")
+            if support_z_min > self.z_max:
+                raise ValueError(
+                    f"Support {i} lower position {support_z_min} greater than"
+                    + f" bridge {self.z_max}")
+            if support_z_max < self.z_min:
+                raise ValueError(
+                    f"Support {i} upper position {support_z_max} less than"
+                    + f" bridge {self.z_min}")
+            if support_z_max > self.z_max:
+                raise ValueError(
+                    f"Support {i} upper position {support_z_max} greater than"
+                    + f" bridge {self.z_max}")
 
 
 def _reset_model_ids():
