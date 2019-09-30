@@ -14,7 +14,7 @@ model basic -ndm 3 -ndf 6
 
 <<SECTIONS>>
 
-<<ELEMENTS>>
+<<DECK_ELEMENTS>>
 
 timeSeries Linear 1
 

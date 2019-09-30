@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node, reset_node_ids, ff_node_ids, next_pow_10, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node, reset_node_ids, ff_node_ids, next_pow_10, opensees_deck_nodes, opensees_support_nodes, support_nodes, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -181,3 +181,37 @@ def test_get_node():
     node3 = get_node(1, 1, 2)
     assert node1.n_id == node2.n_id
     assert node3.n_id != node2.n_id
+
+
+def test_support_nodes():
+    """Test the correct amount of support nodes."""
+    reset_node_ids()
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    c.os_support_num_nodes_z = 4
+    c.os_support_num_nodes_y = 5
+    multiple_support_nodes = support_nodes(c)
+    # Test the amount of support nodes in total is correct.
+    count = 0
+    for s_nodes in multiple_support_nodes:
+        assert len(s_nodes) == 2
+        count += len(list(itertools.chain.from_iterable(s_nodes[0])))
+        count += len(list(itertools.chain.from_iterable(s_nodes[1])))
+    nodes_per_wall = c.os_support_num_nodes_z * c.os_support_num_nodes_y
+    expected = len(c.bridge.supports) * nodes_per_wall * 2
+    assert expected == count
+
+    # Test the amount of support nodes without overlap is correct.
+    reset_node_ids()
+    node_lines = opensees_support_nodes(c, [[]])
+    num_nodes = len(node_lines.split("\n"))
+    expected_wo_overlap = expected - (
+        len(c.bridge.supports) * c.os_support_num_nodes_z)
+    assert num_nodes == expected_wo_overlap
+
+    # Test the amount of nodes without overlap and deck nodes is correct.
+    reset_node_ids()
+    _, deck_nodes = opensees_deck_nodes(c=c, support_nodes=True)
+    node_lines = opensees_support_nodes(c=c, deck_nodes=deck_nodes)
+    num_nodes = len(node_lines.split("\n"))
+    assert num_nodes == expected_wo_overlap - (
+        len(c.bridge.supports) * c.os_support_num_nodes_z * 2)

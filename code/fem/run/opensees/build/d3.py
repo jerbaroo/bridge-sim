@@ -24,6 +24,9 @@ all_nodes = defaultdict(lambda: defaultdict(dict))
 
 def get_node(x: float, y: float, z: float, comment_str: Optional[str] = None):
     """Get a node if already exists, else create and return."""
+    x = round_m(x)
+    y = round_m(y)
+    z = round_m(z)
     if z not in all_nodes[x][y]:
         all_nodes[x][y][z] = Node(
             n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str)
@@ -227,11 +230,13 @@ def opensees_support_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
     nodes = OrderedDict()
     for s_nodes in all_s_nodes:  # For each support.
         for w_nodes in s_nodes:  # For each wall.
-            for node in itertools.chain.from_iterable(w_nodes):
-                # Insert the node, if not in deck nodes, and if not already
-                # added (incase the node is shared by both walls).
-                if node not in deck_nodes:
-                    nodes[node] = None
+            for y_nodes in w_nodes:  # For each transverse z line.
+                for node in y_nodes:
+                    # Insert the node, if not in deck nodes..
+                    if node not in deck_nodes:
+                        # ..and if not already added (incase the node is shared
+                        # by both walls).
+                        nodes[node] = None
     return "\n".join(map(lambda n: n.command_3d(), nodes.keys()))
 
 
@@ -365,10 +370,18 @@ def opensees_sections(c: Config):
 ##### Begin shell elements #####
 
 
-def opensees_deck_elements(
-        c: Config, first_node_z_0: int, first_node_z_1: int,
-        last_node_z_0: int, z_skip: int) -> str:
+def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
     """OpenSees element commands for the bridge deck."""
+    reset_elem_ids()
+    first_node_z_0 = deck_nodes[0][0].n_id
+    first_node_z_1 = deck_nodes[-1][0].n_id
+    last_node_z_0 = deck_nodes[0][-1].n_id
+    z_skip = deck_nodes[1][0].n_id - deck_nodes[0][0].n_id
+    print_d(D, f"first_node_z_0 = {first_node_z_0}")
+    print_d(D, f"first_node_z_1 = {first_node_z_1}")
+    print_d(D, f"last_node_z_0 = {last_node_z_0}")
+    print_d(D, f"z_skip = {z_skip}")
+
     deck_elements = []
     # Shell nodes are input in counter-clockwise order starting bottom left
     # with i, then bottom right with j, top right k, top left with l.
@@ -391,22 +404,6 @@ def opensees_deck_elements(
         "deck elements",
         "\n".join(deck_elements),
         "element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
-
-
-def opensees_elements(c: Config, deck_nodes: List[List[Node]]):
-    """OpenSees element commands."""
-    reset_elem_ids()
-    first_node_z_0 = deck_nodes[0][0].n_id
-    first_node_z_1 = deck_nodes[-1][0].n_id
-    last_node_z_0 = deck_nodes[0][-1].n_id
-    z_skip = deck_nodes[1][0].n_id - deck_nodes[0][0].n_id
-    print_d(D, f"first_node_z_0 = {first_node_z_0}")
-    print_d(D, f"first_node_z_1 = {first_node_z_1}")
-    print_d(D, f"last_node_z_0 = {last_node_z_0}")
-    print_d(D, f"z_skip = {z_skip}")
-    return opensees_deck_elements(
-        c=c, first_node_z_0=first_node_z_0, first_node_z_1=first_node_z_1,
-        last_node_z_0=last_node_z_0, z_skip=z_skip)
 
 
 ##### End shell elements #####
@@ -450,6 +447,11 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
     print_d(D, f"Generating OpenSees load command for {load}")
     assert load.is_point_load()
     return f"load {best_node.n_id} 0 {load.kn * 1000} 0 0 0 0"
+
+
+def opensees_support_elements(c: Config):
+    """"""
+    return ""
 
 
 def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
@@ -556,8 +558,9 @@ def build_model_3d(
             .replace("<<RECORDERS>>", opensees_recorders(
                 c=c, fem_params=fem_params, os_runner=os_runner,
                 deck_nodes=deck_nodes))
-            .replace("<<ELEMENTS>>", opensees_elements(
-                c=c, deck_nodes=deck_nodes)))
+            .replace("<<DECK_ELEMENTS>>", opensees_deck_elements(
+                c=c, deck_nodes=deck_nodes))
+            .replace("<<SUPPORT_ELEMENTS>>", opensees_support_elements(c=c)))
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
