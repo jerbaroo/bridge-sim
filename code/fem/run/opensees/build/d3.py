@@ -55,6 +55,9 @@ def reset_node_ids():
     all_nodes = defaultdict(lambda: defaultdict(dict))
 
 
+ff_mod = None
+
+
 def ff_node_ids(mod: int):
     """Fast forward node IDs until divisible by "mod"."""
     global _node_id
@@ -194,6 +197,7 @@ def support_nodes(c: Config) -> SupportNodes:
             # For each transverse z position at the deck, we move down along
             # one transverse line updating x, y, z.
             for z, z_deck in enumerate(z_positions_deck[i]):
+                ff_node_ids(ff_mod)
                 z_bottom = z_positions_bottom[i][z]
                 wall.append([])
                 # Starting positions along this transverse line.
@@ -291,8 +295,8 @@ def opensees_deck_nodes(
             and z_ in z_positions_supports)
 
 
+    global ff_mod
     ff_mod = next_pow_10(len(x_positions))
-    print_i(ff_mod)
     nodes = []
     for z_pos in z_positions:
         # Fast forward node IDs on each transverse (z) increment.
@@ -332,14 +336,9 @@ def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]):
         assert len(x_nodes) >= 2
         fixed_nodes.append(x_nodes[0])
         fixed_nodes.append(x_nodes[-1])
-    return "\n".join(map(opensees_fixed_deck_node, fixed_nodes))
-
-
-def opensees_fixed_nodes(c: Config, deck_nodes: List[List[Node]]):
-    """OpenSees fix commands for fixed deck and pier nodes."""
     return comment(
-        "Fixed deck nodes",
-        opensees_fixed_deck_nodes(c=c, deck_nodes=deck_nodes),
+        "fixed deck nodes",
+        "\n".join(map(opensees_fixed_deck_node, fixed_nodes)),
         units="fix nodeTag x y z rz ry rz")
 
 
@@ -551,7 +550,7 @@ def build_model_3d(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
-            .replace("<<FIX>>", opensees_fixed_nodes(
+            .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<SUPPORTS>>", "")
             .replace("<<SECTIONS>>", opensees_sections(c=c))

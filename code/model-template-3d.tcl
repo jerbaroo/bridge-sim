@@ -8,7 +8,7 @@ model basic -ndm 3 -ndf 6
 
 <<SUPPORT_NODES>>
 
-<<FIX>>
+<<FIX_DECK>>
 
 <<SUPPORTS>>
 
