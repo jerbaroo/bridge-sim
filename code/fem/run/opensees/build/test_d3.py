@@ -88,6 +88,35 @@ def test_build_d3_deck_nodes_elems():
     assert all(["comment should not exist" not in line for line in lines])
 
 
+def test_build_d3_fixed_nodes():
+    """Test the deck nodes and elements are built correctly."""
+    # Setup.
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    c.os_node_step = c.bridge.length / 3
+    c.os_node_step_z = c.bridge.width
+    c.os_support_num_nodes_z = 5
+    os_runner = OSRunner(c=c)
+
+    # Build model file.
+    expt_params = ExptParams([FEMParams(
+        loads=[Load(0.65, 1234)], response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
+    with open(os_runner.fem_file_path(
+            fem_params=expt_params.fem_params[0], ext="tcl")) as f:
+        lines = f.readlines()
+
+    # Check amount of fixed deck nodes.
+    deck_fix_lines = get_lines(
+        contains="fix ", lines=lines, after="Begin fixed deck nodes",
+        before="End fixed deck nodes")
+
+    one_side_deck_fix = (c.bridge.width / c.os_node_step_z) + 1
+    one_side_supports_fix = c.os_support_num_nodes_z * 4
+    one_side_fix = one_side_deck_fix + one_side_supports_fix
+    assert len(deck_fix_lines) == one_side_fix * 2
+
+
 def test_build_d3_loads():
     """Test loads are placed correctly on the deck."""
     # Setup.
@@ -202,8 +231,9 @@ def test_support_nodes():
 
     # Test the amount of support nodes without overlap is correct.
     reset_node_ids()
-    node_lines = opensees_support_nodes(c, [[]])
-    num_nodes = len(node_lines.split("\n"))
+    node_lines = opensees_support_nodes(
+        c=c, deck_nodes=[[]], all_s_nodes=support_nodes(c))
+    num_nodes = len(node_lines.split("\n")) - 3  # Minus comments.
     expected_wo_overlap = expected - (
         len(c.bridge.supports) * c.os_support_num_nodes_z)
     assert num_nodes == expected_wo_overlap
@@ -211,7 +241,24 @@ def test_support_nodes():
     # Test the amount of nodes without overlap and deck nodes is correct.
     reset_node_ids()
     _, deck_nodes = opensees_deck_nodes(c=c, support_nodes=True)
-    node_lines = opensees_support_nodes(c=c, deck_nodes=deck_nodes)
-    num_nodes = len(node_lines.split("\n"))
+    node_lines = opensees_support_nodes(
+        c=c, deck_nodes=deck_nodes, all_s_nodes=support_nodes(c))
+    num_nodes = len(node_lines.split("\n")) - 3  # Minus comments.
     assert num_nodes == expected_wo_overlap - (
         len(c.bridge.supports) * c.os_support_num_nodes_z * 2)
+
+
+def test_make_small_example():
+    """Make a small example tcl file for manual inspection."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    c.os_node_step = c.bridge.length / 2
+    c.os_node_step_z = c.bridge.width / 2
+    c.os_support_num_nodes_z = 2
+    c.os_support_num_nodes_y = 2
+    os_runner = OSRunner(c=c)
+    # Build model file.
+    expt_params = ExptParams([FEMParams(
+        loads=[Load(x_frac=0.5, kn=1234)], response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
+
