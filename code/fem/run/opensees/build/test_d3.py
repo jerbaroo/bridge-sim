@@ -84,6 +84,9 @@ def test_build_d3_deck_nodes_elems():
         * ((c.bridge.width / c.os_node_step_z) + 1))
     assert len(deck_node_ids) == num_deck_nodes
 
+    # Support nodes of the deck shouldn't appear again.
+    assert all(["comment should not exist" not in line for line in lines])
+
 
 def test_build_d3_loads():
     """Test loads are placed correctly on the deck."""

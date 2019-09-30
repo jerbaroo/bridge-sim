@@ -91,7 +91,8 @@ def bridge_705_test_config(bridge: Callable[[], Bridge]) -> Config:
     c.event_metadata_path += ".test"
     c.os_node_step = c.bridge.length / 5
     c.os_node_step_z = c.bridge.width / 5
-    c.os_support_num_nodes_z = 3
+    c.os_support_num_nodes_z = 4
+    c.os_support_num_nodes_y = 4
     return c
 
 

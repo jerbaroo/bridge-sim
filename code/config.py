@@ -135,6 +135,7 @@ class Config:
         self.os_node_step: float = self.bridge.length / 100
         self.os_node_step_z: float = self.bridge.width / 100
         self.os_support_num_nodes_z: int = 10
+        self.os_support_num_nodes_y: int = 10
         self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"

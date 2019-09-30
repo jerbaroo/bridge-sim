@@ -31,9 +31,9 @@ class Node:
             self, n_id: int, x: float, y: float, z: float,
             comment: Optional[str] = None):
         self.n_id = n_id
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = round_m(x)
+        self.y = round_m(y)
+        self.z = round_m(z)
         self.comment = comment
 
     def command_3d(self):

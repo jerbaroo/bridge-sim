@@ -1,7 +1,7 @@
 """Build OpenSees 3D model files."""
 import itertools
-from collections import defaultdict
-from typing import List, Optional, Tuple
+from collections import OrderedDict, defaultdict
+from typing import List, NewType, Optional, Tuple
 
 import numpy as np
 
@@ -164,10 +164,75 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
     return z_positions
 
 
-def support_nodes(c: Config) -> List[List[List[Node]]]:
-    """A 2d-list of Node for each support, ordered by z then y position."""
+WallNodes = NewType("WallNodes", List[List[Node]])
+SupportNodes = NewType("SupportNodes", List[Tuple[WallNodes, WallNodes]])
+
+
+def support_nodes(c: Config) -> SupportNodes:
+    """A tuple of wall nodes for each support.
+
+    The wall nodes are a 2d-list of Node is ordered by z then y position.
+
+    """
     nodes = []
-    # for suppor
+    x_positions_deck = x_positions_of_deck_support_nodes(c)
+    z_positions_deck = z_positions_of_deck_support_nodes(c)
+    x_positions_bottom = x_positions_of_bottom_support_nodes(c)
+    z_positions_bottom = z_positions_of_bottom_support_nodes(c)
+    for i, support in enumerate(c.bridge.supports):
+        walls = ([], [])
+        nodes.append(walls)
+        assert len(x_positions_deck[i]) == 2
+        assert len(x_positions_bottom[i]) == 1
+        x_bottom = x_positions_bottom[i][0]
+        # For each wall of one support, starting with x at the deck.
+        for w, x_deck in enumerate(x_positions_deck[i]):
+            wall = walls[w]
+            # For each transverse z position at the deck, we move down along
+            # one transverse line updating x, y, z.
+            for z, z_deck in enumerate(z_positions_deck[i]):
+                z_bottom = z_positions_bottom[i][z]
+                wall.append([])
+                # Starting positions along this transverse line.
+                x_pos = x_deck
+                y_pos = 0  # Start at the top.
+                z_pos = z_deck
+                # Determine difference for each x, y, z.
+                # TODO: Confirm directions.
+                x_diff = (x_bottom - x_deck) / (c.os_support_num_nodes_y - 1)
+                y_diff = support.height / (c.os_support_num_nodes_y - 1)
+                z_diff = (z_bottom - z_deck) / (c.os_support_num_nodes_y - 1)
+                # TODO: Test.
+                wall[-1].append(get_node(x=x_pos, y=y_pos, z=z_pos))
+                for y in range(c.os_support_num_nodes_y - 1):
+                    x_pos += x_diff
+                    y_pos -= y_diff
+                    z_pos += z_diff
+                    wall[-1].append(get_node(
+                        x=x_pos, y=y_pos, z=z_pos, comment_str=(
+                            f"support {i + 1} wall {w + 1} z {z + 1} "
+                            + f"y {y + 1}")))
+    return nodes
+
+
+def opensees_support_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
+    """Opensees node commands for the supports (ignoring deck).
+
+    Args:
+        deck_nodes: List[List[Node]], to check for already added support nodes.
+
+    """
+    deck_nodes = set(itertools.chain.from_iterable(deck_nodes))
+    all_s_nodes = support_nodes(c)
+    nodes = OrderedDict()
+    for s_nodes in all_s_nodes:  # For each support.
+        for w_nodes in s_nodes:  # For each wall.
+            for node in itertools.chain.from_iterable(w_nodes):
+                # Insert the node, if not in deck nodes, and if not already
+                # added (incase the node is shared by both walls).
+                if node not in deck_nodes:
+                    nodes[node] = None
+    return "\n".join(map(lambda n: n.command_3d(), nodes.keys()))
 
 
 def opensees_deck_nodes(
@@ -196,12 +261,16 @@ def opensees_deck_nodes(
     # If necessary add positions of deck support nodes.
     x_positions_supports, z_positions_supports = None, None
     if support_nodes:
+        # z positions of deck nodes that are also supports.
         z_positions_supports = list(itertools.chain.from_iterable(
             z_positions_of_deck_support_nodes(c)))
+        # Add these support z positions to the deck z positions.
         for z_pos in z_positions_supports:
             z_positions.add(z_pos)
+        # x positions of deck nodes that are also supports.
         x_positions_supports = list(itertools.chain.from_iterable(
             x_positions_of_deck_support_nodes(c)))
+        # Add these support x positions to the deck z positions.
         for x_pos in x_positions_supports:
             x_positions.add(x_pos)
     x_positions = sorted(list(x_positions))
@@ -216,7 +285,7 @@ def opensees_deck_nodes(
             and x_ in x_positions_supports
             and z_ in z_positions_supports)
 
-    
+
     ff_mod = next_pow_10(len(x_positions))
     print_i(ff_mod)
     nodes = []
@@ -240,17 +309,6 @@ def opensees_deck_nodes(
             "\n".join(node_strings),
             units="node nodeTag x y z"),
         nodes)
-
-
-def opensees_support_nodes_bottom(c: Config):
-    """The nodes on the supports, on the bottom, shared."""
-    z_positions = z_positions_of_deck_support_nodes(c)
-    x_positions = x_positions_of_deck_support_nodes(c)
-
-
-def opensees_support_nodes_shared(c: Config):
-    """The nodes on the supports, but not on the deck."""
-    return None, None
 
 
 ##### End nodes #####
@@ -426,7 +484,7 @@ def opensees_translation_recorders(
     if ResponseType.ZTranslation in fem_params.response_types:
         z_path = os_runner.z_translation_path(fem_params)
         translation_response_types.append((z_path, 3))
-        print_i(f"OpenSees: saving z translation at {y_path}")
+        print_i(f"OpenSees: saving z translation at {z_path}")
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = []
     node_str = " ".join(
@@ -487,6 +545,8 @@ def build_model_3d(
             in_tcl
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<DECK_NODES>>", deck_nodes_str)
+            .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
+                c=c, deck_nodes=deck_nodes))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<FIX>>", opensees_fixed_nodes(

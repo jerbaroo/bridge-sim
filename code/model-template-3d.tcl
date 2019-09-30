@@ -6,6 +6,8 @@ model basic -ndm 3 -ndf 6
 
 <<DECK_NODES>>
 
+<<SUPPORT_NODES>>
+
 <<FIX>>
 
 <<SUPPORTS>>
