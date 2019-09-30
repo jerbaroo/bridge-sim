@@ -12,11 +12,13 @@ model basic -ndm 3 -ndf 6
 
 <<FIX_SUPPORTS>>
 
-<<SUPPORTS>>
-
 <<SECTIONS>>
 
 <<DECK_ELEMENTS>>
+
+<<SUPPORT_ELEMENTS>>
+
+<<SUPPORTS>>
 
 timeSeries Linear 1
 

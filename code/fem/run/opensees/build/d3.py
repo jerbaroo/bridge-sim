@@ -421,7 +421,7 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
     print_d(D, f"last_node_z_0 = {last_node_z_0}")
     print_d(D, f"z_skip = {z_skip}")
 
-    deck_elements = []
+    deck_elements = []  # The result.
     # Shell nodes are input in counter-clockwise order starting bottom left
     # with i, then bottom right with j, top right k, top left with l.
 
@@ -442,7 +442,35 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
     return comment(
         "deck elements",
         "\n".join(deck_elements),
-        "element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
+        units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
+
+
+def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
+    """OpenSees element commands for the bridge's supports."""
+    support_elements = []  # The result.
+    for s, support_nodes in enumerate(all_support_nodes):
+        for w, wall_nodes in enumerate(support_nodes):
+            z = 0  # Keep an index of current transverse (z) line.
+            # For each pair of transverse (z) lines.
+            for y_nodes_z_lo, y_nodes_z_hi in zip(
+                    wall_nodes[:-1], wall_nodes[1:]):
+                assert len(y_nodes_z_lo) == len(y_nodes_z_hi)
+                for y in range(len(y_nodes_z_lo) - 1):
+                    y_lo_z_lo = y_nodes_z_lo[y]
+                    y_hi_z_lo = y_nodes_z_lo[y + 1]
+                    y_lo_z_hi = y_nodes_z_hi[y]
+                    y_hi_z_hi = y_nodes_z_hi[y + 1]
+                    support_elements.append(
+                        f"element ShellMITC4 {next_elem_id()} {y_lo_z_lo.n_id}"
+                        + f" {y_hi_z_lo.n_id} {y_lo_z_hi.n_id} "
+                        + f" {y_hi_z_hi.n_id} 0"
+                        + f"; # support {s+1} wall {w+1} z {z+1} y {y+1}")
+                ff_elem_ids(ff_mod)
+                z += 1
+    return comment(
+        "support elements",
+        "\n".join(support_elements),
+        units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
 ##### End shell elements #####
@@ -486,11 +514,6 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
     print_d(D, f"Generating OpenSees load command for {load}")
     assert load.is_point_load()
     return f"load {best_node.n_id} 0 {load.kn * 1000} 0 0 0 0"
-
-
-def opensees_support_elements(c: Config):
-    """"""
-    return ""
 
 
 def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
@@ -576,15 +599,15 @@ def build_model_3d(
         reset_node_ids()
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
             c=c, support_nodes=support_3d_nodes)
-        support_nodes_ = support_nodes(c)
-        assert_support_nodes(c=c, all_s_nodes=support_nodes_)
+        all_support_nodes = support_nodes(c)
+        assert_support_nodes(c=c, all_s_nodes=all_support_nodes)
         # Attach deck nodes and support nodes to the FEMParams to be available
         # when converting raw responses to responses with positions attached.
         # Note, that there are some overlap between deck nodes and support
         # nodes, and some over lap between nodes of both walls of one support
         # (at the bottom where they meet).
         fem_params.deck_nodes = deck_nodes
-        fem_params.support_nodes = support_nodes_
+        fem_params.support_nodes = all_support_nodes
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -592,13 +615,13 @@ def build_model_3d(
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<DECK_NODES>>", deck_nodes_str)
             .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
-                c=c, deck_nodes=deck_nodes, all_s_nodes=support_nodes_))
+                c=c, deck_nodes=deck_nodes, all_s_nodes=all_support_nodes))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
-                c=c, support_nodes=support_nodes_))
+                c=c, support_nodes=all_support_nodes))
             .replace("<<SUPPORTS>>", "")
             .replace("<<SECTIONS>>", opensees_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(
@@ -606,7 +629,8 @@ def build_model_3d(
                 deck_nodes=deck_nodes))
             .replace("<<DECK_ELEMENTS>>", opensees_deck_elements(
                 c=c, deck_nodes=deck_nodes))
-            .replace("<<SUPPORT_ELEMENTS>>", opensees_support_elements(c=c)))
+            .replace("<<SUPPORT_ELEMENTS>>", opensees_support_elements(
+                c=c, all_support_nodes=all_support_nodes)))
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
