@@ -212,11 +212,13 @@ def make_contour_plots(
         c: Config, response_types: List[ResponseType], y: float):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
-    load_x = 0.65
+    load_x = 35 / 102.75
     load_kn = 100
+    load = Load(load_x, load_kn)
+    load.z_frac = 25 / 33.2
     for response_type in response_types:
         fem_params = FEMParams(
-            loads=[Load(load_x, load_kn)], response_types=[response_type])
+            loads=[load], response_types=[response_type])
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
