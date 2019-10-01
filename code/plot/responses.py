@@ -3,15 +3,16 @@
 These function are characterized by taking FEMResponses as primary argument.
 
 """
-from typing import Optional
+from typing import List, Optional
 
 from config import Config
 from fem.responses import FEMResponses
+from model.load import Load
 from plot import plt
 
 
 def plot_contour_deck(
-        c: Config, fem_responses: FEMResponses, y: float,
+        c: Config, fem_responses: FEMResponses, y: float, loads: List[Load],
         save: Optional[str] = None, show: bool = False):
     """Contour plot of responses on the deck of the bridge.
 
@@ -29,6 +30,10 @@ def plot_contour_deck(
             H[-1].append(fem_responses.responses[0][x][y][z].value)
     cs = plt.contourf(X, Z, H, levels=40)
     plt.colorbar(cs)
+    for load in loads:
+        x = load.x_frac * c.bridge.length
+        z = (load.z_frac * c.bridge.width) - (c.bridge.width / 2)
+        plt.plot([x], [z], marker="o", markersize=5, color="red")
     plt.title(
         f"{fem_responses.response_type.name()}"
         + f" {fem_responses.response_type.units()}")

@@ -222,7 +222,8 @@ def make_contour_plots(
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
-        plot_contour_deck(c=c, fem_responses=fem_responses, y=y, save=(
+        plot_contour_deck(
+            c=c, fem_responses=fem_responses, y=y, loads=[load], save=(
             c.image_path(pstr(
                 f"contour-{response_type.name()}-load-{load_x}-{load_kn}"))))
 
