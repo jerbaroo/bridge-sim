@@ -269,15 +269,44 @@ def test_support_elements():
     lines = (
         opensees_support_elements(c=c, all_support_nodes=all_support_nodes)
         .split("\n"))
+    lines = get_lines(
+        contains="ShellMITC4 ", lines=lines, after="Begin support elements",
+        before="End support elements")
+
+    # Test the amount of elements is correct.
     # Two walls per support.
     expected = len(c.bridge.supports) * 2
     # A grid of elements per wall.
     expected *= c.os_support_num_nodes_y - 1
     expected *= c.os_support_num_nodes_z - 1
-    actual = len(get_lines(
+    assert len(lines) == expected
+
+
+def test_support_elements_from_small_example():
+    """Test support elements from small example for manual inspection."""
+    c = bridge_705_test_config(bridge=bridge_705_3d)
+    c.os_node_step = c.bridge.length / 2
+    c.os_node_step_z = c.bridge.width / 2
+    c.os_support_num_nodes_z = 2
+    c.os_support_num_nodes_y = 2
+    os_runner = OSRunner(c=c)
+    # Build model file.
+    expt_params = ExptParams([FEMParams(
+        loads=[Load(x_frac=0.5, kn=1234)], response_types=[
+            ResponseType.YTranslation, ResponseType.Strain])])
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
+
+    # Get lines of support elements.
+    with open(os_runner.fem_file_path(
+            fem_params=expt_params.fem_params[0], ext="tcl")) as f:
+        lines = f.readlines()
+    lines = get_lines(
         contains="ShellMITC4 ", lines=lines, after="Begin support elements",
-        before="End support elements"))
-    assert actual == expected
+        before="End support elements")
+
+    # Test the first element has correct nodes.
+    assert any("201 1200 1300 301" in l and "ShellMITC4" in l for l in lines)
+    assert any("202 1200 1300 302" in l and "ShellMITC4" in l for l in lines)
 
 
 def test_make_small_example():

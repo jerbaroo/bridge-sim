@@ -27,16 +27,14 @@ def plot_contour_deck(
             X[-1].append(x)
             Z[-1].append(z)
             H[-1].append(fem_responses.responses[0][x][y][z].value)
-    cs = plt.contourf(X, Z, H)
+    cs = plt.contourf(X, Z, H, levels=40)
     plt.colorbar(cs)
     plt.title(
         f"{fem_responses.response_type.name()}"
         + f" {fem_responses.response_type.units()}")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
-    if save:
-        print(save)
-        plt.savefig(save)
+    if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
 

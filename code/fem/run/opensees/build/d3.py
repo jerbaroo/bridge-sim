@@ -361,7 +361,7 @@ def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
     return comment(
         "fixed deck nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
-        units="fix nodeTag x y z rz ry rz")
+        units="fix nodeTag x y z rx ry rz")
 
 
 def opensees_fixed_support_nodes(
@@ -379,7 +379,7 @@ def opensees_fixed_support_nodes(
     return comment(
         "fixed support nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
-        units="fix nodeTag x y z rz ry rz")
+        units="fix nodeTag x y z rx ry rz")
 
 
 ##### End fixed nodes #####
@@ -462,9 +462,10 @@ def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
                     y_hi_z_hi = y_nodes_z_hi[y + 1]
                     support_elements.append(
                         f"element ShellMITC4 {next_elem_id()} {y_lo_z_lo.n_id}"
-                        + f" {y_hi_z_lo.n_id} {y_lo_z_hi.n_id} "
-                        + f" {y_hi_z_hi.n_id} 0"
-                        + f"; # support {s+1} wall {w+1} z {z+1} y {y+1}")
+                        + f" {y_hi_z_lo.n_id} {y_hi_z_hi.n_id}"
+                        + f" {y_lo_z_hi.n_id} 0"
+                        + f"; # support {s+1}, wall {w+1}, z {z+1}, y {y+1}"
+                        + " below deck")
                 ff_elem_ids(ff_mod)
                 z += 1
     return comment(
@@ -523,7 +524,7 @@ def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
         "\n".join(
             opensees_load(c=c, load=load, deck_nodes=deck_nodes)
             for load in loads),
-        units="load nodeTag N_x N_y N_z N_rz N_ry N_rz")
+        units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
 
 
 ##### End loads #####
