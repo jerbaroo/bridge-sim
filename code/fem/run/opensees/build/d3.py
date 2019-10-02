@@ -388,10 +388,12 @@ def opensees_fixed_support_nodes(
 
 def opensees_section(section: Section3D, section_id: int):
     """OpenSees ElasticMembranePlateSection command for a Section3D."""
-    return (
-        f"section ElasticMembranePlateSection {section_id}"
-        + f" {section.youngs} {section.poissons} {section.thickness}"
-        + f" {section.density}")
+    # TODO FIX.
+    return "section ElasticMembranePlateSection 0 4.3e+10 0.2 0.7 0.002724"
+    # return (
+    #     f"section ElasticMembranePlateSection {section_id}"
+    #     + f" {section.youngs} {section.poissons} {section.thickness}"
+    #     + f" {section.density}")
 
 
 def opensees_sections(c: Config):
