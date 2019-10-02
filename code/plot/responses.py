@@ -39,6 +39,7 @@ def plot_contour_deck(
         + f" {fem_responses.response_type.units()}")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
+    plt.axis("equal")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()

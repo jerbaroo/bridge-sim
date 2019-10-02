@@ -12,6 +12,7 @@ generated-data/
 generated-images/
 generated-data-test/
 venv/
+code/config_sys.py
 
 # Axis related
 *.axr
