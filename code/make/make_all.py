@@ -14,7 +14,8 @@ def make_all(c: Config, d3: bool):
         make_plots.make_all_3d(c)
     else:
         make_plots.make_all_2d(c)
-    make_text.make_all(c)
+    if "--text" in sys.argv:
+        make_text.make_all(c)
 
 
 def main():

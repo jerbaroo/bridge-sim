@@ -66,7 +66,7 @@ class Config:
             self, bridge: Callable[[], Bridge], vehicle_data_path: str,
             vehicle_density: List[Tuple[float, float]],
             vehicle_intensity: float, vehicle_density_col: str,
-            generated_dir: Optional[str] = None):
+            generated_dir: str = "generated-data/"):
         # Bridge.
         _reset_model_ids()
         self.bridge = bridge()
@@ -93,14 +93,13 @@ class Config:
             print_w(f"Vehicle density adjusted to sum to {density_sum:.2f}")
 
         # Generated data.
-        self.generated_dir = "generated-data/"
-        if generated_dir is not None:
-            self.generated_dir = generated_dir
+        self.generated_dir = generated_dir
         self.events_dir = os.path.join(self.generated_dir, "events/")
-        self.images_dir = self.generated_dir
-        if self.images_dir.endswith("/"):
-            self.images_dir = self.images_dir[:-1]
-        self.images_dir += "-images/"
+        # Set images dir to generated-dir with "-images" and bridge extension.
+        self.images_dir = os.path.join(
+            os.path.split(self.generated_dir)[0],
+            os.path.basename(self.generated_dir) + "-images",
+            self.bridge.long_name().lower())
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node, reset_elem_ids, reset_node_ids, ff_node_ids, next_pow_10, opensees_deck_nodes, opensees_support_elements, opensees_support_nodes, support_nodes, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
+from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node, reset_elem_ids, reset_nodes, ff_node_ids, next_pow_10, opensees_deck_nodes, opensees_support_elements, opensees_support_nodes, get_support_nodes, x_positions_of_bottom_support_nodes, x_positions_of_deck_support_nodes, z_positions_of_bottom_support_nodes, z_positions_of_deck_support_nodes
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, Load
@@ -213,7 +213,7 @@ def test_z_positions_of_bottom_support_nodes():
 
 def test_get_node():
     """Test an already created node is returned."""
-    reset_node_ids()
+    reset_nodes()
     node1 = get_node(1, 1, 1)
     node2 = get_node(1, 1, 1)
     node3 = get_node(1, 1, 2)
@@ -223,11 +223,11 @@ def test_get_node():
 
 def test_support_nodes():
     """Test the correct amount of support nodes."""
-    reset_node_ids()
+    reset_nodes()
     c = bridge_705_test_config(bridge=bridge_705_3d)
     c.os_support_num_nodes_z = 4
     c.os_support_num_nodes_y = 5
-    multiple_support_nodes = support_nodes(c)
+    multiple_support_nodes = get_support_nodes(c)
     # Test the amount of support nodes in total is correct.
     count = 0
     for s_nodes in multiple_support_nodes:
@@ -239,19 +239,19 @@ def test_support_nodes():
     assert expected == count
 
     # Test the amount of support nodes without overlap is correct.
-    reset_node_ids()
+    reset_nodes()
     node_lines = opensees_support_nodes(
-        c=c, deck_nodes=[[]], all_s_nodes=support_nodes(c))
+        c=c, deck_nodes=[[]], all_support_nodes=get_support_nodes(c))
     num_nodes = len(node_lines.split("\n")) - 3  # Minus comments.
     expected_wo_overlap = expected - (
         len(c.bridge.supports) * c.os_support_num_nodes_z)
     assert num_nodes == expected_wo_overlap
 
     # Test the amount of nodes without overlap and deck nodes is correct.
-    reset_node_ids()
+    reset_nodes()
     _, deck_nodes = opensees_deck_nodes(c=c, support_nodes=True)
     node_lines = opensees_support_nodes(
-        c=c, deck_nodes=deck_nodes, all_s_nodes=support_nodes(c))
+        c=c, deck_nodes=deck_nodes, all_support_nodes=get_support_nodes(c))
     num_nodes = len(node_lines.split("\n")) - 3  # Minus comments.
     assert num_nodes == expected_wo_overlap - (
         len(c.bridge.supports) * c.os_support_num_nodes_z * 2)
@@ -260,12 +260,12 @@ def test_support_nodes():
 def test_support_elements():
     """Test that support elements are correctly generated."""
     reset_elem_ids()
-    reset_node_ids()
+    reset_nodes()
     c = bridge_705_test_config(bridge=bridge_705_3d)
     c.os_support_num_nodes_y = 5
     c.os_support_num_nodes_z = 4
     opensees_deck_nodes(c, support_nodes=True)  # To set ff_mod.
-    all_support_nodes = support_nodes(c)
+    all_support_nodes = get_support_nodes(c)
     lines = (
         opensees_support_elements(c=c, all_support_nodes=all_support_nodes)
         .split("\n"))

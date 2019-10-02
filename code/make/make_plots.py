@@ -1,4 +1,5 @@
 """Make all plots for the thesis."""
+import os
 from typing import List, Optional
 
 import numpy as np
@@ -11,6 +12,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
 from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section, plt
+from plot.bridge import plot_cloud_of_points
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
@@ -242,4 +244,12 @@ def make_all_2d(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
+    # make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
+    cloud_of_points_dir = os.path.join(c.images_dir, "cloud-of-points")
+    if not os.path.exists(cloud_of_points_dir):
+        os.makedirs(cloud_of_points_dir)
+    plot_cloud_of_points(
+        c=c, save=os.path.join(cloud_of_points_dir, "cloud-full-axis"))
+    plot_cloud_of_points(
+        c=c, equal_axis=True,
+        save=os.path.join(cloud_of_points_dir, "cloud-equal-axis"))
