@@ -35,6 +35,9 @@ def opensees_to_stress_strain(
     list of tuples (V, T, I), where V is the value of the response, T is the
     time of the simulation and I is the index of the measurement at that time.
 
+    NOTE: This return type should really be a matrix, but is like this for a
+    legacy reason, feel free to change/update it.
+
     """
     print_d(D, f"path = {path}")
     stress_strain = opensees_to_numpy(path)

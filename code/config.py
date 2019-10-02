@@ -5,6 +5,7 @@ from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
+import config_sys
 from model.bridge import Bridge, Dimensions, _reset_model_ids
 from model.response import ResponseType
 from vehicles import load_vehicle_data
@@ -117,13 +118,15 @@ class Config:
         self.event_metadata_path = os.path.join(
             self.generated_dir, "events-metadata.txt")
 
+        #################
+        ##### Noise #####
+        #################
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
             ResponseType.Stress: 0,
             ResponseType.XTranslation: 0,
             ResponseType.YTranslation: 0
         }[rt]
-
         self.noise_stddev = lambda rt: {
             ResponseType.Strain: 1e-5,
             ResponseType.Stress: 1e6,
@@ -131,12 +134,14 @@ class Config:
             ResponseType.YTranslation: 2e-4
         }[rt]
 
-        # OpenSees.
+        #####################
+        ##### OpenSees. #####
+        #####################
         self.os_node_step: float = self.bridge.length / 100
         self.os_node_step_z: float = self.bridge.width / 100
         self.os_support_num_nodes_z: int = 10
         self.os_support_num_nodes_y: int = 10
-        self.os_exe_path: str = "/Applications/OpenSees3.0.3/OpenSees"
+        self.os_exe_path: str = config_sys.os_exe_path
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 

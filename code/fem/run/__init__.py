@@ -41,8 +41,7 @@ class FEMRunner:
         self.name = name
         self.supported_response_types = supported_response_types
         self.built_files_dir = os.path.join(
-            self.c.generated_dir, f"{self.name}/").lower()
-        assert self.built_files_dir.endswith("/")
+            self.c.generated_dir, f"{self.name}").lower()
         if not os.path.exists(self.built_files_dir):
             os.makedirs(self.built_files_dir)
 
@@ -62,7 +61,7 @@ class FEMRunner:
             return_converted: bool, return converted responses, for testing.
             support_3d_nodes: bool, for testing, if False don't include support
                 nodes.
-            
+
         """
 
         supported_response_types = self.supported_response_types(self.c.bridge)

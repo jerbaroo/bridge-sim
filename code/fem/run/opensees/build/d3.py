@@ -636,6 +636,7 @@ def build_model_3d(
                 c=c, all_support_nodes=all_support_nodes)))
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
+        print(model_path)
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")
