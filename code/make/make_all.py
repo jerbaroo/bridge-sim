@@ -23,14 +23,14 @@ def main():
     test = "--test" in sys.argv
     c_func = bridge_705_test_config if test else bridge_705_config
     if d3:
-        print_i("Using 3D model")
+        print_i("Main: using 3D model")
         c = c_func(bridge_705_3d)
     else:
-        print_i("Using 2D model")
+        print_i("Main: using 2D model")
         c = c_func(bridge_705_2d)
     if "--clean" in sys.argv:
         clean_generated(c)
-        print_i("Finished cleaning")
+        print_i("Main: finished cleaning")
     make_all(c=c, d3=d3)
 
 
