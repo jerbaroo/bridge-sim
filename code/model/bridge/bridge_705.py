@@ -69,11 +69,17 @@ bridge_705_supports_z = list(map(
     lambda x: x - half_width, bridge_705_supports_z))
 # Ignoring beginning and end of bridge.
 bridge_705_supports_3d = []
-for _support_x in bridge_705_piers[1:-1]:
+for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
+    # The x_index goes from 0 to 5.
+    # Only indices 2 and 3 (middle 2 rows) have x translation fixed.
+    # print(f"*******************")
+    # print(f"x_index = {x_index}")
     for _support_z in bridge_705_supports_z:
         bridge_705_supports_3d.append(Support3D(
             x=_support_x, z=_support_z, length=3.1, height=3.5,
-            width_top=3.666, width_bottom=1.8))
+            width_top=3.666, width_bottom=1.8,
+            fix_x_rotation=True, fix_y_rotation=True, fix_z_rotation=False,
+            fix_x_translation=(x_index in [2, 3])))
 
 
 def bridge_705_3d(

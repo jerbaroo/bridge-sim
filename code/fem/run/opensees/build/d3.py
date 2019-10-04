@@ -8,7 +8,7 @@ import numpy as np
 from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees.common import Node, num_deck_nodes
-from model.bridge import Section3D
+from model.bridge import Section3D, Support3D
 from model.load import Load
 from model.response import ResponseType
 from util import round_m, print_d, print_i, print_w
@@ -22,14 +22,17 @@ D: bool = False
 all_nodes = defaultdict(lambda: defaultdict(dict))
 
 
-def get_node(x: float, y: float, z: float, comment_str: Optional[str] = None):
+def get_node(
+        x: float, y: float, z: float, comment_str: Optional[str] = None,
+        support: Optional[Support3D] = None):
     """Get a node if already exists, else create and return."""
     x = round_m(x)
     y = round_m(y)
     z = round_m(z)
     if z not in all_nodes[x][y]:
         all_nodes[x][y][z] = Node(
-            n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str)
+            n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str,
+            support=support)
     return all_nodes[x][y][z]
 
 
@@ -227,13 +230,15 @@ def get_support_nodes(c: Config) -> SupportNodes:
                 y_diff = support.height / (c.os_support_num_nodes_y - 1)
                 z_diff = (z_bottom - z_deck) / (c.os_support_num_nodes_y - 1)
                 # TODO: Test.
-                wall[-1].append(get_node(x=x_pos, y=y_pos, z=z_pos))
+                wall[-1].append(get_node(
+                    x=x_pos, y=y_pos, z=z_pos, support=support))
                 for y in range(c.os_support_num_nodes_y - 1):
                     x_pos += x_diff
                     y_pos -= y_diff
                     z_pos += z_diff
                     wall[-1].append(get_node(
-                        x=x_pos, y=y_pos, z=z_pos, comment_str=(
+                        x=x_pos, y=y_pos, z=z_pos, support=support,
+                        comment_str=(
                             f"support {i + 1} wall {w + 1} z {z + 1} "
                             + f"y {y + 1}")))
     assert_support_nodes(c, nodes)
@@ -363,9 +368,25 @@ class FixNode:
     def __init__(self, node: Node, comment_: Optional[str] = None):
         self.node = node
         self.comment = comment_
+
     def command_3d(self):
+        """An OpenSees fix command for this fixed node."""
+        # TODO: Update comment to include support ID.
         comment_ = "" if self.comment is None else f"; # {self.comment}"
-        return f"fix {self.node.n_id} 1 1 1 0 0 0{comment_}"
+        if self.node.support is None:
+            return f"fix {self.node.n_id} 1 1 1 0 0 0{comment_}"
+        else:
+            # print(f"******************")
+            # print(f"Fixed support node")
+            return (
+                f"fix {self.node.n_id}"
+                + f" {int(self.node.support.fix_x_translation)}"
+                + f" {int(self.node.support.fix_y_translation)}"
+                + f" {int(self.node.support.fix_z_translation)}"
+                + f" {int(self.node.support.fix_x_rotation)}"
+                + f" {int(self.node.support.fix_y_rotation)}"
+                + f" {int(self.node.support.fix_z_rotation)}"
+                + f"{comment_}")
 
 
 def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:

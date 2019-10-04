@@ -3,6 +3,7 @@ import itertools
 from typing import List, Optional, Tuple
 
 from config import Config
+from model.bridge import Support3D
 from util import round_m
 
 import numpy as np
@@ -26,15 +27,27 @@ def num_deck_nodes(c: Config) -> Tuple[int, int]:
 
 
 class Node:
-    """A node that can be converted to an OpenSees command."""
+    """A node that can be converted to an OpenSees command.
+
+    Args:
+        n_id: int, the ID of this node.
+        x: float, the x position of this node on the bridge.
+        y: float, the y position of this node on the bridge.
+        z: float, the z position of this node on the bridge.
+        comment: Optional[str], an optional comment for the .tcl file.
+        support: Optional[3D], the support that this node may belong to.
+
+    """
     def __init__(
             self, n_id: int, x: float, y: float, z: float,
-            comment: Optional[str] = None):
+            comment: Optional[str] = None,
+            support: Optional[Support3D] = None):
         self.n_id = n_id
         self.x = round_m(x)
         self.y = round_m(y)
         self.z = round_m(z)
         self.comment = comment
+        self.support = support
 
     def command_3d(self):
         """OpenSees node command."""

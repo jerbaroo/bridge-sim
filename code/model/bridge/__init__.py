@@ -107,13 +107,22 @@ class Support3D:
     """
     def __init__(
             self, x: float, z: float, length: float, height: float,
-            width_top: float, width_bottom: float):
+            width_top: float, width_bottom: float,
+            fix_x_translation: bool = True, fix_y_translation: bool = True,
+            fix_z_translation: bool = True, fix_x_rotation: bool = False,
+            fix_y_rotation: bool = False, fix_z_rotation: bool = False):
         self.x = x
         self.z = z
         self.length = length
         self.height = height
         self.width_top = width_top
         self.width_bottom = width_bottom
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
         if self.width_top < self.width_bottom:
             raise ValueError(
                 "Support3D: top width must be greater than bottom width")
