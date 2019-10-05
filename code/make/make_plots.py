@@ -17,6 +17,7 @@ from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles, plot_length_vs_weight, plot_weight_vs_axles
+from plot.verification import plot_convergence_with_shell_size
 from model.bridge import Point
 from model.load import Load, MovingLoad
 from model.response import ResponseType
@@ -219,8 +220,7 @@ def make_contour_plots(
     load = Load(load_x, load_kn)
     load.z_frac = 25 / 33.2
     for response_type in response_types:
-        fem_params = FEMParams(
-            loads=[load], response_types=[response_type])
+        fem_params = FEMParams(loads=[load], response_types=[response_type])
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
@@ -244,7 +244,8 @@ def make_all_2d(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
+    plot_convergence_with_shell_size(max_shell_areas=[50, 20, 10, 5, 2])
+    # make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
     # cloud_of_points_dir = os.path.join(c.images_dir, "cloud-of-points")
     # if not os.path.exists(cloud_of_points_dir):
     #     os.makedirs(cloud_of_points_dir)

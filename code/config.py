@@ -43,7 +43,16 @@ def set_deck_node_step(c: "Config", max_shell_area: float):
 
 
 def set_support_num_nodes(c: "Config", max_shell_area: float):
-    """Set the support number of nodes based on a maximum shell area."""
+    """Set the support number of nodes based on a maximum shell area.
+
+    TODO: This assumes square supports that hang vertically. The square
+        assumption means that actual maximum shell on a support will be smaller
+        than it could be without being greater than max_shell_area, while the
+        assumption that they hang vertically could have the opposite effect.
+        This function should have approximately the intended effect, but you
+        should be aware.
+
+    """
     # Start with the minimum possible number of nodes.
     num_nodes_y, num_nodes_z = 2, 2
 

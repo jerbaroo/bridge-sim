@@ -39,7 +39,7 @@ def plot_cloud_of_points(
     mid_y = (ys.max() + ys.min()) * 0.5
     mid_z = (zs.max() + zs.min()) * 0.5
 
-    
+
     def plot_and_save(f: Callable[[], None], append: str = ""):
         """Plot the cloud of points with optional additional operation.
 
