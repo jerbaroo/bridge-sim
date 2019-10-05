@@ -15,6 +15,62 @@ from util import print_d, print_i, print_w
 D: bool = True
 
 
+def set_deck_node_step(c: "Config", max_shell_area: float):
+    """Set the deck node step size based on a maximum shell area."""
+    # Start with the minimum possible node step size.
+    num_nodes_x, num_nodes_z = 2, 2
+
+    def set_node_step():
+        """Set node step size based on number of nodes."""
+        c.os_node_step = c.bridge.length / (num_nodes_x - 1)
+        c.os_node_step_z = c.bridge.width / (num_nodes_z - 1)
+
+    set_node_step()
+    print_d(D, f"Initial deck node step x = {c.os_node_step}")
+    print_d(D, f"Initial deck node step z = {c.os_node_step_z}")
+    # Function to return the current bridge deck shell area.
+    deck_shell_area = lambda: c.os_node_step * c.os_node_step_z
+    print_d(D, f"Initial deck shell area = {deck_shell_area()}")
+    # Decrease node step size until shell's are below maximum.
+    while deck_shell_area() > max_shell_area:
+        # Always decrease the maximum shell side
+        # (by increasing number of nodes).
+        if c.os_node_step > c.os_node_step_z:
+            num_nodes_x += 1
+        else:
+            num_nodes_z += 1
+        set_node_step()
+
+
+def set_support_num_nodes(c: "Config", max_shell_area: float):
+    """Set the support number of nodes based on a maximum shell area."""
+    # Start with the minimum possible number of nodes.
+    num_nodes_y, num_nodes_z = 2, 2
+
+    def set_num_nodes():
+        c.os_support_num_nodes_y = num_nodes_y
+        c.os_support_num_nodes_z = num_nodes_z
+
+    set_num_nodes()
+    wall_shell_length = lambda: c.bridge.supports[0].height / (num_nodes_y + 1)
+    wall_shell_height = lambda: c.bridge.supports[0].width_top / (num_nodes_z + 1)
+    print_d(D, f"Initial wall shell length = {wall_shell_length()}")
+    print_d(D, f"Initial wall shell height = {wall_shell_height()}")
+    # Function to return the current bridge support shell area.
+    wall_shell_area = lambda: wall_shell_length() * wall_shell_height()
+    print_d(D, f"Initial wall shell area = {wall_shell_area()}")
+    # Decrease number of nodes until shell's are below maximum.
+    while wall_shell_area() > max_shell_area:
+        print(f"{wall_shell_area()}")
+        # Always decrease the maximum shell side.
+        # (by increasing number of nodes).
+        if wall_shell_length() > wall_shell_height():
+            num_nodes_y += 1
+        else:
+            num_nodes_z += 1
+        set_num_nodes()
+
+
 class Config:
     """Simulation configuration.
 
@@ -33,6 +89,11 @@ class Config:
         vehicle_intensity: the total amount of vehicles per hour.
         vehicle_density_col: str, column of vehicle_data to group by.
         generated_dir: str, directory where to save generated files.
+
+        max_shell_area: Optional[float], maximum shell area for deck and
+            support shells in meters. NOTE: If this is set, they values of
+            node_step_x, node_step_z, support_num_nodes_z, support_num_nodes_y
+            will be overridden.
 
     Attrs:
         resp_matrices: Dict[str, ResponsesMatrix], response matrices in memory.
@@ -66,7 +127,8 @@ class Config:
             self, bridge: Callable[[], Bridge], vehicle_data_path: str,
             vehicle_density: List[Tuple[float, float]],
             vehicle_intensity: float, vehicle_density_col: str,
-            generated_dir: str = "generated-data/"):
+            generated_dir: str = "generated-data/",
+            max_shell_area: Optional[float] = None):
         # Bridge.
         _reset_model_ids()
         self.bridge = bridge()
@@ -140,6 +202,9 @@ class Config:
         self.os_node_step_z: float = self.bridge.width / 100
         self.os_support_num_nodes_z: int = 10
         self.os_support_num_nodes_y: int = 10
+        if max_shell_area is not None:
+            set_deck_node_step(c=self, max_shell_area=max_shell_area)
+            set_support_num_nodes(c=self, max_shell_area=max_shell_area)
         self.os_exe_path: str = config_sys.os_exe_path
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
