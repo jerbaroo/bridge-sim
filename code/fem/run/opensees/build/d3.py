@@ -21,6 +21,9 @@ D: bool = False
 # A dictionary of x position to y position to z position to Node.
 all_nodes = defaultdict(lambda: defaultdict(dict))
 
+# A dictionary of Node ID to Node.
+nodes_by_id = dict()
+
 
 def get_node(
         x: float, y: float, z: float, comment_str: Optional[str] = None,
@@ -30,9 +33,11 @@ def get_node(
     y = round_m(y)
     z = round_m(z)
     if z not in all_nodes[x][y]:
-        all_nodes[x][y][z] = Node(
+        new_node = Node(
             n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str,
             support=support)
+        all_nodes[x][y][z] = new_node
+        nodes_by_id[new_node.n_id] = new_node
     return all_nodes[x][y][z]
 
 
@@ -56,6 +61,10 @@ def reset_nodes():
     _node_id = 1
     global all_nodes
     all_nodes = defaultdict(lambda: defaultdict(dict))
+    global nodes_by_id
+    nodes_by_id = dict()
+
+
 reset_nodes()
 
 
@@ -424,22 +433,21 @@ def opensees_fixed_support_nodes(
 ##### Begin sections #####
 
 
-def opensees_section(section: Section3D, section_id: int):
+def opensees_section(section: Section3D):
     """OpenSees ElasticMembranePlateSection command for a Section3D."""
-    # TODO FIX.
-    return "section ElasticMembranePlateSection 0 4.3e+10 0.2 0.7 0.002724"
-    # return (
-    #     f"section ElasticMembranePlateSection {section_id}"
-    #     + f" {section.youngs} {section.poissons} {section.thickness}"
-    #     + f" {section.density}")
+    return (
+        f"section ElasticMembranePlateSection {section.id}"
+        + f" {section.youngs} {section.poissons} {section.thickness}"
+        + f" {section.density}")
+
+    # return "section ElasticMembranePlateSection 0 4.3e+10 0.2 0.7 0.002724"
 
 
 def opensees_sections(c: Config):
     return comment(
         "sections",
         "\n".join([
-            opensees_section(section=section, section_id=section_id)
-            for section_id, section in enumerate(c.bridge.sections)]),
+            opensees_section(section) for section in c.bridge.sections]),
         units=(
             "section ElasticMembranePlateSection secTag youngs_modulus"
             +" poisson_ratio depth mass_density"))
@@ -447,6 +455,45 @@ def opensees_sections(c: Config):
 
 ##### End sections #####
 ##### Begin shell elements #####
+
+
+def section_for_deck_element(
+        c: Config, element_x: float, element_z: float) -> int:
+    """Section for a deck element.
+
+    This works by creating a dictionary (if not already created) of section's x
+    positions to z position to a Section3D. Then iterate through x positions
+    finding last one less than or equal to the given element's least x
+    position, then do the same for the z position, then the section is found.
+
+    """
+    # Create the dictionary if not already created.
+    if not hasattr(c.bridge, "deck_sections_dict"):
+        c.bridge.deck_sections_dict = defaultdict(dict)
+        for section in c.bridge.sections:
+            c.bridge.deck_sections_dict[
+                c.bridge.x(section.start_x_frac)][
+                c.bridge.z(section.start_z_frac)] = section
+
+    # Find the last x position less than element_x.
+    section_x = None
+    for next_section_x in sorted(c.bridge.deck_sections_dict.keys()):
+        print(f"next_section_x = {next_section_x}")
+        if next_section_x > element_x:
+            break
+        section_x = next_section_x
+    print(f"section_x = {section_x}")
+
+    # Find the last z position less than element_z.
+    section_z = None
+    for next_section_z in sorted(c.bridge.deck_sections_dict[section_x].keys()):
+        print(f"next_section_z = {next_section_z}")
+        if next_section_z > element_z:
+            break
+        section_z = next_section_z
+    print(f"section_z = {section_z}")
+
+    return c.bridge.deck_sections_dict[section_x][section_z]
 
 
 def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
@@ -470,13 +517,21 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
         # Count from first node at 0 until second last node along x.
         for x_node in range(last_node_z_0 - first_node_z_0):
             # print_d(D, f"deck element x_node = {x_node}")
+            # i is the bottom left node, j the bottom right, k the top right
+            # and l the top left.
             i_node = z_node + x_node
             j_node = i_node + 1
             k_node, l_node = j_node + z_skip, i_node + z_skip
             # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
+            i_actual_node = nodes_by_id[i_node]
+            print("*********")
+            print(f"i_node_id = {i_node}, x = {i_actual_node.x}, z = {i_actual_node.z}")
+            section = section_for_deck_element(
+                c=c, element_x=nodes_by_id[i_node].x,
+                element_z=nodes_by_id[i_node].z)
             deck_elements.append(
                 f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
-                + f" {k_node} {l_node} 0")
+                + f" {k_node} {l_node} {section.id}; # {repr(section)}")
         ff_elem_ids(z_skip)
     return comment(
         "deck elements",
@@ -502,7 +557,7 @@ def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
                     support_elements.append(
                         f"element ShellMITC4 {next_elem_id()} {y_lo_z_lo.n_id}"
                         + f" {y_hi_z_lo.n_id} {y_hi_z_hi.n_id}"
-                        + f" {y_lo_z_hi.n_id} 0"
+                        + f" {y_lo_z_hi.n_id} 1"
                         + f"; # support {s+1}, wall {w+1}, z {z+1}, y {y+1}"
                         + " below deck")
                 ff_elem_ids(ff_mod)

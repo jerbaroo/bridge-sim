@@ -308,9 +308,14 @@ class Section3D:
         start_x_frac: float, start of the section as a fraction of x position.
 
     """
+
+    next_id = 1
+
     def __init__(
             self, density: float, thickness: float, youngs: float,
             poissons: float, start_x_frac: float = 0, start_z_frac: float = 0):
+        self.id = Section3D.next_id
+        Section3D.next_id += 1
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
@@ -321,6 +326,16 @@ class Section3D:
     def y_min_max(self) -> Tuple[float, float]:
         """The min and max values in y for this section."""
         return -self.thickness, 0
+
+    def __repr__(self):
+        """Readable representation."""
+        return (
+            "Section3D starts at x_frac, z_frac ="
+            + f" ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})"
+            + f" density = {self.density} kg/m"
+            + f" thickness = {self.thickness} m"
+            + f" youngs = {self.youngs} MPa"
+            + f" posissons = {self.poissons}")
 
 
 # Sections are either 2D or 3D sections.
