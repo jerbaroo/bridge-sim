@@ -4,7 +4,11 @@ from typing import Callable, List, Optional
 from config import Config
 from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Section3D, Support, Support3D
 
-# Values and a constructor for a 2D model of bridge 705.
+
+#################################
+##### Length, width & lanes #####
+#################################
+
 
 bridge_705_length = 102.75
 bridge_705_width = 33.2
@@ -12,6 +16,13 @@ half_width = bridge_705_width / 2
 bridge_705_lanes = [
     Lane(4 - half_width, 12.4 - half_width),
     Lane(20.8 - half_width, 29.2 - half_width)]
+
+
+#######################
+##### 2D supports #####
+#######################
+
+
 # Pier locations in meters (includes bridge beginning and end).
 bridge_705_piers = [0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
@@ -23,6 +34,12 @@ for _i in range(len(bridge_705_spans)):
 bridge_705_supports_2d = [
     Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
+
+
+############################
+##### Patches & Layers #####
+############################
+
 
 # NOTE: These patches and layers are incorrect!
 bridge_705_patches = [
@@ -56,11 +73,46 @@ def bridge_705_2d(
         sections=sections, dimensions=Dimensions.D2)
 
 
-# Values and a constructor for a 3D model of bridge 705.
+############################
+##### 3D deck sections #####
+############################
 
 
 bridge_705_sections_3d = [
-    Section3D(density=2.724E-03, thickness=0.75, youngs=38400, poissons=0.2)]
+    Section3D(density=2.724E-03, thickness=0.75,  youngs=38400, poissons=0.2, start_x_frac=0),
+    Section3D(density=2.724E-03, thickness=0.74,  youngs=38400, poissons=0.2, start_x_frac=0.6    / c.bridge.length),
+    Section3D(density=2.637E-03, thickness=0.655, youngs=38400, poissons=0.2, start_x_frac=0.601  / c.bridge.length),
+    Section3D(density=2.664E-03, thickness=0.589, youngs=38400, poissons=0.2, start_x_frac=3.65   / c.bridge.length),
+    Section3D(density=3.143E-03, thickness=0.5,   youngs=38400, poissons=0.2, start_x_frac=3.651  / c.bridge.length),
+    Section3D(density=3.124E-03, thickness=0.5,   youngs=38400, poissons=0.2, start_x_frac=3.85   / c.bridge.length),
+    Section3D(density=2.845E-03, thickness=0.5,   youngs=41291, poissons=0.2, start_x_frac=3.851  / c.bridge.length),
+    Section3D(density=2.765E-03, thickness=0.65,  youngs=41291, poissons=0.2, start_x_frac=11.1   / c.bridge.length),
+    Section3D(density=2.980E-03, thickness=0.65,  youngs=38400, poissons=0.2, start_x_frac=11.101 / c.bridge.length),
+    Section3D(density=2.995E-03, thickness=0.65,  youngs=38400, poissons=0.2, start_x_frac=11.3   / c.bridge.length),
+    Section3D(density=2.631E-03, thickness=0.739, youngs=38400, poissons=0.2, start_x_frac=11.301 / c.bridge.length),
+    Section3D(density=2.617E-03, thickness=0.787, youngs=38400, poissons=0.2, start_x_frac=13.71  / c.bridge.length),
+    Section3D(density=2.907E-03, thickness=0.65,  youngs=47277, poissons=0.2, start_x_frac=13.711 / c.bridge.length),
+    Section3D(density=2.907E-03, thickness=0.65,  youngs=47277, poissons=0.2, start_x_frac=19.489 / c.bridge.length),
+    Section3D(density=2.617E-03, thickness=0.787, youngs=38400, poissons=0.2, start_x_frac=19.49  / c.bridge.length),
+    Section3D(density=2.631E-03, thickness=0.739, youngs=38400, poissons=0.2, start_x_frac=21.899 / c.bridge.length),
+    Section3D(density=2.995E-03, thickness=0.65,  youngs=38400, poissons=0.2, start_x_frac=21.9   / c.bridge.length),
+    Section3D(density=2.980E-03, thickness=0.65,  youngs=38400, poissons=0.2, start_x_frac=22.099 / c.bridge.length),
+    Section3D(density=2.765E-03, thickness=0.65,  youngs=41291, poissons=0.2, start_x_frac=22.1   / c.bridge.length),
+    Section3D(density=2.845E-03, thickness=0.65,  youngs=41291, poissons=0.2, start_x_frac=29.349 / c.bridge.length),
+    Section3D(density=3.124E-03, thickness=0.5,   youngs=38400, poissons=0.2, start_x_frac=29.35  / c.bridge.length),
+    Section3D(density=3.143E-03, thickness=0.5,   youngs=38400, poissons=0.2, start_x_frac=29.549 / c.bridge.length),
+    Section3D(density=2.664E-03, thickness=0.589, youngs=38400, poissons=0.2, start_x_frac=29.55  / c.bridge.length),
+    Section3D(density=2.637E-03, thickness=0.655, youngs=38400, poissons=0.2, start_x_frac=32.599 / c.bridge.length),
+    Section3D(density=2.724E-03, thickness=0.74,  youngs=38400, poissons=0.2, start_x_frac=32.6   / c.bridge.length),
+    Section3D(density=2.724E-03, thickness=0.75,  youngs=38400, poissons=0.2, start_x_frac=33.2   / c.bridge.length),
+    ]
+
+
+#######################
+##### 3D supports #####
+#######################
+
+
 bridge_705_supports_z = [2.167 + 3.666/2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):
