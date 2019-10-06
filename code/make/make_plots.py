@@ -244,7 +244,8 @@ def make_all_2d(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    plot_convergence_with_shell_size(max_shell_areas=list(range(10)))
+    plot_convergence_with_shell_size(
+        max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
     # cloud_of_points_dir = os.path.join(c.images_dir, "cloud-of-points")
     # if not os.path.exists(cloud_of_points_dir):

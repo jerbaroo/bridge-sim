@@ -16,7 +16,11 @@ D: bool = True
 
 
 def set_deck_node_step(c: "Config", max_shell_area: float):
-    """Set the deck node step size based on a maximum shell area."""
+    """Set the deck node step size based on a maximum shell area.
+
+    Returns the final deck shell area.
+
+    """
     # Start with the minimum possible node step size.
     num_nodes_x, num_nodes_z = 2, 2
 
@@ -40,10 +44,13 @@ def set_deck_node_step(c: "Config", max_shell_area: float):
         else:
             num_nodes_z += 1
         set_node_step()
+    return deck_shell_area()
 
 
 def set_support_num_nodes(c: "Config", max_shell_area: float):
     """Set the support number of nodes based on a maximum shell area.
+
+    Returns the final wall shell area.
 
     TODO: This assumes square supports that hang vertically. The square
         assumption means that actual maximum shell on a support will be smaller
@@ -78,6 +85,7 @@ def set_support_num_nodes(c: "Config", max_shell_area: float):
         else:
             num_nodes_z += 1
         set_num_nodes()
+    return wall_shell_area()
 
 
 class Config:
@@ -212,8 +220,15 @@ class Config:
         self.os_support_num_nodes_z: int = 10
         self.os_support_num_nodes_y: int = 10
         if max_shell_area is not None:
-            set_deck_node_step(c=self, max_shell_area=max_shell_area)
-            set_support_num_nodes(c=self, max_shell_area=max_shell_area)
+            dsa = set_deck_node_step(c=self, max_shell_area=max_shell_area)
+            wsa = set_support_num_nodes(c=self, max_shell_area=max_shell_area)
+            print_i(f"Maximum shell area = {max_shell_area}")
+            print_i(f"Deck shell area = {dsa}")
+            print_i(f"Wall shell area = {wsa}")
+        print_i(f"Deck node step x = {self.os_node_step}")
+        print_i(f"Deck node step z = {self.os_node_step_z}")
+        print_i(f"Wall num nodes y = {self.os_support_num_nodes_y}")
+        print_i(f"Wall num nodes z = {self.os_support_num_nodes_z}")
         self.os_exe_path: str = config_sys.os_exe_path
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
