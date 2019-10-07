@@ -1,8 +1,10 @@
 """Specification and Config for bridge 705 in Amsterdam."""
 from typing import Callable, List, Optional
 
+import numpy as np
+
 from config import Config
-from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Section3D, Support, Support3D
+from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Section3D, Section3DPier, Support, Support3D
 
 
 #################################
@@ -112,15 +114,18 @@ bridge_705_sections_3d = [
 ##### 3D pier sections #####
 ############################
 
+
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 num_pier_sections = 10
 bridge_705_pier_sections = [
-    Section3D(
-        density=2.724E-3,
-        thickness=np.interp(
-            x_frac, [0, 1], [pier_thickness_top, pier_thickness_bottom]),
-        youngs=38400E+6, poissons=0.2, start_x_frac=x_frac)
-    for x_frac in np.linspace(0, 1, num_pier_sections)]
+    Section3DPier(
+        density=2.724E-3, thickness=np.interp(
+            start_frac_len, [0, 1],
+            [pier_thickness_top, pier_thickness_bottom]),
+        youngs=38400E+6, poissons=0.2, start_frac_len=start_frac_len)
+    for start_frac_len in np.linspace(0, 1, num_pier_sections)]
+assert np.isclose(bridge_705_pier_sections[0].thickness, pier_thickness_top)
+assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
 
 #######################
@@ -145,7 +150,8 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
         bridge_705_supports_3d.append(Support3D(
             x=_support_x, z=_support_z, length=3.1, height=3.5,
             width_top=3.666, width_bottom=1.8,
-            fix_x_rotation=True, fix_y_rotation=True, fix_z_rotation=False,
+            sections=bridge_705_pier_sections, fix_x_rotation=True,
+            fix_y_rotation=True, fix_z_rotation=False,
             fix_x_translation=(x_index in [2, 3])))
 
 

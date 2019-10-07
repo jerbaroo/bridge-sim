@@ -443,28 +443,46 @@ def opensees_section(section: Section3D):
     # return "section ElasticMembranePlateSection 0 4.3e+10 0.2 0.7 0.002724"
 
 
-def opensees_sections(c: Config):
+def opensees_deck_sections(c: Config):
+    """Sections used in the bridge deck."""
     return comment(
-        "sections",
-        "\n".join([
+        "deck sections", "\n".join([
             opensees_section(section) for section in c.bridge.sections]),
         units=(
             "section ElasticMembranePlateSection secTag youngs_modulus"
             +" poisson_ratio depth mass_density"))
 
 
-##### End sections #####
-##### Begin shell elements #####
+def opensees_pier_sections(c: Config):
+    """Sections used in the bridge's piers."""
+    # Some pier's may refer to the same section so we create a set to avoid
+    # rendering duplicate section definitions into the .tcl file.
+    pier_sections = set()
+    for pier in c.bridge.supports:
+        for section in pier.sections:
+            pier_sections.add(section)
+    return comment(
+        "pier sections", "\n".join([
+            opensees_section(section) for section in pier_sections]),
+        units=(
+            "section ElasticMembranePlateSection secTag youngs_modulus"
+            +" poisson_ratio depth mass_density"))
 
 
 def section_for_deck_element(
         c: Config, element_x: float, element_z: float) -> int:
-    """Section for a deck element.
+    """Section for a shell element on the deck.
 
-    This works by creating a dictionary (if not already created) of section's x
-    positions to z position to a Section3D. Then iterate through x positions
-    finding last one less than or equal to the given element's least x
-    position, then do the same for the z position, then the section is found.
+    Creates a dictionary (if not already created) of all section's x positions
+    to z position to Section3D. Then iterate through sorted x positions finding
+    last one less than or equal to the given element's lowest x position, then
+    do the same for the z position, then the section is found. The element is
+    given as List[Nodes], from which the lowest x and z position's are found.
+
+    Args:
+        c: Config, global configuration object.
+        element_x: float, x position which belongs in some section.
+        element_z: float, z position which belongs in some section.
 
     """
     # Create the dictionary if not already created.
@@ -486,7 +504,8 @@ def section_for_deck_element(
 
     # Find the last z position less than element_z.
     section_z = None
-    for next_section_z in sorted(c.bridge.deck_sections_dict[section_x].keys()):
+    for next_section_z in sorted(
+            c.bridge.deck_sections_dict[section_x].keys()):
         # print(f"next_section_z = {next_section_z}")
         if next_section_z > element_z:
             break
@@ -494,6 +513,33 @@ def section_for_deck_element(
     # print(f"section_z = {section_z}")
 
     return c.bridge.deck_sections_dict[section_x][section_z]
+
+
+def section_for_pier_element(
+        c: Config, pier: Support3D, element_start_frac_len: float) -> int:
+    """Section for a shell element on a pier.
+
+    Args:
+        c: Config, global configuration object.
+        pier: Support3DPier, the pier from which to select a section.
+        element_start_frac_len: float, fraction of pier wall length.
+
+    """
+    # Find the last section of a pier where the fraction of the pier wall's
+    # length is less than element_start_frac_len.
+    section = None
+    for next_section in sorted(pier.sections, key=lambda s: s.start_frac_len):
+        print(f"next_section.start_frac_len = {next_section.start_frac_len}")
+        if next_section.start_frac_len > element_start_frac_len:
+            return section
+        section = next_section
+    print(f"section.start_frac_len = {section.start_frac_len}")
+    print(f"element_start_frac_len = {element_start_frac_len}")
+    return section
+
+
+##### End sections #####
+##### Begin shell elements #####
 
 
 def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
@@ -523,19 +569,16 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
             j_node = i_node + 1
             k_node, l_node = j_node + z_skip, i_node + z_skip
             # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
-            i_actual_node = nodes_by_id[i_node]
-            # print("*********")
-            # print(f"i_node_id = {i_node}, x = {i_actual_node.x}, z = {i_actual_node.z}")
             section = section_for_deck_element(
                 c=c, element_x=nodes_by_id[i_node].x,
                 element_z=nodes_by_id[i_node].z)
+            repr_section = repr(section).replace("\n", " ")
             deck_elements.append(
                 f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
-                + f" {k_node} {l_node} {section.id}; # {repr(section)}")
+                + f" {k_node} {l_node} {section.id}; # {repr_section}")
         ff_elem_ids(z_skip)
     return comment(
-        "deck elements",
-        "\n".join(deck_elements),
+        "deck elements", "\n".join(deck_elements),
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
@@ -545,26 +588,38 @@ def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
     for s, support_nodes in enumerate(all_support_nodes):
         for w, wall_nodes in enumerate(support_nodes):
             z = 0  # Keep an index of current transverse (z) line.
-            # For each pair of transverse (z) lines.
+            # For each pair of (line of nodes in y direction).
             for y_nodes_z_lo, y_nodes_z_hi in zip(
                     wall_nodes[:-1], wall_nodes[1:]):
                 assert len(y_nodes_z_lo) == len(y_nodes_z_hi)
+                # For each element (so for each node - 1) on the line of nodes
+                # in y direction.
                 for y in range(len(y_nodes_z_lo) - 1):
-                    y_lo_z_lo = y_nodes_z_lo[y]
-                    y_hi_z_lo = y_nodes_z_lo[y + 1]
-                    y_lo_z_hi = y_nodes_z_hi[y]
-                    y_hi_z_hi = y_nodes_z_hi[y + 1]
+                    y_lo_z_lo: Node = y_nodes_z_lo[y]
+                    y_hi_z_lo: Node = y_nodes_z_lo[y + 1]
+                    y_lo_z_hi: Node = y_nodes_z_hi[y]
+                    y_hi_z_hi: Node = y_nodes_z_hi[y + 1]
+                    assert isinstance(y_lo_z_lo, Node)
+                    for other_node in [y_hi_z_lo, y_lo_z_hi, y_hi_z_hi]:
+                        assert other_node.y <= y_lo_z_lo.y
+                    assert y_lo_z_lo.z < y_lo_z_hi.z
+                    assert y_hi_z_lo.z < y_hi_z_hi.z
+                    print(f"Section ID ={s}")
+                    element_start_frac_len = y / len(y_nodes_z_lo)
+                    print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
+                    section = section_for_pier_element(
+                        c=c, pier=c.bridge.supports[s],
+                        element_start_frac_len=element_start_frac_len)
                     support_elements.append(
                         f"element ShellMITC4 {next_elem_id()} {y_lo_z_lo.n_id}"
                         + f" {y_hi_z_lo.n_id} {y_hi_z_hi.n_id}"
-                        + f" {y_lo_z_hi.n_id} 1"
+                        + f" {y_lo_z_hi.n_id} {section.id}"
                         + f"; # support {s+1}, wall {w+1}, z {z+1}, y {y+1}"
                         + " below deck")
                 ff_elem_ids(ff_mod)
                 z += 1
     return comment(
-        "support elements",
-        "\n".join(support_elements),
+        "support elements", "\n".join(support_elements),
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
@@ -719,7 +774,8 @@ def build_model_3d(
             .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
                 c=c, support_nodes=all_support_nodes))
             .replace("<<SUPPORTS>>", "")
-            .replace("<<SECTIONS>>", opensees_sections(c=c))
+            .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
+            .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(
                 c=c, fem_params=fem_params, os_runner=os_runner,
                 deck_nodes=deck_nodes))

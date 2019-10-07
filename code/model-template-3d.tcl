@@ -12,7 +12,9 @@ model basic -ndm 3 -ndf 6
 
 <<FIX_SUPPORTS>>
 
-<<SECTIONS>>
+<<DECK_SECTIONS>>
+
+<<PIER_SECTIONS>>
 
 <<DECK_ELEMENTS>>
 

@@ -108,10 +108,10 @@ class Support3D:
     def __init__(
             self, x: float, z: float, length: float, height: float,
             width_top: float, width_bottom: float,
-            fix_x_translation: bool = True, fix_y_translation: bool = True,
-            fix_z_translation: bool = True, fix_x_rotation: bool = False,
-            fix_y_rotation: bool = False, fix_z_rotation: bool = False,
-            sections: List["Section3D"] = []):
+            sections: List["Section3DPier"], fix_x_translation: bool = True,
+            fix_y_translation: bool = True, fix_z_translation: bool = True,
+            fix_x_rotation: bool = False, fix_y_rotation: bool = False,
+            fix_z_rotation: bool = False):
         self.x = x
         self.z = z
         self.length = length
@@ -125,6 +125,9 @@ class Support3D:
         self.fix_y_rotation = fix_y_rotation
         self.fix_z_rotation = fix_z_rotation
         self.sections = sections
+        for s in self.sections:
+            print(type(s))
+            assert isinstance(s, Section3DPier)
         if self.width_top < self.width_bottom:
             raise ValueError(
                 "Support3D: top width must be greater than bottom width")
@@ -299,8 +302,11 @@ class Section2D:
         return self._min_max(lambda p: p.z)
 
 
+all_section_ids = set()
+
+
 class Section3D:
-    """A section when 3D modeling, density, thickness and young's modulus.
+    """A section for describing the deck when 3D modeling.
 
     Args:
         density: float, section density in kg/m.
@@ -317,6 +323,9 @@ class Section3D:
             self, density: float, thickness: float, youngs: float,
             poissons: float, start_x_frac: float = 0, start_z_frac: float = 0):
         self.id = Section3D.next_id
+        if self.id in all_section_ids:
+            raise ValueError("ERRR")
+        all_section_ids.add(self.id)
         Section3D.next_id += 1
         self.density = density
         self.thickness = thickness
@@ -332,15 +341,36 @@ class Section3D:
     def __repr__(self):
         """Readable representation."""
         return (
-            "Section3D starts at x_frac, z_frac ="
+            "Section3D"
+            + f"\n  starts at (x_frac, z_frac) ="
             + f" ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})"
-            + f" density = {self.density} kg/m"
-            + f" thickness = {self.thickness} m"
-            + f" youngs = {self.youngs} MPa"
-            + f" posissons = {self.poissons}")
+            + f"\n  density = {self.density} kg/m"
+            + f"\n  thickness = {self.thickness} m"
+            + f"\n  youngs = {self.youngs} MPa"
+            + f"\n  poissons = {self.poissons}")
 
 
-# Sections are either 2D or 3D sections.
+class Section3DPier(Section3D):
+    """Like Section3D but intended for describing piers.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young's modulus of the section in MPa.
+        poisson: float, Poisson's ratio.
+        start_frac_len: start of the section as a fraction of pier length.
+
+    """
+    def __init__(
+            self, density: float, thickness: float, youngs: float,
+            poissons: float, start_frac_len: float):
+        super().__init__(
+            density=density, thickness=thickness, youngs=youngs,
+            poissons=poissons)
+        self.start_frac_len = start_frac_len
+
+
+# Deck Sections are either 2D or 3D sections.
 Section = Union[Section2D, Section3D]
 
 
@@ -566,3 +596,4 @@ def _reset_model_ids():
     global _fiber_cmd_id
     _fiber_cmd_id = 1
     Section2D.next_id = 1
+    Section3D.next_id = 1

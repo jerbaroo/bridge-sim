@@ -1,6 +1,15 @@
 * Todos
 ** TODO Rename Bridge.sections to deck_sections
+** TODO Rename support to pier
+** TODO Assert that sections are in order
+** TODO Remove default fix values to Support3D
+** TODO Fix max_shell_area for piers, maybe create Point.helper_functions
+** TODO Write about amount and value of bridges in Hungary
+** TODO Generate timing plots, Diana, Axis, OpenSees
+** TODO Consider how third party OpenSees model could be integrated
+** TODO Interpolate only for nodes where y=0
 ** TODO Restructure loads
+** TODO Use Python units library
 ** TODO Rename Config.os_node_step to node_step_x
 ** TODO Rename Config.os_node_step_z to node_step_z
 ** TODO Rename Config.os_support_num_nodes_y to support_num_nodes_y
@@ -13,30 +22,76 @@
 ** TODO Make contour plots for other response types
 ** TODO Write about Python model
 ** TODO Write down and ensure fem_responses_path etc. are correct
+** TODO Refine mesh in Axis to verify convergence
+** TODO Maybe refine mesh in Diana to check convergence
 * Meetings
-** 8th October
-*** TODO I'll go over some things quick, looking for short responses, then open floor
-*** TODO Quickly show contour plot, has updated sections, check pier values (later TODO)
-*** TODO Deck and pier sections are given as lists, can use functino to create the list
-*** TODO Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
-*** TODO Show some key points
-*** TODO Will update thesis document with sections/subsections/plots/assumptions
-*** TODO Second milestone finished this week (KISS), but 3D model won't have high node density
-*** TODO Cloud of nodes plot
-*** TODO Biggest modeling assumptions are vehicles move on tracks and at constant speed
-*** TODO Added max_shell_area argument
-*** TODO Reason convergence plot doesn't work is load doesn't line up with nodes
-*** TODO NOTE: Once basic writing is added should start writing on bridges/costs
-*** TODO Will be away a bit this week but will still get it done
-*** TODO When are TNO open over winter break/when is the break?
-*** TODO Haskell-like syntax to describe Python model/pseudocode?
-*** TODO Remove interpolation code
-*** TODO Who would know about amount of npnp concrete slab bridges?
-*** TODO Keep Diana code
-*** TODO Check pier values
-*** TODO Go over units in OpenSees file and Python classes
-*** TODO Go over fixed nodes in OpenSees
-*** TODO Go over Axis modeling
-*** TODO Comments in 3D .tcl file
-* Work
-** 8th October
+-  Item marked as DONE when it is covered in a meeting.
+-  Can create additional item in week's work or general TODOs.
+-  If a TODO in a week's work is not done, push it to next week.
+** 7th October
+*** DONE I'll go over some things quick, looking for short responses, then open floor
+    CLOSED: [2019-10-07 Mon 11:45]
+*** DONE Quickly show contour plot, has updated sections, check pier values (later TODO)
+    CLOSED: [2019-10-07 Mon 11:45]
+*** DONE Deck and pier sections are given as lists, can use function to create the list
+    CLOSED: [2019-10-07 Mon 11:45]
+*** DONE Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
+    CLOSED: [2019-10-07 Mon 11:45]
+*** DONE Show some key points
+    CLOSED: [2019-10-07 Mon 11:46]
+*** DONE Will update thesis document with sections/subsections/plots/assumptions
+    CLOSED: [2019-10-07 Mon 11:52]
+*** DONE Second milestone finished this week (KISS), but 3D model won't have high node density
+    CLOSED: [2019-10-07 Mon 11:52]
+*** DONE Show cloud of nodes plot
+    CLOSED: [2019-10-07 Mon 11:52]
+*** DONE Biggest modeling assumptions are vehicles move on tracks and at constant speed
+    CLOSED: [2019-10-07 Mon 11:53]
+*** DONE Added max_shell_area argument
+    CLOSED: [2019-10-07 Mon 11:53]
+*** DONE Reason convergence plot doesn't work is load doesn't line up with nodes
+    CLOSED: [2019-10-07 Mon 12:34]
+    Added tasks for refined mesh around load
+*** DONE NOTE: Once basic writing is added should start writing on bridges/costs
+    CLOSED: [2019-10-07 Mon 12:39]
+*** DONE Will be away a bit this week but will still get it done
+    CLOSED: [2019-10-07 Mon 12:39]
+*** DONE When are TNO open over winter break/when is the break?
+    CLOSED: [2019-10-07 Mon 12:39]
+    TNO are only closed on national holidays.
+*** DONE Haskell-like syntax to describe Python model/pseudocode?
+    CLOSED: [2019-10-07 Mon 12:39]
+*** DONE Remove interpolation code
+    CLOSED: [2019-10-07 Mon 12:40]
+*** DONE Who would know about amount of npnp concrete slab bridges?
+    CLOSED: [2019-10-07 Mon 12:40]
+*** DONE Keep Diana code
+    CLOSED: [2019-10-07 Mon 12:41]
+*** DONE Check pier values
+    CLOSED: [2019-10-07 Mon 12:41]
+*** DONE Go over units in OpenSees file and Python classes
+    CLOSED: [2019-10-07 Mon 12:41]
+*** DONE Go over fixed nodes in OpenSees
+    CLOSED: [2019-10-07 Mon 12:41]
+*** DONE Go over Axis modeling
+    CLOSED: [2019-10-07 Mon 12:42]
+*** DONE Comments in 3D .tcl file
+    CLOSED: [2019-10-07 Mon 12:42]
+* Week's work
+** 7th October
+*** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
+    CLOSED: [2019-10-07 Mon 17:33]
+*** TODO [#A] Ask Arpi about comments in .tcl file
+*** TODO [#A] List and ask Arpi about units in OpenSees, Diana, Axis and Python model
+*** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
+*** TODO [#A] Send updated document with sections/subsections to Valeria
+*** TODO [#A] Collect influence lines from two traffic lanes
+*** TODO [#A] Additional load case for verification: load closer to abutment
+*** TODO [#A] Check fixed nodes in OpenSees
+*** TODO [#A] Single section option for OpenSees, compared with Axis
+*** TODO [#B] Ask Arthur if he has a contact for Rijkswaterstraat on amount of npnp concrete slab bridges
+*** TODO [#B] Base mesh and refinement around positions, will speed up massively
+*** TODO [#C] Additional load case for verification: pier settlement
+*** TODO [#C] Additional node position explicitly for loading position
+*** TODO [#C] Remove perspective in cloud of points plot
+*** TODO [#C] Timing plot of OpenSees
