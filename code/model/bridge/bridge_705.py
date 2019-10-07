@@ -108,6 +108,21 @@ bridge_705_sections_3d = [
     ]
 
 
+############################
+##### 3D pier sections #####
+############################
+
+pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
+num_pier_sections = 10
+bridge_705_pier_sections = [
+    Section3D(
+        density=2.724E-3,
+        thickness=np.interp(
+            x_frac, [0, 1], [pier_thickness_top, pier_thickness_bottom]),
+        youngs=38400E+6, poissons=0.2, start_x_frac=x_frac)
+    for x_frac in np.linspace(0, 1, num_pier_sections)]
+
+
 #######################
 ##### 3D supports #####
 #######################

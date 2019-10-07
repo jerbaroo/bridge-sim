@@ -1,0 +1,42 @@
+* Todos
+** TODO Rename Bridge.sections to deck_sections
+** TODO Restructure loads
+** TODO Rename Config.os_node_step to node_step_x
+** TODO Rename Config.os_node_step_z to node_step_z
+** TODO Rename Config.os_support_num_nodes_y to support_num_nodes_y
+** TODO Rename Config.os_support_num_nodes_z to support_num_nodes_z
+** TODO Move classes in model.bridge to submodules and re-export in model.bridge
+** TODO Instead of multiplying z_frac by c.bridge.width use c.bridge.z
+** TODO In d3.opensees_deck_elements rename i_node etc. to i_node_id
+** TODO Rename Fix to Support2D
+** TODO Collect stress and strain responses from 3D model
+** TODO Make contour plots for other response types
+** TODO Write about Python model
+** TODO Write down and ensure fem_responses_path etc. are correct
+* Meetings
+** 8th October
+*** TODO I'll go over some things quick, looking for short responses, then open floor
+*** TODO Quickly show contour plot, has updated sections, check pier values (later TODO)
+*** TODO Deck and pier sections are given as lists, can use functino to create the list
+*** TODO Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
+*** TODO Show some key points
+*** TODO Will update thesis document with sections/subsections/plots/assumptions
+*** TODO Second milestone finished this week (KISS), but 3D model won't have high node density
+*** TODO Cloud of nodes plot
+*** TODO Biggest modeling assumptions are vehicles move on tracks and at constant speed
+*** TODO Added max_shell_area argument
+*** TODO Reason convergence plot doesn't work is load doesn't line up with nodes
+*** TODO NOTE: Once basic writing is added should start writing on bridges/costs
+*** TODO Will be away a bit this week but will still get it done
+*** TODO When are TNO open over winter break/when is the break?
+*** TODO Haskell-like syntax to describe Python model/pseudocode?
+*** TODO Remove interpolation code
+*** TODO Who would know about amount of npnp concrete slab bridges?
+*** TODO Keep Diana code
+*** TODO Check pier values
+*** TODO Go over units in OpenSees file and Python classes
+*** TODO Go over fixed nodes in OpenSees
+*** TODO Go over Axis modeling
+*** TODO Comments in 3D .tcl file
+* Work
+** 8th October
