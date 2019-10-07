@@ -22,7 +22,7 @@ def plot_contour_deck(
 
     """
     # Structure data.
-    amax = -np.inf
+    amax = np.inf
     amax_x, amax_z = None, None
     X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
     for x in fem_responses.xs:
@@ -33,12 +33,11 @@ def plot_contour_deck(
             X[-1].append(x)
             Z[-1].append(z)
             H[-1].append(fem_responses.responses[0][x][y][z].value)
-            if H[-1][-1] > amax:
+            if H[-1][-1] < amax:
                 amax = H[-1][-1]
                 amax_x, amax_z = X[-1][-1], Z[-1][-1]
     # Plot contour and colorbar.
-    # NOTE: values are scaled linearly so the minimum is at 0.
-    cs = plt.contourf(X, Z, H, levels=20)
+    cs = plt.contourf(X, Z, H, levels=50)
     plt.colorbar(cs)
     # Plot loads.
     for load in loads:
@@ -46,11 +45,11 @@ def plot_contour_deck(
         z = (load.z_frac * c.bridge.width) - (c.bridge.width / 2)
         plt.plot([x], [z], marker="o", markersize=5, color="red")
     # Titles and labels.
-    amin = np.amin(np.array(H))
+    amin = np.amax(np.array(H))
     plt.title(
         f"{fem_responses.response_type.name()}"
         + f" ({fem_responses.response_type.units(False)})"
-        + f", max = {amax - amin:.10f} at ({amax_x}, {amax_z})")
+        + f", min = {amax - amin} at ({amax_x}, {amax_z})")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
     plt.axis("equal")

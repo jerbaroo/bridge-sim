@@ -478,20 +478,20 @@ def section_for_deck_element(
     # Find the last x position less than element_x.
     section_x = None
     for next_section_x in sorted(c.bridge.deck_sections_dict.keys()):
-        print(f"next_section_x = {next_section_x}")
+        # print(f"next_section_x = {next_section_x}")
         if next_section_x > element_x:
             break
         section_x = next_section_x
-    print(f"section_x = {section_x}")
+    # print(f"section_x = {section_x}")
 
     # Find the last z position less than element_z.
     section_z = None
     for next_section_z in sorted(c.bridge.deck_sections_dict[section_x].keys()):
-        print(f"next_section_z = {next_section_z}")
+        # print(f"next_section_z = {next_section_z}")
         if next_section_z > element_z:
             break
         section_z = next_section_z
-    print(f"section_z = {section_z}")
+    # print(f"section_z = {section_z}")
 
     return c.bridge.deck_sections_dict[section_x][section_z]
 
@@ -524,8 +524,8 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
             k_node, l_node = j_node + z_skip, i_node + z_skip
             # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
             i_actual_node = nodes_by_id[i_node]
-            print("*********")
-            print(f"i_node_id = {i_node}, x = {i_actual_node.x}, z = {i_actual_node.z}")
+            # print("*********")
+            # print(f"i_node_id = {i_node}, x = {i_actual_node.x}, z = {i_actual_node.z}")
             section = section_for_deck_element(
                 c=c, element_x=nodes_by_id[i_node].x,
                 element_z=nodes_by_id[i_node].z)
