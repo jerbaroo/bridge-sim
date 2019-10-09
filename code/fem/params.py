@@ -29,7 +29,7 @@ class FEMParams:
         """String representing the parameters (that affect simulation)."""
         if self.displacement_ctrl is not None:
             return (f"disp-ctrl-{self.displacement_ctrl.displacement}"
-                    + f"-{self.displacement_ctrl.pier}")
+                + f"-{self.displacement_ctrl.pier}")
         lstr = ",".join(str(l) for l in self.loads)
         return f"[{lstr}]"
 
@@ -42,10 +42,11 @@ class ExptParams:
     def is_mobile_load(self):
         """"Whether each simulation is equal apart from load position.
 
-        Additionally each simulation must only have one load, and the loads
-        must be increasing with equal step.
+        This could be useful for specifying a MOBILE Load in Diana:
+        https://dianafea.com/manuals/d102/Analys/node39.html#89111
 
         """
+        raise Exception("This is untested and incomplete.")
         # MOBILE Diana load.
         mobile_load = True
         # Each simulation must consist of only one load.

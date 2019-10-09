@@ -1,5 +1,7 @@
 * Todos
 ** TODO Rename Bridge.sections to deck_sections
+** TODO Make ExptParams a NewType, and move is_mobile_load to diana code
+** TODO Split build/d3.py into submodules, it's a ~900 line file
 ** TODO Rename support to pier
 ** TODO Assert that sections are in order
 ** TODO Remove default fix values to Support3D
@@ -77,12 +79,16 @@
     CLOSED: [2019-10-07 Mon 12:42]
 *** DONE Comments in 3D .tcl file
     CLOSED: [2019-10-07 Mon 12:42]
-* Week's work
+* Weeks work
 ** 7th October
 *** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
     CLOSED: [2019-10-07 Mon 17:33]
-*** TODO [#A] Ask Arpi about comments in .tcl file
-*** TODO [#A] List and ask Arpi about units in OpenSees, Diana, Axis and Python model
+*** DONE [#A] Ask Arpi about comments in .tcl file
+CLOSED: [2019-10-09 Wed 13:12]
+*** DONE [#A] List and ask Arpi about units in OpenSees and Python model
+CLOSED: [2019-10-09 Wed 15:10]
+*** TODO [#A] Collect translation responses from support nodes
+*** TODO [#A] Collect stress, strain responses from all elements
 *** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
 *** TODO [#A] Send updated document with sections/subsections to Valeria
 *** TODO [#A] Collect influence lines from two traffic lanes

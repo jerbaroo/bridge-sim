@@ -49,7 +49,7 @@ def plot_contour_deck(
     plt.title(
         f"{fem_responses.response_type.name()}"
         + f" ({fem_responses.response_type.units(False)})"
-        + f", min = {amax - amin} at ({amax_x}, {amax_z})")
+        + f", min = {(amax - amin):.10f} at ({amax_x}, {amax_z})")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
     plt.axis("equal")
