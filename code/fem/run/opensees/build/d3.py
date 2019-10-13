@@ -17,7 +17,7 @@ from util import round_m, print_d, print_i, print_w
 # Print debug information for this file.
 D: bool = False
 
-# st, nd, or rd. As in 1st, 2nd, 3rd for a given number.
+# The letters that come after a number e.g. in 1st, 2nd, 3rd.
 st = lambda n: "%s" % ("tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
 
 ##### Begin node factory #####
@@ -474,7 +474,7 @@ def opensees_section(section: Section3D):
     return (
         f"section ElasticMembranePlateSection {section.id}"
         + f" {section.youngs * 1E6} {section.poissons} {section.thickness}"
-        + f" {section.density}")
+        + f" {section.density * 1E-3}")
 
 
 def opensees_deck_sections(c: Config):
@@ -484,7 +484,7 @@ def opensees_deck_sections(c: Config):
             opensees_section(section) for section in c.bridge.sections]),
         units=(
             "section ElasticMembranePlateSection secTag youngs_modulus"
-            +" poisson_ratio depth mass_density"))
+            + " poisson_ratio depth mass_density"))
 
 
 def opensees_pier_sections(c: Config):

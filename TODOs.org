@@ -1,31 +1,32 @@
 * Todos
-** TODO Rename Bridge.sections to deck_sections
-** TODO Make ExptParams a NewType, and move is_mobile_load to diana code
-** TODO Split build/d3.py into submodules, it's a ~900 line file
-** TODO Rename support to pier
-** TODO Assert that sections are in order
-** TODO Remove default fix values to Support3D
-** TODO Fix max_shell_area for piers, maybe create Point.helper_functions
-** TODO Write about amount and value of bridges in Hungary
-** TODO Generate timing plots, Diana, Axis, OpenSees
-** TODO Consider how third party OpenSees model could be integrated
-** TODO Interpolate only for nodes where y=0
-** TODO Restructure loads
-** TODO Use Python units library
-** TODO Rename Config.os_node_step to node_step_x
-** TODO Rename Config.os_node_step_z to node_step_z
-** TODO Rename Config.os_support_num_nodes_y to support_num_nodes_y
-** TODO Rename Config.os_support_num_nodes_z to support_num_nodes_z
-** TODO Move classes in model.bridge to submodules and re-export in model.bridge
-** TODO Instead of multiplying z_frac by c.bridge.width use c.bridge.z
-** TODO In d3.opensees_deck_elements rename i_node etc. to i_node_id
-** TODO Rename Fix to Support2D
-** TODO Collect stress and strain responses from 3D model
-** TODO Make contour plots for other response types
-** TODO Write about Python model
-** TODO Write down and ensure fem_responses_path etc. are correct
-** TODO Refine mesh in Axis to verify convergence
-** TODO Maybe refine mesh in Diana to check convergence
+** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
+** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
+** TODO [#A] Assert that sections are sorted by position
+** TODO [#A] Remove default fix values to Support3D
+** TODO [#A] Fix max_shell_area for piers, maybe create Point.helper_functions
+** TODO [#A] Write about amount and value of bridges in Hungary
+** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
+** TODO [#A] Restructure loads
+** TODO [#A] Ensure not multiplying z_frac by c.bridge.width, use c.bridge.z
+** TODO [#A] Rename Fix to Support2D
+** TODO [#A] Collect stress and strain responses from 3D model
+** TODO [#A] Make contour plots for other response types
+** TODO [#A] Write about Python model
+** TODO [#A] Write down and ensure fem_responses_path etc. are correct
+** TODO [#A] Refine mesh in Axis to verify convergence
+** TODO [#A] Maybe refine mesh in Diana to check convergence
+** TODO [#B] Rename support to pier
+** TODO [#B] Interpolate only for nodes where y=0
+** TODO [#C] Rename Bridge.sections to deck_sections
+** TODO [#C] Split build/d3.py into submodules, it's a ~900 line file
+** TODO [#C] Consider how third party OpenSees model could be integrated
+** TODO [#C] Use Python units library
+** TODO [#C] Rename Config.os_node_step to node_step_x
+** TODO [#C] Rename Config.os_node_step_z to node_step_z
+** TODO [#C] Rename Config.os_support_num_nodes_y to support_num_nodes_y
+** TODO [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
+** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
+** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
 * Meetings
 -  Item marked as DONE when it is covered in a meeting.
 -  Can create additional item in week's work or general TODOs.
@@ -81,12 +82,6 @@
     CLOSED: [2019-10-07 Mon 12:42]
 * Weeks work
 ** 7th October
-*** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
-    CLOSED: [2019-10-07 Mon 17:33]
-*** DONE [#A] Ask Arpi about comments in .tcl file
-CLOSED: [2019-10-09 Wed 13:12]
-*** DONE [#A] List and ask Arpi about units in OpenSees and Python model
-CLOSED: [2019-10-09 Wed 15:10]
 *** TODO [#A] Collect translation responses from support nodes
 *** TODO [#A] Collect stress, strain responses from all elements
 *** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
@@ -95,9 +90,18 @@ CLOSED: [2019-10-09 Wed 15:10]
 *** TODO [#A] Additional load case for verification: load closer to abutment
 *** TODO [#A] Check fixed nodes in OpenSees
 *** TODO [#A] Single section option for OpenSees, compared with Axis
+*** TODO [#A] Fix comments in TCL file
+*** TODO [#A] Fix units in TCL file
 *** TODO [#B] Ask Arthur if he has a contact for Rijkswaterstraat on amount of npnp concrete slab bridges
 *** TODO [#B] Base mesh and refinement around positions, will speed up massively
 *** TODO [#C] Additional load case for verification: pier settlement
 *** TODO [#C] Additional node position explicitly for loading position
-*** TODO [#C] Remove perspective in cloud of points plot
 *** TODO [#C] Timing plot of OpenSees
+*** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
+CLOSED: [2019-10-07 Mon 17:33]
+*** DONE [#A] Ask Arpi about comments in TCL file
+CLOSED: [2019-10-09 Wed 13:12]
+*** DONE [#A] List and ask Arpi about units in OpenSees and Python model
+CLOSED: [2019-10-09 Wed 15:10]
+*** DONE [#C] Remove perspective in cloud of points plot
+CLOSED: [2019-10-09 Wed 16:55]

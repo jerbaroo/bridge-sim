@@ -14,7 +14,7 @@ from util import print_d
 D: bool = False
 
 
-def plot_cloud_of_points(
+def plot_cloud_of_nodes(
         c: Config, equal_axis: bool = False, save: Optional[str] = None,
         show: bool = False):
     """Plot a cloud of points from the nodes of a 3D FEM."""
@@ -39,7 +39,6 @@ def plot_cloud_of_points(
     mid_y = (ys.max() + ys.min()) * 0.5
     mid_z = (zs.max() + zs.min()) * 0.5
 
-
     def plot_and_save(f: Callable[[], None], append: str = ""):
         """Plot the cloud of points with optional additional operation.
 
@@ -50,7 +49,7 @@ def plot_cloud_of_points(
         """
         fig = plt.figure()
         nonlocal ax
-        ax = fig.add_subplot(111, projection="3d")
+        ax = fig.add_subplot(111, projection="3d", proj_type="ortho")
         f()
         ax.scatter(xs, zs, ys, s=1)
         if equal_axis:
@@ -62,8 +61,8 @@ def plot_cloud_of_points(
         if save or show: plt.close()
 
     # Plot without angle change.
-    plot_and_save(lambda: None)
+    plot_and_save(lambda: None, append="no-rotation")
 
     # Plot for different angles.
     for ii in range(0, 360, 90):
-        plot_and_save(lambda: ax.view_init(elev=0, azim=ii), f"-{ii}")
+        plot_and_save(f=lambda: ax.view_init(elev=0, azim=ii), append=f"-{ii}")
