@@ -316,13 +316,14 @@ def opensees_support_nodes(
 
 
 def get_deck_nodes(
-        c: Config, support_nodes: bool) -> Tuple[str, List[List[Node]]]:
+        c: Config, include_support_nodes: bool) -> Tuple[str, List[List[Node]]]:
     """OpenSees nodes that belong to the bridge deck.
 
     Args:
         c: Config, global configuration object.
-        support_nodes: bool, for testing, if False don't include the additional
-            nodes that are created where the supports connect with the deck.
+        include_support_nodes: bool, for testing, if False don't include the
+            additional nodes that are created where the supports connect with
+            the deck.
 
     """
     # First collect all z and x positions.
@@ -342,7 +343,7 @@ def get_deck_nodes(
             x_positions.add(x_pos)
     # If necessary add positions of deck support nodes.
     x_positions_supports, z_positions_supports = None, None
-    if support_nodes:
+    if include_support_nodes:
         # z positions of deck nodes that are also supports.
         z_positions_supports = list(itertools.chain.from_iterable(
             z_positions_of_deck_support_nodes(c)))
@@ -386,22 +387,24 @@ def get_deck_nodes(
 
 
 def opensees_deck_nodes(
-        c: Config, support_nodes: bool) -> Tuple[str, List[List[Node]]]:
+        c: Config, include_support_nodes: bool) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck.
 
     Args:
-        support_nodes: bool, for testing, if False don't include the additional
-            nodes that are created where the supports connect with the deck.
+        c: Config, global configuratin object.
+        include_support_nodes: bool, for testing, if False don't include the
+            additional nodes that are created where the supports connect with
+            the deck.
 
     """
-    nodes = get_deck_nodes(c=c, support_nodes=support_nodes)
+    deck_nodes = get_deck_nodes(c=c, include_support_nodes=include_support_nodes)
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(),
-        list(itertools.chain.from_iterable(nodes))))
+        list(itertools.chain.from_iterable(deck_nodes))))
     return (comment(
             "deck nodes", "\n".join(node_strings), units="node nodeTag x y z"),
-        nodes)
+        deck_nodes)
 
 
 ##### End nodes #####
@@ -759,13 +762,14 @@ def opensees_recorders(
 
 def build_model_3d(
         c: Config, expt_params: ExptParams, os_runner: "OSRunner",
-        support_3d_nodes: bool = True):
+        include_support_nodes: bool = True):
     """Build OpenSees 3D model files.
 
     Args:
         c: Config, global configuratin object.
-        support_nodes: bool, for testing, if False don't include the additional
-            nodes that are created where the supports connect with the deck.
+        include_support_nodes: bool, for testing, if False don't include the
+            additional nodes that are created where the supports connect with
+            the deck.
 
     """
     # Read in the template model file.
@@ -783,7 +787,7 @@ def build_model_3d(
         reset_nodes()
         reset_elem_ids()
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
-            c=c, support_nodes=support_3d_nodes)
+            c=c, include_support_nodes=include_support_nodes)
         all_support_nodes = get_support_nodes(c)
         assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
         # Attach deck nodes and support nodes to the FEMParams to be available
