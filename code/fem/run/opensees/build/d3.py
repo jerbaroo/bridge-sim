@@ -2,20 +2,21 @@
 import itertools
 import math
 from collections import OrderedDict, defaultdict
-from typing import List, NewType, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees.common import Node, num_deck_nodes
+from fem.run.opensees.common import AllSupportNodes, DeckNodes, Node, num_deck_nodes, bridge_3d_nodes
 from model.bridge import Section3D, Support3D
 from model.load import Load
 from model.response import ResponseType
 from util import round_m, print_d, print_i, print_w
 
 # Print debug information for this file.
-D: bool = False
+D: str = "fem.run.opensees.build.d3"
+# D: bool = False
 
 # The letters that come after a number e.g. in 1st, 2nd, 3rd.
 st = lambda n: "%s" % ("tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
@@ -194,7 +195,7 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
     for support in c.bridge.supports:
         z_positions.append([])
         z_0 = support.z - (support.width_bottom / 2)
-        print_w(f"support_z = {support.z}")
+        # print_w(f"support_z = {support.z}")
         z_positions[-1].append(round_m(z_0))
         z_step = support.width_bottom / (c.os_support_num_nodes_z - 1)
         for _ in range(c.os_support_num_nodes_z - 1):
@@ -203,15 +204,7 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
     return z_positions
 
 
-# Wall nodes are each a matrix of Node ordered by z then y position.
-WallNodes = NewType("WallNodes", List[List[Node]])
-
-# Support nodes are a 2-tuple of wall nodes (consists of two walls) for each support.
-# TODO: This should just be the tuple, and then use List[SupportNodes]
-SupportNodes = NewType("SupportNodes", List[Tuple[WallNodes, WallNodes]])
-
-
-def assert_support_nodes(c: Config, all_support_nodes: SupportNodes):
+def assert_support_nodes(c: Config, all_support_nodes: AllSupportNodes):
     """Sanity check that support nodes have the correct structure.
 
     TODO: Remove this function.
@@ -226,7 +219,7 @@ def assert_support_nodes(c: Config, all_support_nodes: SupportNodes):
             assert isinstance(w_nodes[0], list)
 
 
-def get_support_nodes(c: Config) -> SupportNodes:
+def get_all_support_nodes(c: Config) -> AllSupportNodes:
     """All nodes for all a bridge's supports."""
     nodes = []
     x_positions_deck = x_positions_of_deck_support_nodes(c)
@@ -278,7 +271,7 @@ def get_support_nodes(c: Config) -> SupportNodes:
 
 
 def opensees_support_nodes(
-        c: Config, deck_nodes: List[List[Node]], all_support_nodes: SupportNodes
+        c: Config, deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes
         ) -> str:
     """Opensees node commands for the supports (ignoring deck).
 
@@ -288,9 +281,9 @@ def opensees_support_nodes(
 
     Args:
         c: Config, global configuration object.
-        deck_nodes: List[List[Node]], to check for already added support nodes.
-        all_support_nodes: SupportNodes, all support nodes to generate commands
-            for.
+        deck_nodes: DeckNodes, to check for already added support nodes.
+        all_support_nodes: AllSupportNodes, all support nodes to generate
+            commands for.
 
     """
     # We want to avoid generating commands for support nodes that also belong to
@@ -322,8 +315,7 @@ def get_deck_nodes(
     Args:
         c: Config, global configuration object.
         include_support_nodes: bool, for testing, if False don't include the
-            additional nodes that are created where the supports connect with
-            the deck.
+            nodes for the supports.
 
     """
     # First collect all z and x positions.
@@ -393,11 +385,11 @@ def opensees_deck_nodes(
     Args:
         c: Config, global configuratin object.
         include_support_nodes: bool, for testing, if False don't include the
-            additional nodes that are created where the supports connect with
-            the deck.
+            nodes for the supports.
 
     """
-    deck_nodes = get_deck_nodes(c=c, include_support_nodes=include_support_nodes)
+    deck_nodes = get_deck_nodes(
+        c=c, include_support_nodes=include_support_nodes)
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(),
@@ -412,13 +404,19 @@ def opensees_deck_nodes(
 
 
 class FixNode:
-    """A node to fix."""
+    """A command to fix a node in some degrees of freedom (dof).
+
+    Args:
+        node: Node, the node with dof to fix specified.
+        comment_: Optional[str], an optional comment for the command.
+
+    """
     def __init__(self, node: Node, comment_: Optional[str] = None):
         self.node = node
         self.comment = comment_
 
     def command_3d(self):
-        """An OpenSees fix command for this fixed node."""
+        """The command in string format for a TCL file."""
         # TODO: Update comment to include support ID.
         comment_ = "" if self.comment is None else f"; # {self.comment}"
         if self.node.support is None:
@@ -437,7 +435,7 @@ class FixNode:
                 + f"{comment_}")
 
 
-def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
+def opensees_fixed_deck_nodes(c: Config, deck_nodes: DeckNodes) -> str:
     """OpenSees fix commands for fixed deck nodes."""
     fixed_nodes: List[FixNode] = []
     for x_nodes in deck_nodes:
@@ -451,12 +449,11 @@ def opensees_fixed_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
 
 
 def opensees_fixed_support_nodes(
-        c: Config, support_nodes: SupportNodes) -> str:
+        c: Config, all_support_nodes: AllSupportNodes) -> str:
     """OpenSees fix commands for fixed support nodes."""
     fixed_nodes: List[FixNode] = []
-    assert_support_nodes(c=c, all_support_nodes=support_nodes)
     # For each support.
-    for s, s_nodes in enumerate(support_nodes):
+    for s, s_nodes in enumerate(all_support_nodes):
         # For each ~vertical line of nodes for a z position at top of wall.
         for z, z_nodes in enumerate(s_nodes[0]):  
             # We will fix the bottom node.
@@ -566,12 +563,9 @@ def section_for_pier_element(
     # length is less than element_start_frac_len.
     section = None
     for next_section in sorted(pier.sections, key=lambda s: s.start_frac_len):
-        print(f"next_section.start_frac_len = {next_section.start_frac_len}")
         if next_section.start_frac_len > element_start_frac_len:
             return section
         section = next_section
-    print(f"section.start_frac_len = {section.start_frac_len}")
-    print(f"element_start_frac_len = {element_start_frac_len}")
     return section
 
 
@@ -579,16 +573,16 @@ def section_for_pier_element(
 ##### Begin shell elements #####
 
 
-def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
+def opensees_deck_elements(c: Config, deck_nodes: DeckNodes) -> str:
     """OpenSees element commands for the bridge deck."""
     first_node_z_0 = deck_nodes[0][0].n_id
     first_node_z_1 = deck_nodes[-1][0].n_id
     last_node_z_0 = deck_nodes[0][-1].n_id
     z_skip = deck_nodes[1][0].n_id - deck_nodes[0][0].n_id
-    print_d(D, f"first_node_z_0 = {first_node_z_0}")
-    print_d(D, f"first_node_z_1 = {first_node_z_1}")
-    print_d(D, f"last_node_z_0 = {last_node_z_0}")
-    print_d(D, f"z_skip = {z_skip}")
+    # print_d(D, f"first_node_z_0 = {first_node_z_0}")
+    # print_d(D, f"first_node_z_1 = {first_node_z_1}")
+    # print_d(D, f"last_node_z_0 = {last_node_z_0}")
+    # print_d(D, f"z_skip = {z_skip}")
 
     deck_elements = []  # The result.
     # Shell nodes are input in counter-clockwise order starting bottom left
@@ -619,7 +613,7 @@ def opensees_deck_elements(c: Config, deck_nodes: [List[List[Node]]]) -> str:
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
-def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
+def opensees_support_elements(c: Config, all_support_nodes: AllSupportNodes):
     """OpenSees element commands for the bridge's supports."""
     support_elements = []  # The result.
     for s, support_nodes in enumerate(all_support_nodes):
@@ -641,9 +635,9 @@ def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
                         assert other_node.y <= y_lo_z_lo.y
                     assert y_lo_z_lo.z < y_lo_z_hi.z
                     assert y_hi_z_lo.z < y_hi_z_hi.z
-                    print(f"Section ID ={s}")
+                    # print(f"Section ID ={s}")
                     element_start_frac_len = y / len(y_nodes_z_lo)
-                    print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
+                    # print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
                     section = section_for_pier_element(
                         c=c, pier=c.bridge.supports[s],
                         element_start_frac_len=element_start_frac_len)
@@ -664,11 +658,11 @@ def opensees_support_elements(c: Config, all_support_nodes: SupportNodes):
 ##### Begin loads #####
 
 
-def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
+def opensees_load(c: Config, load: Load, deck_nodes: DeckNodes):
     """An OpenSees load command."""
     min_z_diff = np.inf  # Minimum difference in z of node to load.
     min_x_diff = np.inf  # Minimum difference in x of node to load.
-    print_d(D, f"load.z_frac = {load.z_frac}")
+    # print_d(D, f"load.z_frac = {load.z_frac}")
     load_z = c.bridge.z(z_frac=load.z_frac)
     load_x = c.bridge.x(x_frac=load.x_frac)
     best_node = None
@@ -676,16 +670,16 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
     # iterate through the z positions to find best line of nodes...
     best_x_nodes = None
     for x_nodes in deck_nodes:
-        print_d(D, f"x_nodes[0].z = {x_nodes[0].z}")
-        print_d(D, f"load_z = {load_z}")
+        # print_d(D, f"x_nodes[0].z = {x_nodes[0].z}")
+        # print_d(D, f"load_z = {load_z}")
         if abs(x_nodes[0].z - load_z) < min_z_diff:
             min_z_diff = abs(x_nodes[0].z - load_z)
-            print_d(D, f"min_z_diff = {min_z_diff}")
+            # print_d(D, f"min_z_diff = {min_z_diff}")
             best_x_nodes = x_nodes
         else:
             break
-    print_d(D, f"best_x_nodes.x = {best_x_nodes[0].x}")
-    print_d(D, f"best_x_nodes.z = {best_x_nodes[0].z}")
+    # print_d(D, f"best_x_nodes.x = {best_x_nodes[0].x}")
+    # print_d(D, f"best_x_nodes.z = {best_x_nodes[0].z}")
     # ...then iterate through x positions to find the best point.
     for x_ind, node in enumerate(best_x_nodes):
         if abs(node.x - load_x) < min_x_diff:
@@ -696,14 +690,14 @@ def opensees_load(c: Config, load: Load, deck_nodes: List[List[Node]]):
             # print_d(D, f"load_x = {load_x}")
         else:
             break
-    print_d(D, f"best_node.x = {best_node.x}")
-    print_d(D, f"best_node.z = {best_node.z}")
-    print_d(D, f"Generating OpenSees load command for {load}")
+    # print_d(D, f"best_node.x = {best_node.x}")
+    # print_d(D, f"best_node.z = {best_node.z}")
+    # print_d(D, f"Generating OpenSees load command for {load}")
     assert load.is_point_load()
     return f"load {best_node.n_id} 0 {load.kn * 1000} 0 0 0 0"
 
 
-def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
+def opensees_loads(c: Config, loads: List[Load], deck_nodes: DeckNodes):
     """OpenSees load commands for a .tcl file."""
     return comment(
         "loads",
@@ -719,7 +713,7 @@ def opensees_loads(c: Config, loads: List[Load], deck_nodes: List[List[Node]]):
 
 def opensees_translation_recorders(
         c: Config, fem_params: FEMParams, os_runner: "OSRunner",
-        deck_nodes: List[List[Node]]):
+        deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes):
     """OpenSees recorder commands for translation."""
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
@@ -739,8 +733,10 @@ def opensees_translation_recorders(
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = []
     node_str = " ".join(
-        str(n.n_id) for n in itertools.chain.from_iterable(deck_nodes))
+        str(n.n_id) for n in bridge_3d_nodes(
+            deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
     for response_path, direction in translation_response_types:
+        print_d(D, f"Adding response path to build: {response_path}")
         recorder_strs.append(
             f"recorder Node -file {response_path} -node {node_str} -dof"
             + f" {direction} disp")
@@ -751,10 +747,11 @@ def opensees_translation_recorders(
 
 def opensees_recorders(
         c: Config, fem_params: FEMParams, os_runner: "OSRunner",
-        deck_nodes: List[List[Node]]):
+        deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes):
     """OpenSees recorder commands for translation, stress and strain."""
     return opensees_translation_recorders(
-        c=c, fem_params=fem_params, os_runner=os_runner, deck_nodes=deck_nodes)
+        c=c, fem_params=fem_params, os_runner=os_runner, deck_nodes=deck_nodes,
+        all_support_nodes=all_support_nodes)
 
 
 ##### End recorders #####
@@ -768,8 +765,7 @@ def build_model_3d(
     Args:
         c: Config, global configuratin object.
         include_support_nodes: bool, for testing, if False don't include the
-            additional nodes that are created where the supports connect with
-            the deck.
+            nodes for the supports.
 
     """
     # Read in the template model file.
@@ -781,22 +777,26 @@ def build_model_3d(
         print_i(
             f"OpenSees: building 3D model, {num_nodes_x} * {num_nodes_z} deck"
             + " nodes")
-        # Displacement control is not supported.
+        # Displacement control is not supported yet in 3D.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
+        # Reset IDs before building.
         reset_nodes()
         reset_elem_ids()
-        deck_nodes_str, deck_nodes = opensees_deck_nodes(
-            c=c, include_support_nodes=include_support_nodes)
-        all_support_nodes = get_support_nodes(c)
-        assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
         # Attach deck nodes and support nodes to the FEMParams to be available
         # when converting raw responses to responses with positions attached.
         # Note, that there are some overlap between deck nodes and support
         # nodes, and some over lap between nodes of both walls of one support
         # (at the bottom where they meet).
+        deck_nodes_str, deck_nodes = opensees_deck_nodes(
+            c=c, include_support_nodes=include_support_nodes)
+        all_support_nodes = []
+        if include_support_nodes:
+            all_support_nodes = get_all_support_nodes(c)
+            print(len(all_support_nodes))
+            assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
         fem_params.deck_nodes = deck_nodes
-        fem_params.support_nodes = all_support_nodes
+        fem_params.all_support_nodes = all_support_nodes
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -804,19 +804,20 @@ def build_model_3d(
             .replace("<<INTRO>>", opensees_intro)
             .replace("<<DECK_NODES>>", deck_nodes_str)
             .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
-                c=c, deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
+                c=c, deck_nodes=deck_nodes,
+                all_support_nodes=all_support_nodes))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, loads=fem_params.loads, deck_nodes=deck_nodes))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
-                c=c, support_nodes=all_support_nodes))
+                c=c, all_support_nodes=all_support_nodes))
             .replace("<<SUPPORTS>>", "")
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
             .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(
                 c=c, fem_params=fem_params, os_runner=os_runner,
-                deck_nodes=deck_nodes))
+                deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
             .replace("<<DECK_ELEMENTS>>", opensees_deck_elements(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<SUPPORT_ELEMENTS>>", opensees_support_elements(

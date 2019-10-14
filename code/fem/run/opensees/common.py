@@ -1,12 +1,16 @@
 """Common functions used by OpenSees FEMRunner components."""
 import itertools
-from typing import List, Optional, Tuple
+from typing import List, NewType, Optional, Tuple
+
+import numpy as np
 
 from config import Config
 from model.bridge import Support3D
-from util import round_m
+from util import print_d, round_m
 
-import numpy as np
+
+# Print debug information for this file.
+D: bool = True
 
 
 def num_deck_nodes(c: Config) -> Tuple[int, int]:
@@ -55,8 +59,32 @@ class Node:
         return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
                 + f" {round_m(self.z)}{comment}")
 
+# The nodes that make up a bridge deck. Represented as a matrix of Node ordered
+# by z then x position. Only used in 3D modeling.
+DeckNodes = NewType("DeckNodes", List[List[Node]])
 
-def traverse_3d_nodes(deck_nodes: List[List[Node]]):
-    """Traverse built nodes in a deterministic order."""
-    return list(itertools.chain.from_iterable(deck_nodes))
+# The nodes that make up one of a support's walls. Represented as a matrix of
+# Node ordered by z then y position. Only used in 3D modeling.
+WallNodes = NewType("WallNodes", List[List[Node]])
 
+# Support nodes are a 2-tuple of wall nodes (two walls per support). Only used
+# in 3D modeling.
+SupportNodes = NewType("SupportNodes", Tuple[WallNodes, WallNodes])
+
+# The support nodes for all a bridge's supports. Only used in 3D modeling.
+AllSupportNodes = NewType("AllSupportNodes", List[SupportNodes])
+
+
+def bridge_3d_nodes(
+        deck_nodes: List[List[Node]], all_support_nodes: AllSupportNodes):
+    """All a 3D bridge's nodes in a deterministic order."""
+    all_nodes = list(itertools.chain.from_iterable(deck_nodes))
+    for support_nodes in all_support_nodes:
+        for wall_nodes in support_nodes:
+            for y_nodes in wall_nodes:
+                for node in y_nodes:
+                    all_nodes.append(node)
+    assert isinstance(all_nodes[0], Node)
+    assert isinstance(all_nodes[-1], Node)
+    print_d(D, f"Total 3D bridge nodes: {len(all_nodes)}")
+    return all_nodes

@@ -12,7 +12,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
 from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section, plt
-from plot.bridge import plot_cloud_of_points
+from plot.bridge import plot_cloud_of_nodes
 from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
@@ -21,8 +21,12 @@ from plot.verification import plot_convergence_with_shell_size
 from model.bridge import Point
 from model.load import Load, MovingLoad
 from model.response import ResponseType
-from util import pstr
+from util import print_d, pstr
 from vehicles.sample import sample_vehicle
+
+# Print debug information for this file.
+D: str = "make.make_plots"
+# D: bool = False
 
 
 def make_bridge_plots(
@@ -220,7 +224,9 @@ def make_contour_plots(
     load = Load(load_x, load_kn)
     load.z_frac = 25 / 33.2
     for response_type in response_types:
-        fem_params = FEMParams(loads=[load], response_types=[response_type])
+        print_d(D, f"response_types = {response_types}")
+        fem_params = FEMParams(loads=[load], response_types=response_types)
+        print_d(D, f"loading response type = {response_type}")
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
@@ -246,12 +252,14 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    # make_contour_plots(c=c, response_types=[ResponseType.YTranslation], y=0)
-    cloud_of_points_dir = os.path.join(c.images_dir, "cloud-of-points")
-    if not os.path.exists(cloud_of_points_dir):
-        os.makedirs(cloud_of_points_dir)
-    plot_cloud_of_points(
-        c=c, save=os.path.join(cloud_of_points_dir, "cloud-full-axis"))
-    plot_cloud_of_points(
+    make_contour_plots(
+        c=c, y=0, response_types=[ResponseType.YTranslation,
+            ResponseType.ZTranslation, ResponseType.XTranslation])
+    cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
+    if not os.path.exists(cloud_of_nodes_dir):
+        os.makedirs(cloud_of_nodes_dir)
+    plot_cloud_of_nodes(
+        c=c, save=os.path.join(cloud_of_nodes_dir, "cloud-full-axis"))
+    plot_cloud_of_nodes(
         c=c, equal_axis=True,
-        save=os.path.join(cloud_of_points_dir, "cloud-equal-axis"))
+        save=os.path.join(cloud_of_nodes_dir, "cloud-equal-axis"))

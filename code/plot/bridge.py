@@ -6,7 +6,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 from config import Config
-from fem.run.opensees.build.d3 import get_deck_nodes, get_support_nodes
+from fem.run.opensees.build.d3 import get_deck_nodes, get_all_support_nodes
 from plot import plt
 from util import print_d
 
@@ -19,8 +19,8 @@ def plot_cloud_of_nodes(
         show: bool = False):
     """Plot a cloud of points from the nodes of a 3D FEM."""
     # Get deck and support nodes and flatten into a single array.
-    deck_nodes = np.array(get_deck_nodes(c=c, support_nodes=False))
-    support_nodes = np.array(get_support_nodes(c))
+    deck_nodes = np.array(get_deck_nodes(c=c, include_support_nodes=False))
+    support_nodes = np.array(get_all_support_nodes(c))
     nodes = np.concatenate([deck_nodes.flatten(), support_nodes.flatten()])
     # Split into separate arrays of x, y and z position.
     xs, ys, zs = (

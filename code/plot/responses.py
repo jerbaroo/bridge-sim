@@ -26,16 +26,19 @@ def plot_contour_deck(
     amax_x, amax_z = None, None
     X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
     for x in fem_responses.xs:
-        X.append([])
-        Z.append([])
-        H.append([])
-        for z in fem_responses.zs[x][y]:
-            X[-1].append(x)
-            Z[-1].append(z)
-            H[-1].append(fem_responses.responses[0][x][y][z].value)
-            if H[-1][-1] < amax:
-                amax = H[-1][-1]
-                amax_x, amax_z = X[-1][-1], Z[-1][-1]
+        # There is a chance that no sensors exist at given y position for every
+        # x position, thus we must check.
+        if y in fem_responses.zs[x]:
+            X.append([])
+            Z.append([])
+            H.append([])
+            for z in fem_responses.zs[x][y]:
+                X[-1].append(x)
+                Z[-1].append(z)
+                H[-1].append(fem_responses.responses[0][x][y][z].value)
+                if H[-1][-1] < amax:
+                    amax = H[-1][-1]
+                    amax_x, amax_z = X[-1][-1], Z[-1][-1]
     # Plot contour and colorbar.
     cs = plt.contourf(X, Z, H, levels=50)
     plt.colorbar(cs)

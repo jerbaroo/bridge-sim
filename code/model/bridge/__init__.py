@@ -302,9 +302,6 @@ class Section2D:
         return self._min_max(lambda p: p.z)
 
 
-all_section_ids = set()
-
-
 class Section3D:
     """A section for describing the deck when 3D modeling.
 
@@ -323,9 +320,6 @@ class Section3D:
             self, density: float, thickness: float, youngs: float,
             poissons: float, start_x_frac: float = 0, start_z_frac: float = 0):
         self.id = Section3D.next_id
-        if self.id in all_section_ids:
-            raise ValueError("ERRR")
-        all_section_ids.add(self.id)
         Section3D.next_id += 1
         self.density = density
         self.thickness = thickness

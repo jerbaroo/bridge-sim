@@ -24,7 +24,7 @@ def print_d(debug: Union[bool, str], s: str):
         path_str = ""
         if isinstance(debug, str):
             path_str = debug
-        print(colored(f"DEBUG: {debug}: {s}", "yellow"))
+        print(colored(f"DEBUG: {path_str}: {s}", "yellow"))
 
 
 def print_i(s: str):

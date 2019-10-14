@@ -15,7 +15,8 @@ from model.response import ResponseType
 from util import nearest_index, print_d, print_i, pstr
 
 # Print debug information for this file.
-D: bool = False
+D: str = "fem.responses"
+# D: bool = False
 
 
 def fem_responses_path(
@@ -37,8 +38,11 @@ def load_fem_responses(
         fem_runner: "FEMRunner") -> FEMResponses:
     """Load responses of one type from a FEM simulation.
 
-    The FEMParams determine which responses are generated and saved, while the
-    ResponseType determines which responses to load from disk and return.
+    Args:
+        c: Config, global configuration object.
+        fem_params: FEMParams, simulation parameters, note that these decide
+            which responses are generated and saved to disk.
+        response_type: ResponseType, responses to load from disk and return.
 
     """
     if response_type not in fem_params.response_types:
@@ -59,12 +63,14 @@ def load_fem_responses(
     path = fem_responses_path(
         c=c, fem_params=fem_params, response_type=response_type,
         runner_name=fem_runner.name)
-    print(path)
 
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
         print_d(D, f"Running fem_runner.run")
         fem_runner.run(ExptParams([fem_params]))
+        print(f"***********")
+        print_d(D, f"Ran fem_runner.run")
+        print(f"expect FEMResponses at {path}")
     else:
         print_d(D, f"Not running fem_runner.run")
 

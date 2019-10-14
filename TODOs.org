@@ -27,6 +27,7 @@
 ** TODO [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
 ** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
 ** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
+** TODO [#C] Use num_deck_nodes instead of manual calculation
 * Meetings
 -  Item marked as DONE when it is covered in a meeting.
 -  Can create additional item in week's work or general TODOs.
@@ -82,7 +83,8 @@
     CLOSED: [2019-10-07 Mon 12:42]
 * Weeks work
 ** 7th October
-*** TODO [#A] Collect translation responses from support nodes
+*** DONE [#A] Collect translation responses from support nodes
+CLOSED: [2019-10-14 Mon 13:12]
 *** TODO [#A] Collect stress, strain responses from all elements
 *** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
 *** TODO [#A] Send updated document with sections/subsections to Valeria
@@ -97,6 +99,12 @@
 *** TODO [#C] Additional load case for verification: pier settlement
 *** TODO [#C] Additional node position explicitly for loading position
 *** TODO [#C] Timing plot of OpenSees
+*** DONE [#A] Find out why simulation is not saving all
+CLOSED: [2019-10-14 Mon 13:11]
+It was because z-translation responses were not being converted.
+*** DONE [#A] Find out why simulation is not saving z-translation
+CLOSED: [2019-10-14 Mon 13:11]
+It was because z-translation responses were not being converted.
 *** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
 CLOSED: [2019-10-07 Mon 17:33]
 *** DONE [#A] Ask Arpi about comments in TCL file
