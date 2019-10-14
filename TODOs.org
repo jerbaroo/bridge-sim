@@ -36,7 +36,7 @@
 *** DONE I'll go over some things quick, looking for short responses, then open floor
     CLOSED: [2019-10-07 Mon 11:45]
 *** DONE Quickly show contour plot, has updated sections, check pier values (later TODO)
-    CLOSED: [2019-10-07 Mon 11:45]
+CLOSED: [2019-10-07 Mon 11:45]
 *** DONE Deck and pier sections are given as lists, can use function to create the list
     CLOSED: [2019-10-07 Mon 11:45]
 *** DONE Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
@@ -46,7 +46,7 @@
 *** DONE Will update thesis document with sections/subsections/plots/assumptions
     CLOSED: [2019-10-07 Mon 11:52]
 *** DONE Second milestone finished this week (KISS), but 3D model won't have high node density
-    CLOSED: [2019-10-07 Mon 11:52]
+CLOSED: [2019-10-07 Mon 11:52]
 *** DONE Show cloud of nodes plot
     CLOSED: [2019-10-07 Mon 11:52]
 *** DONE Biggest modeling assumptions are vehicles move on tracks and at constant speed
@@ -84,6 +84,8 @@
 ** 16th October
 *** TODO Each element consists of only one section, that is fine?
 *** TODO The mesh needs additional work, but I would delay that until later?
+*** TODO Deck element order in generated TCL file is not deterministic.
+This could be an issue when loading previously generated results.
 * Weeks work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

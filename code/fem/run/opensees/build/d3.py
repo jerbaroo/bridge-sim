@@ -8,7 +8,7 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees.common import AllSupportNodes, DeckNodes, Node, num_deck_nodes, bridge_3d_nodes
+from fem.run.opensees.common import AllPierElements, AllSupportNodes, DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements, bridge_3d_nodes, num_deck_nodes
 from model.bridge import Section3D, Support3D
 from model.load import Load
 from model.response import ResponseType
@@ -573,8 +573,9 @@ def section_for_pier_element(
 ##### Begin shell elements #####
 
 
-def opensees_deck_elements(c: Config, deck_nodes: DeckNodes) -> str:
-    """OpenSees element commands for the bridge deck."""
+def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
+    """Shell elements that make up a bridge deck."""
+
     first_node_z_0 = deck_nodes[0][0].n_id
     first_node_z_1 = deck_nodes[-1][0].n_id
     last_node_z_0 = deck_nodes[0][-1].n_id
@@ -590,6 +591,7 @@ def opensees_deck_elements(c: Config, deck_nodes: DeckNodes) -> str:
 
     # From first until second last node along z (when x == 0).
     for z_node in range(first_node_z_0, first_node_z_1, z_skip):
+        deck_elements.append([])
         # print_d(D, f"deck element z_node = {z_node}")
         # Count from first node at 0 until second last node along x.
         for x_node in range(last_node_z_0 - first_node_z_0):
@@ -603,19 +605,26 @@ def opensees_deck_elements(c: Config, deck_nodes: DeckNodes) -> str:
             section = section_for_deck_element(
                 c=c, element_x=nodes_by_id[i_node].x,
                 element_z=nodes_by_id[i_node].z)
-            repr_section = repr(section).replace("\n", " ")
-            deck_elements.append(
-                f"element ShellMITC4 {next_elem_id()} {i_node} {j_node}"
-                + f" {k_node} {l_node} {section.id}; # {repr_section}")
+            deck_elements[-1].append(ShellElement(
+                e_id=next_elem_id(), ni_id=i_node, nj_id=j_node, nk_id=k_node,
+                nl_id=l_node, section=section))
         ff_elem_ids(z_skip)
+    return deck_elements
+
+
+def opensees_deck_elements(c: Config, deck_elements: DeckElements) -> str:
+    """OpenSees element commands for a bridge deck."""
+    deck_elements = itertools.chain.from_iterable(deck_elements)
     return comment(
-        "deck elements", "\n".join(deck_elements),
+        "deck shell elements",
+        "\n".join(map(lambda e: e.command_3d(), deck_elements)),
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
-def opensees_support_elements(c: Config, all_support_nodes: AllSupportNodes):
-    """OpenSees element commands for the bridge's supports."""
-    support_elements = []  # The result.
+def get_pier_elements(
+        c: Config, all_support_nodes: AllSupportNodes) -> AllPierElements:
+    """Shell elements that make up a bridge's piers."""
+    pier_elements = []  # The result.
     for s, support_nodes in enumerate(all_support_nodes):
         for w, wall_nodes in enumerate(support_nodes):
             z = 0  # Keep an index of current transverse (z) line.
@@ -641,16 +650,21 @@ def opensees_support_elements(c: Config, all_support_nodes: AllSupportNodes):
                     section = section_for_pier_element(
                         c=c, pier=c.bridge.supports[s],
                         element_start_frac_len=element_start_frac_len)
-                    support_elements.append(
-                        f"element ShellMITC4 {next_elem_id()} {y_lo_z_lo.n_id}"
-                        + f" {y_hi_z_lo.n_id} {y_hi_z_hi.n_id}"
-                        + f" {y_lo_z_hi.n_id} {section.id}"
-                        + f"; # support {s+1}, wall {w+1}, z {z+1}, y {y+1}"
-                        + " below deck")
+                    pier_elements.append(ShellElement(
+                        e_id=next_elem_id(), ni_id=y_lo_z_lo.n_id,
+                        nj_id=y_hi_z_lo.n_id, nk_id=y_hi_z_hi.n_id,
+                        nl_id=y_lo_z_hi.n_id, section=section,
+                        support_position_index=(s, w, z, y)))
                 ff_elem_ids(ff_mod)
                 z += 1
+    return pier_elements
+
+
+def opensees_pier_elements(c: Config, all_pier_elements: AllPierElements) -> str:
+    """OpenSees element commands for a bridge's piers."""
     return comment(
-        "support elements", "\n".join(support_elements),
+        "pier shell elements",
+        "\n".join(map(lambda e: e.command_3d(), all_pier_elements)),
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag")
 
 
@@ -712,9 +726,10 @@ def opensees_loads(c: Config, loads: List[Load], deck_nodes: DeckNodes):
 
 
 def opensees_translation_recorders(
-        c: Config, fem_params: FEMParams, os_runner: "OSRunner",
-        deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes):
+        c: Config, fem_params: FEMParams, os_runner: "OSRunner") -> str:
     """OpenSees recorder commands for translation."""
+    deck_nodes = fem_params.deck_nodes
+    all_support_nodes = fem_params.all_support_nodes
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
@@ -745,13 +760,26 @@ def opensees_translation_recorders(
         units="recorder Node -file path -node nodeTags -dof direction disp")
 
 
+def opensees_stress_recorder(
+        c: Config, fem_params: FEMParams, os_runner: "OSRunner") -> str:
+    """OpenSees recorder command for stresses."""
+    all_elements = bridge_3d_elements(
+        deck_elements=fem_params.deck_elements,
+        all_pier_elements=fem_params.all_pier_elements)
+    ele_str = " ".join(str(e.e_id) for e in all_elements)
+    recorder_str = (
+        f"recorder Element -file test.out -ele {ele_str} stresses")
+    return comment("element recorders", recorder_str, units="TODO units")
+
+
 def opensees_recorders(
-        c: Config, fem_params: FEMParams, os_runner: "OSRunner",
-        deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes):
-    """OpenSees recorder commands for translation, stress and strain."""
-    return opensees_translation_recorders(
-        c=c, fem_params=fem_params, os_runner=os_runner, deck_nodes=deck_nodes,
-        all_support_nodes=all_support_nodes)
+        c: Config, fem_params: FEMParams, os_runner: "OSRunner"):
+    """OpenSees recorder commands for translation and stresses."""
+    return "\n".join([
+        opensees_translation_recorders(
+            c=c, fem_params=fem_params, os_runner=os_runner),
+        opensees_stress_recorder(
+            c=c, fem_params=fem_params, os_runner=os_runner)])
 
 
 ##### End recorders #####
@@ -783,11 +811,11 @@ def build_model_3d(
         # Reset IDs before building.
         reset_nodes()
         reset_elem_ids()
-        # Attach deck nodes and support nodes to the FEMParams to be available
-        # when converting raw responses to responses with positions attached.
-        # Note, that there are some overlap between deck nodes and support
-        # nodes, and some over lap between nodes of both walls of one support
-        # (at the bottom where they meet).
+        # Attach deck nodes and pier nodes to the FEMParams to be available when
+        # converting raw responses to responses with positions attached. Note,
+        # that there are some overlap between deck nodes and pier nodes, and
+        # some over lap between nodes of both walls of one pier (at the bottom
+        # where they meet).
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
             c=c, include_support_nodes=include_support_nodes)
         all_support_nodes = []
@@ -797,6 +825,13 @@ def build_model_3d(
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
         fem_params.deck_nodes = deck_nodes
         fem_params.all_support_nodes = all_support_nodes
+        # Attach deck elements and pier elements to the FEMParams to be
+        # available when converting raw responses to responses with positions
+        # attached.
+        fem_params.deck_elements = get_deck_elements(
+            c=c, deck_nodes=fem_params.deck_nodes)
+        fem_params.all_pier_elements = get_pier_elements(
+            c=c, all_support_nodes=all_support_nodes)
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -816,12 +851,11 @@ def build_model_3d(
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
             .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
             .replace("<<RECORDERS>>", opensees_recorders(
-                c=c, fem_params=fem_params, os_runner=os_runner,
-                deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
+                c=c, fem_params=fem_params, os_runner=os_runner))
             .replace("<<DECK_ELEMENTS>>", opensees_deck_elements(
-                c=c, deck_nodes=deck_nodes))
-            .replace("<<SUPPORT_ELEMENTS>>", opensees_support_elements(
-                c=c, all_support_nodes=all_support_nodes)))
+                c=c, deck_elements=fem_params.deck_elements))
+            .replace("<<PIER_ELEMENTS>>", opensees_pier_elements(
+                c=c, all_pier_elements=fem_params.all_pier_elements)))
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         print(model_path)

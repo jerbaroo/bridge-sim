@@ -18,7 +18,7 @@ model basic -ndm 3 -ndf 6
 
 <<DECK_ELEMENTS>>
 
-<<SUPPORT_ELEMENTS>>
+<<PIER_ELEMENTS>>
 
 <<SUPPORTS>>
 
