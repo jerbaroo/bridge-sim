@@ -215,8 +215,7 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-at-{x_frac:.2f}"))))
 
 
-def make_contour_plots(
-        c: Config, response_types: List[ResponseType], y: float):
+def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
     load_x = 35 / 102.75
@@ -238,7 +237,8 @@ def make_contour_plots(
 
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
-    make_contour_plots(c, response_types=list(ResponseType), y=-0.5)
+    make_contour_plots(
+        c, y=-0.5, response_types=[rt for rt in ResponseType if rt.d2()])
     make_bridge_plots(c)
     make_il_plots(c)
     # make_dc_plots(c)

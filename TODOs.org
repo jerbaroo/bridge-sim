@@ -13,8 +13,8 @@
 ** TODO [#A] Make contour plots for other response types
 ** TODO [#A] Write about Python model
 ** TODO [#A] Write down and ensure fem_responses_path etc. are correct
-** TODO [#A] Refine mesh in Axis to verify convergence
-** TODO [#A] Maybe refine mesh in Diana to check convergence
+** TODO [#A] Refine mesh in Axis to check response has converged
+** TODO [#A] Refine mesh in Diana to check response has converged
 ** TODO [#B] Rename support to pier
 ** TODO [#B] Interpolate only for nodes where y=0
 ** TODO [#C] Rename Bridge.sections to deck_sections
@@ -81,6 +81,9 @@
     CLOSED: [2019-10-07 Mon 12:42]
 *** DONE Comments in 3D .tcl file
     CLOSED: [2019-10-07 Mon 12:42]
+** 16th October
+*** TODO Each element consists of only one section, that is fine?
+*** TODO The mesh needs additional work, but I would delay that until later?
 * Weeks work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -97,7 +100,7 @@ CLOSED: [2019-10-14 Mon 13:12]
 *** TODO [#B] Ask Arthur if he has a contact for Rijkswaterstraat on amount of npnp concrete slab bridges
 *** TODO [#B] Base mesh and refinement around positions, will speed up massively
 *** TODO [#C] Additional load case for verification: pier settlement
-*** TODO [#C] Additional node position explicitly for loading position
+*** TODO [#C] Mesh: explicit node position for load
 *** TODO [#C] Timing plot of OpenSees
 *** DONE [#A] Find out why simulation is not saving all
 CLOSED: [2019-10-14 Mon 13:11]

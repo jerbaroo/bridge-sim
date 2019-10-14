@@ -18,6 +18,10 @@ class ResponseType(Enum):
     Stress = "stress"
     Strain = "strain"
 
+    def d2(self) -> bool:
+        """Is this response type supported by 2D models?"""
+        return self != ResponseType.ZTranslation
+
     def name(self) -> str:
         """Human readable name for a response type."""
         return {
