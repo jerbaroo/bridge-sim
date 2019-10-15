@@ -17,6 +17,7 @@
 ** TODO [#A] Refine mesh in Diana to check response has converged
 ** TODO [#B] Rename support to pier
 ** TODO [#B] Interpolate only for nodes where y=0
+** TODO [#B] Use click library for python command line interface
 ** TODO [#C] Rename Bridge.sections to deck_sections
 ** TODO [#C] Split build/d3.py into submodules, it's a ~900 line file
 ** TODO [#C] Consider how third party OpenSees model could be integrated
@@ -84,8 +85,11 @@ CLOSED: [2019-10-07 Mon 11:52]
 ** 16th October
 *** TODO Each element consists of only one section, that is fine?
 *** TODO The mesh needs additional work, but I would delay that until later?
-*** TODO Deck element order in generated TCL file is not deterministic.
-This could be an issue when loading previously generated results.
+*** TODO Section order in generated TCL file is not deterministic.
+I don't think this this is an issue because each line was the same as before,
+the lines were simply in different places.
+*** TODO Large refactor of vehicles and loads.
+*** TODO Load an ILMatrix per position in transverse direction e.g. per wheel track.
 * Weeks work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

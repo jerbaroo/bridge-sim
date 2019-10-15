@@ -4,6 +4,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from classify.data.scenarios import normal_traffic
 from config import Config
 from fem.params import FEMParams
 from fem.responses import load_fem_responses
@@ -18,7 +19,7 @@ from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles,\
     plot_length_vs_weight, plot_weight_vs_axles
-from model.bridge import Point
+from model.bridge import Dimensions, Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from util import print_d, pstr
@@ -59,9 +60,12 @@ def make_il_plots(
     """Make plots of the influence lines.
 
     Args:
+        c: Config, global configuration object.
         num_subplot_ils: int, the number of influence lines on the subplots.
         num_imshow_ils: int, the number of influence lines on the imshow plot.
         num_ploads: int, the number of loading positions on x-axis to plot.
+        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
+            defaults to OpenSees.
 
     """
     plt.close()
@@ -69,46 +73,66 @@ def make_il_plots(
     c.il_num_loads = num_ploads
     if fem_runner is None:
         fem_runner = OSRunner(c)
-    # TODO: Z position for each vehicle track (4).
-    pload_z_fracs = [c.bridge.lanes[0].z_min]
-    for response_type in fem_runner.supported_response_types(c.bridge):
-        for interp_sim in [False]:
-            for interp_response in [False]:
-                interp_sim_str = "-interp-sim" if interp_sim else ""
-                interp_response_str = (
-                    "-interp-response" if interp_response else "")
 
-                # Make the influence line imshow matrix.
-                il_matrix = ILMatrix.load(
-                    c=c, response_type=response_type, fem_runner=fem_runner,
-                    load_z_frac=pload_z_fracs[0])
-                imshow_il(
-                    c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
-                    num_x=num_ploads, interp_sim=interp_sim,
-                    interp_response=interp_response, save=c.image_path(
-                        f"ils/il-imshow-{il_matrix.fem_runner.name}"
-                        + f"-{response_type.name()}"
-                        + f"-{c.il_num_loads}-{num_ploads}" + interp_sim_str
-                        + interp_response_str))
+    pload_z_fracs = []
+    # If a 3D FEM of a bridge then generate IL plots for each wheel track.
+    if c.bridge.dimensions == Dimensions.D3:
+        # A moving vehicle for each bridge lane.
+        mv_vehicles = [
+            next(normal_traffic(c).mv_vehicles(lane=lane))
+            for lane in range(len(c.bridge.lanes))]
+        # From the moving vehicles we can calculate wheel tracks on the bridge.
+        for mv_vehicle in mv_vehicles:
+            for wheel_z_frac in mv_vehicle.wheel_tracks(
+                    bridge=c.bridge, meters=False):
+                pload_z_fracs.append(wheel_z_frac)
+    print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
 
-                # Make the matrix of influence lines.
+    for pload_z_frac in pload_z_fracs:
+        for response_type in fem_runner.supported_response_types(c.bridge):
+            # TODO: Remove once Stress and Strain are fixed.
+            if c.bridge.dimensions == Dimensions.D3 and response_type in [
+                    ResponseType.Stress, ResponseType.Strain]:
+                continue
+            for interp_sim in [False]:
+                for interp_response in [False]:
+                    interp_sim_str = "-interp-sim" if interp_sim else ""
+                    interp_response_str = (
+                        "-interp-response" if interp_response else "")
 
-                # A plotting function with interpolation arguments filled in.
-                def plot_func(
-                        c=None, resp_matrix=None, expt_index=None,
-                        response_frac=None, num_x=None):
-                    return plot_il(
-                        c=c, resp_matrix=resp_matrix, expt_index=expt_index,
-                        response_frac=response_frac, num_x=num_x,
-                        interp_sim=interp_sim, interp_response=interp_response)
+                    # Make the influence line imshow matrix.
+                    il_matrix = ILMatrix.load(
+                        c=c, response_type=response_type, fem_runner=fem_runner,
+                        load_z_frac=pload_z_frac)
+                    imshow_il(
+                        c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
+                        num_x=num_ploads, interp_sim=interp_sim,
+                        title_append=f" z = {c.bridge.z(pload_z_frac)}",
+                        interp_response=interp_response, save=c.image_path(pstr(
+                            f"ils/il-imshow-{il_matrix.fem_runner.name}"
+                            + f"-loadzfrac={pload_z_frac}"
+                            + f"-{response_type.name()}"
+                            + f"-{c.il_num_loads}-{num_ploads}"
+                            + interp_sim_str + interp_response_str)))
 
-                matrix_subplots(
-                    c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                    num_x=num_ploads, plot_func=plot_func, save=c.image_path(
-                        f"ils/il-subplots-{il_matrix.fem_runner.name}"
-                        + f"-{response_type.name()}"
-                        + f"-numexpts-{il_matrix.num_expts}"
-                        + interp_sim_str + interp_response_str))
+                    # Make the matrix of influence lines.
+
+                    # A plotting function with interpolation arguments filled in.
+                    def plot_func(
+                            c=None, resp_matrix=None, expt_index=None,
+                            response_frac=None, num_x=None):
+                        return plot_il(
+                            c=c, resp_matrix=resp_matrix, expt_index=expt_index,
+                            response_frac=response_frac, num_x=num_x,
+                            interp_sim=interp_sim, interp_response=interp_response)
+
+                    matrix_subplots(
+                        c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
+                        num_x=num_ploads, plot_func=plot_func, save=c.image_path(
+                            f"ils/il-subplots-{il_matrix.fem_runner.name}"
+                            + f"-{response_type.name()}"
+                            + f"-numexpts-{il_matrix.num_expts}"
+                            + interp_sim_str + interp_response_str))
     c.il_num_loads = original_num_ils
 
 
@@ -220,26 +244,36 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-numloads-{num_loads}"
                                 + f"-at-{x_frac:.2f}"))))
 
+def make_contour_plot(
+        c: Config, y: float, fem_runner: FEMRunner,
+        response_types: List[ResponseType], response_type: ResponseType,
+        load_x: float, load_z: float, load_kn: float=100):
+    load_x_frac = c.bridge.x_frac(load_x)
+    load_z_frac = c.bridge.z_frac(load_z)
+    pload = PointLoad(x_frac=load_x_frac, z_frac=load_z_frac, kn=load_kn)
+    print_d(D, f"response_types = {response_types}")
+    fem_params = FEMParams(ploads=[pload], response_types=response_types)
+    print_d(D, f"loading response type = {response_type}")
+    fem_responses = load_fem_responses(
+        c=c, fem_params=fem_params, response_type=response_type,
+        fem_runner=fem_runner)
+    plot_contour_deck(
+        c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
+        c.image_path(pstr(
+            f"contour-{response_type.name()}-ploadxfrac={load_x}-"
+            + f"-ploadzfrac={load_z}-ploadkn={load_kn}"))))
+
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
-    load_x, load_z = 35, 25
-    load_x_frac, load_z_frac = load_x / c.bridge.length, load_z / c.bridge.width
-    load_kn = 100
-    pload = PointLoad(x_frac=load_x_frac, z_frac=load_z_frac, kn=load_kn)
     for response_type in response_types:
-        print_d(D, f"response_types = {response_types}")
-        fem_params = FEMParams(ploads=[pload], response_types=response_types)
-        print_d(D, f"loading response type = {response_type}")
-        fem_responses = load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner)
-        plot_contour_deck(
-            c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
-            c.image_path(pstr(
-                f"contour-{response_type.name()}-ploadxfrac={load_x}-"
-                + f"-ploadzfrac={load_z}-ploadkn={load_kn}"))))
+        for load_x in [35, c.bridge.length / 2, 100]:
+            for load_z in [-5, 0, 8.4]:
+                make_contour_plot(
+                    c=c, y=y, fem_runner=fem_runner,
+                    response_types=response_types, response_type=response_type,
+                    load_x=load_x, load_z=load_z)
 
 
 def make_all_2d(c: Config):
@@ -259,6 +293,11 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
+    make_contour_plots(
+        c=c, y=0, response_types=[ResponseType.YTranslation,
+            ResponseType.ZTranslation, ResponseType.XTranslation])
+    import sys; sys.exit();
+    make_il_plots(c)
     make_contour_plots(
         c=c, y=0, response_types=[ResponseType.YTranslation,
             ResponseType.ZTranslation, ResponseType.XTranslation])

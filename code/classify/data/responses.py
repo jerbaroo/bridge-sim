@@ -11,6 +11,11 @@ from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import ResponseType
 from model.scenario import BridgeScenario
+from util import print_d
+
+# Comment/uncomment to print debug statements for this file.
+D: str = "classify.data.responses"
+# D: bool = False
 
 
 def response_to_mv_vehicle(
@@ -23,7 +28,8 @@ def response_to_mv_vehicle(
         c: Config, global configuration object.
         mv_vehicle: MvVehicle, the moving vehicle to calculate a response to.
         bridge_scenario: BridgeScenario, the damage scenario of the bridge.
-        time: float, determines the position of the moving vehicle, in seconds.
+        time: float, in combination with vehicle speed this determines the
+            position of the moving vehicle, in seconds.
         at: Point, the point at which to calculate a response to the vehicle.
         response_type, ResponseType, the sensor type of response to calculate.
         fem_runner: FEMRunner, the FEM program to run simulations with.
@@ -34,20 +40,34 @@ def response_to_mv_vehicle(
     assert on_bridge(bridge=c.bridge, mv_vehicle=mv_vehicle, time=time)
 
     mv_vehicle_x_frac = mv_vehicle.x_frac_at(time=time, bridge=c.bridge)
-    # TODO: Determine axle distances and z_frac.
-    il_matrix = ILMatrix.load(
-        c=c, response_type=response_type, fem_runner=fem_runner,
-        load_z_frac=0.1)
+    mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(bridge=c.bridge, meters=False)
+
+    lane_center = c.bridge.lanes[mv_vehicle.lane].z_center()
+    print_d(D, f"lane center = {lane_center}")
+    print_d(D, f"lane center as frac = {c.bridge.z_frac(lane_center)}")
+    print_d(D, f"z_fracs = {mv_vehicle_z_fracs}")
+
+    # An ILMatrix for each wheel track.
+    il_matrices = [
+        ILMatrix.load(
+            c=c, response_type=response_type, fem_runner=fem_runner,
+            load_z_frac=mv_vehicle_z_frac)
+        for mv_vehicle_z_frac in mv_vehicle_z_fracs]
 
     axle_responses = []
     for axle_index in range(mv_vehicle.num_axles):
-        # Update load position for each axle.
+        # Update x position of the response for each axle.
         if axle_index != 0:
             axle_distance = mv_vehicle.axle_distances[axle_index - 1] / 100
             mv_vehicle_x_frac += c.bridge.x_frac(axle_distance)
-        axle_responses.append(il_matrix.response_to(
-            x_frac=c.bridge.x_frac(x=at.x), load_x_frac=mv_vehicle_x_frac,
-            load=mv_vehicle.kn))
+        # Get a response for each wheel on this axle.
+        responses_for_one_axle = []
+        for z_index, mv_vehicle_z_frac in enumerate(mv_vehicle_z_fracs):
+            il_matrix = il_matrices[z_index]
+            responses_for_one_axle.append(il_matrix.response_to(
+                x_frac=c.bridge.x_frac(x=at.x), load_x_frac=mv_vehicle_x_frac,
+                load=mv_vehicle.kn))
+        axle_responses.append(sum(responses_for_one_axle))
 
     return axle_responses if per_axle else sum(axle_responses)
 

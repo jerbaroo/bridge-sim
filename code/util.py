@@ -17,7 +17,8 @@ def round_m(x):
     """Round meters to supported accuracy."""
     return np.round(x, decimals=6)
 
-
+# TODO: Debug argument only needs to be of type bool.
+# https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
 def print_d(debug: Union[bool, str], s: str):
     """Print some debug text."""
     if debug:

@@ -1,11 +1,12 @@
 """Vehicles and loads."""
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from config import Config
 from model.bridge import Bridge
 from util import print_d
 
-# Print debug information for this file.
+# Comment/uncomment to print debug statements for this file.
+# D: str = "model.load"
 D: bool = False
 
 
@@ -97,6 +98,24 @@ class MvVehicle(Vehicle):
         self.kmph = kmph
         self.lane = lane
         self.init_x_frac = init_x_frac
+
+    def wheel_tracks(
+            self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
+        """Positions of the vehicle's wheels in transverse direction.
+
+        Args:
+            bridge: Bridge, the bridge on which the vehicle is moving.
+            meters: bool, whether to return positions in meters (True) or
+                fractions (False) of the bridge width in [0 1].
+
+        """
+        lane = bridge.lanes[self.lane]
+        tracks = [
+            lane.z_center() - (self.axle_width / 2),
+            lane.z_center() + (self.axle_width + 2)]
+        if meters:
+            return tracks
+        return list(map(lambda z: bridge.z_frac(z), tracks))
 
     def x_frac_at(self, time: float, bridge: Bridge):
         """Fraction of x position of bridge in meters at given time.

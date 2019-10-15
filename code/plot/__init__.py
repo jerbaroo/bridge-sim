@@ -17,7 +17,7 @@ from scipy import stats
 from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
-from model.bridge import Bridge, Point, Section
+from model.bridge import Bridge, Dimensions, Point, Section
 from model.load import MvVehicle, PointLoad, Vehicle
 from model.response import Event, ResponseType
 from util import print_d, print_w, kde_sampler
@@ -103,11 +103,15 @@ def plot_bridge_deck_side(
             to the height of the y-axis.
 
     """
+    # A horizontal line that is the top of the bridge deck.
     plt.hlines(0, 0, bridge.length, color=bridge_color)
+    pier_x_positions = [
+        (bridge.x(pier.x_frac)
+         if bridge.dimensions == Dimensions.D2
+         else pier.x)
+        for pier in bridge.supports]
     plt.plot(
-        [f.x_frac * bridge.length for f in bridge.supports],
-        [0 for _ in range(len(bridge.supports))],
-        "o", color=pier_color)
+        pier_x_positions, [0 for _ in bridge.supports], "o", color=pier_color)
     if equal_axis: plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")

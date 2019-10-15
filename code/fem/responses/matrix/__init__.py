@@ -107,9 +107,6 @@ class ResponsesMatrix:
                 time to run and you anticipate needing other sensor types.
 
         """
-        if c.bridge.dimensions == Dimensions.D3:
-            # TODO: When it does support 3D, need to update save_all below.
-            raise ValueError(f"ResponsesMatrix doesn't yet support 3D models")
         # Load ResponsesMatrix if already in memory.
         if id_str in c.resp_matrices:
             return c.resp_matrices[id_str]

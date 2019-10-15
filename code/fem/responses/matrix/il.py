@@ -65,6 +65,7 @@ class ILMatrix(ResponsesMatrix):
                 time to run and you anticipate needing other sensor types.
 
         """
+        assert 0 <= load_z_frac <= 1
         id_str = (
             f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
             + f"-{c.il_num_loads}-zfrac={load_z_frac}")

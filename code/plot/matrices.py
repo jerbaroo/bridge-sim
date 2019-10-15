@@ -112,8 +112,8 @@ def matrix_subplots(
 
 def imshow_il(
         c: Config, il_matrix: ILMatrix, num_ils: int, num_x: int,
-        interp_sim: bool, interp_response: bool, save: str = None,
-        show: bool = False):
+        interp_sim: bool, interp_response: bool, title_append: str = "",
+        save: str = None, show: bool = False):
     """Plot a matrix of influence line for multiple response positions."""
     il_fracs = np.linspace(0, 1, num_ils)
     load_x_fracs = np.linspace(0, 1, num_x)
@@ -133,7 +133,7 @@ def imshow_il(
     plt.colorbar()
     plt.ylabel("load index")
     plt.xlabel("sensor index")
-    plt.title(f"{il_matrix.fem_runner.name} influence lines")
+    plt.title(f"{il_matrix.fem_runner.name} influence lines {title_append}")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
