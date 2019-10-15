@@ -7,30 +7,31 @@ import numpy as np
 from classify.data.events.metadata import Metadata
 
 from classify.data.recorder import Recorder
-from classify.data.responses import responses_to_mv_loads
+from classify.data.responses import responses_to_mv_vehicles
 from classify.data.trigger import Trigger, always_trigger
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Point
-from model.load import MovingLoad
+from model.load import MvVehicle
 from model.response import Event, ResponseType
 from model.scenario import BridgeScenario, TrafficScenario
 
 
-def events_from_mv_loads(
-        c: Config, mv_loads: List[MovingLoad], bridge_scenario: BridgeScenario,
-        response_types: List[ResponseType], fem_runner: FEMRunner,
-        at: List[Point], per_axle: bool = False,
+def events_from_mv_vehicles(
+        c: Config, mv_vehicles: List[MvVehicle],
+        bridge_scenario: BridgeScenario, response_types: List[ResponseType],
+        fem_runner: FEMRunner, at: List[Point], per_axle: bool = False,
         trigger: Trigger = always_trigger()) -> List[List[List[Event]]]:
-    """Return events generated from moving loads.
+    """Return events generated from moving vehicles on a bridge.
 
-    Each yielded result is of shape (len(at), len(response_type), #events), a
-    list of Event for each sensor position and response type.
+    Each yielded result is of shape:
+        (len(at), len(response_type), #events)
+    a list of Event for each sensor position and response type.
 
     """
     # Collect responses for each sensor position and response type.
-    responses = responses_to_mv_loads(
-        c=c, mv_loads=mv_loads, bridge_scenario=bridge_scenario,
+    responses = responses_to_mv_vehicles(
+        c=c, mv_vehicles=mv_vehicles, bridge_scenario=bridge_scenario,
         response_types=response_types, fem_runner=fem_runner, at=at,
         per_axle=per_axle)
 
@@ -150,15 +151,16 @@ class Events:
             lane: int, num_vehicles: int):
         """Make events via bridge simulation under different scenarios."""
         # Construct moving loads under the given traffic scenario.
-        mv_loads = traffic_scenario.mv_loads(
-            num_vehicles=num_vehicles, lane=lane)
+        mv_vehicles_gen = traffic_scenario.mv_vehicles(lane=lane)
+        mv_vehicles = [next(mv_vehicles_gen) for _ in range(num_vehicles)]
 
         # Save events for each bridge scenario under the same traffic index.
         traffic_sim_num = None
         for bridge_scenario in bridge_scenarios:
-            events = events_from_mv_loads(
-                c=self.c, mv_loads=mv_loads, bridge_scenario=bridge_scenario,
-                at=at, response_types=response_types, fem_runner=fem_runner)
+            events = events_from_mv_vehicles(
+                c=self.c, mv_vehicles=mv_vehicles,
+                bridge_scenario=bridge_scenario, at=at,
+                response_types=response_types, fem_runner=fem_runner)
             for a in range(len(at)):
                 for r in range(len(response_types)):
                     # traffic_sim_num will be assigned the first iteration, and

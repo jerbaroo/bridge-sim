@@ -11,15 +11,15 @@ from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
-from plot import animate_mv_load, plot_bridge_deck_side, plot_bridge_deck_top, plot_bridge_first_section, plt
+from plot import animate_mv_vehicle, plot_bridge_deck_side,\
+    plot_bridge_deck_top, plot_bridge_first_section, plt
 from plot.bridge import plot_cloud_of_nodes
-from plot.features import plot_events_from_normal_mv_loads
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
-from plot.vehicles import plot_density, plot_length_vs_axles, plot_length_vs_weight, plot_weight_vs_axles
-from plot.verification import plot_convergence_with_shell_size
+from plot.vehicles import plot_density, plot_length_vs_axles,\
+    plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Point
-from model.load import Load, MovingLoad
+from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from util import print_d, pstr
 from vehicles.sample import sample_vehicle
@@ -30,42 +30,47 @@ D: str = "make.make_plots"
 
 
 def make_bridge_plots(
-        c: Config, loads: List[List[Load]]=[
+        c: Config, mv_vehicles: Optional[List[List[MvVehicle]]]=None):
+    """Make plots of the bridge with and without vehicles."""
+    if mv_vehicles is None:
+        mk = lambda x_frac, lane: MvVehicle(
+            kn=0, axle_distances=[2.5, 1.5], axle_width=0, kmph=0, lane=lane,
+            init_x_frac=x_frac)
+        mv_vehicles = [
             [],
-            [Load(0.4, 500)],
-            [Load(0.6, 200, axle_distances=[2, 1.5]),
-             Load(0.5, 200, axle_distances=[2, 1.5]),
-             Load(0.6, 200, axle_distances=[2, 1.5], lane=1)]]):
-    """Make plots of the bridge with and without load."""
+            [mk(0.6, 0)],
+            [mk(0.6, 0), mk(0.5, 0), mk(0.4, 1)]]
     plt.close()
     plot_bridge_first_section(
         bridge=c.bridge, save=c.image_path("bridges/bridge-section"))
-    for loads_ in loads:
-        load_str = "-".join(str(l).replace(".", ",") for l in loads_)
+    for mv_vehicles_ in mv_vehicles:
+        mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
         plot_bridge_deck_side(
-            c.bridge, loads=loads_,
-            save=c.image_path(f"bridges/side-{load_str}"))
+            c.bridge, mv_vehicles=mv_vehicles_,
+            save=c.image_path(f"bridges/side-{mv_vehicles_str}"))
         plot_bridge_deck_top(
-            c.bridge, loads=loads_,
-            save=c.image_path(f"bridges/top-{load_str}"))
+            c.bridge, mv_vehicles=mv_vehicles_,
+            save=c.image_path(f"bridges/top-{mv_vehicles_str}"))
 
 
 def make_il_plots(
         c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None):
+        num_ploads: int = 100, fem_runner: Optional[FEMRunner] = None):
     """Make plots of the influence lines.
 
     Args:
         num_subplot_ils: int, the number of influence lines on the subplots.
         num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_loads: int, the number of loading positions on x-axis to plot.
+        num_ploads: int, the number of loading positions on x-axis to plot.
 
     """
     plt.close()
     original_num_ils = c.il_num_loads
-    c.il_num_loads = num_loads
+    c.il_num_loads = num_ploads
     if fem_runner is None:
         fem_runner = OSRunner(c)
+    # TODO: Z position for each vehicle track (4).
+    pload_z_fracs = [c.bridge.lanes[0].z_min]
     for response_type in fem_runner.supported_response_types(c.bridge):
         for interp_sim in [False]:
             for interp_response in [False]:
@@ -75,14 +80,15 @@ def make_il_plots(
 
                 # Make the influence line imshow matrix.
                 il_matrix = ILMatrix.load(
-                    c=c, response_type=response_type, fem_runner=fem_runner)
+                    c=c, response_type=response_type, fem_runner=fem_runner,
+                    load_z_frac=pload_z_fracs[0])
                 imshow_il(
                     c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
-                    num_x=num_loads, interp_sim=interp_sim,
+                    num_x=num_ploads, interp_sim=interp_sim,
                     interp_response=interp_response, save=c.image_path(
                         f"ils/il-imshow-{il_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
-                        + f"-{c.il_num_loads}-{num_loads}" + interp_sim_str
+                        + f"-{c.il_num_loads}-{num_ploads}" + interp_sim_str
                         + interp_response_str))
 
                 # Make the matrix of influence lines.
@@ -98,7 +104,7 @@ def make_il_plots(
 
                 matrix_subplots(
                     c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                    num_x=num_loads, plot_func=plot_func, save=c.image_path(
+                    num_x=num_ploads, plot_func=plot_func, save=c.image_path(
                         f"ils/il-subplots-{il_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
                         + f"-numexpts-{il_matrix.num_expts}"
@@ -108,13 +114,13 @@ def make_il_plots(
 
 def make_dc_plots(
         c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_loads: int = 100):
+        num_ploads: int = 100):
     """Make plots of the displacement control responses.
 
     Args:
         num_subplot_ils: int, the number of influence lines on the subplots.
         num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_loads: int, the number of loading positions on x-axis to plot.
+        num_ploads: int, the number of loading positions on x-axis to plot.
 
     """
     plt.close()
@@ -162,7 +168,7 @@ def make_dc_plots(
 
 
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
-    """Make animations of a load moving across a bridge."""
+    """Make animations of a pload moving across a bridge."""
     plt.close()
     mv_load = MovingLoad.from_vehicle(
         x_frac=0, vehicle=sample_vehicle(c), lane=0)
@@ -218,27 +224,28 @@ def make_event_plots_from_normal_mv_loads(c: Config):
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
-    load_x = 35 / 102.75
+    load_x, load_z = 35, 25
+    load_x_frac, load_z_frac = load_x / c.bridge.length, load_z / c.bridge.width
     load_kn = 100
-    load = Load(load_x, load_kn)
-    load.z_frac = 25 / 33.2
+    pload = PointLoad(x_frac=load_x_frac, z_frac=load_z_frac, kn=load_kn)
     for response_type in response_types:
         print_d(D, f"response_types = {response_types}")
-        fem_params = FEMParams(loads=[load], response_types=response_types)
+        fem_params = FEMParams(ploads=[pload], response_types=response_types)
         print_d(D, f"loading response type = {response_type}")
         fem_responses = load_fem_responses(
             c=c, fem_params=fem_params, response_type=response_type,
             fem_runner=fem_runner)
         plot_contour_deck(
-            c=c, fem_responses=fem_responses, y=y, loads=[load], save=(
+            c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
             c.image_path(pstr(
-                f"contour-{response_type.name()}-load-{load_x}-{load_kn}"))))
+                f"contour-{response_type.name()}-ploadxfrac={load_x}-"
+                + f"-ploadzfrac={load_z}-ploadkn={load_kn}"))))
 
 
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
     make_contour_plots(
-        c, y=-0.5, response_types=[rt for rt in ResponseType if rt.d2()])
+        c, y=-0.5, response_types=[ResponseType.Stress, ResponseType.Strain])
     make_bridge_plots(c)
     make_il_plots(c)
     # make_dc_plots(c)

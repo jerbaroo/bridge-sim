@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.stats as stats
 
 from config import Config
-from model.load import Vehicle
+from model.load import MvVehicle
 from vehicles import axle_array_and_count
 from util import print_d, print_w
 
@@ -56,7 +56,7 @@ def noise_per_column(c: Config, col_names: List[str]):
 def sample_vehicle(
         c: Config, group_index: int = None,
         noise_col_names: List[str] = noise_col_names, pd_row: bool = False
-    ) -> Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
+    ) -> Union[MvVehicle, Tuple[MvVehicle, pd.DataFrame]]:
     """Sample a vehicle from a c.vehicle_density group.
 
     Args:
@@ -102,8 +102,9 @@ def sample_vehicle(
         for col_name, (_, stddev) in zip(
                 noise_col_names, noise_per_column(c, noise_col_names)):
             print_d(D,
-                f"col_name = {col_name}, stddev = {stddev:.2f},"
-                + f"{c.perturb_stddev} x stddev = {c.perturb_stddev * stddev:.2f}")
+                f"col_name = {col_name}, stddev = {stddev:.2f}"
+                + f",{c.perturb_stddev} x stddev"
+                + f" {c.perturb_stddev * stddev:.2f}")
             noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
             print_d(D, f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
@@ -111,13 +112,10 @@ def sample_vehicle(
 
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]
-    kmph = row["speed"]
     axle_distances = axle_array_and_count(row["axle_distance"])
-    num_axles = len(axle_distances) + 1
-    total_kn = row["total_weight"]
-    vehicle = Vehicle(
-        kmph=kmph,
-        kn_per_axle=total_kn / num_axles,
-        # TODO: Fix units in database.
+    # TODO: Fix units in database.
+    # TODO: Get axle width from database.
+    vehicle = MvVehicle(
+        kmph=row["speed"], kn=row["total_weight"], axle_width=2,
         axle_distances=np.array(axle_distances) / 100)
     return (vehicle, sample) if pd_row else vehicle

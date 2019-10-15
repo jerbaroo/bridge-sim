@@ -1,15 +1,15 @@
-"""Plots for extracted events and features."""
-# TODO: rename to events.py.
+"""Plots for extracted events."""
+# TODO: rename to events.py, no features here.
 from typing import List, Tuple
 
 import matplotlib.patches as patches
 import numpy as np
 
-from classify.data.events import events_from_mv_loads
+from classify.data.events import events_from_mv_vehicles
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Point
-from model.load import MovingLoad
+from model.load import MvVehicle
 from model.response import Event, ResponseType
 from plot import plt
 from util import print_d, print_i
@@ -20,7 +20,7 @@ D: bool = False
 
 
 def plot_event(
-        c: Config, event: Event, start_index: int, num_loads: int,
+        c: Config, event: Event, start_index: int, num_vehicles: int,
         response_type: ResponseType, at: Point, overlap: Tuple[int, int],
         y_max: float, y_min: float):
     """Plot a single event with timing and overlap information."""
@@ -47,24 +47,24 @@ def plot_event(
     x_axis = np.linspace(x_min, x_max, num=len(time_series))
     plt.plot(x_axis, time_series_with_noise, color="tab:orange")
     plt.plot(x_axis, time_series, color="tab:blue")
-    s = "s" if num_loads > 1 else ""
+    s = "s" if num_vehicles > 1 else ""
     plt.title(
-        f"{response_type.name()} at {at.x:.2f}m from {num_loads} vehicle{s}")
+        f"{response_type.name()} at {at.x:.2f}m from {num_vehicles} vehicle{s}")
     plt.xlabel("time (s)")
     plt.ylabel(f"{response_type.name().lower()} ({response_type.units()})")
 
 
-def plot_events_from_mv_loads(
-        c: Config, mv_loads: List[List[MovingLoad]],
+def plot_events_from_mv_vehicles(
+        c: Config, mv_vehicles: List[List[MvVehicles]],
         response_type: ResponseType, fem_runner: FEMRunner, at: Point,
         save: str = None, show: bool = False):
-    """Plot events from each set of moving loads on a row."""
+    """Plot events from each set of moving vehicles on a row."""
     print_d(D, f"TODO: Support multiple vehicles")
     # Determine rows, cols and events per row.
-    rows = len(mv_loads)
+    rows = len(mv_vehicles)
     events = [
-        list(events_from_mv_loads(
-            c=c, mv_loads=mv_loads[row], response_types=[response_type],
+        list(events_from_mv_vehicles(
+            c=c, mv_vehicles=mv_vehicles[row], response_types=[response_type],
             fem_runner=fem_runner, at=[at]))[0][0]
         for row in range(rows)]
     cols = max(len(es) for es in events)
@@ -94,7 +94,7 @@ def plot_events_from_mv_loads(
                 else 0)
             plot_event(
                 c=c, event=event, start_index=events[row][col].start_index,
-                num_loads=len(mv_loads[row]), response_type=response_type,
+                num_vehicles=len(mv_vehicles[row]), response_type=response_type,
                 at=at, overlap=(events[row][col].overlap, end_overlap),
                 y_min=y_min, y_max=y_max)
     if save: plt.savefig(save)
@@ -102,20 +102,25 @@ def plot_events_from_mv_loads(
     if save or show: plt.close()
 
 
-def plot_events_from_normal_mv_loads(
+def plot_events_from_normal_mv_vehicles(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        at: Point, rows: int=5, loads_per_row: int=1, lane: int=0,
+        at: Point, rows: int=5, vehicles_per_row: int=1, lane: int=0,
         save: str=None, show: bool=False):
-    """Plot events from each set of sampled normal loads on a row."""
-    mv_loads = [
-        [MovingLoad.from_vehicle(
-            x_frac=-i * 0.1, vehicle=sample_vehicle(c), lane=lane)
-        for i in range(loads_per_row)]
-        for _ in range(rows)]
-    shape = np.array(mv_loads).shape
-    assert len(shape) == 2
-    assert shape[0] == rows
-    assert shape[1] == loads_per_row
-    plot_events_from_mv_loads(
-        c=c, mv_loads=mv_loads, response_type=response_type,
-        fem_runner=fem_runner, at=at, save=save, show=show)
+    """Plot events from each set of sampled normal vehicles on a row.
+
+    TODO: Delete or move to make_plots.
+
+    """
+    pass
+    # mv_vehicles = [
+    #     [MovingLoad.from_vehicle(
+    #         x_frac=-i * 0.1, vehicle=sample_vehicle(c), lane=lane)
+    #     for i in range(loads_per_row)]
+    #     for _ in range(rows)]
+    # shape = np.array(mv_loads).shape
+    # assert len(shape) == 2
+    # assert shape[0] == rows
+    # assert shape[1] == loads_per_row
+    # plot_events_from_mv_loads(
+    #     c=c, mv_loads=mv_loads, response_type=response_type,
+    #     fem_runner=fem_runner, at=at, save=save, show=show)

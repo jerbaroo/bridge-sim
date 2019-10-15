@@ -4,24 +4,26 @@ import pickle
 
 import numpy as np
 
-from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic
-from classify.data.events import Events, events_from_mv_loads, save_events
+from classify.data.scenarios import BridgeScenarioDisplacementCtrl,\
+    BridgeScenarioNormal, normal_traffic
+from classify.data.events import Events, events_from_mv_vehicles, save_events
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
-from model.load import DisplacementCtrl, MovingLoad
+from model.load import DisplacementCtrl, MvVehicle
 from model.response import Event, ResponseType
 
 c = bridge_705_test_config(bridge_705_2d)
 c.il_num_loads = 10
 
 
-def test_events_from_mv_loads():
-    mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=0) for _ in range(2)]
+def test_events_from_mv_vehicles():
+    mv_vehicles_gen = normal_traffic(c).mv_vehicles(lane=0)
+    mv_vehicles = [next(mv_vehicles_gen) for _ in range(2)]
     response_types = [ResponseType.Strain, ResponseType.Stress]
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
-    events = list(events_from_mv_loads(
-        c=c, mv_loads=mv_loads, bridge_scenario=None,
+    events = list(events_from_mv_vehicles(
+        c=c, mv_vehicles=mv_vehicles, bridge_scenario=None,
         response_types=response_types, fem_runner=OSRunner(c), at=at))
     shape = np.array(events).shape
     assert len(shape) == 3
@@ -59,9 +61,10 @@ def test_events_class():
         assert len(events.metadata.load()) == i + 1
 
     # Create some events, not using the Events class.
-    mv_loads = [MovingLoad.sample(c=c, x_frac=0, lane=lane) for _ in range(2)]
-    some_events = list(events_from_mv_loads(
-        c=c, mv_loads=mv_loads, bridge_scenario=None,
+    mv_vehicles_gen = normal_traffic(c).mv_vehicles(lane=lane)
+    mv_vehicles = [next(mv_vehicles_gen) for _ in range(2)]
+    some_events = list(events_from_mv_vehicles(
+        c=c, mv_vehicles=mv_vehicles, bridge_scenario=None,
         response_types=[ResponseType.Strain], fem_runner=OSRunner(c),
         at=[Point(x=1)]))[0][0]
 

@@ -14,11 +14,11 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-from classify.data.responses import responses_to_mv_loads, times_on_bridge
+from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Bridge, Point, Section
-from model.load import Load, MovingLoad
+from model.load import MvVehicle, PointLoad, Vehicle
 from model.response import Event, ResponseType
 from util import print_d, print_w, kde_sampler
 
@@ -71,33 +71,31 @@ def sci_format_y_axis(points: int = 1):
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
 
-def _plot_load_deck_side(
-        bridge: Bridge, load: Load, normalize_vehicle_height: bool = False):
-    """Plot a load on the side of the deck (but don't plot the deck)."""
-    xl = load.x_frac * bridge.length
-    if load.is_point_load():
-        plt.plot(xl, 0, "o", color=load_color)
-    # A vehicle load.
-    else:
-        width = sum(load.axle_distances)
-        height = width / 2
-        if normalize_vehicle_height and not load.is_point_load():
-            y_min, y_max = plt.ylim()
-            y_length = np.abs(y_min - y_max)
-            x_min, x_max = plt.xlim()
-            x_length = np.abs(x_min - x_max)
-            width_frac = width / x_length
-            height_frac = (height / width) * width_frac
-            height = height_frac * y_length
-        plt.gca().add_patch(patches.Rectangle(
-            (xl, 0), width, height, facecolor=load_color))
+def _plot_vehicle_deck_side(
+        bridge: Bridge, mv_vehicle: MvVehicle,
+        normalize_vehicle_height: bool = False):
+    """Plot a vehicle on the side of the deck (but don't plot the deck)."""
+    xl = bridge.x(x_frac=mv_vehicle.init_x_frac)
+    # Width and height on the plot.
+    width = mv_vehicle.length
+    height = width / 2
+    if normalize_vehicle_height:
+        y_min, y_max = plt.ylim()
+        y_length = np.abs(y_min - y_max)
+        x_min, x_max = plt.xlim()
+        x_length = np.abs(x_min - x_max)
+        width_frac = width / x_length
+        height_frac = (height / width) * width_frac
+        height = height_frac * y_length
+    plt.gca().add_patch(patches.Rectangle(
+        (xl, 0), width, height, facecolor=load_color))
 
 
 def plot_bridge_deck_side(
-        bridge: Bridge, loads: List[Load] = [], equal_axis: bool = True,
+        bridge: Bridge, mv_vehicles: List[MvVehicle] = [], equal_axis: bool = True,
         normalize_vehicle_height: bool = False, save: str = None,
         show: bool = False):
-    """Plot the deck of a bridge from the side with optional loads.
+    """Plot the deck of a bridge from the side with optional vehicles.
 
     Args:
         equal_axis: bool, if true set both axes to have the same scale.
@@ -113,41 +111,39 @@ def plot_bridge_deck_side(
     if equal_axis: plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
-    for load in loads:
-        _plot_load_deck_side(
-            bridge, load, normalize_vehicle_height=normalize_vehicle_height)
+    for mv_vehicle in mv_vehicles:
+        _plot_vehicle_deck_side(
+            bridge=bridge, mv_vehicle=mv_vehicle,
+            normalize_vehicle_height=normalize_vehicle_height)
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()
 
 
-def _plot_load_deck_top(bridge: Bridge, load: Load):
-    xl = load.x_frac * bridge.length
-    z_center = bridge.lanes[load.lane].z_center()
-    if load.is_point_load():
-        plt.plot(xl, z_center, "o", color=load_color)
-    # A vehicle load.
-    else:
-        z_center = bridge.lanes[load.lane].z_center()
-        zb = z_center - (load.axle_width / 2)
-        plt.gca().add_patch(patches.Rectangle(
-            (xl, zb), sum(load.axle_distances), load.axle_width,
-            facecolor=load_color))
+def _plot_vehicle_deck_top(bridge: Bridge, mv_vehicle: MvVehicle):
+    xl = mv_vehicle.init_x_frac * bridge.length
+    z_center = bridge.lanes[mv_vehicle.lane].z_center()
+    zb = z_center - (mv_vehicle.axle_width / 2)
+    plt.gca().add_patch(patches.Rectangle(
+        (xl, zb), mv_vehicle.length, mv_vehicle.axle_width,
+        facecolor=load_color))
 
 
 def plot_bridge_deck_top(
-        bridge: Bridge, loads: List[Load]=[], save: str = None,
+        bridge: Bridge, mv_vehicles: List[MvVehicle]=[], save: str = None,
         show: bool = False):
     """Plot the deck of a bridge from the top."""
-    plt.hlines([0, bridge.width], 0, bridge.length, color=bridge_color)
-    plt.vlines([0, bridge.length], 0, bridge.width, color=bridge_color)
+    plt.hlines(
+        [bridge.z_min, bridge.z_max], 0, bridge.length, color=bridge_color)
+    plt.vlines(
+        [0, bridge.length], bridge.z_min, bridge.z_max, color=bridge_color)
     for lane in bridge.lanes:
         plt.gca().add_patch(
             patches.Rectangle(
                 (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
                 facecolor=lane_color))
-    for load in loads:
-        _plot_load_deck_top(bridge, load)
+    for mv_vehicle in mv_vehicles:
+        _plot_vehicle_deck_top(bridge=bridge, mv_vehicle=mv_vehicle)
     plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
@@ -200,62 +196,62 @@ def animate_translation(x, y, num_elems=300, node_step=0.2, spans=7):
 
 def animate_bridge_response(
         c: Config, responses, response_type: ResponseType,
-        mv_loads: List[MovingLoad] = [], save: str = None, show: bool = False):
-    """Animate a bridge's response, of one response type, to moving loads.
+        mv_vehicles: List[MvVehicle] = [], save: str = None, show: bool = False):
+    """Animate a bridge's response, of one response type, to moving vehicles.
 
     Args:
-        responses: a 3 or 4 dimensional list. The first index is the load,
+        responses: a 3 or 4 dimensional list. The first index is the vehicle,
             followed by time, then x position. Then there is either a float
-            representing the response to the load, or a list of responses
-            for each vehicle axle.
+            representing the response to the vehicle, or a list of responses for
+            each vehicle axle.
 
     """
     per_axle = not isinstance(responses[0][0][0], float)
-    responses_per_load = (
+    responses_per_vehicle = (
         np.apply_along_axis(sum, axis=3, arr=responses) if per_axle
         else responses)
     # Find max and min of all responses.
-    top, bottom = np.amax(responses_per_load), np.amin(responses_per_load)
+    top, bottom = np.amax(responses_per_vehicle), np.amin(responses_per_vehicle)
     # Ensure top == -bottom, so bridge is vertically centered.
     top, bottom = max(top, -bottom), min(bottom, -top)
-    # Non-moving loads, updated and plotted every timestep.
-    loads = [copy.deepcopy(mv_load.load) for mv_load in mv_loads]
+    # Non-moving vehicles, updated and plotted every timestep.
+    vehicles = [copy.deepcopy(mv_vehicle) for mv_vehicle in mv_vehicles]
 
-    def update_loads(t):
-        for i, mv_load in enumerate(mv_loads):
-            loads[i].x_frac = mv_load.x_frac_at(t * c.time_step, c.bridge)
-            assert 0 <= loads[i].x_frac and loads[i].x_frac <= 1
+    def update_vehicles(t):
+        for i, mv_vehicle in enumerate(mv_vehicles):
+            vehicles[i].x_frac = mv_vehicle.x_frac_at(t * c.time_step, c.bridge)
+            assert 0 <= vehicles[i].x_frac and vehicles[i].x_frac <= 1
 
     # TODO: This should be a global function.
     def plot_bridge_response(t):
-        update_loads(t)
+        update_vehicles(t)
         plt.ylim(top=top, bottom=bottom)
 
-        # Plot responses for each moving load.
-        for i in range(len(mv_loads)):
-            t_load_responses = responses[i][t]
-            x_axis = c.bridge.x_axis_equi(len(t_load_responses))
+        # Plot responses for each moving vehicle.
+        for i in range(len(mv_vehicles)):
+            t_vehicle_responses = responses[i][t]
+            x_axis = c.bridge.x_axis_equi(len(t_vehicle_responses))
 
             # Plot responses per axle and one sum of responses.
             if per_axle:
-                for axle in range(mv_loads[i].load.num_axles):
+                for axle in range(mv_vehicles[i].num_axles):
                     print_d(D, f"axle_num = {axle}")
                     plt.plot(
-                        x_axis, list(map(lambda x: x[axle], t_load_responses)),
+                        x_axis, list(map(lambda x: x[axle], t_vehicle_responses)),
                         color=response_axle_color, linewidth=1)
                 print_d(D, f"Response per axle")
                 plt.plot(
-                    x_axis, responses_per_load[i][t], color=response_color,
+                    x_axis, responses_per_vehicle[i][t], color=response_color,
                     linewidth=1)
 
-            # Plot one response for the moving load. 
+            # Plot one response for the moving vehicle.
             else:
-                print(type(t_load_responses[0]))
-                plt.plot(x_axis, t_load_responses)
+                print(type(t_vehicle_responses[0]))
+                plt.plot(x_axis, t_vehicle_responses)
 
-        # Plot the bridge and loads.
+        # Plot the bridge and vehicles.
         plot_bridge_deck_side(
-            c.bridge, loads=loads, equal_axis=False,
+            c.bridge, vehicles=vehicles, equal_axis=False,
             normalize_vehicle_height=True)
         sci_format_y_axis()
         response_name = response_type.name().capitalize()
@@ -292,23 +288,23 @@ def animate_plot(
         plt.close()
 
 
-def animate_mv_load(
-        c: Config, mv_load: MovingLoad, response_type: ResponseType,
+def animate_mv_vehicle(
+        c: Config, mv_vehicle: MvVehicle, response_type: ResponseType,
         fem_runner: FEMRunner, num_x_fracs: int = 100, per_axle: bool = False,
         save: str = None, show: bool = False):
-    """Animate the bridge's response to a moving load."""
-    times = list(times_on_bridge(c=c, mv_loads=[mv_load]))
+    """Animate the bridge's response to a moving vehicle."""
+    times = list(times_on_bridge(c=c, mv_vehicles=[mv_vehicles]))
     at = [Point(x=c.bridge.x(x_frac))
           for x_frac in np.linspace(0, 1, num_x_fracs)]
-    responses = responses_to_mv_loads(
-        c=c, mv_loads=[mv_load], response_types=[response_type],
+    responses = responses_to_mv_vehicles(
+        c=c, mv_vehicles=[mv_vehicles], response_types=[response_type],
         fem_runner=fem_runner, times=times, at=at, per_axle=per_axle)
-    # Reshape to have only a single response type and moving load.
+    # Reshape to have only a single response type and moving vehicle.
     new_shape = [d for d in responses.shape if d != 1]
     responses = responses.reshape(new_shape)
     animate_bridge_response(
         c=c, responses=[responses], response_type=response_type,
-        mv_loads=[mv_load], save=save, show=show)
+        mv_vehicles=[mv_vehicles], save=save, show=show)
 
 
 def plot_hist(

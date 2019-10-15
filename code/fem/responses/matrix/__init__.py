@@ -88,11 +88,29 @@ class ResponsesMatrix:
             load_func: Callable[[ExptParams], "ResponsesMatrix"],
             fem_runner: FEMRunner, save_all: bool
             ) -> "ResponsesMatrix":
-        """Load a ResponsesMatrix, running simulations first if necessary."""
+        """Load and return a ResponsesMatrix.
+
+        If a ResponsesMatrix is already available in memory with ID 'id_str'
+        then that will be returned, otherwise a new ResponsesMatrix will be
+        created by running simulations based on 'expt_params'.
+
+        Args:
+            c: Config, global configuration object.
+            id_str: str, string uniquely identifying the ResponsesMatrix.
+            expt_params: ExptParams, parameters for the simulations to run.
+            load_func: Callable[[ExptParams], ResponsesMatrix], function that
+                given simulation parameters runs simulations and returns a
+                ResponsesMatrix.
+            fem_runner: FEMRunner, program to run finite element simulations.
+            save_all: bool, whether to save responses from all sensor types when
+                running simulations, this is useful if simulations take a long
+                time to run and you anticipate needing other sensor types.
+
+        """
         if c.bridge.dimensions == Dimensions.D3:
             # TODO: When it does support 3D, need to update save_all below.
             raise ValueError(f"ResponsesMatrix doesn't yet support 3D models")
-        # Load ResponsesMatrix if already available.
+        # Load ResponsesMatrix if already in memory.
         if id_str in c.resp_matrices:
             return c.resp_matrices[id_str]
         # If save_all then set each FEMParams to all ResponseTypes, which

@@ -3,7 +3,7 @@ from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.common import num_deck_nodes
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
-from model.load import Load
+from model.load import PointLoad
 from model.response import ResponseType
 
 
@@ -12,7 +12,8 @@ def test_parse_3d():
     c = bridge_705_test_config(bridge_705_3d)
     fem_runner = OSRunner(c)
     fem_params = FEMParams(
-        loads=[Load(0.65, 100)], response_types=[ResponseType.YTranslation])
+        ploads=[PointLoad(0.65, 0.35, 100)],
+        response_types=[ResponseType.YTranslation])
     parsed = fem_runner.run(
         ExptParams([fem_params]), return_parsed=True,
         include_support_3d_nodes=False)

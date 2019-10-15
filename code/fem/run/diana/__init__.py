@@ -6,7 +6,7 @@ from fem.run.diana.build import build_models
 from fem.run.diana.convert import convert_responses
 from fem.run.diana.run import run_model
 from fem.run.diana.parse import parse_responses
-from model.load import Load
+from model.load import PointLoad
 from model.bridge.bridge_705 import bridge_705_config
 
 
@@ -21,13 +21,13 @@ if __name__ == "__main__":
     response_type = ResponseType.XTranslation
     expt_params = ExptParams([
         FEMParams(
-            [Load(0, 87375)],
+            [PointLoad(0, 87375)],
             [response_type]),
         FEMParams(
-            [Load(0.1, 87375)],
+            [PointLoad(0.1, 87375)],
             [response_type]),
         FEMParams(
-            [Load(0.2, 87375)],
+            [PointLoad(0.2, 87375)],
             [response_type])
     ])
     di_runner(c).run(expt_params)

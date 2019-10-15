@@ -9,7 +9,7 @@ from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Layer
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
-from model.load import Load
+from model.load import PointLoad
 from model.response import ResponseType
 
 
@@ -20,7 +20,8 @@ def test_fem_responses():
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = FEMParams(
-        loads=[Load(x_frac=0.1, kn=1000)], response_types=response_types)
+        ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
+        response_types=response_types)
 
     # for response_type in list(ResponseType):
     for response_type in response_types:
@@ -86,7 +87,8 @@ def test_fem_responses_at():
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = FEMParams(
-        loads=[Load(x_frac=0.1, kn=1000)], response_types=response_types)
+        ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
+        response_types=response_types)
     response_type = ResponseType.XTranslation
 
     # Load simulation responses.

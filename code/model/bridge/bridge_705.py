@@ -16,8 +16,8 @@ bridge_705_length = 102.75
 bridge_705_width = 33.2
 half_width = bridge_705_width / 2
 bridge_705_lanes = [
-    Lane(4 - half_width, 12.4 - half_width),
-    Lane(20.8 - half_width, 29.2 - half_width)]
+    Lane(z0=4 - half_width, z1=12.4 - half_width, ltr=True),
+    Lane(z0=20.8 - half_width, z1=29.2 - half_width, ltr=False)]
 
 
 #######################
@@ -30,9 +30,8 @@ bridge_705_piers = [0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
-print(bridge_705_spans)
-for _i in range(len(bridge_705_spans)):
-    print(sum(bridge_705_spans[:_i + 1]))
+# for _i in range(len(bridge_705_spans)):
+#     print(sum(bridge_705_spans[:_i + 1]))
 bridge_705_supports_2d = [
     Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True

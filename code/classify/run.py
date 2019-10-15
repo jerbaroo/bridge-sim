@@ -6,25 +6,25 @@ from classify.data.events import Events
 from classify.data.scenarios import BridgeScenarioDisplacementCtrl, BridgeScenarioNormal, normal_traffic
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_config
+from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config, bridge_705_test_config
 from model.load import DisplacementCtrl
 from model.response import ResponseType
 
 
 if __name__ == "__main__":
-    c = bridge_705_config()
+    c = bridge_705_config(bridge_705_3d)
     events = Events(c=c)
     point = Point(x=0.1, y=1, z=0)
     bridge_scenarios=[
         BridgeScenarioNormal(),
-        BridgeScenarioDisplacementCtrl(
-            displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))]
+        BridgeScenarioDisplacementCtrl(DisplacementCtrl(
+            displacement=0.1, pier=1))]
     response_type = ResponseType.XTranslation
     fem_runner = OSRunner(c)
     lane = 0
     num_vehicles = 5
 
-    # Each time make some more events.
+    # Each time this script is run, make some more events.
     events_per_bridge = events.make_events(
         traffic_scenario=normal_traffic,
         bridge_scenarios=bridge_scenarios, at=[point],
@@ -38,7 +38,8 @@ if __name__ == "__main__":
         response_type=response_type, fem_runner=fem_runner, lane=lane)
 
     # Plot corresponding events for each scenario.
-    for i, (bridge_scenario, b_events) in enumerate(events_per_bridge_scenario.items()):
+    for i, (bridge_scenario, b_events) in enumerate(
+            events_per_bridge_scenario.items()):
         plt.close()
         plt.plot(b_events[0][0].get_time_series(noise=False))
         plt.title(bridge_scenario.name)

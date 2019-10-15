@@ -93,9 +93,9 @@ CLOSED: [2019-10-14 Mon 13:12]
 *** TODO [#A] Collect stress, strain responses from all elements
 *** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
 *** TODO [#A] Send updated document with sections/subsections to Valeria
-*** TODO [#A] Collect influence lines from two traffic lanes
+*** TODO [#A] Collect influence lines from traffic lanes
 *** TODO [#A] Additional load case for verification: load closer to abutment
-*** TODO [#A] Check fixed nodes in OpenSees
+*** TODO [#A] Check fixed nodes in OpenSees (piers in particular)
 *** TODO [#A] Single section option for OpenSees, compared with Axis
 *** TODO [#A] Fix comments in TCL file
 *** TODO [#A] Fix units in TCL file

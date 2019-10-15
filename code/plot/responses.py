@@ -1,6 +1,6 @@
 """Plot responses on a bridge.
 
-These function are characterized by taking FEMResponses as primary argument.
+Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
 """
 from typing import List, Optional
@@ -9,12 +9,12 @@ import numpy as np
 
 from config import Config
 from fem.responses import FEMResponses
-from model.load import Load
+from model.load import PointLoad
 from plot import plt
 
 
 def plot_contour_deck(
-        c: Config, fem_responses: FEMResponses, y: float, loads: List[Load],
+        c: Config, fem_responses: FEMResponses, y: float, ploads: List[PointLoad],
         save: Optional[str] = None, show: bool = False):
     """Contour plot of responses on the deck of the bridge.
 
@@ -39,13 +39,15 @@ def plot_contour_deck(
                 if H[-1][-1] < amax:
                     amax = H[-1][-1]
                     amax_x, amax_z = X[-1][-1], Z[-1][-1]
+    if len(X) == 0:
+        raise ValueError(f"No responses for contour plot")
     # Plot contour and colorbar.
     cs = plt.contourf(X, Z, H, levels=50)
     plt.colorbar(cs)
-    # Plot loads.
-    for load in loads:
-        x = load.x_frac * c.bridge.length
-        z = (load.z_frac * c.bridge.width) - (c.bridge.width / 2)
+    # Plot point loads.
+    for pload in ploads:
+        x = pload.x_frac * c.bridge.length
+        z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
         plt.plot([x], [z], marker="o", markersize=5, color="red")
     # Titles and labels.
     amin = np.amax(np.array(H))

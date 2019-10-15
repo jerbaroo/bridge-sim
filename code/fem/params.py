@@ -1,36 +1,37 @@
 """Parameters for FEM simulations."""
 from typing import List, Optional
 
-from model.load import DisplacementCtrl, Load
+from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 
 
 class FEMParams:
-    """Parameters for a FEM simulation.
+    """Parameters for one FEM simulation.
 
-    Either non-moving loads or a displacement control.
+    Point loads EOR displacement control, and response types to record.
 
     Args:
-        loads: [Load], a list of Load to apply to the bridge.
-        displacement_ctrl: DisplacementCtrl, apply a load until the
-            displacement is reached. If not None "loads" are ignored.
+        ploads: List[PointLoad], a list of point loads to apply on the bridge.
+        displacement_ctrl: DisplacementCtrl, apply a load until the given
+            displacement in meters is reached.
         response_types: [ResponseType], response types to record.
 
     """
     def __init__(
-            self, loads: List[Load], response_types: List[ResponseType],
+            self, ploads: List[PointLoad], response_types: List[ResponseType],
             displacement_ctrl: Optional[DisplacementCtrl] = None):
-        self.loads = loads
+        if len(ploads) == 0: assert displacement_ctrl is not None
+        else: assert displacement_ctrl is None
+        self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
-        assert not (len(loads) > 0 and displacement_ctrl is not None)
         self.response_types = response_types
 
     def load_str(self):
-        """String representing the parameters (that affect simulation)."""
+        """String representing the loading parameters."""
         if self.displacement_ctrl is not None:
             return (f"disp-ctrl-{self.displacement_ctrl.displacement}"
                 + f"-{self.displacement_ctrl.pier}")
-        lstr = ",".join(str(l) for l in self.loads)
+        lstr = ",".join(str(l) for l in self.ploads)
         return f"[{lstr}]"
 
 

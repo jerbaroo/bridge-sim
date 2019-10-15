@@ -4,7 +4,7 @@ from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Fix, Layer, Patch
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_3d, bridge_705_test_config
-from model.load import Load
+from model.load import PointLoad
 from model.response import ResponseType
 from util import clean_generated
 
@@ -16,7 +16,7 @@ def test_run_3d_model():
     c.os_node_step_z = c.bridge.width / 10
     clean_generated(c)
     expt_params = ExptParams([FEMParams(
-        loads=[Load(0.65, 100)], response_types=[
+        ploads=[PointLoad(0.65, 0.35, 100)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     OSRunner(c).run(expt_params)
 
@@ -33,7 +33,7 @@ def test_opensees_patch():
             y_min=-0.5, y_max=-0.5, z_min=-0.5, z_max=0.5, num_fibers=2)]))
     clean_generated(c)
     fem_params = FEMParams(
-        loads=[Load(0.65, 1234)], response_types=[
+        ploads=[PointLoad(0.65, 0.35, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])
     fem_responses = load_fem_responses(
         c=c, fem_params=fem_params, response_type=ResponseType.Strain,

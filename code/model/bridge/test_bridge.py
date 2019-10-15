@@ -67,13 +67,13 @@ def test_3d_bridge_lane_or_support_out_of_range():
         bridge = Bridge(
             name="test", length=12, width=8,
             supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-            lanes=[Lane(-4.1, 3)], dimensions=Dimensions.D3)
+            lanes=[Lane(-4.1, 3, True)], dimensions=Dimensions.D3)
     assert "Lane" in str(e.value)
     with pytest.raises(ValueError) as e:
         bridge = Bridge(
             name="test", length=12, width=8,
             supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-            lanes=[Lane(1, 5)], dimensions=Dimensions.D3)
+            lanes=[Lane(1, 5, True)], dimensions=Dimensions.D3)
     assert "Lane" in str(e.value)
     with pytest.raises(ValueError) as e:
         support = Support3D(
@@ -87,7 +87,7 @@ def test_3d_bridge_lane_or_support_out_of_range():
     bridge = Bridge(
         name="test", length=12, width=8,
         supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-        lanes=[Lane(-1, 1)], dimensions=Dimensions.D3)
+        lanes=[Lane(-1, 1, True)], dimensions=Dimensions.D3)
 
 
 def test_3d_bridge_height():

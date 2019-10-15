@@ -10,18 +10,25 @@ from util import print_w
 
 
 class Recorder:
-    """Receive real-time responses and emit events, optionally with noise."""
+    """Receive a stream of responses and emit events, optionally with noise.
+
+    Args:
+        c: Config, global configuration object.
+        response_type: ResponseType, the type of response being recorded.
+        trigger: Trigger, decides whether to start/stop recording.
+        max_history: int, soft-limit on history length.
+        add_noise: bool, whether to add noise to an event.
+
+    """
     def __init__(
             self, c: Config, response_type: ResponseType, trigger: Trigger,
             max_history: int = 10000, add_noise: bool = True):
         self.c: Config = c
         self.response_type = response_type
-        # Decides to start/stop recording.
         self.trigger: Trigger = trigger
-        # Soft-limit on history length.
         self.max_history: int = max_history
-        # Add noise to the Event.
         self.add_noise = add_noise
+
         # If currently recording.
         self.recording: Callable[[], bool] = lambda: len(self.responses) > 0
         # Amount of responses which overlap previous event.

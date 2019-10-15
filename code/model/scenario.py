@@ -2,36 +2,47 @@
 from typing import Callable, Tuple
 
 from config import Config
-from model.load import MovingLoad, Vehicle
+from model.load import MvVehicle
 
 
 class TrafficScenario:
-    """A named traffic scenario that generates moving loads.
+    """A named traffic scenario that generates moving vehicles.
 
-    The vehicle function must return a tuple of a Vehicle and the distance in
-    meters to the vehicle in front at time t=0 (when the simulation starts).
+    Args:
+        c: Config, global configuration object.
+        name: str, the name of this traffic scenario.
+        mv_vehicle_F: Callable[[], Tuple[MvVehicle]], function that returns a
+            tuple 'MvVehicle' and distance in meters to the vehicle in front at
+            time t=0, note that the position ('lane' and 'init_x_frac') of this
+            'MvVehicle' will be overridden.
 
     """
     def __init__(
             self, c: Config, name: str,
-            vehicle: Callable[[Config], Tuple[Vehicle, float]]):
+            mv_vehicle_f: Callable[[], Tuple[MvVehicle, float]]):
         self.c = c
         self.name = name
-        self.vehicle = lambda: vehicle(self.c)
+        self.mv_vehicle_f = mv_vehicle_f
 
-    def mv_loads(self, num_vehicles: int, lane: int):
-        """A number of moving loads under this traffic scenario."""
-        mv_loads = []
+    def mv_vehicles(self, lane: int):
+        """Yield moving vehicles under this traffic scenario.
+
+        The first vehicle will start at 'init_x_frac' 0 if traffic on the lane
+        moves from left to right, otherwise at bridge length if from right to.
+        left
+
+        Args:
+            lane: int, index of a lane on the bridge.
+
+        """
         dist = 0  # In meters.
-        for _ in range(num_vehicles):
-            vehicle, inter_vehicle_dist = self.vehicle()
-            mv_loads.append(MovingLoad.from_vehicle(
-                x_frac=-self.c.bridge.x_frac(x=dist),
-                vehicle=vehicle,
-                lane=lane))
+        while True:
+            mv_vehicle, inter_vehicle_dist = self.mv_vehicle_f()
+            mv_vehicle.lane = lane
+            mv_vehicle.init_x_frac = -self.c.bridge.x_frac(x=dist)
+            yield mv_vehicle
             dist += inter_vehicle_dist
-            dist += vehicle.length
-        return mv_loads
+            dist += mv_vehicle.length
 
 
 class BridgeScenario:

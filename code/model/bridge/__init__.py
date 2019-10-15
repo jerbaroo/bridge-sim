@@ -182,7 +182,7 @@ class Lane:
         z_min, upper z position of the bridge in meters.
 
     """
-    def __init__(self, z0: float, z1: float, ltr: bool = True):
+    def __init__(self, z0: float, z1: float, ltr: bool):
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr

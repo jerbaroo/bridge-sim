@@ -6,7 +6,7 @@ import numpy as np
 from config import Config
 from fem.params import ExptParams, FEMParams
 from model.bridge import Dimensions, Fix, Layer, Patch, Section
-from model.load import DisplacementCtrl, Load
+from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from util import print_d, print_i
 
@@ -51,16 +51,18 @@ def opensees_elements(c: Config):
 def opensees_loads(c: Config, fem_params: FEMParams):
     """OpenSees load commands for a .tcl file."""
 
-    def opensees_load(l: Load):
+    def opensees_load(l: PointLoad):
         nid = int(np.interp(l.x_frac, (0, 1), (1, c.os_num_nodes())))
         return f"load {nid} 0 {l.kn * 1000} 0"
 
     if fem_params.displacement_ctrl is not None:
         fix = c.bridge.supports[fem_params.displacement_ctrl.pier]
-        # The applied load is ignored for displacement control, I think..
-        return opensees_load(Load(x_frac=fix.x_frac, kn=10))
+        # NOTE: The z_frac argument is ignored by the 2D simulation.
+        # NOTE: The applied load intensity (kn argument) is ignored by OpenSees
+        # for displacement control, I think..
+        return opensees_load(PointLoad(x_frac=fix.x_frac, z_frac=None, kn=10))
 
-    return "\n".join(opensees_load(l) for l in fem_params.loads)
+    return "\n".join(opensees_load(l) for l in fem_params.ploads)
 
 
 def opensees_sections(c: Config):
