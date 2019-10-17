@@ -1,3 +1,8 @@
+#+TODO: TODO FEEDBACK VERIFY HOLD BLOCKED | DONE ABORT PUSHED
+# HOLD: Don't start this yet.
+# BLOCKED: Can't start this yet.
+# PUSHED: Moved to another task.
+
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
@@ -16,6 +21,7 @@
 ** TODO [#A] Refine mesh in Axis to check response has converged
 ** TODO [#A] Refine mesh in Diana to check response has converged
 ** TODO [#B] Rename support to pier
+** TODO [#B] Add mesh points where material properties change
 ** TODO [#B] Interpolate only for nodes where y=0
 ** TODO [#B] Use click library for python command line interface
 ** TODO [#C] Rename Bridge.sections to deck_sections
@@ -29,10 +35,10 @@
 ** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
 ** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
 ** TODO [#C] Use num_deck_nodes instead of manual calculation
+** TODO [#B] Section order in generated TCL file is not deterministic
 * Meetings
 -  Item marked as DONE when it is covered in a meeting.
 -  Can create additional item in week's work or general TODOs.
--  If a TODO in a week's work is not done, push it to next week.
 ** 7th October
 *** DONE I'll go over some things quick, looking for short responses, then open floor
     CLOSED: [2019-10-07 Mon 11:45]
@@ -83,18 +89,25 @@ CLOSED: [2019-10-07 Mon 11:52]
 *** DONE Comments in 3D .tcl file
     CLOSED: [2019-10-07 Mon 12:42]
 ** 16th October
-*** TODO Each element consists of only one section, that is fine?
-*** TODO The mesh needs additional work, but I would delay that until later?
-*** TODO Section order in generated TCL file is not deterministic.
-I don't think this this is an issue because each line was the same as before,
-the lines were simply in different places.
-*** TODO Large refactor of vehicles and loads.
-*** TODO Load an ILMatrix per position in transverse direction e.g. per wheel track.
+*** DONE Each element consists of only one section, that is fine?
+CLOSED: [2019-10-16 Wed 14:46]
+Turns out that is the only way.
+*** DONE Large refactor of vehicles and loads
+CLOSED: [2019-10-16 Wed 14:46]
+*** DONE Contour plots in 3D of all translation types, multiple loading positions
+CLOSED: [2019-10-16 Wed 14:46]
+*** DONE ILMatrix per position in transverse direction e.g. per wheel track
+CLOSED: [2019-10-16 Wed 14:46]
+*** DONE Key issues finished for Monday
+CLOSED: [2019-10-16 Wed 14:46]
+*** DONE The mesh needs additional work, but I would delay that until later?
+CLOSED: [2019-10-16 Wed 14:46]
 * Weeks work
-** 7th October
+** 7th October [7/21]
 *** DONE [#A] Collect translation responses from support nodes
 CLOSED: [2019-10-14 Mon 13:12]
 *** TODO [#A] Collect stress, strain responses from all elements
+This is setup, and ready for implementation.
 *** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
 *** TODO [#A] Send updated document with sections/subsections to Valeria
 *** TODO [#A] Collect influence lines from traffic lanes
@@ -122,3 +135,22 @@ CLOSED: [2019-10-09 Wed 13:12]
 CLOSED: [2019-10-09 Wed 15:10]
 *** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
+** 16th October [0/8]
+*** TODO [#C] Events from ILs
+*** TODO [#C] OpenSees single section deck and piers
+*** TODO [#C] Additional contour plots from Axis
+- Need to go over the model and ensure it's correct.
+- Positions chosen, then need to collect the results.
+*** TODO [#C] Additional contour plots from Diana
+- Positions chosen, now need to collect the results.
+*** TODO [#C] Traffic scenarios updated for multi-lane traffic
+*** TODO [#B] Fix OpenSees 3D IL plots
+- Contour plots look correct so it is hopefully a small bug.
+- Before collecting results improve mesh.
+- Need to verify against the contour plots.
+- Increase model density and see when it breaks.
+*** BLOCKED [#A] Collect stresses and strains
+- Waiting on Arpi to respond with method.
+*** TODO [#B] Model assumptions and overview of system
+- Started writing assumptions.
+- Need to finish vehicle assumptions.

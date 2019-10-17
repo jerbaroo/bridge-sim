@@ -702,7 +702,8 @@ thus more shell elements will provide a more accurate response.
 *** Collected Data
 *** Model Assumptions
 - The movement of traffic on the bridge is greatly simplified from reality, the
-  assumption is made thatis All vehicles drive at a constant speed.
+  assumption is made that is. All vehicles drive at a constant speed.
+
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
 - All vehicles have the same axle-width.
@@ -726,9 +727,9 @@ thus more shell elements will provide a more accurate response.
   techniques explored on the simulated data can also work on real data.
 
   This assumption is verified by (A) applying the analysis techniques explored
-  on real data in addition to the simulated data and (B) verifying the simulated
-  noise against noise from measurements collected in real life as shown in
-  \textcolor{red, noise}.
+  on real data in addition to the simulated data with varying levels of noise
+  and (B) verifying the simulated noise is comparable to the noise from
+  measurements collected in real life as shown in \textcolor{red, noise}.
 ** Anomally Detection
 # Section overview.
 In this section the process of building the damage identification model is

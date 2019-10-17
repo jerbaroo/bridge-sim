@@ -4,7 +4,8 @@ from typing import Callable, List, Optional
 import numpy as np
 
 from config import Config
-from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section, Section2D, Section3D, Section3DPier, Support, Support3D
+from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section,\
+    Section2D, Section3D, Section3DPier, Support, Support3D
 
 
 #################################
@@ -172,10 +173,10 @@ def bridge_705_test_config(bridge: Callable[[], Bridge]) -> Config:
     """A testing Config for bridge 705 in Amsterdam."""
     c = bridge_705_config(bridge=bridge, generated_dir="generated-data-test")
     c.event_metadata_path += ".test"
-    c.os_node_step = c.bridge.length / 100
-    c.os_node_step_z = c.bridge.width / 30
-    c.os_support_num_nodes_z = 4
-    c.os_support_num_nodes_y = 4
+    c.os_node_step = c.bridge.length / 150
+    c.os_node_step_z = c.bridge.width / 50
+    c.os_support_num_nodes_z = 16
+    c.os_support_num_nodes_y = 17
     return c
 
 

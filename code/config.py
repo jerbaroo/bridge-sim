@@ -18,10 +18,10 @@ D: bool = True
 def set_deck_node_step(c: "Config", max_shell_area: float):
     """Set the deck node step size based on a maximum shell area.
 
-    Returns the final deck shell area.
+    Updates the given 'Config' and returns the final deck shell area.
 
     """
-    # Start with the minimum possible node step size.
+    # Start with the minimum possible amount of nodes.
     num_nodes_x, num_nodes_z = 2, 2
 
     def set_node_step():
@@ -199,6 +199,7 @@ class Config:
         #################
         ##### Noise #####
         #################
+
         self.noise_mean = lambda rt: {
             ResponseType.Strain: 0,
             ResponseType.Stress: 0,

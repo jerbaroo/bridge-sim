@@ -1,18 +1,22 @@
 .DS_Store
-*.swp
-*.tb
-*.egg-info/
-diana*.out
-diana.ff
-diana*.dat
+.swp
+.tb
+.auctex-auto
+.egg-info/
 .idea/
 .mypy_cache/
 __pycache__/
-generated-data/
-generated-images/
-generated-data-test/
 venv/
-code/config_sys.py
+
+# Code & generated data
+config_sys.py
+generated-data*/
+generated-images/
+
+# Diana related
+diana*.out
+diana.ff
+diana*.dat
 
 # Axis related
 *.axr

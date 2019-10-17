@@ -77,4 +77,4 @@ def kde_sampler(data, print_: bool = False):
 
 def pstr(s: str) -> str:
     """A string with some characters removed, for use in filepaths."""
-    return s.replace(".", "").replace(" ", "").lower()
+    return s.replace(".", ",").replace(" ", "").lower()

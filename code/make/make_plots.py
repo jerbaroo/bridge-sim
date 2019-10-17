@@ -260,20 +260,22 @@ def make_contour_plot(
     plot_contour_deck(
         c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
         c.image_path(pstr(
-            f"contour-{response_type.name()}-ploadxfrac={load_x}-"
-            + f"-ploadzfrac={load_z}-ploadkn={load_kn}"))))
+            f"contour-{response_type.name()}-ploadx={load_x}-"
+            + f"-ploadz={load_z}-ploadkn={load_kn}"))))
 
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
     for response_type in response_types:
-        for load_x in [35, c.bridge.length / 2, 100]:
-            for load_z in [-5, 0, 8.4]:
-                make_contour_plot(
-                    c=c, y=y, fem_runner=fem_runner,
-                    response_types=response_types, response_type=response_type,
-                    load_x=load_x, load_z=load_z)
+        for load_x, load_z in [
+                # (41.677, 1.8687), (35.011, 25.032 - 16.6),
+                # (2.46273, 0.6 - 16.6)]:
+                (55.732, 15.479 - 16.6)]:
+            make_contour_plot(
+                c=c, y=y, fem_runner=fem_runner,
+                response_types=response_types, response_type=response_type,
+                load_x=load_x, load_z=load_z)
 
 
 def make_all_2d(c: Config):
@@ -296,11 +298,7 @@ def make_all_3d(c: Config):
     make_contour_plots(
         c=c, y=0, response_types=[ResponseType.YTranslation,
             ResponseType.ZTranslation, ResponseType.XTranslation])
-    import sys; sys.exit();
-    make_il_plots(c)
-    make_contour_plots(
-        c=c, y=0, response_types=[ResponseType.YTranslation,
-            ResponseType.ZTranslation, ResponseType.XTranslation])
+    # make_il_plots(c)
     cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
     if not os.path.exists(cloud_of_nodes_dir):
         os.makedirs(cloud_of_nodes_dir)

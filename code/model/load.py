@@ -1,4 +1,4 @@
-"""Vehicles and loads."""
+"""Loads and vehicles"""
 from typing import List, Optional, Tuple
 
 from config import Config
@@ -11,11 +11,11 @@ D: bool = False
 
 
 class DisplacementCtrl:
-    """Apply a load in simulation until the displacement is reached.
+    """Apply a load to a pier until the displacement is reached.
 
     Args:
         displacement: float, displacement in meters.
-        pier: int, index of the pier (fixed node) starting at 0.
+        pier: int, index of a pier on a bridge.
 
     """
     def __init__(self, displacement: float, pier: int):
@@ -24,11 +24,11 @@ class DisplacementCtrl:
 
 
 class PointLoad:
-    """A load conentrated at a point.
+    """A load concentrated at a point.
 
     Args:
-        x_frac: float, fraction of x position on bridge, in [0 1].
-        z_frac: float, fraction of z position on bridge, in [0 1].
+        x_frac: float, fraction of x position on bridge in [0 1].
+        z_frac: float, fraction of z position on bridge in [0 1].
         kn: float, load intensity in kilo Newton.
 
     """
@@ -66,13 +66,13 @@ class Vehicle:
 
 
 class MvVehicle(Vehicle):
-    """A moving vehicle, with position and speed.
+    """A moving vehicle, has a speed and position on a bridge.
 
     Position is determined by an initial position in the longitudinal direction
     of the bridge, by an index to a lane on that bridge and by a constant speed.
 
-    NOTE: Arguments that determine position 'lane' and 'init_x_frac' are
-        optional, position may be set later.
+    NOTE: Arguments that determine initial position, 'lane' and 'init_x_frac',
+        are optional and may be set later.
 
     Args:
         kn: Union[float, List[float]], load intensity, either for the entire
