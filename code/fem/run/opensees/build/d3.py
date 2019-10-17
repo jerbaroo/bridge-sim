@@ -1,6 +1,6 @@
 """Build OpenSees 3D model files."""
-import itertools
-import math
+import copy
+from itertools import chain
 from collections import OrderedDict, defaultdict
 from typing import List, NewType, Optional, Tuple, Union
 
@@ -21,7 +21,7 @@ D: str = "fem.run.opensees.build.d3"
 # D: bool = False
 
 # The letters that come after a number e.g. in 1st, 2nd, 3rd.
-st = lambda n: "%s" % ("tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
+st = lambda n: "%s" % ("tsnrhtdd"[(np.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
 
 ##### Begin node factory #####
 
@@ -183,8 +183,8 @@ def z_positions_of_deck_support_nodes(c: Config) -> List[List[float]]:
         z_positions.append([])
         z_0 = support.z - (support.width_top / 2)
         z_positions[-1].append(round_m(z_0))
-        z_step = support.width_top / (c.os_support_num_nodes_z - 1)
-        for _ in range(c.os_support_num_nodes_z - 1):
+        z_step = support.width_top / (c.bridge.base_mesh_pier_nodes_z - 1)
+        for _ in range(c.bridge.base_mesh_pier_nodes_z - 1):
             z_0 += z_step
             z_positions[-1].append(round_m(z_0))
     return z_positions
@@ -203,8 +203,8 @@ def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
         z_0 = support.z - (support.width_bottom / 2)
         # print_w(f"support_z = {support.z}")
         z_positions[-1].append(round_m(z_0))
-        z_step = support.width_bottom / (c.os_support_num_nodes_z - 1)
-        for _ in range(c.os_support_num_nodes_z - 1):
+        z_step = support.width_bottom / (c.bridge.base_mesh_pier_nodes_z - 1)
+        for _ in range(c.bridge.base_mesh_pier_nodes_z - 1):
             z_0 += z_step
             z_positions[-1].append(round_m(z_0))
     return z_positions
@@ -252,9 +252,9 @@ def get_all_support_nodes(c: Config) -> AllSupportNodes:
                 y_pos = 0  # Start at the top.
                 z_pos = z_deck
                 # Determine difference for each x, y, z as we move down the wall.
-                x_diff = (x_bottom - x_deck) / (c.os_support_num_nodes_y - 1)
-                y_diff = -support.height / (c.os_support_num_nodes_y - 1)
-                z_diff = (z_bottom - z_deck) / (c.os_support_num_nodes_y - 1)
+                x_diff = (x_bottom - x_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
+                y_diff = -support.height / (c.bridge.base_mesh_pier_nodes_y - 1)
+                z_diff = (z_bottom - z_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
 
                 def append_wall_node(y):
                     """Append another node with current positions."""
@@ -267,7 +267,7 @@ def get_all_support_nodes(c: Config) -> AllSupportNodes:
                 # Append the first wall node for the current fixed z value then
                 # iterate through the remaining nodes in y direction.
                 append_wall_node(-1)
-                for y in range(c.os_support_num_nodes_y - 1):
+                for y in range(c.bridge.base_mesh_pier_nodes_y - 1):
                     x_pos += x_diff
                     y_pos += y_diff
                     z_pos += z_diff
@@ -294,7 +294,7 @@ def opensees_support_nodes(
     """
     # We want to avoid generating commands for support nodes that also belong to
     # the deck, thus we create a set for fast indexing to allow this check.
-    deck_nodes = set(itertools.chain.from_iterable(deck_nodes))
+    deck_nodes = set(chain.from_iterable(deck_nodes))
     nodes = OrderedDict()
     # For each support.
     for s_nodes in all_support_nodes:
@@ -332,9 +332,9 @@ def get_base_mesh_deck_positions(bridge: Bridge) -> DeckPositions:
 def get_pier_deck_positions(c: Config) -> DeckPositions:
     """The x and z positions of deck nodes that belong to piers."""
     return (
-        sorted(itertools.chain.from_iterable(
+        sorted(chain.from_iterable(
             x_positions_of_deck_support_nodes(c))),
-        sorted(itertools.chain.from_iterable(
+        sorted(chain.from_iterable(
             z_positions_of_deck_support_nodes(c))))
 
 
@@ -477,7 +477,7 @@ def opensees_deck_nodes(
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(),
-        list(itertools.chain.from_iterable(deck_nodes))))
+        list(chain.from_iterable(deck_nodes))))
     return (comment(
             "deck nodes", "\n".join(node_strings), units="node nodeTag x y z"),
         deck_nodes)
@@ -698,7 +698,7 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
 
 def opensees_deck_elements(c: Config, deck_elements: DeckElements) -> str:
     """OpenSees element commands for a bridge deck."""
-    deck_elements = itertools.chain.from_iterable(deck_elements)
+    deck_elements = chain.from_iterable(deck_elements)
     return comment(
         "deck shell elements",
         "\n".join(map(lambda e: e.command_3d(), deck_elements)),
@@ -879,11 +879,6 @@ def build_model_3d(
             nodes for the supports.
 
     """
-    c.os_node_step = c.bridge.length / (c.bridge.base_mesh_deck_nodes_x - 1)
-    c.os_node_step_z = c.bridge.width / (c.bridge.base_mesh_deck_nodes_z - 1)
-    c.os_support_num_nodes_z = 16
-    c.os_support_num_nodes_y = 17
-
     # Read in the template model file.
     with open(c.os_3d_model_template_path) as f:
         in_tcl = f.read()
