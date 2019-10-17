@@ -295,9 +295,9 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    make_contour_plots(
-        c=c, y=0, response_types=[ResponseType.YTranslation,
-            ResponseType.ZTranslation, ResponseType.XTranslation])
+    # make_contour_plots(
+    #     c=c, y=0, response_types=[ResponseType.YTranslation,
+    #         ResponseType.ZTranslation, ResponseType.XTranslation])
     # make_il_plots(c)
     cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
     if not os.path.exists(cloud_of_nodes_dir):

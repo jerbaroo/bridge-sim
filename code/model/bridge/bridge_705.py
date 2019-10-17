@@ -159,31 +159,52 @@ def bridge_705_3d(
         name: str = "Bridge 705", length: float = bridge_705_length,
         width: float = bridge_705_width, lanes: List[Lane] = bridge_705_lanes,
         sections: Optional[List[Section3D]] = bridge_705_sections_3d,
-        supports: List[Support3D] = bridge_705_supports_3d) -> Bridge:
-    """A 3D model of bridge 705 in Amsterdam."""
+        supports: List[Support3D] = bridge_705_supports_3d,
+        base_mesh_deck_nodes_x: int = 412, base_mesh_deck_nodes_z: int = 133,
+        base_mesh_pier_nodes_y: int = 17, base_mesh_pier_nodes_z: int = 16,
+        ) -> Bridge:
+    """A constructor for a 3D model of bridge 705 in Amsterdam.
+
+    The arguments have default values that come from a Diana model, but allow
+    for being overridden if you want to change the mesh density or number of
+    piers etc.. For documentation of the arguments see the 'Bridge' class.
+
+    """
     return Bridge(
         name=name, length=length, width=width, lanes=lanes, supports=supports,
-        sections=sections, dimensions=Dimensions.D3)
+        sections=sections, dimensions=Dimensions.D3,
+        base_mesh_deck_nodes_x=base_mesh_deck_nodes_x,
+        base_mesh_deck_nodes_z=base_mesh_deck_nodes_z,
+        base_mesh_pier_nodes_y=base_mesh_pier_nodes_y,
+        base_mesh_pier_nodes_z=base_mesh_pier_nodes_z)
 
 
 # Configs (normal and testing) for bridge 705.
 
 
-def bridge_705_test_config(bridge: Callable[[], Bridge]) -> Config:
-    """A testing Config for bridge 705 in Amsterdam."""
-    c = bridge_705_config(bridge=bridge, generated_dir="generated-data-test")
+def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
+    """A testing 'Config' for bridge 705 in Amsterdam."""
+    c = bridge_705_config(
+        generated_dir="generated-data-test",
+        bridge=lambda: bridge(
+            name="Bridge 705-test",
+            base_mesh_deck_nodes_x=101,
+            base_mesh_deck_nodes_z=31,
+            base_mesh_pier_nodes_y=17,
+            base_mesh_pier_nodes_z=16)
+        )
     c.event_metadata_path += ".test"
-    c.os_node_step = c.bridge.length / 150
-    c.os_node_step_z = c.bridge.width / 50
+    c.os_node_step = c.bridge.length / 100
+    c.os_node_step_z = c.bridge.width / 30
     c.os_support_num_nodes_z = 16
     c.os_support_num_nodes_y = 17
     return c
 
 
 def bridge_705_config(
-        bridge: Callable[[], Bridge], generated_dir: str = "generated-data",
+        bridge: Callable[..., Bridge], generated_dir: str = "generated-data",
         max_shell_area: Optional[float]=None) -> Config:
-    """A Config for bridge 705 in Amsterdam."""
+    """A 'Config' for bridge 705 in Amsterdam."""
     return Config(
         bridge=bridge, vehicle_data_path="data/a16-data/a16.csv",
         vehicle_density=[(11.5, 5.9), (12.2, 0.3), (43, 0.1)],

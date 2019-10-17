@@ -379,22 +379,46 @@ class Bridge:
         sections: List[Section], the bridge's cross section in 2D or 3D.
         lanes: List[Lane], lanes that span the bridge, where to place loads.
         dimensions: Dimensions, whether the model is 2D or 3D.
+        base_mesh_deck_nodes_x: int, number of nodes of the base mesh in
+            longitudinal direction of the bridge deck, minimum is 2.
+        base_mesh_deck_nodes_z: Optional[int], number of nodes of the base mesh
+            in transverse direction of the bridge deck, minimum is 2.
+        base_mesh_pier_nodes_y: Optional[int], number of nodes of the base mesh
+            in vertical direction of the piers, minimum is 2.
+        base_mesh_pier_nodes_z: Optional[int], number of nodes of the base mesh
+            in transverse direction of the piers, minimum is 2.
 
     """
     def __init__(
             self, name: str, length: float, width: float,
             supports: List[Support], sections: List[Section],
-            lanes: List[Lane], dimensions: Dimensions):
+            lanes: List[Lane], dimensions: Dimensions,
+            base_mesh_deck_nodes_x: int,
+            base_mesh_deck_nodes_z: Optional[int] = None,
+            base_mesh_pier_nodes_y: Optional[int] = None,
+            base_mesh_pier_nodes_z: Optional[int] = None):
+        # Given arguments.
         self.name = name
+        self.length = length
+        self.width = width
         self.supports = supports
         self.sections = sections
         self.lanes = lanes
         self.dimensions = dimensions
+
+        # Mesh.
+        self.base_mesh_deck_nodes_x = base_mesh_deck_nodes_x
+        self.base_mesh_deck_nodes_z = base_mesh_deck_nodes_z
+        self.base_mesh_pier_nodes_y = base_mesh_pier_nodes_y
+        self.base_mesh_pier_nodes_z = base_mesh_pier_nodes_z
+
+        # Derived attributes.
+        #
+        # NOTE: The functions y_min_max and z_min_max calculate the min and max
+        # values of the bridge in y and z directions respectively, based on the
+        # supports and sections. For a 3D bridge neither supports nor sections
+        # contain information on the min or max values in z direction.
         self.x_min, self.x_max = 0, length
-        # The following functions y_min_max and z_min_max calculate the min and
-        # max values in a direction, from the supports and sections. In the
-        # case of a 3D bridge neither supports nor sections contain information
-        # on the min or max values in z (transverse) direction of this bridge.
         self.y_min, self.y_max = self.y_min_max()
         if dimensions == Dimensions.D2:
             self.z_min, self.z_max = self.z_min_max()
@@ -403,15 +427,21 @@ class Bridge:
         self.x_center = (self.x_min + self.x_max) / 2
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_center = (self.z_min + self.z_max) / 2
-        self.length = length
-        self.width = width
         self.height = self.y_max - self.y_min
+        # TODO Move to another file.
+        self._assert_bridge()
+        self.print_info()
+
+    def print_info(self):
         print_i(
             f"Bridge dimensions:"
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
-        self._assert_bridge()
+        print_i(
+            f"Bridge mesh:"
+            + f"\n\tdeck base = ({self.base_mesh_deck_nodes_x}, {self.base_mesh_deck_nodes_z})"
+            + f"\n\tpier base = ({self.base_mesh_pier_nodes_y}, {self.base_mesh_deck_nodes_z})")
 
     def long_name(self):
         """Name with dimensions attached."""
@@ -491,11 +521,20 @@ class Bridge:
 
     def _assert_bridge(self):
         """Assert this bridge makes sense."""
+        # Bridge boundaries should be correct in orientation.
         assert self.x_min < self.x_max
         assert self.y_min < self.y_max
         assert self.z_min < self.z_max
+        # Derived dimensions should make sense.
         assert self.length == self.x_max - self.x_min
         assert self.width == self.z_max - self.z_min
+        # Base mesh must be of a minimum size.
+        assert self.base_mesh_deck_nodes_x >= 2
+        if self.dimensions == Dimensions.D3:
+            assert self.base_mesh_deck_nodes_z >= 2
+            assert self.base_mesh_pier_nodes_y >= 2
+            assert self.base_mesh_pier_nodes_z >= 2
+        # Delegate to 2D/3D specific checks.
         if self.dimensions == Dimensions.D2:
             self._assert_2d()
         else:

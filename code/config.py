@@ -216,6 +216,8 @@ class Config:
         #####################
         ##### OpenSees. #####
         #####################
+
+
         self.os_node_step: float = self.bridge.length / 100
         self.os_node_step_z: float = self.bridge.width / 100
         self.os_support_num_nodes_z: int = 10

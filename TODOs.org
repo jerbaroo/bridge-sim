@@ -135,8 +135,9 @@ CLOSED: [2019-10-09 Wed 13:12]
 CLOSED: [2019-10-09 Wed 15:10]
 *** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
-** 16th October [0/8]
+** 16th October [0/9]
 *** TODO [#C] Events from ILs
+*** TODO [#A] Mesh improvements
 *** TODO [#C] OpenSees single section deck and piers
 *** TODO [#C] Additional contour plots from Axis
 - Need to go over the model and ensure it's correct.

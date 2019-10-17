@@ -6,22 +6,27 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 from config import Config
-from fem.run.opensees.build.d3 import get_deck_nodes, get_all_support_nodes
+from fem.params import ExptParams, FEMParams
+from fem.run.opensees import OSRunner
+from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
+from model.load import PointLoad
 from plot import plt
 from util import print_d
 
 # Print debug information for this file.
-D: bool = False
+D: str = "plot.bridge"
+# D: bool = False
 
 
 def plot_cloud_of_nodes(
         c: Config, equal_axis: bool = False, save: Optional[str] = None,
         show: bool = False):
-    """Plot a cloud of points from the nodes of a 3D FEM."""
-    # Get deck and support nodes and flatten into a single array.
-    deck_nodes = np.array(get_deck_nodes(c=c, include_support_nodes=False))
-    support_nodes = np.array(get_all_support_nodes(c))
-    nodes = np.concatenate([deck_nodes.flatten(), support_nodes.flatten()])
+    """Plot the 'Node's of a 3D FEM."""
+    build_model_3d(c=c, expt_params=ExptParams([FEMParams(
+        [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
+    nodes = list(nodes_by_id.values())
+    print(len(nodes))
+
     # Split into separate arrays of x, y and z position.
     xs, ys, zs = (
         np.array([n.x for n in nodes]),

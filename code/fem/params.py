@@ -11,7 +11,7 @@ class FEMParams:
     Point loads EOR displacement control, and response types to record.
 
     Args:
-        ploads: List[PointLoad], a list of point loads to apply on the bridge.
+        ploads: List[PointLoad], a list of point loads to apply to the bridge.
         displacement_ctrl: DisplacementCtrl, apply a load until the given
             displacement in meters is reached.
         response_types: [ResponseType], response types to record.

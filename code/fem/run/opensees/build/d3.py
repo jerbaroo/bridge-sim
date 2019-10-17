@@ -8,7 +8,9 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams, FEMParams
-from fem.run.opensees.common import AllPierElements, AllSupportNodes, DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements, bridge_3d_nodes, num_deck_nodes
+from fem.run.opensees.common import AllPierElements, AllSupportNodes,\
+    DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements,\
+    bridge_3d_nodes, num_deck_nodes
 from model.bridge import Section3D, Support3D
 from model.load import PointLoad
 from model.response import ResponseType
@@ -23,19 +25,22 @@ st = lambda n: "%s" % ("tsnrhtdd"[(math.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
 
 ##### Begin node factory #####
 
-# A dictionary of x position to y position to z position to Node.
+# A dictionary of x position to y position to z position to 'Node'.
 all_nodes = defaultdict(lambda: defaultdict(dict))
 
-# A dictionary of Node ID to Node.
+# A dictionary of 'Node' ID to 'Node'.
+#
+# If you call 'build_model_3d' and then call '.values' on this dictionary it
+# provides an easy way to get all 'Node's for the previously built model.
 nodes_by_id = dict()
 
 
 def get_node(
         x: float, y: float, z: float, comment_str: Optional[str] = None,
         support: Optional[Support3D] = None):
-    """Get a node if it already exists, else create and return.
+    """Get a 'Node' if it already exists, else create and return.
 
-    NOTE: Use this to contruct Nodes, don't do it directly!
+    NOTE: Use this to contruct 'Node's, don't do it directly!
 
     """
     x = round_m(x)
@@ -71,7 +76,8 @@ def reset_nodes():
     global all_nodes
     all_nodes = defaultdict(lambda: defaultdict(dict))
     global nodes_by_id
-    nodes_by_id = dict()
+    nodes_by_id.clear()
+    assert len(list(nodes_by_id.values())) == 0
 
 
 reset_nodes()
@@ -790,7 +796,7 @@ def build_model_3d(
     """Build OpenSees 3D model files.
 
     Args:
-        c: Config, global configuratin object.
+        c: Config, global configuration object.
         include_support_nodes: bool, for testing, if False don't include the
             nodes for the supports.
 
@@ -800,6 +806,9 @@ def build_model_3d(
         in_tcl = f.read()
     # Build a model file for each simulation.
     for fem_params in expt_params.fem_params:
+        # Reset before building.
+        reset_nodes()
+        reset_elem_ids()
         num_nodes_x, num_nodes_z = num_deck_nodes(c)
         print_i(
             f"OpenSees: building 3D model, {num_nodes_x} * {num_nodes_z} deck"
@@ -807,9 +816,6 @@ def build_model_3d(
         # Displacement control is not supported yet in 3D.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
-        # Reset IDs before building.
-        reset_nodes()
-        reset_elem_ids()
         # Attach deck nodes and pier nodes to the FEMParams to be available when
         # converting raw responses to responses with positions attached. Note,
         # that there are some overlap between deck nodes and pier nodes, and
@@ -820,8 +826,8 @@ def build_model_3d(
         all_support_nodes = []
         if include_support_nodes:
             all_support_nodes = get_all_support_nodes(c)
-            print(len(all_support_nodes))
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
+        print(len(list(nodes_by_id.values())))
         fem_params.deck_nodes = deck_nodes
         fem_params.all_support_nodes = all_support_nodes
         # Attach deck elements and pier elements to the FEMParams to be
@@ -861,4 +867,5 @@ def build_model_3d(
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")
+    print(len(list(nodes_by_id.values())))
     return expt_params
