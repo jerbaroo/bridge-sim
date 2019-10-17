@@ -161,12 +161,7 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 
 
 def x_positions_of_deck_support_nodes(c: Config) -> List[float]:
-    """A list of sorted x positions where the supports have deck nodes.
-
-    TODO: There is loss of information in the returned type (sortof), should be
-        List[List[float]], a list of length 2 for each support.
-
-    """
+    """A list of sorted x positions where the supports have deck nodes."""
     x_positions = []
     for support in c.bridge.supports:
         x_positions.append([])
@@ -314,6 +309,18 @@ def opensees_support_nodes(
         units="node nodeTag x y z")
 
 
+def get_base_mesh_deck_positions(c: Config) -> Tuple[List[float], List[float]]:
+    """The x and z positions of deck nodes in the base mesh."""
+    x_positions, z_positions = [c.bridge.x_min], [c.bridge.z_min]
+    x_step = c.bridge.length / (c.bridge.base_mesh_deck_nodes_x - 1)
+    z_step = c.bridge.width / (c.bridge.base_mesh_deck_nodes_z - 1)
+    for _ in range(c.bridge.base_mesh_deck_nodes_x - 1):
+        x_positions.append(x_positions[-1] + x_step)
+    for _ in range(c.bridge.base_mesh_deck_nodes_z - 1):
+        z_positions.append(z_positions[-1] + z_step)
+    return x_positions, z_positions
+
+
 def get_deck_nodes(
         c: Config, include_support_nodes: bool) -> Tuple[str, List[List[Node]]]:
     """OpenSees nodes that belong to the bridge deck.
@@ -324,22 +331,9 @@ def get_deck_nodes(
             nodes for the supports.
 
     """
-    # First collect all z and x positions.
-    z_positions = set()
-    x_positions = set()
-    # Collect positions of deck nodes without deck support nodes.
-    z_pos = c.bridge.z_min
-    z_positions.add(z_pos)
-    num_deck_nodes_x, num_deck_nodes_z = (
-        c.bridge.base_mesh_deck_nodes_x, c.bridge.base_mesh_deck_nodes_z)
-    for num_z in range(num_deck_nodes_z - 1):
-        z_pos += c.os_node_step_z
-        z_positions.add(z_pos)
-        x_pos = c.bridge.x_min
-        x_positions.add(x_pos)
-        for num_x in range(num_deck_nodes_x - 1):
-            x_pos += c.os_node_step
-            x_positions.add(x_pos)
+    # First collect base mesh positions.
+    x_positions, z_positions = get_base_mesh_deck_positions(c)
+    x_positions, z_positions = set(x_positions), set(z_positions)
     # If necessary add positions of deck support nodes.
     x_positions_supports, z_positions_supports = None, None
     if include_support_nodes:
@@ -369,6 +363,7 @@ def get_deck_nodes(
 
 
     global ff_mod
+    # TODO: Instead of next_pow_10 maybe set_ff_mod?
     ff_mod = next_pow_10(len(x_positions))
     nodes = []
     for z_pos in z_positions:
@@ -840,6 +835,7 @@ def build_model_3d(
             c=c, deck_nodes=fem_params.deck_nodes)
         fem_params.all_pier_elements = get_pier_elements(
             c=c, all_support_nodes=all_support_nodes)
+
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -864,11 +860,13 @@ def build_model_3d(
                 c=c, deck_elements=fem_params.deck_elements))
             .replace("<<PIER_ELEMENTS>>", opensees_pier_elements(
                 c=c, all_pier_elements=fem_params.all_pier_elements)))
+
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
         print(model_path)
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")
+
     print(len(list(nodes_by_id.values())))
     return expt_params
