@@ -138,6 +138,7 @@ CLOSED: [2019-10-09 Wed 16:55]
 ** 16th October [0/9]
 *** TODO [#C] Events from ILs
 *** TODO [#A] Mesh improvements
+DEADLINE: <2019-10-18 Fri>
 *** TODO [#C] OpenSees single section deck and piers
 *** TODO [#C] Additional contour plots from Axis
 - Need to go over the model and ensure it's correct.
@@ -153,5 +154,6 @@ CLOSED: [2019-10-09 Wed 16:55]
 *** BLOCKED [#A] Collect stresses and strains
 - Waiting on Arpi to respond with method.
 *** TODO [#B] Model assumptions and overview of system
+DEADLINE: <2019-10-18 Fri>
 - Started writing assumptions.
 - Need to finish vehicle assumptions.

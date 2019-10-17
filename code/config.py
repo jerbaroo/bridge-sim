@@ -216,22 +216,22 @@ class Config:
         #####################
         ##### OpenSees. #####
         #####################
+      
 
-
-        self.os_node_step: float = self.bridge.length / 100
-        self.os_node_step_z: float = self.bridge.width / 100
-        self.os_support_num_nodes_z: int = 10
-        self.os_support_num_nodes_y: int = 10
-        if max_shell_area is not None:
-            dsa = set_deck_node_step(c=self, max_shell_area=max_shell_area)
-            wsa = set_support_num_nodes(c=self, max_shell_area=max_shell_area)
-            print_i(f"Maximum shell area = {max_shell_area}")
-            print_i(f"Deck shell area = {dsa}")
-            print_i(f"Wall shell area = {wsa}")
-        print_i(f"Deck node step x = {self.os_node_step}")
-        print_i(f"Deck node step z = {self.os_node_step_z}")
-        print_i(f"Wall num nodes y = {self.os_support_num_nodes_y}")
-        print_i(f"Wall num nodes z = {self.os_support_num_nodes_z}")
+        # self.os_node_step: float = self.bridge.length / 100
+        # self.os_node_step_z: float = self.bridge.width / 100
+        # self.os_support_num_nodes_z: int = 10
+        # self.os_support_num_nodes_y: int = 10
+        # if max_shell_area is not None:
+        #     dsa = set_deck_node_step(c=self, max_shell_area=max_shell_area)
+        #     wsa = set_support_num_nodes(c=self, max_shell_area=max_shell_area)
+        #     print_i(f"Maximum shell area = {max_shell_area}")
+        #     print_i(f"Deck shell area = {dsa}")
+        #     print_i(f"Wall shell area = {wsa}")
+        # print_i(f"Deck node step x = {self.os_node_step}")
+        # print_i(f"Deck node step z = {self.os_node_step_z}")
+        # print_i(f"Wall num nodes y = {self.os_support_num_nodes_y}")
+        # print_i(f"Wall num nodes z = {self.os_support_num_nodes_z}")
         self.os_exe_path: str = config_sys.os_exe_path
         self.os_model_template_path: str = "code/model-template.tcl"
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
@@ -250,19 +250,19 @@ class Config:
         #######################################################################
 
         # Put all this non-configuration in OpenSees FEMRunner.
-        def os_get_num_elems():
-            result = int(np.round(self.bridge.length / self.os_node_step))
-            print_d(D, f"os_num_elems = {result}")
-            assert np.isclose(result * self.os_node_step, self.bridge.length)
-            return result
+        # def os_get_num_elems():
+        #     result = int(np.round(self.bridge.length / self.os_node_step))
+        #     print_d(D, f"os_num_elems = {result}")
+        #     assert np.isclose(result * self.os_node_step, self.bridge.length)
+        #     return result
 
-        os_get_num_elems()
-        self.os_num_elems = os_get_num_elems
-        self.os_num_nodes = lambda: self.os_num_elems() + 1
-        self.os_node_ids = lambda: np.arange(1, self.os_num_nodes() + 1)
-        assert len(list(self.os_node_ids())) == self.os_num_nodes()
-        self.os_elem_ids = lambda: np.arange(1, self.os_num_elems() + 1)
-        assert len(list(self.os_elem_ids())) == self.os_num_elems()
+        # os_get_num_elems()
+        # self.os_num_elems = os_get_num_elems
+        # self.os_num_nodes = lambda: self.os_num_elems() + 1
+        # self.os_node_ids = lambda: np.arange(1, self.os_num_nodes() + 1)
+        # assert len(list(self.os_node_ids())) == self.os_num_nodes()
+        # self.os_elem_ids = lambda: np.arange(1, self.os_num_elems() + 1)
+        # assert len(list(self.os_elem_ids())) == self.os_num_elems()
 
         # Diana.
         # TODO: Move all this to Diana FEMRunner.

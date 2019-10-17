@@ -10,7 +10,7 @@ from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees.common import AllPierElements, AllSupportNodes,\
     DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements,\
-    bridge_3d_nodes, num_deck_nodes
+    bridge_3d_nodes
 from model.bridge import Section3D, Support3D
 from model.load import PointLoad
 from model.response import ResponseType
@@ -330,7 +330,8 @@ def get_deck_nodes(
     # Collect positions of deck nodes without deck support nodes.
     z_pos = c.bridge.z_min
     z_positions.add(z_pos)
-    num_deck_nodes_x, num_deck_nodes_z = num_deck_nodes(c)
+    num_deck_nodes_x, num_deck_nodes_z = (
+        c.bridge.base_mesh_deck_nodes_x, c.bridge.base_mesh_deck_nodes_z)
     for num_z in range(num_deck_nodes_z - 1):
         z_pos += c.os_node_step_z
         z_positions.add(z_pos)
@@ -801,6 +802,11 @@ def build_model_3d(
             nodes for the supports.
 
     """
+    c.os_node_step = c.bridge.length / (c.bridge.base_mesh_deck_nodes_x - 1)
+    c.os_node_step_z = c.bridge.width / (c.bridge.base_mesh_deck_nodes_z - 1)
+    c.os_support_num_nodes_z = 16
+    c.os_support_num_nodes_y = 17
+
     # Read in the template model file.
     with open(c.os_3d_model_template_path) as f:
         in_tcl = f.read()
@@ -809,10 +815,6 @@ def build_model_3d(
         # Reset before building.
         reset_nodes()
         reset_elem_ids()
-        num_nodes_x, num_nodes_z = num_deck_nodes(c)
-        print_i(
-            f"OpenSees: building 3D model, {num_nodes_x} * {num_nodes_z} deck"
-            + " nodes")
         # Displacement control is not supported yet in 3D.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
@@ -827,7 +829,8 @@ def build_model_3d(
         if include_support_nodes:
             all_support_nodes = get_all_support_nodes(c)
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
-        print(len(list(nodes_by_id.values())))
+        print_i(
+            f"OpenSees: building 3D model, {len(list(nodes_by_id))} nodes")
         fem_params.deck_nodes = deck_nodes
         fem_params.all_support_nodes = all_support_nodes
         # Attach deck elements and pier elements to the FEMParams to be

@@ -194,10 +194,6 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
             base_mesh_pier_nodes_z=16)
         )
     c.event_metadata_path += ".test"
-    c.os_node_step = c.bridge.length / 100
-    c.os_node_step_z = c.bridge.width / 30
-    c.os_support_num_nodes_z = 16
-    c.os_support_num_nodes_y = 17
     return c
 
 
