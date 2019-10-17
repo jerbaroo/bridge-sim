@@ -438,10 +438,6 @@ class Bridge:
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
-        print_i(
-            f"Bridge mesh:"
-            + f"\n\tdeck base = ({self.base_mesh_deck_nodes_x}, {self.base_mesh_deck_nodes_z})"
-            + f"\n\tpier base = ({self.base_mesh_pier_nodes_y}, {self.base_mesh_deck_nodes_z})")
 
     def long_name(self):
         """Name with dimensions attached."""
