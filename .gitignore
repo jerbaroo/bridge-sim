@@ -1,8 +1,8 @@
 .DS_Store
-.swp
-.tb
-.auctex-auto
-.egg-info/
+*.swp
+*.tb
+*.auctex-auto
+*.egg-info/
 .idea/
 .mypy_cache/
 __pycache__/
@@ -10,8 +10,7 @@ venv/
 
 # Code & generated data
 config_sys.py
-generated-data*/
-generated-images/
+generated*/
 
 # Diana related
 diana*.out

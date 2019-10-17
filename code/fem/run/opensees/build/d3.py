@@ -1,7 +1,7 @@
 """Build OpenSees 3D model files."""
-import copy
 from itertools import chain
 from collections import OrderedDict, defaultdict
+from copy import deepcopy
 from typing import List, NewType, Optional, Tuple, Union
 
 import numpy as np
@@ -15,6 +15,9 @@ from model.bridge import Bridge, Section3D, Support3D
 from model.load import PointLoad
 from model.response import ResponseType
 from util import round_m, print_d, print_i, print_w
+
+def assert_sorted(l):
+    assert all(l[i] <= l[i+1] for i in range(len(l)-1))
 
 # Print debug information for this file.
 D: str = "fem.run.opensees.build.d3"
@@ -164,9 +167,12 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 ##### End some comment-related things #####
 ##### Begin nodes #####
 
+# A list of x and z positions of deck nodes.
+DeckPositions = NewType("DeckPositions", Tuple[List[float], List[float]])
 
-def x_positions_of_deck_support_nodes(c: Config) -> List[float]:
-    """A list of sorted x positions where the supports have deck nodes."""
+
+def get_x_positions_of_pier_deck_nodes(c: Config) -> List[List[float]]:
+    """The x positions of the deck nodes of each pier."""
     x_positions = []
     for support in c.bridge.supports:
         x_positions.append([])
@@ -176,27 +182,51 @@ def x_positions_of_deck_support_nodes(c: Config) -> List[float]:
     return x_positions
 
 
-def z_positions_of_deck_support_nodes(c: Config) -> List[List[float]]:
-    """A list of sorted z positions where each support has deck nodes."""
+def get_base_mesh_z_positions_of_pier_deck_nodes(c: Config) -> List[List[float]]:
+    """The z positions of deck nodes of each pier's base mesh."""
     z_positions = []
     for support in c.bridge.supports:
-        z_positions.append([])
-        z_0 = support.z - (support.width_top / 2)
-        z_positions[-1].append(round_m(z_0))
+        z_positions.append([support.z - (support.width_top / 2)])
         z_step = support.width_top / (c.bridge.base_mesh_pier_nodes_z - 1)
         for _ in range(c.bridge.base_mesh_pier_nodes_z - 1):
-            z_0 += z_step
-            z_positions[-1].append(round_m(z_0))
-    return z_positions
+            z_positions[-1].append(z_positions[-1][-1] + z_step)
+    return list(map(round_m, z_positions))
+
+
+def get_z_positions_of_pier_deck_nodes(
+        c: Config, deck_positions: DeckPositions = ([], [])
+        ) -> List[List[float]]:
+    """The z positions of deck nodes of each pier (including deck mesh)."""
+    assert_sorted(deck_positions[1])
+    all_base_pier_z_positions = get_base_mesh_z_positions_of_pier_deck_nodes(c)
+    all_pier_z_positions = []
+    # For each pier, find the z positions from the deck grid which fall within
+    # the z positions of that pier's base mesh and include in the list.
+    for p, base_pier_z_positions in enumerate(all_base_pier_z_positions):
+        assert_sorted(base_pier_z_positions)
+        # Start by including the z positions of the pier's base mesh.
+        all_pier_z_positions.append(set(base_pier_z_positions))
+        base_pier_min_z_pos = base_pier_z_positions[0]
+        base_pier_max_z_pos = base_pier_z_positions[-1]
+        print_d(D, f"pier {p}. min, max = {base_pier_min_z_pos}, {base_pier_max_z_pos}")
+        # And include z positions from the deck grid within the pier's range.
+        for deck_z_pos in deck_positions[1]:
+            if deck_z_pos > pier_min_z_pos:
+                all_pier_z_positions[-1].add(deck_z_pos)
+            elif deck_z_pos >= pier_max_z_pos:
+                break
+        all_pier_z_positions[-1] = sorted(all_pier_z_positions[-1])
+    return all_pier_z_positions
+
 
 
 def x_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
-    """A list of sorted x positions of the bottom nodes for each support."""
+    """A length-1 list of the x position of the bottom nodes for each pier."""
     return [[support.x] for support in c.bridge.supports]
 
 
 def z_positions_of_bottom_support_nodes(c: Config) -> List[List[float]]:
-    """A list of sorted z positions of the bottom nodes for each support."""
+    """A list of sorted z positions of the bottom nodes for each pier."""
     z_positions = []
     for support in c.bridge.supports:
         z_positions.append([])
@@ -228,8 +258,8 @@ def assert_support_nodes(c: Config, all_support_nodes: AllSupportNodes):
 def get_all_support_nodes(c: Config) -> AllSupportNodes:
     """All nodes for all a bridge's supports."""
     nodes = []
-    x_positions_deck = x_positions_of_deck_support_nodes(c)
-    z_positions_deck = z_positions_of_deck_support_nodes(c)
+    x_positions_deck = get_x_positions_of_pier_deck_nodes(c)
+    z_positions_deck = get_z_positions_of_pier_deck_nodes(c, ([], []))
     x_positions_bottom = x_positions_of_bottom_support_nodes(c)
     z_positions_bottom = z_positions_of_bottom_support_nodes(c)
     for i, support in enumerate(c.bridge.supports):
@@ -314,9 +344,6 @@ def opensees_support_nodes(
         units="node nodeTag x y z")
 
 
-DeckPositions = NewType("DeckPositions", Tuple[List[float], List[float]])
-
-
 def get_base_mesh_deck_positions(bridge: Bridge) -> DeckPositions:
     """The x and z positions of deck nodes in the base mesh."""
     x_positions, z_positions = [bridge.x_min], [bridge.z_min]
@@ -333,9 +360,9 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
     """The x and z positions of deck nodes that belong to piers."""
     return (
         sorted(chain.from_iterable(
-            x_positions_of_deck_support_nodes(c))),
+            get_x_positions_of_pier_deck_nodes(c))),
         sorted(chain.from_iterable(
-            z_positions_of_deck_support_nodes(c))))
+            get_base_mesh_z_positions_of_pier_deck_nodes(c))))
 
 
 def get_load_deck_positions(
@@ -347,35 +374,29 @@ def get_load_deck_positions(
         [round_m(bridge.z(pload.z_frac)) for pload in fem_params.ploads])
 
 
-def assert_sorted(l):
-    assert all(l[i] <= l[i+1] for i in range(len(l)-1))
-
-
-# The amount of x and y deck positions after each stage of building.
-DeckStageInfo = NewType("DeckStageInfo", Tuple[float, float])
-
-# The amount of x and y deck positions after each stage of building.
+# The x and y deck positions after each stage of building.
 DeckStagesInfo = NewType(
-    "DeckStagesInfo", Tuple[DeckStageInfo, DeckStageInfo, DeckStageInfo])
+    "DeckStagesInfo", Tuple[DeckPositions, DeckPositions, DeckPositions])
 
 
 def get_deck_positions(
-        c: Config, fem_params: FEMParams, include_support_nodes: bool,
-        stages_info: bool = False
-        ) -> Union[DeckPositions, Tuple[DeckPositions, DeckStagesInfo]]:
+        c: Config, fem_params: FEMParams, include_support_nodes: bool
+        ) -> DeckPositions:
     """The x and z positions of deck nodes.
+
+    NOTE: This function will attach 'DeckStagesInfo' to the given 'FEMParams'
+    under the attribute 'deck_stages_info.
 
     Args:
         c: Config, global configuration object.
-        stage_info: bool, also return the 'DeckStagesInfo'
 
     """
     # First collect positions from the base mesh.
     x_positions, z_positions = get_base_mesh_deck_positions(c.bridge)
     x_positions, z_positions = set(x_positions), set(z_positions)
 
-    # Start storing the 'DeckStagesInfo'.
-    deck_stages_info = [(len(x_positions), len(z_positions))]
+    # Start creating the 'DeckStagesInfo'.
+    deck_stages_info = [(deepcopy(x_positions), deepcopy(z_positions))]
 
     # If requested, collect positions from piers.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
@@ -387,7 +408,7 @@ def get_deck_positions(
             z_positions.add(z_pos)
 
     # Update the 'DeckStagesInfo' with pier information.
-    deck_stages_info.append((len(x_positions), len(z_positions)))
+    deck_stages_info.append((deepcopy(x_positions), deepcopy(z_positions)))
 
     # Collect loading positions.
     x_positions_loads, z_positions_loads = get_load_deck_positions(
@@ -402,17 +423,17 @@ def get_deck_positions(
         print_d(D, f"load z pos already in x positions {z_pos in z_positions}")
         z_positions.add(z_pos)
 
-    # Update the 'DeckStagesInfo' with pier information.
-    deck_stages_info.append((len(x_positions), len(z_positions)))
+    # Update the 'DeckStagesInfo' with pier information and add to FEMParams.
+    deck_stages_info.append((deepcopy(x_positions), deepcopy(z_positions)))
+    fem_params.deck_stages_info = deck_stages_info
 
-    result = sorted(x_positions), sorted(z_positions)
-    return (result, deck_stages_info) if stages_info else result
+    return sorted(x_positions), sorted(z_positions)
 
 
-def print_stages_info(deck_stages_info: DeckStagesInfo):
+def print_mesh_info(fem_params: FEMParams):
     """Print information about the mesh after each stage of building."""
-    base, piers, loads = deck_stages_info
-    base, piers, loads = np.array(base), np.array(piers), np.array(loads)
+    to_lens = lambda x: np.array(list(map(len, x)))
+    base, piers, loads = map(to_lens, fem_params.deck_stages_info)
     loads -= piers
     piers -= base
     print_i(
@@ -433,11 +454,9 @@ def get_deck_nodes(
             nodes for the supports.
 
     """
-    # Get x and z positions on deck and print stages information.
-    (x_positions, z_positions), deck_stages_info = get_deck_positions(
-        c=c, fem_params=fem_params, include_support_nodes=include_support_nodes,
-        stages_info=True)
-    print_stages_info(deck_stages_info)
+    # Get x and z positions of nodes on the deck.
+    x_positions, z_positions = get_deck_positions(
+        c=c, fem_params=fem_params, include_support_nodes=include_support_nodes)
 
     # Get positions of pier nodes on the deck.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
@@ -890,11 +909,7 @@ def build_model_3d(
         # Displacement control is not supported yet in 3D.
         if fem_params.displacement_ctrl is not None:
             raise ValueError("OpenSees: Displacement not supported in 3D")
-        # Attach deck nodes and pier nodes to the FEMParams to be available when
-        # converting raw responses to responses with positions attached. Note,
-        # that there are some overlap between deck nodes and pier nodes, and
-        # some over lap between nodes of both walls of one pier (at the bottom
-        # where they meet).
+        #
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
             c=c, fem_params=fem_params,
             include_support_nodes=include_support_nodes)
@@ -902,15 +917,19 @@ def build_model_3d(
         if include_support_nodes:
             all_support_nodes = get_all_support_nodes(c)
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
-        print_i(
-            f"OpenSees: building 3D model, {len(list(nodes_by_id))} nodes")
-        fem_params.deck_nodes = deck_nodes
-        fem_params.all_support_nodes = all_support_nodes
-        # Attach deck elements and pier elements to the FEMParams to be
+
+        print_mesh_info(fem_params)
+
+        # Attach deck and pier nodes and elements to the FEMParams to be
         # available when converting raw responses to responses with positions
         # attached.
-        fem_params.deck_elements = get_deck_elements(
-            c=c, deck_nodes=fem_params.deck_nodes)
+        #
+        # NOTE: there is some overlap between deck nodes and pier nodes, and
+        # some over lap between nodes of both walls of one pier (at the bottom
+        # where they meet).
+        fem_params.deck_nodes = deck_nodes
+        fem_params.all_support_nodes = all_support_nodes
+        fem_params.deck_elements = get_deck_elements(c=c, deck_nodes=deck_nodes)
         fem_params.all_pier_elements = get_pier_elements(
             c=c, all_support_nodes=all_support_nodes)
 
