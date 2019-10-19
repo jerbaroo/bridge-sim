@@ -211,11 +211,11 @@ def get_z_positions_of_pier_deck_nodes(
         base_pier_max_z_pos = base_pier_z_positions[-1]
         print_d(D, f"pier {p}. min, max = {base_pier_min_z_pos}, {base_pier_max_z_pos}")
         # And include z positions from the deck grid within the pier's range.
+        assert_sorted(deck_positions[1])
         for deck_z_pos in deck_positions[1]:  # Index '1' are the z positions.
-            if deck_z_pos > base_pier_min_z_pos:
+            break  # TODO.
+            if base_pier_min_z_pos < deck_z_pos < base_pier_max_z_pos:
                 all_pier_z_positions[-1].add(deck_z_pos)
-            elif deck_z_pos >= base_pier_max_z_pos:
-                break
         all_pier_z_positions[-1] = sorted(all_pier_z_positions[-1])
         assert_sorted(all_pier_z_positions[-1])
     return all_pier_z_positions
@@ -957,9 +957,9 @@ def build_model_3d(
             deck_positions=deck_positions)
         all_support_nodes = []
         if include_support_nodes:
-            all_support_nodes = get_all_support_nodes(c, ([], []))
-            # all_support_nodes = get_all_support_nodes(
-            #     c, deck_positions=deck_positions)
+            # all_support_nodes = get_all_support_nodes(c, ([], []))
+            all_support_nodes = get_all_support_nodes(
+                c, deck_positions=deck_positions)
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
 
         print_mesh_info(fem_params)
