@@ -195,6 +195,10 @@ def get_base_mesh_z_positions_of_pier_deck_nodes(c: Config) -> List[List[float]]
     return list(map(round_m, z_positions))
 
 
+# TODO: Experimental, hoping this works.
+DECK_NODES_IN_PIER = True
+
+
 def get_z_positions_of_pier_deck_nodes(
         c: Config, deck_positions: DeckPositions) -> List[List[float]]:
     """The z positions of deck nodes of each pier (including deck mesh)."""
@@ -213,7 +217,7 @@ def get_z_positions_of_pier_deck_nodes(
         # And include z positions from the deck grid within the pier's range.
         assert_sorted(deck_positions[1])
         for deck_z_pos in deck_positions[1]:  # Index '1' are the z positions.
-            break  # TODO.
+            if not DECK_NODES_IN_PIER: break
             if base_pier_min_z_pos < deck_z_pos < base_pier_max_z_pos:
                 all_pier_z_positions[-1].add(deck_z_pos)
         all_pier_z_positions[-1] = sorted(all_pier_z_positions[-1])
@@ -914,11 +918,26 @@ def opensees_recorders(
 def assert_deck_in_pier_pier_in_deck(
         deck_nodes: DeckNodes, all_pier_nodes: AllSupportNodes):
     """The number of top nodes per pier must equal that range in the mesh."""
+    # First create a list of deck nodes sorted by x then z position.
+    sorted_deck_nodes = sorted(
+        chain.from_iterable(deck_nodes), key=lambda n: (n.x, n.z))
     for pier_nodes in all_pier_nodes:
         for wall_nodes in pier_nodes:
+            # Get the top line of nodes of the wall and assert we got them
+            # correctly.
             wall_top_nodes = list(map(lambda ys: ys[0], wall_nodes))
             for z, node in enumerate(wall_top_nodes):
                 assert node.y > wall_nodes[z][1].y
+            x = wall_top_nodes[0].x
+            for x_index in range(1, len(wall_top_nodes)):
+                assert x == wall_top_nodes[x_index].x
+            # Find the deck nodes with the correct x position and range of z.
+            min_z = wall_top_nodes[0].z
+            max_z = wall_top_nodes[-1].z
+            deck_in_range = len(list(
+                n for n in sorted_deck_nodes
+                if n.x == x and n.z >= min_z and n.z <= max_z))
+            assert deck_in_range == len(wall_top_nodes)
 
 
 def build_model_3d(
@@ -962,6 +981,8 @@ def build_model_3d(
                 c, deck_positions=deck_positions)
             assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
 
+        assert_deck_in_pier_pier_in_deck(
+            deck_nodes=deck_nodes, all_pier_nodes=all_support_nodes)
         print_mesh_info(fem_params)
 
         # Attach deck and pier nodes and elements to the FEMParams to be
