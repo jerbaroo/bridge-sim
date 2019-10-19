@@ -468,7 +468,6 @@ def print_mesh_info(
     for pier_nodes in all_pier_nodes:
         for wall_nodes in pier_nodes:
             wall_shape = np.array(wall_nodes).shape
-            print(wall_shape)
             num_pier_nodes_z.append(wall_shape[0])
             num_pier_nodes_y.append(wall_shape[1])
     base = [bridge.base_mesh_pier_nodes_y, bridge.base_mesh_pier_nodes_z]
@@ -962,8 +961,8 @@ def build_model_3d(
 
     Args:
         c: Config, global configuration object.
-        include_support_nodes: bool, for testing, if False don't include the
-            nodes for the supports.
+        simple_mesh: bool, if True, then the meshes for deck and for piers are
+            based on simple grids of nodes without any refinement.
 
     """
     # Read in the template model file.

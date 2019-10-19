@@ -1,7 +1,6 @@
 """Test fem.run.opensees.parse."""
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.common import num_deck_nodes
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import PointLoad
 from model.response import ResponseType
@@ -22,5 +21,5 @@ def test_parse_3d():
     # There should only be one time step.
     assert len(parsed_y_responses) == 1
     # Check that all deck nodes are recorded.
-    num_deck_nodes_x, num_deck_nodes_z = num_deck_nodes(c)
-    assert len(parsed_y_responses[0]) == num_deck_nodes_x * num_deck_nodes_z
+    assert len(parsed_y_responses[0]) == (
+        c.bridge.base_mesh_deck_nodes_x * c.bridge.base_mesh_deck_nodes_z)
