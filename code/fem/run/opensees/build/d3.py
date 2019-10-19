@@ -200,7 +200,8 @@ DECK_NODES_IN_PIER = True
 
 
 def get_z_positions_of_pier_deck_nodes(
-        c: Config, deck_positions: DeckPositions) -> List[List[float]]:
+        c: Config, deck_positions: DeckPositions, simple_mesh: bool
+        ) -> List[List[float]]:
     """The z positions of deck nodes of each pier (including deck mesh)."""
     assert_sorted(deck_positions[1])
     all_base_pier_z_positions = get_base_mesh_z_positions_of_pier_deck_nodes(c)
@@ -217,7 +218,7 @@ def get_z_positions_of_pier_deck_nodes(
         # And include z positions from the deck grid within the pier's range.
         assert_sorted(deck_positions[1])
         for deck_z_pos in deck_positions[1]:  # Index '1' are the z positions.
-            if not DECK_NODES_IN_PIER: break
+            if simple_mesh or not DECK_NODES_IN_PIER: break
             if base_pier_min_z_pos < deck_z_pos < base_pier_max_z_pos:
                 all_pier_z_positions[-1].add(deck_z_pos)
         all_pier_z_positions[-1] = sorted(all_pier_z_positions[-1])
@@ -271,12 +272,13 @@ def assert_support_nodes(c: Config, all_support_nodes: AllSupportNodes):
 
 
 def get_all_support_nodes(
-        c: Config, deck_positions: DeckPositions) -> AllSupportNodes:
+        c: Config, deck_positions: DeckPositions, simple_mesh: bool
+        ) -> AllSupportNodes:
     """All nodes for all a bridge's supports."""
     nodes = []
     x_positions_deck = get_x_positions_of_pier_deck_nodes(c)
     z_positions_deck = get_z_positions_of_pier_deck_nodes(
-        c=c, deck_positions=deck_positions)
+        c=c, deck_positions=deck_positions, simple_mesh=simple_mesh)
     x_positions_bottom = get_x_positions_of_pier_bottom_nodes(c)
     # z_positions_bottom = get_base_mesh_z_positions_of_pier_bottom_nodes(c)
     z_positions_bottom = get_z_positions_of_pier_bottom_nodes(
@@ -326,8 +328,8 @@ def get_all_support_nodes(
 
 
 def opensees_support_nodes(
-        c: Config, deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes
-        ) -> str:
+        c: Config, deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes,
+        simple_mesh: bool) -> str:
     """Opensees node commands for the supports (ignoring deck).
 
     By 'ignoring deck' we mean that nodes that belong to both supports and the
@@ -355,7 +357,8 @@ def opensees_support_nodes(
                 for y, node in enumerate(y_nodes):
                     # Sanity check that all (and only these) of the pier's top
                     # nodes are part of the deck
-                    assert (node in deck_nodes) == (y == 0)
+                    if not simple_mesh:
+                        assert (node in deck_nodes) == (y == 0)
                     # Insert the node, if not part of the deck nodes.
                     if node not in deck_nodes:
                         # A dictionary is used incase the node is already added,
@@ -402,7 +405,7 @@ DeckStagesInfo = NewType(
 
 
 def get_deck_positions(
-        c: Config, fem_params: FEMParams, include_support_nodes: bool
+        c: Config, fem_params: FEMParams, simple_mesh: bool
         ) -> DeckPositions:
     """The x and z positions of deck nodes.
 
@@ -423,7 +426,7 @@ def get_deck_positions(
     # If requested, collect positions from piers.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
     assert_sorted(x_positions_piers); assert_sorted(z_positions_piers)
-    if include_support_nodes:
+    if not simple_mesh:
         for x_pos in x_positions_piers:
             x_positions.add(x_pos)
         for z_pos in z_positions_piers:
@@ -438,12 +441,13 @@ def get_deck_positions(
     assert_sorted(x_positions_loads); assert_sorted(z_positions_loads)
     print_d(D, f"deck x positions from loads = {x_positions_loads})")
     print_d(D, f"deck z positions from loads = {z_positions_loads})")
-    for x_pos in x_positions_loads:
-        print_d(D, f"load x pos already in x positions {x_pos in x_positions}")
-        x_positions.add(x_pos)
-    for z_pos in z_positions_loads:
-        print_d(D, f"load z pos already in x positions {z_pos in z_positions}")
-        z_positions.add(z_pos)
+    if not simple_mesh:
+        for x_pos in x_positions_loads:
+            print_d(D, f"load x pos already in x positions {x_pos in x_positions}")
+            x_positions.add(x_pos)
+        for z_pos in z_positions_loads:
+            print_d(D, f"load z pos already in x positions {z_pos in z_positions}")
+            z_positions.add(z_pos)
 
     # Update the 'DeckStagesInfo' with pier information and add to FEMParams.
     deck_stages_info.append((deepcopy(x_positions), deepcopy(z_positions)))
@@ -480,8 +484,7 @@ def print_mesh_info(
 
 
 def get_deck_nodes(
-        c: Config, fem_params: FEMParams, include_support_nodes: bool,
-        deck_positions: DeckPositions
+        c: Config, fem_params: FEMParams, deck_positions: DeckPositions
         ) -> Tuple[str, List[List[Node]]]:
     """OpenSees nodes that belong to the bridge deck.
 
@@ -489,8 +492,6 @@ def get_deck_nodes(
 
     Args:
         c: Config, global configuration object.
-        include_support_nodes: bool, for testing, if False don't include the
-            nodes for the supports.
 
     """
     # Unpack x and z positions of nodes on the deck.
@@ -519,8 +520,7 @@ def get_deck_nodes(
 
 
 def opensees_deck_nodes(
-        c: Config, fem_params: FEMParams, include_support_nodes: bool,
-        deck_positions: DeckPositions
+        c: Config, fem_params: FEMParams, deck_positions: DeckPositions
         ) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck.
 
@@ -528,13 +528,10 @@ def opensees_deck_nodes(
 
     Args:
         c: Config, global configuratin object.
-        include_support_nodes: bool, for testing, if False don't include the
-            nodes for the supports.
 
     """
     deck_nodes = get_deck_nodes(
-        c=c, fem_params=fem_params, include_support_nodes=include_support_nodes,
-        deck_positions=deck_positions)
+        c=c, fem_params=fem_params, deck_positions=deck_positions)
     node_strings = []
     node_strings += list(map(
         lambda node: node.command_3d(),
@@ -956,13 +953,13 @@ def assert_deck_in_pier_pier_in_deck(
 
 def build_model_3d(
         c: Config, expt_params: ExptParams, os_runner: "OSRunner",
-        include_support_nodes: bool = True):
+        simple_mesh: bool = False):
     """Build OpenSees 3D model files.
 
     Args:
         c: Config, global configuration object.
         simple_mesh: bool, if True, then the meshes for deck and for piers are
-            based on simple grids of nodes without any refinement.
+            based on simple grids of nodes without any refinement, for testing.
 
     """
     # Read in the template model file.
@@ -982,24 +979,20 @@ def build_model_3d(
 
         # Calculate nodes for the bridge deck and piers.
         deck_positions = get_deck_positions(
-            c=c, fem_params=fem_params,
-            include_support_nodes=include_support_nodes)
+            c=c, fem_params=fem_params, simple_mesh=simple_mesh)
         deck_nodes_str, deck_nodes = opensees_deck_nodes(
-            c=c, fem_params=fem_params,
-            include_support_nodes=include_support_nodes,
-            deck_positions=deck_positions)
-        all_support_nodes = []
-        if include_support_nodes:
-            # all_support_nodes = get_all_support_nodes(c, ([], []))
-            all_support_nodes = get_all_support_nodes(
-                c, deck_positions=deck_positions)
-            assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
+            c=c, fem_params=fem_params, deck_positions=deck_positions)
+        all_support_nodes = get_all_support_nodes(
+            c, deck_positions=deck_positions, simple_mesh=simple_mesh)
+        assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
 
-        assert_deck_in_pier_pier_in_deck(
-            deck_nodes=deck_nodes, all_pier_nodes=all_support_nodes)
+        # Print info on, and assert the generated mesh.
         print_mesh_info(
             bridge=c.bridge, fem_params=fem_params,
             all_pier_nodes=all_support_nodes)
+        if not simple_mesh:
+            assert_deck_in_pier_pier_in_deck(
+                deck_nodes=deck_nodes, all_pier_nodes=all_support_nodes)
 
         # Attach deck and pier nodes and elements to the FEMParams to be
         # available when converting raw responses to responses with positions
@@ -1022,7 +1015,7 @@ def build_model_3d(
             .replace("<<DECK_NODES>>", deck_nodes_str)
             .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
                 c=c, deck_nodes=deck_nodes,
-                all_support_nodes=all_support_nodes))
+                all_support_nodes=all_support_nodes, simple_mesh=simple_mesh))
             .replace("<<LOAD>>", opensees_loads(
                 c=c, ploads=fem_params.ploads, deck_nodes=deck_nodes))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
