@@ -195,7 +195,7 @@ def get_base_mesh_z_positions_of_pier_deck_nodes(c: Config) -> List[List[float]]
     return list(map(round_m, z_positions))
 
 
-# TODO: Experimental, hoping this works.
+# TODO: Experimental, but I think this works.
 DECK_NODES_IN_PIER = True
 
 
@@ -452,7 +452,8 @@ def get_deck_positions(
     return sorted(x_positions), sorted(z_positions)
 
 
-def print_mesh_info(fem_params: FEMParams):
+def print_mesh_info(
+        bridge: Bridge, fem_params: FEMParams, all_pier_nodes: AllSupportNodes):
     """Print information about the mesh after each stage of building."""
     to_lens = lambda x: np.array(list(map(len, x)))
     base, piers, loads = map(to_lens, fem_params.deck_stages_info)
@@ -463,6 +464,20 @@ def print_mesh_info(fem_params: FEMParams):
         + f"\n\tbase mesh  = {base[0]} * {base[1]}"
         + f"\n\tfrom piers = {piers[0]} * {piers[1]}"
         + f"\n\tfrom loads = {loads[0]} * {loads[1]}")
+    num_pier_nodes_z, num_pier_nodes_y = [], []
+    for pier_nodes in all_pier_nodes:
+        for wall_nodes in pier_nodes:
+            wall_shape = np.array(wall_nodes).shape
+            print(wall_shape)
+            num_pier_nodes_z.append(wall_shape[0])
+            num_pier_nodes_y.append(wall_shape[1])
+    base = [bridge.base_mesh_pier_nodes_y, bridge.base_mesh_pier_nodes_z]
+    piers = np.array([np.mean(num_pier_nodes_y), np.mean(num_pier_nodes_z)])
+    piers -= np.array(base)
+    print_i(
+        "Pier nodes (y * z)"
+        + f"\n\tbase mesh  = {base[0]} * {base[1]}"
+        + f"\n\tfrom piers = {piers[0]} * {piers[1]} (mean)")
 
 
 def get_deck_nodes(
@@ -983,7 +998,9 @@ def build_model_3d(
 
         assert_deck_in_pier_pier_in_deck(
             deck_nodes=deck_nodes, all_pier_nodes=all_support_nodes)
-        print_mesh_info(fem_params)
+        print_mesh_info(
+            bridge=c.bridge, fem_params=fem_params,
+            all_pier_nodes=all_support_nodes)
 
         # Attach deck and pier nodes and elements to the FEMParams to be
         # available when converting raw responses to responses with positions
