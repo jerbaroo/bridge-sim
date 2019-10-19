@@ -553,9 +553,9 @@ class FixNode:
         comment_: Optional[str], an optional comment for the command.
 
     """
-    def __init__(self, node: Node, comment_: Optional[str] = None):
+    def __init__(self, node: Node, comment: Optional[str] = None):
         self.node = node
-        self.comment = comment_
+        self.comment = comment
 
     def command_3d(self):
         """The command in string format for a TCL file."""
@@ -600,7 +600,7 @@ def opensees_fixed_support_nodes(
         for z, z_nodes in enumerate(s_nodes[0]):  
             # We will fix the bottom node.
             fixed_nodes.append(FixNode(
-                node=z_nodes[-1], comment_=f"support {s+1} z {z+1}"))
+                node=z_nodes[-1], comment=f"support {s+1} z {z+1}"))
     return comment(
         "fixed support nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
@@ -958,8 +958,8 @@ def build_model_3d(
 
     Args:
         c: Config, global configuration object.
-        simple_mesh: bool, if True, then the meshes for deck and for piers are
-            based on simple grids of nodes without any refinement, for testing.
+        simple_mesh: bool, whether meshes for deck and for piers are based on
+            simple grids of nodes without any refinement, for testing.
 
     """
     # Read in the template model file.

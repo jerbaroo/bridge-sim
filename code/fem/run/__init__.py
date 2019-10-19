@@ -56,15 +56,15 @@ class FEMRunner:
 
     def run(
             self, expt_params: ExptParams, return_parsed: bool = False,
-            return_converted: bool = False, include_support_3d_nodes: bool = True):
+            return_converted: bool = False, simple_mesh: bool = False):
         """Run simulations and save responses using this FEMRunner.
 
         Args:
             expt_params: ExptParams, parameters for a number of simulations.
             return_parsed: bool, for testing, return parsed responses.
             return_converted: bool, for testing, return converted responses.
-            include_support_3d_nodes: bool, for testing, if False don't include
-                nodes for the supports.
+            simple_mesh: bool, whether meshes for deck and for piers are based
+                on simple grids of nodes without any refinement, for testing.
 
         """
 
@@ -80,7 +80,7 @@ class FEMRunner:
         start = timer()
         expt_params = self._build(
             c=self.c, expt_params=expt_params, fem_runner=self,
-            include_support_3d_nodes=include_support_3d_nodes)
+            simple_mesh=simple_mesh)
         print_i(f"FEMRunner: built {self.name} model file(s) in"
                 + f" {timer() - start:.2f}s")
 

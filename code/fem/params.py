@@ -20,7 +20,7 @@ class FEMParams:
     def __init__(
             self, ploads: List[PointLoad], response_types: List[ResponseType],
             displacement_ctrl: Optional[DisplacementCtrl] = None):
-        if len(ploads) == 0: assert displacement_ctrl is not None
+        if displacement_ctrl is not None: assert len(ploads) == 0
         else: assert displacement_ctrl is None
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl

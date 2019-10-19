@@ -8,19 +8,12 @@ from model.bridge import Dimensions
 
 def build_model(
         c: Config, expt_params: ExptParams, fem_runner: "OSRunner",
-        include_support_3d_nodes: bool = True):
-    """Build an OpenSees 2D or 3D model file.
-
-    Args:
-        c: Config, global configuratin object.
-        include_support_3d_nodes: bool, for testing, if False don't include the
-            nodes for the supports.
-
-    """
+        simple_mesh: bool):
+    """Build an OpenSees 2D or 3D model file."""
     if c.bridge.dimensions == Dimensions.D2:
         return build_model_2d(
             c=c, expt_params=expt_params, os_runner=fem_runner)
     else:
         return build_model_3d(
             c=c, expt_params=expt_params, os_runner=fem_runner,
-            include_support_nodes=include_support_3d_nodes)
+            simple_mesh=simple_mesh)

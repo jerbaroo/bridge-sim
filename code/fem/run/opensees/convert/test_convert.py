@@ -15,8 +15,7 @@ def test_convert_3d():
         ploads=[PointLoad(0.65, 0.35, 100)],
         response_types=[ResponseType.YTranslation])
     converted = fem_runner.run(
-        ExptParams([fem_params]), return_converted=True,
-        include_support_3d_nodes=False)
+        ExptParams([fem_params]), return_converted=True, simple_mesh=True)
     # Index converted responses by simulation, here is only one simulation.
     converted_y_responses = converted[0][ResponseType.YTranslation]
     assert isinstance(converted_y_responses[0], Response)
