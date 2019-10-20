@@ -6,7 +6,8 @@ import make.make_text as make_text
 import util
 from config import Config
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_3d,\
-    bridge_705_config, bridge_705_debug_config, bridge_705_single_sections
+    bridge_705_config, bridge_705_debug_config, bridge_705_test_config,\
+    bridge_705_single_sections
 from util import clean_generated, print_i
 
 

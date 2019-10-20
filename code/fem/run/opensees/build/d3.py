@@ -239,7 +239,7 @@ def get_z_positions_of_pier_bottom_nodes(
     """The z positions of bottom nodes of each pier's base mesh.
 
     This is achieved by interpolating the top nodes to the bottom, this works
-    because the ratio of the distance between nodes should be equal.
+    because the ratios of distances between nodes should remain equal.
 
     """
     all_z_positions = []
@@ -746,8 +746,7 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
             # print_d(D, f"deck element x_node = {x_node}")
             # i is the bottom left node, j the bottom right, k the top right
             # and l the top left.
-            i_node = z_node + x_node
-            j_node = i_node + 1
+            i_node, j_node = z_node + x_node, z_node + x_node + 1
             k_node, l_node = j_node + z_skip, i_node + z_skip
             # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
             section = section_for_deck_element(
@@ -755,7 +754,7 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
                 element_z=nodes_by_id[i_node].z)
             deck_elements[-1].append(ShellElement(
                 e_id=next_elem_id(), ni_id=i_node, nj_id=j_node, nk_id=k_node,
-                nl_id=l_node, section=section))
+                nl_id=l_node, section=section, nodes_by_id=nodes_by_id))
         ff_elem_ids(z_skip)
     return deck_elements
 
@@ -802,6 +801,7 @@ def get_pier_elements(
                         e_id=next_elem_id(), ni_id=y_lo_z_lo.n_id,
                         nj_id=y_hi_z_lo.n_id, nk_id=y_hi_z_hi.n_id,
                         nl_id=y_lo_z_hi.n_id, section=section,
+                        nodes_by_id=nodes_by_id,
                         support_position_index=(s, w, z, y)))
                 ff_elem_ids(ff_mod)
                 z += 1

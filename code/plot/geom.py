@@ -1,4 +1,4 @@
-"""Plot geometry of a bridge and lanes/loads on the bridge."""
+"""Plot 3D geometry of a bridge."""
 from typing import Callable, Optional
 
 import numpy as np
@@ -8,6 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 from config import Config
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
+from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
 from model.load import PointLoad
 from plot import plt
@@ -19,19 +20,20 @@ D: str = "plot.bridge"
 
 
 def plot_cloud_of_nodes(
-        c: Config, equal_axis: bool = False, save: Optional[str] = None,
-        show: bool = False):
+        c: Config, equal_axis: bool = False,
+        node_prop: Optional[Callable[[Node], float]] = None,
+        save: Optional[str] = None, show: bool = False):
     """Plot the 'Node's of a 3D FEM."""
     build_model_3d(c=c, expt_params=ExptParams([FEMParams(
         [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())
     print(len(nodes))
 
-    # Split into separate arrays of x, y and z position.
-    xs, ys, zs = (
-        np.array([n.x for n in nodes]),
-        np.array([n.y for n in nodes]),
-        np.array([n.z for n in nodes]))
+    # Split into separate arrays of x, y and z position, and colors.
+    xs = np.array([n.x for n in nodes])
+    ys = np.array([n.y for n in nodes])
+    zs = np.array([n.z for n in nodes])
+    cs = None if node_prop is None else np.array([node_prop(n) for n in nodes])
 
     # Axis to be referenced by function f in plot_and_save.
     ax = None
@@ -56,11 +58,13 @@ def plot_cloud_of_nodes(
         nonlocal ax
         ax = fig.add_subplot(111, projection="3d", proj_type="ortho")
         f()
-        ax.scatter(xs, zs, ys, s=1)
+        p = ax.scatter(xs, zs, ys, c=cs, s=1)
         if equal_axis:
             ax.set_xlim(mid_x - max_range, mid_x + max_range)
             ax.set_ylim(mid_y - max_range, mid_y + max_range)
             ax.set_zlim(mid_z - max_range, mid_z + max_range)
+        if cs is not None:
+            fig.colorbar(p)
         if save: plt.savefig(f"{save}{append}")
         if show: plt.show()
         if save or show: plt.close()

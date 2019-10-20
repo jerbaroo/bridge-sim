@@ -544,6 +544,10 @@ class Bridge:
             assert self.single_sections[0].start_z_frac == 0
             assert self.single_sections[1].start_x_frac == 0
             assert self.single_sections[1].start_z_frac == 0
+            assert self.single_sections[1].start_frac_len == 0
+            assert len(self.sections) == 1
+            for pier in self.supports:
+                assert len(pier.sections) == 1
 
         # Bridge boundaries should be correct in orientation.
         assert self.x_min < self.x_max

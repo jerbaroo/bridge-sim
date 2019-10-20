@@ -1,6 +1,6 @@
 """Common functions used by OpenSees FEMRunner components."""
 import itertools
-from typing import List, NewType, Optional, Tuple
+from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 
@@ -22,6 +22,9 @@ class Node:
         z: float, the z position of this node on the bridge.
         comment: Optional[str], an optional comment for the .tcl file.
         support: Optional[3D], the support that this node may belong to.
+
+    Attrs:
+        section: Section3D, a section that may be attached, or not.
 
     """
     def __init__(
@@ -76,6 +79,11 @@ def bridge_3d_nodes(
 class ShellElement:
     """A shell element that can be converted to an OpenSees command.
 
+    NOTE: When this constructor is called additional work is done in setting a
+    reference to the given section to all given nodes. Thus associating to each
+    given node a section, this information that is attached to nodes is useful
+    for creating colored plots of properties of the 3D model.
+
     Args:
         e_id: int, index for this shell element.
         ni_id: int, index of the node at corner i of this shell element.
@@ -89,7 +97,7 @@ class ShellElement:
     """
     def __init__(
             self, e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int,
-            section: Section3D,
+            section: Section3D, nodes_by_id: Dict[int, Node],
             support_position_index: Optional[Tuple[int, int, int, int]] = None):
         self.e_id = e_id
         self.ni_id = ni_id
@@ -98,6 +106,10 @@ class ShellElement:
         self.nl_id = nl_id
         self.section = section
         self.support_position_index = support_position_index
+
+        # Attach a reference to the section to each 'Node'.
+        for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+            nodes_by_id[n_id].section = self.section
 
     def command_3d(self):
         """OpenSees element command."""
