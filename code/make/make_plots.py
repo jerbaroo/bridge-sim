@@ -300,11 +300,17 @@ def make_cloud_of_nodes_plots(c: Config):
             *args, **kwargs, c=c, equal_axis=True,
             save=os.path.join(cloud_of_nodes_dir, f"cloud{prop}-equal-axis"))
 
-    # Standard plots.
-    both_axis_plots("")
+    def all_plots(prop: str, *args, **kwargs):
+        """Make both axis plots for all deck and pier variants."""
+        both_axis_plots(prop, *args, deck=True, piers=True, **kwargs)
+        both_axis_plots(prop, *args, deck=True, piers=False, **kwargs)
+        both_axis_plots(prop, *args, deck=False, piers=True, **kwargs)
 
     # Standard plots.
-    both_axis_plots("-density", node_prop=lambda n: n.section.density)
+    all_plots("")
+
+    # Standard plots.
+    all_plots("-density", node_prop=lambda n: n.section.density)
 
 
 def make_all_2d(c: Config):
