@@ -6,6 +6,7 @@
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
+** TODO [#A] Fix 2D model
 ** TODO [#A] Assert that sections are sorted by position
 ** TODO [#A] Remove default fix values to Support3D
 ** TODO [#A] Fix max_shell_area for piers, maybe create Point.helper_functions

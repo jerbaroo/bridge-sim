@@ -305,4 +305,4 @@ def make_all_3d(c: Config):
     plot_cloud_of_nodes(
         c=c, equal_axis=True,
         save=os.path.join(cloud_of_nodes_dir, "cloud-equal-axis"))
-    # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
+    make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])

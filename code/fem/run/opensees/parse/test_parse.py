@@ -1,4 +1,6 @@
 """Test fem.run.opensees.parse."""
+import itertools
+
 from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
@@ -22,4 +24,5 @@ def test_parse_3d():
     # Check that all deck nodes are recorded.
     assert len(parsed_y_responses[0]) == (
         c.bridge.base_mesh_deck_nodes_x * c.bridge.base_mesh_deck_nodes_z
-        + c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z)
+        + c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z
+        * len(c.bridge.supports) * 2)

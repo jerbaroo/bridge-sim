@@ -21,4 +21,6 @@ def test_convert_3d():
     assert isinstance(converted_y_responses[0], Response)
     # Check that all deck nodes are recorded.
     assert len(converted_y_responses) == (
-        c.bridge.base_mesh_deck_nodes_x * c.bridge.base_mesh_deck_nodes_z)
+        c.bridge.base_mesh_deck_nodes_x * c.bridge.base_mesh_deck_nodes_z
+        + c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z
+        * len(c.bridge.supports) * 2)
