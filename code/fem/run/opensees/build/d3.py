@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import List, NewType, Optional, Tuple, Union
 
 import numpy as np
+from scipy.spatial import distance
 
 from config import Config
 from fem.params import ExptParams, FEMParams
@@ -819,50 +820,31 @@ def opensees_pier_elements(c: Config, all_pier_elements: AllPierElements) -> str
 ##### Begin loads #####
 
 
-def opensees_load(c: Config, pload: PointLoad, deck_nodes: DeckNodes):
+def opensees_load(
+        c: Config, pload: PointLoad, deck_nodes: DeckNodes, simple_mesh: bool):
     """An OpenSees load command."""
-    min_z_diff = np.inf  # Minimum difference in z of node to load.
-    min_x_diff = np.inf  # Minimum difference in x of node to load.
-    # print_d(D, f"load.z_frac = {load.z_frac}")
     pload_z = c.bridge.z(z_frac=pload.z_frac)
     pload_x = c.bridge.x(x_frac=pload.x_frac)
-    best_node = None
-    # The deck nodes are first sorted by z position, then by x position. First
-    # iterate through the z positions to find best line of nodes...
-    best_x_nodes = None
-    for x_nodes in deck_nodes:
-        # print_d(D, f"x_nodes[0].z = {x_nodes[0].z}")
-        # print_d(D, f"load_z = {load_z}")
-        if abs(x_nodes[0].z - pload_z) < min_z_diff:
-            min_z_diff = abs(x_nodes[0].z - pload_z)
-            # print_d(D, f"min_z_diff = {min_z_diff}")
-            best_x_nodes = x_nodes
-        else:
-            break
-    # print_d(D, f"best_x_nodes.x = {best_x_nodes[0].x}")
-    # print_d(D, f"best_x_nodes.z = {best_x_nodes[0].z}")
-    # ...then iterate through x positions to find the best point.
-    for x_ind, node in enumerate(best_x_nodes):
-        if abs(node.x - pload_x) < min_x_diff:
-            min_x_diff = abs(node.x - pload_x)
-            best_node = node
-            # print_d(D, f"min_x_diff = {min_x_diff}")
-            # print_d(D, f"{x_ind / len(x_nodes)}")
-            # print_d(D, f"load_x = {load_x}")
-        else:
-            break
-    # print_d(D, f"best_node.x = {best_node.x}")
-    # print_d(D, f"best_node.z = {best_node.z}")
-    # print_d(D, f"Generating OpenSees load command for {load}")
+    best_node = sorted(
+        chain.from_iterable(deck_nodes),
+        key=lambda n: distance.euclidean((n.x, n.z), (pload_x, pload_z)))[0]
+    # If we have a proper mesh then this should be the exact node.
+    if not simple_mesh:
+        assert np.isclose(best_node.x, pload_x)
+        assert np.isclose(best_node.z, pload_z)
     return f"load {best_node.n_id} 0 {pload.kn * 1000} 0 0 0 0"
 
 
-def opensees_loads(c: Config, ploads: List[PointLoad], deck_nodes: DeckNodes):
+def opensees_loads(
+        c: Config, ploads: List[PointLoad], deck_nodes: DeckNodes,
+        simple_mesh: bool):
     """OpenSees load commands for a .tcl file."""
     return comment(
         "loads",
         "\n".join(
-            opensees_load(c=c, pload=pload, deck_nodes=deck_nodes)
+            opensees_load(
+                c=c, pload=pload, deck_nodes=deck_nodes,
+                simple_mesh=simple_mesh)
             for pload in ploads),
         units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
 
@@ -1022,7 +1004,8 @@ def build_model_3d(
                 c=c, deck_nodes=deck_nodes,
                 all_support_nodes=all_support_nodes, simple_mesh=simple_mesh))
             .replace("<<LOAD>>", opensees_loads(
-                c=c, ploads=fem_params.ploads, deck_nodes=deck_nodes))
+                c=c, ploads=fem_params.ploads, deck_nodes=deck_nodes,
+                simple_mesh=simple_mesh))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
             .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
