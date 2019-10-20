@@ -20,6 +20,8 @@ class Node:
         x: float, the x position of this node on the bridge.
         y: float, the y position of this node on the bridge.
         z: float, the z position of this node on the bridge.
+        deck: bool, whether this node belongs to the bridge deck.
+        pier: Optional[Support3D], the pier that this node may belong to.
         comment: Optional[str], an optional comment for the .tcl file.
         support: Optional[3D], the support that this node may belong to.
 
@@ -28,13 +30,15 @@ class Node:
 
     """
     def __init__(
-            self, n_id: int, x: float, y: float, z: float,
-            comment: Optional[str] = None,
+            self, n_id: int, x: float, y: float, z: float, deck: bool,
+            pier: Optional[Support3D] = None, comment: Optional[str] = None,
             support: Optional[Support3D] = None):
         self.n_id = n_id
         self.x = round_m(x)
         self.y = round_m(y)
         self.z = round_m(z)
+        self.deck = deck
+        self.pier = pier
         self.comment = comment
         self.support = support
 

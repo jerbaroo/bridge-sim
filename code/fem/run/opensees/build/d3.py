@@ -40,9 +40,9 @@ nodes_by_id = dict()
 
 
 def get_node(
-        x: float, y: float, z: float, comment_str: Optional[str] = None,
-        support: Optional[Support3D] = None):
-    """Get a 'Node' if it already exists, else create and return.
+        x: float, y: float, z: float, deck: bool, pier: Optional[Support3D] = None,
+        comment_str: Optional[str] = None, support: Optional[Support3D] = None):
+    """Get a 'Node' if one already exists at position, else create a new one.
 
     NOTE: Use this to contruct 'Node's, don't do it directly!
 
@@ -50,13 +50,18 @@ def get_node(
     x = round_m(x)
     y = round_m(y)
     z = round_m(z)
+    # Create the new 'Node' if necessary.
     if z not in all_nodes[x][y]:
         new_node = Node(
             n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str,
-            support=support)
+            support=support, deck=deck, pier=pier)
         all_nodes[x][y][z] = new_node
         nodes_by_id[new_node.n_id] = new_node
-    return all_nodes[x][y][z]
+    # Return the node and attach deck and pier information.
+    node = all_nodes[x][y][z]
+    node.deck = True if node.deck else deck
+    node.pier = node.pier if node.pier is not None else pier
+    return node
 
 
 ##### End node factory #####
@@ -316,8 +321,8 @@ def get_all_support_nodes(
                 def append_wall_node(y):
                     """Append another node with current positions."""
                     wall[-1].append(get_node(
-                        x=x_pos, y=y_pos, z=z_pos, support=support,
-                        comment_str=(
+                        x=x_pos, y=y_pos, z=z_pos, deck=False, pier=support,
+                        support=support, comment_str=(
                             f"support {i + 1}{st(i + 1)} wall {w + 1}{st(w + 1)} z {z + 1} "
                             + f"y {y + 2}{st(y + 2)}")))
 
@@ -521,7 +526,7 @@ def get_deck_nodes(
                 "support node" if is_pier_node(x_=x_pos, z_=z_pos)
                 else None)
             nodes[-1].append(get_node(
-                x=x_pos, y=0, z=z_pos, comment_str=comment_str))
+                x=x_pos, y=0, z=z_pos, deck=True, comment_str=comment_str))
     return nodes
 
 

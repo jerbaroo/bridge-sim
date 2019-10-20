@@ -12,7 +12,7 @@ from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
 from model.load import PointLoad
 from plot import plt
-from util import print_d
+from util import print_d, print_w
 
 # Print debug information for this file.
 D: str = "plot.bridge"
@@ -22,12 +22,16 @@ D: str = "plot.bridge"
 def plot_cloud_of_nodes(
         c: Config, equal_axis: bool = False,
         node_prop: Optional[Callable[[Node], float]] = None,
-        save: Optional[str] = None, show: bool = False):
+        deck: bool = True, piers: bool = True, save: Optional[str] = None, show: bool = False):
     """Plot the 'Node's of a 3D FEM."""
     build_model_3d(c=c, expt_params=ExptParams([FEMParams(
         [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())
     print(len(nodes))
+
+    print_w(f"Total amount of nodes = {len(nodes)}")
+    nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
+    print_w(f"Total amount of nodes = {len(nodes)}")
 
     # Split into separate arrays of x, y and z position, and colors.
     xs = np.array([n.x for n in nodes])
@@ -58,6 +62,8 @@ def plot_cloud_of_nodes(
         nonlocal ax
         ax = fig.add_subplot(111, projection="3d", proj_type="ortho")
         f()
+        # TODO: Move this to plot module.
+        plt.set_cmap("coolwarm")
         p = ax.scatter(xs, zs, ys, c=cs, s=1)
         if equal_axis:
             ax.set_xlim(mid_x - max_range, mid_x + max_range)
@@ -65,7 +71,9 @@ def plot_cloud_of_nodes(
             ax.set_zlim(mid_z - max_range, mid_z + max_range)
         if cs is not None:
             fig.colorbar(p)
-        if save: plt.savefig(f"{save}{append}")
+        deck_str = "-deck" if deck else ""
+        piers_str = "-piers" if piers else ""
+        if save: plt.savefig(f"{save}{append}{deck_str}{piers_str}")
         if show: plt.show()
         if save or show: plt.close()
 
