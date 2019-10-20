@@ -12,6 +12,9 @@ from termcolor import colored
 
 init()
 
+# If set to False, then debug statements are disabled globally.
+DEBUG = True
+
 
 def round_m(x):
     """Round meters to supported accuracy."""
@@ -21,7 +24,7 @@ def round_m(x):
 # https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
 def print_d(debug: Union[bool, str], s: str):
     """Print some debug text."""
-    if debug:
+    if DEBUG and debug:
         path_str = ""
         if isinstance(debug, str):
             path_str = debug

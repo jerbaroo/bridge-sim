@@ -9,7 +9,8 @@
 ** TODO [#A] Fix 2D model
 ** TODO [#A] Assert that sections are sorted by position
 ** TODO [#A] Remove default fix values to Support3D
-** TODO [#A] Fix max_shell_area for piers, maybe create Point.helper_functions
+** TODO [#A] Fix max_shell_area for piers
+- Maybe create Point.helper_functions
 ** TODO [#A] Write about amount and value of bridges in Hungary
 ** TODO [#A] Attach section reference to each node and plot in 3D
 ** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
@@ -137,9 +138,12 @@ CLOSED: [2019-10-09 Wed 13:12]
 CLOSED: [2019-10-09 Wed 15:10]
 *** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
-** 16th October [0/9]
-*** TODO [#A] Mesh improvements
-DEADLINE: <2019-10-18 Fri>
+** 16th October [1/9]
+*** DONE [#A] Mesh improvements
+CLOSED: [2019-10-20 Sun 13:44] DEADLINE: <2019-10-18 Fri>
+- Base mesh for bridge deck and bridge piers.
+- Ensure pier nodes are part of deck and vice versa.
+- Ensure load position had a perfectly placed node.
 *** TODO [#B] Model assumptions and overview of system
 DEADLINE: <2019-10-18 Fri>
 - Started writing assumptions.

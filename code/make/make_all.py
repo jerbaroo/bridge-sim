@@ -3,9 +3,10 @@ import sys
 
 import make.make_plots as make_plots
 import make.make_text as make_text
+import util
 from config import Config
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_3d,\
-    bridge_705_config, bridge_705_test_config
+    bridge_705_config, bridge_705_debug_config
 from util import clean_generated, print_i
 
 
@@ -19,9 +20,13 @@ def make_all(c: Config, d3: bool):
 
 
 def main():
+    util.DEBUG = False
     if "--test" in sys.argv:
         print_i("Main: using test Config")
         c_func = bridge_705_test_config
+    elif "--debug" in sys.argv:
+        print_i("Main: using debug Config")
+        c_func = bridge_705_debug_config
     else:
         print_i("Main: using normal Config")
         c_func = bridge_705_config

@@ -1,5 +1,10 @@
-"""Make all plots for the thesis."""
+"""Make all plots for the thesis.
+
+These function provide data to functions in '/plot'.
+
+"""
 import os
+from itertools import chain
 from typing import List, Optional
 
 import numpy as np
@@ -22,7 +27,7 @@ from plot.vehicles import plot_density, plot_length_vs_axles,\
 from model.bridge import Dimensions, Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
-from util import print_d, pstr
+from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
 # Print debug information for this file.
@@ -244,39 +249,36 @@ def make_event_plots_from_normal_mv_loads(c: Config):
                                 + f"-numloads-{num_loads}"
                                 + f"-at-{x_frac:.2f}"))))
 
-def make_contour_plot(
-        c: Config, y: float, fem_runner: FEMRunner,
-        response_types: List[ResponseType], response_type: ResponseType,
-        load_x: float, load_z: float, load_kn: float=100):
-    load_x_frac = c.bridge.x_frac(load_x)
-    load_z_frac = c.bridge.z_frac(load_z)
-    pload = PointLoad(x_frac=load_x_frac, z_frac=load_z_frac, kn=load_kn)
-    print_d(D, f"response_types = {response_types}")
-    fem_params = FEMParams(ploads=[pload], response_types=response_types)
-    print_d(D, f"loading response type = {response_type}")
-    fem_responses = load_fem_responses(
-        c=c, fem_params=fem_params, response_type=response_type,
-        fem_runner=fem_runner)
-    plot_contour_deck(
-        c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
-        c.image_path(pstr(
-            f"contour-{response_type.name()}-ploadx={load_x}-"
-            + f"-ploadz={load_z}-ploadkn={load_kn}"))))
-
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
     fem_runner = OSRunner(c)
+    lane_zs = sorted(
+        chain.from_iterable([l.z_min, l.z_max] for l in c.bridge.lanes))
     for response_type in response_types:
         for load_x, load_z in [
                 # (41.677, 1.8687), (35.011, 25.032 - 16.6),
                 # (2.46273, 0.6 - 16.6)]:
                 # (55.732, 15.479 - 16.6)]:
-                (35.011, 25.032 - 16.6)]:
-            make_contour_plot(
-                c=c, y=y, fem_runner=fem_runner,
-                response_types=response_types, response_type=response_type,
-                load_x=load_x, load_z=load_z)
+                # (35.011, 25.032 - 16.6)]:
+                (35.011, lane_zs[-1]), (c.bridge.length / 2, 0),
+                (c.bridge.x(0.9), lane_zs[1]), (c.bridge.x(0.99), lane_zs[0])]:
+            print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
+            pload = PointLoad(
+                x_frac=c.bridge.x_frac(load_x), z_frac=c.bridge.z_frac(load_z),
+                kn=100)
+            print_d(D, f"response_types = {response_types}")
+            fem_params = FEMParams(
+                ploads=[pload], response_types=response_types)
+            print_d(D, f"loading response type = {response_type}")
+            fem_responses = load_fem_responses(
+                c=c, fem_params=fem_params, response_type=response_type,
+                fem_runner=fem_runner)
+            plot_contour_deck(
+                c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
+                c.image_path(pstr(
+                    f"contour-{response_type.name()}-ploadx={load_x}"
+                    + f"-ploadz={load_z}"))))
 
 
 def make_all_2d(c: Config):

@@ -187,7 +187,7 @@ def bridge_705_3d(
 
 
 def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
-    """A testing 'Config' for bridge 705 in Amsterdam."""
+    """A less accurate 'Config' for bridge 705 in Amsterdam."""
     c = bridge_705_config(
         generated_dir="generated-data-test",
         bridge=lambda: bridge(
@@ -196,6 +196,21 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
             base_mesh_deck_nodes_z=20,
             base_mesh_pier_nodes_y=5,
             base_mesh_pier_nodes_z=5)
+        )
+    c.event_metadata_path += ".test"
+    return c
+
+
+def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
+    """A low-as-possible accuracy 'Config' for bridge 705 in Amsterdam."""
+    c = bridge_705_config(
+        generated_dir="generated-data-debug",
+        bridge=lambda: bridge(
+            name="Bridge 705-debug",
+            base_mesh_deck_nodes_x=3,
+            base_mesh_deck_nodes_z=3,
+            base_mesh_pier_nodes_y=3,
+            base_mesh_pier_nodes_z=3)
         )
     c.event_metadata_path += ".test"
     return c
