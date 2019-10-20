@@ -19,7 +19,7 @@ from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
 from plot import animate_mv_vehicle, plot_bridge_deck_side,\
     plot_bridge_deck_top, plot_bridge_first_section, plt
-from plot.bridge import plot_cloud_of_nodes
+from plot.geom import plot_cloud_of_nodes
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles,\
@@ -281,6 +281,32 @@ def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
                     + f"-ploadz={load_z}"))))
 
 
+def make_cloud_of_nodes_plots(c: Config):
+    """Make all variations of the cloud of nodes plots."""
+    # Create the directory if not exists.
+    cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
+    if not os.path.exists(cloud_of_nodes_dir):
+        os.makedirs(cloud_of_nodes_dir)
+
+    def both_axis_plots(prop: str, *args, **kwargs):
+        """Make cloud of nodes plots for full and equal axes."""
+        # Cloud of nodes without axis correction.
+        plot_cloud_of_nodes(
+            *args, **kwargs, c=c,
+            save=os.path.join(cloud_of_nodes_dir, f"cloud{prop}-full-axis"))
+
+        # Cloud of nodes with equal axes.
+        plot_cloud_of_nodes(
+            *args, **kwargs, c=c, equal_axis=True,
+            save=os.path.join(cloud_of_nodes_dir, f"cloud{prop}-equal-axis"))
+
+    # Standard plots.
+    both_axis_plots("")
+
+    # Standard plots.
+    both_axis_plots("-density", node_prop=lambda n: n.section.density)
+
+
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
     make_contour_plots(
@@ -299,12 +325,5 @@ def make_all_3d(c: Config):
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
-    cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
-    if not os.path.exists(cloud_of_nodes_dir):
-        os.makedirs(cloud_of_nodes_dir)
-    plot_cloud_of_nodes(
-        c=c, save=os.path.join(cloud_of_nodes_dir, "cloud-full-axis"))
-    plot_cloud_of_nodes(
-        c=c, equal_axis=True,
-        save=os.path.join(cloud_of_nodes_dir, "cloud-equal-axis"))
+    make_cloud_of_nodes_plots(c)
     make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])

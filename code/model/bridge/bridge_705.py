@@ -228,7 +228,7 @@ def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
             base_mesh_pier_nodes_y=3,
             base_mesh_pier_nodes_z=3)
         )
-    c.event_metadata_path += ".test"
+    c.event_metadata_path += ".debug"
     return c
 
 
