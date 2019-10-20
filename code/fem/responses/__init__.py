@@ -28,9 +28,10 @@ def fem_responses_path(
         pstr(f"{runner_name}-{c.bridge.long_name()}"
              + f"-responses-params={fem_params.load_str()}"
              + f"-type={response_type.name()}"
-             + f"-deck={c.os_node_step:.6f}-{c.os_node_step_z:.6f}"
-             + f"-support={c.os_support_num_nodes_y:.6f}"
-             + f"-{c.os_support_num_nodes_z:.6f}") + ".npy")
+             + f"-deck={c.bridge.base_mesh_deck_nodes_x}"
+             + f"-deck={c.bridge.base_mesh_deck_nodes_z}"
+             + f"-deck={c.bridge.base_mesh_pier_nodes_y}"
+             + f"-deck={c.bridge.base_mesh_pier_nodes_z}") + ".npy")
 
 
 def load_fem_responses(

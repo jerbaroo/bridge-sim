@@ -9,18 +9,18 @@ from classify.data.scenarios import BridgeScenarioDisplacementCtrl,\
 from classify.data.events import Events, events_from_mv_vehicles, save_events
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import DisplacementCtrl, MvVehicle
 from model.response import Event, ResponseType
 
-c = bridge_705_test_config(bridge_705_2d)
+c = bridge_705_test_config(bridge_705_3d)
 c.il_num_loads = 10
 
 
 def test_events_from_mv_vehicles():
     mv_vehicles_gen = normal_traffic(c).mv_vehicles(lane=0)
     mv_vehicles = [next(mv_vehicles_gen) for _ in range(2)]
-    response_types = [ResponseType.Strain, ResponseType.Stress]
+    response_types = [ResponseType.YTranslation]
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num=10)]
     events = list(events_from_mv_vehicles(
         c=c, mv_vehicles=mv_vehicles, bridge_scenario=None,
@@ -65,7 +65,7 @@ def test_events_class():
     mv_vehicles = [next(mv_vehicles_gen) for _ in range(2)]
     some_events = list(events_from_mv_vehicles(
         c=c, mv_vehicles=mv_vehicles, bridge_scenario=None,
-        response_types=[ResponseType.Strain], fem_runner=OSRunner(c),
+        response_types=[ResponseType.YTranslation], fem_runner=OSRunner(c),
         at=[Point(x=1)]))[0][0]
 
     # Save and load the created events to a file.

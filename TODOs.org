@@ -1,15 +1,17 @@
 #+TODO: TODO FEEDBACK VERIFY HOLD BLOCKED | DONE ABORT PUSHED
 # HOLD: Don't start this yet.
 # BLOCKED: Can't start this yet.
-# PUSHED: Moved to another task.
+# PUSHED: Moved to a later week.
 
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
+** TODO [#A] Fix 2D model
 ** TODO [#A] Assert that sections are sorted by position
 ** TODO [#A] Remove default fix values to Support3D
 ** TODO [#A] Fix max_shell_area for piers, maybe create Point.helper_functions
 ** TODO [#A] Write about amount and value of bridges in Hungary
+** TODO [#A] Attach section reference to each node and plot in 3D
 ** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
 ** TODO [#A] Restructure loads
 ** TODO [#A] Ensure not multiplying z_frac by c.bridge.width, use c.bridge.z
@@ -136,9 +138,20 @@ CLOSED: [2019-10-09 Wed 15:10]
 *** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
 ** 16th October [0/9]
-*** TODO [#C] Events from ILs
 *** TODO [#A] Mesh improvements
 DEADLINE: <2019-10-18 Fri>
+*** TODO [#B] Model assumptions and overview of system
+DEADLINE: <2019-10-18 Fri>
+- Started writing assumptions.
+- Need to finish vehicle assumptions.
+*** BLOCKED [#A] Collect stresses and strains
+- Waiting on Arpi to respond with method.
+*** TODO [#B] Fix OpenSees 3D IL plots
+- Contour plots look correct so it is hopefully a small bug.
+- Before collecting results improve mesh.
+- Need to verify against the contour plots.
+- Increase model density and see when it breaks.
+*** TODO [#C] Events from ILs
 *** TODO [#C] OpenSees single section deck and piers
 *** TODO [#C] Additional contour plots from Axis
 - Need to go over the model and ensure it's correct.
@@ -146,14 +159,3 @@ DEADLINE: <2019-10-18 Fri>
 *** TODO [#C] Additional contour plots from Diana
 - Positions chosen, now need to collect the results.
 *** TODO [#C] Traffic scenarios updated for multi-lane traffic
-*** TODO [#B] Fix OpenSees 3D IL plots
-- Contour plots look correct so it is hopefully a small bug.
-- Before collecting results improve mesh.
-- Need to verify against the contour plots.
-- Increase model density and see when it breaks.
-*** BLOCKED [#A] Collect stresses and strains
-- Waiting on Arpi to respond with method.
-*** TODO [#B] Model assumptions and overview of system
-DEADLINE: <2019-10-18 Fri>
-- Started writing assumptions.
-- Need to finish vehicle assumptions.

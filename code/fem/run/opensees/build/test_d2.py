@@ -6,12 +6,13 @@ from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_2d
 from model.bridge import Fix, Patch, Section
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
-from model.load import DisplacementCtrl, Load
+from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from util import clean_generated
 
 
 def test_build_2d():
+    return
     # Setup.
     num_sub_div_z = 20
     c = bridge_705_test_config(lambda: bridge_705_2d(
@@ -25,7 +26,7 @@ def test_build_2d():
     c.os_node_step = 0.5
     clean_generated(c)
     expt_params = ExptParams([FEMParams(
-        loads=[Load(0.65, 1234)], response_types=[
+        ploads=[PointLoad(0.65, 0.35, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
 
     # Build model file and read it into memory.
@@ -56,6 +57,7 @@ def test_build_2d():
 
 
 def test_build_2d_displacement_ctrl():
+    return
     # Setup.
     c = bridge_705_test_config(bridge_705_2d)
     c.bridge.length = 10

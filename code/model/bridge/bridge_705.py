@@ -66,13 +66,17 @@ def bridge_705_2d(
         layers: List[Layer] = bridge_705_layers,
         patches: List[Patch] = bridge_705_patches,
         sections: Optional[List[Section2D]] = None,
-        supports: List[Fix] = bridge_705_supports_2d) -> Bridge:
+        supports: List[Fix] = bridge_705_supports_2d,
+        base_mesh_deck_nodes_x: int = 412, base_mesh_deck_nodes_z: int = None,
+        base_mesh_pier_nodes_y: int = None, base_mesh_pier_nodes_z: int = None,
+        ) -> Bridge:
     """A 2D model of bridge 705 in Amsterdam."""
     if sections is None:
         sections = [Section2D(patches=patches, layers=layers)]
     return Bridge(
         name=name, length=length, width=width, lanes=lanes, supports=supports,
-        sections=sections, dimensions=Dimensions.D2)
+        sections=sections, dimensions=Dimensions.D2,
+        base_mesh_deck_nodes_x=base_mesh_deck_nodes_x)
 
 
 ############################
@@ -188,10 +192,10 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
         generated_dir="generated-data-test",
         bridge=lambda: bridge(
             name="Bridge 705-test",
-            base_mesh_deck_nodes_x=101,
-            base_mesh_deck_nodes_z=31,
-            base_mesh_pier_nodes_y=17,
-            base_mesh_pier_nodes_z=16)
+            base_mesh_deck_nodes_x=50,
+            base_mesh_deck_nodes_z=20,
+            base_mesh_pier_nodes_y=5,
+            base_mesh_pier_nodes_z=5)
         )
     c.event_metadata_path += ".test"
     return c

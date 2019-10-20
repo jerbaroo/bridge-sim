@@ -21,7 +21,9 @@ def mk_bridge(
     """A bridge with valid but uninteresting values."""
     return Bridge(
         name="test", length=100, width=20, supports=supports,
-        sections=sections, lanes=[], dimensions=dimensions)
+        sections=sections, lanes=[], dimensions=dimensions,
+        base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+        base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
 
 
 def test_2d_bridge_too_many_sections():
@@ -54,12 +56,16 @@ def test_3d_bridge_mixed_supports():
         bridge = Bridge(
             name="test", length=12, width=50,
             supports=[a_3d_support, Fix(0, True)], sections=[a_3d_section],
-            lanes=[], dimensions=Dimensions.D3)
+            lanes=[], dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "Support3D supports" in str(e.value)
     bridge = Bridge(
         name="test", length=12, width=50,
         supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-        lanes=[], dimensions=Dimensions.D3)
+        lanes=[], dimensions=Dimensions.D3,
+        base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+        base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
 
 
 def test_3d_bridge_lane_or_support_out_of_range():
@@ -67,13 +73,17 @@ def test_3d_bridge_lane_or_support_out_of_range():
         bridge = Bridge(
             name="test", length=12, width=8,
             supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-            lanes=[Lane(-4.1, 3, True)], dimensions=Dimensions.D3)
+            lanes=[Lane(-4.1, 3, True)], dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "Lane" in str(e.value)
     with pytest.raises(ValueError) as e:
         bridge = Bridge(
             name="test", length=12, width=8,
             supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-            lanes=[Lane(1, 5, True)], dimensions=Dimensions.D3)
+            lanes=[Lane(1, 5, True)], dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "Lane" in str(e.value)
     with pytest.raises(ValueError) as e:
         support = Support3D(
@@ -82,12 +92,16 @@ def test_3d_bridge_lane_or_support_out_of_range():
         bridge = Bridge(
             name="test", length=12, width=8,
             supports=[support], sections=[a_3d_section], lanes=[],
-            dimensions=Dimensions.D3)
+            dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "Support" in str(e.value)
     bridge = Bridge(
         name="test", length=12, width=8,
         supports=[a_3d_support, a_3d_support], sections=[a_3d_section],
-        lanes=[Lane(-1, 1, True)], dimensions=Dimensions.D3)
+        lanes=[Lane(-1, 1, True)], dimensions=Dimensions.D3,
+        base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+        base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
 
 
 def test_3d_bridge_height():
@@ -99,14 +113,18 @@ def test_3d_bridge_height():
     section = Section3D(density=1, thickness=0.6, youngs=3, poissons=4)
     bridge = Bridge(
         name="test", length=12, width=10, supports=[support],
-        sections=[section], lanes=[], dimensions=Dimensions.D3)
+        sections=[section], lanes=[], dimensions=Dimensions.D3,
+        base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+        base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert bridge.height == support.height
 
     # Bridge should have height of the section.
     section.thickness = 3
     bridge = Bridge(
         name="test", length=12, width=10, supports=[support],
-        sections=[section], lanes=[], dimensions=Dimensions.D3)
+        sections=[section], lanes=[], dimensions=Dimensions.D3,
+        base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+        base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert bridge.height == section.thickness
 
 
@@ -118,7 +136,9 @@ def test_3d_bridge_sections():
             density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.1)
         bridge = Bridge(
             name="test", length=12, width=7, supports=[a_3d_support],
-            sections=[section_1], lanes=[], dimensions=Dimensions.D3)
+            sections=[section_1], lanes=[], dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "must start at 0" in str(e.value)
 
     # Order of sections is incorrect.
@@ -132,7 +152,9 @@ def test_3d_bridge_sections():
         bridge = Bridge(
             name="test", length=12, width=7, supports=[a_3d_support],
             sections=[section_1, section_2, section_3], lanes=[],
-            dimensions=Dimensions.D3)
+            dimensions=Dimensions.D3,
+            base_mesh_deck_nodes_x=10, base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=10, base_mesh_pier_nodes_z=10)
     assert "Sections not in order" in str(e.value)
 
 

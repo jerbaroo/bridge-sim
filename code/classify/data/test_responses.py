@@ -5,11 +5,11 @@ from classify.data.responses import response_to_mv_vehicles
 from classify.data.scenarios import BridgeScenarioNormal, normal_traffic
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import MvVehicle
 from model.response import ResponseType
 
-c = bridge_705_test_config(bridge_705_2d)
+c = bridge_705_test_config(bridge_705_3d)
 c.il_num_loads = 10
 
 
