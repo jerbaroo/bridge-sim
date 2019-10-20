@@ -87,7 +87,7 @@ reset_nodes()
 
 
 # Amount to fast forward Node IDs by.
-ff_mod = None
+ff_mod = 10000  # A large default value for testing.
 
 
 def ff_node_ids():
@@ -274,7 +274,12 @@ def assert_support_nodes(c: Config, all_support_nodes: AllSupportNodes):
 def get_all_support_nodes(
         c: Config, deck_positions: DeckPositions, simple_mesh: bool
         ) -> AllSupportNodes:
-    """All nodes for all a bridge's supports."""
+    """All nodes for all a bridge's supports.
+
+    If 'simple_mesh' is passed here, then nodes from bridge deck's mesh will be
+    added to the pier's mesh.
+
+    """
     nodes = []
     x_positions_deck = get_x_positions_of_pier_deck_nodes(c)
     z_positions_deck = get_z_positions_of_pier_deck_nodes(
