@@ -20,7 +20,9 @@ def round_m(x):
     """Round meters to supported accuracy."""
     return np.round(x, decimals=6)
 
-# TODO: Debug argument only needs to be of type bool.
+
+# TODO: Debug argument only needs to be of type bool, we can get the calling
+#     module's name automatically.
 # https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
 def print_d(debug: Union[bool, str], s: str):
     """Print some debug text."""
@@ -34,6 +36,11 @@ def print_d(debug: Union[bool, str], s: str):
 def print_i(s: str):
     """Print some info text."""
     print(colored(f"INFO: {s}", "green"))
+
+
+def print_s(s: str):
+    """Print some special info text."""
+    print(colored(f"INFO: {s}", "cyan"))
 
 
 def print_w(s: str):

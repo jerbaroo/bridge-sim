@@ -1,5 +1,6 @@
 """Specification and Config for bridge 705 in Amsterdam."""
-from typing import Callable, List, Optional
+from copy import deepcopy
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
@@ -132,6 +133,20 @@ assert np.isclose(bridge_705_pier_sections[0].thickness, pier_thickness_top)
 assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
 
+##################################
+##### single section variant #####
+##################################
+
+
+bridge_705_single_sections = (
+    deepcopy(bridge_705_sections_3d[len(bridge_705_sections_3d) // 2]),
+    deepcopy(bridge_705_pier_sections[len(bridge_705_pier_sections) // 2]))
+for section in bridge_705_single_sections:
+    section.start_x_frac = 0
+    section.start_z_frac = 0
+    section.start_frac_len = 0
+
+
 #######################
 ##### 3D supports #####
 #######################
@@ -166,7 +181,7 @@ def bridge_705_3d(
         supports: List[Support3D] = bridge_705_supports_3d,
         base_mesh_deck_nodes_x: int = 412, base_mesh_deck_nodes_z: int = 133,
         base_mesh_pier_nodes_y: int = 17, base_mesh_pier_nodes_z: int = 16,
-        ) -> Bridge:
+        single_sections: Optional[Tuple[Section, Section]] = None) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
 
     The arguments have default values that come from a Diana model, but allow
@@ -180,7 +195,8 @@ def bridge_705_3d(
         base_mesh_deck_nodes_x=base_mesh_deck_nodes_x,
         base_mesh_deck_nodes_z=base_mesh_deck_nodes_z,
         base_mesh_pier_nodes_y=base_mesh_pier_nodes_y,
-        base_mesh_pier_nodes_z=base_mesh_pier_nodes_z)
+        base_mesh_pier_nodes_z=base_mesh_pier_nodes_z,
+        single_sections=single_sections)
 
 
 # Configs (normal and testing) for bridge 705.

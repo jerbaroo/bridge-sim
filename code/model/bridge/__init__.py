@@ -4,7 +4,7 @@ from enum import Enum
 
 import numpy as np
 
-from util import print_i, round_m
+from util import print_i, print_s, round_m
 
 # ID for all fiber commands.
 _fiber_cmd_id = 1
@@ -387,6 +387,9 @@ class Bridge:
             in vertical direction of the piers, minimum is 2.
         base_mesh_pier_nodes_z: Optional[int], number of nodes of the base mesh
             in transverse direction of the piers, minimum is 2.
+        single_sections: Optional[Tuple[Section, Section]], if given then
+            override the bridge's deck and each pier sections with the given
+            values respectively in the tuple, only applies to a 3D model.
 
     """
     def __init__(
@@ -396,7 +399,8 @@ class Bridge:
             base_mesh_deck_nodes_x: int,
             base_mesh_deck_nodes_z: Optional[int] = None,
             base_mesh_pier_nodes_y: Optional[int] = None,
-            base_mesh_pier_nodes_z: Optional[int] = None):
+            base_mesh_pier_nodes_z: Optional[int] = None,
+            single_sections: Optional[Tuple[Section, Section]] = None):
         # Given arguments.
         self.name = name
         self.length = length
@@ -411,6 +415,14 @@ class Bridge:
         self.base_mesh_deck_nodes_z = base_mesh_deck_nodes_z
         self.base_mesh_pier_nodes_y = base_mesh_pier_nodes_y
         self.base_mesh_pier_nodes_z = base_mesh_pier_nodes_z
+
+        # Attach single section option for asserts and printing info.
+        self.single_sections = single_sections
+        if self.single_sections is not None:
+            self.name += "-single-sections"
+            self.sections = [self.single_sections[0]]  # Set deck section.
+            for pier in self.supports: # Set pier sections.
+                pier.sections = [self.single_sections[1]]
 
         # Derived attributes.
         #
@@ -428,16 +440,23 @@ class Bridge:
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_center = (self.z_min + self.z_max) / 2
         self.height = self.y_max - self.y_min
+
+        # Assert the bridge is fine and print info.
         # TODO Move to another file.
         self._assert_bridge()
         self.print_info()
 
     def print_info(self):
-        print_i(
+        print_s(
             f"Bridge dimensions:"
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
             + f"\n\tz = ({self.z_min}, {self.z_max})")
+        if self.single_sections:
+            print_s(
+                f"Single section:"
+                + f"\n\tdeck = {self.sections[0]}"
+                + f"\n\tpier = {self.supports[0].sections[0]}")
 
     def long_name(self):
         """Name with dimensions attached."""
@@ -517,19 +536,31 @@ class Bridge:
 
     def _assert_bridge(self):
         """Assert this bridge makes sense."""
+        # Single section only in 3D.
+        if self.single_sections:
+            if self.dimensions != Dimensions.D3:
+                raise ValueError("Bridge.single_section only supported in 3D")
+            assert self.single_sections[0].start_x_frac == 0
+            assert self.single_sections[0].start_z_frac == 0
+            assert self.single_sections[1].start_x_frac == 0
+            assert self.single_sections[1].start_z_frac == 0
+
         # Bridge boundaries should be correct in orientation.
         assert self.x_min < self.x_max
         assert self.y_min < self.y_max
         assert self.z_min < self.z_max
+
         # Derived dimensions should make sense.
         assert self.length == self.x_max - self.x_min
         assert self.width == self.z_max - self.z_min
+
         # Base mesh must be of a minimum size.
         assert self.base_mesh_deck_nodes_x >= 2
         if self.dimensions == Dimensions.D3:
             assert self.base_mesh_deck_nodes_z >= 2
             assert self.base_mesh_pier_nodes_y >= 2
             assert self.base_mesh_pier_nodes_z >= 2
+
         # Delegate to 2D/3D specific checks.
         if self.dimensions == Dimensions.D2:
             self._assert_2d()
