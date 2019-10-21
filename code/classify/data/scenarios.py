@@ -6,16 +6,14 @@ from vehicles.sample import sample_vehicle
 from util import round_m
 
 
-# TODO: Move to model.scenarios.traffic and model.scenarios.bridge
+# TODO: Move to model.scenarios.
 
 
 def normal_traffic(c: Config):
-    return TrafficScenario(
-        c=c, name="normal", mv_vehicle_f=lambda: (sample_vehicle(c), 10))
+    return TrafficScenario(name="normal", mv_vehicle_f=lambda: (sample_vehicle(c), 5))
 
 
-def heavy_traffic(c: Config):
-    return TrafficScenario(c=c, name="heavy", vehicle=None)
+# heavy_traffic = TrafficScenario(name="heavy", vehicle=None)
 
 
 class BridgeScenarioNormal(BridgeScenario):

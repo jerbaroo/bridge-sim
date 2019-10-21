@@ -74,6 +74,28 @@ def sci_format_y_axis(points: int = 1):
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
 
+def animate_plot(frames: int, plot_f: Callable[[int], None], time_step: float, save: str):
+    """Generate an animation with given plotting function.
+
+    Args:
+        frames: int, amount of frames to animate.
+        plot_f: Callable[[float], None], plot at current time step.
+        time_step: float, time step between each frame.
+        save: str, filepath where to save the animation.
+
+    """
+
+    def animate_frame(t):
+        """Plot at the given time index."""
+        plt.cla()
+        plot_f(t)
+
+    plot_f(0)
+    anim = FuncAnimation(plt.gcf(), animate_frame, frames, interval=time_step)
+    writer = FFMpegWriter()
+    anim.save(save, writer=writer)
+
+
 def _plot_vehicle_deck_side(
         bridge: Bridge, mv_vehicle: MvVehicle,
         normalize_vehicle_height: bool = False):
@@ -221,7 +243,6 @@ def animate_bridge_response(
 
             # Plot one response for the moving vehicle.
             else:
-                print(type(t_vehicle_responses[0]))
                 plt.plot(x_axis, t_vehicle_responses)
 
         # Plot the bridge and vehicles.
@@ -241,26 +262,6 @@ def animate_bridge_response(
     animate_plot(
         frames=len(responses[0]), plot=plot_bridge_response,
         time_step=c.time_step, save=save, show=show)
-
-
-def animate_plot(
-        frames: int, plot: Callable[[int], None], time_step: float,
-        save: str = None, show: bool = True):
-    """Generate an animation with given plotting function."""
-
-    def animate(t):
-        """Plot at the given time index."""
-        plt.cla()
-        plot(t)
-
-    plot(0)
-    anim = FuncAnimation(plt.gcf(), animate, frames, interval=time_step * 1000)
-    if save:
-        writer = FFMpegWriter()
-        anim.save(save, writer=writer)
-    if show: plt.show()
-    if save or show:
-        plt.close()
 
 
 def animate_mv_vehicle(

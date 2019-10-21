@@ -12,15 +12,17 @@ from model.load import MvVehicle, PointLoad
 from plot import Color, plt
 
 
-def top_view_vehicles(bridge: Bridge, mv_vehicles: List[MvVehicle]):
-    """Plot vehicles on a bridge in top view."""
+def top_view_vehicles(bridge: Bridge, mv_vehicles: List[MvVehicle], time: float):
+    """Plot vehicles on a bridge in top view at a given time."""
     if len(mv_vehicles) > 0:
         cmap = cm.get_cmap("Reds")
         kns = [v.kn for v in mv_vehicles]
         norm = Normalize(vmin=min(kns), vmax=max(kns))
     for mv_vehicle in mv_vehicles:
-        # Left position on x-axis of vehicle.
-        xl = bridge.x(mv_vehicle.init_x_frac)
+        # Left-most position of each vehicle axle.
+        print(f"time = {time}")
+        xl = min(mv_vehicle.xs_at(time=time, bridge=bridge))
+        # Center of the lane.
         z_center = bridge.lanes[mv_vehicle.lane].z_center()
         # Bottom position on z-axis of vehicle.
         zb = z_center - (mv_vehicle.axle_width / 2)

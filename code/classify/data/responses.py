@@ -145,16 +145,8 @@ def responses_to_mv_vehicles(
     return result
 
 
-def on_bridge(bridge: Bridge, mv_vehicle: MvVehicle, time: float):
-    """Whether a moving load is on a bridge at a given time."""
-    # Find leftmost and rightmost points of the load.
-    left_x_frac = mv_vehicle.x_frac_at(time, bridge)
-    right_x_frac = left_x_frac + bridge.x_frac(mv_vehicle.length)
-    return 0 <= left_x_frac <= 1 and 0 <= right_x_frac <= 1
-
-
 def times_on_bridge(c: Config, mv_vehicles: List[MvVehicle]) -> List[float]:
-    """Yield the times when a moving load is on a bridge."""
+    """Yield the traffic times when a moving load is on a bridge."""
     time = 0
     while any(
             on_bridge(bridge=c.bridge, mv_vehicle=mv_vehicle, time=time)

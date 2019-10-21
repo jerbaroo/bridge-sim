@@ -175,7 +175,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
 
 
 def bridge_705_3d(
-        name: str = "Bridge 705", length: float = bridge_705_length,
+        name: str = "bridge-705", length: float = bridge_705_length,
         width: float = bridge_705_width, lanes: List[Lane] = bridge_705_lanes,
         sections: Optional[List[Section3D]] = bridge_705_sections_3d,
         supports: List[Support3D] = bridge_705_supports_3d,

@@ -3,6 +3,7 @@ from typing import Callable, List, Optional, Tuple, Union
 from enum import Enum
 
 import numpy as np
+from scipy.interpolate import interp1d
 
 from util import print_i, print_s, round_m
 
@@ -126,7 +127,6 @@ class Support3D:
         self.fix_z_rotation = fix_z_rotation
         self.sections = sections
         for s in self.sections:
-            print(type(s))
             assert isinstance(s, Section3DPier)
         if self.width_top < self.width_bottom:
             raise ValueError(
@@ -480,12 +480,12 @@ class Bridge:
         return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
 
     def x_frac(self, x: float):
-        assert self.x_min <= x <= self.x_max
-        return np.interp(x, [self.x_min, self.x_max], [0, 1])
+        return interp1d(
+            [self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x)
 
     def x(self, x_frac: float):
-        assert 0 <= x_frac <= 1
-        return np.interp(x_frac, [0, 1], [self.x_min, self.x_max])
+        return interp1d(
+            [0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac)
 
     def y_frac(self, y: float):
         assert self.y_min <= y <= self.y_max

@@ -333,16 +333,16 @@ def make_geom_plots(c: Config):
 
     # First create some vehicles.
     mk = lambda init_x_frac, lane, length: MvVehicle(
-        kn=100 * length, axle_distances=[length], axle_width=2, kmph=0,
+        kn=100 * length, axle_distances=[length], axle_width=2, kmph=40,
         lane=lane, init_x_frac=init_x_frac)
-    mv_vehicles = [[], [mk(0.6, 0, 2.5), mk(0.5, 0, 4), mk(0.4, 1, 7)]]
+    mv_vehicles = [[], [mk(0.1, 0, 2.5), mk(0.4, 0, 4), mk(0, 1, 7)]]
 
     # Create a plot for each set of vehicles.
     for i, set_mv_vehicles in enumerate(mv_vehicles):
         # First the top view.
         plt.close()
         top_view_bridge(c.bridge)
-        top_view_vehicles(bridge=c.bridge, mv_vehicles=set_mv_vehicles)
+        top_view_vehicles(bridge=c.bridge, mv_vehicles=set_mv_vehicles, time=2)
         plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
         # Then the side view.
@@ -352,12 +352,29 @@ def make_geom_plots(c: Config):
         # plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
 
+def make_traffic_animations(c: Config):
+    """Make animations of different traffic scenarios."""
+    from plot.animate.traffic import animate_traffic_top_view
+
+    max_time, time_step = 5, 0.01
+    for traffic_scenario in [normal_traffic(c)]:
+        traffic = traffic_scenario.traffic(
+            bridge=c.bridge, max_time=max_time, time_step=time_step,
+            after_warm_up=False)
+        animate_traffic_top_view(
+            bridge=c.bridge,
+            title=f"{traffic_scenario.name} on {c.bridge.name}",
+            traffic=traffic, time_step=time_step, save=c.get_image_path(
+                "animations", f"{traffic_scenario.name}.mp4"))
+
+
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
-    make_geom_plots(c)
+    # make_geom_plots(c)
+    make_traffic_animations(c)
     # make_cloud_of_nodes_plots(c)
     # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
     # make_event_plots_from_normal_mv_loads(c)

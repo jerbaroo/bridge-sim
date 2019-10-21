@@ -77,7 +77,7 @@ def sample_vehicle(
         print_d(D, f"vehicle density = {c.vehicle_density}")
         for i, (_, group_fraction) in enumerate(c.vehicle_density):
             running_fraction += group_fraction
-            print(f"i = {i}, running_fraction = {running_fraction}")
+            # print(f"i = {i}, running_fraction = {running_fraction}")
             if rand < running_fraction:
                 group_index = i
                 break
@@ -91,7 +91,7 @@ def sample_vehicle(
         print_d(D, f"i = {i}")
         groups_dict[i] = group
     group = groups_dict[group_index]
-    print(f"group = {type(group)}")
+    # print(f"group = {type(group)}")
     if group is None:
         print_w(f"Sampled group is None, resampling...")
         return sample_vehicle(c, init_group_index)
@@ -114,8 +114,7 @@ def sample_vehicle(
     row = sample.iloc[0]
     axle_distances = axle_array_and_count(row["axle_distance"])
     # TODO: Fix units in database.
-    # TODO: Get axle width from database.
     vehicle = MvVehicle(
-        kmph=row["speed"], kn=row["total_weight"], axle_width=2,
+        kmph=40, kn=row["total_weight"], axle_width=2,
         axle_distances=np.array(axle_distances) / 100)
     return (vehicle, sample) if pd_row else vehicle
