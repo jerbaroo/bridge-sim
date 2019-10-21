@@ -11,6 +11,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import MvVehicle
 from model.response import Event, ResponseType
+from model.scenario import TrafficScenario
 from plot import plt
 from util import print_d, print_i
 from vehicles.sample import sample_vehicle
@@ -102,25 +103,23 @@ def plot_events_from_mv_vehicles(
     if save or show: plt.close()
 
 
-def plot_events_from_normal_mv_vehicles(
+def plot_events_from_traffic_scenario(
         c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        at: Point, rows: int=5, vehicles_per_row: int=1, lane: int=0,
-        save: str=None, show: bool=False):
+        at: Point, rows: int=5, vehicles_per_row: int=1, save: str=None, show: bool=False):
     """Plot events from each set of sampled normal vehicles on a row.
 
     TODO: Delete or move to make_plots.
 
     """
-    pass
-    # mv_vehicles = [
-    #     [MovingLoad.from_vehicle(
-    #         x_frac=-i * 0.1, vehicle=sample_vehicle(c), lane=lane)
-    #     for i in range(loads_per_row)]
-    #     for _ in range(rows)]
-    # shape = np.array(mv_loads).shape
-    # assert len(shape) == 2
-    # assert shape[0] == rows
-    # assert shape[1] == loads_per_row
-    # plot_events_from_mv_loads(
-    #     c=c, mv_loads=mv_loads, response_type=response_type,
-    #     fem_runner=fem_runner, at=at, save=save, show=show)
+    mv_vehicles = [
+        [MovingLoad.from_vehicle(
+            x_frac=-i * 0.1, vehicle=sample_vehicle(c), lane=lane)
+        for i in range(loads_per_row)]
+        for _ in range(rows)]
+    shape = np.array(mv_loads).shape
+    assert len(shape) == 2
+    assert shape[0] == rows
+    assert shape[1] == loads_per_row
+    plot_events_from_mv_loads(
+        c=c, mv_loads=mv_loads, response_type=response_type,
+        fem_runner=fem_runner, at=at, save=save, show=show)

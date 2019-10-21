@@ -51,13 +51,14 @@ plt.show = _show
 
 ###############################################################################
 
-bridge_color = "limegreen"
-lane_color = "gold"
-load_color = "crimson"
-pier_color = "limegreen"
-rebar_color = "crimson"
-response_color = "mediumorchid"
-response_axle_color = "cornflowerblue"
+class Color:
+    bridge = "limegreen"
+    lane = "gold"
+    load = "crimson"
+    pier = "limegreen"
+    rebar = "crimson"
+    response = "mediumorchid"
+    response_axle = "cornflowerblue"
 
 
 def sci_format_y_axis(points: int = 1):
@@ -119,38 +120,6 @@ def plot_bridge_deck_side(
         _plot_vehicle_deck_side(
             bridge=bridge, mv_vehicle=mv_vehicle,
             normalize_vehicle_height=normalize_vehicle_height)
-    if save: plt.savefig(save)
-    if show: plt.show()
-    if save or show: plt.close()
-
-
-def _plot_vehicle_deck_top(bridge: Bridge, mv_vehicle: MvVehicle):
-    xl = mv_vehicle.init_x_frac * bridge.length
-    z_center = bridge.lanes[mv_vehicle.lane].z_center()
-    zb = z_center - (mv_vehicle.axle_width / 2)
-    plt.gca().add_patch(patches.Rectangle(
-        (xl, zb), mv_vehicle.length, mv_vehicle.axle_width,
-        facecolor=load_color))
-
-
-def plot_bridge_deck_top(
-        bridge: Bridge, mv_vehicles: List[MvVehicle]=[], save: str = None,
-        show: bool = False):
-    """Plot the deck of a bridge from the top."""
-    plt.hlines(
-        [bridge.z_min, bridge.z_max], 0, bridge.length, color=bridge_color)
-    plt.vlines(
-        [0, bridge.length], bridge.z_min, bridge.z_max, color=bridge_color)
-    for lane in bridge.lanes:
-        plt.gca().add_patch(
-            patches.Rectangle(
-                (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
-                facecolor=lane_color))
-    for mv_vehicle in mv_vehicles:
-        _plot_vehicle_deck_top(bridge=bridge, mv_vehicle=mv_vehicle)
-    plt.axis("equal")
-    plt.xlabel("x position (m)")
-    plt.ylabel("z position (m)")
     if save: plt.savefig(save)
     if show: plt.show()
     if save or show: plt.close()

@@ -179,6 +179,7 @@ class Config:
             os.path.split(self.generated_dir)[0],
             os.path.basename(self.generated_dir) + "-images",
             self.bridge.long_name().lower())
+
         self.image_path = lambda filename: os.path.join(
             self.images_dir, filename)
 
@@ -274,3 +275,10 @@ class Config:
         self.di_filos_path = "code/diana.ff"
         self.di_translation_path = "code/displa_paths.tb"
         self.di_strain_path = "code/strains_paths.tb"
+
+    def get_image_path(self, dirname: str, filename: str):
+        """Get an image path in a directory (created if necessary)."""
+        dirpath = os.path.join(self.images_dir, dirname)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+        return os.path.join(dirpath, filename)
