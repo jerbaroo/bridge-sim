@@ -332,10 +332,10 @@ def make_geom_plots(c: Config):
     from plot.load import top_view_vehicles
 
     # First create some vehicles.
-    mk = lambda init_x_frac, lane: MvVehicle(
-        kn=0, axle_distances=[2.5, 1.5], axle_width=2, kmph=0, lane=lane,
-        init_x_frac=init_x_frac)
-    mv_vehicles = [[], [mk(0.6, 0), mk(0.5, 0), mk(0.4, 1)]]
+    mk = lambda init_x_frac, lane, length: MvVehicle(
+        kn=100 * length, axle_distances=[length], axle_width=2, kmph=0,
+        lane=lane, init_x_frac=init_x_frac)
+    mv_vehicles = [[], [mk(0.6, 0, 2.5), mk(0.5, 0, 4), mk(0.4, 1, 7)]]
 
     # Create a plot for each set of vehicles.
     for i, set_mv_vehicles in enumerate(mv_vehicles):

@@ -27,6 +27,7 @@ D: bool = False
 
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
+
 _og_savefig = _plt.savefig
 
 
@@ -48,6 +49,7 @@ def _show(*args, **kwargs):
 plt = _plt
 plt.savefig = _savefig
 plt.show = _show
+
 
 ###############################################################################
 

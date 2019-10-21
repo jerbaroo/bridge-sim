@@ -41,14 +41,17 @@ def plot_contour_deck(
                     amax_x, amax_z = X[-1][-1], Z[-1][-1]
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
+
     # Plot contour and colorbar.
     cs = plt.contourf(X, Z, H, levels=50)
     plt.colorbar(cs)
+
     # Plot point loads.
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
         plt.plot([x], [z], marker="o", markersize=5, color="red")
+
     # Titles and labels.
     amin = np.amax(np.array(H))
     plt.title(
