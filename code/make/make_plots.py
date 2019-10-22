@@ -356,8 +356,8 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step = 5, 0.01
-    for traffic_scenario in [normal_traffic(c)]:
+    max_time, time_step, lam = 5, 0.01, 15
+    for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
         traffic = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step,
             after_warm_up=False)

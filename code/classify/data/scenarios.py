@@ -1,19 +1,33 @@
 """Different scenarios for data generation."""
+import numpy as np
+
 from config import Config
 from model.load import DisplacementCtrl
 from model.scenario import BridgeScenario, TrafficScenario
 from vehicles.sample import sample_vehicle
 from util import round_m
 
-
 # TODO: Move to model.scenarios.
 
 
-def normal_traffic(c: Config):
-    return TrafficScenario(name="normal", mv_vehicle_f=lambda: (sample_vehicle(c), 5))
+def arrival(beta: float):
+    result = np.random.exponential(beta)
+    print(f"Inter-vehicle distance = {result}")
+    assert isinstance(result, float)
+    return result
 
 
-# heavy_traffic = TrafficScenario(name="heavy", vehicle=None)
+def normal_traffic(c: Config, lam: float):
+    """Normal traffic scenario, arrives according to poisson process."""
+    return TrafficScenario(
+        name=f"normal-lam-{lam}",
+        mv_vehicle_f=lambda: (sample_vehicle(c), arrival(lam)))
+
+
+def heavy_traffic_1(c: Config):
+    """Heavy traffic scenario where the total load on the bridge is less than"""
+    return TrafficScenario(
+        name="heavy-1", mv_vehicle_f=lambda: ())
 
 
 class BridgeScenarioNormal(BridgeScenario):

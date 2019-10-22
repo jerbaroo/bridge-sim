@@ -1,4 +1,4 @@
-#+TODO: TODO INPROGRESS FEEDBACK VERIFY HOLD BLOCKED | DONE ABORT PUSHED
+#+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) HOLD(h) BLOCKED(b) | DONE(d) ABORT(a) PUSHED(p)
 # HOLD: Don't start this yet.
 # BLOCKED: Can't start this yet.
 # PUSHED: Moved to a later week.
@@ -110,27 +110,33 @@ CLOSED: [2019-10-16 Wed 14:46]
 *** DONE The mesh needs additional work, but I would delay that until later?
 CLOSED: [2019-10-16 Wed 14:46]
 ** 21st October
-*** TODO Mesh update
+*** DONE Mesh update
+CLOSED: [2019-10-22 Tue 11:37]
 - Base mesh arguments
 - Grid and pier connected together
 - Additional mesh position from load
 - Removes a point of unconfidence in the model
-*** TODO Plot's of nodes sections and deck/pier only
+*** DONE Plot's of nodes sections and deck/pier only
+CLOSED: [2019-10-22 Tue 11:39]
 - Allows for debugging the model
 - Pier colors are unchanging
 - Transverse direction the deck seems to not be mirrored along the middle
-*** TODO The 3D OS FEM has a single section option, printed at runtime.
-*** TODO I chose the plotting points for verification
+*** DONE The 3D OS FEM has a single section option, printed at runtime.
+CLOSED: [2019-10-22 Tue 11:40]
+*** DONE I chose the plotting points for verification
+CLOSED: [2019-10-22 Tue 11:40]
 - There are 4, let's have a look
 - 3 are chosen to be on traffic lanes
 - Should be adjusted to be on points in Diana model
   TODO: Add plot per wheel track
-*** TODO Two meetings organized with Valeria
+*** DONE Two meetings organized with Valeria
+CLOSED: [2019-10-22 Tue 11:40]
 - First one (end of November) is about thesis direction. Goal is to have model
   (A) first half mostly done and written about and (B) classification started.
 - Second one end of the year, my goal is to have (A) finished first half, more
   work necessary on inputs e.g. noise and (B) pre-release draft of the thesis.
-*** TODO I want to work towards the meeting.
+*** DONE I want to work towards the meeting.
+CLOSED: [2019-10-22 Tue 11:40]
 - The getting events from 3D model is almost done
 - You saw the load/vehicle refactor last week
 - Let's set a milestone for first classification for Friday. Even though there
@@ -141,8 +147,11 @@ CLOSED: [2019-10-16 Wed 14:46]
 - TODO: set up traffic scenario where total load on the bridge for dense traffic
   is greater than the load with an abnormal heavy wehnicle on the bridge (sparse
   traffic)
-*** TODO Can we have another meeting later this week
-*** TODO I want to go over Diana and Axis now
+*** DONE Can we have another meeting later this week
+CLOSED: [2019-10-22 Tue 11:40]
+*** DONE I want to go over Diana and Axis now
+CLOSED: [2019-10-22 Tue 11:40]
+** 25th October
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -201,3 +210,27 @@ CLOSED: [2019-10-20 Sun 19:27]
 - Positions chosen, then need to collect the results.
 *** TODO [#C] Additional contour plots from Diana
 - Positions chosen, now need to collect the results.
+** 21st October
+*** DONE Add updated traffic model                                :traffic:
+CLOSED: [2019-10-22 Tue 11:46]
+*** TODO Vehicle coloring                                         :traffic:
+- Currently this is specific to the plotting function
+- Should be relative to a list of given vehicles
+*** TODO Poisson process of vehicles
+*** TODO Faster vehicle sampling                                  :traffic:
+*** DONE Animate traffic simulation                               :traffic:
+CLOSED: [2019-10-22 Tue 11:46]
+*** TODO Heavy traffic model                                      :traffic:
+*** TODO Contour plot of traffic at specific time                 :traffic:
+*** TODO Traffic scenario needs to warm up                        :traffic:
+*** TODO Refinement of mesh                                       :fem_tcl:
+*** TODO Neat comments in TCL file                                :fem_tcl:
+*** TODO Verify node_prop is from the correct section          :fem_verify:
+Perhaps attach deck_section and/or pier_section
+*** TODO Verify section values by colour                       :fem_verify:
+*** TODO Choose verification points PS in Diana                :fem_verify:
+*** TODO Plots of PS from Diana                                :fem_verify:
+*** TODO Plots of PS from OpenSees                             :fem_verify:
+*** TODO Plots of PS from Axis                                 :fem_verify:
+*** TODO Check influence line matrix against contour plot      :fem_verify:
+*** TODO Get events from traffic under 3D FEM                        :data:

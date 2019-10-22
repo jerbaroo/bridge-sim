@@ -14,11 +14,11 @@ on expert knowledge, neither approach making the best use of limited maintenance
 resources. Sensors can provide real-time information without the delay or cost
 of a manual maintenance check. What are the costs and benefits of installing a
 decision support system based on sensor data for the purpose of maintenance of a
-no-prestress no-postension concrete slab bridge? Answering this question is the
-topic of this thesis. To answer this question we need to discover what analysis
-techniques of data from sensors do and don't work? How can we collect data for
-the purpose of analysis? And what are the costs and benefits of installing
-different types and quantites of sensors on a bridge?
+no-prestress no-postension concrete slab bridge? This question is the topic of
+this thesis, to answer it we need to answer a few sub questions. What analyses
+of sensor data do and do not provide valuable information? How can we collect
+sensor data for the purpose of analysis? And what are the costs and benefits of
+installing different types and quantites of sensors on a bridge?
 
 # What is a decision support system.
 A **decision support system** (DSS) for bridge maintenance** is a software
