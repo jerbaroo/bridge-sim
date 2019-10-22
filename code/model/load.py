@@ -1,6 +1,11 @@
 """Loads and vehicles"""
 from typing import List, Optional, Tuple
 
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.patches as patches
+import matplotlib.colors as colors
+
 from config import Config
 from model.bridge import Bridge
 from util import print_d
@@ -63,6 +68,16 @@ class Vehicle:
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
+
+    def color(self, all_vehicles: List["Vehicle"]):
+        """Color of this vehicle scaled based on given vehicles."""
+        cmap = cm.get_cmap("Reds")
+        if len(all_vehicles) == 0:
+            return cmap(0.5)
+        kns = [v.kn for v in all_vehicles] + [self.kn]
+        print(np.array(kns).shape)
+        norm = colors.Normalize(vmin=min(kns), vmax=max(kns))
+        return cmap(np.interp(norm(self.kn), [0, 1], [0.3, 1]))
 
 
 class MvVehicle(Vehicle):

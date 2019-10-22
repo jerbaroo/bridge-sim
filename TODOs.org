@@ -216,7 +216,8 @@ CLOSED: [2019-10-22 Tue 11:46]
 *** TODO Vehicle coloring                                         :traffic:
 - Currently this is specific to the plotting function
 - Should be relative to a list of given vehicles
-*** TODO Poisson process of vehicles
+*** DONE Poisson process of vehicles
+CLOSED: [2019-10-22 Tue 13:33]
 *** TODO Faster vehicle sampling                                  :traffic:
 *** DONE Animate traffic simulation                               :traffic:
 CLOSED: [2019-10-22 Tue 11:46]

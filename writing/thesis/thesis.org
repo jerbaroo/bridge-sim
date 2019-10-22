@@ -707,12 +707,10 @@ thus more shell elements will provide a more accurate response.
 *** System Interface
 *** Collected Data
 *** Model Assumptions
-- The movement of traffic on the bridge is greatly simplified from reality, the
-  assumption is made that is. All vehicles drive at a constant speed.
-
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
 - All vehicles have the same axle-width.
+- Vehicles arrive at a bridge due to a poisson process with rate 1/15.
 - measurements from the verified campaign only for a small subset (positions and
   existing healthy/damage state/)
 - the model is linear elastic
