@@ -52,32 +52,39 @@ class Vehicle:
 
     Args:
         kn: Union[float, List[float]], load intensity, either for the entire
-            vehicle or per axle, in kilo Newton.
+            vehicle or per axle, in kilo Newton. Not available as an attribute.
         axle_distances: List[float], distance between axles in meters.
         axle_width: float, width of the vehicle's axles in meters.
 
     Attrs:
+        total_kn: float, total load intensity for the vehicle, in kilo Newton.
+        kn_per_axle: List[float], load intensity per axle in kilo Newton.
         length: float, length of the vehicle in meters.
         num_axles: int, number of axles.
 
     """
     def __init__(
             self, kn: float, axle_distances: List[float], axle_width: float):
-        self.kn = kn
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
+        if isinstance(kn, list):
+            self.total_kn = sum(kn)
+            self.kn_per_axle = kn
+        else:
+            self.total_kn = kn
+            self.kn_per_axle = [
+                (kn / self.num_axles) for _ in range(self.num_axles)]
 
     def color(self, all_vehicles: List["Vehicle"]):
         """Color of this vehicle scaled based on given vehicles."""
         cmap = cm.get_cmap("Reds")
         if len(all_vehicles) == 0:
             return cmap(0.5)
-        kns = [v.kn for v in all_vehicles] + [self.kn]
-        print(np.array(kns).shape)
-        norm = colors.Normalize(vmin=min(kns), vmax=max(kns))
-        return cmap(np.interp(norm(self.kn), [0, 1], [0.3, 1]))
+        total_kns = [v.total_kn for v in all_vehicles] + [self.total_kn]
+        norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
+        return cmap(np.interp(norm(self.total_kn), [0, 1], [0.3, 1]))
 
 
 class MvVehicle(Vehicle):

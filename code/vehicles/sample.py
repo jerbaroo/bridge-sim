@@ -1,4 +1,5 @@
 """Sample vehicles from the vehicle data."""
+from timeit import default_timer as timer
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -7,37 +8,45 @@ import scipy.stats as stats
 
 from config import Config
 from model.load import MvVehicle
-from vehicles import axle_array_and_count
-from util import print_d, print_w
+from vehicles import VehicleData, axle_array_and_count
+from util import print_d, print_s, print_w
 
 # Print debug information for this file.
+# D: str = "vehicles.sample"
 D: bool = False
 
 # Column names of the vehicle data to add noise.
 noise_col_names = ["speed", "length", "total_weight"]
 
 
-def length_groups(
-        c: Config, col: Optional[str] = None, lengths: List[int] = None):
-    """Return vehicle data grouped by a maximum value per group."""
-    if col is None:
-        col = c.vehicle_density_col
-    if lengths is None:
-        lengths = list(map(lambda x: x[0], c.vehicle_density))
-    print_d(D, f"Vehicle density col is \"{col}\"")
+def vehicle_pdf_groups(
+        vehicle_data: VehicleData, col: str, lengths: List[int]):
+    """Vehicle data grouped by a maximum value per group."""
+    print_d(D, f"Vehicle PDF column is {repr(col)}")
     print_d(D, lengths)
     assert sorted(lengths) == lengths
     # TODO Better vehicle data format, should be meters.
     if col == "length":
         lengths = [l * 100 for l in lengths]
 
-    def length_group(x):
-        length = c.vehicle_data.loc[x, col]
+    def group_by(x):
+        length = vehicle_data.loc[x, col]
         for i, l in enumerate(lengths):
             if length < l:
                 return i
 
-    return c.vehicle_data.groupby(by=length_group)
+    return vehicle_data.groupby(by=group_by)
+
+
+def get_vehicle_pdf_groups(c: Config):
+    """Return vehicle PDF groups, only ever calculated once."""
+    if not hasattr(c, "_vehicle_pdf_groups"):
+        start = timer()
+        c._vehicle_pdf_groups = vehicle_pdf_groups(
+            c.vehicle_data, c.vehicle_pdf_col,
+            list(map(lambda x: x[0], c.vehicle_pdf)))
+        print_s(f"Vehicle PDF groups loaded in {timer() - start}")
+    return c._vehicle_pdf_groups
 
 
 def noise_per_column(c: Config, col_names: List[str]):
@@ -67,15 +76,17 @@ def sample_vehicle(
             row from the Pandas DataFrame, else return just a Vehicle.
 
     """
-    # Select a group based on density, if none given.
+    # Select a vehicle group randomly, if no group is specified.
     if group_index is None:
         rand = np.random.uniform()
-        min, max = 0, c.vehicle_density[-1][0]
+        print_d(D, f"Vehicle PDF = {c.vehicle_pdf}")
+        # Group's are tuples of group maximum and percentage of all groups.
+        min, max = 0, c.vehicle_pdf[-1][0]
         print_d(D, f"rand = {rand}")
         print_d(D, f"min = {min}, max = {max}")
         running_fraction = 0
-        print_d(D, f"vehicle density = {c.vehicle_density}")
-        for i, (_, group_fraction) in enumerate(c.vehicle_density):
+        # Iterate through group percentage's until the randomly selected one.
+        for i, (_, group_fraction) in enumerate(c.vehicle_pdf):
             running_fraction += group_fraction
             # print(f"i = {i}, running_fraction = {running_fraction}")
             if rand < running_fraction:
@@ -85,9 +96,9 @@ def sample_vehicle(
     print_d(D, f"group_index = {group_index}")
 
     # Sample a vehicle uniformly randomly from the group.
-    groups_dict = {i: None for _ in range(len(c.vehicle_density))}
+    groups_dict = {i: None for _ in range(len(c.vehicle_pdf))}
     print_d(D, groups_dict.items())
-    for i, group in length_groups(c):
+    for i, group in get_vehicle_pdf_groups(c):
         print_d(D, f"i = {i}")
         groups_dict[i] = group
     group = groups_dict[group_index]

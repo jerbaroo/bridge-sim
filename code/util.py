@@ -24,18 +24,18 @@ def round_m(x):
 # TODO: Debug argument only needs to be of type bool, we can get the calling
 #     module's name automatically.
 # https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
-def print_d(debug: Union[bool, str], s: str):
+def print_d(debug: Union[bool, str], s: str, *args, **kwargs):
     """Print some debug text."""
     if DEBUG and debug:
         path_str = ""
         if isinstance(debug, str):
             path_str = debug
-        print(colored(f"DEBUG: {path_str}: {s}", "yellow"))
+        print(colored(f"DEBUG: {path_str}: {s}", "yellow"), *args, **kwargs)
 
 
-def print_i(s: str):
+def print_i(s: str, *args, **kwargs):
     """Print some info text."""
-    print(colored(f"INFO: {s}", "green"))
+    print(colored(f"INFO: {s}", "green"), *args, **kwargs)
 
 
 def print_s(s: str):

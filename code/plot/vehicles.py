@@ -7,7 +7,6 @@ import pandas as pd
 
 from config import Config
 from vehicles import axle_array_and_count
-from vehicles.sample import length_groups
 from util import print_d
 
 # Print debug information for this file.

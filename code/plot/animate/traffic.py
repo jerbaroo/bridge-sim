@@ -9,6 +9,7 @@ from model.scenario import Traffic
 from plot import animate_plot, plt
 from plot.geom import top_view_bridge
 from plot.load import top_view_vehicles
+from util import print_i
 
 
 def animate_traffic_top_view(
@@ -41,4 +42,9 @@ def animate_traffic(
         plot_f: Callable[[List[MvVehicle]], None], save: str):
     """Animate traffic with given plotting function."""
     frames = len(traffic)
-    animate_plot(frames=frames, plot_f=plot_f, time_step=time_step, save=save)
+
+    def _plot_f(time_index):
+        print_i(f"Animating time step = {time_index * time_step:.3f}", end="\r")
+        plot_f(time_index)
+
+    animate_plot(frames=frames, plot_f=_plot_f, time_step=time_step, save=save)

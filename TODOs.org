@@ -213,12 +213,14 @@ CLOSED: [2019-10-20 Sun 19:27]
 ** 21st October
 *** DONE Add updated traffic model                                :traffic:
 CLOSED: [2019-10-22 Tue 11:46]
-*** TODO Vehicle coloring                                         :traffic:
+*** DONE Vehicle coloring                                         :traffic:
+CLOSED: [2019-10-22 Tue 14:06]
 - Currently this is specific to the plotting function
 - Should be relative to a list of given vehicles
-*** DONE Poisson process of vehicles
+*** DONE Poisson process of vehicles                              :traffic:
 CLOSED: [2019-10-22 Tue 13:33]
-*** TODO Faster vehicle sampling                                  :traffic:
+*** DONE Faster vehicle sampling                                  :traffic:
+CLOSED: [2019-10-22 Tue 17:00]
 *** DONE Animate traffic simulation                               :traffic:
 CLOSED: [2019-10-22 Tue 11:46]
 *** TODO Heavy traffic model                                      :traffic:

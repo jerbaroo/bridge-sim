@@ -23,7 +23,6 @@ def top_view_vehicles(
     """
     for mv_vehicle in mv_vehicles:
         # Left-most position of each vehicle axle.
-        print(f"time = {time}")
         xl = min(mv_vehicle.xs_at(time=time, bridge=bridge))
         # Center of the lane.
         z_center = bridge.lanes[mv_vehicle.lane].z_center()
