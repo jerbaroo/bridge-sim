@@ -1,6 +1,7 @@
-"""Plot 3D geometry of a bridge."""
+"""Plot geometry of a bridge."""
 from typing import Callable, Optional
 
+import matplotlib.patches as patches
 import numpy as np
 # This import registers the 3D projection, but is otherwise unused.
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
@@ -10,8 +11,9 @@ from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
+from model.bridge import Bridge
 from model.load import PointLoad
-from plot import plt
+from plot import Color, plt
 from util import print_d, print_w
 
 # Print debug information for this file.
@@ -19,11 +21,29 @@ D: str = "plot.bridge"
 # D: bool = False
 
 
+def top_view_bridge(bridge: Bridge, lanes: bool = True):
+    """Plot the top view of a bridge's geometry."""
+    plt.hlines(
+        [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge)
+    plt.vlines(
+        [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge)
+    if lanes:
+        for lane in bridge.lanes:
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
+                    facecolor=Color.lane))
+    plt.axis("equal")
+    plt.xlabel("x position (m)")
+    plt.ylabel("z position (m)")
+
+
 def plot_cloud_of_nodes(
         c: Config, equal_axis: bool = False,
         node_prop: Optional[Callable[[Node], float]] = None,
         deck: bool = True, piers: bool = True, save: Optional[str] = None, show: bool = False):
-    """Plot the 'Node's of a 3D FEM."""
+    """A scatter plot of the nodes of a 3D FEM."""
+    # TODO: Create method for these three lines in d3/__init__.py
     build_model_3d(c=c, expt_params=ExptParams([FEMParams(
         [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())

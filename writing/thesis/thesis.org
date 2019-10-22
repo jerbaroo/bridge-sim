@@ -707,7 +707,10 @@ thus more shell elements will provide a more accurate response.
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
 - All vehicles have the same axle-width.
- 
+- measurements from the verified campaign only for a small subset (positions and
+  existing healthy/damage state/)
+- the model is linear elastic
+- bridge scenarios
 - The behaviour of a bridge captured in FE simulation is sufficiently close to
   the real behaviour of a real bridge that the analysis techniques explored on
   the simulated data can also work on real data.

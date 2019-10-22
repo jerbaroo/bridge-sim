@@ -82,7 +82,9 @@ class MvVehicle(Vehicle):
         kmph: float, speed of the vehicle in kmph.
         lane: Optional[int], index of a lane on a bridge.
         init_x_frac: Optional[float], initial position on the lane as a fraction
-            of x position of the bridge, may be negative.
+            of x position of the bridge, may be negative but not greater than 1.
+            Regardless of the direction of traffic on the lane, the position at
+            0 is just as the vehicle is about to move onto the bridge.
 
     Attrs:
         length: float, length of the vehicle in meters.
@@ -98,6 +100,8 @@ class MvVehicle(Vehicle):
         self.kmph = kmph
         self.lane = lane
         self.init_x_frac = init_x_frac
+        if self.init_x_frac is not None:
+            assert self.init_x_frac <= 1
 
     def wheel_tracks(
             self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
@@ -117,7 +121,7 @@ class MvVehicle(Vehicle):
             return tracks
         return list(map(lambda z: bridge.z_frac(z), tracks))
 
-    def x_frac_at(self, time: float, bridge: Bridge):
+    def x_frac_at(self, time: float, bridge: Bridge) -> List[float]:
         """Fraction of x position of bridge in meters at given time.
 
         Args:
@@ -126,17 +130,40 @@ class MvVehicle(Vehicle):
 
         """
         mps = self.kmph / 3.6  # Meters per second.
-        delta_frac = (mps * time) / bridge.length
-        if not bridge.lanes[self.lane].ltr:
-            delta_frac *= -1
-        return self.init_x_frac + delta_frac
+        delta_x_frac = (mps * time) / bridge.length
+        init_x_frac = self.init_x_frac
+        if bridge.lanes[self.lane].ltr:
+            return init_x_frac + delta_x_frac
+        else:
+            init_x_frac *= -1  # Make positive, move to right of bridge.
+            init_x_frac += 1  # Move one bridge length to the right.
+            return init_x_frac - delta_x_frac
 
     def x_at(self, time: float, bridge: Bridge):
         """x position of bridge in meters at given time.
+
+        Returns a list of x position for each axle.
 
         Args:
             time: float, time passed from initial position, in seconds.
             bridge: Bridge, bridge the vehicle is moving on.
 
         """
-        return bridge.x(self.x_frac_at(time, bridge))
+        return bridge.x(self.x_frac_at(time=time, bridge=bridge))
+
+    def xs_at(self, time: float, bridge: Bridge):
+        """x position of each bridge's axle in meters at given time."""
+        xs = [self.x_at(time=time, bridge=bridge)]
+        for axle_distance in self.axle_distances:
+            delta_x = axle_distance
+            if bridge.lanes[self.lane].ltr:
+                delta_x *= -1
+            xs.append(xs[-1] + delta_x)
+        return xs
+
+    def on_bridge(self, time: float, bridge: Bridge):
+        """Whether a moving load is on a bridge at a given time."""
+        xs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Find left-most and right-most points of the vehicle.
+        xl, xr = min(xs), max(xs)
+        return 0 <= xl <= 1 or 0 <= xr <= 1

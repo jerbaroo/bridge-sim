@@ -1,4 +1,4 @@
-#+TODO: TODO FEEDBACK VERIFY HOLD BLOCKED | DONE ABORT PUSHED
+#+TODO: TODO INPROGRESS FEEDBACK VERIFY HOLD BLOCKED | DONE ABORT PUSHED
 # HOLD: Don't start this yet.
 # BLOCKED: Can't start this yet.
 # PUSHED: Moved to a later week.
@@ -6,6 +6,11 @@
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
+** TODO [#A] Verification: plot of OpenSees/Diana/Measurements
+This will be along the track where the measurement campaign took place.
+** TODO [#A] Write about assumptions of external factors
+** TODO [#A] Verification: 1-dimensional plot of responses
+One plot for each wheel track
 ** TODO [#A] Fix 2D model
 ** TODO [#A] Assert that sections are sorted by position
 ** TODO [#A] Remove default fix values to Support3D
@@ -27,8 +32,8 @@
 ** TODO [#B] Add mesh points where material properties change
 ** TODO [#B] Interpolate only for nodes where y=0
 ** TODO [#B] Use click library for python command line interface
-** TODO [#C] Rename Bridge.sections to deck_sections
-** TODO [#C] Split build/d3.py into submodules, it's a ~900 line file
+** TODO [#B] Section order in generated TCL file is not deterministic
+** TODO [#C] Factor build/d3.py into submodules, it's a ~900 line file
 ** TODO [#C] Consider how third party OpenSees model could be integrated
 ** TODO [#C] Use Python units library
 ** TODO [#C] Rename Config.os_node_step to node_step_x
@@ -38,10 +43,9 @@
 ** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
 ** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
 ** TODO [#C] Use num_deck_nodes instead of manual calculation
-** TODO [#B] Section order in generated TCL file is not deterministic
 * Meetings
--  Item marked as DONE when it is covered in a meeting.
--  Can create additional item in week's work or general TODOs.
+- Item marked as DONE when it is covered in a meeting.
+- Can create additional item in week's work or general TODOs.
 ** 7th October
 *** DONE I'll go over some things quick, looking for short responses, then open floor
     CLOSED: [2019-10-07 Mon 11:45]
@@ -105,8 +109,42 @@ CLOSED: [2019-10-16 Wed 14:46]
 CLOSED: [2019-10-16 Wed 14:46]
 *** DONE The mesh needs additional work, but I would delay that until later?
 CLOSED: [2019-10-16 Wed 14:46]
-* Weeks work
-** 7th October [7/21]
+** 21st October
+*** TODO Mesh update
+- Base mesh arguments
+- Grid and pier connected together
+- Additional mesh position from load
+- Removes a point of unconfidence in the model
+*** TODO Plot's of nodes sections and deck/pier only
+- Allows for debugging the model
+- Pier colors are unchanging
+- Transverse direction the deck seems to not be mirrored along the middle
+*** TODO The 3D OS FEM has a single section option, printed at runtime.
+*** TODO I chose the plotting points for verification
+- There are 4, let's have a look
+- 3 are chosen to be on traffic lanes
+- Should be adjusted to be on points in Diana model
+  TODO: Add plot per wheel track
+*** TODO Two meetings organized with Valeria
+- First one (end of November) is about thesis direction. Goal is to have model
+  (A) first half mostly done and written about and (B) classification started.
+- Second one end of the year, my goal is to have (A) finished first half, more
+  work necessary on inputs e.g. noise and (B) pre-release draft of the thesis.
+*** TODO I want to work towards the meeting.
+- The getting events from 3D model is almost done
+- You saw the load/vehicle refactor last week
+- Let's set a milestone for first classification for Friday. Even though there
+  are model discrepancies the model behaviour seems to look right but shifted,
+  thus classification on current responses will also work on adjusted responses.
+- Let's book the meeting
+- I'll work toward a presentation and closing current milestones
+- TODO: set up traffic scenario where total load on the bridge for dense traffic
+  is greater than the load with an abnormal heavy wehnicle on the bridge (sparse
+  traffic)
+*** TODO Can we have another meeting later this week
+*** TODO I want to go over Diana and Axis now
+* Week's work
+** 7th October
 *** DONE [#A] Collect translation responses from support nodes
 CLOSED: [2019-10-14 Mon 13:12]
 *** TODO [#A] Collect stress, strain responses from all elements
@@ -138,24 +176,24 @@ CLOSED: [2019-10-09 Wed 13:12]
 CLOSED: [2019-10-09 Wed 15:10]
 *** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
-** 16th October [2/9]
+** 16th October
 *** DONE [#A] Mesh improvements
 CLOSED: [2019-10-20 Sun 13:44] DEADLINE: <2019-10-18 Fri>
 - Base mesh for bridge deck and bridge piers.
 - Ensure pier nodes are part of deck and vice versa.
 - Ensure load position had a perfectly placed node.
-*** TODO [#B] Model assumptions and overview of system
-DEADLINE: <2019-10-18 Fri>
-- Started writing assumptions.
-- Need to finish vehicle assumptions.
+*** DONE [#B] Model assumptions
+CLOSED: [2019-10-21 Mon 09:28]
 *** BLOCKED [#A] Collect stresses and strains
 - Waiting on Arpi to respond with method.
-*** TODO [#B] Fix OpenSees 3D IL plots
+*** TODO [#B] Check OpenSees 3D IL plots
 - Contour plots look correct so it is hopefully a small bug.
 - Before collecting results improve mesh.
 - Need to verify against the contour plots.
 - Increase model density and see when it breaks.
-*** TODO [#C] Events from ILs
+*** INPROGRESS [#C] 3D Events from ILs
+- Plotting the events from 3D FEM
+- Traffic scenarios updated for multi-lane traffic
 *** DONE [#C] OpenSees single section deck and piers
 CLOSED: [2019-10-20 Sun 19:27]
 *** TODO [#C] Additional contour plots from Axis
@@ -163,4 +201,3 @@ CLOSED: [2019-10-20 Sun 19:27]
 - Positions chosen, then need to collect the results.
 *** TODO [#C] Additional contour plots from Diana
 - Positions chosen, now need to collect the results.
-*** TODO [#C] Traffic scenarios updated for multi-lane traffic
