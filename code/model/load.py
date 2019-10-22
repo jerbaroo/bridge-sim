@@ -185,7 +185,17 @@ class MvVehicle(Vehicle):
 
     def on_bridge(self, time: float, bridge: Bridge):
         """Whether a moving load is on a bridge at a given time."""
-        xs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Find left-most and right-most points of the vehicle.
-        xl, xr = min(xs), max(xs)
-        return 0 <= xl <= 1 or 0 <= xr <= 1
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicle positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        return 0 <= xl_frac <= 1 or 0 <= xr_frac <= 1
+
+    def passed_bridge(self, time: float, bridge: Bridge):
+        """Whether a moving vehicle as already passed over the bridge."""
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicle positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        if bridge.lanes[self.lane].ltr:
+            return xl_frac > 1
+        else:
+            return xr_frac < 0

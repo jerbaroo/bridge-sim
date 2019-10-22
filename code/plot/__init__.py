@@ -91,7 +91,8 @@ def animate_plot(frames: int, plot_f: Callable[[int], None], time_step: float, s
         plot_f(t)
 
     plot_f(0)
-    anim = FuncAnimation(plt.gcf(), animate_frame, frames, interval=time_step)
+    anim = FuncAnimation(
+        plt.gcf(), animate_frame, frames, interval=time_step)
     writer = FFMpegWriter()
     anim.save(save, writer=writer)
 

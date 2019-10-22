@@ -13,7 +13,8 @@ from util import print_i
 
 
 def animate_traffic_top_view(
-        bridge: Bridge, title: str, traffic: Traffic, time_step: float, save: str):
+        bridge: Bridge, title: str, traffic: Traffic, time_step: float,
+        start_index: int, save: str):
     """Animate traffic from a top view.
 
     Args:
@@ -29,12 +30,14 @@ def animate_traffic_top_view(
     def plot_f(time_index):
         plt.title(title)
         top_view_bridge(bridge)
+        time_index = start_index + time_index
         top_view_vehicles(
             bridge=bridge, mv_vehicles=traffic[time_index],
             all_vehicles=all_vehicles, time=time_index * time_step)
 
     animate_traffic(
-        traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)
+        traffic=traffic[start_index:], time_step=time_step, plot_f=plot_f,
+        save=save)
 
 
 def animate_traffic(
