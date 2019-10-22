@@ -21,7 +21,7 @@ def make_all(c: Config, d3: bool):
 
 
 def main():
-    util.DEBUG = False
+    # util.DEBUG = False
 
     if "--test" in sys.argv:
         print_i("Main: using test Config")

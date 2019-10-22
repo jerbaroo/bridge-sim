@@ -77,7 +77,7 @@ def set_support_num_nodes(c: "Config", max_shell_area: float):
     print_d(D, f"Initial wall shell area = {wall_shell_area()}")
     # Decrease number of nodes until shell's are below maximum.
     while wall_shell_area() > max_shell_area:
-        print(f"{wall_shell_area()}")
+        print_d(D, f"{wall_shell_area()}")
         # Always decrease the maximum shell side.
         # (by increasing number of nodes).
         if wall_shell_length() > wall_shell_height():
@@ -142,8 +142,7 @@ class Config:
     """
     def __init__(
             self, bridge: Callable[[], Bridge], vehicle_data_path: str,
-            vehicle_density: List[Tuple[float, float]],
-            vehicle_intensity: float, vehicle_density_col: str,
+            vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str,
             generated_dir: str = "generated-data/",
             max_shell_area: Optional[float] = None):
         # Bridge.
@@ -155,21 +154,20 @@ class Config:
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(f"Loaded vehicle data from {vehicle_data_path} in"
                 + f" {timer() - start:.2f}s")
-        self.vehicle_density = vehicle_density
-        self.vehicle_intensity = vehicle_intensity
-        self.vehicle_density_col = vehicle_density_col
+        self.vehicle_pdf = vehicle_pdf
+        self.vehicle_pdf_col = vehicle_pdf_col
         self.perturb_stddev: float = 0.1
 
         # Ensure vehicle probability density sums to 1.
-        density_sum = sum(map(lambda f: f[1], self.vehicle_density))
-        if int(density_sum) != 100:
-            print_w(f"Vehicle density sums to {density_sum}, not to 1")
-            for i in range(len(self.vehicle_density)):
-                self.vehicle_density[i] = (
-                    self.vehicle_density[i][0],
-                    self.vehicle_density[i][1] / density_sum)
-            density_sum = sum(map(lambda f: f[1], self.vehicle_density))
-            print_w(f"Vehicle density adjusted to sum to {density_sum:.2f}")
+        pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+        if int(pdf_sum) != 100:
+            print_w(f"Vehicle PDF sums to {pdf_sum}, not to 1")
+            for i in range(len(self.vehicle_pdf)):
+                self.vehicle_pdf[i] = (
+                    self.vehicle_pdf[i][0],
+                    self.vehicle_pdf[i][1] / pdf_sum)
+            pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+            print_w(f"Vehicle PDF adjusted to sum to {pdf_sum:.2f}")
 
         # Generated data.
         self.generated_dir = generated_dir

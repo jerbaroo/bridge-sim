@@ -5,7 +5,7 @@ import numpy as np
 import scipy.stats as stats
 
 from config import Config
-from vehicles.sample import length_groups, noise_col_names, noise_per_column
+from vehicles.sample import noise_col_names, noise_per_column
 
 
 def vehicle_density_stats(c: Config):

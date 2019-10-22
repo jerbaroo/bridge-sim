@@ -356,16 +356,16 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step = 5, 0.01
-    for traffic_scenario in [normal_traffic(c)]:
-        traffic = traffic_scenario.traffic(
-            bridge=c.bridge, max_time=max_time, time_step=time_step,
-            after_warm_up=False)
+    max_time, time_step, lam = 30, 0.5, 10
+    for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
+        traffic, start_index = traffic_scenario.traffic(
+            bridge=c.bridge, max_time=max_time, time_step=time_step)
+        print(f"start index = {start_index}")
         animate_traffic_top_view(
             bridge=c.bridge,
             title=f"{traffic_scenario.name} on {c.bridge.name}",
-            traffic=traffic, time_step=time_step, save=c.get_image_path(
-                "animations", f"{traffic_scenario.name}.mp4"))
+            traffic=traffic, time_step=time_step, start_index=start_index,
+            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
 
 
 def make_all_3d(c: Config):

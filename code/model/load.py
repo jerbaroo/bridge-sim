@@ -1,6 +1,11 @@
 """Loads and vehicles"""
 from typing import List, Optional, Tuple
 
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.patches as patches
+import matplotlib.colors as colors
+
 from config import Config
 from model.bridge import Bridge
 from util import print_d
@@ -47,22 +52,39 @@ class Vehicle:
 
     Args:
         kn: Union[float, List[float]], load intensity, either for the entire
-            vehicle or per axle, in kilo Newton.
+            vehicle or per axle, in kilo Newton. Not available as an attribute.
         axle_distances: List[float], distance between axles in meters.
         axle_width: float, width of the vehicle's axles in meters.
 
     Attrs:
+        total_kn: float, total load intensity for the vehicle, in kilo Newton.
+        kn_per_axle: List[float], load intensity per axle in kilo Newton.
         length: float, length of the vehicle in meters.
         num_axles: int, number of axles.
 
     """
     def __init__(
             self, kn: float, axle_distances: List[float], axle_width: float):
-        self.kn = kn
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
+        if isinstance(kn, list):
+            self.total_kn = sum(kn)
+            self.kn_per_axle = kn
+        else:
+            self.total_kn = kn
+            self.kn_per_axle = [
+                (kn / self.num_axles) for _ in range(self.num_axles)]
+
+    def color(self, all_vehicles: List["Vehicle"]):
+        """Color of this vehicle scaled based on given vehicles."""
+        cmap = cm.get_cmap("Reds")
+        if len(all_vehicles) == 0:
+            return cmap(0.5)
+        total_kns = [v.total_kn for v in all_vehicles] + [self.total_kn]
+        norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
+        return cmap(np.interp(norm(self.total_kn), [0, 1], [0.3, 1]))
 
 
 class MvVehicle(Vehicle):
@@ -163,7 +185,17 @@ class MvVehicle(Vehicle):
 
     def on_bridge(self, time: float, bridge: Bridge):
         """Whether a moving load is on a bridge at a given time."""
-        xs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Find left-most and right-most points of the vehicle.
-        xl, xr = min(xs), max(xs)
-        return 0 <= xl <= 1 or 0 <= xr <= 1
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicle positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        return 0 <= xl_frac <= 1 or 0 <= xr_frac <= 1
+
+    def passed_bridge(self, time: float, bridge: Bridge):
+        """Whether a moving vehicle as already passed over the bridge."""
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicle positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        if bridge.lanes[self.lane].ltr:
+            return xl_frac > 1
+        else:
+            return xr_frac < 0
