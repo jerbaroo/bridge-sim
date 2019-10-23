@@ -57,10 +57,12 @@ class Vehicle:
         axle_width: float, width of the vehicle's axles in meters.
 
     Attrs:
-        total_kn: float, total load intensity for the vehicle, in kilo Newton.
-        kn_per_axle: List[float], load intensity per axle in kilo Newton.
+
         length: float, length of the vehicle in meters.
         num_axles: int, number of axles.
+        total_kn: Callable[[], float], total load intensity in kilo Newton.
+        kn_per_axle: Callable[[], [List[float]]], load intensity per axle in
+            kilo Newton.
 
     """
     def __init__(
@@ -69,22 +71,23 @@ class Vehicle:
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
-        if isinstance(kn, list):
-            self.total_kn = sum(kn)
-            self.kn_per_axle = kn
+        self.kn = kn
+        if isinstance(self.kn, list):
+            self.total_kn = lambda: sum(self.kn)
+            self.kn_per_axle = lambda: self.kn
         else:
-            self.total_kn = kn
-            self.kn_per_axle = [
-                (kn / self.num_axles) for _ in range(self.num_axles)]
+            self.total_kn = lambda: self.kn
+            self.kn_per_axle = lambda: [
+                (self.kn / self.num_axles) for _ in range(self.num_axles)]
 
     def color(self, all_vehicles: List["Vehicle"]):
         """Color of this vehicle scaled based on given vehicles."""
         cmap = cm.get_cmap("Reds")
         if len(all_vehicles) == 0:
             return cmap(0.5)
-        total_kns = [v.total_kn for v in all_vehicles] + [self.total_kn]
+        total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
         norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
-        return cmap(np.interp(norm(self.total_kn), [0, 1], [0.3, 1]))
+        return cmap(np.interp(norm(self.total_kn()), [0, 1], [0.3, 1]))
 
 
 class MvVehicle(Vehicle):
@@ -109,6 +112,7 @@ class MvVehicle(Vehicle):
             0 is just as the vehicle is about to move onto the bridge.
 
     Attrs:
+        mps: float, speed of the vehicle in mps.
         length: float, length of the vehicle in meters.
         num_axles: int, number of axles.
 
@@ -120,6 +124,7 @@ class MvVehicle(Vehicle):
         super().__init__(
             kn=kn, axle_distances=axle_distances, axle_width=axle_width)
         self.kmph = kmph
+        self.mps = self.kmph / 3.6  # Meters per second.
         self.lane = lane
         self.init_x_frac = init_x_frac
         if self.init_x_frac is not None:
@@ -151,8 +156,7 @@ class MvVehicle(Vehicle):
             bridge: Bridge, bridge the vehicle is moving on.
 
         """
-        mps = self.kmph / 3.6  # Meters per second.
-        delta_x_frac = (mps * time) / bridge.length
+        delta_x_frac = (self.mps * time) / bridge.length
         init_x_frac = self.init_x_frac
         if bridge.lanes[self.lane].ltr:
             return init_x_frac + delta_x_frac
@@ -183,19 +187,23 @@ class MvVehicle(Vehicle):
             xs.append(xs[-1] + delta_x)
         return xs
 
-    def on_bridge(self, time: float, bridge: Bridge):
+    def on_bridge(self, time: float, bridge: Bridge) -> bool:
         """Whether a moving load is on a bridge at a given time."""
         x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
         # Left-most and right-most vehicle positions as fractions.
         xl_frac, xr_frac = min(x_fracs), max(x_fracs)
         return 0 <= xl_frac <= 1 or 0 <= xr_frac <= 1
 
-    def passed_bridge(self, time: float, bridge: Bridge):
-        """Whether a moving vehicle as already passed over the bridge."""
+    def full_lanes(self, time: float, bridge: Bridge) -> float:
+        """The amount of bridge lanes travelled by this vehicle."""
         x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
         # Left-most and right-most vehicle positions as fractions.
         xl_frac, xr_frac = min(x_fracs), max(x_fracs)
         if bridge.lanes[self.lane].ltr:
-            return xl_frac > 1
+            return xl_frac
         else:
-            return xr_frac < 0
+            return abs(xr_frac - 1)
+
+    def passed_bridge(self, time: float, bridge: Bridge) -> bool:
+        """Whether the current vehicle has travelled over the bridge."""
+        return self.full_lanes(time=time, bridge=bridge) > 1

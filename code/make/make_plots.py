@@ -9,7 +9,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from classify.data.scenarios import normal_traffic
+from classify.data.scenarios import heavy_traffic_1, normal_traffic
 from config import Config
 from fem.params import FEMParams
 from fem.responses import load_fem_responses
@@ -356,8 +356,10 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam = 30, 0.5, 10
-    for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
+    max_time, time_step, lam = 30, 0.5, 5
+    # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
+    for traffic_scenario in [
+            heavy_traffic_1(c=c, lam=lam, prob_heavy=0.01)]:
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
         print(f"start index = {start_index}")
