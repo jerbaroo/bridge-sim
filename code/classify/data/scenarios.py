@@ -23,12 +23,16 @@ def arrival(beta: float):
 
 def normal_traffic(c: Config, lam: float):
     """Normal traffic scenario, arrives according to poisson process."""
-    return TrafficScenario(
-        name=f"normal-lam-{lam}",
-        mv_vehicle_f=lambda : (sample_vehicle(c), arrival(lam)))
+
+    def mv_vehicle_f(traffic: "Traffic", time: float):
+        # print(f"normal_traffic received traffic {type(traffic)} {time}")
+        return (sample_vehicle(c), arrival(lam))
+
+    return TrafficScenario(name=f"normal-lam-{lam}", mv_vehicle_f=mv_vehicle_f)
 
 
-def heavy_traffic_1(c: Config, lam: float, prob_heavy: float):
+def heavy_traffic_1(
+        c: Config, lam: float, prob_heavy: float, heavy_after_lanes: int):
     """Heavy traffic scenario.
 
     In this scenario a heavy vehicle instead of a normal vehicle is introduced
@@ -37,9 +41,15 @@ def heavy_traffic_1(c: Config, lam: float, prob_heavy: float):
     """
     assert 0 <= prob_heavy <= 1
 
-    def mv_vehicle_f(warmed_up: bool) -> Tuple[Vehicle, float]:
-        """"""
-        pass
+    normal_traffic_scenario = normal_traffic(c=c, lam=lam)
+    heavy_generated = False  # Have we created a heavy vehicle yet or not.
+    the_heavy = sample_vehicle(c)
+    the_heavy.kn *= 10
+
+    def mv_vehicle_f(full_lanes: int) -> Tuple[Vehicle, float]:
+        if not heavy_generated and full_lanes >= heavy_after_lanes:
+            return the_heavy
+        return normal_traffic_scenario.mv_vehicle_f(full_lanes)
 
     return TrafficScenario(name="heavy-1", mv_vehicle_f=mv_vehicle_f)
 

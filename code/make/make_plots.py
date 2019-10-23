@@ -364,7 +364,7 @@ def make_traffic_animations(c: Config):
         animate_traffic_top_view(
             bridge=c.bridge,
             title=f"{traffic_scenario.name} on {c.bridge.name}",
-            traffic=traffic, time_step=time_step, start_index=start_index,
+            traffic=traffic, time_step=time_step, start_index=0,
             save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
 
 

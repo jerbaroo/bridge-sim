@@ -1,7 +1,4 @@
-#+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) HOLD(h) BLOCKED(b) | DONE(d) LATE(l) ABORT(a)
-# HOLD: Don't start this yet.
-# BLOCKED: Can't start this yet.
-# PUSHED: Moved to a later week.
+#+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a) LATE(l)
 
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
@@ -36,13 +33,23 @@ One plot for each wheel track
 ** TODO [#C] Factor build/d3.py into submodules, it's a ~900 line file
 ** TODO [#C] Consider how third party OpenSees model could be integrated
 ** TODO [#C] Use Python units library
-** TODO [#C] Rename Config.os_node_step to node_step_x
-** TODO [#C] Rename Config.os_node_step_z to node_step_z
-** TODO [#C] Rename Config.os_support_num_nodes_y to support_num_nodes_y
-** TODO [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
+** DONE [#C] Rename Config.os_node_step to node_step_x
+CLOSED: [2019-10-22 Tue 19:32]
+Moved to bash mesh.
+** DONE [#C] Rename Config.os_node_step_z to node_step_z
+CLOSED: [2019-10-22 Tue 19:32]
+Moved to bash mesh.
+** DONE [#C] Rename Config.os_support_num_nodes_y to support_num_nodes_y
+CLOSED: [2019-10-22 Tue 19:32]
+Moved to bash mesh.
+** DONE [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
+CLOSED: [2019-10-22 Tue 19:32]
+Moved to bash mesh.
 ** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
 ** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
-** TODO [#C] Use num_deck_nodes instead of manual calculation
+** DONE [#C] Use num_deck_nodes instead of manual calculation
+CLOSED: [2019-10-22 Tue 19:33]
+No longer using step size to it's easy to do directly.
 * Meetings
 - Item marked as DONE when it is covered in a meeting.
 - Can create additional item in week's work or general TODOs.
