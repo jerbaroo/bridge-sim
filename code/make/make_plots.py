@@ -9,7 +9,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from classify.data.scenarios import heavy_traffic_1, normal_traffic
+from classify.data.scenarios import BridgeScenarioNormal, heavy_traffic_1, normal_traffic
+from classify.data.responses import responses_to_traffic
 from config import Config
 from fem.params import FEMParams
 from fem.responses import load_fem_responses
@@ -356,18 +357,27 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam = 30, 0.5, 5
+    max_time, time_step, lam, min_d = 10, 0.5, 5, 2
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
-            heavy_traffic_1(c=c, lam=lam, prob_heavy=0.01)]:
+            heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
         print(f"start index = {start_index}")
-        animate_traffic_top_view(
-            bridge=c.bridge,
-            title=f"{traffic_scenario.name} on {c.bridge.name}",
-            traffic=traffic, time_step=time_step, start_index=0,
-            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
+        traffic_responses = responses_to_traffic(
+            c=c, traffic=traffic, bridge_scenario=BridgeScenarioNormal(),
+            start_index=0, time_step=time_step, points=[Point(35, 0, 5)],
+            response_type=ResponseType.YTranslation, fem_runner=OSRunner(c))
+        plot_contour_deck(
+            c=c, fem_responses=traffic_responses, y=y, ploads=[], save=(
+            c.image_path(pstr(
+                f"contour-{response_type.name()}-ploadx={load_x}"
+                + f"-ploadz={load_z}"))))
+        # animate_traffic_top_view(
+        #     bridge=c.bridge, traffic=traffic, time_step=time_step,
+        #     start_index=start_index,
+        #     title=f"{traffic_scenario.name} on {c.bridge.name}",
+        #     save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
 
 
 def make_all_3d(c: Config):

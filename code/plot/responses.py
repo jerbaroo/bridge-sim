@@ -8,14 +8,14 @@ from typing import List, Optional
 import numpy as np
 
 from config import Config
-from fem.responses import FEMResponses
+from fem.responses import Responses
 from model.load import PointLoad
 from plot import plt
 
 
 def plot_contour_deck(
-        c: Config, fem_responses: FEMResponses, y: float, ploads: List[PointLoad],
-        save: Optional[str] = None, show: bool = False):
+        c: Config, responses: Responses, y: float, ploads: List[PointLoad] = [],
+        save: Optional[str] = None):
     """Contour plot of responses on the deck of the bridge.
 
     This function will iterate over x and z for a fixed y (given).
@@ -61,6 +61,5 @@ def plot_contour_deck(
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
     plt.axis("equal")
-    if save: plt.savefig(save)
-    if show: plt.show()
-    if save or show: plt.close()
+    if save:
+        plt.savefig(save)

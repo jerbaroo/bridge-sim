@@ -14,7 +14,7 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
+# from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Bridge, Dimensions, Point, Section

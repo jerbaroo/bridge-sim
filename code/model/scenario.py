@@ -122,12 +122,12 @@ class TrafficScenario:
 
             # Increase the simulation time by time taken to warm up.
             if warmed_up_at is None and full_lanes() > 1:
-                warmed_up_at = time
+                warmed_up_at = int(time / time_step)
                 max_time += time
 
             time += time_step
 
         if warmed_up_at is None:
-            raise ValueError("Traffic simulation did not warm up")
+            raise ValueError("Simulation did not warm up, increase time")
 
         return sim_vehicles, warmed_up_at

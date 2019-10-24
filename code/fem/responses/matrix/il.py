@@ -69,6 +69,7 @@ class ILMatrix(ResponsesMatrix):
         id_str = (
             f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
             + f"-{c.il_num_loads}-zfrac={load_z_frac}")
+        print(id_str)
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams([

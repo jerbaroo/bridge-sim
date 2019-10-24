@@ -480,12 +480,12 @@ class Bridge:
         return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
 
     def x_frac(self, x: float):
-        return interp1d(
-            [self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x)
+        return float(interp1d(
+            [self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x))
 
     def x(self, x_frac: float):
-        return interp1d(
-            [0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac)
+        return float(interp1d(
+            [0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac))
 
     def y_frac(self, y: float):
         assert self.y_min <= y <= self.y_max
@@ -500,8 +500,11 @@ class Bridge:
         return np.interp(z, [self.z_min, self.z_max], [0, 1])
 
     def z(self, z_frac: float):
+        print(f"z_frac = {z_frac}")
         assert 0 <= z_frac <= 1
-        return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+        r = np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+        print(type(r))
+        return r
 
     def _min_max(
             self,

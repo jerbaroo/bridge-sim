@@ -1,11 +1,11 @@
-"""Responses of one sensor type for one FEM simulation."""
+"""Responses to a load/vehicle across a bridge."""
 from __future__ import annotations
 
 import os
 import pickle
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import List, Tuple
+from typing import List, NewType, Tuple
 
 from config import Config
 from fem.params import ExptParams, FEMParams
@@ -93,7 +93,34 @@ def load_fem_responses(
     return fem_responses
 
 
-class FEMResponses:
+Respoon = NewType("Respoon", Tuple[float, Point])
+
+
+class Responses:
+    """Responses of one sensor type at many positions."""
+    def __init__(self):
+        # Nested dictionaries for indexing responses by position.
+        self.responses = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(dict)))
+
+    def index(self):
+        """Create attributes for fast indexing of times and positions."""
+        self.times = sorted(self.responses.keys())
+        points = self.responses[self.times[0]]
+        self.xs = sorted(points.keys())
+        self.ys = {x: sorted(points[x].keys()) for x in self.xs}
+        self.zs = {x: {y: sorted(points[x][y].keys())
+                       for y in self.ys[x]} for x in self.xs}
+
+    @staticmethod
+    def from_respoons(self, respoons: List[Respoon]):
+        responses = Responses()
+        for value, point in respoons:
+            responses[0][point.x][point.y][point.z] = value
+        self.index()
+
+
+class FEMResponses(Responses):
     """Responses of one sensor type for one FEM simulation.
 
     FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
@@ -114,6 +141,7 @@ class FEMResponses:
             self, c: Config, fem_params: FEMParams, runner_name: str,
             response_type: ResponseType, responses: List[Response],
             skip_build: bool = False):
+        super().__init__()
         assert isinstance(responses, list)
         if len(responses) == 0:
             raise ValueError("No responses found")
@@ -128,23 +156,11 @@ class FEMResponses:
         self.response_type = response_type
         self.num_sensors = len(responses)
 
-        if skip_build:
-            return
-
-        # Nested dictionaries for indexing responses by ordinates.
-        self.responses = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(dict)))
-        for r in responses:
-            self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
-
-        # Convert nested dictionaries to sorted lists at leaves.
-        # This allows for conversion from an index to an ordinate.
-        self.times = sorted(self.responses.keys())
-        points = self.responses[self.times[0]]
-        self.xs = sorted(points.keys())
-        self.ys = {x: sorted(points[x].keys()) for x in self.xs}
-        self.zs = {x: {y: sorted(points[x][y].keys())
-                       for y in self.ys[x]} for x in self.xs}
+        if not skip_build:
+            print(f"building")
+            for r in responses:
+                self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
+            self.index()
 
     def save(self, c: Config):
         path = fem_responses_path(

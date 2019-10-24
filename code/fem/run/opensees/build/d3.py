@@ -676,9 +676,8 @@ def section_for_deck_element(
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)
         for section in c.bridge.sections:
-            c.bridge.deck_sections_dict[
-                c.bridge.x(section.start_x_frac)][
-                c.bridge.z(section.start_z_frac)] = section
+            foo = c.bridge.deck_sections_dict[c.bridge.x(section.start_x_frac)]
+            foo[c.bridge.z(section.start_z_frac)] = section
 
     # Find the last x position less than element_x.
     section_x = None
