@@ -50,6 +50,8 @@ def animate_traffic_top_view(
         c=c, traffic=traffic, bridge_scenario=bridge_scenario,
         start_time=start_time, time_step=time_step, points=deck_points,
         response_type=response_type, fem_runner=fem_runner, min_max=True)
+    min_response = min(min_response, -max_response)
+    max_response = max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
 
     def plot_f(time_index):
