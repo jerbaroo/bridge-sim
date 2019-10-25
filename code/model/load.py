@@ -178,7 +178,7 @@ class MvVehicle(Vehicle):
             return init_x_frac - delta_x_frac
 
     def x_at(self, time: float, bridge: Bridge):
-        """x position of bridge in meters at given time.
+        """X position of bridge in meters at given time.
 
         Returns a list of x position for each axle.
 
@@ -190,7 +190,7 @@ class MvVehicle(Vehicle):
         return bridge.x(self.x_frac_at(time=time, bridge=bridge))
 
     def xs_at(self, time: float, bridge: Bridge):
-        """x position of each bridge's axle in meters at given time."""
+        """X position of bridge for each axle in meters at given time."""
         xs = [self.x_at(time=time, bridge=bridge)]
         for axle_distance in self.axle_distances:
             delta_x = axle_distance
@@ -198,6 +198,10 @@ class MvVehicle(Vehicle):
                 delta_x *= -1
             xs.append(xs[-1] + delta_x)
         return xs
+
+    def x_fracs_at(self, time: float, bridge: Bridge):
+        """Fraction of x position of bridge for each axle at given time."""
+        return list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
 
     def on_bridge(self, time: float, bridge: Bridge) -> bool:
         """Whether a moving load is on a bridge at a given time."""

@@ -653,7 +653,7 @@ def opensees_pier_sections(c: Config):
             opensees_section(section) for section in pier_sections]),
         units=(
             "section ElasticMembranePlateSection secTag youngs_modulus"
-            +" poisson_ratio depth mass_density"))
+            + " poisson_ratio depth mass_density"))
 
 
 def section_for_deck_element(

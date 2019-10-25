@@ -1,15 +1,12 @@
 """Time series of responses to moving loads."""
 from itertools import chain
-from typing import List, Optional, Tuple
-
-import numpy as np
+from typing import List, Tuple
 
 from config import Config
+from fem.responses import Responses
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
-from model import Response
-from model.bridge import Bridge, Point
-from model.load import MvVehicle
+from model.bridge import Point
 from model.response import ResponseType
 from model.scenario import BridgeScenario
 from util import print_d
@@ -21,12 +18,10 @@ D: str = "classify.data.responses"
 
 def responses_to_traffic(
         c: Config, traffic: "Traffic", bridge_scenario: BridgeScenario,
-        start_index: float, time_step: float, points: List[Point],
+        start_time: float, time_step: float, points: List[Point],
         response_type: ResponseType, fem_runner: FEMRunner,
         per_axle: bool = False) -> List[Tuple[float, Point]]:
-    """The responses to traffic over a number of simulation steps.
-
-    Returns a list of Respoon per simulation time step.
+    """The responses to traffic at each simulation step.
 
     Args:
         c: Config, global configuration object.
@@ -42,57 +37,61 @@ def responses_to_traffic(
     if per_axle:
         raise ValueError("Per axle option is deprecated")
 
-    result = []
-    time = (start_index * time_step) - time_step  # The simulation time.
+    # Wheel tracks the vehicle's drive on and an ILMatrix for each wheel track.
     z_fracs = sorted(set(chain.from_iterable(
         vehicle.wheel_tracks(bridge=c.bridge, meters=False)
         for vehicle in chain.from_iterable(traffic))))
     print(z_fracs)
-    il_matrices = {  # An ILMatrix for each wheel track.
+    il_matrices = {
         z_frac: ILMatrix.load(
             c=c, response_type=response_type, fem_runner=fem_runner,
             load_z_frac=z_frac)
         for z_frac in z_fracs}
 
+    result = []
+    time = start_time - time_step  # The simulation time.
+
     # Iterate through each step of the simulation.
     for t in range(len(traffic)):
-        result.append([0 for _ in range(len(points))])
         time += time_step
+        result.append([[0, point] for point in points])
+        print(f" time = {time}, t = {t}")
 
         # For each vehicle on the bridge at this time step.
         for mv_vehicle in traffic[t]:
-            mv_vehicle_x_frac = mv_vehicle.x_frac_at(time=time, bridge=c.bridge)
+
+            assert mv_vehicle.on_bridge(time=time, bridge=c.bridge)
+            # We get the x and z positions of this vehicle. There is one x
+            # position for each axle, and two z positions per vehicle.
+            mv_vehicle_x_fracs = [
+                x_frac for x_frac in mv_vehicle.x_fracs_at(
+                    time=time, bridge=c.bridge)
+                if 0 <= x_frac <= 1]
             mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(
                 bridge=c.bridge, meters=False)
-            lane_center = c.bridge.lanes[mv_vehicle.lane].z_center()
-            print_d(D, f"lane center = {lane_center}")
-            print_d(D, f"lane center as frac = {c.bridge.z_frac(lane_center)}")
-            print_d(D, f"z_fracs = {mv_vehicle_z_fracs}")
 
             # Update the response at each point due to this vehicle..
             for p, point in enumerate(points):
 
-                # ..calculating a response due to each axle and wheel.
-                axle_responses = []
-                for axle_index in range(mv_vehicle.num_axles):
-                    # Update x position of the response for each axle.
-                    if axle_index != 0:
-                        axle_distance = mv_vehicle.axle_distances[
-                            axle_index - 1] / 100
-                        mv_vehicle_x_frac += c.bridge.x_frac(axle_distance)
-                    # Get a response for each wheel on this axle.
-                    responses_for_one_axle = []
-                    for mv_vehicle_z_frac in mv_vehicle_z_fracs:
-                        il_matrix = il_matrices[mv_vehicle_z_frac]
-                        responses_for_one_axle.append(il_matrix.response_to(
-                            x_frac=c.bridge.x_frac(x=point.x),
+                # Calculate a response to each wheel on this vehicle. We start
+                # by iterating through each wheel track, and then each wheel on
+                # that track.
+                mv_vehicle_responses = []
+                for mv_vehicle_z_frac in mv_vehicle_z_fracs:
+                    il_matrix = il_matrices[mv_vehicle_z_frac]
+                    for axle, mv_vehicle_x_frac in enumerate(mv_vehicle_x_fracs):
+                        mv_vehicle_responses.append((il_matrix.response_to(
                             load_x_frac=mv_vehicle_x_frac,
-                            load=mv_vehicle.kn))
-                    axle_responses.append(sum(responses_for_one_axle))
+                            load=mv_vehicle.kn_per_axle()[axle] / 2,
+                            x_frac=c.bridge.x_frac(x=point.x),
+                            y_frac=c.bridge.y_frac(y=point.y),
+                            z_frac=c.bridge.z_frac(z=point.z))))
 
-                result[t][p] += sum(axle_responses)
+                result[t][p][0] += sum(mv_vehicle_responses)
 
-        results[-1] = list(map(
-            lambda value, i: (value, points[i]), enumerate(results[-1])))
+        result[t] = Responses.from_responses(
+            response_type=response_type, many_response=result[t])
+        print(type(result[t]))
 
-    return results
+    return result
+

@@ -25,17 +25,17 @@ def plot_contour_deck(
     amax = np.inf
     amax_x, amax_z = None, None
     X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
-    for x in fem_responses.xs:
+    for x in responses.xs:
         # There is a chance that no sensors exist at given y position for every
         # x position, thus we must check.
-        if y in fem_responses.zs[x]:
+        if y in responses.zs[x]:
             X.append([])
             Z.append([])
             H.append([])
-            for z in fem_responses.zs[x][y]:
+            for z in responses.zs[x][y]:
                 X[-1].append(x)
                 Z[-1].append(z)
-                H[-1].append(fem_responses.responses[0][x][y][z].value)
+                H[-1].append(responses.responses[0][x][y][z])
                 if H[-1][-1] < amax:
                     amax = H[-1][-1]
                     amax_x, amax_z = X[-1][-1], Z[-1][-1]
@@ -55,8 +55,8 @@ def plot_contour_deck(
     # Titles and labels.
     amin = np.amax(np.array(H))
     plt.title(
-        f"{fem_responses.response_type.name()}"
-        + f" ({fem_responses.response_type.units(False)})"
+        f"{responses.response_type.name()}"
+        + f" ({responses.response_type.units(False)})"
         + f", min = {(amax - amin):.10f} at ({amax_x}, {amax_z})")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")

@@ -93,12 +93,16 @@ def load_fem_responses(
     return fem_responses
 
 
+# A Response is a value at a Point. The response type should be maintained
+# separately, for space efficiency reasons as it will be the same for many
+# Response.
 Respoon = NewType("Respoon", Tuple[float, Point])
 
 
 class Responses:
-    """Responses of one sensor type at many positions."""
-    def __init__(self):
+    """Responses of one sensor type at many points."""
+    def __init__(self, response_type: ResponseType):
+        self.response_type = response_type
         # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(
             lambda: defaultdict(lambda: defaultdict(dict)))
@@ -113,11 +117,13 @@ class Responses:
                        for y in self.ys[x]} for x in self.xs}
 
     @staticmethod
-    def from_respoons(self, respoons: List[Respoon]):
-        responses = Responses()
-        for value, point in respoons:
-            responses[0][point.x][point.y][point.z] = value
-        self.index()
+    def from_responses(
+            response_type: ResponseType, many_response: List[Respoon]):
+        responses = Responses(response_type)
+        for value, point in many_response:
+            responses.responses[0][point.x][point.y][point.z] = value
+        responses.index()
+        return responses
 
 
 class FEMResponses(Responses):
@@ -141,7 +147,7 @@ class FEMResponses(Responses):
             self, c: Config, fem_params: FEMParams, runner_name: str,
             response_type: ResponseType, responses: List[Response],
             skip_build: bool = False):
-        super().__init__()
+        super().__init__(response_type=response_type)
         assert isinstance(responses, list)
         if len(responses) == 0:
             raise ValueError("No responses found")
@@ -153,7 +159,6 @@ class FEMResponses(Responses):
         self.c = c
         self.fem_params = fem_params
         self.runner_name = runner_name
-        self.response_type = response_type
         self.num_sensors = len(responses)
 
         if not skip_build:
