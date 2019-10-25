@@ -22,7 +22,6 @@ from plot import animate_mv_vehicle, plot_bridge_deck_side,\
     plot_bridge_first_section, plt
 from plot.geom import plot_cloud_of_nodes
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
-from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles,\
     plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Dimensions, Point
@@ -357,32 +356,19 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam, min_d = 12, 0.5, 5, 2
+    max_time, time_step, lam, min_d = 10, 0.5, 5, 2
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
             heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
-        print(f"start index = {start_index}")
-        some_points = [
-            Point(x=x, y=0, z=z)
-            for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=10)
-            for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)]
+        traffic = traffic[start_index:]
         animate_traffic_top_view(
-            bridge=c.bridge, traffic=traffic, time_step=time_step,
-            start_index=0,
-            title=f"{traffic_scenario.name} on {c.bridge.name}",
+            c=c, bridge=c.bridge, bridge_scenario=BridgeScenarioNormal(),
+            traffic_name=traffic_scenario.name, traffic=traffic,
+            start_time=start_index * time_step, time_step=time_step,
+            fem_runner=OSRunner(c), response_type=ResponseType.YTranslation,
             save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
-        traffic = [traffic[5]]
-        traffic_responses = responses_to_traffic(
-            c=c, traffic=traffic, bridge_scenario=BridgeScenarioNormal(),
-            start_time=time_step * 5, time_step=time_step, points=some_points,
-            response_type=ResponseType.YTranslation, fem_runner=OSRunner(c))
-        print(type(traffic_responses[0]))
-        print(len(traffic_responses))
-        plt.close()
-        plot_contour_deck(
-            c=c, responses=traffic_responses[0], y=0, ploads=[], save="test")
 
 
 def make_all_3d(c: Config):

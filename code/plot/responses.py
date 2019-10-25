@@ -5,22 +5,20 @@ Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 """
 from typing import List, Optional
 
+import matplotlib.cm as cm
 import numpy as np
 
 from config import Config
 from fem.responses import Responses
+from fem.run import FEMRunner
 from model.load import PointLoad
 from plot import plt
 
 
 def plot_contour_deck(
         c: Config, responses: Responses, y: float, ploads: List[PointLoad] = [],
-        save: Optional[str] = None):
-    """Contour plot of responses on the deck of the bridge.
-
-    This function will iterate over x and z for a fixed y (given).
-
-    """
+        norm = None, save: Optional[str] = None):
+    """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
     amax = np.inf
     amax_x, amax_z = None, None
@@ -43,23 +41,24 @@ def plot_contour_deck(
         raise ValueError(f"No responses for contour plot")
 
     # Plot contour and colorbar.
-    cs = plt.contourf(X, Z, H, levels=50)
-    plt.colorbar(cs)
+    cmap = cm.get_cmap("bwr")
+    cs = plt.contourf(X, Z, H, levels=50, cmap=cmap, norm=norm)
+    return cmap
+    # plt.colorbar(cs)
 
     # Plot point loads.
-    for pload in ploads:
-        x = pload.x_frac * c.bridge.length
-        z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
-        plt.plot([x], [z], marker="o", markersize=5, color="red")
+    # for pload in ploads:
+    #     x = pload.x_frac * c.bridge.length
+    #     z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
+    #     plt.plot([x], [z], marker="o", markersize=5, color="red")
 
     # Titles and labels.
     amin = np.amax(np.array(H))
-    plt.title(
-        f"{responses.response_type.name()}"
-        + f" ({responses.response_type.units(False)})"
-        + f", min = {(amax - amin):.10f} at ({amax_x}, {amax_z})")
-    plt.xlabel("x position (m)")
-    plt.ylabel("y position (m)")
-    plt.axis("equal")
+    # plt.title(
+    #     f"{responses.response_type.name()}"
+    #     + f" ({responses.response_type.units(False)})"
+    #     + f", min = {(amax - amin):.10f} at ({amax_x}, {amax_z})")
+    # plt.xlabel("x position (m)")
+    # plt.ylabel("y position (m)")
     if save:
         plt.savefig(save)

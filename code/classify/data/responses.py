@@ -2,6 +2,8 @@
 from itertools import chain
 from typing import List, Tuple
 
+import numpy as np
+
 from config import Config
 from fem.responses import Responses
 from fem.responses.matrix.il import ILMatrix
@@ -9,7 +11,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.response import ResponseType
 from model.scenario import BridgeScenario
-from util import print_d
+from util import print_d, print_i
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"
@@ -20,7 +22,7 @@ def responses_to_traffic(
         c: Config, traffic: "Traffic", bridge_scenario: BridgeScenario,
         start_time: float, time_step: float, points: List[Point],
         response_type: ResponseType, fem_runner: FEMRunner,
-        per_axle: bool = False) -> List[Tuple[float, Point]]:
+        min_max: bool = False, per_axle: bool = False) -> List[Tuple[float, Point]]:
     """The responses to traffic at each simulation step.
 
     Args:
@@ -32,6 +34,7 @@ def responses_to_traffic(
         points: List[Point], points on the bridge to calculate responses at.
         response_type, ResponseType, the type of sensor response to calculate.
         fem_runner: FEMRunner, the FEM program to run simulations with.
+        min_max: bool, if true also return the minimum and maximum responses.
 
     """
     if per_axle:
@@ -41,7 +44,6 @@ def responses_to_traffic(
     z_fracs = sorted(set(chain.from_iterable(
         vehicle.wheel_tracks(bridge=c.bridge, meters=False)
         for vehicle in chain.from_iterable(traffic))))
-    print(z_fracs)
     il_matrices = {
         z_frac: ILMatrix.load(
             c=c, response_type=response_type, fem_runner=fem_runner,
@@ -50,12 +52,13 @@ def responses_to_traffic(
 
     result = []
     time = start_time - time_step  # The simulation time.
+    min_response, max_response = np.inf, -np.inf
 
     # Iterate through each step of the simulation.
     for t in range(len(traffic)):
         time += time_step
+        print_i(f"Responses at time = {time:.3f}", end="\r")
         result.append([[0, point] for point in points])
-        print(f" time = {time}, t = {t}")
 
         # For each vehicle on the bridge at this time step.
         for mv_vehicle in traffic[t]:
@@ -89,9 +92,16 @@ def responses_to_traffic(
 
                 result[t][p][0] += sum(mv_vehicle_responses)
 
+        # Update max and min recorded response.
+        if min_max:
+            for p in range(len(points)):
+                min_response = min(min_response, result[t][p][0])
+                max_response = max(max_response, result[t][p][0])
+
         result[t] = Responses.from_responses(
             response_type=response_type, many_response=result[t])
-        print(type(result[t]))
 
-    return result
-
+    if min_max:
+        return result, min_response, max_response
+    else:
+        return result
