@@ -500,11 +500,8 @@ class Bridge:
         return np.interp(z, [self.z_min, self.z_max], [0, 1])
 
     def z(self, z_frac: float):
-        print(f"z_frac = {z_frac}")
         assert 0 <= z_frac <= 1
-        r = np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
-        print(type(r))
-        return r
+        return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
 
     def _min_max(
             self,

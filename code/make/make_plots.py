@@ -22,7 +22,6 @@ from plot import animate_mv_vehicle, plot_bridge_deck_side,\
     plot_bridge_first_section, plt
 from plot.geom import plot_cloud_of_nodes
 from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
-from plot.responses import plot_contour_deck
 from plot.vehicles import plot_density, plot_length_vs_axles,\
     plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Dimensions, Point
@@ -357,27 +356,19 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam, min_d = 10, 0.5, 5, 2
+    max_time, time_step, lam, min_d = 10, 1, 5, 2
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
             heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
-        print(f"start index = {start_index}")
-        traffic_responses = responses_to_traffic(
-            c=c, traffic=traffic, bridge_scenario=BridgeScenarioNormal(),
-            start_index=0, time_step=time_step, points=[Point(35, 0, 5)],
-            response_type=ResponseType.YTranslation, fem_runner=OSRunner(c))
-        plot_contour_deck(
-            c=c, fem_responses=traffic_responses, y=y, ploads=[], save=(
-            c.image_path(pstr(
-                f"contour-{response_type.name()}-ploadx={load_x}"
-                + f"-ploadz={load_z}"))))
-        # animate_traffic_top_view(
-        #     bridge=c.bridge, traffic=traffic, time_step=time_step,
-        #     start_index=start_index,
-        #     title=f"{traffic_scenario.name} on {c.bridge.name}",
-        #     save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
+        traffic = traffic[start_index:]
+        animate_traffic_top_view(
+            c=c, bridge=c.bridge, bridge_scenario=BridgeScenarioNormal(),
+            traffic_name=traffic_scenario.name, traffic=traffic,
+            start_time=start_index * time_step, time_step=time_step,
+            fem_runner=OSRunner(c), response_type=ResponseType.YTranslation,
+            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
 
 
 def make_all_3d(c: Config):

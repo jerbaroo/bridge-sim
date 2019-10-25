@@ -102,7 +102,7 @@ class TrafficScenario:
         warmed_up_at: Optional[float] = None
 
         # Record the vehicles at each time step.
-        while time <= max_time:
+        while warmed_up_at is None or time <= max_time:
             # Keep the previous vehicles that are still on the bridge.
             sim_vehicles.append([
                 vehicle for vehicle in
@@ -126,8 +126,5 @@ class TrafficScenario:
                 max_time += time
 
             time += time_step
-
-        if warmed_up_at is None:
-            raise ValueError("Simulation did not warm up, increase time")
 
         return sim_vehicles, warmed_up_at

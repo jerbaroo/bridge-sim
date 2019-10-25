@@ -21,8 +21,17 @@ D: str = "plot.bridge"
 # D: bool = False
 
 
-def top_view_bridge(bridge: Bridge, lanes: bool = True):
-    """Plot the top view of a bridge's geometry."""
+def top_view_bridge(
+        bridge: Bridge, lanes: bool = True, lane_fill: bool = True, piers: bool=True):
+    """Plot the top view of a bridge's geometry.
+
+    Args:
+        bridge: Bridge, the bridge top to plot.
+        lanes: bool, whether to plot lanes on the bridge.
+        lane_fill: bool, whether to plot fill or only outline.
+        piers: bool, whether to plot where the piers connect to the deck.
+
+    """
     plt.hlines(
         [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge)
     plt.vlines(
@@ -32,7 +41,8 @@ def top_view_bridge(bridge: Bridge, lanes: bool = True):
             plt.gca().add_patch(
                 patches.Rectangle(
                     (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
-                    facecolor=Color.lane))
+                    edgecolor=Color.bridge,
+                    facecolor=Color.bridge if lane_fill else "none"))
     plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
