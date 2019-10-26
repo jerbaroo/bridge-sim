@@ -47,13 +47,6 @@ class PointLoad:
         return f"({self.x_frac}, {self.z_frac}, {self.kn})"
 
 
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-    new_cmap = colors.LinearSegmentedColormap.from_list(
-        "trunc({n},{a:.2f},{b:.2f})".format(n=cmap.name, a=minval, b=maxval),
-        cmap(np.linspace(minval, maxval, n)))
-    return new_cmap
-
-
 class Vehicle:
     """A vehicle's geometry.
 
@@ -89,6 +82,7 @@ class Vehicle:
 
     def cmap_norm(self, all_vehicles: List["Vehicle"], cmin=0, cmax=1):
         """The colormap and norm for coloring vehicles."""
+        from plot import truncate_colormap
         cmap = truncate_colormap(cm.get_cmap("YlGn"), cmin, cmax)
         total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
         norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))

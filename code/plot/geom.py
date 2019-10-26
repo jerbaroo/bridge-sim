@@ -38,11 +38,15 @@ def top_view_bridge(
         [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge)
     if lanes:
         for lane in bridge.lanes:
-            plt.gca().add_patch(
-                patches.Rectangle(
-                    (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
-                    edgecolor=Color.bridge,
-                    facecolor=Color.bridge if lane_fill else "none"))
+            plt.gca().add_patch(patches.Rectangle(
+                (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
+                edgecolor=Color.bridge,
+                facecolor=Color.bridge if lane_fill else "none"))
+    if piers:
+        for pier in bridge.supports:
+            z_min_top, z_max_top = pier.z_min_max_top()
+            x_min, x_max = pier.x_min_max()
+            plt.vlines([x_min, x_max], z_min_top, z_max_top)
     plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
