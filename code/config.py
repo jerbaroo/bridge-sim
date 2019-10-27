@@ -209,7 +209,7 @@ class Config:
             ResponseType.Strain: 1e-5,
             ResponseType.Stress: 1e6,
             ResponseType.XTranslation: 5e-8,
-            ResponseType.YTranslation: 2e-4
+            ResponseType.YTranslation: 1e-5
         }[rt]
 
         #####################

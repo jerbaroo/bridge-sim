@@ -7,6 +7,7 @@ import copy
 from collections import OrderedDict
 from typing import Callable, List, Optional
 
+import matplotlib.colors as colors
 import matplotlib.patches as patches
 import matplotlib.pyplot as _plt
 import numpy as np
@@ -72,6 +73,13 @@ def sci_format_y_axis(points: int = 1):
 
     plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
+
+
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        "trunc({n},{a:.2f},{b:.2f})".format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
 
 
 def animate_plot(frames: int, plot_f: Callable[[int], None], time_step: float, save: str):

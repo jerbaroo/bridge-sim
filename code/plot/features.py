@@ -1,19 +1,20 @@
 """Plots for extracted events."""
 # TODO: rename to events.py, no features here.
+import math
 from typing import List, Tuple
 
 import matplotlib.patches as patches
 import numpy as np
 
-from classify.data.events import events_from_mv_vehicles
+from classify.data.events import events_from_traffic
 from config import Config
 from fem.run import FEMRunner
-from model.bridge import Point
+from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import Event, ResponseType
-from model.scenario import TrafficScenario
+from model.scenario import BridgeScenario, TrafficScenario
 from plot import plt
-from util import print_d, print_i
+from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
 # Print debug information for this file.
@@ -21,9 +22,8 @@ D: bool = False
 
 
 def plot_event(
-        c: Config, event: Event, start_index: int, num_vehicles: int,
-        response_type: ResponseType, at: Point, overlap: Tuple[int, int],
-        y_max: float, y_min: float):
+        c: Config, event: Event, start_index: int, response_type: ResponseType,
+        at: Point, overlap: Tuple[int, int], y_max: float, y_min: float):
     """Plot a single event with timing and overlap information."""
     time_series = event.get_time_series(noise=False)
     time_series_with_noise = event.get_time_series(noise=True)
@@ -48,78 +48,57 @@ def plot_event(
     x_axis = np.linspace(x_min, x_max, num=len(time_series))
     plt.plot(x_axis, time_series_with_noise, color="tab:orange")
     plt.plot(x_axis, time_series, color="tab:blue")
-    s = "s" if num_vehicles > 1 else ""
     plt.title(
-        f"{response_type.name()} at {at.x:.2f}m from {num_vehicles} vehicle{s}")
+        f"{response_type.name()} at {at.x:.2f}m")
     plt.xlabel("time (s)")
     plt.ylabel(f"{response_type.name().lower()} ({response_type.units()})")
 
 
-def plot_events_from_mv_vehicles(
-        c: Config, mv_vehicles: List[List[MvVehicles]],
-        response_type: ResponseType, fem_runner: FEMRunner, at: Point,
-        save: str = None, show: bool = False):
-    """Plot events from each set of moving vehicles on a row."""
-    print_d(D, f"TODO: Support multiple vehicles")
+def plot_events_from_traffic(
+        c: Config, bridge: Bridge, bridge_scenario: BridgeScenario,
+        traffic_name: str, traffic: "Traffic", start_time: float,
+        time_step: float, response_type: ResponseType, points: List[Point],
+        fem_runner: FEMRunner, cols: int = 4, save: str = None):
+    """Plot events from a traffic simulation on a bridge."""
     # Determine rows, cols and events per row.
-    rows = len(mv_vehicles)
-    events = [
-        list(events_from_mv_vehicles(
-            c=c, mv_vehicles=mv_vehicles[row], response_types=[response_type],
-            fem_runner=fem_runner, at=[at]))[0][0]
-        for row in range(rows)]
-    cols = max(len(es) for es in events)
-    assert isinstance(events[0][0], Event)
-    assert isinstance(events[0][0].time_series, list)
-    print_i(f"first time series = {events[0][0].time_series}")
-    y_min, y_max = 0, 0
-    for es in events:
-        for e in es:
-            y_min = np.min([y_min, np.min(e.get_time_series(noise=True))])
-            y_max = np.max([y_max, np.max(e.get_time_series(noise=True))])
-    assert isinstance(y_min, float)
-    assert isinstance(y_max, float)
-    y_min, y_max = np.min([y_min, -y_max]), np.max([y_max, -y_min])
-    print_i(f"rows, cols = {rows}, {cols}")
-    # Plot each event, including overlap.
-    for row in range(rows):
-        for col, event in enumerate(events[row]):
-            print_i(f"row, col = {row}, {col}")
-            plt.subplot2grid((rows, cols), (row, col))
-            print(len(events[row]) - 1)
-            print(col)
-            print(col < len(events[row]) - 1)
-            end_overlap = (
-                events[row][col + 1].overlap
-                if col < len(events[row]) - 1
-                else 0)
-            plot_event(
-                c=c, event=event, start_index=events[row][col].start_index,
-                num_vehicles=len(mv_vehicles[row]), response_type=response_type,
-                at=at, overlap=(events[row][col].overlap, end_overlap),
-                y_min=y_min, y_max=y_max)
-    if save: plt.savefig(save)
-    if show: plt.show()
-    if save or show: plt.close()
+    time_per_event = int(c.time_end / time_step)
+    events = events_from_traffic(
+        c=c, traffic=traffic, bridge_scenario=bridge_scenario, points=points,
+        response_types=[response_type], fem_runner=fem_runner,
+        start_time=start_time, time_step=time_step)
+    print(f"event time = {c.time_end}, time step = {time_step}, time per event = {time_per_event}")
+    print(f"num traffic = {len(traffic)}")
+    print(f"num events = {len(events)}")
+    for p, point in enumerate(points):
+        events_ = events[p][0]  # Currently only one response type.
 
+        # First determine rows and max/min response.
+        rows = math.ceil(len(events_) / cols)
+        y_min, y_max = np.inf, -np.inf
+        for event in events_:
+            y_min = min(y_min, np.min(event.get_time_series(noise=True)))
+            y_max = max(y_max, np.max(event.get_time_series(noise=True)))
+        y_min = min(y_min, -y_max)
+        y_max = max(y_max, -y_min)
+        assert isinstance(y_min, float); assert isinstance(y_max, float)
+        y_min, y_max = np.min([y_min, -y_max]), np.max([y_max, -y_min])
+        print_i(f"rows, cols = {rows}, {cols}")
 
-def plot_events_from_traffic_scenario(
-        c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-        at: Point, rows: int=5, vehicles_per_row: int=1, save: str=None, show: bool=False):
-    """Plot events from each set of sampled normal vehicles on a row.
-
-    TODO: Delete or move to make_plots.
-
-    """
-    mv_vehicles = [
-        [MovingLoad.from_vehicle(
-            x_frac=-i * 0.1, vehicle=sample_vehicle(c), lane=lane)
-        for i in range(loads_per_row)]
-        for _ in range(rows)]
-    shape = np.array(mv_loads).shape
-    assert len(shape) == 2
-    assert shape[0] == rows
-    assert shape[1] == loads_per_row
-    plot_events_from_mv_loads(
-        c=c, mv_loads=mv_loads, response_type=response_type,
-        fem_runner=fem_runner, at=at, save=save, show=show)
+        # Plot each event, including overlap.
+        event_index = 0
+        for row in range(rows):
+            if event_index >= len(events_): break
+            for col in range(cols):
+                if event_index >= len(events_): break
+                event = events_[event_index]
+                print_i(f"row, col = {row}, {col}")
+                plt.subplot2grid((rows, cols), (row, col))
+                end_overlap = (
+                    event.overlap if event_index < len(events_)-1 else 0)
+                plot_event(
+                    c=c, event=event, start_index=event.start_index,
+                    response_type=response_type, at=point,
+                    overlap=(event.overlap, end_overlap), y_min=y_min,
+                    y_max=y_max)
+                event_index += 1
+        if save: plt.savefig(f"{save}-at-{pstr(str(point))}"); plt.close()

@@ -525,39 +525,36 @@ cases, which was true in this case.
 * Methods
 ** Data Collection
 # Section overview.
-This section describes the data collection system. This includes a brief
-overview, a description of the inputs and outputs of the system, the FE software
-used to run simulations, and a look at how the system operates, in particular
-focusing on the programatic interface to the system and the importance of the
-re-usability of the system.
-
-# Introduction to system inputs and outputs.
-The inputs of the system include a model of a bridge, a bridge scenario (healthy
-or damage state) and a traffic scenario (e.g. heavy or light vehicles). The
-outputs of the system are time series of responses from sensors distributed
-across the bridge model, these time series of responses we call /events/. Events
-are labelled by simulation scenario and simulation time.
+This section describes the data collection system which has been created to
+model a bridge in software and to collect data from simulating the bridge's
+response under a damage scenario and traffic scenario. Following a very brief
+overview of the entire data collection system this section will describe the
+model of a bridge, models of bridge damage and traffic, the FE software used to
+simulate a bridge's response, additional details of how the data collection
+system operates, a description of the collected data, and finally an overview
+of the assumptions made in modeling.
 
 # Brief system overview.
-For a given simulation scenario, a FEM of the bridge is built according to the
-given bridge scenario. A number of FE simulations are run, for each simulation a
-single concentrated load is placed at a single point on the bridge deck. The
-point is chosen such that it is on a track where a vehicle's wheels are expected
-to be when the vehicles are later "driven" along the bridge. Vehicles are then
-sampled from the given traffic scenario and driven along the bridge on a traffic
-lane, the vehicle's wheels moving on the previously mentioned tracks. Using the
-superposition property, responses collected from the simulations can be summed
-together, one for each vehicle's wheel, to determine a response at a point due
-to the vehicle being at a position on the bridge deck.
+First a brief overview of the data collection system. For a given simulation
+scenario, a FEM of the bridge is built according to the bridge scenario. A
+number of simulations of the FEM are then run, each time a concentrated load is
+placed at a different point on the bridge deck. The point is chosen so that it
+is on a track where a vehicle's wheels will be when the vehicles are later
+"driven" along the bridge. Vehicles are then sampled from the given traffic
+scenario and driven along the bridge on a traffic lane, the vehicle's wheels
+moving on the previously mentioned tracks. Using the superposition property,
+responses collected from the simulations can be summed together, one for each
+vehicle's wheel, to determine a response at a point due to the vehicle being at
+a position on the bridge deck.
 *** Bridge Modeling
-\textcolor{green, how we model bridge}
+\textcolor{green, META: How we model a static bridge}
 
 # Intro to the programatic model.
 A high-level modeling language to describe no-prestress no-posttension concrete
 slab bridges was created for Python. A bridge is described at the top level by
 an instance of the class \code{Bridge}. An instance of this class (which we will
-from now on simply call a \code{Bridge}) can be transformed into a FEM for
-OpenSees which can then be used to run FE simulations to collect responses.
+from now on simply call a \code{Bridge}) can be transformed into a 2D or 3D FEM
+for OpenSees which can then be used to run FE simulations to collect responses.
 
 # Two types of bridge.
 A \code{Bridge} comes in two variants, 2D and 3D. Both can be represented by the
@@ -584,7 +581,7 @@ is modeled based on the specification.
       
 #+NAME: lst:bridge-705
 #+BEGIN_SRC haskell
-data Bridge = Bridge {
+bridge705 = Bridge {
     length :: 102
   , width  :: 33.2
   , lanes  :: [Lane(4, 12.4), Lane(20.8, 29.2)]
@@ -717,7 +714,7 @@ a FE software package that is dedicated to problems in civil engineering,
 inlcuding structural, geotechnical, tunnelling, earthquake and oil & gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
-*** System Details
+*** System Operation
 Talk about:
 - 2D and 3D models
 - influence lines
@@ -728,8 +725,10 @@ the model depends on density of the mesh. A mesh that consists of smaller and
 thus more shell elements will provide a more accurate response.
 
 \textcolor{red, TODO: Convergence plot}
-*** System Interface
 *** Collected Data
+The outputs of the system are time series of responses from sensors distributed
+across the bridge model, these time series of responses we call /events/. Events
+are labelled by simulation scenario and simulation time.
 *** Model Assumptions
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.

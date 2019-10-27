@@ -130,14 +130,19 @@ class Support3D:
             assert isinstance(s, Section3DPier)
         if self.width_top < self.width_bottom:
             raise ValueError(
-                "Support3D: top width must be greater than bottom width")
+                "Support3D: top width must be >= bottom width")
+
+    def x_min_max(self) -> Tuple[float, float]:
+        """The min and max x positions for this pier."""
+        half_length = self.length / 2
+        return self.x - half_length, self.x + half_length
 
     def y_min_max(self) -> Tuple[float, float]:
-        """The min and max values in y direction for this support."""
+        """The min and max y positions for this pier."""
         return -self.height, 0
 
     def z_min_max_top(self) -> Tuple[float, float]:
-        """The min and max values in z direction for this support top."""
+        """The min and max z positions for the top of this pier."""
         half_top = self.width_top / 2
         return self.z - half_top, self.z + half_top
 
