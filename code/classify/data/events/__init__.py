@@ -1,4 +1,5 @@
 """Generate, save and load events."""
+import itertools
 import pickle
 from typing import Dict, List
 
@@ -7,70 +8,69 @@ import numpy as np
 from classify.data.events.metadata import Metadata
 
 from classify.data.recorder import Recorder
-from classify.data.responses import responses_to_mv_vehicles
+from classify.data.responses import responses_to_traffic
 from classify.data.trigger import Trigger, always_trigger
 from config import Config
+from fem.responses import Responses
 from fem.run import FEMRunner
-from model.bridge import Point
+from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import Event, ResponseType
-from model.scenario import BridgeScenario, TrafficScenario
+from model.scenario import BridgeScenario, Traffic, TrafficScenario
 
 
-def events_from_mv_vehicles(
-        c: Config, mv_vehicles: List[MvVehicle],
-        bridge_scenario: BridgeScenario, response_types: List[ResponseType],
-        fem_runner: FEMRunner, at: List[Point], per_axle: bool = False,
+def events_from_traffic(
+        c: Config, traffic: Traffic, bridge_scenario: BridgeScenario,
+        points: List[Point], response_types: List[ResponseType],
+        fem_runner: FEMRunner, start_time: float, time_step: float,
         trigger: Trigger = always_trigger()) -> List[List[List[Event]]]:
-    """Return events generated from moving vehicles on a bridge.
+    """Return events generated from traffic in a bridge scenario.
 
-    Each yielded result is of shape:
-        (len(at), len(response_type), #events)
-    a list of Event for each sensor position and response type.
+    The result has shape (len(points), len(response_types), #events).
 
     """
-    # Collect responses for each sensor position and response type.
-    responses = responses_to_mv_vehicles(
-        c=c, mv_vehicles=mv_vehicles, bridge_scenario=bridge_scenario,
-        response_types=response_types, fem_runner=fem_runner, at=at,
-        per_axle=per_axle)
-
-    shape = np.array(responses).shape
-    assert len(shape) == 3
-    assert shape[1] == len(at)
-    assert shape[2] == len(response_types)
-
     # Construct a Recorder for each sensor position and response type.
     recorders = [
         [Recorder(c=c, trigger=trigger, response_type=response_type)
          for response_type in response_types]
-        for _ in range(len(at))]
+        for _ in points]
 
     shape = np.array(recorders).shape
     assert len(shape) == 2
-    assert shape[0] == len(at)
+    assert shape[0] == len(points)
     assert shape[1] == len(response_types)
 
-    # Events are collected for each sensor position and response type.
-    events = [
-        [[] for _r in range(len(response_types))]
-        for _a in range(len(at))]
+    # A list of Responses (one per simulation time step) for each response type.
+    responses = [responses_to_traffic(
+        c=c, traffic=traffic, bridge_scenario=bridge_scenario,
+        start_time=start_time, time_step=time_step, points=points,
+        response_type=response_type, fem_runner=fem_runner)
+        for response_type in response_types]
+
+    assert len(responses) == len(response_types)
+    assert len(responses[0]) == len(traffic)
+    assert isinstance(responses[0][0], Responses)
+
+    # Events are recorded for each sensor position and response type.
+    events = [[[] for _ in response_types] for _ in points]
 
     # Record the response at each time.
-    for response in responses:
-        for a in range(len(at)):
+    for t in range(len(traffic)):
+        for p, point in enumerate(points):
             for r in range(len(response_types)):
-                recorders[a][r].receive(response[a][r])
-                maybe_event = recorders[a][r].maybe_event()
+                recorders[p][r].receive(
+                    responses[r][t].responses[0][point.x][point.y][point.z])
+                maybe_event = recorders[p][r].maybe_event()
                 if maybe_event is not None:
-                    events[a][r].append(maybe_event)
+                    events[p][r].append(maybe_event)
     return events
 
 
-def save_events(events: List[Event], events_file_path: str):
+def save_events(events: List[Event], events_path: str):
     """Save events for one simulation to the given file path."""
+    print(f"saving {len(events)} to {events_path}")
     s = pickletools.optimize(pickle.dumps(events))
-    with open(events_file_path, "wb") as f:
+    with open(events_path, "wb") as f:
         f.write(s)
 
 
@@ -93,8 +93,8 @@ class Events:
 
     def get_events(
             self, traffic_scenario: TrafficScenario,
-            bridge_scenarios: List[BridgeScenario], at: Point,
-            response_type: ResponseType, fem_runner: FEMRunner, lane: int
+            bridge_scenarios: List[BridgeScenario], point: Point,
+            response_type: ResponseType, fem_runner: FEMRunner
             ) -> Dict[BridgeScenario, List[List[Event]]]:
         """Get events from a simulation of a bridge in a scenario.
 
@@ -103,24 +103,22 @@ class Events:
         BridgeScenario correspond to the same simulations.
 
         """
-        # A list of tuples of file path and traffic simulation number, for each
-        # BridgeScenario.
+        # A dictionary of 'BridgeScenario' to list of tuples of, file path and
+        # traffic simulation ID.
         events_dict = {
             bridge_scenario: list(map(
                 lambda x: [x[0], x[2]],  # Ignore number of events.
                 self.metadata.file_paths(
                     traffic_scenario=traffic_scenario,
-                    bridge_scenario=bridge_scenario, at=at,
-                    response_type=response_type, fem_runner=fem_runner,
-                    lane=lane)))
+                    bridge_scenario=bridge_scenario, point=point,
+                    response_type=response_type, fem_runner=fem_runner)))
             for bridge_scenario in bridge_scenarios}
-        # Traffic simulation numbers for each BridgeScenario.
+        # Traffic simulation IDs for each BridgeScenario.
         traffic_dict = {
             bridge_scenario: set(map(
                 lambda x: x[1], events_dict[bridge_scenario]))
-            for bridge_scenario in bridge_scenarios
-        }
-        # Traffic simulation numbers used in all BridgeScenarios.
+            for bridge_scenario in bridge_scenarios}
+        # Traffic simulation IDs used in all BridgeScenarios.
         traffic_nums = set(
             t for _, ts in traffic_dict.items() for t in ts
             if all(t in traffic_dict[bs] for bs in bridge_scenarios))
@@ -145,35 +143,51 @@ class Events:
         return result
 
     def make_events(
-            self, traffic_scenario: TrafficScenario,
-            bridge_scenarios: List[BridgeScenario], at: List[Point],
+            self, bridge: Bridge, traffic_scenario: TrafficScenario,
+            bridge_scenarios: List[BridgeScenario], points: List[Point],
             response_types: List[ResponseType], fem_runner: FEMRunner,
-            lane: int, num_vehicles: int):
-        """Make events via bridge simulation under different scenarios."""
-        # Construct moving loads under the given traffic scenario.
-        mv_vehicles_gen = traffic_scenario.mv_vehicles(lane=lane)
-        mv_vehicles = [next(mv_vehicles_gen) for _ in range(num_vehicles)]
+            max_time: float, time_step: float):
+        """Make events in one traffic scenario for many bridge scenarios.
 
-        # Save events for each bridge scenario under the same traffic index.
-        traffic_sim_num = None
+        Args:
+            bridge: Bridge, bridge on which traffic drives one.
+            traffic_scenario: TrafficScenario, scenario of the traffic.
+            bridge_scenarios: List[BridgeScenario], bridge damage scenarios.
+            points: List[Point], points at which to record responses.
+            response_types: List[ResponseType], type of responses to record.
+            fem_runner: FEMRunner, FE program to run simulations with.
+            max_time: float, maximum time of the traffic simulation.
+            time_step: time_step, time step of the traffic simulation.
+
+        """
+        # All events created will be run under the same traffic simulation and
+        # have the same traffic simulation ID.
+        traffic, start_index = traffic_scenario.traffic(
+            bridge=bridge, max_time=max_time, time_step=time_step)
+        print(len(traffic))
+        traffic = traffic[start_index:]
+        traffic_sim_id = None
+
         for bridge_scenario in bridge_scenarios:
-            events = events_from_mv_vehicles(
-                c=self.c, mv_vehicles=mv_vehicles,
-                bridge_scenario=bridge_scenario, at=at,
-                response_types=response_types, fem_runner=fem_runner)
-            for a in range(len(at)):
-                for r in range(len(response_types)):
-                    # traffic_sim_num will be assigned the first iteration, and
-                    # then the non-None value passed to add_file_path in each
-                    # subsequent iteration.
-                    _, traffic_sim_num, events_file_path = (
-                        self.metadata.add_file_path(
-                            traffic_scenario=traffic_scenario,
-                            bridge_scenario=bridge_scenario, at=at[a],
-                            response_type=response_types[r],
-                            fem_runner=fem_runner,
-                            lane=lane, num_events=len(events[a][r]),
-                            traffic_sim_num=traffic_sim_num, get_sim_num=True))
-                    save_events(
-                        events=events[a][r], events_file_path=events_file_path)
+            # Generate events under the traffic and bridge scenario.
+            events = events_from_traffic(
+                c=self.c, traffic=traffic, bridge_scenario=bridge_scenario,
+                start_time=start_index * time_step, time_step=time_step,
+                points=points, response_types=response_types,
+                fem_runner=fem_runner)
 
+            # For each point and sensor type, save the events to disk.
+            for p, r in itertools.product(
+                    range(len(points)), range(len(response_types))):
+                print(p, r)
+                # Here we first update the metadata (record of where events are
+                # saved), and then save events to disk at the specified path.
+                # 'traffic_sim_id' will be assigned in the first iteration,
+                # passed to 'add_file_path' in each subsequent iteration.
+                _, traffic_sim_id, events_path = self.metadata.add_file_path(
+                    traffic_scenario=traffic_scenario,
+                    bridge_scenario=bridge_scenario, point=points[p],
+                    response_type=response_types[r], fem_runner=fem_runner,
+                    num_events=len(events[p][r]), traffic_sim_id=traffic_sim_id,
+                    get_sim_id=True)
+                save_events(events=events[p][r], events_path=events_path)

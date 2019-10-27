@@ -51,7 +51,7 @@ def responses_to_traffic(
         for z_frac in z_fracs}
 
     result = []
-    time = start_time - time_step  # The simulation time.
+    time = start_time - time_step  # The current simulation time.
     min_response, max_response = np.inf, -np.inf
 
     # Iterate through each step of the simulation.

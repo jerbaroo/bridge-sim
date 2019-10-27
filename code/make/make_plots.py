@@ -232,22 +232,17 @@ def make_vehicle_plots(c: Config):
 #             num_loads=100, num_thresholds=1000)
 
 
-def make_event_plots_from_normal_mv_loads(c: Config):
+def make_event_plots(c: Config):
     """Make plots of events from a moving load."""
-    for fem_runner in [OSRunner(c)]:
-        for response_type in ResponseType:
-            for num_loads in [5]:
-                for x_frac in np.linspace(0, 1, num=10):
-                    plot_events_from_normal_mv_loads(
-                        c=c, response_type=response_type,
-                        fem_runner=OSRunner(c),
-                        at=Point(x=c.bridge.x(x_frac)), rows=4,
-                        loads_per_row=num_loads, save=(
-                            c.image_path(pstr(
-                                f"events/{fem_runner.name}"
-                                + f"-rt-{response_type.name()}"
-                                + f"-numloads-{num_loads}"
-                                + f"-at-{x_frac:.2f}"))))
+    fem_runner = OSRunner(c)
+    for response_type in [ResponseType.YTranslation]:
+        for x_frac in np.linspace(0, 1, num=10):
+            plot_events_from_traffic(
+                c=c, response_type=response_type, fem_runner=OSRunner(c),
+                point=Point(x=c.bridge.x(x_frac)), rows=4,
+                loads_per_row=num_loads, save=(c.image_path(pstr(
+                    f"events/{fem_runner.name}-rt-{response_type.name()}"
+                    + f"-numloads-{num_loads}-at-{x_frac:.2f}"))))
 
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
@@ -377,7 +372,7 @@ def make_all_3d(c: Config):
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
     # make_geom_plots(c)
+    make_event_plots(c)
     make_traffic_animations(c)
     # make_cloud_of_nodes_plots(c)
     # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
-    # make_event_plots_from_normal_mv_loads(c)

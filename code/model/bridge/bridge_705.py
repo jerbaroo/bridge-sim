@@ -229,6 +229,7 @@ def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
             base_mesh_pier_nodes_z=3)
         )
     c.event_metadata_path += ".debug"
+    c.time_step = 1 / 100
     return c
 
 
