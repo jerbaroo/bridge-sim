@@ -298,22 +298,18 @@ def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
 
 def make_cloud_of_nodes_plots(c: Config):
     """Make all variations of the cloud of nodes plots."""
-    # Create the directory if not exists.
-    cloud_of_nodes_dir = os.path.join(c.images_dir, "cloud-of-points")
-    if not os.path.exists(cloud_of_nodes_dir):
-        os.makedirs(cloud_of_nodes_dir)
 
     def both_axis_plots(prop: str, *args, **kwargs):
         """Make cloud of nodes plots for full and equal axes."""
         # Cloud of nodes without axis correction.
         plot_cloud_of_nodes(
             *args, **kwargs, c=c,
-            save=os.path.join(cloud_of_nodes_dir, f"cloud{prop}-full-axis"))
+            save=c.get_image_path("cloud-of-nodes", f"cloud{prop}-full-axis"))
 
         # Cloud of nodes with equal axes.
         plot_cloud_of_nodes(
             *args, **kwargs, c=c, equal_axis=True,
-            save=os.path.join(cloud_of_nodes_dir, f"cloud{prop}-equal-axis"))
+            save=c.get_image_path("cloud-of-nodes", f"cloud{prop}-equal-axis"))
 
     def all_plots(prop: str, *args, **kwargs):
         """Make both axis plots for all deck and pier variants."""
@@ -394,7 +390,7 @@ def make_all_3d(c: Config):
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
     # make_geom_plots(c)
-    make_event_plots(c)
+    # make_event_plots(c)
     # make_traffic_animations(c)
-    # make_cloud_of_nodes_plots(c)
+    make_cloud_of_nodes_plots(c)
     # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
