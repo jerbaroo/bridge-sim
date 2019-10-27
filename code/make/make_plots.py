@@ -233,16 +233,36 @@ def make_vehicle_plots(c: Config):
 
 
 def make_event_plots(c: Config):
-    """Make plots of events from a moving load."""
+    """Make plots of events in different scenarios."""
+    from plot.features import plot_events_from_traffic
+
     fem_runner = OSRunner(c)
+    bridge_scenario = BridgeScenarioNormal()
+    max_time, time_step, lam, min_d = 20, 0.01, 5, 2
+    c.time_step = time_step
+    zs = [lane.z_center() for lane in c.bridge.lanes]
+    points = [Point(x=35, y=0, z=z) for z in zs]
+
     for response_type in [ResponseType.YTranslation]:
-        for x_frac in np.linspace(0, 1, num=10):
+        for traffic_scenario in [
+                normal_traffic(c=c, lam=lam, min_d=min_d),
+                heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
+
+            # Generate traffic under a scenario.
+            traffic, start_index = traffic_scenario.traffic(
+                bridge=c.bridge, max_time=max_time, time_step=time_step)
+            traffic = traffic[start_index:]
+
+            # Plot events from traffic.
             plot_events_from_traffic(
-                c=c, response_type=response_type, fem_runner=OSRunner(c),
-                point=Point(x=c.bridge.x(x_frac)), rows=4,
-                loads_per_row=num_loads, save=(c.image_path(pstr(
-                    f"events/{fem_runner.name}-rt-{response_type.name()}"
-                    + f"-numloads-{num_loads}-at-{x_frac:.2f}"))))
+                c=c, bridge=c.bridge, bridge_scenario=bridge_scenario,
+                traffic_name=traffic_scenario.name, traffic=traffic,
+                start_time=start_index * time_step, time_step=time_step,
+                response_type=ResponseType.YTranslation,
+                points=points, fem_runner=OSRunner(c),save=c.get_image_path(
+                "events", pstr(
+                    f"bs-{bridge_scenario.name}-ts-{traffic_scenario.name}"
+                    f"-rt-{response_type.name()}")))
 
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
@@ -351,9 +371,11 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam, min_d = 2, 1, 5, 2
+    max_time, time_step, lam, min_d = 20, 0.05, 5, 2
+    c.time_step = time_step
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
+            normal_traffic(c=c, lam=lam, min_d=min_d),
             heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
@@ -373,6 +395,6 @@ def make_all_3d(c: Config):
     # make_il_plots(c)
     # make_geom_plots(c)
     make_event_plots(c)
-    make_traffic_animations(c)
+    # make_traffic_animations(c)
     # make_cloud_of_nodes_plots(c)
     # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])

@@ -4,6 +4,7 @@ from typing import Callable, List, NewType, Tuple
 from config import Config
 from model.bridge import Bridge
 from model.load import MvVehicle
+from util import print_i
 
 
 class BridgeScenario:
@@ -125,6 +126,7 @@ class TrafficScenario:
                 warmed_up_at = int(time / time_step)
                 max_time += time
 
+            print_i(f"time = {time}")
             time += time_step
 
         return sim_vehicles, warmed_up_at
