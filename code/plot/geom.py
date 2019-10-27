@@ -11,7 +11,7 @@ from fem.params import ExptParams, FEMParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
-from model.bridge import Bridge
+from model.bridge import Bridge, Section3D
 from model.load import PointLoad
 from plot import Color, plt
 from util import print_d, print_w
@@ -54,7 +54,7 @@ def top_view_bridge(
 
 def plot_cloud_of_nodes(
         c: Config, equal_axis: bool = False,
-        node_prop: Optional[Callable[[Node], float]] = None,
+        node_prop: Optional[Callable[[Section3D], float]] = None,
         deck: bool = True, piers: bool = True, save: Optional[str] = None, show: bool = False):
     """A scatter plot of the nodes of a 3D FEM."""
     # TODO: Create method for these three lines in d3/__init__.py
@@ -71,7 +71,9 @@ def plot_cloud_of_nodes(
     xs = np.array([n.x for n in nodes])
     ys = np.array([n.y for n in nodes])
     zs = np.array([n.z for n in nodes])
-    cs = None if node_prop is None else np.array([node_prop(n) for n in nodes])
+    assert all(n.foobar for n in nodes)
+    cs = None if node_prop is None else np.array([
+        node_prop(n.deck_section if deck else n.pier_section) for n in nodes])
 
     # Axis to be referenced by function f in plot_and_save.
     ax = None
@@ -107,13 +109,16 @@ def plot_cloud_of_nodes(
             fig.colorbar(p)
         deck_str = "-deck" if deck else ""
         piers_str = "-piers" if piers else ""
-        if save: plt.savefig(f"{save}{append}{deck_str}{piers_str}")
+        if save: plt.savefig(f"{save}{deck_str}{piers_str}{append}")
         if show: plt.show()
         if save or show: plt.close()
 
+    equal_axis_str = "equal-axis" if equal_axis else "full-axis"
     # Plot without angle change.
-    plot_and_save(lambda: None, append="no-rotation")
+    plot_and_save(lambda: None, append=equal_axis_str + "no-rotation")
 
     # Plot for different angles.
     for ii in range(0, 360, 90):
-        plot_and_save(f=lambda: ax.view_init(elev=0, azim=ii), append=f"-{ii}")
+        plot_and_save(
+            f=lambda: ax.view_init(elev=0, azim=ii),
+            append=equal_axis_str + f"-{ii}")

@@ -660,11 +660,10 @@ def section_for_deck_element(
         c: Config, element_x: float, element_z: float) -> int:
     """Section for a shell element on the deck.
 
-    Creates a dictionary (if not already created) of all section's x positions
-    to z position to Section3D. Then iterate through sorted x positions finding
-    last one less than or equal to the given element's lowest x position, then
-    do the same for the z position, then the section is found. The element is
-    given as List[Nodes], from which the lowest x and z position's are found.
+    Creates a list (if not already created) of all section's x positions to z
+    position to Section3D. Then iterate through sorted x positions finding last
+    one less than or equal to the given element's lowest x position, then do the
+    same for the z position, then the section is found.
 
     Args:
         c: Config, global configuration object.
@@ -676,26 +675,30 @@ def section_for_deck_element(
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)
         for section in c.bridge.sections:
-            foo = c.bridge.deck_sections_dict[c.bridge.x(section.start_x_frac)]
-            foo[c.bridge.z(section.start_z_frac)] = section
+            foo = c.bridge.deck_sections_dict[round_m(c.bridge.x(section.start_x_frac))]
+            foo[round_m(c.bridge.z(section.start_z_frac))] = section
 
+    # print(sorted(c.bridge.deck_sections_dict.keys()))
+    # print(sorted(c.bridge.deck_sections_dict[0.0].keys()))
+
+    element_x, element_z = round_m(element_x), round_m(element_z)
     # Find the last x position less than element_x.
     section_x = None
     for next_section_x in sorted(c.bridge.deck_sections_dict.keys()):
-        # print(f"next_section_x = {next_section_x}")
-        if next_section_x > element_x:
+        if next_section_x <= element_x:
+            section_x = next_section_x
+        else:
             break
-        section_x = next_section_x
     # print(f"section_x = {section_x}")
 
     # Find the last z position less than element_z.
     section_z = None
-    for next_section_z in sorted(
-            c.bridge.deck_sections_dict[section_x].keys()):
-        # print(f"next_section_z = {next_section_z}")
-        if next_section_z > element_z:
+    for next_section_z in sorted(c.bridge.deck_sections_dict[section_x].keys()):
+        if next_section_z <= element_z:
+            section_z = next_section_z
+        else:
             break
-        section_z = next_section_z
+        # print(f"next_section_z = {next_section_z}")
     # print(f"section_z = {section_z}")
 
     return c.bridge.deck_sections_dict[section_x][section_z]
@@ -714,10 +717,13 @@ def section_for_pier_element(
     # Find the last section of a pier where the fraction of the pier wall's
     # length is less than element_start_frac_len.
     section = None
+    print(f"element_start_frac_len = {element_start_frac_len}")
     for next_section in sorted(pier.sections, key=lambda s: s.start_frac_len):
-        if next_section.start_frac_len > element_start_frac_len:
-            return section
-        section = next_section
+        if next_section.start_frac_len <= element_start_frac_len:
+            print(f"next start_frac_len = {next_section.start_frac_len}, {next_section.thickness}")
+            section = next_section
+        else:
+            break
     return section
 
 

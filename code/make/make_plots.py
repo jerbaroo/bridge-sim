@@ -304,12 +304,12 @@ def make_cloud_of_nodes_plots(c: Config):
         # Cloud of nodes without axis correction.
         plot_cloud_of_nodes(
             *args, **kwargs, c=c,
-            save=c.get_image_path("cloud-of-nodes", f"cloud{prop}-full-axis"))
+            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"))
 
         # Cloud of nodes with equal axes.
         plot_cloud_of_nodes(
             *args, **kwargs, c=c, equal_axis=True,
-            save=c.get_image_path("cloud-of-nodes", f"cloud{prop}-equal-axis"))
+            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"))
 
     def all_plots(prop: str, *args, **kwargs):
         """Make both axis plots for all deck and pier variants."""
@@ -318,10 +318,11 @@ def make_cloud_of_nodes_plots(c: Config):
         both_axis_plots(prop, *args, deck=False, piers=True, **kwargs)
 
     # Standard plots.
-    all_plots("")
+    # all_plots("")
 
-    # Standard plots.
-    all_plots("-density", node_prop=lambda n: n.section.density)
+    # Plots of some node property.
+    all_plots("-density", node_prop=lambda s: s.density)
+    all_plots("-thickness", node_prop=lambda s: s.thickness)
 
 
 def make_all_2d(c: Config):

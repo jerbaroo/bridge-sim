@@ -5,7 +5,7 @@ from typing import Dict, List, NewType, Optional, Tuple
 import numpy as np
 
 from config import Config
-from model.bridge import Section3D, Support3D
+from model.bridge import Section3D, Section3DPier, Support3D
 from util import print_d, round_m
 
 
@@ -111,9 +111,15 @@ class ShellElement:
         self.section = section
         self.support_position_index = support_position_index
 
-        # Attach a reference to the section to each 'Node'.
+        # Attach a reference to the section to each 'Node' and note if the node
+        # belongs to a pier or to the bridge deck.
         for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
-            nodes_by_id[n_id].section = self.section
+            node = nodes_by_id[n_id]
+            node.foobar = True
+            if isinstance(self.section, Section3DPier):
+                node.pier_section = self.section
+            else:
+                node.deck_section = self.section
 
     def command_3d(self):
         """OpenSees element command."""

@@ -114,6 +114,9 @@ bridge_705_sections_3d = [
     Section3D(density=2.724, thickness=0.75,  youngs=38400, poissons=0.2, start_z_frac=33.2   / bridge_705_width)
     ]
 
+for section in bridge_705_sections_3d:
+    print(section.start_z_frac)
+
 
 ############################
 ##### 3D pier sections #####
@@ -129,6 +132,10 @@ bridge_705_pier_sections = [
             [pier_thickness_top, pier_thickness_bottom]),
         youngs=38400, poissons=0.2, start_frac_len=start_frac_len)
     for start_frac_len in np.linspace(0, 1, num_pier_sections)]
+
+for section in bridge_705_pier_sections:
+    print(section.start_frac_len, section.thickness)
+
 assert np.isclose(bridge_705_pier_sections[0].thickness, pier_thickness_top)
 assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
