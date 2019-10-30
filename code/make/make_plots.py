@@ -267,17 +267,18 @@ def make_event_plots(c: Config):
 
 def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
     """Make contour plots for given response types at a fixed y position."""
+    from plot.responses import plot_contour_deck
+
     fem_runner = OSRunner(c)
     lane_zs = sorted(
         chain.from_iterable([l.z_min, l.z_max] for l in c.bridge.lanes))
     for response_type in response_types:
         for load_x, load_z in [
-                # (41.677, 1.8687), (35.011, 25.032 - 16.6),
-                # (2.46273, 0.6 - 16.6)]:
-                # (55.732, 15.479 - 16.6)]:
-                # (35.011, 25.032 - 16.6)]:
-                (35.011, lane_zs[-1]), (c.bridge.length / 2, 0),
-                (c.bridge.x(0.9), lane_zs[1]), (c.bridge.x(0.99), lane_zs[0])]:
+                (34.95459, 29.22606 - 16.6),  # A.
+                (51.25051, 16.6     - 16.6),  # B.
+                (92.40638, 12.405   - 16.6),  # C.
+                (101.7649, 3.973938 - 16.6),  # D.
+                (35.011, 25.032 - 16.6)]:
             print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(load_x), z_frac=c.bridge.z_frac(load_z),
@@ -289,8 +290,9 @@ def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
             fem_responses = load_fem_responses(
                 c=c, fem_params=fem_params, response_type=response_type,
                 fem_runner=fem_runner)
+            plt.close()
             plot_contour_deck(
-                c=c, fem_responses=fem_responses, y=y, ploads=[pload], save=(
+                c=c, responses=fem_responses, y=y, ploads=[pload], save=(
                 c.image_path(pstr(
                     f"contour-{response_type.name()}-ploadx={load_x}"
                     + f"-ploadz={load_z}"))))
@@ -309,19 +311,19 @@ def make_cloud_of_nodes_plots(c: Config):
         # Cloud of nodes with equal axes.
         plot_cloud_of_nodes(
             *args, **kwargs, c=c, equal_axis=True,
-            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"))
+            save=c.get_image_path(f"cloud-of-nodes{prop}-equal-axis", "cloud"))
 
     def all_plots(prop: str, *args, **kwargs):
         """Make both axis plots for all deck and pier variants."""
-        both_axis_plots(prop, *args, deck=True, piers=True, **kwargs)
         both_axis_plots(prop, *args, deck=True, piers=False, **kwargs)
         both_axis_plots(prop, *args, deck=False, piers=True, **kwargs)
+        both_axis_plots(prop, *args, deck=True, piers=True, **kwargs)
 
     # Standard plots.
     # all_plots("")
 
     # Plots of some node property.
-    all_plots("-density", node_prop=lambda s: s.density)
+    # all_plots("-density", node_prop=lambda s: s.density)
     all_plots("-thickness", node_prop=lambda s: s.thickness)
 
 
@@ -393,5 +395,5 @@ def make_all_3d(c: Config):
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)
-    make_cloud_of_nodes_plots(c)
-    # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
+    # make_cloud_of_nodes_plots(c)
+    make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])

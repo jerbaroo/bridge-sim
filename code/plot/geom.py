@@ -61,7 +61,16 @@ def plot_cloud_of_nodes(
     build_model_3d(c=c, expt_params=ExptParams([FEMParams(
         [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())
-    print(len(nodes))
+
+    # This is a sanity check (or a test in the wrong place) that all nodes that
+    # belong to a pier also belong to a shell element on the pier. And that all
+    # nodes that belong only to the deck also belong to a shell element on the
+    # deck.
+    for node in nodes:
+        if node.pier is not None:
+            assert hasattr(node, "pier_section")
+        else:
+            assert hasattr(node, "deck_section")
 
     print_w(f"Total amount of nodes = {len(nodes)}")
     nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
@@ -71,9 +80,19 @@ def plot_cloud_of_nodes(
     xs = np.array([n.x for n in nodes])
     ys = np.array([n.y for n in nodes])
     zs = np.array([n.z for n in nodes])
-    assert all(n.foobar for n in nodes)
-    cs = None if node_prop is None else np.array([
-        node_prop(n.deck_section if deck else n.pier_section) for n in nodes])
+    cs = None
+    if node_prop is not None:
+        cs = []
+        for node in nodes:
+            if deck and piers:
+                # If both deck and pier Nodes are requested, and a Node belongs
+                # to both then we prioritize the deck section.
+                cs.append(
+                    node.deck_section if hasattr(node, "deck_section")
+                    else node.pier_section)
+            else:
+                cs.append(node.deck_section if deck else node.pier_section)
+        cs = np.array([node_prop(section) for section in cs])
 
     # Axis to be referenced by function f in plot_and_save.
     ax = None

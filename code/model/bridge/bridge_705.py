@@ -85,37 +85,49 @@ def bridge_705_2d(
 ############################
 
 
-bridge_705_sections_3d = [
-    Section3D(density=2.724, thickness=0.75,  youngs=38400, poissons=0.2, start_z_frac=0),
-    Section3D(density=2.724, thickness=0.74,  youngs=38400, poissons=0.2, start_z_frac=0.6    / bridge_705_width),
-    Section3D(density=2.637, thickness=0.655, youngs=38400, poissons=0.2, start_z_frac=0.601  / bridge_705_width),
-    Section3D(density=2.664, thickness=0.589, youngs=38400, poissons=0.2, start_z_frac=3.65   / bridge_705_width),
-    Section3D(density=3.143, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=3.651  / bridge_705_width),
-    Section3D(density=3.124, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=3.85   / bridge_705_width),
-    Section3D(density=2.845, thickness=0.5,   youngs=41291, poissons=0.2, start_z_frac=3.851  / bridge_705_width),
-    Section3D(density=2.765, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=11.1   / bridge_705_width),
-    Section3D(density=2.980, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=11.101 / bridge_705_width),
-    Section3D(density=2.995, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=11.3   / bridge_705_width),
-    Section3D(density=2.631, thickness=0.739, youngs=38400, poissons=0.2, start_z_frac=11.301 / bridge_705_width),
-    Section3D(density=2.617, thickness=0.787, youngs=38400, poissons=0.2, start_z_frac=13.71  / bridge_705_width),
-    Section3D(density=2.907, thickness=0.65,  youngs=47277, poissons=0.2, start_z_frac=13.711 / bridge_705_width),
-    Section3D(density=2.907, thickness=0.65,  youngs=47277, poissons=0.2, start_z_frac=19.489 / bridge_705_width),
-    Section3D(density=2.617, thickness=0.787, youngs=38400, poissons=0.2, start_z_frac=19.49  / bridge_705_width),
-    Section3D(density=2.631, thickness=0.739, youngs=38400, poissons=0.2, start_z_frac=21.899 / bridge_705_width),
-    Section3D(density=2.995, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=21.9   / bridge_705_width),
-    Section3D(density=2.980, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=22.099 / bridge_705_width),
-    Section3D(density=2.765, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=22.1   / bridge_705_width),
-    Section3D(density=2.845, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=29.349 / bridge_705_width),
-    Section3D(density=3.124, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=29.35  / bridge_705_width),
-    Section3D(density=3.143, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=29.549 / bridge_705_width),
-    Section3D(density=2.664, thickness=0.589, youngs=38400, poissons=0.2, start_z_frac=29.55  / bridge_705_width),
-    Section3D(density=2.637, thickness=0.655, youngs=38400, poissons=0.2, start_z_frac=32.599 / bridge_705_width),
-    Section3D(density=2.724, thickness=0.74,  youngs=38400, poissons=0.2, start_z_frac=32.6   / bridge_705_width),
-    Section3D(density=2.724, thickness=0.75,  youngs=38400, poissons=0.2, start_z_frac=33.2   / bridge_705_width)
-    ]
+def load_bridge_705_deck_sections():
+    with open("bridge705/bridge_705_mod.org") as f:
+        values = list(map(
+            lambda l: list(map(float, l.split("|")[1:-1])),
+            f.readlines()[2:]))
+    return [Section3D(
+            start_z_frac=(position / 1000) / bridge_705_width,
+            density=density * 1E6,
+            thickness=thickness / 100,
+            youngs=youngs,
+            poissons=0.2)
+        for position, density, thickness, youngs in values]
 
-for section in bridge_705_sections_3d:
-    print(section.start_z_frac)
+bridge_705_sections_3d = load_bridge_705_deck_sections()
+
+# bridge_705_sections_3d = [
+#     Section3D(density=2.724, thickness=0.75,  youngs=38400, poissons=0.2, start_z_frac=0),
+#     Section3D(density=2.724, thickness=0.74,  youngs=38400, poissons=0.2, start_z_frac=0.6    / bridge_705_width),
+#     Section3D(density=2.637, thickness=0.655, youngs=38400, poissons=0.2, start_z_frac=0.601  / bridge_705_width),
+#     Section3D(density=2.664, thickness=0.589, youngs=38400, poissons=0.2, start_z_frac=3.65   / bridge_705_width),
+#     Section3D(density=3.143, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=3.651  / bridge_705_width),
+#     Section3D(density=3.124, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=3.85   / bridge_705_width),
+#     Section3D(density=2.845, thickness=0.5,   youngs=41291, poissons=0.2, start_z_frac=3.851  / bridge_705_width),
+#     Section3D(density=2.765, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=11.1   / bridge_705_width),
+#     Section3D(density=2.980, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=11.101 / bridge_705_width),
+#     Section3D(density=2.995, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=11.3   / bridge_705_width),
+#     Section3D(density=2.631, thickness=0.739, youngs=38400, poissons=0.2, start_z_frac=11.301 / bridge_705_width),
+#     Section3D(density=2.617, thickness=0.787, youngs=38400, poissons=0.2, start_z_frac=13.71  / bridge_705_width),
+#     Section3D(density=2.907, thickness=0.65,  youngs=47277, poissons=0.2, start_z_frac=13.711 / bridge_705_width),
+#     Section3D(density=2.907, thickness=0.65,  youngs=47277, poissons=0.2, start_z_frac=19.489 / bridge_705_width),
+#     Section3D(density=2.617, thickness=0.787, youngs=38400, poissons=0.2, start_z_frac=19.489 / bridge_705_width),
+#     Section3D(density=2.631, thickness=0.739, youngs=38400, poissons=0.2, start_z_frac=21.899 / bridge_705_width),
+#     Section3D(density=2.995, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=21.9   / bridge_705_width),
+#     Section3D(density=2.980, thickness=0.65,  youngs=38400, poissons=0.2, start_z_frac=22.099 / bridge_705_width),
+#     Section3D(density=2.765, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=22.1   / bridge_705_width),
+#     Section3D(density=2.845, thickness=0.65,  youngs=41291, poissons=0.2, start_z_frac=29.349 / bridge_705_width),
+#     Section3D(density=3.124, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=29.35  / bridge_705_width),
+#     Section3D(density=3.143, thickness=0.5,   youngs=38400, poissons=0.2, start_z_frac=29.549 / bridge_705_width),
+#     Section3D(density=2.664, thickness=0.589, youngs=38400, poissons=0.2, start_z_frac=29.55  / bridge_705_width),
+#     Section3D(density=2.637, thickness=0.655, youngs=38400, poissons=0.2, start_z_frac=32.599 / bridge_705_width),
+#     Section3D(density=2.724, thickness=0.74,  youngs=38400, poissons=0.2, start_z_frac=32.6   / bridge_705_width),
+#     Section3D(density=2.724, thickness=0.75,  youngs=38400, poissons=0.2, start_z_frac=33.2   / bridge_705_width)
+#     ]
 
 
 ############################
@@ -124,7 +136,7 @@ for section in bridge_705_sections_3d:
 
 
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
-num_pier_sections = 10
+num_pier_sections = 20
 bridge_705_pier_sections = [
     Section3DPier(
         density=2.724, thickness=np.interp(
@@ -132,9 +144,6 @@ bridge_705_pier_sections = [
             [pier_thickness_top, pier_thickness_bottom]),
         youngs=38400, poissons=0.2, start_frac_len=start_frac_len)
     for start_frac_len in np.linspace(0, 1, num_pier_sections)]
-
-for section in bridge_705_pier_sections:
-    print(section.start_frac_len, section.thickness)
 
 assert np.isclose(bridge_705_pier_sections[0].thickness, pier_thickness_top)
 assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)

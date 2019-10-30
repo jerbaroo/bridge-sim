@@ -27,6 +27,8 @@ One plot for each wheel track
 ** TODO [#A] Refine mesh in Diana to check response has converged
 ** TODO [#B] Rename support to pier
 ** TODO [#B] Add mesh points where material properties change
+** TODO [#B] Put real and simulated time signals next to each other
+Decided after seeing the shorter repeating intervals.
 ** TODO [#B] Interpolate only for nodes where y=0
 ** TODO [#B] Use click library for python command line interface
 ** TODO [#B] Section order in generated TCL file is not deterministic
@@ -158,7 +160,7 @@ CLOSED: [2019-10-22 Tue 11:40]
 CLOSED: [2019-10-22 Tue 11:40]
 *** DONE I want to go over Diana and Axis now
 CLOSED: [2019-10-22 Tue 11:40]
-** 25th October
+** 28th October
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -230,8 +232,10 @@ CLOSED: [2019-10-22 Tue 13:33]
 CLOSED: [2019-10-22 Tue 17:00]
 *** DONE Animate traffic simulation                               :traffic:
 CLOSED: [2019-10-22 Tue 11:46]
-*** TODO Heavy traffic model                                      :traffic:
-*** TODO Contour plot of traffic at specific time                 :traffic:
+*** DONE Heavy traffic model                                      :traffic:
+CLOSED: [2019-10-27 Sun 23:09]
+*** DONE Contour plot of traffic in animation                     :traffic:
+CLOSED: [2019-10-27 Sun 23:10]
 *** DONE Traffic scenario needs to warm up                        :traffic:
 CLOSED: [2019-10-22 Tue 19:22]
 *** TODO Refinement of mesh                                       :fem_tcl:
@@ -239,9 +243,22 @@ CLOSED: [2019-10-22 Tue 19:22]
 *** TODO Verify node_prop is from the correct section          :fem_verify:
 Perhaps attach deck_section and/or pier_section
 *** TODO Verify section values by colour                       :fem_verify:
+- The pier sections look fine
+- The deck sections don't make sense
 *** TODO Choose verification points PS in Diana                :fem_verify:
 *** TODO Plots of PS from Diana                                :fem_verify:
 *** TODO Plots of PS from OpenSees                             :fem_verify:
 *** TODO Plots of PS from Axis                                 :fem_verify:
 *** TODO Check influence line matrix against contour plot      :fem_verify:
-*** TODO Get events from traffic under 3D FEM                        :data:
+*** DONE Get events from traffic under 3D FEM                        :data:
+CLOSED: [2019-10-27 Sun 23:10]
+** 28th October
+*** TODO Print papers
+*** DONE Choose verification points in Diana
+CLOSED: [2019-10-28 Mon 12:23]
+*** TODO Verify deck sections
+*** TODO Print correct section in cloud of Nodes plot
+*** TODO Plots of PS from Diana
+*** TODO Plots of PS from OpenSees
+*** TODO Pier displacement control
+*** TODO Distribution of responses

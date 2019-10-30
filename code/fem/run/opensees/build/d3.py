@@ -40,11 +40,15 @@ nodes_by_id = dict()
 
 
 def get_node(
-        x: float, y: float, z: float, deck: bool, pier: Optional[Support3D] = None,
+        x: float, y: float, z: float, deck: bool = False, pier: Optional[Support3D] = None,
         comment_str: Optional[str] = None, support: Optional[Support3D] = None):
     """Get a 'Node' if one already exists at position, else create a new one.
 
     NOTE: Use this to contruct 'Node's, don't do it directly!
+
+    Args:
+        deck: bool, whether the requested Node belongs to a deck.
+        pier: Optional[Support3D], a pier the requested Node may belong to.
 
     """
     x = round_m(x)
@@ -54,12 +58,12 @@ def get_node(
     if z not in all_nodes[x][y]:
         new_node = Node(
             n_id=next_node_id(), x=x, y=y, z=z, comment=comment_str,
-            support=support, deck=deck, pier=pier)
+            support=support, pier=pier, deck=deck)
         all_nodes[x][y][z] = new_node
         nodes_by_id[new_node.n_id] = new_node
     # Return the node and attach deck and pier information.
     node = all_nodes[x][y][z]
-    node.deck = True if node.deck else deck
+    node.deck = node.deck or deck
     node.pier = node.pier if node.pier is not None else pier
     return node
 
@@ -313,7 +317,8 @@ def get_all_support_nodes(
                 x_pos = x_deck
                 y_pos = 0  # Start at the top.
                 z_pos = z_deck
-                # Determine difference for each x, y, z as we move down the wall.
+                # Difference for each x, y, z as we move down the wall. Remember
+                # that the walls may be tapered.
                 x_diff = (x_bottom - x_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
                 y_diff = -support.height / (c.bridge.base_mesh_pier_nodes_y - 1)
                 z_diff = (z_bottom - z_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
@@ -321,7 +326,7 @@ def get_all_support_nodes(
                 def append_wall_node(y):
                     """Append another node with current positions."""
                     wall[-1].append(get_node(
-                        x=x_pos, y=y_pos, z=z_pos, deck=False, pier=support,
+                        x=x_pos, y=y_pos, z=z_pos, pier=support,
                         support=support, comment_str=(
                             f"support {i + 1}{st(i + 1)} wall {w + 1}{st(w + 1)} z {z + 1} "
                             + f"y {y + 2}{st(y + 2)}")))
@@ -764,7 +769,8 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
                 element_z=nodes_by_id[i_node].z)
             deck_elements[-1].append(ShellElement(
                 e_id=next_elem_id(), ni_id=i_node, nj_id=j_node, nk_id=k_node,
-                nl_id=l_node, section=section, nodes_by_id=nodes_by_id))
+                nl_id=l_node, section=section, pier=False,
+                nodes_by_id=nodes_by_id))
         ff_elem_ids(z_skip)
     return deck_elements
 
@@ -802,7 +808,9 @@ def get_pier_elements(
                     assert y_lo_z_lo.z < y_lo_z_hi.z
                     assert y_hi_z_lo.z < y_hi_z_hi.z
                     # print(f"Section ID ={s}")
-                    element_start_frac_len = y / len(y_nodes_z_lo)
+                    # The reason we do "- 2" is because: if len(y_nodes_z_lo) is
+                    # 5 then the max value of range(len(y_nodes_z_lo) - 1) is 3.
+                    element_start_frac_len = y / (len(y_nodes_z_lo) - 2)
                     # print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
                     section = section_for_pier_element(
                         c=c, pier=c.bridge.supports[s],
@@ -810,7 +818,7 @@ def get_pier_elements(
                     pier_elements.append(ShellElement(
                         e_id=next_elem_id(), ni_id=y_lo_z_lo.n_id,
                         nj_id=y_hi_z_lo.n_id, nk_id=y_hi_z_hi.n_id,
-                        nl_id=y_lo_z_hi.n_id, section=section,
+                        nl_id=y_lo_z_hi.n_id, section=section, pier=True,
                         nodes_by_id=nodes_by_id,
                         support_position_index=(s, w, z, y)))
                 ff_elem_ids(ff_mod)

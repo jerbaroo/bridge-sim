@@ -17,13 +17,13 @@ class Node:
 
     Args:
         n_id: int, the ID of this node.
-        x: float, the x position of this node on the bridge.
-        y: float, the y position of this node on the bridge.
-        z: float, the z position of this node on the bridge.
+        x: float, x position of this node on the bridge.
+        y: float, y position of this node on the bridge.
+        z: float, z position of this node on the bridge.
         deck: bool, whether this node belongs to the bridge deck.
-        pier: Optional[Support3D], the pier that this node may belong to.
+        pier: Optional[Support3D], a pier that this node may belong to.
         comment: Optional[str], an optional comment for the .tcl file.
-        support: Optional[3D], the support that this node may belong to.
+        support: Optional[3D], a support that this node may belong to.
 
     Attrs:
         section: Section3D, a section that may be attached, or not.
@@ -37,8 +37,8 @@ class Node:
         self.x = round_m(x)
         self.y = round_m(y)
         self.z = round_m(z)
-        self.deck = deck
         self.pier = pier
+        self.deck = deck
         self.comment = comment
         self.support = support
 
@@ -101,7 +101,7 @@ class ShellElement:
     """
     def __init__(
             self, e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int,
-            section: Section3D, nodes_by_id: Dict[int, Node],
+            section: Section3D, pier: bool, nodes_by_id: Dict[int, Node],
             support_position_index: Optional[Tuple[int, int, int, int]] = None):
         self.e_id = e_id
         self.ni_id = ni_id
@@ -115,8 +115,7 @@ class ShellElement:
         # belongs to a pier or to the bridge deck.
         for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
             node = nodes_by_id[n_id]
-            node.foobar = True
-            if isinstance(self.section, Section3DPier):
+            if pier:
                 node.pier_section = self.section
             else:
                 node.deck_section = self.section
