@@ -138,14 +138,14 @@ def plot_bridge_deck_side(
 
     """
     # A horizontal line that is the top of the bridge deck.
-    plt.hlines(0, 0, bridge.length, color=bridge_color)
+    plt.hlines(0, 0, bridge.length, color=Color.bridge)
     pier_x_positions = [
         (bridge.x(pier.x_frac)
          if bridge.dimensions == Dimensions.D2
          else pier.x)
         for pier in bridge.supports]
     plt.plot(
-        pier_x_positions, [0 for _ in bridge.supports], "o", color=pier_color)
+        pier_x_positions, [0 for _ in bridge.supports], "o", color=Color.pier)
     if equal_axis: plt.axis("equal")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")

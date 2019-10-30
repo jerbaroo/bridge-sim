@@ -84,7 +84,8 @@ def make_il_plots(
     if c.bridge.dimensions == Dimensions.D3:
         # A moving vehicle for each bridge lane.
         mv_vehicles = [
-            next(normal_traffic(c).mv_vehicles(lane=lane))
+            next(normal_traffic(c, 1, 1).mv_vehicles(
+                bridge=c.bridge, lane=lane))([], 0, 0)
             for lane in range(len(c.bridge.lanes))]
         # From the moving vehicles we can calculate wheel tracks on the bridge.
         for mv_vehicle in mv_vehicles:
@@ -115,8 +116,8 @@ def make_il_plots(
                         title_append=f" z = {c.bridge.z(pload_z_frac)}",
                         interp_response=interp_response, save=c.image_path(pstr(
                             f"ils/il-imshow-{il_matrix.fem_runner.name}"
-                            + f"-loadzfrac={pload_z_frac}"
                             + f"-{response_type.name()}"
+                            + f"-loadzfrac={pload_z_frac}"
                             + f"-{c.il_num_loads}-{num_ploads}"
                             + interp_sim_str + interp_response_str)))
 
@@ -133,11 +134,13 @@ def make_il_plots(
 
                     matrix_subplots(
                         c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                        num_x=num_ploads, plot_func=plot_func, save=c.image_path(
+                        num_x=num_ploads, plot_func=plot_func,
+                        save=c.image_path(pstr(
                             f"ils/il-subplots-{il_matrix.fem_runner.name}"
                             + f"-{response_type.name()}"
+                            + f"-loadzfrac={pload_z_frac}"
                             + f"-numexpts-{il_matrix.num_expts}"
-                            + interp_sim_str + interp_response_str))
+                            + interp_sim_str + interp_response_str)))
     c.il_num_loads = original_num_ils
 
 
@@ -391,9 +394,9 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    # make_il_plots(c)
+    make_il_plots(c)
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)
     # make_cloud_of_nodes_plots(c)
-    make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
+    # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
