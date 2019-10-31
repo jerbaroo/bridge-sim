@@ -86,7 +86,7 @@ def bridge_705_2d(
 
 
 def load_bridge_705_deck_sections():
-    with open("bridge705/bridge_705_mod.org") as f:
+    with open("bridge705/bridge-705.org") as f:
         values = list(map(
             lambda l: list(map(float, l.split("|")[1:-1])),
             f.readlines()[2:]))

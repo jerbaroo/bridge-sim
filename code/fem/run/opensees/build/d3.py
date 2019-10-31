@@ -876,6 +876,7 @@ def opensees_translation_recorders(
     """OpenSees recorder commands for translation."""
     deck_nodes = fem_params.deck_nodes
     all_support_nodes = fem_params.all_support_nodes
+
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
@@ -891,6 +892,7 @@ def opensees_translation_recorders(
         z_path = os_runner.z_translation_path(fem_params)
         translation_response_types.append((z_path, 3))
         print_i(f"OpenSees: saving z translation at {z_path}")
+
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = []
     node_str = " ".join(

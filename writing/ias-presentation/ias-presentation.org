@@ -1,0 +1,74 @@
+#+TITLE: Bridge DSS
+#+AUTHOR: Jeremy Barisch-Rooney
+
+* Research Question
+What are the costs and benefits of installing a decision support system (DSS)
+based on real-time sensor data, for the purpose of bridge maintenance, on a
+no-prestress no-postension concrete slab bridge?
+* Existing Bridge DSS
+** TODO Research
+* Types of Bridges
+** TODO Research
+* Bridge Model
+* Model Inputs
+** TODO Code: Pier Displacement
+* Data Collection
+* Model Assumptions
+* Verified Model
+** DONE Code: Fix deck sections
+CLOSED: [2019-10-30 Wed 17:54]
+* Events
+** TODO Code: Distribution of responses
+* Costs
+** TODO Research
+* Overview
+| 2D Model             | Model Generation     | + |
+| 2D Model             | X, Y, Z -translation | & |
+| 2D Model             | Stress & Strain      | + |
+| 2D Model             | Pier Displacement    | + |
+| 3D Model             | Model Generation     | + |
+| 3D Model             | X, Y, Z -translation | + |
+| 3D Model             | Stress & Strain      | - |
+| 3D Model             | Pier Displacement    | - |
+| 3D Model             | Verification         | & |
+| Data Collection      | Influence Lines      | + |
+| Data Collection      | Event Generation     | + |
+| Model Input          | Noise                | & |
+| Model Input          | Traffic              | & |
+| Model Input          | Low frequency Events | - |
+| Anomaly Detection    |                      | - |
+| Bridge Types & Costs |                      | - |
+* Plan
+| November week 1 | writing & costs                   |
+| November week 2 | writing & classifiers             |
+| November week 3 | verification plot 1 & strain      |
+| November week 4 | verification plot 2 & classifiers |
+| December week 1 | writing & temperature             |
+| December week 2 | writing & soil creep              |
+| December week 3 | writing                           |
+| December week 4 | writing                           |
+* Key goals
+- Verified extensible FEM
+- System : (bridge model, inputs) -> events
+- Anomaly detection
+- Avoid detecting low frequency events
+* Anything missing?
+- Comparison of 2D/3D FEM responses
+- Comparison to another bridge
+* Reproducible
+- I should be maintainer after the thesis
+  - I care about open source
+  - I care about maintainability & usability
+  - I know the code best
+- Licence
+  - GPL (sharing improvements)
+* My Goals
+- Create something TNO appreciate
+- Create something used
+  - Usable -> Useful -> Used
+* Muchas Gracias
+* Future collaboration
+- Don't start thesis until long-term housing is found
+- TNO could ask about reserving a student room
+  - Perhaps for semeter start
+  - Low effort, high potential

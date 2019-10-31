@@ -1,5 +1,5 @@
 """Plot geometry of a bridge."""
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 import matplotlib.patches as patches
 import numpy as np
@@ -53,28 +53,28 @@ def top_view_bridge(
 
 
 def plot_cloud_of_nodes(
-        c: Config, equal_axis: bool = False,
+        c: Config, equal_axis: bool, save: str,
         node_prop: Optional[Callable[[Section3D], float]] = None,
-        deck: bool = True, piers: bool = True, save: Optional[str] = None, show: bool = False):
+        deck: bool = True, piers: bool = True):
     """A scatter plot of the nodes of a 3D FEM."""
     # TODO: Create method for these three lines in d3/__init__.py
     build_model_3d(c=c, expt_params=ExptParams([FEMParams(
-        [PointLoad(0.1, 0.1, 100)], [])]), os_runner=OSRunner(c))
+        [], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())
 
     # This is a sanity check (or a test in the wrong place) that all nodes that
     # belong to a pier also belong to a shell element on the pier. And that all
     # nodes that belong only to the deck also belong to a shell element on the
-    # deck.
+    # deck. Any node that belongs to a shell element will have a section
+    # assigned, either as deck_dection or pier_section.
     for node in nodes:
         if node.pier is not None:
             assert hasattr(node, "pier_section")
         else:
             assert hasattr(node, "deck_section")
 
-    print_w(f"Total amount of nodes = {len(nodes)}")
     nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
-    print_w(f"Total amount of nodes = {len(nodes)}")
+    nodes = sorted(nodes, key=lambda n: (n.deck, not n.pier))
 
     # Split into separate arrays of x, y and z position, and colors.
     xs = np.array([n.x for n in nodes])
@@ -94,9 +94,36 @@ def plot_cloud_of_nodes(
                 cs.append(node.deck_section if deck else node.pier_section)
         cs = np.array([node_prop(section) for section in cs])
 
-    # Axis to be referenced by function f in plot_and_save.
-    ax = None
+    def plot_and_save(fig, ax, append: str = ""):
+        """Plot the cloud of points with optional additional operation."""
+        plt.set_cmap("coolwarm")
+        p = ax.scatter(xs, zs, ys, c=cs, s=1)
+        if cs is not None:
+            fig.colorbar(p)
+        deck_str = "-deck" if deck else ""
+        piers_str = "-piers" if piers else ""
+        plt.savefig(f"{save}{deck_str}{piers_str}{append}")
 
+    equal_axis_str = "-equalaxis" if equal_axis else "-fullaxis"
+
+    for fig, ax, angle in angles_3d(equal_axis=equal_axis, xs=xs, ys=ys, zs=zs):
+        plot_and_save(fig, ax, append=equal_axis_str + f"-no-rotate")
+
+    for fig, ax, angle in angles_3d(
+            angles=range(0, 360, 90), equal_axis=equal_axis, elev=0,
+            xs=xs, ys=ys, zs=zs):
+        plot_and_save(fig, ax, append=equal_axis_str + f"-{angle}")
+
+
+def angles_3d(
+        equal_axis: bool, xs: List[float], ys: List[float], zs: List[float],
+        angles: Optional[List[float]] = None, elev: Optional[float] = None):
+    """Rotate a plot in 3D, yielding the axis and angle.
+
+    Args:
+        angles: Optional[List[float]], angles to plot at, if None use default.
+        elev: Optional[float], elevation used if 'angles' is given.
+    """
     # Determine values for scaling axes.
     max_range = np.array(
         [xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]
@@ -105,39 +132,18 @@ def plot_cloud_of_nodes(
     mid_y = (ys.max() + ys.min()) * 0.5
     mid_z = (zs.max() + zs.min()) * 0.5
 
-    def plot_and_save(f: Callable[[], None], append: str = ""):
-        """Plot the cloud of points with optional additional operation.
-
-        Args:
-            f: Callable[[], None], additional operation called before plotting.
-            append: str, string to append to the file name.
-
-        """
+    # Ensure at least one angle in default case.
+    if angles is None:
+        angles = [None]
+    # Plot for different angles.
+    for ii in angles:
+        plt.close()
         fig = plt.figure()
-        nonlocal ax
         ax = fig.add_subplot(111, projection="3d", proj_type="ortho")
-        f()
-        # TODO: Move this to plot module.
-        plt.set_cmap("coolwarm")
-        p = ax.scatter(xs, zs, ys, c=cs, s=1)
         if equal_axis:
             ax.set_xlim(mid_x - max_range, mid_x + max_range)
             ax.set_ylim(mid_y - max_range, mid_y + max_range)
             ax.set_zlim(mid_z - max_range, mid_z + max_range)
-        if cs is not None:
-            fig.colorbar(p)
-        deck_str = "-deck" if deck else ""
-        piers_str = "-piers" if piers else ""
-        if save: plt.savefig(f"{save}{deck_str}{piers_str}{append}")
-        if show: plt.show()
-        if save or show: plt.close()
-
-    equal_axis_str = "equal-axis" if equal_axis else "full-axis"
-    # Plot without angle change.
-    plot_and_save(lambda: None, append=equal_axis_str + "no-rotation")
-
-    # Plot for different angles.
-    for ii in range(0, 360, 90):
-        plot_and_save(
-            f=lambda: ax.view_init(elev=0, azim=ii),
-            append=equal_axis_str + f"-{ii}")
+        if ii is not None:
+            ax.view_init(elev=elev, azim=ii)
+        yield fig, ax, ii

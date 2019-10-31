@@ -61,21 +61,22 @@ def make_bridge_plots(
 
 def make_il_plots(
         c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_ploads: int = 100, fem_runner: Optional[FEMRunner] = None):
+        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None,
+        num_z_fracs: Optional[int] = None):
     """Make plots of the influence lines.
 
     Args:
         c: Config, global configuration object.
         num_subplot_ils: int, the number of influence lines on the subplots.
         num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_ploads: int, the number of loading positions on x-axis to plot.
+        num_loads: int, the number of loading positions on x-axis to plot.
         fem_runner: Optional[FEMRunner], FEM program to run simulations with,
-            defaults to OpenSees.
+            default is OpenSees.
 
     """
     plt.close()
     original_num_ils = c.il_num_loads
-    c.il_num_loads = num_ploads
+    c.il_num_loads = num_loads
     if fem_runner is None:
         fem_runner = OSRunner(c)
 
@@ -93,6 +94,9 @@ def make_il_plots(
                     bridge=c.bridge, meters=False):
                 pload_z_fracs.append(wheel_z_frac)
     print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
+
+    if num_z_fracs is not None:
+        pload_z_fracs = pload_z_frac[:num_z_fracs]
 
     for pload_z_frac in pload_z_fracs:
         for response_type in fem_runner.supported_response_types(c.bridge):
@@ -112,13 +116,13 @@ def make_il_plots(
                         load_z_frac=pload_z_frac)
                     imshow_il(
                         c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
-                        num_x=num_ploads, interp_sim=interp_sim,
+                        num_x=num_loads, interp_sim=interp_sim,
                         title_append=f" z = {c.bridge.z(pload_z_frac)}",
                         interp_response=interp_response, save=c.image_path(pstr(
                             f"ils/il-imshow-{il_matrix.fem_runner.name}"
                             + f"-{response_type.name()}"
                             + f"-loadzfrac={pload_z_frac}"
-                            + f"-{c.il_num_loads}-{num_ploads}"
+                            + f"-{c.il_num_loads}-{num_loads}"
                             + interp_sim_str + interp_response_str)))
 
                     # Make the matrix of influence lines.
@@ -134,7 +138,7 @@ def make_il_plots(
 
                     matrix_subplots(
                         c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                        num_x=num_ploads, plot_func=plot_func,
+                        num_x=num_loads, plot_func=plot_func,
                         save=c.image_path(pstr(
                             f"ils/il-subplots-{il_matrix.fem_runner.name}"
                             + f"-{response_type.name()}"
@@ -158,7 +162,7 @@ def make_dc_plots(
     plt.close()
     num_dcs = len(c.bridge.supports)
     original_num_ils = c.il_num_loads
-    c.il_num_loads = num_ils
+    c.il_num_loads = num_dcs
     for response_type in ResponseType:
         for interp_sim in [False]:
             for interp_response in [False]:
@@ -172,8 +176,8 @@ def make_dc_plots(
                 imshow_il(
                     c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
                     interp_sim=interp_sim, interp_response=interp_response,
-                    save=c.image_path(
-                        f"dcs/dc-imshow-{dc_matrix.fem_runner.name}"
+                    save=c.get_image_path("dcs",
+                        f"imshow-{dc_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
                         + f"-{num_dcs}-{num_x}" + interp_sim_str
                         + interp_response_str))
@@ -191,8 +195,8 @@ def make_dc_plots(
 
                 matrix_subplots(
                     c=c, resp_matrix=dc_matrix, num_x=num_x,
-                    plot_func=plot_func, save=c.image_path(
-                        f"dcs/dc-subplots-{dc_matrix.fem_runner.name}"
+                    plot_func=plot_func, save=c.get_image_path("dcs",
+                        f"subplots-{dc_matrix.fem_runner.name}"
                         + f"-{response_type.name()}"
                         + f"-numexpts-{dc_matrix.num_expts}"
                         + interp_sim_str + interp_response_str))
@@ -280,8 +284,7 @@ def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
                 (34.95459, 29.22606 - 16.6),  # A.
                 (51.25051, 16.6     - 16.6),  # B.
                 (92.40638, 12.405   - 16.6),  # C.
-                (101.7649, 3.973938 - 16.6),  # D.
-                (35.011, 25.032 - 16.6)]:
+                (101.7649, 3.973938 - 16.6)]:  # D.
             print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(load_x), z_frac=c.bridge.z_frac(load_z),
@@ -296,9 +299,8 @@ def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
             plt.close()
             plot_contour_deck(
                 c=c, responses=fem_responses, y=y, ploads=[pload], save=(
-                c.image_path(pstr(
-                    f"contour-{response_type.name()}-ploadx={load_x}"
-                    + f"-ploadz={load_z}"))))
+                c.get_image_path("contour", pstr(
+                    f"{response_type.name()}-loadx={load_x}-loadz={load_z}"))))
 
 
 def make_cloud_of_nodes_plots(c: Config):
@@ -308,7 +310,7 @@ def make_cloud_of_nodes_plots(c: Config):
         """Make cloud of nodes plots for full and equal axes."""
         # Cloud of nodes without axis correction.
         plot_cloud_of_nodes(
-            *args, **kwargs, c=c,
+            *args, **kwargs, c=c, equal_axis=False,
             save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"))
 
         # Cloud of nodes with equal axes.
@@ -322,11 +324,8 @@ def make_cloud_of_nodes_plots(c: Config):
         both_axis_plots(prop, *args, deck=False, piers=True, **kwargs)
         both_axis_plots(prop, *args, deck=True, piers=True, **kwargs)
 
-    # Standard plots.
-    # all_plots("")
-
     # Plots of some node property.
-    # all_plots("-density", node_prop=lambda s: s.density)
+    all_plots("-density", node_prop=lambda s: s.density)
     all_plots("-thickness", node_prop=lambda s: s.thickness)
 
 
@@ -394,7 +393,8 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    make_il_plots(c)
+    # make_il_plots(c)
+    make_dc_plots(c)
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)
