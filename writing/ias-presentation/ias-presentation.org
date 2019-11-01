@@ -1,26 +1,231 @@
 #+TITLE: Bridge DSS
 #+AUTHOR: Jeremy Barisch-Rooney
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage{minted}
 
 * Research Question
-What are the costs and benefits of installing a decision support system (DSS)
+What are the +costs and+ benefits of installing a decision support system (DSS)
 based on real-time sensor data, for the purpose of bridge maintenance, on a
 no-prestress no-postension concrete slab bridge?
-* Existing Bridge DSS
-** TODO Research
-* Types of Bridges
-** TODO Research
+
+- To answer this need to:
+  - show benefits of having sensor data
+    - base benfits on simulated data
+  - +show what installation & maintenance costs are+
+
+How to acquire data and assess the potential for installing...
+* Existing SHM
+- State of the art do not determine extent of damage
+- Only whether damage present or not, "global monitoring"
+- All one needs to know to then take further action
+  - on-site examination
+* Existing SHM
+- FHA mandates evaluation of bridges every 2 years (2003)
+- Visual inspection and tap tests -> safety rating
+- Bridges, many. Staff, not so many.
+- Safety rating supplemented by FEA (based on best guess)
+- More replacements for functionally obsolete than structurally unsound
+* Existing SHM: global monitoring
+- Based on finding a shift in mode shapes or frequencies
+  - including first and second derivatives of mode shape
+- Compromised by external factors
+- Deterioration of RE-steel litte effect on natural frequency
+- Methods to find damage location and extent
+  - typically work better when:
+    - limited to assumed forms of damage
+    - damage is severe
+* ML for SHM
+- garbage-in, garbage-out
+- data acquisition of utmost importance
+- model validation required
+- anbormality detection needs to account for external factors!
+  [[./time.png]]
+* Types of Bridges: Hungary
+[[./hungary.png]]
 * Bridge Model
-* Model Inputs
-** TODO Code: Pier Displacement
+#+BEGIN_SRC haskell
+data Bridge = Bridge {
+  length        :: Float,
+  width         :: Float,
+  piers         :: [Pier],
+  deck_sections :: [Section],
+  lanes         :: [Lane],
+  dimensions    :: Dimension
+}
+
+data Dimension = D2 | D3
+data Section = Section2D | Section3D
+data Pier = Pier2D | Pier3D
+
+-- Bridge constructor ensures that dimension must match.
+#+END_SRC
+* Bridge Model: 3D
+#+BEGIN_SRC haskell
+data Pier3D = Pier3D {
+  x           :: Float,
+  z           :: Float,
+  length      :: Float,
+  height      :: Float,
+  widthTop    :: Float,
+  widthBottom :: Float,
+  sections    :: [Section]
+  baseMesh    :: (Int, Int, Int, Int)
+  fixXTrans   :: Bool,
+  fixYTrans ...
+}
+#+END_SRC
+* Bridge Model: 3D
+- Pier: side view
+#+BEGIN_SRC haskell
+<--------x--------->
+             <---length-->
+|------------|-----------|--------| ↑ h
+              \         /           | e
+               \       /            | i
+                \     /             | g
+                 \   /              | h
+                  \ /               ↓ t
+#+END_SRC
+* Bridge Model: 3D
+- Pier: top view
+#+BEGIN_SRC haskell
+|---------------------------------| ↑+
+|---------------------------------| |
+|---------------------------------| |
+|---------------------------------| |
+|---------------------------------| 0
+|------------|-----------|--------| |
+|------------|-----------|--------| | z = -2
+|------------|-----------|--------| |
+|---------------------------------| ↓-
+#+END_SRC
+* Bridge Model: 3D
+- Pier: front view
+#+BEGIN_SRC haskell
+                width-top
+              <---------->
+              |----------|
+               \         /
+                \       /
+                 \     /
+                  \   /
+                   \_/
+                   <->
+               width-bottom
+#+END_SRC
+* Bridge Model: 3D
+#+BEGIN_SRC haskell
+data Section = Section {
+    density      :: Float, -- density in kg/m
+    thickness    :: Float, -- thickness in m
+    youngs       :: Float, -- Young's modulus in MPa
+    poissons     :: Float, -- Poisson's ratio
+    start_x_frac :: Float, -- start position in x direction
+    start_z_frac :: Float  -- start position in z direction
+}
+#+END_SRC
+* Bridge Model: thickness
+[[./cloud-deck-full.png]]
+* Bridge Model: thickness
+[[./cloud-piers-full.png]]
+* Bridge Model: thickness
+[[./cloud-bridge.png]]
+* Bridge Model: lanes & vehicles
+[[./top-view-2.png]]
+* FEM Generation: why not just Diana?
+- OpenSees format easier to modify than Diana
+- Need to modify to:
+  - impose damage scenarios
+  - add load
+- Allows targeting of many bridges, not just 705
+- Open source -> reproducible research
+* Extensible research
+- Download & run (reproducible research)
+- Extensible if easy to extend, must be:
+  - Well documented
+  - Uses parameters, not hardcoded values
+  - Composable functions, not scripts
 * Data Collection
-* Model Assumptions
-* Verified Model
-** DONE Code: Fix deck sections
-CLOSED: [2019-10-30 Wed 17:54]
-* Events
+- a FEM is built according to a =Bridge= and =BridgeScenario=
+- influence lines are built:
+  - concentrated loads placed along wheel tracks
+- traffic is generated according to:
+  - =TrafficScenario= normal/heavy
+  - vehicle distribution e.g. by length
+  - vehicle descriptions (length, #axles, weight)
+- vehicles "drive" along the bridge
+- responses summed for each wheel from influence line
+* Data Collection: influence lines
+- Influence lines for one wheel track
+  - loading position on the left
+  - sensor position along the bottom
+[[./il.png]]
+* Model Assumptions: Vehicles
+- Vehicles drive at the same speed
+- Vehicles drive along the center of a lane
+- Vehicles have the same axle-width
+- Vehicles arrive according to truncated poisson process
+  - truncated below 2 meters
+  - mean at 7 meters
+* Model Assumptions: FEM
+- Subset of bridge positions sufficient for FEM verification
+  - Measurements from experimental campaign only for some positions
+  - Assumption that bridge 705 was in a healthy state in campaign
+- Linear elastic FEM captures the bridge behaviour
+- [How damage scenarios are modeled]
+- Responses generated are sufficiently close to real bridge behaviour that
+  analysis techniques explored on simulated data can also work on real data
+
+  (TODO) Limited verification by:
+  - abnormality dection on real data in addition to simulated data
+  - increase noise level to see how robust
+  - comparison of real data to simulated data
+
+  - Note: accuracy of simulated responses depends on discretization density
+  - a trade-off of time versus accuracy which can be chosen by the user
+  - accuracy shown to converge for bridge 705 in (TODO) convergence plot
+* Verifying Generated FEM
+- OpenSees model in table is the low-accuracy FEM
+  - base mesh of deck 50 * 20
+  - base mesh of each pier wall: 5 * 5
+- Units are mm
+
+| Diana | OpenSees | Point |
+|-------+----------+-------|
+|  0.49 |    0.465 | A     |
+|  0.14 |    0.130 | B     |
+| 0.162 |    0.180 | C     |
+|  0.13 |    0.128 | D     |
+* Verifying Generated FEM: Point A, Diana
+[[./diana-a.png]]
+* Verifying Generated FEM: Point A, OpenSees
+[[./contour-a.png]]
+* Verifying Generated FEM: Point B, Diana
+[[./diana-b.png]]
+* Verifying Generated FEM: Point B, OpenSees
+[[./contour-b.png]]
+* Verifying Generated FEM: Point C, Diana
+[[./diana-c.png]]
+* Verifying Generated FEM: Point C, OpenSees
+[[./contour-c.png]]
+* Verifying Generated FEM: Point D, Diana
+[[./diana-d.png]]
+* Verifying Generated FEM: Point D, OpenSees
+[[./contour-d.png]]
+* Responses
 ** TODO Code: Distribution of responses
+* Events
+[[./bs-normal-ts-normal-lam-5-rt-ytranslation-at-(35,0,-8,4).png]]
+* Animation
+[[./normal-lam-5.mp4]]
 * Costs
 ** TODO Research
+* Future collaboration
+* Future collaboration
+- Don't start thesis until long-term housing is found
+- TNO could ask about reserving a student room
+  - Perhaps for semester start
+  - Low effort, high potential
 * Overview
 | 2D Model             | Model Generation     | + |
 | 2D Model             | X, Y, Z -translation | & |
@@ -29,7 +234,7 @@ CLOSED: [2019-10-30 Wed 17:54]
 | 3D Model             | Model Generation     | + |
 | 3D Model             | X, Y, Z -translation | + |
 | 3D Model             | Stress & Strain      | - |
-| 3D Model             | Pier Displacement    | - |
+| 3D Model             | Pier Displacement    | & |
 | 3D Model             | Verification         | & |
 | Data Collection      | Influence Lines      | + |
 | Data Collection      | Event Generation     | + |
@@ -38,37 +243,39 @@ CLOSED: [2019-10-30 Wed 17:54]
 | Model Input          | Low frequency Events | - |
 | Anomaly Detection    |                      | - |
 | Bridge Types & Costs |                      | - |
-* Plan
-| November week 1 | writing & costs                   |
-| November week 2 | writing & classifiers             |
-| November week 3 | verification plot 1 & strain      |
-| November week 4 | verification plot 2 & classifiers |
-| December week 1 | writing & temperature             |
-| December week 2 | writing & soil creep              |
-| December week 3 | writing                           |
-| December week 4 | writing                           |
 * Key goals
 - Verified extensible FEM
-- System : (bridge model, inputs) -> events
+- =dataCollection : Bridge -> Scenarios -> [Event]=
 - Anomaly detection
 - Avoid detecting low frequency events
-* Anything missing?
-- Comparison of 2D/3D FEM responses
-- Comparison to another bridge
+- Detect anomaly on real data
+* Plan
+| November week 1 | writing             | sensor cost emails/research |
+| November week 2 | writing             | try standard classifiers    |
+| November week 3 | verification plot 1 | collect strain              |
+| November week 4 | verification plot 2 | classifiers                 |
+| December week 1 | writing             | add temperature to model    |
+| December week 2 | writing             | add soil creep to model     |
+| December week 4 | writing             |                             |
+* New Year
+- Determine accurate noise-at-rest
+  - Plot real time series vs simulated
+- See how detection worsens with noise
+- Reduce area between traffic lanes
+  - See how background noise increases
+  - See how detection worsens with noise
+- Anomaly detection on viaduct data
+* My Goals
+- Create something TNO value
+- Create something used
+  - Usable -> Useful -> Used
 * Reproducible
 - I should be maintainer after the thesis
+  - Maintainer not exact same as developer
   - I care about open source
   - I care about maintainability & usability
   - I know the code best
+  - Clean-up work to be done after thesis
 - Licence
   - GPL (sharing improvements)
-* My Goals
-- Create something TNO appreciate
-- Create something used
-  - Usable -> Useful -> Used
 * Muchas Gracias
-* Future collaboration
-- Don't start thesis until long-term housing is found
-- TNO could ask about reserving a student room
-  - Perhaps for semeter start
-  - Low effort, high potential
