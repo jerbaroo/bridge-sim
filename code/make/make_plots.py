@@ -53,44 +53,7 @@ def make_bridge_plots(
         mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
         plot_bridge_deck_side(
             c.bridge, mv_vehicles=mv_vehicles_,
-            save=c.image_path(f"bridges/side-{mv_vehicles_str}"))
-        plot_bridge_deck_top(
-            c.bridge, mv_vehicles=mv_vehicles_,
-            save=c.image_path(f"bridges/top-{mv_vehicles_str}"))
-
-
-def make_il_plots(
-        c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None,
-        num_z_fracs: Optional[int] = None):
-    """Make plots of the influence lines.
-
-    Args:
-        c: Config, global configuration object.
-        num_subplot_ils: int, the number of influence lines on the subplots.
-        num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_loads: int, the number of loading positions on x-axis to plot.
-        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
-            default is OpenSees.
-
-    """
-    plt.close()
-    original_num_ils = c.il_num_loads
-    c.il_num_loads = num_loads
-    if fem_runner is None:
-        fem_runner = OSRunner(c)
-
-    pload_z_fracs = []
-    # If a 3D FEM of a bridge then generate IL plots for each wheel track.
-    if c.bridge.dimensions == Dimensions.D3:
-        # A moving vehicle for each bridge lane.
-        mv_vehicles = [
-            next(normal_traffic(c, 1, 1).mv_vehicles(
-                bridge=c.bridge, lane=lane))([], 0, 0)
-            for lane in range(len(c.bridge.lanes))]
-        # From the moving vehicles we can calculate wheel tracks on the bridge.
-        for mv_vehicle in mv_vehicles:
-            for wheel_z_frac in mv_vehicle.wheel_tracks(
+            save=c.image_cks(
                     bridge=c.bridge, meters=False):
                 pload_z_fracs.append(wheel_z_frac)
     print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
@@ -118,8 +81,9 @@ def make_il_plots(
                         c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
                         num_x=num_loads, interp_sim=interp_sim,
                         title_append=f" z = {c.bridge.z(pload_z_frac)}",
-                        interp_response=interp_response, save=c.image_path(pstr(
-                            f"ils/il-imshow-{il_matrix.fem_runner.name}"
+                        interp_response=interp_response,
+                        save=c.get_image_path("ils", pstr(
+                            f"imshow-{il_matrix.fem_runner.name}"
                             + f"-{response_type.name()}"
                             + f"-loadzfrac={pload_z_frac}"
                             + f"-{c.il_num_loads}-{num_loads}"
@@ -139,8 +103,8 @@ def make_il_plots(
                     matrix_subplots(
                         c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
                         num_x=num_loads, plot_func=plot_func,
-                        save=c.image_path(pstr(
-                            f"ils/il-subplots-{il_matrix.fem_runner.name}"
+                        save=c.get_image_path("ils", pstr(
+                            f"subplots-{il_matrix.fem_runner.name}"
                             + f"-{response_type.name()}"
                             + f"-loadzfrac={pload_z_frac}"
                             + f"-numexpts-{il_matrix.num_expts}"
@@ -160,6 +124,7 @@ def make_dc_plots(
 
     """
     plt.close()
+    The number of
     num_dcs = len(c.bridge.supports)
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_dcs
@@ -247,8 +212,8 @@ def make_event_plots(c: Config):
     bridge_scenario = BridgeScenarioNormal()
     max_time, time_step, lam, min_d = 20, 0.01, 5, 2
     c.time_step = time_step
-    zs = [lane.z_center() for lane in c.bridge.lanes]
-    points = [Point(x=35, y=0, z=z) for z in zs]
+    sensor_zs = [lane.z_center() for lane in c.bridge.lanes]
+    points = [Point(x=35, y=0, z=z) for z in sensor_zs]
 
     for response_type in [ResponseType.YTranslation]:
         for traffic_scenario in [
@@ -358,7 +323,8 @@ def make_geom_plots(c: Config):
         # First the top view.
         plt.close()
         top_view_bridge(c.bridge)
-        top_view_vehicles(bridge=c.bridge, mv_vehicles=set_mv_vehicles, time=2)
+        top_view_vehicles(
+            bridge=c.bridge, mv_vehicles=set_mv_vehicles, time=2)
         plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
         # Then the side view.
@@ -372,7 +338,7 @@ def make_traffic_animations(c: Config):
     """Make animations of different traffic scenarios."""
     from plot.animate.traffic import animate_traffic_top_view
 
-    max_time, time_step, lam, min_d = 20, 0.05, 5, 2
+    max_time, time_step, lam, min_d = 20, 0.01, 5, 2
     c.time_step = time_step
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
@@ -389,6 +355,45 @@ def make_traffic_animations(c: Config):
             save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
 
 
+def make_distribution_plots(c: Config):
+    max_time, time_step, lam, min_d = 20, 0.01, 5, 2
+    points = [Point(x=35, y=0, z=8.4), Point(x=35, y=0, z=-8.4)]
+    response_type = ResponseType.YTranslation
+
+    # Generate heavy traffic.
+    heavy_traffic, start_index = heavy_traffic_1(
+        c=c, lam=lam, min_d=min_d, prob_heavy=0.01).traffic(
+            bridge=c.bridge, max_time=max_time, time_step=time_step)
+
+    # Filter out any normal traffic so it's just one heavy vehicle.
+    for t, t_traffic in enumerate(heavy_traffic):
+        heavy_traffic[t] = [v for v in t_traffic if v.kn == 500]
+        assert len(heavy_traffic[t]) <= 1
+        print(len(heavy_traffic[t]))
+    assert any(len(t_traffic) == 1 for t_traffic in heavy_traffic)
+    assert len(heavy_traffic[-1]) == 0
+
+    heavy_responses = responses_to_traffic(
+        c=c, traffic=heavy_traffic, bridge_scenario=BridgeScenarioNormal(),
+        start_time=start_index * time_step, time_step=time_step,
+        points=points, response_type=response_type, fem_runner=OSRunner(c))
+    heavy_responses_values = [[
+        r.responses[0][point.x][point.y][point.z]
+        for r in heavy_responses] for point in points]
+    # heavy_responses_values[0] = [r for r in heavy_responses_values[0] if r != 0]
+    # heavy_responses_values[1] = [r for r in heavy_responses_values[1] if r != 0]
+
+    print("first lane")
+    [print(v) for v in heavy_responses_values[0] if v != 0]
+    print("second lane")
+    [print(v) for v in heavy_responses_values[1] if v != 0]
+
+    plt.plot(heavy_responses_values[0])
+    plt.show()
+    plt.plot(heavy_responses_values[1])
+    plt.show()
+
+
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
@@ -398,5 +403,6 @@ def make_all_3d(c: Config):
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)
+    # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
     # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])

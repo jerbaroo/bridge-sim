@@ -29,18 +29,21 @@ class DCMatrix(ResponsesMatrix):
             time_index: int, time index of the simulation.
 
         """
-        # Response due to displacement at a pier
+        # Response due to displacement at a pier.
         dc_response = self.sim_response(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
             time_index=time_index, interp_response=interp_response)
+
         # Response due to load under normal bridge conditions.
         il_matrix = ILMatrix.load(
             c=self.c, response_type=self.response_type,
             fem_runner=self.fem_runner, save_all=self.save_all)
+
         il_response = il_matrix.response_to(
             x_frac=x_frac, load_x_frac=load_x_frac, load=load,
             interp_sim=interp_sim, interp_response=interp_response,
             y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+
         # Return summation of both responses.
         return dc_response + il_response
 
@@ -64,7 +67,7 @@ class DCMatrix(ResponsesMatrix):
         # Determine experiment simulation parameters.
         _expt_params = ExptParams([
             FEMParams(
-                loads=[],
+                ploads=[],
                 displacement_ctrl=DisplacementCtrl(displacement, i),
                 response_types=[response_type])
             for i in range(len(c.bridge.supports))])

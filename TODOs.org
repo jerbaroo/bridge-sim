@@ -1,4 +1,4 @@
-#+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a) LATE(l)
+#+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Todos
 ** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
@@ -160,7 +160,25 @@ CLOSED: [2019-10-22 Tue 11:40]
 CLOSED: [2019-10-22 Tue 11:40]
 *** DONE I want to go over Diana and Axis now
 CLOSED: [2019-10-22 Tue 11:40]
-** 28th October
+** Presentation
+*** TODO Talk about how a team can perform inspection after detection
+*** TODO Validation is super important to Valeria
+** 4rd November
+*** TODO Sleeping
+- Between 4-6 since Thursday morning
+- House agreed on sleeping hours 9 - 5
+- Started exercising, good for stress
+*** TODO Go over 2 months plan
+- At a high level
+  - Some classification work, earlier in the 2 months
+  - Lots of writing, writing-driven appoach
+  - Finish model inputs and collecting outputs
+    - inputs: pier displacement, temperature, soil creep, noise, light vehicles
+    - outputs: strain
+*** TODO Go over weeks plan
+*** TODO OpenSees temperature load
+- [[https://github.com/barischrooneyj/bridge-dss/issues/93]]
+- [[http://openseesforfire.github.io/Subpages/ThermalActionCmds.html]]
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -240,25 +258,64 @@ CLOSED: [2019-10-27 Sun 23:10]
 CLOSED: [2019-10-22 Tue 19:22]
 *** TODO Refinement of mesh                                       :fem_tcl:
 *** TODO Neat comments in TCL file                                :fem_tcl:
-*** TODO Verify node_prop is from the correct section          :fem_verify:
+*** DONE Verify node_prop is from the correct section          :fem_verify:
+CLOSED: [2019-11-01 Fri 10:11]
 Perhaps attach deck_section and/or pier_section
-*** TODO Verify section values by colour                       :fem_verify:
+*** DONE Verify section values by colour                       :fem_verify:
+CLOSED: [2019-11-01 Fri 10:11]
 - The pier sections look fine
 - The deck sections don't make sense
-*** TODO Choose verification points PS in Diana                :fem_verify:
-*** TODO Plots of PS from Diana                                :fem_verify:
-*** TODO Plots of PS from OpenSees                             :fem_verify:
+*** DONE Choose verification points PS in Diana                :fem_verify:
+CLOSED: [2019-11-01 Fri 10:11]
+*** DONE Plots of PS from Diana                                :fem_verify:
+CLOSED: [2019-11-01 Fri 10:11]
+*** DONE Plots of PS from OpenSees                             :fem_verify:
+CLOSED: [2019-11-01 Fri 10:11]
 *** TODO Plots of PS from Axis                                 :fem_verify:
 *** TODO Check influence line matrix against contour plot      :fem_verify:
 *** DONE Get events from traffic under 3D FEM                        :data:
 CLOSED: [2019-10-27 Sun 23:10]
 ** 28th October
-*** TODO Print papers
 *** DONE Choose verification points in Diana
 CLOSED: [2019-10-28 Mon 12:23]
-*** TODO Verify deck sections
-*** TODO Print correct section in cloud of Nodes plot
-*** TODO Plots of PS from Diana
-*** TODO Plots of PS from OpenSees
+*** DONE Verify deck sections
+CLOSED: [2019-11-01 Fri 10:12]
+*** DONE Print correct section in cloud of Nodes plot
+CLOSED: [2019-11-01 Fri 10:12]
+*** DONE Plots of PS from Diana
+CLOSED: [2019-11-01 Fri 10:12]
+*** DONE Plots of PS from OpenSees
+CLOSED: [2019-11-01 Fri 10:12]
 *** TODO Pier displacement control
 *** TODO Distribution of responses
+** 4rd November
+*** TODO Pier displacement
+*** TODO Run simulations in cloud
+- Contour plots of verification points
+- Influence lines
+*** TODO Research & writing
+- Motivation
+  - SHM
+  - DSS
+  - Types of bridges
+  - Amount of npnp concrete slab bridges
+  - Damage caused to bridges by heavy vehicles
+- Data collection
+  - Bridge model
+- Methods
+  - Setup experiments
+** 11th November
+*** TODO Fix plot of distribution of responses
+*** TODO Train classifier on normal traffic
+- Test against heavy traffic
+- Test against pier displacement
+*** TODO Research & writing
+** 18th November
+*** TODO Collect strain
+*** TODO Verification plot 1
+- Position and load intensity of truck wheels
+-
+** 25th November
+*** TODO Collect strain
+*** TODO Verification plot 2
+*** TODO
