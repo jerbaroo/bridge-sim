@@ -9,7 +9,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from classify.data.scenarios import BridgeScenarioNormal, heavy_traffic_1, normal_traffic
+from classify.data.scenarios import BridgeScenarioNormal, heavy_traffic_1,\
+    normal_traffic
 from classify.data.responses import responses_to_traffic
 from config import Config
 from fem.params import FEMParams
@@ -53,7 +54,42 @@ def make_bridge_plots(
         mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
         plot_bridge_deck_side(
             c.bridge, mv_vehicles=mv_vehicles_,
-            save=c.image_cks(
+            save=c.image_path(f"bridges/side-{mv_vehicles_str}"))
+        plot_bridge_deck_top(
+            c.bridge, mv_vehicles=mv_vehicles_,
+            save=c.image_path(f"bridges/top-{mv_vehicles_str}"))
+
+
+def make_il_plots(
+        c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
+        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None,
+        num_z_fracs: Optional[int] = None):
+    """Make plots of the influence lines.
+    Args:
+        c: Config, global configuration object.
+        num_subplot_ils: int, the number of influence lines on the subplots.
+        num_imshow_ils: int, the number of influence lines on the imshow plot.
+        num_loads: int, the number of loading positions on x-axis to plot.
+        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
+            default is OpenSees.
+    """
+    plt.close()
+    original_num_ils = c.il_num_loads
+    c.il_num_loads = num_loads
+    if fem_runner is None:
+        fem_runner = OSRunner(c)
+
+    pload_z_fracs = []
+    # If a 3D FEM of a bridge then generate IL plots for each wheel track.
+    if c.bridge.dimensions == Dimensions.D3:
+        # A moving vehicle for each bridge lane.
+        mv_vehicles = [
+            next(normal_traffic(c, 1, 1).mv_vehicles(
+                bridge=c.bridge, lane=lane))([], 0, 0)
+            for lane in range(len(c.bridge.lanes))]
+        # From the moving vehicles we can calculate wheel tracks on the bridge.
+        for mv_vehicle in mv_vehicles:
+            for wheel_z_frac in mv_vehicle.wheel_tracks(
                     bridge=c.bridge, meters=False):
                 pload_z_fracs.append(wheel_z_frac)
     print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
@@ -124,7 +160,7 @@ def make_dc_plots(
 
     """
     plt.close()
-    The number of
+    # The number of
     num_dcs = len(c.bridge.supports)
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_dcs
@@ -398,8 +434,8 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    # make_il_plots(c)
-    make_dc_plots(c)
+    make_il_plots(c)
+    # make_dc_plots(c)
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)

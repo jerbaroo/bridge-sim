@@ -527,25 +527,30 @@ cases, which was true in this case.
 # Section overview.
 This section describes the data collection system which has been created to
 model a bridge in software and to collect data from simulating the bridge's
-response under a damage scenario and traffic scenario. Following a very brief
-overview of the entire data collection system this section will describe the
-model of a bridge, models of bridge damage and traffic, the FE software used to
-simulate a bridge's response, additional details of how the data collection
-system operates, a description of the collected data, and finally an overview
-of the assumptions made in modeling.
+response under a damage scenario and traffic scenario. Following a brief
+overview of how the data collection system operates, this section describes a
+model of a bridge's geometry (=Bridge=), a model of damage scenarios
+(=BridgeScenario=) and traffic scenarios (=TrafficScenario=), the FE software
+used to simulate a bridge's response, additional details of how the data
+collection system operates, a description of the collected data, validation of
+the model, and finally an overview of the assumptions that were made in
+modeling.
 
 # Brief system overview.
-First a brief overview of the data collection system. For a given simulation
-scenario, a FEM of the bridge is built according to the bridge scenario. A
-number of simulations of the FEM are then run, each time a concentrated load is
-placed at a different point on the bridge deck. The point is chosen so that it
-is on a track where a vehicle's wheels will be when the vehicles are later
-"driven" along the bridge. Vehicles are then sampled from the given traffic
-scenario and driven along the bridge on a traffic lane, the vehicle's wheels
-moving on the previously mentioned tracks. Using the superposition property,
-responses collected from the simulations can be summed together, one for each
-vehicle's wheel, to determine a response at a point due to the vehicle being at
-a position on the bridge deck.
+First a brief overview of the data collection system. A simulation scenario is
+defined as a combination of =BridgeScenario= and =TrafficScenario=. For a given
+simulation scenario and =Bridge=, a FEM is built according to the =Bridge= and
+=BridgeScenario=. A number of simulations of the FEM are then run, each time a
+concentrated load is placed at a different point on the bridge deck. The point
+is chosen so that it is on a track where a vehicle's wheels will be when the
+vehicles are later "driven" along the bridge. Vehicles are then sampled
+according to the given =TrafficScenario= and driven along the bridge on a
+traffic lane, the vehicle's wheels moving on the previously mentioned tracks.
+Using the principle of superposition, responses collected from the previous
+simulations can be summed together, one for each vehicle's wheel, to calculate a
+response at a requested point, due to a vehicle or many vehicles on the bridge
+deck. This will all be explained more thoroughly in Subsection System Operation
+but it is useful to present a brief overview at the beginning of this section.
 *** Bridge Modeling
 \textcolor{green, META: How we model a static bridge}
 
@@ -715,11 +720,75 @@ inlcuding structural, geotechnical, tunnelling, earthquake and oil & gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
 *** System Operation
-Talk about:
-- 2D and 3D models
-- influence lines
-- avoiding unecessary simulations
+The goal of the data collection system is to translate a =Bridge=, along with a
+=TrafficScenario= and =BridgeScenario=, into a time series of responses.
 
+A =Bridge= is transformed into a FEM for OpenSees, the resulting FEM is a 2D or
+3D model depending on the dimensions of the =Bridge=. In each case the FEM takes
+the form of a =.tcl= file (written in the TCL language). A =.tcl= file consists
+of a sequence of OpenSees commands for declaring the geometry, material
+properties and other settings of the FE simulation. For example a =.tcl= file
+will consist of a number of =node= and =element= commands, where nodes are
+points in space with degrees of freedom and elements are a mathematical relation
+of how degrees of freedom relate between nodes. In the case of the FEMs built
+from a =Bridge=, four nodes are connected by a shell element. Shell elements are
+used when the thickness is significantly smaller than the other dimensions. In
+the case of bridge 705's deck the length is 102.75 meters, width is 33.2m, and
+thickness is varying from 0.5m to 0.739m.
+
+For each =BridgeScenario= for a =Bridge=, a number of simulations are run the
+first time that a response is requested to a point load or vehicle. For each
+wheel track a number of simulations are run. The number of simulations is
+specified by the system parameter =Config.il_num_loads=. In each of these
+simulations a load of unit intensity =I= is placed at a point on the wheel track
+and the responses from each point on the bridge are recorded. The responses are
+translation from each node and stress and strain from each element. Thus in
+summary, for each of the =Config.il_num_loads= points on one wheel track, the
+responses from the bridge are recorded. Each of these simulations we will call a
+unit load simulation, and the responses to such a simulation, unit load
+responses.
+
+When requesting the response of a sensor of type =T= at a point =P= to a vehicle
+on a bridge, the vehicle is first decomposed into loading positions =VP= and
+intensities =VI=, one position and one load intensity for each of the vehicle's
+wheels. Then for each position =VP_w= in =VP=, the unit load responses are
+loaded for the simulation where =VP_w= is closest to the load applied in one of
+the unit load simulations. From this unit load simulation, the response =RI= at
+the recorded point closest to point =P= is considered. Thus the response =RI= is
+the response of type =T= at one of the vehicle wheel's positions, except not to
+the vehicle's load but instead to a load of unit intensity, thus it must be
+multiplied by =VI_w / I=.
+
+The previous paragraph indicated how the unit load simulations are simulations
+that must only be run once, and then the principle of superposition can be used
+to determine the response to a vehicle, based on the responses recorded in the
+unit load simulations. Furthermore, the response to traffic (a number of
+vehicles) can be calculated by summing the response to each individual vehicle
+on the bridge.
+
+It should be clearly stated that there are only =Config.il_num_loads= number of
+unit load simulations per wheel track. And there are only a limited number of
+responses collected from each unit load simulation, as determined by the mesh
+density parameters. As previously stated, the unit load responses which are used
+to calculate a response at a point =P= to a vehicle, are the responses at the
+recorded point closest to =P=, and the unit load simulations used are those for
+which the unit load is closest to each of the vehicle's wheels. Thus the base
+mesh density parameters, and =Config.il_num_loads= determine the accuracy of the
+responses which are calculated.
+
+For each wheel track on the bridge, =Config.il_num_loads= amount of unit load
+simulations are generated. Then for any point on the bridge we can calculate the
+response at that point as the load is moved along one of the wheel's tracks. The
+function of the response at a point to a load is called an influence line,
+commonly used in structural engineering to describe a response function. The
+Figure below shows an influence line of displacement at ~x = 35, z = 25~ as a
+unit load is moved along the wheel track at ~z = -12.4=~. Furthermore we can
+stack all the influence lines for a number of points from ~x = 0, z = -12.4~ to
+~x = 102.75, z=-12.4~ on top of each other. This results in a matrix of the
+response of the bridge along a slice in the longitudinal direction of the deck,
+in this case for ~z = 12.4~, as seen in Figure.
+
+**** Accuracy
 A FEM of a bridge is a discretized representation of reality. The accuracy of
 the model depends on density of the mesh. A mesh that consists of smaller and
 thus more shell elements will provide a more accurate response.
@@ -727,7 +796,7 @@ thus more shell elements will provide a more accurate response.
 \textcolor{red, TODO: Convergence plot}
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
-across the bridge model, these time series of responses we call /events/. Events
+across the bridge mcodel, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
 *** Model Assumptions
 - All vehicles drive at the same speed.
