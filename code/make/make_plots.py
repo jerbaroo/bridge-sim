@@ -61,26 +61,25 @@ def make_bridge_plots(
 
 
 def make_il_plots(
-        c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_loads: int = 100, fem_runner: Optional[FEMRunner] = None,
+        c: Config, num_loads: int = 100, num_subplot_ils: int = 12,
+        fem_runner: Optional[FEMRunner] = None,
         num_z_fracs: Optional[int] = None):
     """Make plots of the influence lines.
+
     Args:
         c: Config, global configuration object.
+        num_loads: int, the number of loading positions or influence lines.
         num_subplot_ils: int, the number of influence lines on the subplots.
-        num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_loads: int, the number of loading positions on x-axis to plot.
         fem_runner: Optional[FEMRunner], FEM program to run simulations with,
             default is OpenSees.
     """
-    plt.close()
     original_num_ils = c.il_num_loads
     c.il_num_loads = num_loads
     if fem_runner is None:
         fem_runner = OSRunner(c)
 
     pload_z_fracs = []
-    # If a 3D FEM of a bridge then generate IL plots for each wheel track.
+    # If a 3D FEM then generate IL plots for each wheel track.
     if c.bridge.dimensions == Dimensions.D3:
         # A moving vehicle for each bridge lane.
         mv_vehicles = [
@@ -103,48 +102,24 @@ def make_il_plots(
             if c.bridge.dimensions == Dimensions.D3 and response_type in [
                     ResponseType.Stress, ResponseType.Strain]:
                 continue
-            for interp_sim in [False]:
-                for interp_response in [False]:
-                    interp_sim_str = "-interp-sim" if interp_sim else ""
-                    interp_response_str = (
-                        "-interp-response" if interp_response else "")
 
-                    # Make the influence line imshow matrix.
-                    il_matrix = ILMatrix.load(
-                        c=c, response_type=response_type, fem_runner=fem_runner,
-                        load_z_frac=pload_z_frac)
-                    imshow_il(
-                        c=c, il_matrix=il_matrix, num_ils=num_imshow_ils,
-                        num_x=num_loads, interp_sim=interp_sim,
-                        title_append=f" z = {c.bridge.z(pload_z_frac)}",
-                        interp_response=interp_response,
-                        save=c.get_image_path("ils", pstr(
-                            f"imshow-{il_matrix.fem_runner.name}"
-                            + f"-{response_type.name()}"
-                            + f"-loadzfrac={pload_z_frac}"
-                            + f"-{c.il_num_loads}-{num_loads}"
-                            + interp_sim_str + interp_response_str)))
+            il_matrix = ILMatrix.load(
+                c=c, response_type=response_type, fem_runner=fem_runner,
+                load_z_frac=pload_z_frac)
 
-                    # Make the matrix of influence lines.
+            filename = pstr(
+                f"{il_matrix.fem_runner.name}-{response_type.name()}"
+                + f"-loadz={c.bridge.z(pload_z_frac):.2f}-numloads-{num_loads}")
 
-                    # A plotting function with interpolation arguments filled in.
-                    def plot_func(
-                            c=None, resp_matrix=None, expt_index=None,
-                            response_frac=None, num_x=None):
-                        return plot_il(
-                            c=c, resp_matrix=resp_matrix, expt_index=expt_index,
-                            response_frac=response_frac, num_x=num_x,
-                            interp_sim=interp_sim, interp_response=interp_response)
+            imshow_il(
+                c=c, il_matrix=il_matrix, num_loads=num_loads,
+                num_sensors=num_loads,
+                save=c.get_image_path("ils", f"imshow-{filename}"))
 
-                    matrix_subplots(
-                        c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                        num_x=num_loads, plot_func=plot_func,
-                        save=c.get_image_path("ils", pstr(
-                            f"subplots-{il_matrix.fem_runner.name}"
-                            + f"-{response_type.name()}"
-                            + f"-loadzfrac={pload_z_frac}"
-                            + f"-numexpts-{il_matrix.num_expts}"
-                            + interp_sim_str + interp_response_str)))
+            matrix_subplots(
+                c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
+                num_x=num_loads, plot_func=plot_il,
+                save=c.get_image_path("ils", f"subplots-{filename}"))
     c.il_num_loads = original_num_ils
 
 
