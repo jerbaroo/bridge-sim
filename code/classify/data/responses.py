@@ -23,8 +23,7 @@ def responses_to_traffic(
         start_time: float, time_step: float, points: List[Point],
         response_type: ResponseType, fem_runner: FEMRunner,
         min_max: bool = False, per_axle: bool = False) -> List[Responses]:
-    """The 'Responses' to traffic at each simulation step.
-
+    """The 'Responses' to 'Traffic' at each simulation step.
 
     Args:
         c: Config, global configuration object.

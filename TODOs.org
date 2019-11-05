@@ -1,7 +1,8 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Todos
-** TODO [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
+** ABORT [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
+CLOSED: [2019-11-05 Tue 17:13]
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
 ** TODO [#A] Verification: plot of OpenSees/Diana/Measurements
 This will be along the track where the measurement campaign took place.
@@ -14,9 +15,11 @@ One plot for each wheel track
 ** TODO [#A] Fix max_shell_area for piers
 - Maybe create Point.helper_functions
 ** TODO [#A] Write about amount and value of bridges in Hungary
-** TODO [#A] Attach section reference to each node and plot in 3D
+** DONE [#A] Attach section reference to each node and plot in 3D
+CLOSED: [2019-11-05 Tue 17:12]
 ** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
-** TODO [#A] Restructure loads
+** DONE [#A] Restructure loads
+CLOSED: [2019-11-05 Tue 17:12]
 ** TODO [#A] Ensure not multiplying z_frac by c.bridge.width, use c.bridge.z
 ** TODO [#A] Rename Fix to Support2D
 ** TODO [#A] Collect stress and strain responses from 3D model

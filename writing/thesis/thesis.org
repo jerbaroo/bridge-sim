@@ -829,7 +829,7 @@ algorithm will seek an increment of 0.1 at node 1 in the second degree of
 freedom. Under the pier displacement damage scenario, it is important to specify
 a convergence test that will set the tolerance amount to check when the amount
 of displacement has converged, and a maximum amount of iterations until failure,
-which can be relatively small in a linear elastic simulation.
+which can be a small value in a linear elastic simulation.
 
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed

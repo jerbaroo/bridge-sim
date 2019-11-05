@@ -30,14 +30,12 @@ class ResponsesMatrix:
     def file_paths(self):
         """A unique file path for each simulation's responses."""
         return [fem_responses_path(
-                    self.c, fem_params, self.response_type,
-                    self.fem_runner.name)
+                self.c, fem_params, self.response_type, self.fem_runner.name)
             for fem_params in self.expt_params.fem_params]
 
     def sim_response(
-            self, expt_frac: float, x_frac: float, y_frac: float = 0,
-            z_frac: float = 0, time_index: int = 0, interp_sim: bool = False,
-            interp_response: bool = False) -> Response:
+            self, expt_frac: float, x_frac: float, z_frac: float, y_frac: float = 1,
+            time_index: int = 0) -> Response:
         """The response at a position for a simulation.
 
         Args:
@@ -46,21 +44,18 @@ class ResponsesMatrix:
             y_frac: float, response position on y-axis in [0 1].
             z_frac: float, response position on z-axis in [0 1].
             time_index: float, response position on z-axis in [0 1].
-            interp_sim: bool, whether to interpolate response from two
-                simulations.
-            interp_response: bool, whether to interpolate the response from the
-                8 closest points of a cuboid.
 
         """
         assert 0 <= expt_frac <= 1
         assert 0 <= x_frac <= 1
 
         # If an experiment index matches exactly, or not interpolating.
+        # if expt_ind == int(expt_ind) or not interp_sim:
+
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        if expt_ind == int(expt_ind) or not interp_sim:
-            return self.expt_responses[int(expt_ind)].at(
-                x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-                time_index=time_index, interpolate=interp_response)
+        return self.expt_responses[int(expt_ind)].at(
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
+            time_index=time_index)
 
         assert interp_sim
         # Else interpolate responses between two experiment indices.

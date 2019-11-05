@@ -13,12 +13,12 @@ D: bool = False
 
 def plot_il(
         c: Config, resp_matrix: ILMatrix, expt_index: int,
-        response_frac: float, num_x: int, save: str = None):
+        response_frac: float, z_frac: float, num_x: int, save: str = None):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
     rs = [
         resp_matrix.response_to(
-            x_frac=response_frac, load_x_frac=load_x_frac,
+            x_frac=response_frac, z_frac=z_frac, load_x_frac=load_x_frac,
             load=c.il_unit_load_kn)
         for load_x_frac in x_fracs]
     xs = [c.bridge.x(x_frac=x_frac) for x_frac in x_fracs]
@@ -82,7 +82,7 @@ def plot_dc(
 
 def matrix_subplots(
         c: Config, resp_matrix: ResponsesMatrix, num_subplots: int, num_x: int,
-        rows: int = 4, save: str = None, plot_func = None):
+        z_frac: float, rows: int = 4, save: str = None, plot_func = None):
     """For each subplot plot matrix responses using the given function."""
     cols = int(num_subplots / rows)
     if cols != num_subplots / rows:
@@ -96,7 +96,8 @@ def matrix_subplots(
     for i, response_frac in enumerate(np.linspace(0, 1, rows * cols)):
         plt.subplot(rows, cols, i + 1)
         plot_bridge_deck_side(c.bridge, show=False, equal_axis=False)
-        rs = plot_func(c, resp_matrix, i, response_frac, num_x=num_x)
+        rs = plot_func(
+            c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x)
         plt.axvline(x=c.bridge.x(x_frac=response_frac), color="red")
         # Keep track of min and max on y axis (only when non-zero responses).
         if any(rs):
@@ -133,8 +134,8 @@ def imshow_il(
         matrix.append([])
         for sensor_frac in sensor_fracs:
             value = il_matrix.response_to(
-                x_frac=sensor_frac, load_x_frac=load_frac,
-                load=c.il_unit_load_kn)
+                x_frac=sensor_frac, z_frac=il_matrix.load_z_frac,
+                load_x_frac=load_frac, load=c.il_unit_load_kn)
             # print_d(D, f"value = {value}, il_frac = {il_frac}, load_x_frac = {load_x_frac}")
             matrix[-1].append(value)
 

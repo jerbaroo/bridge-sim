@@ -26,6 +26,7 @@ from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 from plot.vehicles import plot_density, plot_length_vs_axles,\
     plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Dimensions, Point
+from model.bridge.util import wheel_tracks
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from util import print_d, print_i, pstr
@@ -62,8 +63,7 @@ def make_bridge_plots(
 
 def make_il_plots(
         c: Config, num_loads: int = 100, num_subplot_ils: int = 12,
-        fem_runner: Optional[FEMRunner] = None,
-        num_z_fracs: Optional[int] = None):
+        fem_runner: Optional[FEMRunner] = None):
     """Make plots of the influence lines.
 
     Args:
@@ -72,32 +72,23 @@ def make_il_plots(
         num_subplot_ils: int, the number of influence lines on the subplots.
         fem_runner: Optional[FEMRunner], FEM program to run simulations with,
             default is OpenSees.
+
     """
-    original_num_ils = c.il_num_loads
+    original_il_num_loads = c.il_num_loads
     c.il_num_loads = num_loads
     if fem_runner is None:
         fem_runner = OSRunner(c)
 
-    pload_z_fracs = []
+    pload_z_fracs = [None]  # A single wheel track value ignored for 2D.
+
     # If a 3D FEM then generate IL plots for each wheel track.
     if c.bridge.dimensions == Dimensions.D3:
-        # A moving vehicle for each bridge lane.
-        mv_vehicles = [
-            next(normal_traffic(c, 1, 1).mv_vehicles(
-                bridge=c.bridge, lane=lane))([], 0, 0)
-            for lane in range(len(c.bridge.lanes))]
-        # From the moving vehicles we can calculate wheel tracks on the bridge.
-        for mv_vehicle in mv_vehicles:
-            for wheel_z_frac in mv_vehicle.wheel_tracks(
-                    bridge=c.bridge, meters=False):
-                pload_z_fracs.append(wheel_z_frac)
+        pload_z_fracs = wheel_tracks(c)
     print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
-
-    if num_z_fracs is not None:
-        pload_z_fracs = pload_z_frac[:num_z_fracs]
 
     for pload_z_frac in pload_z_fracs:
         for response_type in fem_runner.supported_response_types(c.bridge):
+
             # TODO: Remove once Stress and Strain are fixed.
             if c.bridge.dimensions == Dimensions.D3 and response_type in [
                     ResponseType.Stress, ResponseType.Strain]:
@@ -119,63 +110,63 @@ def make_il_plots(
             matrix_subplots(
                 c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
                 num_x=num_loads, plot_func=plot_il,
-                save=c.get_image_path("ils", f"subplots-{filename}"))
-    c.il_num_loads = original_num_ils
+                z_frac=il_matrix.load_z_frac, save=c.get_image_path(
+                    "ils", f"subplots-{filename}"))
+    c.il_num_loads = original_il_num_loads
 
 
 def make_dc_plots(
-        c: Config, num_subplot_ils: int = 10, num_imshow_ils: int = 100,
-        num_ploads: int = 100):
+        c: Config, num_loads: int = 100, num_subplot_ils: int = 12):
     """Make plots of the displacement control responses.
 
     Args:
+        c: Config, global configuration object.
+        num_loads: int, the number of loading positions or influence lines.
         num_subplot_ils: int, the number of influence lines on the subplots.
-        num_imshow_ils: int, the number of influence lines on the imshow plot.
-        num_ploads: int, the number of loading positions on x-axis to plot.
+        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
+            default is OpenSees.
 
     """
-    plt.close()
-    # The number of
-    num_dcs = len(c.bridge.supports)
-    original_num_ils = c.il_num_loads
-    c.il_num_loads = num_dcs
-    for response_type in ResponseType:
-        for interp_sim in [False]:
-            for interp_response in [False]:
-                interp_sim_str = "-interp-sim" if interp_sim else ""
-                interp_response_str = (
-                    "-interp-response" if interp_response else "")
+    num_piers = len(c.bridge.supports)
 
-                # Make the influence line imshow matrix.
-                dc_matrix = DCMatrix.load(
-                    c=c, response_type=response_type, fem_runner=OSRunner(c))
-                imshow_il(
-                    c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
-                    interp_sim=interp_sim, interp_response=interp_response,
-                    save=c.get_image_path("dcs",
-                        f"imshow-{dc_matrix.fem_runner.name}"
-                        + f"-{response_type.name()}"
-                        + f"-{num_dcs}-{num_x}" + interp_sim_str
-                        + interp_response_str))
+    if fem_runner is None:
+        fem_runner = OSRunner(c)
 
-                # Make the matrix of influence lines.
+    pload_z_fracs = [None]  # A single wheel track value ignored for 2D.
 
-                # A plotting function with interpolation arguments filled in.
-                def plot_func(
-                        c=None, resp_matrix=None, expt_index=None,
-                        response_frac=None, num_x=None):
-                    return plot_dc(
-                        c=c, resp_matrix=resp_matrix, expt_index=expt_index,
-                        response_frac=response_frac, num_x=num_x,
-                        interp_sim=interp_sim, interp_response=interp_response)
+    # If a 3D FEM then generate DC plots for each wheel track.
+    if c.bridge.dimensions == Dimensions.D3:
+        pload_z_fracs = wheel_tracks(c)
+    print_d(D, "make_dc_plots: pload_z_fracs = {pload_z_fracs}")
 
-                matrix_subplots(
-                    c=c, resp_matrix=dc_matrix, num_x=num_x,
-                    plot_func=plot_func, save=c.get_image_path("dcs",
-                        f"subplots-{dc_matrix.fem_runner.name}"
-                        + f"-{response_type.name()}"
-                        + f"-numexpts-{dc_matrix.num_expts}"
-                        + interp_sim_str + interp_response_str))
+    for pload_z_frac in pload_z_fracs:
+        for response_type in fem_runner.supported_response_types(c.bridge):
+
+        # Make the influence line imshow matrix.
+        dc_matrix = DCMatrix.load(
+            c=c, response_type=response_type, fem_runner=OSRunner(c))
+
+        filename = (
+            f"subplots-{dc_matrix.fem_runner.name}"
+            + f"-{response_type.name()}"
+            + f"-numexpts-{dc_matrix.num_expts}")
+
+        imshow_il(
+            c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
+            save=c.get_image_path("dcs",
+                f"imshow-{dc_matrix.fem_runner.name}"
+                + f"-{response_type.name()}"
+                + f"-{num_dcs}-{num_x}" + interp_sim_str
+                + interp_response_str))
+
+        matrix_subplots(
+            c=c, resp_matrix=dc_matrix, num_x=num_x,
+            plot_func=plot_dc,
+            save=c.get_image_path("dcs",
+                f"subplots-{dc_matrix.fem_runner.name}"
+                + f"-{response_type.name()}"
+                + f"-numexpts-{dc_matrix.num_expts}"
+                + interp_sim_str + interp_response_str))
     c.il_num_loads = original_num_ils
 
 
@@ -391,6 +382,7 @@ def make_distribution_plots(c: Config):
     heavy_responses_values = [[
         r.responses[0][point.x][point.y][point.z]
         for r in heavy_responses] for point in points]
+
     # heavy_responses_values[0] = [r for r in heavy_responses_values[0] if r != 0]
     # heavy_responses_values[1] = [r for r in heavy_responses_values[1] if r != 0]
 
