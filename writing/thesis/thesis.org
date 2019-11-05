@@ -528,13 +528,12 @@ cases, which was true in this case.
 This section describes the data collection system which has been created to
 model a bridge in software and to collect data from simulating the bridge's
 response under a damage scenario and traffic scenario. Following a brief
-overview of how the data collection system operates, this section describes a
-model of a bridge's geometry (=Bridge=), a model of damage scenarios
-(=BridgeScenario=) and traffic scenarios (=TrafficScenario=), the FE software
-used to simulate a bridge's response, additional details of how the data
-collection system operates, a description of the collected data, validation of
-the model, and finally an overview of the assumptions that were made in
-modeling.
+overview of how the data collection system operates, this section describes in
+detail the model of a bridge's geometry (a =Bridge=), of a damage scenario (a
+=BridgeScenario=) and a traffic scenario (a =TrafficScenario=), the FE software
+used to simulate a bridge's response, how the data collection system operates
+form input to output, a description of the collected data, validation of the
+model, and finally an overview of the assumptions that were made in modeling.
 
 # Brief system overview.
 First a brief overview of the data collection system. A simulation scenario is
@@ -779,6 +778,8 @@ vehicle's wheels position on the bridge. Thus the parameters which define the
 mesh density, and =Config.il_num_loads=, determine the discretization step and
 thus the accuracy of the responses which are calculated.
 
+# \textcolor{red, TODO: Convergence plot}
+
 For each wheel track on the bridge, =Config.il_num_loads= amount of unit load
 simulations are generated. Then for any point on the bridge, the response at
 that point can be calculated to a load on one of the wheel tracks. The function
@@ -796,20 +797,40 @@ Furthermore we can stack the influence lines for a number of points against each
 other, flipping each influence line by $90 \degree$ so it is vertical. For
 example, we can consider a number of equidistant points along a slice in the
 longitudinal direction of a bridge, and for each of these points consider the
-response to a load moving along the same slice. Figure shows such a matrix for
-~z = -9.4~, each column of the matrix is an influence line, each row shows the
-response along the bridge deck for ~z = -9.4~ for a different loading position.
+response to a load moving along the same slice. Figure [[fig:il-matrix]] shows such
+a matrix for ~z = -9.4m~. Each column of the matrix is an influence line, each
+row shows the response along the bridge deck for ~z = -9.4m~ for a different
+loading position.
 
-#+CAPTION: A number of influence lines stacked vertically. Each influence line shows displacement for a different point on the wheel track at ~z = -9.4~, each column of the matrix is an influence line, each row shows the response along the bridge deck for ~z = -9.4~ for a different loading position.
+#+CAPTION: A number of vertical influence lines stacked together. Each influence line (column) shows displacement at a different point on the wheel track at ~z = -9.4m~. Each column of the matrix is an influence line. Each row shows the response along the bridge deck for ~z = -9.4m~ for a different loading position. This image shows how, closer to the center of the bridge, the bridge does not suffer as much displacement.
 #+NAME: fig:il-matrix
 [[./images/il-matrix-y-z-94.png]]
 
-**** Accuracy
-A FEM of a bridge is a discretized representation of reality. The accuracy of
-the model depends on density of the mesh. A mesh that consists of smaller and
-thus more shell elements will provide a more accurate response.
+Another of the damage scenarios is pier displacement. To calculate responses to
+a load under this damage scenario, all of the unit load simulations need to be
+run again for this damage scenario. The name of the pier displacement damage
+scenario in the data collection sytem is =PierDisplacement=. =PierDisplacement=
+specifies a displacement in meters for one or more of a bridge's piers, each
+pier can be displaced by a different amount.
 
-# \textcolor{red, TODO: Convergence plot}
+When creating a FEM of a =Bridge= under pier displacement for OpenSees, each of
+the bottom nodes of the piers under displacement are not fixed in y direction
+(to allow for the displacement of the piers to occur). An important step when
+creating a FEM under this damage scenario for OpenSees is to set the method of
+integration with the =integrator= command. Under a healthy damage scenario the
+integrator used is =LoadControl=, which specifies that, among other things, the
+predictive time step of the simulation is driven by the loads applied. In the
+case of pier displacement the =DisplacementControl= integrator is used instead,
+this is used to specify that in an analysis step, the displacement control
+algorithm will seek the time step that will result in a specified increment for
+a particular degree of freedom of a specified node. For example the command
+=integrator DisplacementControl 1 2 0.1= specifies that the displacement control
+algorithm will seek an increment of 0.1 at node 1 in the second degree of
+freedom. Under the pier displacement damage scenario, it is important to specify
+a convergence test that will set the tolerance amount to check when the amount
+of displacement has converged, and a maximum amount of iterations until failure,
+which can be relatively small in a linear elastic simulation.
+
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge mcodel, these time series of responses we call /events/. Events
