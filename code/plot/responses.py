@@ -22,8 +22,8 @@ def plot_contour_deck(
         norm = None, save: Optional[str] = None):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
-    amax = np.inf
-    amax_x, amax_z = None, None
+    amax, amax_x, amax_z = -np.inf, None, None
+    amin, amin_x, amin_z = np.inf, None, None
     X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
     for x in responses.xs:
         # There is a chance that no sensors exist at given y position for every
@@ -38,18 +38,20 @@ def plot_contour_deck(
                 H[-1].append(responses.responses[0][x][y][z])
                 if isinstance(H[-1][-1], Response):
                     H[-1][-1] = H[-1][-1].value
-                if H[-1][-1] < amax:
+                if H[-1][-1] > amax:
                     amax = H[-1][-1]
                     amax_x, amax_z = X[-1][-1], Z[-1][-1]
-    amin = np.amax(np.array(H))
+                if H[-1][-1] < amin:
+                    amin = H[-1][-1]
+                    amin_x, amin_z = X[-1][-1], Z[-1][-1]
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
     # Plot contour and colorbar.
     cmap = cm.get_cmap("bwr")
     if norm is None:
-        vmin = min(amax, -amin)
-        vmax = max(amin, -amax)
+        vmin = min(amin, -amax)
+        vmax = max(amax, -amin)
         print(amin, amax)
         print(vmin, vmax)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
@@ -70,7 +72,8 @@ def plot_contour_deck(
     plt.title(
         f"{responses.response_type.name()}"
         + f" ({responses.response_type.units(False)})"
-        + f", min = {(amax - amin):.10f} at ({amax_x}, {amax_z})")
+        + f", min = {amin:.4f} at ({amin_x:.3f}, {amin_z:.3f})"
+        + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})")
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
     if save:

@@ -3,6 +3,7 @@ import itertools
 from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
+from scipy.spatial import distance
 
 from config import Config
 from model.bridge import Section3D, Section3DPier, Support3D
@@ -47,6 +48,11 @@ class Node:
         comment = "" if self.comment is None else f"; # {self.comment}"
         return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
                 + f" {round_m(self.z)}{comment}")
+
+    def distance(self, x: float, y: float, z: float):
+        """Distance form this node to the given coordinates."""
+        return distance.euclidean((self.x, self.y, self.z), (x, y, z))
+
 
 # The nodes that make up a bridge deck. Represented as a matrix of Node ordered
 # by z then x position. Only used in 3D modeling.

@@ -2,10 +2,9 @@
 from itertools import chain
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
-from typing import List, NewType, Optional, Tuple, Union
+from typing import Dict, List, NewType, Optional, Tuple, Union
 
 import numpy as np
-from scipy.spatial import distance
 
 from config import Config
 from fem.params import ExptParams, FEMParams
@@ -13,7 +12,7 @@ from fem.run.opensees.common import AllPierElements, AllSupportNodes,\
     DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements,\
     bridge_3d_nodes
 from model.bridge import Bridge, Section3D, Support3D
-from model.load import PointLoad
+from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from util import round_m, print_d, print_i, print_w
 
@@ -416,13 +415,11 @@ def get_load_deck_positions(
 
 
 # The x and y deck positions after each stage of building.
-DeckStagesInfo = NewType(
-    "DeckStagesInfo", Tuple[DeckPositions, DeckPositions, DeckPositions])
+DeckStagesInfo = NewType("DeckStagesInfo", Dict[str, DeckPositions])
 
 
 def get_deck_positions(
-        c: Config, fem_params: FEMParams, simple_mesh: bool
-        ) -> DeckPositions:
+        c: Config, fem_params: FEMParams, simple_mesh: bool) -> DeckPositions:
     """The x and z positions of deck nodes.
 
     NOTE: This function will attach 'DeckStagesInfo' to the given 'FEMParams'
@@ -434,22 +431,25 @@ def get_deck_positions(
     """
     # First collect positions from the base mesh.
     x_positions, z_positions = get_base_mesh_deck_positions(c.bridge)
-    x_positions, z_positions = set(x_positions), set(z_positions)
+    x_positions = set(map(round_m, x_positions))
+    z_positions = set(map(round_m, z_positions))
 
-    # Start creating the 'DeckStagesInfo'.
-    deck_stages_info = [(deepcopy(x_positions), deepcopy(z_positions))]
+    # Start creating the 'DeckStagesInfo', it is attached to the 'FEMParams'.
+    deck_stages_info = OrderedDict([
+        ("base", (deepcopy(x_positions), deepcopy(z_positions)))])
+    fem_params.deck_stages_info = deck_stages_info
 
     # If requested, collect positions from piers.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
     assert_sorted(x_positions_piers); assert_sorted(z_positions_piers)
     if not simple_mesh:
         for x_pos in x_positions_piers:
-            x_positions.add(x_pos)
+            x_positions.add(round_m(x_pos))
         for z_pos in z_positions_piers:
-            z_positions.add(z_pos)
+            z_positions.add(round_m(z_pos))
 
     # Update the 'DeckStagesInfo' with pier information.
-    deck_stages_info.append((deepcopy(x_positions), deepcopy(z_positions)))
+    deck_stages_info["piers"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     # Collect loading positions.
     x_positions_loads, z_positions_loads = get_load_deck_positions(
@@ -460,14 +460,13 @@ def get_deck_positions(
     if not simple_mesh:
         for x_pos in x_positions_loads:
             print_d(D, f"load x pos already in x positions {x_pos in x_positions}")
-            x_positions.add(x_pos)
+            x_positions.add(round_m(x_pos))
         for z_pos in z_positions_loads:
             print_d(D, f"load z pos already in x positions {z_pos in z_positions}")
-            z_positions.add(z_pos)
+            z_positions.add(round_m(z_pos))
 
-    # Update the 'DeckStagesInfo' with pier information and add to FEMParams.
-    deck_stages_info.append((deepcopy(x_positions), deepcopy(z_positions)))
-    fem_params.deck_stages_info = deck_stages_info
+    # Update the 'DeckStagesInfo' with pier information.
+    deck_stages_info["loads"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     return sorted(x_positions), sorted(z_positions)
 
@@ -476,7 +475,10 @@ def print_mesh_info(
         bridge: Bridge, fem_params: FEMParams, all_pier_nodes: AllSupportNodes):
     """Print information about the mesh after each stage of building."""
     to_lens = lambda x: np.array(list(map(len, x)))
-    base, piers, loads = map(to_lens, fem_params.deck_stages_info)
+    base = to_lens(fem_params.deck_stages_info["base"])
+    piers = to_lens(fem_params.deck_stages_info["piers"])
+    loads = to_lens(fem_params.deck_stages_info["loads"])
+
     loads -= piers
     piers -= base
     print_i(
@@ -484,6 +486,7 @@ def print_mesh_info(
         + f"\n\tbase mesh  = {base[0]} * {base[1]}"
         + f"\n\tfrom piers = {piers[0]} * {piers[1]}"
         + f"\n\tfrom loads = {loads[0]} * {loads[1]}")
+
     num_pier_nodes_z, num_pier_nodes_y = [], []
     for pier_nodes in all_pier_nodes:
         for wall_nodes in pier_nodes:
@@ -569,8 +572,11 @@ class FixNode:
         comment_: Optional[str], an optional comment for the command.
 
     """
-    def __init__(self, node: Node, comment: Optional[str] = None):
+    def __init__(
+            self, node: Node, free_y: bool = False,
+            comment: Optional[str] = None):
         self.node = node
+        self.free_y = free_y
         self.comment = comment
 
     def command_3d(self):
@@ -582,10 +588,13 @@ class FixNode:
         else:
             # print(f"******************")
             # print(f"Fixed support node")
+            y_trans_fix = self.node.support.fix_y_translation
+            if self.free_y:
+                y_trans_fix = False
             return (
                 f"fix {self.node.n_id}"
                 + f" {int(self.node.support.fix_x_translation)}"
-                + f" {int(self.node.support.fix_y_translation)}"
+                + f" {int(y_trans_fix)}"
                 + f" {int(self.node.support.fix_z_translation)}"
                 + f" {int(self.node.support.fix_x_rotation)}"
                 + f" {int(self.node.support.fix_y_rotation)}"
@@ -606,17 +615,31 @@ def opensees_fixed_deck_nodes(c: Config, deck_nodes: DeckNodes) -> str:
         units="fix nodeTag x y z rx ry rz")
 
 
-def opensees_fixed_support_nodes(
-        c: Config, all_support_nodes: AllSupportNodes) -> str:
+def opensees_fixed_pier_nodes(
+        c: Config, all_support_nodes: AllSupportNodes,
+        pier_disp: Optional[DisplacementCtrl] = None) -> str:
     """OpenSees fix commands for fixed support nodes."""
     fixed_nodes: List[FixNode] = []
-    # For each support.
-    for s, s_nodes in enumerate(all_support_nodes):
+    # Iterate through each pier. Note that p_nodes is a tuple of nodes for each
+    # pier wall. And each wall is a 2-d array of nodes.
+    for p, p_nodes in enumerate(all_support_nodes):
+        # If pier displacement for this pier then select the bottom central node
+        # for the integrator command, and attach it to the pier.
+        free_y = False
+        if (pier_disp is not None) and (p == pier_disp.pier):
+            free_y = True
+            pier = c.bridge.supports[pier_disp.pier]
+            pier.disp_node = p_nodes[0][len(p_nodes[0]) // 2][-1]
+            if len(p_nodes[0]) % 2 == 0:
+                raise ValueError(
+                    "Pier displacement requires odd number of nodes along pier"
+                    " in the transverse direction")
         # For each ~vertical line of nodes for a z position at top of wall.
-        for z, z_nodes in enumerate(s_nodes[0]):  
+        for y, y_nodes in enumerate(p_nodes[0]):
             # We will fix the bottom node.
             fixed_nodes.append(FixNode(
-                node=z_nodes[-1], comment=f"support {s+1} z {z+1}"))
+                node=y_nodes[-1], free_y=free_y,
+                comment=f"support {p+1} y {y+1}"))
     return comment(
         "fixed support nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
@@ -680,8 +703,9 @@ def section_for_deck_element(
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)
         for section in c.bridge.sections:
-            foo = c.bridge.deck_sections_dict[round_m(c.bridge.x(section.start_x_frac))]
-            foo[round_m(c.bridge.z(section.start_z_frac))] = section
+            c.bridge.deck_sections_dict[
+                round_m(c.bridge.x(section.start_x_frac))][
+                    round_m(c.bridge.z(section.start_z_frac))] = section
 
     # print(sorted(c.bridge.deck_sections_dict.keys()))
     # print(sorted(c.bridge.deck_sections_dict[0.0].keys()))
@@ -722,10 +746,8 @@ def section_for_pier_element(
     # Find the last section of a pier where the fraction of the pier wall's
     # length is less than element_start_frac_len.
     section = None
-    print(f"element_start_frac_len = {element_start_frac_len}")
     for next_section in sorted(pier.sections, key=lambda s: s.start_frac_len):
         if next_section.start_frac_len <= element_start_frac_len:
-            print(f"next start_frac_len = {next_section.start_frac_len}, {next_section.thickness}")
             section = next_section
         else:
             break
@@ -839,31 +861,51 @@ def opensees_pier_elements(c: Config, all_pier_elements: AllPierElements) -> str
 
 
 def opensees_load(
-        c: Config, pload: PointLoad, deck_nodes: DeckNodes, simple_mesh: bool):
+        c: Config, pload: PointLoad, deck_nodes: DeckNodes, simple_mesh: bool,
+        pier_disp: Optional[DisplacementCtrl] = None):
     """An OpenSees load command."""
     pload_z = c.bridge.z(z_frac=pload.z_frac)
     pload_x = c.bridge.x(x_frac=pload.x_frac)
+    assert deck_nodes[0][0].y == 0
+    assert deck_nodes[-1][-1].y == 0
     best_node = sorted(
         chain.from_iterable(deck_nodes),
-        key=lambda n: distance.euclidean((n.x, n.z), (pload_x, pload_z)))[0]
+        key=lambda node: node.distance(x=pload_x, y=0, z=pload_z))[0]
+
+    if pier_disp is not None:
+        pier = c.bridge.supports[pier_disp.pier]
+        print_w(
+            f"Distance of pier (under displacement) center to deck node"
+            + f" {best_node.distance(x=pier.x, y=0, z=pier.z):.4f}m")
+
+    assert np.isclose(best_node.y, 0)
     # If we have a proper mesh then this should be the exact node.
     if not simple_mesh:
         assert np.isclose(best_node.x, pload_x)
         assert np.isclose(best_node.z, pload_z)
+
     return f"load {best_node.n_id} 0 {pload.kn * 1000} 0 0 0 0"
 
 
 def opensees_loads(
         c: Config, ploads: List[PointLoad], deck_nodes: DeckNodes,
-        simple_mesh: bool):
+        simple_mesh: bool, pier_disp: Optional[DisplacementCtrl]):
     """OpenSees load commands for a .tcl file."""
-    return comment(
-        "loads",
-        "\n".join(
+    # In case of pier displacement apply load at the pier's central bottom node,
+    # the load intensity doesn't matter though, only the position matters.
+    if pier_disp is not None:
+        node = c.bridge.supports[pier_disp.pier].disp_node
+        load_str = f"load {node.n_id} 0 {c.pd_unit_load_kn * 1000} 0 0 0 0"
+    # Otherwise find the deck nodes which best suit given point loads.
+    else:
+        load_str = "\n".join(
             opensees_load(
                 c=c, pload=pload, deck_nodes=deck_nodes,
-                simple_mesh=simple_mesh)
-            for pload in ploads),
+                simple_mesh=simple_mesh, pier_disp=pier_disp)
+            for pload in ploads)
+
+    return comment(
+        "loads", load_str,
         units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
 
 
@@ -930,6 +972,29 @@ def opensees_recorders(
             c=c, fem_params=fem_params, os_runner=os_runner)])
 
 
+def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
+    """The integrator command to use based on FEMParams."""
+    if pier_disp is None:
+        return "integrator LoadControl 1"
+    node = c.bridge.supports[pier_disp.pier].disp_node
+    return (f"integrator DisplacementControl {node.n_id} 2"
+        + f" {pier_disp.displacement}")
+
+
+def opensees_algorithm(pier_disp: Optional[DisplacementCtrl]):
+    """The algorithm command to use based on FEMParams."""
+    if pier_disp is None:
+        return "algorithm Linear"
+    return "algorithm Newton"
+
+
+def opensees_test(pier_disp: Optional[DisplacementCtrl]):
+    """The test command to use based on FEMParams."""
+    if pier_disp is None:
+        return ""
+    return "test NormDispIncr 1.0e-12 1000"
+
+
 ##### End recorders #####
 
 
@@ -982,7 +1047,7 @@ def build_model_3d(
 
         # Displacement control is not supported yet in 3D.
         if fem_params.displacement_ctrl is not None:
-            raise ValueError("OpenSees: Displacement not supported in 3D")
+            print("OpenSees: Displacement not supported in 3D")
 
         # Calculate nodes for the bridge deck and piers.
         deck_positions = get_deck_positions(
@@ -1023,13 +1088,14 @@ def build_model_3d(
             .replace("<<SUPPORT_NODES>>", opensees_support_nodes(
                 c=c, deck_nodes=deck_nodes,
                 all_support_nodes=all_support_nodes, simple_mesh=simple_mesh))
-            .replace("<<LOAD>>", opensees_loads(
-                c=c, ploads=fem_params.ploads, deck_nodes=deck_nodes,
-                simple_mesh=simple_mesh))
             .replace("<<FIX_DECK>>", opensees_fixed_deck_nodes(
                 c=c, deck_nodes=deck_nodes))
-            .replace("<<FIX_SUPPORTS>>", opensees_fixed_support_nodes(
-                c=c, all_support_nodes=all_support_nodes))
+            .replace("<<FIX_SUPPORTS>>", opensees_fixed_pier_nodes(
+                c=c, all_support_nodes=all_support_nodes,
+                pier_disp=fem_params.displacement_ctrl))
+            .replace("<<LOAD>>", opensees_loads(
+                c=c, ploads=fem_params.ploads, deck_nodes=deck_nodes,
+                simple_mesh=simple_mesh, pier_disp=fem_params.displacement_ctrl))
             .replace("<<SUPPORTS>>", "")
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
             .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
@@ -1038,7 +1104,12 @@ def build_model_3d(
             .replace("<<DECK_ELEMENTS>>", opensees_deck_elements(
                 c=c, deck_elements=fem_params.deck_elements))
             .replace("<<PIER_ELEMENTS>>", opensees_pier_elements(
-                c=c, all_pier_elements=fem_params.all_pier_elements)))
+                c=c, all_pier_elements=fem_params.all_pier_elements))
+            .replace("<<INTEGRATOR>>", opensees_integrator(
+                c=c, pier_disp=fem_params.displacement_ctrl))
+            .replace("<<ALGORITHM>>", opensees_algorithm(
+                fem_params.displacement_ctrl))
+            .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl)))
 
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")

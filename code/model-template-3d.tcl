@@ -31,8 +31,9 @@ pattern Plain 1 1 {
 system BandGeneral
 numberer RCM
 constraints Transformation
-integrator LoadControl 1
-algorithm Linear
+<<INTEGRATOR>>
+<<ALGORITHM>>
+<<TEST>>
 analysis Static
 
 <<RECORDERS>>
