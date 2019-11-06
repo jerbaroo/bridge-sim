@@ -22,8 +22,8 @@ def responses_to_traffic(
         c: Config, traffic: "Traffic", bridge_scenario: BridgeScenario,
         start_time: float, time_step: float, points: List[Point],
         response_type: ResponseType, fem_runner: FEMRunner,
-        min_max: bool = False, per_axle: bool = False) -> List[Tuple[float, Point]]:
-    """The responses to traffic at each simulation step.
+        min_max: bool = False, per_axle: bool = False) -> List[Responses]:
+    """The 'Responses' to 'Traffic' at each simulation step.
 
     Args:
         c: Config, global configuration object.
@@ -63,7 +63,7 @@ def responses_to_traffic(
         # For each vehicle on the bridge at this time step.
         for mv_vehicle in traffic[t]:
 
-            assert mv_vehicle.on_bridge(time=time, bridge=c.bridge)
+            # assert mv_vehicle.on_bridge(time=time, bridge=c.bridge)
             # We get the x and z positions of this vehicle. There is one x
             # position for each axle, and two z positions per vehicle.
             mv_vehicle_x_fracs = [

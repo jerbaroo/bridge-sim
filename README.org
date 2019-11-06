@@ -10,23 +10,33 @@ PDFs and source files are in [[writing]], rendered thesis PDF [[./writing/thesis
 
 ** Quickstart
 
-Have pipenv on your system, you can install it with =pip install pipenv=.
+Ensure that [[https://pipenv.kennethreitz.org/en/latest/][pipenv]] and Python 3.7 are installed on your system. Instructions for
+installing pipenv can be found [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][here]].
 
-Have Git LFS on your system, you can download it from [[https://git-lfs.github.com/][here]].
+You'll also need [[https://opensees.berkeley.edu/][OpenSees]] on your system, which can you download from [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]
 
-Have OpenSees on your system, can  you download it from [[http://opensees.berkeley.edu/wiki/index.php/Getting_Started_with_OpenSees_--_Download_OpenSees][here]].
+Then clone this repository and change into the directory:
 
 #+BEGIN_SRC bash
-  git clone git@github.com:barischrooneyj/bridge-dss && cd bridge-dss
+git clone git@github.com:barischrooneyj/bridge-dss
+cd bridge-dss
 #+END_SRC bash
 
-Ensure =Config.os_exe_path= in [[code/config_sys.py]] points to the installed
-OpenSees executable.
+Open the file [[code/config_sys.py]] and ensure that =Config.os_exe_path= points
+to the OpenSees executable installed on your system.
+
+Then install Python dependencies and activate the Python environment:
 
 #+BEGIN_SRC bash
-  git lfs install
-  git lfs pull
-  pipenv install
-  pipenv shell
-  ./scripts/make-all.sh --clean --test --3d
+pipenv install
+pipenv shell
 #+END_SRC
+
+Finally run this script to create some plots using the low accuracy "debug"
+model of bridge 705 in Amsterdam:
+
+#+BEGIN_SRC bash
+./scripts/make-all.sh --clean --debug --3d
+#+END_SRC
+
+Resulting plots are found in the directory [[generated-data-debug-images]].

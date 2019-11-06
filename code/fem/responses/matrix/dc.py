@@ -10,37 +10,39 @@ from model.response import ResponseType
 class DCMatrix(ResponsesMatrix):
     """Responses of one sensor type for displacement control simulations.
 
-    Note displacement meters is set when loading an instance of this class.
+    NOTE: displacement meters is set when loading an instance of this class.
 
     """
 
     def response_to(
-            self, x_frac: float, load_x_frac: float, load: float,
-            interp_sim: bool = False, interp_response: bool = False,
-            y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
+            self, x_frac: float, z_frac: float, load_x_frac: float, load: float,
+            y_frac: float = 1, time_index: int = 0):
         """The response value in kN at a position to a load at a position.
 
         Args:
             x_frac: float, response position on x-axis in [0 1].
             y_frac: float, response position on x-axis in [0 1].
             z_frac: float, response position on x-axis in [0 1].
-            load_x_frac: float, pier position on x-axis in [0 1].
+            load_x_frac: float, load position on x-axis in [0 1].
             load: float, value of the load in kN.
             time_index: int, time index of the simulation.
 
         """
-        # Response due to displacement at a pier
+        # Response due to displacement of a pier.
         dc_response = self.sim_response(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index, interp_response=interp_response)
-        # Response due to load under normal bridge conditions.
+            time_index=time_index)
+
+        # Response due to load under healthy scenario.
         il_matrix = ILMatrix.load(
             c=self.c, response_type=self.response_type,
-            fem_runner=self.fem_runner, save_all=self.save_all)
+            fem_runner=self.fem_runner, load_z_frac=z_frac,
+            save_all=self.save_all)
+
         il_response = il_matrix.response_to(
             x_frac=x_frac, load_x_frac=load_x_frac, load=load,
-            interp_sim=interp_sim, interp_response=interp_response,
             y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+
         # Return summation of both responses.
         return dc_response + il_response
 
@@ -64,7 +66,7 @@ class DCMatrix(ResponsesMatrix):
         # Determine experiment simulation parameters.
         _expt_params = ExptParams([
             FEMParams(
-                loads=[],
+                ploads=[],
                 displacement_ctrl=DisplacementCtrl(displacement, i),
                 response_types=[response_type])
             for i in range(len(c.bridge.supports))])

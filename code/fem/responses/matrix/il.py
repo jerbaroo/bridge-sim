@@ -16,19 +16,18 @@ class ILMatrix(ResponsesMatrix):
 
     Each simulation is for a different loading position in the longitudinal
     direction of the bridge. The z position is fixed for one ILMatrix, thus a
-    different ILMatrix should be used for each tire track on a bridge.
+    different ILMatrix should be used for each tire wheel on a bridge.
 
     """
 
     def response_to(
-            self, x_frac: float, load_x_frac: float, load: float,
-            interp_sim: bool = False, interp_response: bool = False,
-            y_frac: float = 1, z_frac: float = 0.5, time_index: int = 0):
+            self, x_frac: float, z_frac: float, load_x_frac: float, load: float,
+            y_frac: float = 1, time_index: int = 0):
         """The response value in kN at a position to a load at a position.
 
-        Note that only the loading position in longitudinal direction can be
-        chosen 'load_x_frac', the position in transverse direction is fixed for
-        a single ILMatrix.
+        NOTE: only the loading position in longitudinal direction can be chosen,
+        with 'load_x_frac', the position in transverse direction is fixed for a
+        single ILMatrix.
 
         Args:
             x_frac: float, response position on x-axis in [0 1].
@@ -44,8 +43,7 @@ class ILMatrix(ResponsesMatrix):
         print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
         response = super().sim_response(
             expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index, interp_sim=interp_sim,
-            interp_response=interp_response)
+            time_index=time_index)
         return response * (load / self.c.il_unit_load_kn)
 
     @staticmethod

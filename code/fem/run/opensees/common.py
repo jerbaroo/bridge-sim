@@ -3,9 +3,10 @@ import itertools
 from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
+from scipy.spatial import distance
 
 from config import Config
-from model.bridge import Section3D, Support3D
+from model.bridge import Section3D, Section3DPier, Support3D
 from util import print_d, round_m
 
 
@@ -17,13 +18,13 @@ class Node:
 
     Args:
         n_id: int, the ID of this node.
-        x: float, the x position of this node on the bridge.
-        y: float, the y position of this node on the bridge.
-        z: float, the z position of this node on the bridge.
+        x: float, x position of this node on the bridge.
+        y: float, y position of this node on the bridge.
+        z: float, z position of this node on the bridge.
         deck: bool, whether this node belongs to the bridge deck.
-        pier: Optional[Support3D], the pier that this node may belong to.
+        pier: Optional[Support3D], a pier that this node may belong to.
         comment: Optional[str], an optional comment for the .tcl file.
-        support: Optional[3D], the support that this node may belong to.
+        support: Optional[3D], a support that this node may belong to.
 
     Attrs:
         section: Section3D, a section that may be attached, or not.
@@ -37,8 +38,8 @@ class Node:
         self.x = round_m(x)
         self.y = round_m(y)
         self.z = round_m(z)
-        self.deck = deck
         self.pier = pier
+        self.deck = deck
         self.comment = comment
         self.support = support
 
@@ -47,6 +48,11 @@ class Node:
         comment = "" if self.comment is None else f"; # {self.comment}"
         return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
                 + f" {round_m(self.z)}{comment}")
+
+    def distance(self, x: float, y: float, z: float):
+        """Distance form this node to the given coordinates."""
+        return distance.euclidean((self.x, self.y, self.z), (x, y, z))
+
 
 # The nodes that make up a bridge deck. Represented as a matrix of Node ordered
 # by z then x position. Only used in 3D modeling.
@@ -101,7 +107,7 @@ class ShellElement:
     """
     def __init__(
             self, e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int,
-            section: Section3D, nodes_by_id: Dict[int, Node],
+            section: Section3D, pier: bool, nodes_by_id: Dict[int, Node],
             support_position_index: Optional[Tuple[int, int, int, int]] = None):
         self.e_id = e_id
         self.ni_id = ni_id
@@ -111,9 +117,14 @@ class ShellElement:
         self.section = section
         self.support_position_index = support_position_index
 
-        # Attach a reference to the section to each 'Node'.
+        # Attach a reference to the section to each 'Node' and note if the node
+        # belongs to a pier or to the bridge deck.
         for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
-            nodes_by_id[n_id].section = self.section
+            node = nodes_by_id[n_id]
+            if pier:
+                node.pier_section = self.section
+            else:
+                node.deck_section = self.section
 
     def command_3d(self):
         """OpenSees element command."""

@@ -52,7 +52,7 @@ class Vehicle:
 
     Args:
         kn: Union[float, List[float]], load intensity, either for the entire
-            vehicle or per axle, in kilo Newton. Not available as an attribute.
+            vehicle or per axle, in kilo Newton.
         axle_distances: List[float], distance between axles in meters.
         axle_width: float, width of the vehicle's axles in meters.
 
