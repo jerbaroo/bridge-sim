@@ -10,7 +10,7 @@ from typing import List, NewType, Tuple
 from config import Config
 from fem.params import ExptParams, FEMParams
 from model import Response
-from model.bridge import Point
+from model.bridge import Dimensions, Point
 from model.response import ResponseType
 from util import nearest_index, print_d, print_i, pstr
 
@@ -39,9 +39,11 @@ def load_fem_responses(
         fem_runner: "FEMRunner") -> FEMResponses:
     """Load responses of one type from a FEM simulation.
 
+    Responses are loaded from disk, the simulation is only run if necessary
+
     Args:
         c: Config, global configuration object.
-        fem_params: FEMParams, simulation parameters, note that these decide
+        fem_params: FEMParams, simulation parameters. Note that these decide
             which responses are generated and saved to disk.
         response_type: ResponseType, responses to load from disk and return.
 
@@ -53,13 +55,14 @@ def load_fem_responses(
             raise ValueError(f"{rt} not supported by {fem_runner}")
 
     # May need to free a node in y direction.
-    set_y_false = False
-    if fem_params.displacement_ctrl is not None:
-        pier = fem_params.displacement_ctrl.pier
-        fix = c.bridge.supports[pier]
-        if fix.y:
-            fix.y = False
-            set_y_false = True
+    if c.bridge.dimensions == Dimensions.D2:
+        set_y_false = False
+        if fem_params.displacement_ctrl is not None:
+            pier = fem_params.displacement_ctrl.pier
+            fix = c.bridge.supports[pier]
+            if fix.y:
+                fix.y = False
+                set_y_false = True
 
     path = fem_responses_path(
         c=c, fem_params=fem_params, response_type=response_type,
@@ -76,8 +79,9 @@ def load_fem_responses(
         print_d(D, f"Not running fem_runner.run")
 
     # And set the node as fixed again after running.
-    if set_y_false:
-        fix.y = True
+    if c.bridge.dimensions == Dimensions.D2:
+        if set_y_false:
+            fix.y = True
 
     start = timer()
     with open(path, "rb") as f:

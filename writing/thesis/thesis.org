@@ -725,8 +725,8 @@ The goal of the data collection system is to translate a =Bridge=, along with a
 =TrafficScenario= and =BridgeScenario=, into a time series of responses.
 
 A =Bridge= is transformed into a FEM for OpenSees, the resulting FEM is a 2D or
-3D model depending on the dimensions of the =Bridge=. In each case the FEM takes
-the form of a =.tcl= file (written in the TCL language). A =.tcl= file for
+3D model depending on the dimensionality of the =Bridge=. In each case the FEM
+takes the form of a =.tcl= file (written in the TCL language). A =.tcl= file for
 Opensees consists of a sequence of commands for declaring a structure's
 geometry, material properties, and other settings of a FE simulation. For
 example, a =.tcl= file created from a =Bridge= will consist of a number of
@@ -827,9 +827,9 @@ a particular degree of freedom of a specified node. For example the command
 =integrator DisplacementControl 1 2 0.1= specifies that the displacement control
 algorithm will seek an increment of 0.1 at node 1 in the second degree of
 freedom. Under the pier displacement damage scenario, it is important to specify
-a convergence test that will set the tolerance amount to check when the amount
-of displacement has converged, and a maximum amount of iterations until failure,
-which can be a small value in a linear elastic simulation.
+a convergence test that will set the tolerance that dictates when the amount of
+displacement has converged, and a maximum amount of iterations until failure,
+which can be a small value in the case of a linear elastic simulation.
 
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed

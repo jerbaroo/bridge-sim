@@ -292,21 +292,26 @@ CLOSED: [2019-11-01 Fri 10:12]
 *** TODO Pier displacement control
 *** TODO Distribution of responses
 ** 4rd November
-*** TODO Pier displacement
-*** TODO Run simulations in cloud
-- Contour plots of verification points
-- Influence lines
-*** TODO Research & writing
-- Motivation
-  - SHM
-  - DSS
-  - Types of bridges
-  - Amount of npnp concrete slab bridges
-  - Damage caused to bridges by heavy vehicles
-- Data collection
-  - Bridge model
-- Methods
-  - Setup experiments
+*** Pier displacement [0/2]
+**** TODO Contour plot of responses under pier displacement
+**** TODO Pre-calculation of responses using DCMatrix
+*** Faster generation of responses to traffic [0/4]
+**** TODO Contour plots of verification points on workhorse
+**** TODO Traffic as numpy array
+**** TODO Influence line responses as numpy array
+**** TODO Linear algebra
+*** Motivation writing [0/5]
+**** TODO SHM
+**** TODO DSS
+**** TODO Types of bridges
+**** TODO Amount of npnp concrete slab bridges
+**** TODO Damage caused to bridges by heavy vehicles
+*** Data collection writing [0/3]
+**** TODO Bridge model
+**** TODO Influence lines
+**** TODO Pier displacement
+*** Methods [0/1]
+**** TODO Setup experiments
 ** 11th November
 *** TODO Fix plot of distribution of responses
 *** TODO Train classifier on normal traffic

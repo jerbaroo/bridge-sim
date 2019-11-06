@@ -11,20 +11,21 @@ class FEMParams:
     Point loads EOR displacement control, and response types to record.
 
     Args:
-        ploads: List[PointLoad], a list of point loads to apply to the bridge.
+        response_types: [ResponseType], response types to record.
+        ploads: List[PointLoad], point loads to apply in the simulation.
         displacement_ctrl: DisplacementCtrl, apply a load until the given
             displacement in meters is reached.
-        response_types: [ResponseType], response types to record.
 
     """
     def __init__(
-            self, ploads: List[PointLoad], response_types: List[ResponseType],
+            self, response_types: List[ResponseType],
+            ploads: List[PointLoad] = [],
             displacement_ctrl: Optional[DisplacementCtrl] = None):
         if displacement_ctrl is not None: assert len(ploads) == 0
-        else: assert displacement_ctrl is None
+        else: assert len(ploads) >= 1
+        self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
-        self.response_types = response_types
 
     def load_str(self):
         """String representing the loading parameters."""

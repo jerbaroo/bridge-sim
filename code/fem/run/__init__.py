@@ -74,7 +74,7 @@ class FEMRunner:
             for response_type in fem_params.response_types:
                 if response_type not in supported_response_types:
                     raise ValueError(
-                        f"{response_type} not supported by {self}")
+                        f"{response_type} not supported by {self.name}")
 
         # Building.
         start = timer()

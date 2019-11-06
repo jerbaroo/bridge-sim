@@ -74,5 +74,5 @@ def plot_contour_deck(
     plt.xlabel("x position (m)")
     plt.ylabel("y position (m)")
     if save:
-        print(save)
         plt.savefig(save)
+        plt.close()

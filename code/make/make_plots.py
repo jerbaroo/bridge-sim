@@ -32,6 +32,8 @@ from model.response import ResponseType
 from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
+from make.plot import contour
+
 # Print debug information for this file.
 D: str = "make.make_plots"
 # D: bool = False
@@ -142,31 +144,22 @@ def make_dc_plots(
     for pload_z_frac in pload_z_fracs:
         for response_type in fem_runner.supported_response_types(c.bridge):
 
-        # Make the influence line imshow matrix.
-        dc_matrix = DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=OSRunner(c))
+            # Make the influence line imshow matrix.
+            dc_matrix = DCMatrix.load(
+                c=c, response_type=response_type, fem_runner=OSRunner(c))
 
-        filename = (
-            f"subplots-{dc_matrix.fem_runner.name}"
-            + f"-{response_type.name()}"
-            + f"-numexpts-{dc_matrix.num_expts}")
-
-        imshow_il(
-            c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
-            save=c.get_image_path("dcs",
-                f"imshow-{dc_matrix.fem_runner.name}"
-                + f"-{response_type.name()}"
-                + f"-{num_dcs}-{num_x}" + interp_sim_str
-                + interp_response_str))
-
-        matrix_subplots(
-            c=c, resp_matrix=dc_matrix, num_x=num_x,
-            plot_func=plot_dc,
-            save=c.get_image_path("dcs",
+            filename = (
                 f"subplots-{dc_matrix.fem_runner.name}"
                 + f"-{response_type.name()}"
-                + f"-numexpts-{dc_matrix.num_expts}"
-                + interp_sim_str + interp_response_str))
+                + f"-numexpts-{dc_matrix.num_expts}")
+
+            imshow_il(
+                c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
+                save=c.get_image_path("dcs", f"imshow-{filename}"))
+
+            matrix_subplots(
+                c=c, resp_matrix=dc_matrix, num_x=num_x, plot_func=plot_dc,
+                save=c.get_image_path("dcs", f"subplots-{filename}"))
     c.il_num_loads = original_num_ils
 
 
@@ -239,37 +232,6 @@ def make_event_plots(c: Config):
                     f"-rt-{response_type.name()}")))
 
 
-def make_contour_plots(c: Config, y: float, response_types: List[ResponseType]):
-    """Make contour plots for given response types at a fixed y position."""
-    from plot.responses import plot_contour_deck
-
-    fem_runner = OSRunner(c)
-    lane_zs = sorted(
-        chain.from_iterable([l.z_min, l.z_max] for l in c.bridge.lanes))
-    for response_type in response_types:
-        for load_x, load_z in [
-                (34.95459, 29.22606 - 16.6),  # A.
-                (51.25051, 16.6     - 16.6),  # B.
-                (92.40638, 12.405   - 16.6),  # C.
-                (101.7649, 3.973938 - 16.6)]:  # D.
-            print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
-            pload = PointLoad(
-                x_frac=c.bridge.x_frac(load_x), z_frac=c.bridge.z_frac(load_z),
-                kn=100)
-            print_d(D, f"response_types = {response_types}")
-            fem_params = FEMParams(
-                ploads=[pload], response_types=response_types)
-            print_d(D, f"loading response type = {response_type}")
-            fem_responses = load_fem_responses(
-                c=c, fem_params=fem_params, response_type=response_type,
-                fem_runner=fem_runner)
-            plt.close()
-            plot_contour_deck(
-                c=c, responses=fem_responses, y=y, ploads=[pload], save=(
-                c.get_image_path("contour", pstr(
-                    f"{response_type.name()}-loadx={load_x}-loadz={load_z}"))))
-
-
 def make_cloud_of_nodes_plots(c: Config):
     """Make all variations of the cloud of nodes plots."""
 
@@ -298,7 +260,7 @@ def make_cloud_of_nodes_plots(c: Config):
 
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
-    make_contour_plots(
+    make_contour_plots_for_verification(
         c, y=-0.5, response_types=[ResponseType.Stress, ResponseType.Strain])
     make_bridge_plots(c)
     make_il_plots(c)
@@ -401,11 +363,14 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
-    make_il_plots(c)
+    # make_il_plots(c)
     # make_dc_plots(c)
     # make_geom_plots(c)
     # make_event_plots(c)
     # make_traffic_animations(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
-    # make_contour_plots(c=c, y=0, response_types=[ResponseType.YTranslation])
+    # contour.plots_for_verification(
+    #     c=c, y=0, response_types=[ResponseType.YTranslation])
+    contour.plots_of_pier_displacement(
+        c=c, y=0, response_types=[ResponseType.YTranslation])
