@@ -60,7 +60,8 @@ def plot_contour_deck(
     if not save:
         return cmap
 
-    plt.colorbar(cs, norm=norm)
+    clb = plt.colorbar(cs, norm=norm)
+    clb.ax.set_title(responses.response_type.units())
     plt.axis("equal")
 
     # Plot point loads.
@@ -71,11 +72,10 @@ def plot_contour_deck(
     # Titles and labels.
     plt.title(
         f"{responses.response_type.name()}"
-        + f" ({responses.response_type.units(False)})"
         + f", min = {amin:.4f} at ({amin_x:.3f}, {amin_z:.3f})"
         + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})")
     plt.xlabel("x position (m)")
-    plt.ylabel("y position (m)")
+    plt.ylabel("z position (m)")
     if save:
         plt.savefig(save)
         plt.close()

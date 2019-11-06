@@ -1,6 +1,8 @@
 #+AUTHOR: Jeremy Barisch-Rooney
 #+TITLE: An extensible decision support system for bridge maintenance
 #+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage[backend=bibtex,style=alphabetic,citestyle=authoryear]{biblatex}
 #+LATEX_HEADER: \addbibresource{thesis-bib-refs.bib}
 #+LATEX_HEADER: \newcommand{\code}{\texttt}
@@ -735,8 +737,8 @@ freedom and elements are a mathematical relation of how degrees of freedom
 relate between nodes. In the case of the FEMs built from a =Bridge=, four nodes
 are connected by a /shell/ element. Shell elements are used when the thickness
 is significantly smaller than the other dimensions. In the case of bridge 705's
-deck the length is 102.75 meters, width is 33.2m, and thickness is varying from
-0.5m to 0.739m.
+deck the length is 102.75m, width is 33.2m, and thickness is varying from 0.5m
+to 0.739m.
 
 For each =BridgeScenario= for a =Bridge=, a number of simulations are run the
 first time that a response is requested to a point load or vehicle. For each
@@ -749,23 +751,25 @@ each of the =Config.il_num_loads= points on one wheel track, the responses from
 the bridge are recorded. Each of these simulations we will call a unit load
 simulation, and the responses to such a simulation, unit load responses.
 
-When requesting the response of a sensor of type =T= at a point =P= to a vehicle
-on a bridge, the vehicle is first decomposed into loading positions =VP= and
-intensities =VI=, one position and one load intensity for each of the vehicle's
-wheels. Then for each position =VP_w= in =VP=, the unit load responses are
-loaded for the simulation where =VP_w= is closest to the unit load applied in
-one of the unit load simulations. From this unit load simulation, the response
-=RI= at the recorded point closest to point =P= is considered. Thus the response
-=RI= is the response of type =T= at one of the vehicle wheel's positions, except
-not to the vehicle's load but instead to a load of unit intensity, thus it must
-be multiplied by =VI_w / I=.
+Unit load simulations are simulations that must only be run once, and then the
+principle of superposition can be used to determine the response to a vehicle,
+based on the responses recorded in the unit load simulations. Furthermore, the
+response to traffic (multiple vehicles on the bridge) can be calculated by
+simply summing the response to each individual vehicle on the bridge, as
+outlined in Listing [[lst:superposition]].
 
-The previous paragraph indicated how the unit load simulations are simulations
-that must only be run once, and then the principle of superposition can be used
-to determine the response to a vehicle, based on the responses recorded in the
-unit load simulations. Furthermore, the response to traffic (multiple vehicles
-on the bridge) can be calculated by simply summing the response to each
-individual vehicle on the bridge.
+#+NAME: lst:superposition
+#+CAPTION: Pseudo-code showing the use of the principle of superposition to determine the response to a vehicle from unit load simulations. When requesting the response at a point =p= to a vehicle on a bridge, the vehicle is first decomposed into loading positions =wp= and intensities =wi=, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position =wp=, the unit load simulation is selected where =wp= is closest to the unit load applied in that simulation. From this unit load simulation, the response =ru= at the recorded point closest to point =p= is considered. Thus the response =ru= is the response one of the vehicle wheel's positions, except not to the vehicle's load but instead to a load of unit intensity, thus it must be multiplied by =wi / ul= where =ul= is the unit load intensity.
+#+BEGIN_SRC python
+response = 0
+p = Point(x=35, y=0, z=25)
+for wp, wi in vehicle:
+    unit_load_simulation = load_sim_closest_to(wp)
+    ru = unit_load_simulation.response_at(point)
+    response += ru * (wi / ul)
+#+END_SRC
+
+# \textcolor{red, TODO: Convergence plot}
 
 There are only =Config.il_num_loads= number of unit load simulations per wheel
 track. And there are only a limited number of responses collected from each unit
@@ -810,14 +814,13 @@ Another of the damage scenarios is pier displacement. To calculate responses to
 a load under this damage scenario, all of the unit load simulations need to be
 run again for this damage scenario. The name of the pier displacement damage
 scenario in the data collection sytem is =PierDisplacement=. =PierDisplacement=
-specifies a displacement in meters for one or more of a bridge's piers, each
-pier can be displaced by a different amount.
+specifies a displacement in meters of one of a bridge's piers.
 
 When creating a FEM of a =Bridge= under pier displacement for OpenSees, each of
-the bottom nodes of the piers under displacement are not fixed in y direction
+the bottom nodes of the piers under displacement are not fixed for y translation
 (to allow for the displacement of the piers to occur). An important step when
 creating a FEM under this damage scenario for OpenSees is to set the method of
-integration with the =integrator= command. Under a healthy damage scenario the
+integration with the =integrator= command. Under the undamaged scenario the
 integrator used is =LoadControl=, which specifies that, among other things, the
 predictive time step of the simulation is driven by the loads applied. In the
 case of pier displacement the =DisplacementControl= integrator is used instead,
@@ -826,14 +829,42 @@ algorithm will seek the time step that will result in a specified increment for
 a particular degree of freedom of a specified node. For example the command
 =integrator DisplacementControl 1 2 0.1= specifies that the displacement control
 algorithm will seek an increment of 0.1 at node 1 in the second degree of
-freedom. Under the pier displacement damage scenario, it is important to specify
-a convergence test that will set the tolerance that dictates when the amount of
-displacement has converged, and a maximum amount of iterations until failure,
-which can be a small value in the case of a linear elastic simulation.
+freedom.
+
+When running a pier displacement simulation the =DisplacementControl= command is
+used to specify that the central bottom node of the pier should be displaced by
+1m. A load is placed on this node, though the load intensity is ignored by the
+=DisplacementControl= algorithm, the load intensity is instead increased until a
+displacement of 1m is reached. Figure [[fig:pier-disp]] shows a contour plot of the
+displacement of the deck of bridge 705 due to a single pier being displaced by
+-1m.
+
+#+CAPTION: A contour plot of the displacement of the deck of bridge 705 due a pier being displaced by 1m. The node onto which a load is applied, and the same node that is watched by the =DisplacementControl= algorithm until the specified displacement of 1m is reached, is indicated by a red circle. This node is the central bottom node of the pier indicated by vertical black bars on either side of the red circle. The maximum displacement on the bridge deck is slightly less than 1m, this is because the piers are not infinitely stiff but have some elasticity.
+#+NAME: fig:pier-disp
+[[./images/ytranslation-pier-5.png]]
+
+Due to the linear elastic accumption made when modeling, only one pier
+displacement simulation needs to be run per pier. One simulation is run for each
+pier, until that pier has been displaced by unit amount, one meter in the case
+of this data collection system. After these simulations have run, the response
+at any point on the bridge can be calculated due to any combination of piers
+being displaced by different amounts, as outlined in Listing [[lst:pier-disp]].
+
+#+NAME: lst:pier-disp
+#+CAPTION: Calculation of the response
+#+BEGIN_SRC python
+response = 0
+p = Point(x=35, y=0, z=25)
+for vehicle in traffic:
+    for wp, wi in vehicle:
+        unit_load_simulation = load_sim_closest_to(wp)
+        ru = unit_load_simulation.response_at(point)
+        response += ru * (wi / ul)
+#+END_SRC
 
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
-across the bridge mcodel, these time series of responses we call /events/. Events
+across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
 *** Model Assumptions
 - All vehicles drive at the same speed.
@@ -880,10 +911,12 @@ built is discussed.
 *** Data analysis
 *** Damage identification model
 ** Decision Support System
-*** Sensor placement
-*** Cost-benefit analysis
+*** Sensor Placement
 *** Uncertainty
 *** Generalizability
 * Results
+** Modeling Damage Scenarios
+** Sensor Placement
+** Anomally Detection
 * Bibliography
 \printbibliography
