@@ -13,7 +13,7 @@ class BridgeScenario:
         self.name = name
 
 
-# A list of vehicles on a bridge for each time step of a traffic simulation.
+# A list of vehicles on a bridge per time step.
 Traffic = NewType("Traffic", List[List[MvVehicle]])
 
 
@@ -26,9 +26,9 @@ class TrafficScenario:
         mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]], function that
             returns a tuple of 'MvVehicle' and the distance in meters to the
             vehicle in front at time t = 0, note that the position ('lane' and
-            'init_x_frac') of this 'MvVehicle' will be overridden. A keyword
-            argument 'full_lanes: int' will be passed to this function, the full
-            lengths of bridge 705 that have been driven by the first vehicles.
+            'init_x_frac') of this 'MvVehicle' will be overridden. A number of
+            keyword arguments will be passed to this function, for details see
+            the implementation of 'mv_vehicles'.
 
     """
     def __init__(
@@ -85,20 +85,20 @@ class TrafficScenario:
             self.mv_vehicles(bridge=bridge, lane=lane)
             for lane, _ in enumerate(bridge.lanes)]
 
-        sim_vehicles = []  # Vehicles per time step.
-        time = 0  # Time step of next iteration of the loop.
+        sim_vehicles: Traffic = []  # Vehicles per time step, to return.
+        time: float = 0  # Time step of current iteration of the loop.
 
-        # Next vehicles ready to drive onto the bridge, per lane.
+        # Per lane, next vehicles ready to drive onto the bridge.
         next_vehicles = [
             next(gen)(traffic=sim_vehicles, time=time, full_lanes=0)
             for gen in mv_vehicle_gens]
         if not all(vehicle.init_x_frac == 0 for vehicle in next_vehicles):
             raise ValueError("Initial vehicles not starting at x = 0")
 
-        first_vehicle = next_vehicles[0]
-        # Full bridge lanes travelled. We make the assumption of constant and
-        # equal speed of each vehicle.
+        # Full bridge lanes travelled by the first vehicle on the bridge.
+        first_vehicle: MvVehicle = next_vehicles[0]
         full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
+
         # Time the simulation has warmed up at.
         warmed_up_at: Optional[float] = None
 
@@ -110,18 +110,20 @@ class TrafficScenario:
                 (sim_vehicles[-1] if len(sim_vehicles) > 0 else [])
                 if vehicle.on_bridge(time=time, bridge=bridge)])
 
-            # Add vehicles on the bridge, checking each lane in turn.
-            for l, next_vehicle in enumerate(next_vehicles):
-                # print(f"next vehicle kn = {next_vehicle.total_kn()}")
-                # If the next vehicle is on the bridge at this time, add it to
-                # the bridge traffic and get the next lane's vehicle ready.
+            # Per lane, add the next vehicle if its on the bridge.
+            lanes_added = []
+            for lane, next_vehicle in enumerate(next_vehicles):
                 if next_vehicle.on_bridge(time=time, bridge=bridge):
                     sim_vehicles[-1].append(next_vehicle)
-                    next_vehicles[l] = next(mv_vehicle_gens[l])(
-                        traffic=sim_vehicles, time=time,
-                        full_lanes=full_lanes())
+                    lanes_added.append(lane)
 
-            # Increase the simulation time by time taken to warm up.
+            # Per lane, get the next vehicle ready to drive on the bridge.
+            for lane in lanes_added:
+                next_vehicles[lane] = next(mv_vehicle_gens[lane])(
+                    traffic=sim_vehicles, time=time,
+                    full_lanes=full_lanes())
+
+            # Once warmed up, increase the simulation time by warm up time.
             if warmed_up_at is None and full_lanes() > 1:
                 warmed_up_at = int(time / time_step)
                 max_time += time

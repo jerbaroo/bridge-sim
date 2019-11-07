@@ -1,17 +1,12 @@
-"""Different scenarios for data generation."""
-# TODO: Move to model.scenarios.
+"""Traffic scenarios."""
 import numpy as np
-from copy import deepcopy
 
 from config import Config
-from model.load import DisplacementCtrl
-from model.scenario import BridgeScenario, TrafficScenario
+from model.scenario import TrafficScenario
 from vehicles.sample import sample_vehicle
-from util import round_m, print_d
 
-# Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.scenarios"
-D: bool = False
+D: bool = False  # Comment/uncomment to print debug statements for this file.
 
 
 def arrival(beta: float, min_d: float):
@@ -62,16 +57,3 @@ def heavy_traffic_1(c: Config, lam: float, min_d: float, prob_heavy: float):
         return normal, dist
 
     return TrafficScenario(name="heavy-1", mv_vehicle_f=mv_vehicle_f)
-
-
-class BridgeScenarioNormal(BridgeScenario):
-    def __init__(self):
-        super().__init__(name="normal")
-
-
-class BridgeScenarioDisplacementCtrl(BridgeScenario):
-    def __init__(self, displacement_ctrl: DisplacementCtrl):
-        super().__init__(
-            name=f"displacement-{round_m(displacement_ctrl.displacement)}m"
-                 + f"-pier-{displacement_ctrl.pier}")
-        self.displacement_ctrl = displacement_ctrl

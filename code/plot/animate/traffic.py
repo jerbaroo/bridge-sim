@@ -8,7 +8,7 @@ import matplotlib.colors as colors
 
 from config import Config
 from classify.data.responses import responses_to_traffic
-from classify.data.scenarios import BridgeScenarioNormal
+from classify.scenario.bridge import HealthyBridge
 from fem.run import FEMRunner
 from model.bridge import Bridge, Point
 from model.load import MvVehicle
