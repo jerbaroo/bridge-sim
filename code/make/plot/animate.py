@@ -9,7 +9,7 @@ from plot.animate.traffic import animate_traffic_top_view
 def traffic(c: Config):
     """Make animations of different traffic scenarios."""
 
-    max_time, time_step, lam, min_d = 20, 0.5, 5, 2
+    max_time, time_step, lam, min_d = 10, 0.1, 5, 2
     c.time_step = time_step
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [

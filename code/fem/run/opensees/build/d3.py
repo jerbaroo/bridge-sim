@@ -14,7 +14,7 @@ from fem.run.opensees.common import AllPierElements, AllSupportNodes,\
 from model.bridge import Bridge, Section3D, Support3D
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
-from util import round_m, print_d, print_i, print_w
+from util import print_d, print_i, print_w, round_m, st
 
 def assert_sorted(l):
     assert all(l[i] <= l[i+1] for i in range(len(l)-1))
@@ -22,9 +22,6 @@ def assert_sorted(l):
 # Print debug information for this file.
 D: str = "fem.run.opensees.build.d3"
 # D: bool = False
-
-# The letters that come after a number e.g. in 1st, 2nd, 3rd.
-st = lambda n: "%s" % ("tsnrhtdd"[(np.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
 
 ##### Begin node factory #####
 

@@ -39,6 +39,9 @@ def animate_traffic_top_view(
         save: str, filepath where to save the animation.
 
     """
+    # First convert the inner list of lanes into a flat list of vehicles.
+    traffic = list(map(lambda l: list(chain.from_iterable(l)), traffic))
+
     all_vehicles = list(chain.from_iterable(traffic))
     total_kn = [sum(v.total_kn() for v in t) for t in traffic]
     times = np.array(range(len(traffic))) * time_step + start_time

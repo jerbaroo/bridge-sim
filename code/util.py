@@ -16,8 +16,12 @@ init()
 DEBUG = True
 
 
+# The letters that come after a number e.g. in 1st, 2nd, 3rd.
+st = lambda n: "%s" % ("tsnrhtdd"[(np.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
+
+
 def round_m(x):
-    """Round meters to supported accuracy."""
+    """Round meters to an accuracy that avoids machine error."""
     return np.round(x, decimals=6)
 
 

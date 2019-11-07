@@ -1,11 +1,14 @@
 """Traffic scenarios."""
+from timeit import default_timer as timer
+
 import numpy as np
 
 from config import Config
 from model.scenario import TrafficScenario
 from vehicles.sample import sample_vehicle
+from util import print_d, st
 
-D: str = "classify.data.scenarios"
+D: str = "classify.scenario.traffic"
 D: bool = False  # Comment/uncomment to print debug statements for this file.
 
 
@@ -15,16 +18,20 @@ def arrival(beta: float, min_d: float):
     assert isinstance(result, float)
     if result < min_d:
         return arrival(beta=beta, min_d=min_d)
-    print(f"Inter-vehicle distance = {result}")
     return result
 
 
 def normal_traffic(c: Config, lam: float, min_d: float):
     """Normal traffic scenario, arrives according to poisson process."""
+    count = 0
 
     def mv_vehicle_f(traffic: "Traffic", time: float, full_lanes: int):
-        # print(f"normal_traffic received traffic {type(traffic)} {time}")
-        return sample_vehicle(c), arrival(beta=lam, min_d=min_d)
+        start = timer()
+        vehicle = sample_vehicle(c), arrival(beta=lam, min_d=min_d)
+        nonlocal count
+        count += 1
+        print_d(D, f"{count}{st(count)} sampled vehicle took {timer() - start}")
+        return vehicle
 
     return TrafficScenario(name=f"normal-lam-{lam}", mv_vehicle_f=mv_vehicle_f)
 

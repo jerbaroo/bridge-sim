@@ -161,13 +161,13 @@ class Config:
         # Ensure vehicle probability density sums to 1.
         pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
         if int(pdf_sum) != 100:
-            print_w(f"Vehicle PDF sums to {pdf_sum}, not to 1")
+            pre_pdf_sum = pdf_sum
             for i in range(len(self.vehicle_pdf)):
                 self.vehicle_pdf[i] = (
                     self.vehicle_pdf[i][0],
                     self.vehicle_pdf[i][1] / pdf_sum)
             pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
-            print_w(f"Vehicle PDF adjusted to sum to {pdf_sum:.2f}")
+            print_w(f"Vehicle PDF sums to {pre_pdf_sum}, adjusted to sum to 1")
 
         # Generated data.
         self.generated_dir = generated_dir

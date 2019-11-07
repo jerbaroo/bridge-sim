@@ -167,7 +167,7 @@ class MvVehicle(Vehicle):
         if bridge.lanes[self.lane].ltr:
             return init_x_frac + delta_x_frac
         else:
-            init_x_frac *= -1  # Make positive, move to right of bridge.
+            init_x_frac *= -1  # Make positive, move to right of bridge start.
             init_x_frac += 1  # Move one bridge length to the right.
             return init_x_frac - delta_x_frac
 
@@ -217,3 +217,9 @@ class MvVehicle(Vehicle):
     def passed_bridge(self, time: float, bridge: Bridge) -> bool:
         """Whether the current vehicle has travelled over the bridge."""
         return self.full_lanes(time=time, bridge=bridge) > 1
+
+    def enters_bridge(self, bridge: Bridge):
+        """Time the vehicle enters the bridge."""
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x <= 0
+        return abs(init_x / self.mps)

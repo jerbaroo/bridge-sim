@@ -1,9 +1,12 @@
 """Test model.scenario and classify.data.scenarios."""
+from timeit import default_timer as timer
+
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from model.load import DisplacementCtrl, MvVehicle
 from model.scenario import TrafficScenario
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
+from util import print_i
 
 
 def test_scenario():
@@ -33,3 +36,16 @@ def test_scenario():
     HealthyBridge()
     PierDispBridge(
         displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
+
+    # Time how long it takes to generate traffic.
+    start = timer()
+    max_time, time_step = 30, 0.01
+    traffic, start_index = traffic_scenario.traffic(
+        bridge=c.bridge, max_time=max_time, time_step=time_step)
+    # '- 1' because the first time step is t = 0.
+    sim_time = (len(traffic) - 1) * time_step
+    # '+ 1' to include the time step at t = 0.
+    sim_steps = (sim_time / time_step) + 1
+    print_i(
+        f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
+        + f" ({sim_steps} steps) took {timer() - start}")
