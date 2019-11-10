@@ -193,10 +193,11 @@ class MvVehicle(Vehicle):
     def xs_at(self, time: float, bridge: Bridge):
         """X position of bridge for each axle in meters at given time."""
         xs = [self.x_at(time=time, bridge=bridge)]
-        for axle_distance in self.axle_distances:
-            delta_x = axle_distance
+        if not hasattr(self, "_delta_xs"):
+            self._delta_xs = np.array(self.axle_distances)
             if bridge.lanes[self.lane].ltr:
-                delta_x *= -1
+                self._delta_xs *= -1
+        for delta_x in self._delta_xs:
             xs.append(xs[-1] + delta_x)
         return xs
 
