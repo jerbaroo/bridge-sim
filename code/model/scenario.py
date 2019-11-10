@@ -17,12 +17,18 @@ class BridgeScenario:
 
 
 # A list of vehicle, time they enter/leave the bridge, and a boolean if they are
-# entering (true) or leaving.
+# entering (true) or leaving. This sequence should be time ordered. This is a
+# memory efficient representation of traffic.
 TrafficSequence = NewType(
     "TrafficSequence", List[Tuple[MvVehicle, float, bool]])
 
-# A list of vehicles per lane per time step.
+# A list of vehicles per lane per time step. This representation naturally fits
+# the semantics of real life traffic on a bridge.
 Traffic = NewType("Traffic", List[List[List[MvVehicle]]])
+
+# An array of time step * wheel position. Each cell value is load in Newton.
+# This representation is useful for matrix multiplication.
+TrafficArray = NewType("TrafficArray", np.ndarray)
 
 
 class TrafficScenario:
@@ -84,7 +90,6 @@ class TrafficScenario:
         Args:
             bridge: Bridge, bridge the vehicles drive on.
             max_time: float, simulation time after warm up, in seconds.
-            time_step: float, time step to move traffic by, in seconds.
 
         """
         result: TrafficSequence = []
@@ -149,92 +154,36 @@ class TrafficScenario:
         return result, warmed_up_at
 
 
-    def traffic(
-            self, bridge: Bridge, max_time: float) -> Tuple[Traffic, int]:
-        """Generate 'Traffic' under this traffic scenario.
+def to_traffic(
+        bridge: Bridge, traffic_sequence: TrafficSequence, max_time: float,
+        time_step: float) -> Traffic:
+    """Convert a 'TrafficSequence' to 'Traffic'."""
+    result = deque([])
+    current = [deque([]) for _ in bridge.lanes]
+    time = 0
+    next_event = 0
+    next_event_time = traffic_sequence[next_event][1]
 
-        Returns a tuple of 'Traffic' and time index the simulation warmed up at.
+    while time <= max_time:
+        # Make a copy of the current traffic.
+        current = [current_lane.copy() for current_lane in current]
 
-        Args:
-            bridge: Bridge, the bridge the vehicles drive on.
-            max_time: float, simulation time after warm up, in seconds.
-            time_step: float, the time step to move traffic by, in seconds.
-
-        """
-        # A vehicle generator for each traffic lane.
-        mv_vehicle_gens = [
-            self.mv_vehicles(bridge=bridge, lane=lane)
-            for lane, _ in enumerate(bridge.lanes)]
-
-        sim_vehicles: Traffic = []  # Vehicles per lane per time step.
-        time: float = 0  # Time step of current iteration of the loop.
-
-        # Per lane, next vehicles ready to drive onto the bridge.
-        next_vehicles = [
-            next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens]
-        if not all(vehicle.init_x_frac == 0 for vehicle in next_vehicles):
-            raise ValueError("Initial vehicles not starting at x = 0")
-
-        # Full bridge lanes travelled by the first vehicle on the bridge.
-        first_vehicle: MvVehicle = next_vehicles[0]
-        full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
-
-        # Time the next vehicle will enter the bridge.
-        time_enter = np.min([v.enters_bridge(bridge) for v in next_vehicles])
-
-        # Time the simulation has warmed up at.
-        warmed_up_at: Optional[float] = None
-
-        # Record the vehicles at each time step.
-        while warmed_up_at is None or time <= max_time:
-
-            # Keep the previous vehicles that are still on the bridge.
-            if len(sim_vehicles) == 0:
-                sim_vehicles.append([[] for _ in bridge.lanes])
+        # While events have occurred update current traffic.
+        while time >= next_event_time:
+            vehicle, _, enter = traffic_sequence[next_event]
+            if enter:
+                current[vehicle.lane].append(vehicle)
             else:
-                sim_vehicles.append([])
-                # For each lane..
-                for lane, _ in enumerate(bridge.lanes):
-                    # ..find first vehicle that hasn't passed the bridge..
-                    for i, v in enumerate(sim_vehicles[-2][lane]):
-                        if not v.passed_bridge(time=time, bridge=bridge):
-                            break
-                    # .. and copy it and all behind it.
-                    sim_vehicles[-1].append(sim_vehicles[-2][lane][i:])
-                    # for j, v in enumerate(sim_vehicles[-2][lane]):
-                    #     if j < i:
-                    #         assert v.passed_bridge(time=time, bridge=bridge)
-                    #     else:
-                    #         assert not v.passed_bridge(time=time, bridge=bridge)
+                current[vehicle.lane].popleft()
+            # Find the next event, if there is one.
+            next_event += 1
+            try:
+                next_event_time = traffic_sequence[next_event][1]
+            except IndexError:
+                next_event_time = np.inf
 
-            # If a new vehicle is ready for the bridge.
-            if time >= time_enter:
+        # Append current traffic and update time.
+        result.append(current)
+        time += time_step
 
-                # Per lane, add the next vehicle if its on the bridge.
-                lanes_added = []
-                for lane, next_vehicle in enumerate(next_vehicles):
-                    if next_vehicle.on_bridge(time=time, bridge=bridge):
-                        sim_vehicles[-1][lane].append(next_vehicle)
-                        lanes_added.append(lane)
-
-                # Per lane, get the next vehicle ready to drive on the bridge.
-                for lane in lanes_added:
-                    next_vehicles[lane] = next(mv_vehicle_gens[lane])(
-                        time=time, full_lanes=full_lanes())
-
-                # Time the next vehicle will enter the bridge.
-                time_enter = np.min(
-                    [v.enters_bridge(bridge) for v in next_vehicles])
-
-            # from itertools import chain
-            # for v in chain.from_iterable(sim_vehicles[-1]):
-            #     assert v.on_bridge(time=time, bridge=bridge)
-
-            # Once warmed up, increase the simulation time by warm up time.
-            if warmed_up_at is None and full_lanes() > 1:
-                warmed_up_at = int(time / time_step)
-                max_time += time
-
-            time += time_step
-
-        return sim_vehicles, warmed_up_at
+    return result
