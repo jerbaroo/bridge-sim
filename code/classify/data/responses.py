@@ -37,6 +37,9 @@ def responses_to_traffic(
         min_max: bool, if true also return the minimum and maximum responses.
 
     """
+    for t in range(len(traffic)):
+        traffic[t] = list(chain.from_iterable(traffic[t]))
+
     if per_axle:
         raise ValueError("Per axle option is deprecated")
 

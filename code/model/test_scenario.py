@@ -66,17 +66,24 @@ def test_scenario():
         f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
         + f" ({len(traffic)} steps) took {timer() - start}")
 
-    from classify.data.responses import responses_to_traffic_array
+    from classify.data.responses import responses_to_traffic_array, responses_to_traffic
     from fem.run.opensees import OSRunner
     from model.bridge import Point
     from model.response import ResponseType
 
+    points = [Point(x=35, y=0, z=9.4)]
     responses = responses_to_traffic_array(
         c=c, traffic_array=traffic_array,
         response_type=ResponseType.YTranslation,
-        points=[Point(x=35, y=0, z=25)], fem_runner=OSRunner(c))
+        points=points, fem_runner=OSRunner(c))
     print(responses.shape)
+
+    responses_2 = responses_to_traffic(
+        c, traffic, HealthyBridge(), start_time=0, time_step=time_step,
+        points=points, response_type=ResponseType.YTranslation, fem_runner=OSRunner(c))
+    responses_2 = [r.responses[0][35][0][9.4] for r in responses_2]
 
     from plot import plt
     plt.plot(responses.T[0])
+    plt.plot(responses_2)
     plt.show()
