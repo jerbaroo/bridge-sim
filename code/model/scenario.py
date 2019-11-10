@@ -3,6 +3,7 @@ from collections import deque
 from typing import Callable, List, NewType, Tuple
 
 import numpy as np
+from scipy.interpolate import interp1d
 
 from config import Config
 from model.bridge import Bridge
@@ -26,8 +27,9 @@ TrafficSequence = NewType(
 # the semantics of real life traffic on a bridge.
 Traffic = NewType("Traffic", List[List[List[MvVehicle]]])
 
-# An array of time step * wheel position. Each cell value is load in Newton.
-# This representation is useful for matrix multiplication.
+# An array of time step (rows) * wheel position (columns). Each cell value is
+# load in kilo Newton. This representation is useful for matrix multiplication.
+# NOTE: a cell in a column is indexed as wheel track * x position.
 TrafficArray = NewType("TrafficArray", np.ndarray)
 
 
@@ -115,8 +117,6 @@ class TrafficScenario:
         # Increase simulation by time taken to warm up.
         warmed_up_at = first_vehicle.leaves_bridge(bridge)
         max_time += warmed_up_at
-        print(f"warmed up at = {warmed_up_at}")
-        print(f"vehicle speed mps = {next_vehicles[0].mps}")
 
         # Time vehicles will leave the bridge, in order.
         time_leave: List[Tuple[MvVehicle, float]] = deque([])
@@ -161,8 +161,8 @@ def to_traffic(
     result = deque([])
     current = [deque([]) for _ in bridge.lanes]
     time = 0
-    next_event = 0
-    next_event_time = traffic_sequence[next_event][1]
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
 
     while time <= max_time:
         # Make a copy of the current traffic.
@@ -170,20 +170,77 @@ def to_traffic(
 
         # While events have occurred update current traffic.
         while time >= next_event_time:
-            vehicle, _, enter = traffic_sequence[next_event]
+            vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
                 current[vehicle.lane].append(vehicle)
             else:
                 current[vehicle.lane].popleft()
             # Find the next event, if there is one.
-            next_event += 1
+            next_event_index += 1
             try:
-                next_event_time = traffic_sequence[next_event][1]
+                next_event_time = traffic_sequence[next_event_index][1]
             except IndexError:
                 next_event_time = np.inf
 
         # Append current traffic and update time.
         result.append(current)
         time += time_step
+
+    return list(result)
+
+
+def to_traffic_array(
+        c: Config, traffic_sequence: TrafficSequence, max_time: float,
+        time_step: float) -> Traffic:
+    """Convert a 'TrafficSequence' to 'Traffic'."""
+    result = np.zeros((
+        # '+ 1' to account for time t = 0.
+        int(max_time / time_step) + 1,
+        # 2 wheel tracks per lane.
+        len(c.bridge.lanes) * 2 * c.il_num_loads))
+    current = [deque([]) for _ in c.bridge.lanes]
+    time, t = 0, 0
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
+    # Interpolate from x position to index of unit load.
+    bridge_length = c.bridge.length
+    _interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
+    x_interp = lambda x: int(_interp(x))
+
+    while time <= max_time:
+
+        # While events have occurred update current traffic.
+        while time >= next_event_time:
+            vehicle, _, enter = traffic_sequence[next_event_index]
+            if enter:
+                current[vehicle.lane].append(vehicle)
+            else:
+                current[vehicle.lane].popleft()
+            # Find the next event, if there is one.
+            next_event_index += 1
+            try:
+                next_event_time = traffic_sequence[next_event_index][1]
+            except IndexError:
+                next_event_time = np.inf
+
+        # For each lane.
+        for l, vehicles in enumerate(current):
+            # An index for each wheel track.
+            w0, w1 = l * 2, (l * 2) + 1
+            for vehicle in vehicles:
+                xs = vehicle.xs_at(time=time, bridge=c.bridge)
+                kns = vehicle.kn_per_axle()
+                # assert len(xs) == len(kns)
+                # For each axle currently on the bridge.
+                for x, kn in zip(xs, kns):
+                    if x >= 0 and x <= bridge_length:
+                        # For each wheel.
+                        for w in [w0, w1]:
+                            j = (w * c.il_num_loads) + x_interp(x)
+                            # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
+                            result[t][j] = kn / 2
+
+        time += time_step
+        t += 1
 
     return result
