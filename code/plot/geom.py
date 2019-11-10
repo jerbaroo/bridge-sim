@@ -22,7 +22,8 @@ D: str = "plot.bridge"
 
 
 def top_view_bridge(
-        bridge: Bridge, lanes: bool = True, lane_fill: bool = True, piers: bool=True):
+        bridge: Bridge, lanes: bool = True, lane_fill: bool = True, piers: bool=True,
+        outline: bool=True):
     """Plot the top view of a bridge's geometry.
 
     Args:
@@ -30,12 +31,14 @@ def top_view_bridge(
         lanes: bool, whether to plot lanes on the bridge.
         lane_fill: bool, whether to plot fill or only outline.
         piers: bool, whether to plot where the piers connect to the deck.
+        outline: bool, whether to plot the bridge outline.
 
     """
-    plt.hlines(
-        [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge)
-    plt.vlines(
-        [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge)
+    if outline:
+        plt.hlines(
+            [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge)
+        plt.vlines(
+            [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge)
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(patches.Rectangle(

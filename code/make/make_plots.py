@@ -9,8 +9,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from classify.data.scenarios import BridgeScenarioNormal, heavy_traffic_1,\
-    normal_traffic
+from classify.scenario.bridge import HealthyBridge
+from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from classify.data.responses import responses_to_traffic
 from config import Config
 from fem.params import FEMParams
@@ -22,9 +22,6 @@ from fem.run.opensees import OSRunner
 from plot import animate_mv_vehicle, plot_bridge_deck_side,\
     plot_bridge_first_section, plt
 from plot.geom import plot_cloud_of_nodes
-from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
-from plot.vehicles import plot_density, plot_length_vs_axles,\
-    plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Dimensions, Point
 from model.bridge.util import wheel_tracks
 from model.load import PointLoad, MvVehicle
@@ -32,7 +29,7 @@ from model.response import ResponseType
 from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
-from make.plot import contour
+from make.plot import animate, contour, matrix, vehicle
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -63,106 +60,6 @@ def make_bridge_plots(
             save=c.image_path(f"bridges/top-{mv_vehicles_str}"))
 
 
-def make_il_plots(
-        c: Config, num_loads: int = 100, num_subplot_ils: int = 12,
-        fem_runner: Optional[FEMRunner] = None):
-    """Make plots of the influence lines.
-
-    Args:
-        c: Config, global configuration object.
-        num_loads: int, the number of loading positions or influence lines.
-        num_subplot_ils: int, the number of influence lines on the subplots.
-        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
-            default is OpenSees.
-
-    """
-    original_il_num_loads = c.il_num_loads
-    c.il_num_loads = num_loads
-    if fem_runner is None:
-        fem_runner = OSRunner(c)
-
-    pload_z_fracs = [None]  # A single wheel track value ignored for 2D.
-
-    # If a 3D FEM then generate IL plots for each wheel track.
-    if c.bridge.dimensions == Dimensions.D3:
-        pload_z_fracs = wheel_tracks(c)
-    print_d(D, "make_il_plots: pload_z_fracs = {pload_z_fracs}")
-
-    for pload_z_frac in pload_z_fracs:
-        for response_type in fem_runner.supported_response_types(c.bridge):
-
-            # TODO: Remove once Stress and Strain are fixed.
-            if c.bridge.dimensions == Dimensions.D3 and response_type in [
-                    ResponseType.Stress, ResponseType.Strain]:
-                continue
-
-            il_matrix = ILMatrix.load(
-                c=c, response_type=response_type, fem_runner=fem_runner,
-                load_z_frac=pload_z_frac)
-
-            filename = pstr(
-                f"{il_matrix.fem_runner.name}-{response_type.name()}"
-                + f"-loadz={c.bridge.z(pload_z_frac):.2f}-numloads-{num_loads}")
-
-            imshow_il(
-                c=c, il_matrix=il_matrix, num_loads=num_loads,
-                num_sensors=num_loads,
-                save=c.get_image_path("ils", f"imshow-{filename}"))
-
-            matrix_subplots(
-                c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                num_x=num_loads, plot_func=plot_il,
-                z_frac=il_matrix.load_z_frac, save=c.get_image_path(
-                    "ils", f"subplots-{filename}"))
-    c.il_num_loads = original_il_num_loads
-
-
-def make_dc_plots(
-        c: Config, num_loads: int = 100, num_subplot_ils: int = 12):
-    """Make plots of the displacement control responses.
-
-    Args:
-        c: Config, global configuration object.
-        num_loads: int, the number of loading positions or influence lines.
-        num_subplot_ils: int, the number of influence lines on the subplots.
-        fem_runner: Optional[FEMRunner], FEM program to run simulations with,
-            default is OpenSees.
-
-    """
-    num_piers = len(c.bridge.supports)
-
-    if fem_runner is None:
-        fem_runner = OSRunner(c)
-
-    pload_z_fracs = [None]  # A single wheel track value ignored for 2D.
-
-    # If a 3D FEM then generate DC plots for each wheel track.
-    if c.bridge.dimensions == Dimensions.D3:
-        pload_z_fracs = wheel_tracks(c)
-    print_d(D, "make_dc_plots: pload_z_fracs = {pload_z_fracs}")
-
-    for pload_z_frac in pload_z_fracs:
-        for response_type in fem_runner.supported_response_types(c.bridge):
-
-            # Make the influence line imshow matrix.
-            dc_matrix = DCMatrix.load(
-                c=c, response_type=response_type, fem_runner=OSRunner(c))
-
-            filename = (
-                f"subplots-{dc_matrix.fem_runner.name}"
-                + f"-{response_type.name()}"
-                + f"-numexpts-{dc_matrix.num_expts}")
-
-            imshow_il(
-                c, il_matrix=dc_matrix, num_ils=num_dcs, num_x=num_x,
-                save=c.get_image_path("dcs", f"imshow-{filename}"))
-
-            matrix_subplots(
-                c=c, resp_matrix=dc_matrix, num_x=num_x, plot_func=plot_dc,
-                save=c.get_image_path("dcs", f"subplots-{filename}"))
-    c.il_num_loads = original_num_ils
-
-
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a pload moving across a bridge."""
     plt.close()
@@ -176,27 +73,6 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
                 f"animations/{c.bridge.name}-{OSRunner(c).name}"
                 + f"-{response_type.name()}{per_axle_str}"
                 + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
-
-
-def make_vehicle_plots(c: Config):
-    plt.close()
-    """Plot vehicle information based on Config.vehicle_density."""
-    plot_density(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-density"))
-    plot_length_vs_axles(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-length-vs-axles"))
-    plot_length_vs_weight(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-length-vs-weight"))
-    plot_weight_vs_axles(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-weight-vs-axles"))
-
-
-# def make_threshold_plots(c: Config):
-#     """Plot threshold information."""
-#     for response_type in [ResponseType.YTranslation]:
-#         plot_normal_threshold_distribution(
-#             c, response_type, OSRunner(c), at=Point(x=c.bridge.x(0.4)),
-#             num_loads=100, num_thresholds=1000)
 
 
 def make_event_plots(c: Config):
@@ -298,27 +174,6 @@ def make_geom_plots(c: Config):
         # plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
 
-def make_traffic_animations(c: Config):
-    """Make animations of different traffic scenarios."""
-    from plot.animate.traffic import animate_traffic_top_view
-
-    max_time, time_step, lam, min_d = 20, 0.01, 5, 2
-    c.time_step = time_step
-    # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
-    for traffic_scenario in [
-            normal_traffic(c=c, lam=lam, min_d=min_d),
-            heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
-        traffic, start_index = traffic_scenario.traffic(
-            bridge=c.bridge, max_time=max_time, time_step=time_step)
-        traffic = traffic[start_index:]
-        animate_traffic_top_view(
-            c=c, bridge=c.bridge, bridge_scenario=BridgeScenarioNormal(),
-            traffic_name=traffic_scenario.name, traffic=traffic,
-            start_time=start_index * time_step, time_step=time_step,
-            fem_runner=OSRunner(c), response_type=ResponseType.YTranslation,
-            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
-
-
 def make_distribution_plots(c: Config):
     max_time, time_step, lam, min_d = 20, 0.01, 5, 2
     points = [Point(x=35, y=0, z=8.4), Point(x=35, y=0, z=-8.4)]
@@ -361,16 +216,17 @@ def make_distribution_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
+    # make_geom_plots(c)
+    vehicle.vehicle_plots(c)
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
-    # make_dc_plots(c)
-    # make_geom_plots(c)
+    # matrix.dc_plots(c)
     # make_event_plots(c)
-    # make_traffic_animations(c)
+    animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
     # contour.plots_for_verification(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])
-    contour.plots_of_pier_displacement(
-        c=c, y=0, response_types=[ResponseType.YTranslation])
+    # contour.plots_of_pier_displacement(
+    #     c=c, y=0, response_types=[ResponseType.YTranslation])

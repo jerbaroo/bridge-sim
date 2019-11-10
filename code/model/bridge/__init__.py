@@ -1,6 +1,7 @@
 """Model of a bridge."""
-from typing import Callable, List, Optional, Tuple, Union
 from enum import Enum
+from itertools import chain
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -466,6 +467,13 @@ class Bridge:
     def long_name(self):
         """Name with dimensions attached."""
         return f"{self.name}-{self.dimensions.name()}"
+
+    def wheel_tracks(self, c: "Config"):
+        """Z positions of wheel track on the bridge."""
+        half_axle = c.axle_width / 2
+        return list(chain.from_iterable(
+            [lane.z_center() - half_axle, lane.z_center() + half_axle]
+            for lane in self.lanes))
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

@@ -3,7 +3,7 @@
 cd $1
 
 xe() {
-    xelatex -interaction=nonstopmode "$1"
+    xelatex -shell-escape -interaction=nonstopmode "$1"
 }
 
 rm_byproducts() {
