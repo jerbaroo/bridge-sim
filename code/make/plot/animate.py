@@ -9,12 +9,18 @@ from plot.animate.traffic import animate_traffic_top_view
 def traffic(c: Config):
     """Make animations of different traffic scenarios."""
 
-    max_time, time_step, lam, min_d = 10, 0.1, 5, 2
+    max_time, time_step, lam, min_d = 5, 0.5, 5, 2
     c.time_step = time_step
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
             normal_traffic(c=c, lam=lam, min_d=min_d),
             heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
+        traffic_sequence, start_time = traffic_scenario.traffic_sequence(
+            bridge=c.bridge, max_time=max_time)
+        for v, t, e in traffic_sequence:
+            print(f"v = {v}, t = {t}, e = {e}")
+        import sys; sys.exit()
+
         traffic, start_index = traffic_scenario.traffic(
             bridge=c.bridge, max_time=max_time, time_step=time_step)
         traffic = traffic[start_index:]

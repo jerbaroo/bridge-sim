@@ -72,13 +72,20 @@ class Vehicle:
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
         self.kn = kn
-        if isinstance(self.kn, list):
-            self.total_kn = lambda: sum(self.kn)
-            self.kn_per_axle = lambda: self.kn
-        else:
-            self.total_kn = lambda: self.kn
-            self.kn_per_axle = lambda: [
-                (self.kn / self.num_axles) for _ in range(self.num_axles)]
+
+        def total_kn():
+            if isinstance(self.kn, list):
+                return sum(self.kn)
+            return self.kn
+
+        self.total_kn = total_kn
+
+        def kn_per_axle():
+            if isinstance(self.kn, list):
+                return self.kn
+            return [(self.kn / self.num_axles) for _ in range(self.num_axles)]
+
+        self.kn_per_axle = kn_per_axle
 
     def cmap_norm(self, all_vehicles: List["Vehicle"], cmin=0, cmax=1):
         """The colormap and norm for coloring vehicles."""
@@ -222,4 +229,10 @@ class MvVehicle(Vehicle):
         """Time the vehicle enters the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
-        return abs(init_x / self.mps)
+        return float(abs(init_x)) / self.mps
+
+    def leaves_bridge(self, bridge: Bridge):
+        """Time the vehicle begins to leave the bridge."""
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x <= 0
+        return float(abs(init_x) + bridge.length) / self.mps

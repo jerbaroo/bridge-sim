@@ -22,8 +22,6 @@ from fem.run.opensees import OSRunner
 from plot import animate_mv_vehicle, plot_bridge_deck_side,\
     plot_bridge_first_section, plt
 from plot.geom import plot_cloud_of_nodes
-from plot.vehicles import plot_density, plot_length_vs_axles,\
-    plot_length_vs_weight, plot_weight_vs_axles
 from model.bridge import Dimensions, Point
 from model.bridge.util import wheel_tracks
 from model.load import PointLoad, MvVehicle
@@ -31,7 +29,7 @@ from model.response import ResponseType
 from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
-from make.plot import animate, contour, matrix
+from make.plot import animate, contour, matrix, vehicle
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -75,27 +73,6 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
                 f"animations/{c.bridge.name}-{OSRunner(c).name}"
                 + f"-{response_type.name()}{per_axle_str}"
                 + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
-
-
-def make_vehicle_plots(c: Config):
-    plt.close()
-    """Plot vehicle information based on Config.vehicle_density."""
-    plot_density(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-density"))
-    plot_length_vs_axles(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-length-vs-axles"))
-    plot_length_vs_weight(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-length-vs-weight"))
-    plot_weight_vs_axles(c, save=c.image_path(
-        f"vehicles/{c.bridge.name}-weight-vs-axles"))
-
-
-# def make_threshold_plots(c: Config):
-#     """Plot threshold information."""
-#     for response_type in [ResponseType.YTranslation]:
-#         plot_normal_threshold_distribution(
-#             c, response_type, OSRunner(c), at=Point(x=c.bridge.x(0.4)),
-#             num_loads=100, num_thresholds=1000)
 
 
 def make_event_plots(c: Config):
@@ -239,11 +216,12 @@ def make_distribution_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
+    # make_geom_plots(c)
+    vehicle.vehicle_plots(c)
     # plot_convergence_with_shell_size(
     #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
     # matrix.dc_plots(c)
-    # make_geom_plots(c)
     # make_event_plots(c)
     animate.traffic(c)
     # make_distribution_plots(c)

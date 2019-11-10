@@ -15,8 +15,7 @@ def test_scenario():
 
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     assert isinstance(traffic_scenario.name, str)
-    vehicle_and_dist = traffic_scenario.mv_vehicle_f(
-        traffic=[], time=0, full_lanes=0)
+    vehicle_and_dist = traffic_scenario.mv_vehicle_f(time=0, full_lanes=0)
     assert isinstance(vehicle_and_dist[0], MvVehicle)
     assert (isinstance(vehicle_and_dist[1], float) or
             isinstance(vehicle_and_dist[1], int))
@@ -25,7 +24,7 @@ def test_scenario():
     # A generator for traffic on one lane.
     mv_vehicles_gen = traffic_scenario.mv_vehicles(bridge=c.bridge, lane=lane)
     last_init_x_frac = 0.00000001
-    for mv_vehicle in [next(mv_vehicles_gen)([], 0, 0) for _ in range(3)]:
+    for mv_vehicle in [next(mv_vehicles_gen)(0, 0) for _ in range(3)]:
         assert isinstance(mv_vehicle, MvVehicle)
         assert mv_vehicle.lane == lane
         # The first 'init_x_frac' is -0, and subsequently decreasing.
@@ -39,13 +38,17 @@ def test_scenario():
 
     # Time how long it takes to generate traffic.
     start = timer()
-    max_time, time_step = 30, 0.01
-    traffic, start_index = traffic_scenario.traffic(
-        bridge=c.bridge, max_time=max_time, time_step=time_step)
-    # '- 1' because the first time step is t = 0.
-    sim_time = (len(traffic) - 1) * time_step
-    # '+ 1' to include the time step at t = 0.
-    sim_steps = (sim_time / time_step) + 1
+    max_time = 30
+    traffic_sequence, start_time = traffic_scenario.traffic_sequence(
+        bridge=c.bridge, max_time=max_time)
     print_i(
-        f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
-        + f" ({sim_steps} steps) took {timer() - start}")
+        f"Generation of {start_time + max_time}s of TrafficSequence took"
+        + f" {timer() - start}")
+
+    # '- 1' because the first time step is t = 0.
+    # sim_time = (len(traffic) - 1) * time_step
+    # '+ 1' to include the time step at t = 0.
+    # sim_steps = (sim_time / time_step) + 1
+    # print_i(
+    #     f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
+    #     + f" ({sim_steps} steps) took {timer() - start}")

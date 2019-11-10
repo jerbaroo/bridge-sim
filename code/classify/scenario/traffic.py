@@ -25,7 +25,7 @@ def normal_traffic(c: Config, lam: float, min_d: float):
     """Normal traffic scenario, arrives according to poisson process."""
     count = 0
 
-    def mv_vehicle_f(traffic: "Traffic", time: float, full_lanes: int):
+    def mv_vehicle_f(time: float, full_lanes: int):
         start = timer()
         vehicle = sample_vehicle(c), arrival(beta=lam, min_d=min_d)
         nonlocal count
@@ -51,7 +51,7 @@ def heavy_traffic_1(c: Config, lam: float, min_d: float, prob_heavy: float):
     max_kn = 0
     the_heavy.kn = 500
 
-    def mv_vehicle_f(traffic: "Traffic", time: float, full_lanes: int):
+    def mv_vehicle_f(time: float, full_lanes: int):
         nonlocal heavy_generated; nonlocal max_kn
         if not heavy_generated and full_lanes > 1:
             heavy_generated = True
@@ -59,7 +59,7 @@ def heavy_traffic_1(c: Config, lam: float, min_d: float, prob_heavy: float):
             return the_heavy, arrival(beta=lam, min_d=min_d)
         # Otherwise just the normal scenario.
         normal, dist = normal_traffic_scenario.mv_vehicle_f(
-            traffic=traffic, time=time, full_lanes=full_lanes)
+            time=time, full_lanes=full_lanes)
         max_kn = max(max_kn, normal.total_kn())
         return normal, dist
 

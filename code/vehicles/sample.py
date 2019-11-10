@@ -19,7 +19,7 @@ D: bool = False
 noise_col_names = ["speed", "length", "total_weight"]
 
 
-def vehicle_pdf_groups(
+def _vehicle_pdf_groups(
         vehicle_data: VehicleData, col: str, lengths: List[int]):
     """Vehicle data grouped by a maximum value per group."""
     print_d(D, f"Vehicle PDF column is {repr(col)}")
@@ -38,11 +38,11 @@ def vehicle_pdf_groups(
     return vehicle_data.groupby(by=group_by)
 
 
-def get_vehicle_pdf_groups(c: Config):
+def vehicle_pdf_groups(c: Config):
     """Return vehicle PDF groups, only ever calculated once."""
     if not hasattr(c, "_vehicle_pdf_groups"):
         start = timer()
-        c._vehicle_pdf_groups = vehicle_pdf_groups(
+        c._vehicle_pdf_groups = _vehicle_pdf_groups(
             c.vehicle_data, c.vehicle_pdf_col,
             list(map(lambda x: x[0], c.vehicle_pdf)))
         print_s(f"Vehicle PDF groups loaded in {timer() - start}")
@@ -79,7 +79,7 @@ def sample_vehicle(
     # Select a vehicle group randomly, if no group is specified.
     if group_index is None:
         rand = np.random.uniform()
-        print_d(D, f"Vehicle PDF = {c.vehicle_pdf}")
+        # print_d(D, f"Vehicle PDF = {c.vehicle_pdf}")
         # Group's are tuples of group maximum and percentage of all groups.
         min, max = 0, c.vehicle_pdf[-1][0]
         print_d(D, f"rand = {rand}")
@@ -98,7 +98,7 @@ def sample_vehicle(
     # Sample a vehicle uniformly randomly from the group.
     groups_dict = {i: None for _ in range(len(c.vehicle_pdf))}
     print_d(D, groups_dict.items())
-    for i, group in get_vehicle_pdf_groups(c):
+    for i, group in vehicle_pdf_groups(c):
         print_d(D, f"i = {i}")
         groups_dict[i] = group
     group = groups_dict[group_index]
@@ -110,6 +110,7 @@ def sample_vehicle(
 
     # Add noise to the sample if requested.
     if c.perturb_stddev:
+        # print(f"perturb")
         for col_name, (_, stddev) in zip(
                 noise_col_names, noise_per_column(c, noise_col_names)):
             print_d(D,
@@ -124,8 +125,12 @@ def sample_vehicle(
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]
     axle_distances = axle_array_and_count(row["axle_distance"])
+    axle_weights = axle_array_and_count(row["weight_per_axle"])
     # TODO: Fix units in database.
+    # print(axle_distances)
+    # print(axle_weights)
+    # print(row["total_weight"])
     vehicle = MvVehicle(
-        kmph=40, kn=row["total_weight"], axle_width=2,
+        kmph=40, kn=axle_weights, axle_width=2,
         axle_distances=np.array(axle_distances) / 100)
     return (vehicle, sample) if pd_row else vehicle

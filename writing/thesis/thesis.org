@@ -680,7 +680,31 @@ scenarios respectively.
  malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
-*** Traffic Scenario
+*** Vehicles
+The data collection system is parameterized by the distribution of the vehicles
+that drive over it. The system has as parameter a filepath =vehicle_data_path=,
+a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
+probability density function (PDF) of vehicles in terms of the data in that
+column. The parameter =vehicle_data_path= must point to a =.csv= file which
+contains descriptions of vehicles. This =.csv= file will be loaded as a Pandas
+=DataFrame= and should contain data as described in Table [[tbl:vehicle_data]].
+
+#+NAME: tbl:vehicle_data
+#+CAPTION: Example of Pandas =DataFrame= containing descriptions of vehicles that will be sampled. "axle\_load" is the load per axle in kilo Newton, "load" is the sum of these values. "axle\_distance" is the distance in meters between each pair of subsequent axles, "distance" is the sum of these values.
+| load   | axle\_load          | distance | axle\_distance |
+|--------+---------------------+----------+----------------|
+| 225.55 | [79.44, 101, 45.11] | .79      | [6.02, 1.32]   |
+| ...    | ...                 | ...      | ...            |
+
+
+For example, a Pandas =DataFrame= will be loaded from
+=vehicle_data_path=, then vehicles will be sampled from this =DataFrame= based
+on the PDF. A vehicle that is sampled from this =DataFrame= will have a speed of
+40kmph, and an axle-width of 2m, the inter-axle distances and the axle weights
+are taken from the =DataFrame=.
+
+
+**** Traffic
 To train a classifier to distinguish between normal and abnormal traffic
 conditions it is necessary to define normal traffic conditions and additional
 traffic conditions.
