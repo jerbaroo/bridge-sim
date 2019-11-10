@@ -187,10 +187,16 @@ CLOSED: [2019-11-10 Sun 20:21]
 - [[https://github.com/barischrooneyj/bridge-dss/issues/93]]
 - [[http://openseesforfire.github.io/Subpages/ThermalActionCmds.html]]
 ** 11th November
-*** TODO Pier displacement is done
-*** TODO Responses via matrix multiplication is done
+*** TODO Pier displacement
+- Running simulation for each pier under unit displacement
+- Need to calculate response due to varied pier displacement
+*** TODO Responses via matrix multiplication
 *** TODO Collect responses under different scenarios at different points
+*** TODO Unit load plot
 *** TODO Quantify difference in responses
+*** TODO Convergence plot
+*** TODO Talk about what to store in terms of traffic & responses
+*** TODO How to argue any value of 2D model
 *** TODO Look at numba
 * Week's work
 ** 7th October

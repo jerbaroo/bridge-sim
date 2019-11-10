@@ -29,7 +29,7 @@ from model.response import ResponseType
 from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
 
-from make.plot import animate, contour, matrix, vehicle
+from make.plot import animate, contour, matrix, vehicle, verification
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -216,11 +216,10 @@ def make_distribution_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    contour.plot_of_unit_loads(c)
+    # contour.plot_of_unit_loads(c)
+    verification.plot_convergence(c)
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
-    # plot_convergence_with_shell_size(
-    #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
     # make_il_plots(c)
     # matrix.dc_plots(c)
     # make_event_plots(c)

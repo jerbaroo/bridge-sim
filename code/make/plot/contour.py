@@ -77,13 +77,11 @@ def plot_of_unit_loads(c: Config):
     fem_runner = OSRunner(c)
     response_type = ResponseType.YTranslation
     X, Z, R = [], [], []
-    # for x in np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)):
-    #     for z in np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)):
-    for x in np.linspace(c.bridge.x_min, c.bridge.x_max, 100):
+    for x in np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)):
         X.append([])
         Z.append([])
         R.append([])
-        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, 10):
+        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)):
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=100)
             fem_params = FEMParams(
