@@ -150,13 +150,14 @@ class Config:
         self.bridge = bridge()
 
         # Vehicles.
+        self.perturb_stddev: float = 0.1
+        self.axle_width: float = 2
+        self.vehicle_pdf = vehicle_pdf
+        self.vehicle_pdf_col = vehicle_pdf_col
         start = timer()
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(f"Loaded vehicle data from {vehicle_data_path} in"
                 + f" {timer() - start:.2f}s")
-        self.vehicle_pdf = vehicle_pdf
-        self.vehicle_pdf_col = vehicle_pdf_col
-        self.perturb_stddev: float = 0.1
 
         # Ensure vehicle probability density sums to 1.
         pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))

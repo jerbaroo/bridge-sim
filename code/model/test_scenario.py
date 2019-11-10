@@ -5,13 +5,13 @@ from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from model.load import DisplacementCtrl, MvVehicle
 from model.scenario import TrafficScenario, to_traffic, to_traffic_array
-from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
+from model.bridge.bridge_705 import bridge_705_3d, bridge_705_debug_config
 from util import print_i
 
 
 def test_scenario():
 
-    c = bridge_705_test_config(bridge_705_3d)
+    c = bridge_705_debug_config(bridge_705_3d)
 
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     assert isinstance(traffic_scenario.name, str)
@@ -65,3 +65,18 @@ def test_scenario():
     print_i(
         f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
         + f" ({len(traffic)} steps) took {timer() - start}")
+
+    from classify.data.responses import responses_to_traffic_array
+    from fem.run.opensees import OSRunner
+    from model.bridge import Point
+    from model.response import ResponseType
+
+    responses = responses_to_traffic_array(
+        c=c, traffic_array=traffic_array,
+        response_type=ResponseType.YTranslation,
+        points=[Point(x=35, y=0, z=25)], fem_runner=OSRunner(c))
+    print(responses.shape)
+
+    from plot import plt
+    plt.plot(responses.T[0])
+    plt.show()

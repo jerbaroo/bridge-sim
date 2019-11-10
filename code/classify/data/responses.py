@@ -10,7 +10,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model.bridge import Point
 from model.response import ResponseType
-from model.scenario import BridgeScenario
+from model.scenario import BridgeScenario, Traffic, TrafficArray
 from util import print_d, print_i
 
 # Comment/uncomment to print debug statements for this file.
@@ -105,3 +105,32 @@ def responses_to_traffic(
         return result, min_response, max_response
     else:
         return result
+
+
+def responses_to_traffic_array(
+        c: Config, traffic_array: TrafficArray, response_type: ResponseType,
+        points: List[Point], fem_runner: FEMRunner
+        ):
+    wheel_zs = c.bridge.wheel_tracks(c)
+    print(wheel_zs)
+    il_matrices = {
+        wheel_z: ILMatrix.load(
+            c=c, response_type=response_type, fem_runner=fem_runner,
+            load_z_frac=c.bridge.z_frac(wheel_z))
+        for wheel_z in wheel_zs}
+
+    unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
+    for w, wheel_z in enumerate(wheel_zs):
+        print(f"w = {w}, wheel z = {wheel_z}")
+        i = w * c.il_num_loads  # Row index.
+        il_matrix = il_matrices[wheel_z]
+        # For each unit load simulation.
+        for sim_responses in il_matrix.expt_responses:
+            for j, point in enumerate(points):
+                unit_load_matrix[i][j] = (
+                    sim_responses._at(x=point.x, y=point.y, z=point.z))
+            i += 1
+    unit_load_matrix /= c.il_unit_load_kn
+    print(unit_load_matrix.shape)
+
+    return np.matmul(traffic_array, unit_load_matrix)

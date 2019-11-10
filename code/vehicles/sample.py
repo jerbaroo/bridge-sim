@@ -131,6 +131,6 @@ def sample_vehicle(
     # print(axle_weights)
     # print(row["total_weight"])
     vehicle = MvVehicle(
-        kmph=40, kn=axle_weights, axle_width=2,
+        kmph=40, kn=axle_weights, axle_width=c.axle_width,
         axle_distances=np.array(axle_distances) / 100)
     return (vehicle, sample) if pd_row else vehicle

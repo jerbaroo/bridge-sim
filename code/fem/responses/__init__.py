@@ -178,6 +178,15 @@ class FEMResponses(Responses):
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 
+    def _at(self, x: float, y: float, z: float, time_index: int = 0):
+        x_ind = nearest_index(self.xs, x)
+        x_near = self.xs[x_ind]
+        y_ind = nearest_index(self.ys[x_near], y)
+        y_near = self.ys[x_near][y_ind]
+        z_ind = nearest_index(self.zs[x_near][y_near], z)
+        z_near = self.zs[x_near][y_near][z_ind]
+        return self.responses[time_index][x_near][y_near][z_near].value
+
     def at(
             self, x_frac: float = 0, y_frac: float = 1, z_frac: float = 0.5,
             time_index: int = 0, interpolate: bool = False):
@@ -193,14 +202,7 @@ class FEMResponses(Responses):
         if interpolate:
             return self.at_interpolate(x=x, y=y, z=z, time_index=time_index)
 
-        x_ind = nearest_index(self.xs, x)
-        x_near = self.xs[x_ind]
-        y_ind = nearest_index(self.ys[x_near], y)
-        y_near = self.ys[x_near][y_ind]
-        z_ind = nearest_index(self.zs[x_near][y_near], z)
-        z_near = self.zs[x_near][y_near][z_ind]
-
-        return self.responses[time_index][x_near][y_near][z_near].value
+        return self._at(x=x, y=y, z=z)
 
     def at_interpolate(
             self, x: float = 0, y: float = 1, z: float = 0.5,
