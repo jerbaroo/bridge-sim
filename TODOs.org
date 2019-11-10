@@ -189,8 +189,9 @@ CLOSED: [2019-11-10 Sun 20:21]
 ** 11th November
 *** TODO Pier displacement is done
 *** TODO Responses via matrix multiplication is done
+*** TODO Collect responses under different scenarios at different points
+*** TODO Quantify difference in responses
 *** TODO Look at numba
-*** TODO Collect respones under different scenarios at different points
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
