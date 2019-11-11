@@ -179,6 +179,103 @@ of installing a decision support system for bridge maintenance.
 Existing work on DSSs for bridge maintenance can be split into two categories.
 There are papers on.
 
+** Existing Bridges
+# Dutch road network overview.
+The Dutch national main road network consists of 3,200km of road. Assets in the
+road network are divided into four categories: pavements, structures, traffic
+facilities and environmental assets. Each structure is categorized into a type
+that has its own maintenance characteristics. Table [[tbl:dutch-road-network]]
+outlines the catgorization of the 3,283 structures in the network.
+
+#+CAPTION: Structures in the Dutch national main road network. Each type of structure has its own maintenance characteristics. The table lists for each structure type the total number in the Dutch national main road network and the total deck area.
+#+NAME: tbl:dutch-road-network
+| Stucture type        | Number | Deck Area (m2) |
+|----------------------+--------+----------------|
+|                      |    <r> |            <r> |
+| Concrete bridge      |  3,131 |      3,319,002 |
+| Steel bridge (fixed) |     88 |        301,997 |
+| Movable bridge       |     43 |        347,876 |
+| Tunnel               |     14 |        475,228 |
+| Aqueduct             |      7 |         86,491 |
+|----------------------+--------+----------------|
+| Total                |  3,283 |      4,530,593 |
+
+** Bridge Maintenance
+# What is bridge maintenance.
+Bridge maintenance is a requirement in the life-cycle of a bridge in order to
+extend the life of a bridge and keep it within operational conditions. The aims
+of bridge maintenance are
+- Effective management of operational programs
+- Realistic budgeting at national level
+- Tuning bridge mainagement with other maintenance programs
+
+\textcolor{red}{TODO: Paragraph on overview of operational programs}
+
+# Cost of bridge maintenance.
+Bridges are a type of structure that require a large investment, though they
+also have a long service life of 50 to 100 years. Annual maintenance costs are
+relatively small compared to the initial investment cost (<1%), however over the
+lifetime of the bridge the maintenance costs are on the order of the initial
+investment. The annual maintenance cost and the cost of replacement are given
+for each type of structure in the Dutch national main road network in Table
+[[tbl:dutch-bridge-costs]].
+
+#+NAME: tbl:dutch-bridge-costs
+| Stucture type        | Replacement | Annual Maintenance |
+|                      |  Value (€M) |          Cost (€M) |
+|----------------------+-------------+--------------------|
+|                      |         <r> |                <r> |
+| Concrete bridge      |       6,600 |                 37 |
+| Steel bridge (fixed) |         600 |                  7 |
+| Movable bridge       |       1,100 |                 10 |
+| Tunnel               |       1,700 |                 13 |
+| Aqueduct             |         250 |                  1 |
+|----------------------+-------------+--------------------|
+| Total                |      10,250 |                 68 |
+
+# Maintenance cost example.
+The maintenance cost of a concrete bridge can be estimated by determining the
+maintenance cost of frequently used components such as concrete elements,
+extension joints and bearings. These costs estimates of the frequently used
+components first require a description of minimal acceptable condition of the
+components. Then, in combination with an estimation of maintanence intervals
+(which can come from subjective and conflicting sources) and prioritization of
+the available budgets, a maintenance plan of a bridge can be presented. An
+example of such a plan for a typical concrete highway bridge is shown in Figure
+[[fig:concrete-bridge-maintenance-cost]].
+
+#+CAPTION: The maintenance cost of a typical concrete highway bridge. The y-axis shows the cost in thousands of euros. Each bar is for a period of five years and the cost is based on underlying components as indicated by the legend.
+#+NAME: fig:concrete-bridge-maintenance-cost
+[[./images/concrete-bridge-maintenance-cost.png]]
+
+# Age of the current Dutch bridge stock.
+The Dutch national road network contains over 3,000 highway bridges. Of these,
+most are 30 or more years old. A significant amount of bridges were constructed
+in the 1970s, which is typical for many Western European road networks. Fitting
+a Weibull distribution to the lifetime of demolished concrete bridges suggests
+an expected lifetime of 41 years. This in turn would mean that the many concrete
+bridges constructed in the 1970s and earlier would be due for replacement.
+However, of these demolished bridges, many were demolished due to a change in
+functional or economical requirements, rather than due to technical failure.
+Including the ages of current bridges in the fitted distribution increases the
+expected lifetime to 75 years, which is more in line with the design for 80
+years of most Dutch highway bridges, design codes in the Netherlands require a
+design lifetime between 50 and 100 years.
+
+# Cost of Dutch bridge maintenance vs replacement.
+Figure [[fig:dutch-replacement-cost]] shows an initial peak in the expected cost of
+replacement of Dutch bridges, this is due to a combination of the distribution
+of when the current bridges were originally built (largely in the 1970s), their
+expected lifetime and their replacement cost. In an aging bridge stock the cost
+of maintenance can be assumed constant, averaged over the large number of
+structures. After a long time the cost of replacement will be approximately 85€
+million, approximately half the cost of annual maintanence of concrete bridges
+at 37€ million.
+
+#+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
+#+NAME: fig:dutch-replacement-cost
+[[./images/dutch-replacement-cost.png]]
+
 ** Extensibility
 In order for the developed DSS to be truly extensible it is not limited to
 depend on a single finite element program. The system has as a parameter a

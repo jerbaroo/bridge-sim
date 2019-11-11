@@ -190,13 +190,33 @@ CLOSED: [2019-11-10 Sun 20:21]
 *** TODO Pier displacement
 - Running simulation for each pier under unit displacement
 - Need to calculate response due to varied pier displacement
+**** TODO Pier displacment against Axis
+Will be useful to see the edge piers.
 *** TODO Responses via matrix multiplication
+- TrafficSequence (low memory)
+- Traffic (natural semantics)
+- TrafficArray (numpy array)
+- Creation of traffic array not so fast (consider Hz)
+- Calculation of responses very fast
 *** TODO Collect responses under different scenarios at different points
+- Look at change in distribution along x axis (unit load plot)
+- Look at change in distribution moving away from damage site
+*** TODO Quantify change in responses/distribution
 *** TODO Unit load plot
-*** TODO Quantify difference in responses
+- Plot of response due to unit load across bridge
+- Note this is the low quality model (less variation in material properties)
 *** TODO Convergence plot
-*** TODO Talk about what to store in terms of traffic & responses
-*** TODO How to argue any value of 2D model
+- Mesh refinement should clear up variance
+- Need to add nodes where material properties change
+- Try without change in material properties to see if it's due to material
+  property alignment
+- Try repeat run to see if numerical noise is cause fo variance
+*** TODO What to store in terms of traffic & responses
+- 24 hours of normal traffic, varying intensity
+- @ 250Hz, 1 minute is 60 * 250 * 4 * 100 * 8 ~= 48 MB
+- 1 hour is approx 2.9 GB
+- 1 day is approx 72 GB
+*** TODO How to argue value of 2D model
 *** TODO Look at numba
 * Week's work
 ** 7th October
@@ -312,11 +332,14 @@ CLOSED: [2019-11-01 Fri 10:12]
 **** DONE Contour plot of responses under pier displacement
 CLOSED: [2019-11-07 Thu 10:45]
 **** TODO Pre-calculation of responses using DCMatrix
-*** Faster generation of responses to traffic [0/4]
+*** Faster generation of responses to traffic [3/4]
 **** TODO Contour plots of verification points on workhorse
-**** TODO Traffic as numpy array
-**** TODO Influence line responses as numpy array
-**** TODO Linear algebra
+**** DONE Traffic as numpy array
+CLOSED: [2019-11-10 Sun 23:35]
+**** DONE Influence line responses as numpy array
+CLOSED: [2019-11-10 Sun 23:36]
+**** DONE Linear algebra
+CLOSED: [2019-11-10 Sun 23:36]
 *** Motivation writing [0/5]
 **** TODO SHM
 **** TODO DSS
