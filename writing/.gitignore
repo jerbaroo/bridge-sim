@@ -2,10 +2,13 @@
 *.bbl
 *.bcf
 *.blg
-*blx.bib
 *.html
 *.log
+*.nav
 *.out
+*.pyg
+*.snm
 *.tex
 *.toc
 *.run.xml
+_minted-*/

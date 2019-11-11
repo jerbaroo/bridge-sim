@@ -20,7 +20,7 @@ rm_byproducts() {
 }
 
 xe $2
-bibtex $2
+biblatex $2
 xe $2
+biblatex $2
 xe $2
-rm_byproducts
