@@ -170,8 +170,8 @@ of installing a decision support system for bridge maintenance.
   # must be performed on the difference between sensor measurements from sensors
   # at equivalent positions on each substructure.
 
-* Abbreviations & Terminology
-*** Pseudocode
+* Terminology & Preliminaries
+** Pseudocode
 Pseudocode in this thesis is given in two formats. For code written in an
 imperative style the pseudocode will resemble the syntax of Python. For code
 written in a declarative style, including declarations of data, the pseudocode
@@ -212,8 +212,8 @@ outlines the catgorization of the 3,283 structures in the network.
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we briefly review the cost of bridge maintenance, with a
-particular focus on concrete Dutch bridges, for which citet:klatter2003life is
-an important reference.
+focus on Dutch concrete bridges, for which cite:klatter2003life is an important
+reference.
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to

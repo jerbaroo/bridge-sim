@@ -938,6 +938,8 @@ def opensees_translation_recorders(
         str(n.n_id) for n in bridge_3d_nodes(
             deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
     for response_path, direction in translation_response_types:
+        print(response_path)
+        import sys; sys.exit();
         print_d(D, f"Adding response path to build: {response_path}")
         recorder_strs.append(
             f"recorder Node -file {response_path} -node {node_str} -dof"
