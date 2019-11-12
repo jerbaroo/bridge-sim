@@ -128,7 +128,7 @@ class FEMRunner:
     def sim_raw_path(
             self, sim_params: SimParams, ext: str,
             append: str = "", dirname: Optional[str] = None) -> str:
-        """A file path for a FE model file or un-parsed simulation responses.
+        """A file path for a FE model file or raw simulation responses.
 
         The file path is based on a Bridge, SimParams and this SimRunner.
 
@@ -146,7 +146,8 @@ class FEMRunner:
         append = append if len(append) == 0 else f"-{append}"
         filename = f"{self.c.bridge.id_str()}-params={param_str}{append}"
         if dirname is None:
-            dirname = safe_str(self.name)
+            dirname = self.name
+        dirname = safe_str(dirname)
         return safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
 
     def sim_out_path(
@@ -155,11 +156,8 @@ class FEMRunner:
             response_types: List[ResponseType] = []) -> str:
         """Like 'sim_raw_path', however response types are overridden.
 
-        Intended for parsed output files from FE simulations.
-
-        The reason for overriding the response types is because we don't care
-        what other response types were recorded in a simulation, we just want
-        one specific response type.
+        Intended for output files from FE simulations where we don't care what
+        other response types were recorded.
 
         Args:
             sim_params: SimParams, parameters for a FEM simulation.
@@ -174,7 +172,7 @@ class FEMRunner:
         original_response_types = sim_params.response_types
         sim_params.response_types = response_types
         if dirname is None:
-            dirname = safe_str(self.name + "-responses")
+            dirname = self.name + "-responses"
         result = self.sim_raw_path(
             sim_params=sim_params, ext=ext, dirname=dirname, append=append)
         sim_params.response_types = original_response_types

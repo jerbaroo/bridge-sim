@@ -36,11 +36,16 @@ class OSRunner(FEMRunner):
             build=build_model, run=run_model, parse=parse_responses,
             convert=convert_responses)
 
+        def opensees_out_path(*args, **kwargs):
+            return self.sim_out_path(*args, **kwargs).replace("\\", "/")
+
+        self.opensees_out_path = opensees_out_path
+
     # NOTE: All of the path functions below are only used within the OpenSees
     # FEMRunner, used to save results from OpenSees simulations.
 
     def translation_path(self, fem_params: SimParams, axis: str):
-        return self.sim_out_path(
+        return self.opensees_out_path(
             sim_params=fem_params, ext="out", append=f"node-{axis}")
 
     def x_translation_path(self, fem_params: SimParams):
@@ -54,19 +59,19 @@ class OSRunner(FEMRunner):
 
     def patch_paths(self, fem_params: SimParams, patch: Patch):
         return [
-            self.sim_out_path(
+            self.opensees_out_path(
                 sim_params=fem_params, ext="out",
                 append=f"-patch-{point.y:.5f}-{point.z:.5f}")
             for point in patch.points()]
 
     def layer_paths(self, fem_params: SimParams, layer: Layer):
         return [
-            self.sim_out_path(
+            self.opensees_out_path(
                 sim_params=fem_params, ext="out",
                 append=f"-layer-{point.y:.5f}-{point.z:.5f}")
             for point in layer.points()]
 
     def element_path(self, fem_params: SimParams):
-        return self.sim_out_path(
+        return self.opensees_out_path(
             sim_params=fem_params, ext="out", append="-elems")
 
