@@ -13,6 +13,7 @@ rm_byproducts() {
     rm *.blg
     rm *blx.bib
     rm *.log
+    rm *.lol
     rm *.out
     rm *.tex
     rm *.toc
@@ -22,5 +23,5 @@ rm_byproducts() {
 xe $2
 biblatex $2
 xe $2
-biblatex $2
 xe $2
+rm_byproducts

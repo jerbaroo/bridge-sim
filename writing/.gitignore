@@ -4,6 +4,7 @@
 *.blg
 *.html
 *.log
+*.lol
 *.nav
 *.out
 *.pyg
@@ -11,4 +12,5 @@
 *.tex
 *.toc
 *.run.xml
+.auctex-auto/
 _minted-*/
