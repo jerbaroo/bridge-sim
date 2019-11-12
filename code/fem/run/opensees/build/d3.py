@@ -940,8 +940,6 @@ def opensees_translation_recorders(
         str(n.n_id) for n in bridge_3d_nodes(
             deck_nodes=deck_nodes, all_support_nodes=all_support_nodes))
     for response_path, direction in translation_response_types:
-        print(response_path)
-        import sys; sys.exit();
         print_d(D, f"Adding response path to build: {response_path}")
         recorder_strs.append(
             f"recorder Node -file {response_path} -node {node_str} -dof"
@@ -1113,7 +1111,7 @@ def build_model_3d(
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl)))
 
         # Write the generated model file.
-        model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
+        model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")

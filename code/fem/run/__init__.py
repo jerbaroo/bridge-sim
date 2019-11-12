@@ -114,12 +114,12 @@ class FEMRunner:
                     converted_expt_responses[sim_ind].items()):
                 print_d(D, f"response_type in converted = {response_type}")
                 fem_responses = FEMResponses(
-                    c=self.c, fem_params=expt_params.fem_params[sim_ind],
-                    runner_name=self.name, response_type=response_type,
-                    responses=responses, skip_build=True)
+                    c=self.c, fem_params=expt_params.sim_params[sim_ind],
+                    sim_runner=self, response_type=response_type,
+                    responses=responses, skip_index=True)
 
                 start = timer()
-                fem_responses.save(self.c)
+                fem_responses.save()
                 print_i(
                     f"FEMRunner: saved simulation {sim_ind + 1} FEMResponses"
                     + f" in ([Response]) in {timer() - start:.2f}s,"
@@ -146,8 +146,8 @@ class FEMRunner:
         append = append if len(append) == 0 else f"-{append}"
         filename = f"{self.c.bridge.id_str()}-params={param_str}{append}"
         if dirname is None:
-            dirname = self.name
-        return safe_str(self.c.get_data_path(dirname, filename) + f".{ext}")
+            dirname = safe_str(self.name)
+        return safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
 
     def sim_out_path(
             self, sim_params: SimParams, ext: str,
@@ -174,7 +174,7 @@ class FEMRunner:
         original_response_types = sim_params.response_types
         sim_params.response_types = response_types
         if dirname is None:
-            dirname = self.name + "-responses"
+            dirname = safe_str(self.name + "-responses")
         result = self.sim_raw_path(
             sim_params=sim_params, ext=ext, dirname=dirname, append=append)
         sim_params.response_types = original_response_types

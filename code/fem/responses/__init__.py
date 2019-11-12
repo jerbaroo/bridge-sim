@@ -18,6 +18,13 @@ from util import nearest_index, print_d, print_i, safe_str
 D: str = "fem.responses"
 # D: bool = False
 
+def _responses_path(
+        sim_runner: "FEMRunner", sim_params: SimParams,
+        response_type: ResponseType) -> str:
+    """Path to responses generated with given parameters."""
+    return sim_runner.sim_out_path(
+        sim_params=sim_params, ext="npy", response_types=[response_type])
+
 
 def load_fem_responses(
         c: Config, sim_params: SimParams, response_type: ResponseType,
@@ -50,8 +57,9 @@ def load_fem_responses(
                 fix.y = False
                 set_y_false = True
 
-    path = sim_runner.sim_out_path(
-        sim_params=sim_params, ext="npy", response_types=[response_type])
+    path = _responses_path(
+        sim_runner=sim_runner, sim_params=sim_params,
+        response_type=response_type)
 
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
@@ -75,7 +83,7 @@ def load_fem_responses(
 
     start = timer()
     fem_responses = FEMResponses(
-        c=c, fem_params=fem_params, runner_name=sim_runner.name,
+        c=c, fem_params=sim_params, sim_runner=sim_runner,
         response_type=response_type, responses=responses)
     print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
@@ -127,15 +135,15 @@ class FEMResponses(Responses):
         runner_name: str, the FEMRunner used to run the simulation.
         response_type: ResponseType, the type of sensor responses to collect.
         responses: List[Response], the raw responses from simulation.
-        skip_build: bool, reduces time if responses will only be saved.
+        skip_index: bool, reduces time if responses will only be saved.
 
     TODO: Warn about assumption of equidistant points?
 
     """
     def __init__(
-            self, c: Config, fem_params: SimParams, runner_name: str,
+            self, c: Config, fem_params: SimParams, sim_runner: "FEMRunner",
             response_type: ResponseType, responses: List[Response],
-            skip_build: bool = False):
+            skip_index: bool = False):
         super().__init__(response_type=response_type)
         assert isinstance(responses, list)
         if len(responses) == 0:
@@ -147,19 +155,20 @@ class FEMResponses(Responses):
 
         self.c = c
         self.fem_params = fem_params
-        self.runner_name = runner_name
+        self.sim_runner = sim_runner
         self.num_sensors = len(responses)
 
-        if not skip_build:
+        if not skip_index:
             print(f"building")
             for r in responses:
                 self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
             self.index()
 
-    def save(self, c: Config):
-        path = fem_responses_path(
-            c=c, fem_params=self.fem_params, response_type=self.response_type,
-            runner_name=self.runner_name)
+    def save(self):
+        """Save theses simulation responses to disk."""
+        path = _responses_path(
+            sim_runner=self.sim_runner, sim_params=self.fem_params,
+            response_type=self.response_type)
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 

@@ -39,7 +39,7 @@ def parse_responses_3d(
     """Parse responses from a 3D OpenSees simulation."""
     # A dictionary of simulation index to ResponseType to parsed responses.
     results_dict = defaultdict(dict)
-    for sim_ind, fem_params in enumerate(expt_params.fem_params):
+    for sim_ind, fem_params in enumerate(expt_params.sim_params):
         print(f"Parsing, sim_ind = {sim_ind}")
         # Parse x translation responses if necessary.
         parse_translation_responses_3d(
