@@ -3,8 +3,10 @@
 *.bcf
 *.blg
 *.html
+*.lof
 *.log
 *.lol
+*.lot
 *.nav
 *.out
 *.pyg

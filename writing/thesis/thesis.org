@@ -171,6 +171,22 @@ of installing a decision support system for bridge maintenance.
   # at equivalent positions on each substructure.
 
 * Abbreviations & Terminology
+*** Pseudocode
+Pseudocode in this thesis is given in two formats. For code written in an
+imperative style the pseudocode will resemble the syntax of Python. For code
+written in a declarative style, including declarations of data, the pseudocode
+will resemble the syntax of Haskell. An example of each syntactic style is given
+in Listing and .
+
+# Type signatures.
+Sometimes the reader will be presented with a type signature that looks like
+=foo :: A -> B -> C=. A type signature describes the input and output types of a
+function, the previous type signature can be read as "a function =foo= that
+takes an argument of type =A=, an argument of type =B=, and returns a value of
+type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
+function =bar= which takes a list of =Float= as input and returns a value of
+type =Int=".
+
 * Background & Motivation
 ** Existing Bridges
 # Dutch road network overview.
@@ -193,10 +209,11 @@ outlines the catgorization of the 3,283 structures in the network.
 |----------------------+--------+----------------|
 | Total                |  3,283 |      4,530,593 |
 
+# Types of bridges.
 ** Bridge Maintenance
-In this subsection we briefly review the costs of bridge maintenance, in
-particular focusing on the cost of maintenaining concrete Dutch bridges
-
+In this subsection we briefly review the cost of bridge maintenance, with a
+particular focus on concrete Dutch bridges, for which citet:klatter2003life is
+an important reference.
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to
@@ -647,46 +664,40 @@ a requested point. This will all be explained more thoroughly in Subsection
 [[System Operation]] but it is useful to present a brief overview at the beginning
 of this section.
 *** Bridge Modeling
-\textcolor{green}{META: How we model a static bridge}
+# The bridge type.
+A parametric model for describing no-prestress no-posttension concrete slab
+bridges was created for the programming language Python. The parametric model
+exists as the type =Bridge=.
 
-# Intro to the programatic model.
-A high-level modeling language to describe no-prestress no-posttension concrete
-slab bridges was created for Python. A bridge is described at the top level by
-an instance of the class \code{Bridge}. An instance of this class (which we will
-from now on simply call a \code{Bridge}) can be transformed into a 2D or 3D FEM
-for OpenSees which can then be used to run FE simulations to collect responses.
+# Parameters of a bridge.
+A =Bridge= is parameterized by dimensionality, length, width, piers, lanes,
+material properties and parameters that define the mesh density. A =Bridge= can
+be declared as 2D or 3D, this defines if the resulting FEM will be 2D or 3D. The
+length and width define the length and width of the bridge deck. Piers define
+the position, size and angle of the piers which support the bridge deck. Lanes
+define where vehicles are allowed to drive on the bridge, and the direction of
+traffic. Material properties determine the materials' interaction and their
+behaviour under load. Mesh parameters define the density of the base mesh.
 
-# Two types of bridge.
-A \code{Bridge} comes in two variants, 2D and 3D. Both can be represented by the
-same \code{Bridge} class. is described by a number of classes.
+#+NAME: lst:bridge
+#+BEGIN_SRC haskell
+data Bridge = Bridge {
+    length   :: Float
+  , width    :: Float
+  , lanes    :: [Lane]
+  , sections :: [Section]
+  , piers    :: [Pier]
+  }
+#+END_SRC
 
-The model includes the types \code{Vehicle}, \code{Load}, \code{MovingLoad},
-
-\code{Lane, \code{Fix}, \code{Bridge}, \code{Section}, \code{Patch},
-\code{Layer}, \code{Material}, \code{Response} and \code{ResponseType}. These
-types are used to model traffic, bridges and sensor responses.
-
-# Parameters and modeling a bridge.
-The data collection system is parameterized by the traffic on the bridge and
-a specification of a bridge itself. A bridge is modeled by length, width,
-\code{Fix}es, \code{Lane}s, and \code{Patch}es and\code{Layer}s that are
-combined to form a \code{Section}. The \code{Fix}es are used to define fixed
-nodes of the FEM which represent a bridge's piers. The \code{Lane}s define
-where vehicles are "driven" along in simulation. A \code{Section} determines
-the cross-sectional area of the bridge in terms of \code{Patch}es
-(rectangular patches with a number of fibers) and \code{Layer}s (a number of
-fibers along a line). Listing [[lst:bridge-705]] shows the programatic
-specification of bridge 705. Figure [[fig:bridge-705-spec]] shows the bridge that
-is modeled based on the specification.
-      
 #+NAME: lst:bridge-705
 #+BEGIN_SRC haskell
 bridge705 = Bridge {
-    length :: 102
-  , width  :: 33.2
-  , lanes  :: [Lane(4, 12.4), Lane(20.8, 29.2)]
-  , spans  :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
-  , cross  :: Section(...)
+    length   :: 102
+  , width    :: 33.2
+  , lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)]
+  , sections :: [Section]
+  , piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
   }
 #+END_SRC
    
@@ -694,8 +705,6 @@ bridge705 = Bridge {
 #+NAME: fig:bridge-705-spec
 [[../images/bridge-705-spec.png]]
 
-# Modelling traffic.
-A vehicle is represented by a number of variables.
 **** Discretization
 - Material properties may vary according to a continuous function on a real
   bridge while material properties in the FEM change at given discretization
@@ -774,7 +783,7 @@ scenarios respectively.
  malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
-*** Vehicles
+*** Traffic Modeling
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
