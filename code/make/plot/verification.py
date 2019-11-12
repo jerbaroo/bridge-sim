@@ -2,7 +2,7 @@
 import numpy as np
 
 from config import Config
-from fem.params import FEMParams
+from fem.params import SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Point
@@ -17,7 +17,7 @@ def plot_convergence(c: Config):
     response_type = ResponseType.YTranslation
     point = Point(x=35, y=0, z=9.4)
     bridge = bridge_705_3d()
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(
             x_frac=bridge.x_frac(point.x), z_frac=bridge.z_frac(point.z),
             kn=100)],

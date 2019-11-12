@@ -1,5 +1,5 @@
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
@@ -65,7 +65,7 @@ class DCMatrix(ResponsesMatrix):
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams([
-            FEMParams(
+            SimParams(
                 ploads=[],
                 displacement_ctrl=DisplacementCtrl(displacement, i),
                 response_types=[response_type])

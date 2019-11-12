@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 from config import Config
-from fem.params import FEMParams, ExptParams
+from fem.params import SimParams, ExptParams
 from fem.run import Parsed
 from fem.run.opensees.common import Node, bridge_3d_nodes
 from model import Response, Point

@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from model.bridge import Dimensions, Fix, Layer, Patch, Section
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
@@ -48,7 +48,7 @@ def opensees_elements(c: Config):
     return "\n".join(opensees_element(nid) for nid in c.os_node_ids()[:-1])
 
 
-def opensees_loads(c: Config, fem_params: FEMParams):
+def opensees_loads(c: Config, fem_params: SimParams):
     """OpenSees load commands for a .tcl file."""
 
     def opensees_load(l: PointLoad):
@@ -88,7 +88,7 @@ def opensees_sections(c: Config):
 
 
 def opensees_recorders(
-        c: Config, os_runner: "OSRunner", fem_params: FEMParams):
+        c: Config, os_runner: "OSRunner", fem_params: SimParams):
     """OpenSees recorder commands for a .tcl file."""
     response_types = fem_params.response_types
     recorders = ""

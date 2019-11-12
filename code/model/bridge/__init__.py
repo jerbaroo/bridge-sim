@@ -6,7 +6,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import interp1d
 
-from util import print_i, print_s, round_m
+from util import print_i, print_s, round_m, safe_str
 
 # ID for all fiber commands.
 _fiber_cmd_id = 1
@@ -464,9 +464,9 @@ class Bridge:
                 + f"\n\tdeck = {self.sections[0]}"
                 + f"\n\tpier = {self.supports[0].sections[0]}")
 
-    def long_name(self):
+    def id_str(self):
         """Name with dimensions attached."""
-        return f"{self.name}-{self.dimensions.name()}"
+        return safe_str(f"{self.name}-{self.dimensions.name()}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""

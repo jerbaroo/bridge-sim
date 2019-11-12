@@ -3,12 +3,13 @@ from typing import List, Optional
 
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
+from util import safe_str
 
 
-class FEMParams:
+class SimParams:
     """Parameters for one FEM simulation.
 
-    Point loads EOR displacement control, and response types to record.
+    Point loads XOR displacement control, and response types to record.
 
     Args:
         response_types: [ResponseType], response types to record.
@@ -27,50 +28,25 @@ class FEMParams:
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
 
-    def load_str(self):
-        """String representing the loading parameters."""
+    def id_str(self):
+        """String representing the simulation parameters."""
+
+        responses_str = "".join(r.name() for r in self.response_types)
+
         if self.displacement_ctrl is not None:
-            return (f"disp-ctrl-{self.displacement_ctrl.displacement}"
-                + f"-{self.displacement_ctrl.pier}")
-        lstr = ",".join(str(l) for l in self.ploads)
-        return f"[{lstr}]"
+            load_str = self.displacement_ctrl.id_str()
+        else:
+            load_str = ",".join(pl.id_str() for pl in self.ploads)
+            load_str = f"[{load_str}]"
+
+        return safe_str(f"{responses_str}-{load_str}")
 
 
 class ExptParams:
-    """Parameters for multiple simulations."""
-    def __init__(self, fem_params: List[FEMParams]):
-        self.fem_params = fem_params
+    """Parameters for multiple simulations.
 
-    def is_mobile_load(self):
-        """"Whether each simulation is equal apart from load position.
+    NOTE: Make into a NewType.
 
-        This could be useful for specifying a MOBILE Load in Diana:
-        https://dianafea.com/manuals/d102/Analys/node39.html#89111
-
-        """
-        raise Exception("This is untested and incomplete.")
-        # MOBILE Diana load.
-        mobile_load = True
-        # Each simulation must consist of only one load.
-        for fem_params in self.fem_params:
-            if len(fem_params.loads) != 1:
-                mobile_load = False
-        # Each simulation must be equal (apart from x position).
-        step = None
-        if mobile_load:
-            for fp1, fp2 in zip(
-                    self.fem_params[:-1], self.fem_params[1:]):
-                if fp1.loads[0].total_kn() != fp2.loads[0].total_kn():
-                    mobile_load = False
-                if fp1.loads[0].lane != fp2.loads[0].lane:
-                    mobile_load = False
-                if fp1.response_types != fp2.response_types:
-                    mobile_load = False
-                if fp2.loads[0].x_frac < fp1.loads[0].x_frac:
-                    mobile_load = False
-                # Loads must be increasing with equal step.
-                new_step = fp2.loads[0].x_frac - fp1.loads[0].x_frac
-                if step is not None and step != new_step:
-                    mobile_load = False
-                step = new_step
-        return mobile_load
+    """
+    def __init__(self, sim_params: List[SimParams]):
+        self.sim_params = sim_params

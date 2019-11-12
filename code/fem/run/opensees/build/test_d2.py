@@ -1,7 +1,7 @@
 """Test that OpenSees builds 2D model files correctly."""
 import pytest
 
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_2d
 from model.bridge import Fix, Patch, Section
@@ -25,7 +25,7 @@ def test_build_2d():
         supports=[Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)]))
     c.os_node_step = 0.5
     clean_generated(c)
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[PointLoad(0.65, 0.35, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
 
@@ -63,7 +63,7 @@ def test_build_2d_displacement_ctrl():
     c.bridge.length = 10
     c.os_node_step = 0.5
     c.bridge.supports = [Fix(0, y=True), Fix(0.5), Fix(1, y=True)]
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         displacement_ctrl=DisplacementCtrl(0.1, 1),
         loads=[],
         response_types=[ResponseType.YTranslation, ResponseType.Strain])])
@@ -82,7 +82,7 @@ def test_build_2d_displacement_ctrl():
     # No error if the displacement control node is not fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=False), Fix(1, y=True)]
     expt_params = ExptParams([
-        FEMParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
+        SimParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
                   loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])
@@ -91,7 +91,7 @@ def test_build_2d_displacement_ctrl():
     # Error if the displacement control node is fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=True), Fix(1, y=True)]
     expt_params = ExptParams([
-        FEMParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
+        SimParams(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
                   loads=[],
                   response_types=[
                       ResponseType.YTranslation, ResponseType.Strain])])

@@ -5,10 +5,9 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams
-from fem.responses import FEMResponses, fem_responses_path, load_fem_responses
+from fem.responses import FEMResponses, load_fem_responses
 from fem.run import FEMRunner
 from model import Response
-from model.bridge import Dimensions
 from model.response import ResponseType
 from util import print_i
 
@@ -27,11 +26,11 @@ class ResponsesMatrix:
         self.num_expts = len(expt_responses)
         self.save_all = save_all
 
-    def file_paths(self):
-        """A unique file path for each simulation's responses."""
-        return [fem_responses_path(
-                self.c, fem_params, self.response_type, self.fem_runner.name)
-            for fem_params in self.expt_params.fem_params]
+    # def file_paths(self):
+    #     """A unique file path for each simulation's responses."""
+    #     return [fem_responses_path(
+    #             self.c, fem_params, self.response_type, self.fem_runner.name)
+    #         for fem_params in self.expt_params.fem_params]
 
     def sim_response(
             self, expt_frac: float, x_frac: float, z_frac: float, y_frac: float = 1,

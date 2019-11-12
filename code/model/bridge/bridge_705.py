@@ -6,7 +6,7 @@ import numpy as np
 
 from config import Config
 from model.bridge import Bridge, Dimensions, Fix, Lane, Layer, Patch, Section,\
-    Section2D, Section3D, Section3DPier, Support, Support3D
+    Section2D, Section3D, Section3DPier, Support3D
 
 
 #################################
@@ -189,43 +189,32 @@ def bridge_705_3d(
 # Configs (normal and testing) for bridge 705.
 
 
-def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
-    """A less accurate 'Config' for bridge 705 in Amsterdam."""
-    c = bridge_705_config(
-        generated_dir="generated-data-test",
-        bridge=lambda: bridge(
-            name="Bridge 705-test",
-            base_mesh_deck_nodes_x=50,
-            base_mesh_deck_nodes_z=20,
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5)
-        )
-    c.event_metadata_path += ".test"
-    return c
-
-
 def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
     """A low-as-possible accuracy 'Config' for bridge 705 in Amsterdam."""
-    c = bridge_705_config(
-        generated_dir="generated-data-debug",
-        bridge=lambda: bridge(
-            name="Bridge 705-debug",
-            base_mesh_deck_nodes_x=3,
-            base_mesh_deck_nodes_z=3,
-            base_mesh_pier_nodes_y=3,
-            base_mesh_pier_nodes_z=3)
-        )
-    c.event_metadata_path += ".debug"
-    c.time_step = 1 / 100
+    c = bridge_705_config(bridge=lambda: bridge(
+        name="Bridge 705 debug",
+        base_mesh_deck_nodes_x=3,
+        base_mesh_deck_nodes_z=3,
+        base_mesh_pier_nodes_y=3,
+        base_mesh_pier_nodes_z=3))
+    c.sensor_hz = 1 / 100
     return c
 
 
-def bridge_705_config(
-        bridge: Callable[..., Bridge], generated_dir: str = "generated-data"
-        ) -> Config:
+def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
+    """A less accurate 'Config' for bridge 705 in Amsterdam."""
+    return bridge_705_config(bridge=lambda: bridge(
+        name="Bridge 705 test",
+        base_mesh_deck_nodes_x=50,
+        base_mesh_deck_nodes_z=20,
+        base_mesh_pier_nodes_y=5,
+        base_mesh_pier_nodes_z=5))
+
+
+def bridge_705_config(bridge: Callable[..., Bridge]) -> Config:
     """A 'Config' for bridge 705 in Amsterdam."""
     return Config(
         bridge=bridge, vehicle_data_path="data/a16-data/a16.csv",
         vehicle_pdf=[(11.5, 5.9), (12.2, 0.3), (43, 0.1)],
         # (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0.1)],
-        vehicle_pdf_col="length", generated_dir=generated_dir)
+        vehicle_pdf_col="length")

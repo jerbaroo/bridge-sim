@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from fem.params import FEMParams
+from fem.params import SimParams
 from fem.responses import fem_responses_path, load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Layer
@@ -25,7 +25,7 @@ def test_fem_responses():
     c = bridge_705_test_config(bridge_705_2d)
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
         response_types=response_types)
 
@@ -93,7 +93,7 @@ def test_fem_responses_at():
     c = bridge_705_test_config(bridge_705_2d)
     fem_runner = OSRunner(c)
     response_types = fem_runner.supported_response_types(c.bridge)
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
         response_types=response_types)
     response_type = ResponseType.XTranslation

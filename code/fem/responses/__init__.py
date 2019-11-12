@@ -8,75 +8,60 @@ from timeit import default_timer as timer
 from typing import List, NewType, Tuple
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from model import Response
 from model.bridge import Dimensions, Point
 from model.response import ResponseType
-from util import nearest_index, print_d, print_i, pstr
+from util import nearest_index, print_d, print_i, safe_str
 
 # Print debug information for this file.
 D: str = "fem.responses"
 # D: bool = False
 
 
-def fem_responses_path(
-        c: Config, fem_params: FEMParams, response_type: ResponseType,
-        runner_name: str) -> str:
-    """Path of the responses of one sensor type for one FEM simulation."""
-    return os.path.join(
-        c.fem_responses_path_prefix,
-        pstr(f"{runner_name}-{c.bridge.long_name()}"
-             + f"-responses-params={fem_params.load_str()}"
-             + f"-type={response_type.name()}"
-             + f"-deck={c.bridge.base_mesh_deck_nodes_x}"
-             + f"-deck={c.bridge.base_mesh_deck_nodes_z}"
-             + f"-deck={c.bridge.base_mesh_pier_nodes_y}"
-             + f"-deck={c.bridge.base_mesh_pier_nodes_z}") + ".npy")
-
-
 def load_fem_responses(
-        c: Config, fem_params: FEMParams, response_type: ResponseType,
-        fem_runner: "FEMRunner") -> FEMResponses:
-    """Load responses of one type from a FEM simulation.
+        c: Config, sim_params: SimParams, response_type: ResponseType,
+        sim_runner: "FEMRunner") -> FEMResponses:
+    """Responses of one sensor type from a FEM simulation.
 
     Responses are loaded from disk, the simulation is only run if necessary
 
     Args:
         c: Config, global configuration object.
-        fem_params: FEMParams, simulation parameters. Note that these decide
+        sim_params: FEMParams, simulation parameters. Note that these decide
             which responses are generated and saved to disk.
         response_type: ResponseType, responses to load from disk and return.
+        sim_runner: FEMRunner, FE program to run the simulation with.
 
     """
-    if response_type not in fem_params.response_types:
+    if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
-    for rt in fem_params.response_types:
-        if rt not in fem_runner.supported_response_types(c.bridge):
-            raise ValueError(f"{rt} not supported by {fem_runner}")
+    for rt in sim_params.response_types:
+        if rt not in sim_runner.supported_response_types(c.bridge):
+            raise ValueError(f"{rt} not supported by {sim_runner}")
 
     # May need to free a node in y direction.
     if c.bridge.dimensions == Dimensions.D2:
         set_y_false = False
-        if fem_params.displacement_ctrl is not None:
-            pier = fem_params.displacement_ctrl.pier
+        if sim_params.displacement_ctrl is not None:
+            pier = sim_params.displacement_ctrl.pier
             fix = c.bridge.supports[pier]
             if fix.y:
                 fix.y = False
                 set_y_false = True
 
-    path = fem_responses_path(
-        c=c, fem_params=fem_params, response_type=response_type,
-        runner_name=fem_runner.name)
+    path = sim_runner.sim_out_path(
+        sim_params=sim_params, ext="npy", response_types=[response_type])
 
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
-        print_d(D, f"Running fem_runner.run")
-        fem_runner.run(ExptParams([fem_params]))
+        print_d(D, f"Running sim_runner.run")
+        sim_runner.run(ExptParams([sim_params]))
         print(f"***********")
-        print_d(D, f"Ran fem_runner.run")
+        print_d(D, f"Ran sim_runner.run")
         print(f"expect FEMResponses at {path}")
     else:
-        print_d(D, f"Not running fem_runner.run")
+        print_d(D, f"Not running sim_runner.run")
 
     # And set the node as fixed again after running.
     if c.bridge.dimensions == Dimensions.D2:
@@ -90,7 +75,7 @@ def load_fem_responses(
 
     start = timer()
     fem_responses = FEMResponses(
-        c=c, fem_params=fem_params, runner_name=fem_runner.name,
+        c=c, fem_params=fem_params, runner_name=sim_runner.name,
         response_type=response_type, responses=responses)
     print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
@@ -148,7 +133,7 @@ class FEMResponses(Responses):
 
     """
     def __init__(
-            self, c: Config, fem_params: FEMParams, runner_name: str,
+            self, c: Config, fem_params: SimParams, runner_name: str,
             response_type: ResponseType, responses: List[Response],
             skip_build: bool = False):
         super().__init__(response_type=response_type)

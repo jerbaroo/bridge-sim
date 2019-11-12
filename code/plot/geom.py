@@ -7,7 +7,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
@@ -61,7 +61,7 @@ def plot_cloud_of_nodes(
         deck: bool = True, piers: bool = True):
     """A scatter plot of the nodes of a 3D FEM."""
     # TODO: Create method for these three lines in d3/__init__.py
-    build_model_3d(c=c, expt_params=ExptParams([FEMParams(
+    build_model_3d(c=c, expt_params=ExptParams([SimParams(
         [], [])]), os_runner=OSRunner(c))
     nodes = list(nodes_by_id.values())
 

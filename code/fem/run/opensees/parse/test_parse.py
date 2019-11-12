@@ -1,7 +1,7 @@
 """Test fem.run.opensees.parse."""
 import itertools
 
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
 from model.load import PointLoad
@@ -12,7 +12,7 @@ def test_parse_3d():
     """Test parsing of responses from a 3D OpenSees simulation."""
     c = bridge_705_test_config(bridge_705_3d)
     fem_runner = OSRunner(c)
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(0.65, 0.35, 100)],
         response_types=[ResponseType.YTranslation])
     parsed = fem_runner.run(
