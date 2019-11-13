@@ -19,6 +19,11 @@ from util import clean_generated
 def plot_convergence(c: Config, run: bool):
     """Plot responses as shell density is increased.
 
+    NOTE: This is a simplistic plot. After running this function with argument
+    'run=True' on a few different machines, the results should be gathered as
+    specified in the function 'plot_convergence_machines' and that function run
+    to generate a better plot.
+
     Args:
         c: Config, global configuration object.
         run: bool, whether to re-run data collection simulations.
