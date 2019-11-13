@@ -1,11 +1,20 @@
 #+AUTHOR: Jeremy Barisch-Rooney
 #+TITLE: Modeling concrete slab bridges
+#+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{xcolor}
 
-#+LATEX_HEADER: \newcommand{\code}{\texttt}
+#+LATEX: \newpage
+#+LATEX: \tableofcontents
+#+LATEX: \newpage
+#+LATEX: \listoftables
+#+LATEX: \newpage
+#+LATEX: \listoflistings
+#+LATEX: \newpage
+#+LATEX: \listoffigures
 
+#+LATEX: \newpage
 * Introduction
 # Motivation of the research question.
 The probability of a bridge to fail increases over time until it is no longer
@@ -170,6 +179,7 @@ of installing a decision support system for bridge maintenance.
   # must be performed on the difference between sensor measurements from sensors
   # at equivalent positions on each substructure.
 
+#+LATEX: \clearpage
 * Terminology & Preliminaries
 ** Pseudocode
 Pseudocode in this thesis is given in two formats. For code written in an
@@ -187,6 +197,7 @@ type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
 function =bar= which takes a list of =Float= as input and returns a value of
 type =Int=".
 
+#+LATEX: \clearpage
 * Background & Motivation
 ** Existing Bridges
 # Dutch road network overview.
@@ -212,8 +223,9 @@ outlines the catgorization of the 3,283 structures in the network.
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we briefly review the cost of bridge maintenance, with a
-focus on Dutch concrete bridges, for which cite:klatter2003life is an important
+focus on Dutch concrete bridges, for which cite:klatter2003life is the de-facto
 reference.
+
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to
@@ -636,6 +648,7 @@ cases, which was true in this case.
    \textcolor{red}{TODO: Overview of bridge DSS}
 *** Summary
 \textcolor{red}{TODO: conclude the literature review}
+#+LATEX: \clearpage
 * Methods
 ** Data Collection
 # Section overview.
@@ -1041,14 +1054,11 @@ built is discussed.
 *** Sensor Placement
 *** Uncertainty
 *** Generalizability
+#+LATEX: \clearpage
 * Results
 ** Modeling Damage Scenarios
 ** Sensor Placement
 ** Anomally Detection
-* Appendix
-bibliographystyle:unsrtnat
+#+LATEX: \clearpage
+bibliographystyle:ieeetr
 bibliography:myrefs.bib
-
-#+TOC: tables
-#+TOC: listings
-#+LATEX: \listoffigures{}
