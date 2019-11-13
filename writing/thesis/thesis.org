@@ -3,6 +3,7 @@
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
+#+LATEX_HEADER: \usepackage{commath}
 #+LATEX_HEADER: \usepackage{xcolor}
 
 #+LATEX: \newpage
@@ -821,7 +822,6 @@ on the PDF. A vehicle that is sampled from this =DataFrame= will have a speed of
 40kmph, and an axle-width of 2m, the inter-axle distances and the axle weights
 are taken from the =DataFrame=.
 
-
 **** Traffic
 To train a classifier to distinguish between normal and abnormal traffic
 conditions it is necessary to define normal traffic conditions and additional
@@ -1034,12 +1034,64 @@ for vehicle in traffic:
         ru = unit_load_simulation.response_at(point)
         response += ru * (wi / ul)
 #+END_SRC
-*** System Design
-*** System Verification
+*** Design and Interface
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
+*** Verification
+The data collection system needs to be verified in order for the generated data
+to be trusted, otherwise an analysis of the generated data would offer little
+value. This subsection outlines how the data collection system was verified.
+
+# Error decreases as mesh density increases.
+The mesh density of a FEM generated from a =Bridge= is controlled by a number of
+parameters, as outlined in Subsection [[Bridge Modeling]]. As the mesh density of
+the FEM increases, the expectation is that the error $\epsilon$ of responses
+from the simulation will decrease to zero. $\epsilon$ is calculated for the FEM
+of bridge 705 as the mean difference of the maximum response recorded with
+OpenSees to the maximum recorded with Diana, for a number of loading positions.
+$\epsilon = \sum_{p=1}^{n} \abs{r_{op} - r_{dp}} \frac{1}{n}$, where $r_{op}$ is
+the maximum response recorded with OpenSees under a 100kN concentrated load at
+point $p$ and $r_{dp}$ is the maximum response recorded using the verified Diana
+model with the same load applied at point $p$. Figure [[fig:response-convergence]]
+shows $\epsilon$ for $n = 4$ as a function of the number of nodes in the
+generated FEM. The Figure verifies that for the $n = 4$ chosen points that
+$\epsilon$ decreases as the mesh density increases. Only four points were chosen
+due to the high run time of simulations, the chosen points are described next.
+
+\textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
+
+#+NAME: fig:response-convergence
+#+CAPTION: TODO:CAPTION
+[[fig:response-convergence]]
+
+# Point for verification.
+Four points were chosen for verification of the generated FEM. These points were
+chosen
+
+#+NAME: tbl:verification-points
+#+CAPTION: TODO:CAPTION
+| Diana | OpenSees | Point |
+|-------+----------+-------|
+|  0.49 |    0.465 | A     |
+|  0.14 |    0.130 | B     |
+| 0.162 |    0.180 | C     |
+|  0.13 |    0.128 | D     |
+
+\textcolor{red}{Verify the model is deterministic $\epsilon$}
+
+
+*** Parameter Selection
+Increasing mesh density increases the accuracy of responses, but it also
+increases the running time of a FE simulation. Figure \textcolor{red}{TODO}
+shows the running time of a FE simulation of bridge 705 on three different
+machines juxtaposed against the value of $\epsilon$ from Figure
+[[fig:response-convergence]]. Based on these values a base mesh density of
+\textcolor{red}{X * Z} was chosen. \textcolor{red}{time reduction and
+$\epsilon$}. Recall from Subsection [[Bridge Modeling]] that the generated mesh of
+the bridge deck will have greater density in most areas but may also have
+reduced density in areas away from the applied load.
 *** Model Assumptions
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
@@ -1086,8 +1138,8 @@ built is discussed.
 *** Damage identification model
 ** Decision Support System
 *** Sensor Placement
-*** Uncertainty
-*** Generalizability
+*** Noise
+*** Other Bridges
 #+LATEX: \clearpage
 * Results
 ** Modeling Damage Scenarios
