@@ -223,9 +223,8 @@ outlines the catgorization of the 3,283 structures in the network.
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we briefly review the cost of bridge maintenance, with a
-focus on Dutch concrete bridges, for which cite:klatter2003life is the de-facto
-reference.
-
+focus on Dutch concrete bridges. Much of the information comes from
+cite:klatter2003life which should be considered the de-facto reference.
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to
@@ -303,6 +302,7 @@ at 37€ million.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
 ** Damage to Bridges
+** SHM of Bridges
 ** Extensibility
 In order for the developed DSS to be truly extensible it is not limited to
 depend on a single finite element program. The system has as a parameter a
@@ -335,6 +335,9 @@ can occur when software is developed behind closed doors. Open source software
 also provides transparency to anyone wishing to investigate the software and may
 produce more reliable software due to more people having eyes on it.
 ** Existing Work
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
 \textcolor{green}{A more in-depth look at what has been done before}
 
 This section contains a review of the most relevant material studied during
@@ -674,8 +677,7 @@ later "driven" along the bridge. Vehicles are sampled according to the given
 principle of superposition, responses collected from the previous simulations
 can be summed together, one for each vehicle's wheel, to calculate a response at
 a requested point. This will all be explained more thoroughly in Subsection
-[[System Operation]] but it is useful to present a brief overview at the beginning
-of this section.
+[[System Operation]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
@@ -864,76 +866,107 @@ earthquake, and oil and gas.
 \textcolor{red}{TODO: Image of the 705 Diana model.}
 *** System Operation
 The goal of the data collection system is to translate a =Bridge=, along with a
-=TrafficScenario= and =BridgeScenario=, into a time series of responses.
+=TrafficScenario= and =BridgeScenario=, into a time series of responses. This
+subsection details how that translation takes place.
 
-A =Bridge= is transformed into a FEM for OpenSees, the resulting FEM is a 2D or
-3D model depending on the dimensionality of the =Bridge=. In each case the FEM
-takes the form of a =.tcl= file (written in the TCL language). A =.tcl= file for
-Opensees consists of a sequence of commands for declaring a structure's
-geometry, material properties, and other settings of a FE simulation. For
-example, a =.tcl= file created from a =Bridge= will consist of a number of
-=node= and =element= commands, where nodes are points in space with degrees of
-freedom and elements are a mathematical relation of how degrees of freedom
-relate between nodes. In the case of the FEMs built from a =Bridge=, four nodes
-are connected by a /shell/ element. Shell elements are used when the thickness
-is significantly smaller than the other dimensions. In the case of bridge 705's
-deck the length is 102.75m, width is 33.2m, and thickness is varying from 0.5m
-to 0.739m.
+# A Bridge is transformed into a TCL file.
+The data collection system transforms a =Bridge= into a FEM for OpenSees. The
+resulting FEM is a 2D or 3D model depending on the dimensionality of the
+=Bridge=. In each case the FEM takes the form of a =.tcl= file (written in the
+TCL language). A =.tcl= file for Opensees consists of a sequence of commands for
+declaring a structure's geometry, material properties, and other settings of a
+FE simulation. For example, a =.tcl= file created from a =Bridge= will consist
+of a number of =node= and =element= commands, where nodes are points in space
+with degrees of freedom and elements are a mathematical relation of how degrees
+of freedom relate between nodes. In the case of the FEMs built from a =Bridge=,
+four nodes are connected by a /shell/ element. Shell elements are used when the
+thickness is significantly smaller than the other dimensions. In the case of
+bridge 705's deck the length is 102.75m, width is 33.2m, and thickness is
+varying from 0.5m to 0.739m.
 
-For each =BridgeScenario= for a =Bridge=, a number of simulations are run the
+# Unit load simulations are run.
+Under the =HealthyScenario= for a =Bridge=, a number of simulations are run the
 first time that a response is requested to a point load or vehicle. For each
 wheel track a number of simulations are run. The number of simulations per wheel
-track is specified by the system parameter =Config.il_num_loads=. In each of
-these simulations a load of unit intensity =I= is placed at a point on the wheel
-track and responses of the bridge are recorded. The responses are translation
-from each node, and stress and strain from each element. Thus in summary, for
-each of the =Config.il_num_loads= points on one wheel track, the responses from
-the bridge are recorded. Each of these simulations we will call a unit load
-simulation, and the responses to such a simulation, unit load responses.
+track is specified by the system parameter =il_num_loads=. In each of these
+simulations a load of unit intensity =I= is placed at a point on the wheel track
+and responses of the bridge are recorded. The responses are translation from
+each node, and stress and strain from each element. Thus in summary, for each of
+the =il_num_loads= simulations per wheel track, the responses from the bridge
+are recorded. Each of these simulations we will call a unit load simulation, and
+the responses to such a simulation, unit load responses.
 
+# Principle of superposition to calculate responses.
 Unit load simulations are simulations that must only be run once, and then the
-principle of superposition can be used to determine the response to a vehicle,
-based on the responses recorded in the unit load simulations. Furthermore, the
-response to traffic (multiple vehicles on the bridge) can be calculated by
-simply summing the response to each individual vehicle on the bridge, as
-outlined in Listing [[lst:superposition]].
+principle of superposition can be used to determine the response to a vehicle
+under the =HealthyScenario=, based on the unit load responses. Furthermore, the
+response to traffic (multiple vehicles on the bridge) can be calculated simply
+by summing the response to each vehicle on the bridge. The use of the principle
+of superposition to calculate the response to a vehicle is introduced in Listing
+[[lst:superposition]]. This calculation can however be phrased as a linear algebra
+problem for which computers are typically optimized. The calculation of the
+response at many points to many vehicles over a series of time steps using
+matrix multiplication is shown in Listing [[lst:matmul]].
 
 #+NAME: lst:superposition
-#+CAPTION: Pseudo-code showing the use of the principle of superposition to determine the response to a vehicle from unit load simulations. When requesting the response at a point =p= to a vehicle on a bridge, the vehicle is first decomposed into loading positions =wp= and intensities =wi=, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position =wp=, the unit load simulation is selected where =wp= is closest to the unit load applied in that simulation. From this unit load simulation, the response =ru= at the recorded point closest to point =p= is considered. Thus the response =ru= is the response one of the vehicle wheel's positions, except not to the vehicle's load but instead to a load of unit intensity, thus it must be multiplied by =wi / ul= where =ul= is the unit load intensity.
+#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. When requesting the response at a point =p= to a vehicle on a bridge, the vehicle is first decomposed into loading positions =wp= and intensities =wi=, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position =wp=, the unit load simulation is selected where =wp= is closest to the unit load applied in that simulation. From this unit load simulation, the response =ru= at the recorded point closest to point =p= is considered. Thus the response =ru= is the response to a load at one of the vehicle wheel's positions, except not to the wheel's load but instead to a load of unit intensity, thus =ru= must be multiplied by =wi / ul= where =ul= is the unit load intensity.
 #+BEGIN_SRC python
 response = 0
 p = Point(x=35, y=0, z=25)
 for wp, wi in vehicle:
-    unit_load_simulation = load_sim_closest_to(wp)
+    unit_load_simulation = sim_with_unit_load_closest_to(wp)
     ru = unit_load_simulation.response_at(point)
     response += ru * (wi / ul)
 #+END_SRC
 
+#+NAME: lst:matmul
+#+CAPTION[Response to traffic using matrix multiplication]: Response to traffic using matrix multiplication
+#+BEGIN_SRC python
+$ traffic_t0 = [
+    1, 2, 0, 0,
+    1, 2, 0, 0,
+    3, 3, 0, 0,
+    3, 3, 0, 0]
+$ traffic = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3, 0, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+$ points = [
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+    [0, 0, 0, 0]
+]
+$ print(np.matmul(traffic, points))
+#+END_SRC
+
+# Limited accuracy of responses: mesh density & il_num_loads
+=il_num_loads= number of unit load simulations are run per wheel track. And
+there are a finite number of responses collected from each unit load simulation,
+as determined by the mesh density. To explicitly state an important point: the
+unit load responses, which are used to calculate a response at a point =P= to a
+vehicle, are the responses at the recorded point closest to =P=, and the unit
+load simulations from which these responses are taken are those for which the
+unit load is closest to each of a vehicle's wheels position on the bridge. Thus
+the parameter =il_num_loads=, and the parameters that define the mesh density,
+determine the discretization step of the model and thus the accuracy of the
+responses which are calculated.
+
 # \textcolor{red, TODO: Convergence plot}
 
-There are only =Config.il_num_loads= number of unit load simulations per wheel
-track. And there are only a limited number of responses collected from each unit
-load simulation, as determined by the mesh density parameters. To clearly state
-an important point: the responses from unit load simulations which are used to
-calculate a response at a point =P= to a vehicle, are the responses at the
-recorded point closest to =P=, and the unit load simulations from which these
-responses are taken are those for which the unit load is closest to each of the
-vehicle's wheels position on the bridge. Thus the parameters which define the
-mesh density, and =Config.il_num_loads=, determine the discretization step and
-thus the accuracy of the responses which are calculated.
+# Influence lines per wheel track.
+=il_num_loads= number of unit load simulations are run per wheel track. Then for
+any point on the bridge, the response at that point can be calculated to a load
+on one of that wheel tracks. The function of the response at a point due to a
+changing load is called an influence line, which is commonly used in structural
+engineering to describe a response function. Figure [[fig:influence-lines]] contains
+a number of influence lines. Each influence line shows the displacement of the
+bridge deck at a different point on the wheel track at ~z = -9.4m~, as a unit
+load is moved along the same wheel track.
 
-# \textcolor{red, TODO: Convergence plot}
-
-For each wheel track on the bridge, =Config.il_num_loads= amount of unit load
-simulations are generated. Then for any point on the bridge, the response at
-that point can be calculated to a load on one of the wheel tracks. The function
-of the response at a point to a changing load is called an influence line,
-commonly used in structural engineering to describe a response function. Figure
-[[fig:influence-lines]] shows a number of influence lines of the displacement at
-different points on the wheel track at ~z = -9.4m~, in each influence line plot
-a unit load is moved along the same wheel track.
-
-#+CAPTION: Displacement at different points on the wheel track at ~z = -9.4m~, in each influence line plot a unit load is moved along the same wheel track. The red vertical line depicts the position of the load.
+#+CAPTION: Displacement of the bridge deck at different points on the wheel track at ~z = -9.4m~, in each influence line plot a unit load is moved along the same wheel track. The red vertical line depicts the position of the load.
 #+NAME: fig:influence-lines
 [[./images/subplots-y-z-94.png]]
 
@@ -1001,7 +1034,8 @@ for vehicle in traffic:
         ru = unit_load_simulation.response_at(point)
         response += ru * (wi / ul)
 #+END_SRC
-
+*** System Design
+*** System Verification
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
