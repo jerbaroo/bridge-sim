@@ -1053,12 +1053,13 @@ of bridge 705 as the mean difference of the maximum response recorded with
 OpenSees to the maximum recorded with Diana, for a number of loading positions.
 $\epsilon = \sum_{p=1}^{n} \abs{r_{op} - r_{dp}} \frac{1}{n}$, where $r_{op}$ is
 the maximum response recorded with OpenSees under a 100kN concentrated load at
-point $p$ and $r_{dp}$ is the maximum response recorded using the verified Diana
-model with the same load applied at point $p$. Figure [[fig:response-convergence]]
-shows $\epsilon$ for $n = 4$ as a function of the number of nodes in the
-generated FEM. The Figure verifies that for the $n = 4$ chosen points that
-$\epsilon$ decreases as the mesh density increases. Only four points were chosen
-due to the high run time of simulations, the chosen points are described next.
+position $p$ and $r_{dp}$ is the maximum response recorded using the verified
+Diana model with the same load applied. Figure [[fig:response-convergence]] shows
+$\epsilon$ for $n = 4$ as a function of the number of nodes in the bridge deck
+of the generated FEM. The Figure verifies that for the $n = 4$ chosen loading
+positions that $\epsilon$ decreases as the mesh density increases. Only four
+loading positions were chosen due to the high run time of simulations, the
+chosen loading positions are described next.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 

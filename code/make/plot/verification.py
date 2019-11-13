@@ -60,12 +60,9 @@ def plot_convergence(c: Config, run: bool):
     if run:
         with open(path + ".txt", "w") as f:
             f.write("x, z, decknodes, time, responses...")
-        steps = 10
-        xs = np.linspace(2, 11, steps)
-        zs = np.linspace(2, 11, steps)
-        # steps = 100
-        # xs = np.linspace(2, c.bridge.length * 4, steps)
-        # zs = np.linspace(2, c.bridge.width * 4, steps)
+        steps = 100
+        xs = np.linspace(2, c.bridge.length * 4, steps)
+        zs = np.linspace(2, c.bridge.width * 4, steps)
         for step in range(steps):
             clean_generated(c)
             x, z = int(xs[step]), int(zs[step])
