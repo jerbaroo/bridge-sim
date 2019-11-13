@@ -4,12 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
 pytest = "*"
 pydeps = "*"
-python-language-server = {extras = ["all"],version = "*"}
-pyls-mypy = "*"
-pyls-isort = "*"
-pyls-black = "*"
 
 [packages]
 colorama = "*"

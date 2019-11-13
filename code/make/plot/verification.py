@@ -1,4 +1,7 @@
 """Verification plots."""
+import os
+from timeit import default_timer as timer
+
 import numpy as np
 
 from config import Config
@@ -10,6 +13,7 @@ from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
 from model.load import PointLoad
 from model.response import ResponseType
 from plot import plt
+from util import clean_generated
 
 
 def plot_convergence(c: Config):
@@ -18,28 +22,54 @@ def plot_convergence(c: Config):
     point = Point(x=35, y=0, z=9.4)
     bridge = bridge_705_3d()
     fem_params = SimParams(
-        ploads=[PointLoad(
-            x_frac=bridge.x_frac(point.x), z_frac=bridge.z_frac(point.z),
-            kn=100)],
-        response_types=[response_type])
+        ploads=[
+            PointLoad(
+                x_frac=bridge.x_frac(point.x),
+                z_frac=bridge.z_frac(point.z),
+                kn=100,
+            )
+        ],
+        response_types=[response_type],
+    )
+    x, z = 2, 2
+
+    def bridge_overload(*args, **kwargs):
+        return bridge_705_3d(
+            name=f"Bridge 705 convergence-plot",
+            base_mesh_deck_nodes_x=x,
+            base_mesh_deck_nodes_z=z,
+            base_mesh_pier_nodes_y=5,
+            base_mesh_pier_nodes_z=5,
+            *args,
+            **kwargs,
+        )
+
+    c = bridge_705_config(bridge_overload)
+    path = c.get_image_path("convergence", "node-density")
+    with open(path + ".txt", "w") as f:
+        pass  # Empty the file.
+
     steps = 100
-    xs = np.linspace(2, c.bridge.length, steps)
-    zs = np.linspace(2, c.bridge.width, steps)
+    xs = np.linspace(2, c.bridge.length * 4, steps)
+    zs = np.linspace(2, c.bridge.width * 4, steps)
     responses = []
     for step in range(steps):
+        clean_generated(c)
         x, z = int(xs[step]), int(zs[step])
-        print(f"step = {step}, x = {x}, z = {z}")
-        def bridge_overload(*args, **kwargs):
-            return bridge_705_3d(
-                name=f"Bridge 705-debug-{x}-{z}",
-                base_mesh_deck_nodes_x=x,
-                base_mesh_deck_nodes_z=z,
-                base_mesh_pier_nodes_y=3,
-                base_mesh_pier_nodes_z=3, *args, **kwargs)
+        with open(path + ".txt", "a") as f:
+            f.write(f"\nx = {x}, z = {z}")
         c = bridge_705_config(bridge_overload)
-        fem_responses = load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=OSRunner(c))
-        responses.append(fem_responses._at(x=point.x, y=point.y, z=point.z))
+        start = timer()
+        sim_responses = load_fem_responses(
+            c=c,
+            sim_params=fem_params,
+            response_type=response_type,
+            sim_runner=OSRunner(c),
+        )
+        response = sim_responses._at(x=point.x, y=point.y, z=point.z)
+        with open(path + ".txt", "a") as f:
+            f.write(f", time = {timer() - start:.4f}, response = {response}")
+        responses.append(response)
     plt.plot(responses)
-    plt.show()
+    plt.savefig(path)
+    plt.close()
