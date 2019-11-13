@@ -217,7 +217,7 @@ def make_distribution_plots(c: Config):
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # contour.plot_of_unit_loads(c)
-    verification.plot_convergence(c)
+    verification.plot_convergence(c, run=False)
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
     # make_il_plots(c)
