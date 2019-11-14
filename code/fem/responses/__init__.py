@@ -115,10 +115,10 @@ class Responses:
 
     def values(self):
         """Yield each response value."""
-        for y_dict in self.responses.values():
+        for y_dict in self.responses[self.times[0]].values():
             for z_dict in y_dict.values():
-                for value in z_dict.values():
-                    yield value
+                for response in z_dict.values():
+                    yield response.value
 
     def min(self):
         return min(self.values())
