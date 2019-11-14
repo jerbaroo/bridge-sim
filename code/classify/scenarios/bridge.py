@@ -13,5 +13,6 @@ class PierDispBridge(BridgeScenario):
     def __init__(self, displacement_ctrl: DisplacementCtrl):
         super().__init__(
             name=f"displacement-{round_m(displacement_ctrl.displacement)}m"
-                 + f"-pier-{displacement_ctrl.pier}")
+            + f"-pier-{displacement_ctrl.pier}"
+        )
         self.displacement_ctrl = displacement_ctrl

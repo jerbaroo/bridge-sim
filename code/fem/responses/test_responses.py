@@ -27,14 +27,18 @@ def test_fem_responses():
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = SimParams(
         ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
-        response_types=response_types)
+        response_types=response_types,
+    )
 
     # for response_type in list(ResponseType):
     for response_type in response_types:
         # Remove results on disk.
         path = fem_responses_path(
-            c=c, fem_params=fem_params, response_type=response_type,
-            runner_name=fem_runner.name)
+            c=c,
+            fem_params=fem_params,
+            response_type=response_type,
+            runner_name=fem_runner.name,
+        )
         if os.path.exists(path):
             os.remove(path)
         print(response_type)
@@ -43,8 +47,11 @@ def test_fem_responses():
         # Load simulation responses for each ResponseType.
         print(f"Running load_fem_responses")
         fem_responses = load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner)
+            c=c,
+            fem_params=fem_params,
+            response_type=response_type,
+            fem_runner=fem_runner,
+        )
         # Check length of simulation results.
         assert len(fem_responses.times) == 1
         assert fem_responses.times[0] == 0
@@ -54,14 +61,24 @@ def test_fem_responses():
     # each element, with only one response for each y and z axis.
     def assert_translation_responses_shape(response_type: ResponseType):
         fem_responses = load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner)
+            c=c,
+            fem_params=fem_params,
+            response_type=response_type,
+            fem_runner=fem_runner,
+        )
         assert np.isclose(
-            len(fem_responses.xs), c.bridge.length / c.os_node_step + 1)
+            len(fem_responses.xs), c.bridge.length / c.os_node_step + 1
+        )
         assert len(fem_responses.ys[fem_responses.xs[0]]) == 1
         assert len(fem_responses.zs[fem_responses.xs[0]]) == 1
-        assert len(fem_responses.zs[fem_responses.xs[0]][
-            fem_responses.ys[fem_responses.xs[0]][0]]) == 1
+        assert (
+            len(
+                fem_responses.zs[fem_responses.xs[0]][
+                    fem_responses.ys[fem_responses.xs[0]][0]
+                ]
+            )
+            == 1
+        )
 
     # assert_translation_responses_shape(ResponseType.XTranslation)
     # assert_translation_responses_shape(ResponseType.YTranslation)
@@ -70,18 +87,25 @@ def test_fem_responses():
     # node, with one response for each y and z point of the layers and patches.
     def assert_stress_strain_responses_shape(response_type: ResponseType):
         fem_responses = load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner)
+            c=c,
+            fem_params=fem_params,
+            response_type=response_type,
+            fem_runner=fem_runner,
+        )
         assert np.isclose(
-            len(fem_responses.xs), c.bridge.length / c.os_node_step)
+            len(fem_responses.xs), c.bridge.length / c.os_node_step
+        )
         assert len(fem_responses.ys[fem_responses.xs[0]]) == (
-            len(c.bridge.sections[0].patches) +
-            len(c.bridge.sections[0].layers))
+            len(c.bridge.sections[0].patches) + len(c.bridge.sections[0].layers)
+        )
         assert len(fem_responses.zs[fem_responses.xs[0]]) == (
-            len(c.bridge.sections[0].patches) +
-            len(c.bridge.sections[0].layers))
-        assert len(fem_responses.zs[fem_responses.xs[0]][
-            fem_responses.ys[fem_responses.xs[0]][0]]) == len(layer.points())
+            len(c.bridge.sections[0].patches) + len(c.bridge.sections[0].layers)
+        )
+        assert len(
+            fem_responses.zs[fem_responses.xs[0]][
+                fem_responses.ys[fem_responses.xs[0]][0]
+            ]
+        ) == len(layer.points())
 
     # assert_stress_strain_responses_shape(ResponseType.Strain)
     # assert_stress_strain_responses_shape(ResponseType.Stress)
@@ -95,13 +119,17 @@ def test_fem_responses_at():
     response_types = fem_runner.supported_response_types(c.bridge)
     fem_params = SimParams(
         ploads=[PointLoad(x_frac=0.1, z_frac=0.3, kn=1000)],
-        response_types=response_types)
+        response_types=response_types,
+    )
     response_type = ResponseType.XTranslation
 
     # Load simulation responses.
     fem_responses = load_fem_responses(
-        c=c, fem_params=fem_params, response_type=response_type,
-        fem_runner=fem_runner)
+        c=c,
+        fem_params=fem_params,
+        response_type=response_type,
+        fem_runner=fem_runner,
+    )
 
     # Retrieve a response.
     x, y, z = fem_responses.xs[len(fem_responses.xs) // 2], 0, 0

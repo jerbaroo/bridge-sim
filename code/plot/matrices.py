@@ -12,15 +12,25 @@ D: bool = False
 
 
 def plot_il(
-        c: Config, resp_matrix: ILMatrix, expt_index: int,
-        response_frac: float, z_frac: float, num_x: int, save: str = None):
+    c: Config,
+    resp_matrix: ILMatrix,
+    expt_index: int,
+    response_frac: float,
+    z_frac: float,
+    num_x: int,
+    save: str = None,
+):
     """Plot the IL for a response at some position."""
     x_fracs = np.linspace(0, 1, num_x)
     rs = [
         resp_matrix.response_to(
-            x_frac=response_frac, z_frac=z_frac, load_x_frac=load_x_frac,
-            load=c.il_unit_load_kn)
-        for load_x_frac in x_fracs]
+            x_frac=response_frac,
+            z_frac=z_frac,
+            load_x_frac=load_x_frac,
+            load=c.il_unit_load_kn,
+        )
+        for load_x_frac in x_fracs
+    ]
     xs = [c.bridge.x(x_frac=x_frac) for x_frac in x_fracs]
 
     units = resp_matrix.response_type.units()
@@ -37,7 +47,8 @@ def plot_il(
     plt.title(
         f"{name.capitalize()} at x = {x:.2f}m, z = {z:.2f}m"
         + f"\n to {c.il_unit_load_kn}kN load moving along"
-        + f" z = {c.bridge.z(resp_matrix.load_z_frac):.2f}m")
+        + f" z = {c.bridge.z(resp_matrix.load_z_frac):.2f}m"
+    )
     plt.xlabel(f"X position of {c.il_unit_load_kn}kN load")
     plt.ylabel(f"{name.capitalize()} ({units})")
 
@@ -48,9 +59,16 @@ def plot_il(
 
 
 def plot_dc(
-        c: Config, resp_matrix: ResponsesMatrix, expt_index: int,
-        response_frac: float, num_x: int, interp_sim: bool,
-        interp_response: bool, save: str = None, show: bool = False):
+    c: Config,
+    resp_matrix: ResponsesMatrix,
+    expt_index: int,
+    response_frac: float,
+    num_x: int,
+    interp_sim: bool,
+    interp_response: bool,
+    save: str = None,
+    show: bool = False,
+):
     """Plot the IL for a response at some position.
 
     This function ignores the interp_sim as it just return the response due to
@@ -65,8 +83,10 @@ def plot_dc(
     xs = fem_responses.xs
     rs = [
         resp_matrix.expt_responses[expt_index].at(
-            x_frac=c.bridge.x_frac(x), interpolate=interp_sim)
-        for x in xs]
+            x_frac=c.bridge.x_frac(x), interpolate=interp_sim
+        )
+        for x in xs
+    ]
     response_name = resp_matrix.response_type.name()
     response_units = resp_matrix.response_type.units()
     plt.title(f"{response_name.capitalize()} at simulation {expt_index}")
@@ -74,22 +94,33 @@ def plot_dc(
     plt.ylabel(f"{response_name.capitalize()} ({response_units})")
     sci_format_y_axis()
     plt.plot(xs, rs)
-    if save: plt.savefig(save)
-    if show: plt.show()
-    if save or show: plt.close()
+    if save:
+        plt.savefig(save)
+    if show:
+        plt.show()
+    if save or show:
+        plt.close()
     return rs
 
 
 def matrix_subplots(
-        c: Config, resp_matrix: ResponsesMatrix, num_subplots: int, num_x: int,
-        z_frac: float, rows: int = 4, save: str = None, plot_func = None):
+    c: Config,
+    resp_matrix: ResponsesMatrix,
+    num_subplots: int,
+    num_x: int,
+    z_frac: float,
+    rows: int = 4,
+    save: str = None,
+    plot_func=None,
+):
     """For each subplot plot matrix responses using the given function."""
     cols = int(num_subplots / rows)
     if cols != num_subplots / rows:
         print_w(
             f"Rows don't divide number of simulations, cols = {cols}"
             + f", sims = {num_subplots / rows}"
-            + f", num_subplots = {num_subplots}, rows = {rows}")
+            + f", num_subplots = {num_subplots}, rows = {rows}"
+        )
         cols += 1
     y_min, y_max = 0, 0
     # Plot each IL and bridge deck side.
@@ -97,7 +128,8 @@ def matrix_subplots(
         plt.subplot(rows, cols, i + 1)
         plot_bridge_deck_side(c.bridge, show=False, equal_axis=False)
         rs = plot_func(
-            c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x)
+            c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x
+        )
         plt.axvline(x=c.bridge.x(x_frac=response_frac), color="red")
         # Keep track of min and max on y axis (only when non-zero responses).
         if any(rs):
@@ -116,7 +148,8 @@ def matrix_subplots(
 
 
 def imshow_il(
-        c: Config, il_matrix: ILMatrix, num_loads: int, num_sensors: int, save: str):
+    c: Config, il_matrix: ILMatrix, num_loads: int, num_sensors: int, save: str
+):
     """Plot a matrix of influence line for multiple response positions.
 
     Args:
@@ -134,8 +167,11 @@ def imshow_il(
         matrix.append([])
         for sensor_frac in sensor_fracs:
             value = il_matrix.response_to(
-                x_frac=sensor_frac, z_frac=il_matrix.load_z_frac,
-                load_x_frac=load_frac, load=c.il_unit_load_kn)
+                x_frac=sensor_frac,
+                z_frac=il_matrix.load_z_frac,
+                load_x_frac=load_frac,
+                load=c.il_unit_load_kn,
+            )
             # print_d(D, f"value = {value}, il_frac = {il_frac}, load_x_frac = {load_x_frac}")
             matrix[-1].append(value)
 
@@ -152,7 +188,8 @@ def imshow_il(
     plt.title(
         f"Influence lines for {num_sensors} response positions along z ="
         + f" {c.bridge.z(il_matrix.load_z_frac):.2f}"
-        + f" {il_matrix.response_type.units()}")
+        + f" {il_matrix.response_type.units()}"
+    )
     plt.xlabel("Response x position (m)")
     locs = [int(i) for i in np.linspace(0, num_sensors - 1, 5)]
     labels = [f"{c.bridge.x(sensor_fracs[i]):.2f}" for i in locs]

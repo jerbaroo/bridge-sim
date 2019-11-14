@@ -14,8 +14,13 @@ def test_max_shell_area():
     return
     # Function from max_shell_area to a Config.
     dummy_config = lambda max_shell_area: Config(
-        bridge_705_3d, "data/a16-data/a16.csv", [], 0, "length",
-        max_shell_area=max_shell_area)
+        bridge_705_3d,
+        "data/a16-data/a16.csv",
+        [],
+        0,
+        "length",
+        max_shell_area=max_shell_area,
+    )
     # Get the default values without setting max_shell_area.
     c = dummy_config(None)
     default_node_step_x = c.os_node_step
@@ -49,4 +54,3 @@ def test_max_shell_area():
     print_d(D, f"Wall shell width = {wall_shell_width}")
     print_d(D, f"Wall shell area = {wall_shell_area}")
     assert max_shell_area >= wall_shell_area
-

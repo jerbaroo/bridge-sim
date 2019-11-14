@@ -17,7 +17,9 @@ DEBUG = True
 
 
 # The letters that come after a number e.g. in 1st, 2nd, 3rd.
-st = lambda n: "%s" % ("tsnrhtdd"[(np.floor(n/10)%10!=1)*(n%10<4)*n%10::4])
+st = lambda n: "%s" % (
+    "tsnrhtdd"[(np.floor(n / 10) % 10 != 1) * (n % 10 < 4) * n % 10 :: 4]
+)
 
 
 def round_m(x):
@@ -56,8 +58,9 @@ def nearest_index(array, value):
     """Return the index of the nearest value in a sorted array."""
     i = np.searchsorted(array, value, side="left")
     if i > 0 and (
-            i == len(array) or
-            math.fabs(value - array[i - 1]) < math.fabs(value - array[i])):
+        i == len(array)
+        or math.fabs(value - array[i - 1]) < math.fabs(value - array[i])
+    ):
         return i - 1
     else:
         return i

@@ -13,8 +13,11 @@ from plot.matrices import imshow_il, matrix_subplots, plot_dc, plot_il
 
 
 def il_plots(
-        c: Config, num_loads: int = 100, num_subplot_ils: int = 12,
-        fem_runner: Optional[FEMRunner] = None):
+    c: Config,
+    num_loads: int = 100,
+    num_subplot_ils: int = 12,
+    fem_runner: Optional[FEMRunner] = None,
+):
     """Make plots of the influence lines.
 
     Args:
@@ -41,33 +44,49 @@ def il_plots(
 
             # TODO: Remove once Stress and Strain are fixed.
             if c.bridge.dimensions == Dimensions.D3 and response_type in [
-                    ResponseType.Stress, ResponseType.Strain]:
+                ResponseType.Stress,
+                ResponseType.Strain,
+            ]:
                 continue
 
             il_matrix = ILMatrix.load(
-                c=c, response_type=response_type, fem_runner=fem_runner,
-                load_z_frac=pload_z_frac)
+                c=c,
+                response_type=response_type,
+                fem_runner=fem_runner,
+                load_z_frac=pload_z_frac,
+            )
 
             filename = pstr(
                 f"{il_matrix.fem_runner.name}-{response_type.name()}"
-                + f"-loadz={c.bridge.z(pload_z_frac):.2f}-numloads-{num_loads}")
+                + f"-loadz={c.bridge.z(pload_z_frac):.2f}-numloads-{num_loads}"
+            )
 
             imshow_il(
-                c=c, il_matrix=il_matrix, num_loads=num_loads,
+                c=c,
+                il_matrix=il_matrix,
+                num_loads=num_loads,
                 num_sensors=num_loads,
-                save=c.get_image_path("ils", f"imshow-{filename}"))
+                save=c.get_image_path("ils", f"imshow-{filename}"),
+            )
 
             matrix_subplots(
-                c=c, resp_matrix=il_matrix, num_subplots=num_subplot_ils,
-                num_x=num_loads, plot_func=plot_il,
-                z_frac=il_matrix.load_z_frac, save=c.get_image_path(
-                    "ils", f"subplots-{filename}"))
+                c=c,
+                resp_matrix=il_matrix,
+                num_subplots=num_subplot_ils,
+                num_x=num_loads,
+                plot_func=plot_il,
+                z_frac=il_matrix.load_z_frac,
+                save=c.get_image_path("ils", f"subplots-{filename}"),
+            )
     c.il_num_loads = original_il_num_loads
 
 
 def dc_plots(
-        c: Config, num_loads: int = 100, num_subplot_ils: int = 12,
-        fem_runner: Optional[FEMRunner] = None):
+    c: Config,
+    num_loads: int = 100,
+    num_subplot_ils: int = 12,
+    fem_runner: Optional[FEMRunner] = None,
+):
     """Make plots of the displacement control responses.
 
     Args:
@@ -94,14 +113,20 @@ def dc_plots(
 
             # Make the influence line imshow matrix.
             dc_matrix = DCMatrix.load(
-                c=c, response_type=response_type, fem_runner=OSRunner(c))
+                c=c, response_type=response_type, fem_runner=OSRunner(c)
+            )
 
             filename = (
                 f"subplots-{dc_matrix.fem_runner.name}"
                 + f"-{response_type.name()}"
-                + f"-numexpts-{dc_matrix.num_expts}")
+                + f"-numexpts-{dc_matrix.num_expts}"
+            )
 
             matrix_subplots(
-                c=c, resp_matrix=dc_matrix, num_x=num_x, plot_func=plot_dc,
-                save=c.get_image_path("dcs", f"subplots-{filename}"))
+                c=c,
+                resp_matrix=dc_matrix,
+                num_x=num_x,
+                plot_func=plot_dc,
+                save=c.get_image_path("dcs", f"subplots-{filename}"),
+            )
     c.il_num_loads = original_num_ils

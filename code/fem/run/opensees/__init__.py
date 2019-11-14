@@ -15,15 +15,20 @@ from model.response import ResponseType
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
     d2_response_types = [
-        ResponseType.XTranslation, ResponseType.YTranslation,
-        ResponseType.Strain, ResponseType.Stress]
+        ResponseType.XTranslation,
+        ResponseType.YTranslation,
+        ResponseType.Strain,
+        ResponseType.Stress,
+    ]
     if bridge.dimensions == Dimensions.D2:
         return d2_response_types
     elif bridge.dimensions == Dimensions.D3:
         # return d2_response_types + [ResponseType.ZTranslation]
         return [
-            ResponseType.XTranslation, ResponseType.YTranslation,
-            ResponseType.ZTranslation]
+            ResponseType.XTranslation,
+            ResponseType.YTranslation,
+            ResponseType.ZTranslation,
+        ]
     else:
         raise ValueError(f"{bridge.dimensions} not supported by OSRunner")
 
@@ -31,10 +36,14 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
 class OSRunner(FEMRunner):
     def __init__(self, c: Config):
         super().__init__(
-            c=c, name="OpenSees",
+            c=c,
+            name="OpenSees",
             supported_response_types=opensees_supported_response_types,
-            build=build_model, run=run_model, parse=parse_responses,
-            convert=convert_responses)
+            build=build_model,
+            run=run_model,
+            parse=parse_responses,
+            convert=convert_responses,
+        )
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace("\\", "/")
@@ -46,7 +55,8 @@ class OSRunner(FEMRunner):
 
     def translation_path(self, fem_params: SimParams, axis: str):
         return self.opensees_out_path(
-            sim_params=fem_params, ext="out", append=f"node-{axis}")
+            sim_params=fem_params, ext="out", append=f"node-{axis}"
+        )
 
     def x_translation_path(self, fem_params: SimParams):
         return self.translation_path(fem_params=fem_params, axis="x")
@@ -60,18 +70,24 @@ class OSRunner(FEMRunner):
     def patch_paths(self, fem_params: SimParams, patch: Patch):
         return [
             self.opensees_out_path(
-                sim_params=fem_params, ext="out",
-                append=f"-patch-{point.y:.5f}-{point.z:.5f}")
-            for point in patch.points()]
+                sim_params=fem_params,
+                ext="out",
+                append=f"-patch-{point.y:.5f}-{point.z:.5f}",
+            )
+            for point in patch.points()
+        ]
 
     def layer_paths(self, fem_params: SimParams, layer: Layer):
         return [
             self.opensees_out_path(
-                sim_params=fem_params, ext="out",
-                append=f"-layer-{point.y:.5f}-{point.z:.5f}")
-            for point in layer.points()]
+                sim_params=fem_params,
+                ext="out",
+                append=f"-layer-{point.y:.5f}-{point.z:.5f}",
+            )
+            for point in layer.points()
+        ]
 
     def element_path(self, fem_params: SimParams):
         return self.opensees_out_path(
-            sim_params=fem_params, ext="out", append="-elems")
-
+            sim_params=fem_params, ext="out", append="-elems"
+        )

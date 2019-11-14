@@ -15,8 +15,14 @@ class DCMatrix(ResponsesMatrix):
     """
 
     def response_to(
-            self, x_frac: float, z_frac: float, load_x_frac: float, load: float,
-            y_frac: float = 1, time_index: int = 0):
+        self,
+        x_frac: float,
+        z_frac: float,
+        load_x_frac: float,
+        load: float,
+        y_frac: float = 1,
+        time_index: int = 0,
+    ):
         """The response value in kN at a position to a load at a position.
 
         Args:
@@ -30,26 +36,42 @@ class DCMatrix(ResponsesMatrix):
         """
         # Response due to displacement of a pier.
         dc_response = self.sim_response(
-            expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index)
+            expt_frac=load_x_frac,
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+        )
 
         # Response due to load under healthy scenario.
         il_matrix = ILMatrix.load(
-            c=self.c, response_type=self.response_type,
-            fem_runner=self.fem_runner, load_z_frac=z_frac,
-            save_all=self.save_all)
+            c=self.c,
+            response_type=self.response_type,
+            fem_runner=self.fem_runner,
+            load_z_frac=z_frac,
+            save_all=self.save_all,
+        )
 
         il_response = il_matrix.response_to(
-            x_frac=x_frac, load_x_frac=load_x_frac, load=load,
-            y_frac=y_frac, z_frac=z_frac, time_index=time_index)
+            x_frac=x_frac,
+            load_x_frac=load_x_frac,
+            load=load,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+        )
 
         # Return summation of both responses.
         return dc_response + il_response
 
     @staticmethod
     def load(
-            c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-            displacement: float = 0.1, save_all: bool = True):
+        c: Config,
+        response_type: ResponseType,
+        fem_runner: FEMRunner,
+        displacement: float = 0.1,
+        save_all: bool = True,
+    ):
         """Load a DCMatrix from disk, running simulations first if necessary.
 
         Args:
@@ -64,21 +86,37 @@ class DCMatrix(ResponsesMatrix):
         id_str = f"dc-{response_type}-{fem_runner.name}-{displacement}"
 
         # Determine experiment simulation parameters.
-        _expt_params = ExptParams([
-            SimParams(
-                ploads=[],
-                displacement_ctrl=DisplacementCtrl(displacement, i),
-                response_types=[response_type])
-            for i in range(len(c.bridge.supports))])
+        _expt_params = ExptParams(
+            [
+                SimParams(
+                    ploads=[],
+                    displacement_ctrl=DisplacementCtrl(displacement, i),
+                    response_types=[response_type],
+                )
+                for i in range(len(c.bridge.supports))
+            ]
+        )
 
         def load_func(expt_params):
             return DCMatrix(
-                c=c, response_type=response_type, expt_params=expt_params,
-                fem_runner=fem_runner, save_all=save_all,
+                c=c,
+                response_type=response_type,
+                expt_params=expt_params,
+                fem_runner=fem_runner,
+                save_all=save_all,
                 expt_responses=load_expt_responses(
-                    c=c, expt_params=expt_params, response_type=response_type,
-                    fem_runner=fem_runner))
+                    c=c,
+                    expt_params=expt_params,
+                    response_type=response_type,
+                    fem_runner=fem_runner,
+                ),
+            )
 
         return ResponsesMatrix.load(
-            c=c, id_str=id_str, expt_params=_expt_params, load_func=load_func,
-            fem_runner=fem_runner, save_all=save_all)
+            c=c,
+            id_str=id_str,
+            expt_params=_expt_params,
+            load_func=load_func,
+            fem_runner=fem_runner,
+            save_all=save_all,
+        )

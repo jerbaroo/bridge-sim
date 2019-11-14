@@ -12,12 +12,15 @@ D: bool = True
 
 
 def parse_responses(
-        c: Config, expt_params: ExptParams, os_runner: "OSRunner") -> Parsed:
+    c: Config, expt_params: ExptParams, os_runner: "OSRunner"
+) -> Parsed:
     """Parse responses from an OpenSees simulation."""
     print_d(D, f"parsing {c.bridge.dimensions} bridge responses")
     if c.bridge.dimensions == Dimensions.D2:
         return parse_responses_2d(
-            c=c, expt_params=expt_params, os_runner=os_runner)
+            c=c, expt_params=expt_params, os_runner=os_runner
+        )
     else:
         return parse_responses_3d(
-            c=c, expt_params=expt_params, os_runner=os_runner)
+            c=c, expt_params=expt_params, os_runner=os_runner
+        )

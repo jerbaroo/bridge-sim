@@ -18,8 +18,13 @@ from plot import plt
 
 
 def plot_contour_deck(
-        c: Config, responses: Responses, y: float, ploads: List[PointLoad] = [],
-        norm = None, save: Optional[str] = None):
+    c: Config,
+    responses: Responses,
+    y: float,
+    ploads: List[PointLoad] = [],
+    norm=None,
+    save: Optional[str] = None,
+):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
     amax, amax_x, amax_z = -np.inf, None, None
@@ -73,7 +78,8 @@ def plot_contour_deck(
     plt.title(
         f"{responses.response_type.name()}"
         + f", min = {amin:.4f} at ({amin_x:.3f}, {amin_z:.3f})"
-        + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})")
+        + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})"
+    )
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
     if save:

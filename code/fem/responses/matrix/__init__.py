@@ -14,10 +14,16 @@ from util import print_i
 
 class ResponsesMatrix:
     """Indexed responses of one sensor type for a number of simulations."""
+
     def __init__(
-            self, c: Config, response_type: ResponseType,
-            expt_params: ExptParams, fem_runner: FEMRunner,
-            expt_responses: List[FEMResponses], save_all: bool):
+        self,
+        c: Config,
+        response_type: ResponseType,
+        expt_params: ExptParams,
+        fem_runner: FEMRunner,
+        expt_responses: List[FEMResponses],
+        save_all: bool,
+    ):
         self.c = c
         self.response_type = response_type
         self.expt_params = expt_params
@@ -33,8 +39,13 @@ class ResponsesMatrix:
     #         for fem_params in self.expt_params.fem_params]
 
     def sim_response(
-            self, expt_frac: float, x_frac: float, z_frac: float, y_frac: float = 1,
-            time_index: int = 0) -> Response:
+        self,
+        expt_frac: float,
+        x_frac: float,
+        z_frac: float,
+        y_frac: float = 1,
+        time_index: int = 0,
+    ) -> Response:
         """The response at a position for a simulation.
 
         Args:
@@ -53,35 +64,46 @@ class ResponsesMatrix:
 
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
         return self.expt_responses[int(expt_ind)].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index)
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
+        )
 
         assert interp_sim
         # Else interpolate responses between two experiment indices.
         expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
         expt_lo_frac, expt_hi_frac = np.interp(
-            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1])
+            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
+        )
         # print_w(f"Interpolating between loads at indices {expt_ind_lo} & {expt_ind_hi}")
         # print_w(f"Interpolating between loads at {expt_lo_frac} & {expt_hi_frac}, real = {expt_frac}")
         response_lo = self.expt_responses[expt_ind_lo].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index,
-            interpolate=interp_response)
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
         response_hi = self.expt_responses[expt_ind_hi].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index,
-            interpolate=interp_response)
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
         response = np.interp(
-            expt_frac,
-            [expt_lo_frac, expt_hi_frac],
-            [response_lo, response_hi])
+            expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
+        )
         # print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
         return response
 
     @staticmethod
     def load(
-            c: Config, id_str: str, expt_params: ExptParams,
-            load_func: Callable[[ExptParams], "ResponsesMatrix"],
-            fem_runner: FEMRunner, save_all: bool
-            ) -> "ResponsesMatrix":
+        c: Config,
+        id_str: str,
+        expt_params: ExptParams,
+        load_func: Callable[[ExptParams], "ResponsesMatrix"],
+        fem_runner: FEMRunner,
+        save_all: bool,
+    ) -> "ResponsesMatrix":
         """Load and return a ResponsesMatrix.
 
         If a ResponsesMatrix is already available in memory with ID 'id_str'
@@ -116,8 +138,11 @@ class ResponsesMatrix:
 
 
 def load_expt_responses(
-        c: Config, expt_params: ExptParams, response_type: ResponseType,
-        fem_runner: FEMRunner) -> List[FEMResponses]:
+    c: Config,
+    expt_params: ExptParams,
+    response_type: ResponseType,
+    fem_runner: FEMRunner,
+) -> List[FEMResponses]:
     """Load responses of one sensor type for related simulations.
 
     Returns a list of FEMResponses for constructing a ResponsesMatrix.
@@ -125,8 +150,13 @@ def load_expt_responses(
     """
     results = []
     for i, fem_params in enumerate(expt_params.fem_params):
-        results.append(load_fem_responses(
-            c=c, fem_params=fem_params, response_type=response_type,
-            fem_runner=fem_runner))
+        results.append(
+            load_fem_responses(
+                c=c,
+                fem_params=fem_params,
+                response_type=response_type,
+                fem_runner=fem_runner,
+            )
+        )
         print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
     return results

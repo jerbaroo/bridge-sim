@@ -15,14 +15,15 @@ D: bool = True
 
 
 def convert_responses(
-        c: Config, expt_params: ExptParams, parsed_expt_responses: Parsed
-        ) -> Dict[int, Dict[ResponseType, List[Response]]]:
+    c: Config, expt_params: ExptParams, parsed_expt_responses: Parsed
+) -> Dict[int, Dict[ResponseType, List[Response]]]:
     """Parse responses from an OpenSees simulation."""
     print_d(D, f"Converting {c.bridge.dimensions} bridge responses")
     if c.bridge.dimensions == Dimensions.D2:
-        return convert_responses_2d(
-            c=c, parsed_responses=parsed_expt_responses)
+        return convert_responses_2d(c=c, parsed_responses=parsed_expt_responses)
     else:
         return convert_responses_3d(
-            c=c, expt_params=expt_params,
-            parsed_expt_responses=parsed_expt_responses)
+            c=c,
+            expt_params=expt_params,
+            parsed_expt_responses=parsed_expt_responses,
+        )

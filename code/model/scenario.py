@@ -13,6 +13,7 @@ from util import print_i
 
 class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
+
     def __init__(self, name: str):
         self.name = name
 
@@ -21,7 +22,8 @@ class BridgeScenario:
 # entering (true) or leaving. This sequence should be time ordered. This is a
 # memory efficient representation of traffic.
 TrafficSequence = NewType(
-    "TrafficSequence", List[Tuple[MvVehicle, float, bool]])
+    "TrafficSequence", List[Tuple[MvVehicle, float, bool]]
+)
 
 # A list of vehicles per lane per time step. This representation naturally fits
 # the semantics of real life traffic on a bridge.
@@ -47,8 +49,10 @@ class TrafficScenario:
             the implementation of 'mv_vehicles'.
 
     """
+
     def __init__(
-            self, name: str, mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]]):
+        self, name: str, mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]]
+    ):
         self.name = name
         self.mv_vehicle_f = mv_vehicle_f
 
@@ -72,9 +76,11 @@ class TrafficScenario:
 
             def next_mv_vehicle(time: float, full_lanes: int):
                 """The function to generate the next vehicle."""
-                nonlocal mv_vehicle; nonlocal inter_vehicle_dist
+                nonlocal mv_vehicle
+                nonlocal inter_vehicle_dist
                 mv_vehicle, inter_vehicle_dist = self.mv_vehicle_f(
-                    time=time, full_lanes=full_lanes)
+                    time=time, full_lanes=full_lanes
+                )
                 mv_vehicle.lane = lane
                 mv_vehicle.init_x_frac = -bridge.x_frac(x=dist)
                 return mv_vehicle
@@ -84,7 +90,8 @@ class TrafficScenario:
             dist += mv_vehicle.length
 
     def traffic_sequence(
-            self, bridge: Bridge, max_time: float) -> Tuple[Traffic, float]:
+        self, bridge: Bridge, max_time: float
+    ) -> Tuple[Traffic, float]:
         """Generate a 'TrafficSequence' under this traffic scenario.
 
         Returns a tuple of 'Traffic' and time the simulation warmed up at.
@@ -100,11 +107,13 @@ class TrafficScenario:
         # Per lane, a vehicle generator.
         mv_vehicle_gens = [
             self.mv_vehicles(bridge=bridge, lane=lane)
-            for lane, _ in enumerate(bridge.lanes)]
+            for lane, _ in enumerate(bridge.lanes)
+        ]
 
         # Per lane, next vehicle ready to drive onto the lane.
         next_vehicles: List[MvVehicle] = [
-            next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens]
+            next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens
+        ]
 
         # All vehicles must start at x = 0, sanity check.
         if not all(v.init_x_frac == 0 for v in next_vehicles):
@@ -146,8 +155,8 @@ class TrafficScenario:
             if enter:
                 time_leave.append((vehicle, vehicle.leaves_bridge(bridge)))
                 next_vehicles[vehicle.lane] = next(
-                    mv_vehicle_gens[vehicle.lane])(
-                        time=time, full_lanes=full_lanes())
+                    mv_vehicle_gens[vehicle.lane]
+                )(time=time, full_lanes=full_lanes())
             else:
                 time_leave.popleft()
 
@@ -155,8 +164,11 @@ class TrafficScenario:
 
 
 def to_traffic(
-        bridge: Bridge, traffic_sequence: TrafficSequence, max_time: float,
-        time_step: float) -> Traffic:
+    bridge: Bridge,
+    traffic_sequence: TrafficSequence,
+    max_time: float,
+    time_step: float,
+) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'."""
     result = deque([])
     current = [deque([]) for _ in bridge.lanes]
@@ -190,14 +202,20 @@ def to_traffic(
 
 
 def to_traffic_array(
-        c: Config, traffic_sequence: TrafficSequence, max_time: float,
-        time_step: float) -> Traffic:
+    c: Config,
+    traffic_sequence: TrafficSequence,
+    max_time: float,
+    time_step: float,
+) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'."""
-    result = np.zeros((
-        # '+ 1' to account for time t = 0.
-        int(max_time / time_step) + 1,
-        # 2 wheel tracks per lane.
-        len(c.bridge.lanes) * 2 * c.il_num_loads))
+    result = np.zeros(
+        (
+            # '+ 1' to account for time t = 0.
+            int(max_time / time_step) + 1,
+            # 2 wheel tracks per lane.
+            len(c.bridge.lanes) * 2 * c.il_num_loads,
+        )
+    )
     current = [deque([]) for _ in c.bridge.lanes]
     time, t = 0, 0
     next_event_index = 0
@@ -208,7 +226,8 @@ def to_traffic_array(
     # Column index where each wheel track starts.
     j_indices = [
         (l * 2 * c.il_num_loads, (l * 2 * c.il_num_loads) + 1)
-        for l, _ in enumerate(current)]
+        for l, _ in enumerate(current)
+    ]
 
     while time <= max_time:
 

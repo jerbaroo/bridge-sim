@@ -34,8 +34,12 @@ def test_os_il_matrix():
     # Test time for one simulation.
     start = timer()
     ILMatrix.load(
-        c=c, response_type=response_type, fem_runner=fem_runner, num_loads=1,
-        save_all=False)
+        c=c,
+        response_type=response_type,
+        fem_runner=fem_runner,
+        num_loads=1,
+        save_all=False,
+    )
     time = timer() - start
     assert 0.1 < time < 2
 

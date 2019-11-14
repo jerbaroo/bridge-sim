@@ -15,7 +15,9 @@ from model.scenario import BridgeScenario, TrafficScenario
 def file_path(c: Config, series: pd.Series):
     """Return a file path for a row from the Metadata."""
     assert isinstance(series, pd.Series)
-    return os.path.join(c.events_dir, (
+    return os.path.join(
+        c.events_dir,
+        (
             series["traffic-scenario"]
             + f"-{series['bridge-name']}"
             + f"-{series['bridge-scenario']}"
@@ -24,11 +26,14 @@ def file_path(c: Config, series: pd.Series):
             + f"-{series['fem-runner']}"
             + f"-{series['param-sim-id']}"
             + f"-{series['traffic-sim-id']}"
-            + f"-{series['num-events']}"))
+            + f"-{series['num-events']}"
+        ),
+    )
 
 
 class Metadata:
     """Metadata about stored events."""
+
     def __init__(self, c: Config):
         self.c = c
 
@@ -37,17 +42,31 @@ class Metadata:
         if os.path.exists(self.c.event_metadata_path):
             return pd.read_csv(self.c.event_metadata_path, index_col=0)
         else:
-            return pd.DataFrame(columns=[
-                "traffic-scenario", "bridge-name", "bridge-scenario", "point",
-                "response-type", "fem-runner", "param-sim-id", "traffic-sim-id",
-                "num-events"])
+            return pd.DataFrame(
+                columns=[
+                    "traffic-scenario",
+                    "bridge-name",
+                    "bridge-scenario",
+                    "point",
+                    "response-type",
+                    "fem-runner",
+                    "param-sim-id",
+                    "traffic-sim-id",
+                    "num-events",
+                ]
+            )
 
     def add_file_path(
-            self, traffic_scenario: TrafficScenario,
-            bridge_scenario: BridgeScenario, point: Point,
-            response_type: ResponseType, fem_runner: FEMRunner,
-            num_events: int, traffic_sim_id: Optional[int] = None,
-            get_sim_id: bool = False) -> Union[str, Tuple[int, int, str]]:
+        self,
+        traffic_scenario: TrafficScenario,
+        bridge_scenario: BridgeScenario,
+        point: Point,
+        response_type: ResponseType,
+        fem_runner: FEMRunner,
+        num_events: int,
+        traffic_sim_id: Optional[int] = None,
+        get_sim_id: bool = False,
+    ) -> Union[str, Tuple[int, int, str]]:
         """Add and return a file path to the metadata for given parameters.
 
         Args:
@@ -63,37 +82,48 @@ class Metadata:
 
         """
         next_param_sim_id, next_traffic_sim_id, df = self.file_paths(
-            traffic_scenario=traffic_scenario, bridge_scenario=bridge_scenario,
-            point=point, response_type=response_type, fem_runner=fem_runner,
-            get_sim_id=True)
+            traffic_scenario=traffic_scenario,
+            bridge_scenario=bridge_scenario,
+            point=point,
+            response_type=response_type,
+            fem_runner=fem_runner,
+            get_sim_id=True,
+        )
         # Use given traffic simulation ID if given.
         if traffic_sim_id is not None:
             next_traffic_sim_id = traffic_sim_id
-        row = pd.Series({
-            "traffic-scenario": traffic_scenario.name,
-            "bridge-name": self.c.bridge.name,
-            "bridge-scenario": bridge_scenario.name,
-            "point": str(point),
-            "response-type": response_type.name(),
-            "fem-runner": fem_runner.name,
-            "param-sim-id": next_param_sim_id,
-            "traffic-sim-id": next_traffic_sim_id,
-            "num-events": num_events})
+        row = pd.Series(
+            {
+                "traffic-scenario": traffic_scenario.name,
+                "bridge-name": self.c.bridge.name,
+                "bridge-scenario": bridge_scenario.name,
+                "point": str(point),
+                "response-type": response_type.name(),
+                "fem-runner": fem_runner.name,
+                "param-sim-id": next_param_sim_id,
+                "traffic-sim-id": next_traffic_sim_id,
+                "num-events": num_events,
+            }
+        )
         df = df.append(row, ignore_index=True)
         df.to_csv(self.c.event_metadata_path)
         if get_sim_id:
             return (
-                next_param_sim_id, next_traffic_sim_id, file_path(self.c, row))
+                next_param_sim_id,
+                next_traffic_sim_id,
+                file_path(self.c, row),
+            )
         return file_path(self.c, row)
 
     def file_paths(
-            self, traffic_scenario: TrafficScenario,
-            bridge_scenario: BridgeScenario, point: Point,
-            response_type: ResponseType, fem_runner: FEMRunner,
-            get_sim_id: bool = False
-            ) -> Union[
-                List[Tuple[str, int, int]],
-                Tuple[int, int, pd.DataFrame]]:
+        self,
+        traffic_scenario: TrafficScenario,
+        bridge_scenario: BridgeScenario,
+        point: Point,
+        response_type: ResponseType,
+        fem_runner: FEMRunner,
+        get_sim_id: bool = False,
+    ) -> Union[List[Tuple[str, int, int]], Tuple[int, int, pd.DataFrame]]:
         """File paths, number of events, and traffic IDs for given parameters.
 
         Args:
@@ -116,7 +146,8 @@ class Metadata:
             & (df["bridge-scenario"] == bridge_scenario.name)
             & (df["point"] == str(point))
             & (df["response-type"] == response_type.name())
-            & (df["fem-runner"] == fem_runner.name)]
+            & (df["fem-runner"] == fem_runner.name)
+        ]
         if get_sim_id:
             param_sim_ids = set(rows["param-sim-id"])
             for maybe_next_param_sim_id in itertools.count(start=0):
@@ -129,4 +160,5 @@ class Metadata:
                     return next_param_sim_id, maybe_next_traffic_sim_id, df
         return [
             (file_path(self.c, row), row["num-events"], row["traffic-sim-id"])
-            for _, row in rows.iterrows()]
+            for _, row in rows.iterrows()
+        ]

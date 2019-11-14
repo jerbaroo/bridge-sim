@@ -13,6 +13,7 @@ from util import print_d, round_m
 # Print debug information for this file.
 D: bool = True
 
+
 class Node:
     """A node that can be converted to an OpenSees command.
 
@@ -30,10 +31,18 @@ class Node:
         section: Section3D, a section that may be attached, or not.
 
     """
+
     def __init__(
-            self, n_id: int, x: float, y: float, z: float, deck: bool,
-            pier: Optional[Support3D] = None, comment: Optional[str] = None,
-            support: Optional[Support3D] = None):
+        self,
+        n_id: int,
+        x: float,
+        y: float,
+        z: float,
+        deck: bool,
+        pier: Optional[Support3D] = None,
+        comment: Optional[str] = None,
+        support: Optional[Support3D] = None,
+    ):
         self.n_id = n_id
         self.x = round_m(x)
         self.y = round_m(y)
@@ -46,8 +55,10 @@ class Node:
     def command_3d(self):
         """OpenSees node command."""
         comment = "" if self.comment is None else f"; # {self.comment}"
-        return (f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
-                + f" {round_m(self.z)}{comment}")
+        return (
+            f"node {self.n_id} {round_m(self.x)} {round_m(self.y)}"
+            + f" {round_m(self.z)}{comment}"
+        )
 
     def distance(self, x: float, y: float, z: float):
         """Distance form this node to the given coordinates."""
@@ -71,8 +82,8 @@ AllSupportNodes = NewType("AllSupportNodes", List[SupportNodes])
 
 
 def bridge_3d_nodes(
-        deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes
-        ) -> List[Node]:
+    deck_nodes: DeckNodes, all_support_nodes: AllSupportNodes
+) -> List[Node]:
     """All a 3D bridge's nodes in a deterministic order."""
     all_nodes = list(itertools.chain.from_iterable(deck_nodes))
     for support_nodes in all_support_nodes:
@@ -105,10 +116,19 @@ class ShellElement:
             of the support index, support wall index, and z and y indices
 
     """
+
     def __init__(
-            self, e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int,
-            section: Section3D, pier: bool, nodes_by_id: Dict[int, Node],
-            support_position_index: Optional[Tuple[int, int, int, int]] = None):
+        self,
+        e_id: int,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        section: Section3D,
+        pier: bool,
+        nodes_by_id: Dict[int, Node],
+        support_position_index: Optional[Tuple[int, int, int, int]] = None,
+    ):
         self.e_id = e_id
         self.ni_id = ni_id
         self.nj_id = nj_id
@@ -131,7 +151,8 @@ class ShellElement:
         repr_section = repr(self.section).replace("\n", " ")
         return (
             f"element ShellMITC4 {self.e_id} {self.ni_id} {self.nj_id}"
-            + f" {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}")
+            + f" {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}"
+        )
 
 
 # The shell elements that make up a bridge deck. Represented as a matrix of Node
@@ -145,8 +166,8 @@ AllPierElements = NewType("AllPierElements", List[ShellElement])
 
 
 def bridge_3d_elements(
-        deck_elements: DeckElements, all_pier_elements: AllPierElements
-        ) -> List[ShellElement]:
+    deck_elements: DeckElements, all_pier_elements: AllPierElements
+) -> List[ShellElement]:
     """All a 3D bridge's shell elements in a deterministic order."""
     all_elements = list(itertools.chain.from_iterable(deck_elements))
     for pier_element in all_pier_elements:

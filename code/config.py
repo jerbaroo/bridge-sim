@@ -35,10 +35,15 @@ class Config:
         generated_data: str, directory where to save generated files.
 
     """
+
     def __init__(
-            self, bridge: Callable[[], Bridge], vehicle_data_path: str,
-            vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str,
-            generated_data: str = "generated-data"):
+        self,
+        bridge: Callable[[], Bridge],
+        vehicle_data_path: str,
+        vehicle_pdf: List[Tuple[float, float]],
+        vehicle_pdf_col: str,
+        generated_data: str = "generated-data",
+    ):
 
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
@@ -67,13 +72,13 @@ class Config:
             ResponseType.Strain: 0,
             ResponseType.Stress: 0,
             ResponseType.XTranslation: 0,
-            ResponseType.YTranslation: 0
+            ResponseType.YTranslation: 0,
         }[rt]
         self.noise_stddev = lambda rt: {
             ResponseType.Strain: 1e-5,
             ResponseType.Stress: 1e6,
             ResponseType.XTranslation: 5e-8,
-            ResponseType.YTranslation: 1e-5
+            ResponseType.YTranslation: 1e-5,
         }[rt]
 
         # Vehicles.
@@ -83,8 +88,10 @@ class Config:
         self.vehicle_pdf_col = vehicle_pdf_col
         start = timer()
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
-        print_i(f"Loaded vehicle data from {vehicle_data_path} in"
-                + f" {timer() - start:.2f}s")
+        print_i(
+            f"Loaded vehicle data from {vehicle_data_path} in"
+            + f" {timer() - start:.2f}s"
+        )
 
         # Ensure vehicle probability density sums to 1.
         pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
@@ -93,7 +100,8 @@ class Config:
             for i in range(len(self.vehicle_pdf)):
                 self.vehicle_pdf[i] = (
                     self.vehicle_pdf[i][0],
-                    self.vehicle_pdf[i][1] / pdf_sum)
+                    self.vehicle_pdf[i][1] / pdf_sum,
+                )
             pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
             print_w(f"Vehicle PDF sums to {pre_pdf_sum}, adjusted to sum to 1")
 
@@ -101,20 +109,27 @@ class Config:
         self.root_generated_data_dir = generated_data
         if self.root_generated_data_dir[-1] in "/\\":
             raise ValueError(
-                "Please ensure generated_data does not end in separator")
+                "Please ensure generated_data does not end in separator"
+            )
         self.root_generated_images_dir = os.path.join(
-            self.root_generated_data_dir + "-images")
+            self.root_generated_data_dir + "-images"
+        )
 
         # Bridge-specific directories for generated data.
         self.generated_data_dir = os.path.join(
-            self.root_generated_data_dir, self.bridge.id_str())
+            self.root_generated_data_dir, self.bridge.id_str()
+        )
         self.generated_images_dir = os.path.join(
-            self.root_generated_images_dir, self.bridge.id_str())
+            self.root_generated_images_dir, self.bridge.id_str()
+        )
 
         # Make directories.
         for directory in [
-                self.root_generated_data_dir, self.root_generated_images_dir,
-                self.generated_data_dir, self.generated_images_dir]:
+            self.root_generated_data_dir,
+            self.root_generated_images_dir,
+            self.generated_data_dir,
+            self.generated_images_dir,
+        ]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 

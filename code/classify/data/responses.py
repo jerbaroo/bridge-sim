@@ -19,10 +19,17 @@ D: str = "classify.data.responses"
 
 
 def responses_to_traffic(
-        c: Config, traffic: "Traffic", bridge_scenario: BridgeScenario,
-        start_time: float, time_step: float, points: List[Point],
-        response_type: ResponseType, fem_runner: FEMRunner,
-        min_max: bool = False, per_axle: bool = False) -> List[Responses]:
+    c: Config,
+    traffic: "Traffic",
+    bridge_scenario: BridgeScenario,
+    start_time: float,
+    time_step: float,
+    points: List[Point],
+    response_type: ResponseType,
+    fem_runner: FEMRunner,
+    min_max: bool = False,
+    per_axle: bool = False,
+) -> List[Responses]:
     """The 'Responses' to 'Traffic' at each simulation step.
 
     Args:
@@ -44,14 +51,23 @@ def responses_to_traffic(
         raise ValueError("Per axle option is deprecated")
 
     # Wheel tracks the vehicle's drive on and an ILMatrix for each wheel track.
-    z_fracs = sorted(set(chain.from_iterable(
-        vehicle.wheel_tracks(bridge=c.bridge, meters=False)
-        for vehicle in chain.from_iterable(traffic))))
+    z_fracs = sorted(
+        set(
+            chain.from_iterable(
+                vehicle.wheel_tracks(bridge=c.bridge, meters=False)
+                for vehicle in chain.from_iterable(traffic)
+            )
+        )
+    )
     il_matrices = {
         z_frac: ILMatrix.load(
-            c=c, response_type=response_type, fem_runner=fem_runner,
-            load_z_frac=z_frac)
-        for z_frac in z_fracs}
+            c=c,
+            response_type=response_type,
+            fem_runner=fem_runner,
+            load_z_frac=z_frac,
+        )
+        for z_frac in z_fracs
+    }
 
     result = []
     time = start_time - time_step  # The current simulation time.
@@ -70,11 +86,13 @@ def responses_to_traffic(
             # We get the x and z positions of this vehicle. There is one x
             # position for each axle, and two z positions per vehicle.
             mv_vehicle_x_fracs = [
-                x_frac for x_frac in mv_vehicle.x_fracs_at(
-                    time=time, bridge=c.bridge)
-                if 0 <= x_frac <= 1]
+                x_frac
+                for x_frac in mv_vehicle.x_fracs_at(time=time, bridge=c.bridge)
+                if 0 <= x_frac <= 1
+            ]
             mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(
-                bridge=c.bridge, meters=False)
+                bridge=c.bridge, meters=False
+            )
 
             # Update the response at each point due to this vehicle..
             for p, point in enumerate(points):
@@ -85,13 +103,20 @@ def responses_to_traffic(
                 mv_vehicle_responses = []
                 for mv_vehicle_z_frac in mv_vehicle_z_fracs:
                     il_matrix = il_matrices[mv_vehicle_z_frac]
-                    for axle, mv_vehicle_x_frac in enumerate(mv_vehicle_x_fracs):
-                        mv_vehicle_responses.append((il_matrix.response_to(
-                            load_x_frac=mv_vehicle_x_frac,
-                            load=mv_vehicle.kn_per_axle()[axle] / 2,
-                            x_frac=c.bridge.x_frac(x=point.x),
-                            y_frac=c.bridge.y_frac(y=point.y),
-                            z_frac=c.bridge.z_frac(z=point.z))))
+                    for axle, mv_vehicle_x_frac in enumerate(
+                        mv_vehicle_x_fracs
+                    ):
+                        mv_vehicle_responses.append(
+                            (
+                                il_matrix.response_to(
+                                    load_x_frac=mv_vehicle_x_frac,
+                                    load=mv_vehicle.kn_per_axle()[axle] / 2,
+                                    x_frac=c.bridge.x_frac(x=point.x),
+                                    y_frac=c.bridge.y_frac(y=point.y),
+                                    z_frac=c.bridge.z_frac(z=point.z),
+                                )
+                            )
+                        )
 
                 result[t][p][0] += sum(mv_vehicle_responses)
 
@@ -102,7 +127,8 @@ def responses_to_traffic(
                 max_response = max(max_response, result[t][p][0])
 
         result[t] = Responses.from_responses(
-            response_type=response_type, many_response=result[t])
+            response_type=response_type, many_response=result[t]
+        )
 
     if min_max:
         return result, min_response, max_response
@@ -111,16 +137,23 @@ def responses_to_traffic(
 
 
 def responses_to_traffic_array(
-        c: Config, traffic_array: TrafficArray, response_type: ResponseType,
-        points: List[Point], fem_runner: FEMRunner
-        ):
+    c: Config,
+    traffic_array: TrafficArray,
+    response_type: ResponseType,
+    points: List[Point],
+    fem_runner: FEMRunner,
+):
     # First collect the unit load simulations per wheel track.
     wheel_zs = c.bridge.wheel_tracks(c)
     il_matrices = {
         wheel_z: ILMatrix.load(
-            c=c, response_type=response_type, fem_runner=fem_runner,
-            load_z_frac=c.bridge.z_frac(wheel_z))
-        for wheel_z in wheel_zs}
+            c=c,
+            response_type=response_type,
+            fem_runner=fem_runner,
+            load_z_frac=c.bridge.z_frac(wheel_z),
+        )
+        for wheel_z in wheel_zs
+    }
 
     # Create a matrix of unit load simulation (rows) * point (columns).
     unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
@@ -130,8 +163,9 @@ def responses_to_traffic_array(
         # For each unit load simulation.
         for sim_responses in il_matrix.expt_responses:
             for j, point in enumerate(points):
-                unit_load_matrix[i][j] = (
-                    sim_responses._at(x=point.x, y=point.y, z=point.z))
+                unit_load_matrix[i][j] = sim_responses._at(
+                    x=point.x, y=point.y, z=point.z
+                )
             i += 1
     # Divide by the load of the unit load simulations, so the value at a cell is
     # the response to 1 kN.

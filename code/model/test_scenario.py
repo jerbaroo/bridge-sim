@@ -17,8 +17,9 @@ def test_scenario():
     assert isinstance(traffic_scenario.name, str)
     vehicle_and_dist = traffic_scenario.mv_vehicle_f(time=0, full_lanes=0)
     assert isinstance(vehicle_and_dist[0], MvVehicle)
-    assert (isinstance(vehicle_and_dist[1], float) or
-            isinstance(vehicle_and_dist[1], int))
+    assert isinstance(vehicle_and_dist[1], float) or isinstance(
+        vehicle_and_dist[1], int
+    )
 
     lane = 0
     # A generator for traffic on one lane.
@@ -33,57 +34,80 @@ def test_scenario():
 
     # Simply check that no errors are created.
     HealthyBridge()
-    PierDispBridge(
-        displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
+    PierDispBridge(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
 
     # Time how long it takes to generate traffic.
     start = timer()
     max_time = 5
     traffic_sequence, start_time = traffic_scenario.traffic_sequence(
-        bridge=c.bridge, max_time=max_time)
+        bridge=c.bridge, max_time=max_time
+    )
     print_i(
         f"Generation of {start_time + max_time}s of TrafficSequence took"
-        + f" {timer() - start}")
+        + f" {timer() - start}"
+    )
 
     time_step = 0.01
     start = timer()
     traffic = to_traffic(
-        bridge=c.bridge, traffic_sequence=traffic_sequence,
-        max_time=start_time + max_time, time_step=time_step)
+        bridge=c.bridge,
+        traffic_sequence=traffic_sequence,
+        max_time=start_time + max_time,
+        time_step=time_step,
+    )
     # '- 1' because the first time step is t = 0.
     sim_time = (len(traffic) - 1) * time_step
     print_i(
         f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
-        + f" ({len(traffic)} steps) took {timer() - start}")
+        + f" ({len(traffic)} steps) took {timer() - start}"
+    )
 
     start = timer()
     traffic_array = to_traffic_array(
-        c=c, traffic_sequence=traffic_sequence, max_time=start_time + max_time,
-        time_step=time_step)
+        c=c,
+        traffic_sequence=traffic_sequence,
+        max_time=start_time + max_time,
+        time_step=time_step,
+    )
     # '- 1' because the first time step is t = 0.
     sim_time = (len(traffic_array) - 1) * time_step
     print_i(
         f"Generation of {sim_time}s of TrafficArray at {1 / time_step}Hz"
-        + f" ({len(traffic)} steps) took {timer() - start}")
+        + f" ({len(traffic)} steps) took {timer() - start}"
+    )
 
-    from classify.data.responses import responses_to_traffic_array, responses_to_traffic
+    from classify.data.responses import (
+        responses_to_traffic_array,
+        responses_to_traffic,
+    )
     from fem.run.opensees import OSRunner
     from model.bridge import Point
     from model.response import ResponseType
 
     points = [Point(x=35, y=0, z=9.4)]
     responses = responses_to_traffic_array(
-        c=c, traffic_array=traffic_array,
+        c=c,
+        traffic_array=traffic_array,
         response_type=ResponseType.YTranslation,
-        points=points, fem_runner=OSRunner(c))
+        points=points,
+        fem_runner=OSRunner(c),
+    )
     print(responses.shape)
 
     responses_2 = responses_to_traffic(
-        c, traffic, HealthyBridge(), start_time=0, time_step=time_step,
-        points=points, response_type=ResponseType.YTranslation, fem_runner=OSRunner(c))
+        c,
+        traffic,
+        HealthyBridge(),
+        start_time=0,
+        time_step=time_step,
+        points=points,
+        response_type=ResponseType.YTranslation,
+        fem_runner=OSRunner(c),
+    )
     responses_2 = [r.responses[0][35][0][9.4] for r in responses_2]
 
     from plot import plt
+
     plt.plot(responses.T[0])
     plt.plot(responses_2)
     plt.show()

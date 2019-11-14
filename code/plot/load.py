@@ -10,8 +10,11 @@ from plot import Color, plt
 
 
 def top_view_vehicles(
-        bridge: Bridge, mv_vehicles: List[MvVehicle], time: float,
-        all_vehicles: Optional[List[Vehicle]] = None):
+    bridge: Bridge,
+    mv_vehicles: List[MvVehicle],
+    time: float,
+    all_vehicles: Optional[List[Vehicle]] = None,
+):
     """Plot vehicles on a bridge in top view at a given time.
 
     Args:
@@ -31,6 +34,11 @@ def top_view_vehicles(
         z_center = bridge.lanes[mv_vehicle.lane].z_center()
         # Bottom position on z-axis of vehicle.
         zb = z_center - (mv_vehicle.axle_width / 2)
-        plt.gca().add_patch(patches.Rectangle(
-            (xl, zb), mv_vehicle.length, mv_vehicle.axle_width,
-            facecolor=mv_vehicle.color(all_vehicles)))
+        plt.gca().add_patch(
+            patches.Rectangle(
+                (xl, zb),
+                mv_vehicle.length,
+                mv_vehicle.axle_width,
+                facecolor=mv_vehicle.color(all_vehicles),
+            )
+        )

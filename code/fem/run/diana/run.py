@@ -14,9 +14,16 @@ def run_model(c: Config, expt_params: ExptParams):
     assert c.di_out_path.endswith(out)
     os.remove(c.di_filos_path)
     result = subprocess.run(
-        [c.di_exe_path, c.di_model_path, c.di_cmd_path,
-         c.di_out_path[:-len(out)], c.di_filos_path],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        [
+            c.di_exe_path,
+            c.di_model_path,
+            c.di_cmd_path,
+            c.di_out_path[: -len(out)],
+            c.di_filos_path,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     if result.stderr:
         print(result.stderr.decode("utf-8"))
         # Print output log.

@@ -78,7 +78,8 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
 
     c = bridge_705_config(bridge_overload)
     path = os.path.join(
-        c.root_generated_images_dir, "convergence", "convergence_results")
+        c.root_generated_images_dir, "convergence", "convergence_results"
+    )
 
     if run:
         with open(path + ".txt", "w") as f:

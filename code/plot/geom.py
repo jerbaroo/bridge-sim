@@ -3,6 +3,7 @@ from typing import Callable, List, Optional
 
 import matplotlib.patches as patches
 import numpy as np
+
 # This import registers the 3D projection, but is otherwise unused.
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
@@ -22,8 +23,12 @@ D: str = "plot.bridge"
 
 
 def top_view_bridge(
-        bridge: Bridge, lanes: bool = True, lane_fill: bool = True, piers: bool=True,
-        outline: bool=True):
+    bridge: Bridge,
+    lanes: bool = True,
+    lane_fill: bool = True,
+    piers: bool = True,
+    outline: bool = True,
+):
     """Plot the top view of a bridge's geometry.
 
     Args:
@@ -36,15 +41,22 @@ def top_view_bridge(
     """
     if outline:
         plt.hlines(
-            [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge)
+            [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge
+        )
         plt.vlines(
-            [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge)
+            [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge
+        )
     if lanes:
         for lane in bridge.lanes:
-            plt.gca().add_patch(patches.Rectangle(
-                (0, lane.z_min), bridge.length, lane.z_max - lane.z_min,
-                edgecolor=Color.bridge,
-                facecolor=Color.bridge if lane_fill else "none"))
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (0, lane.z_min),
+                    bridge.length,
+                    lane.z_max - lane.z_min,
+                    edgecolor=Color.bridge,
+                    facecolor=Color.bridge if lane_fill else "none",
+                )
+            )
     if piers:
         for pier in bridge.supports:
             z_min_top, z_max_top = pier.z_min_max_top()
@@ -56,13 +68,18 @@ def top_view_bridge(
 
 
 def plot_cloud_of_nodes(
-        c: Config, equal_axis: bool, save: str,
-        node_prop: Optional[Callable[[Section3D], float]] = None,
-        deck: bool = True, piers: bool = True):
+    c: Config,
+    equal_axis: bool,
+    save: str,
+    node_prop: Optional[Callable[[Section3D], float]] = None,
+    deck: bool = True,
+    piers: bool = True,
+):
     """A scatter plot of the nodes of a 3D FEM."""
     # TODO: Create method for these three lines in d3/__init__.py
-    build_model_3d(c=c, expt_params=ExptParams([SimParams(
-        [], [])]), os_runner=OSRunner(c))
+    build_model_3d(
+        c=c, expt_params=ExptParams([SimParams([], [])]), os_runner=OSRunner(c)
+    )
     nodes = list(nodes_by_id.values())
 
     # This is a sanity check (or a test in the wrong place) that all nodes that
@@ -76,7 +93,11 @@ def plot_cloud_of_nodes(
         else:
             assert hasattr(node, "deck_section")
 
-    nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
+    nodes = [
+        n
+        for n in nodes
+        if (deck and n.deck) or (piers and (n.pier is not None))
+    ]
     nodes = sorted(nodes, key=lambda n: (n.deck, not n.pier))
 
     # Split into separate arrays of x, y and z position, and colors.
@@ -91,8 +112,10 @@ def plot_cloud_of_nodes(
                 # If both deck and pier Nodes are requested, and a Node belongs
                 # to both then we prioritize the deck section.
                 cs.append(
-                    node.deck_section if hasattr(node, "deck_section")
-                    else node.pier_section)
+                    node.deck_section
+                    if hasattr(node, "deck_section")
+                    else node.pier_section
+                )
             else:
                 cs.append(node.deck_section if deck else node.pier_section)
         cs = np.array([node_prop(section) for section in cs])
@@ -113,14 +136,24 @@ def plot_cloud_of_nodes(
         plot_and_save(fig, ax, append=equal_axis_str + f"-no-rotate")
 
     for fig, ax, angle in angles_3d(
-            angles=range(0, 360, 90), equal_axis=equal_axis, elev=0,
-            xs=xs, ys=ys, zs=zs):
+        angles=range(0, 360, 90),
+        equal_axis=equal_axis,
+        elev=0,
+        xs=xs,
+        ys=ys,
+        zs=zs,
+    ):
         plot_and_save(fig, ax, append=equal_axis_str + f"-{angle}")
 
 
 def angles_3d(
-        equal_axis: bool, xs: List[float], ys: List[float], zs: List[float],
-        angles: Optional[List[float]] = None, elev: Optional[float] = None):
+    equal_axis: bool,
+    xs: List[float],
+    ys: List[float],
+    zs: List[float],
+    angles: Optional[List[float]] = None,
+    elev: Optional[float] = None,
+):
     """Rotate a plot in 3D, yielding the axis and angle.
 
     Args:
@@ -128,9 +161,12 @@ def angles_3d(
         elev: Optional[float], elevation used if 'angles' is given.
     """
     # Determine values for scaling axes.
-    max_range = np.array(
-        [xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]
-    ).max() / 2.0
+    max_range = (
+        np.array(
+            [xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]
+        ).max()
+        / 2.0
+    )
     mid_x = (xs.max() + xs.min()) * 0.5
     mid_y = (ys.max() + ys.min()) * 0.5
     mid_z = (zs.max() + zs.min()) * 0.5

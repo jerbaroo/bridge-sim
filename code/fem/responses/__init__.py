@@ -18,17 +18,22 @@ from util import nearest_index, print_d, print_i, safe_str
 D: str = "fem.responses"
 # D: bool = False
 
+
 def _responses_path(
-        sim_runner: "FEMRunner", sim_params: SimParams,
-        response_type: ResponseType) -> str:
+    sim_runner: "FEMRunner", sim_params: SimParams, response_type: ResponseType
+) -> str:
     """Path to responses generated with given parameters."""
     return sim_runner.sim_out_path(
-        sim_params=sim_params, ext="npy", response_types=[response_type])
+        sim_params=sim_params, ext="npy", response_types=[response_type]
+    )
 
 
 def load_fem_responses(
-        c: Config, sim_params: SimParams, response_type: ResponseType,
-        sim_runner: "FEMRunner") -> FEMResponses:
+    c: Config,
+    sim_params: SimParams,
+    response_type: ResponseType,
+    sim_runner: "FEMRunner",
+) -> FEMResponses:
     """Responses of one sensor type from a FEM simulation.
 
     Responses are loaded from disk, the simulation is only run if necessary
@@ -58,8 +63,10 @@ def load_fem_responses(
                 set_y_false = True
 
     path = _responses_path(
-        sim_runner=sim_runner, sim_params=sim_params,
-        response_type=response_type)
+        sim_runner=sim_runner,
+        sim_params=sim_params,
+        response_type=response_type,
+    )
 
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
@@ -83,8 +90,12 @@ def load_fem_responses(
 
     start = timer()
     fem_responses = FEMResponses(
-        c=c, fem_params=sim_params, sim_runner=sim_runner,
-        response_type=response_type, responses=responses)
+        c=c,
+        fem_params=sim_params,
+        sim_runner=sim_runner,
+        response_type=response_type,
+        responses=responses,
+    )
     print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
     return fem_responses
@@ -98,11 +109,13 @@ Respoon = NewType("Respoon", Tuple[float, Point])
 
 class Responses:
     """Responses of one sensor type at many points."""
+
     def __init__(self, response_type: ResponseType):
         self.response_type = response_type
         # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(dict)))
+            lambda: defaultdict(lambda: defaultdict(dict))
+        )
 
     def index(self):
         """Create attributes for fast indexing of times and positions."""
@@ -110,8 +123,10 @@ class Responses:
         points = self.responses[self.times[0]]
         self.xs = sorted(points.keys())
         self.ys = {x: sorted(points[x].keys()) for x in self.xs}
-        self.zs = {x: {y: sorted(points[x][y].keys())
-                       for y in self.ys[x]} for x in self.xs}
+        self.zs = {
+            x: {y: sorted(points[x][y].keys()) for y in self.ys[x]}
+            for x in self.xs
+        }
 
     def values(self):
         """Yield each response value."""
@@ -128,7 +143,8 @@ class Responses:
 
     @staticmethod
     def from_responses(
-            response_type: ResponseType, many_response: List[Respoon]):
+        response_type: ResponseType, many_response: List[Respoon]
+    ):
         responses = Responses(response_type)
         for value, point in many_response:
             responses.responses[0][point.x][point.y][point.z] = value
@@ -153,10 +169,16 @@ class FEMResponses(Responses):
     TODO: Warn about assumption of equidistant points?
 
     """
+
     def __init__(
-            self, c: Config, fem_params: SimParams, sim_runner: "FEMRunner",
-            response_type: ResponseType, responses: List[Response],
-            skip_index: bool = False):
+        self,
+        c: Config,
+        fem_params: SimParams,
+        sim_runner: "FEMRunner",
+        response_type: ResponseType,
+        responses: List[Response],
+        skip_index: bool = False,
+    ):
         super().__init__(response_type=response_type)
         assert isinstance(responses, list)
         if len(responses) == 0:
@@ -180,8 +202,10 @@ class FEMResponses(Responses):
     def save(self):
         """Save theses simulation responses to disk."""
         path = _responses_path(
-            sim_runner=self.sim_runner, sim_params=self.fem_params,
-            response_type=self.response_type)
+            sim_runner=self.sim_runner,
+            sim_params=self.fem_params,
+            response_type=self.response_type,
+        )
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 
@@ -195,8 +219,13 @@ class FEMResponses(Responses):
         return self.responses[time_index][x_near][y_near][z_near].value
 
     def at(
-            self, x_frac: float = 0, y_frac: float = 1, z_frac: float = 0.5,
-            time_index: int = 0, interpolate: bool = False):
+        self,
+        x_frac: float = 0,
+        y_frac: float = 1,
+        z_frac: float = 0.5,
+        time_index: int = 0,
+        interpolate: bool = False,
+    ):
         """Return a response from a sensor at a given position."""
         assert 0 <= x_frac <= 1
         assert 0 <= y_frac <= 1
@@ -212,8 +241,8 @@ class FEMResponses(Responses):
         return self._at(x=x, y=y, z=z)
 
     def at_interpolate(
-            self, x: float = 0, y: float = 1, z: float = 0.5,
-            time_index: int = 0):
+        self, x: float = 0, y: float = 1, z: float = 0.5, time_index: int = 0
+    ):
         """Compute an interpolated response via axis fractions in [0 1].
 
         Interpolate the response between the 8 closest points of a cuboid.
@@ -226,19 +255,45 @@ class FEMResponses(Responses):
 
         y_lo_x_lo_ind, y_hi_x_lo_ind = self._y_indices(x=x_lo, y=y)
         y_lo_x_hi_ind, y_hi_x_hi_ind = self._y_indices(x=x_hi, y=y)
-        y_lo_x_lo, y_hi_x_lo = self.ys[x_lo][y_lo_x_lo_ind], self.ys[x_lo][y_hi_x_lo_ind]
-        y_lo_x_hi, y_hi_x_hi = self.ys[x_hi][y_lo_x_hi_ind], self.ys[x_hi][y_hi_x_hi_ind]
+        y_lo_x_lo, y_hi_x_lo = (
+            self.ys[x_lo][y_lo_x_lo_ind],
+            self.ys[x_lo][y_hi_x_lo_ind],
+        )
+        y_lo_x_hi, y_hi_x_hi = (
+            self.ys[x_hi][y_lo_x_hi_ind],
+            self.ys[x_hi][y_hi_x_hi_ind],
+        )
 
-        z_lo_y_lo_x_lo_ind, z_hi_y_lo_x_lo_ind = self._z_indices(x=x_lo, y=y_lo_x_lo, z=z)
-        z_lo_y_lo_x_hi_ind, z_hi_y_lo_x_hi_ind = self._z_indices(x=x_hi, y=y_lo_x_hi, z=z)
-        z_lo_y_hi_x_lo_ind, z_hi_y_hi_x_lo_ind = self._z_indices(x=x_lo, y=y_hi_x_lo, z=z)
-        z_lo_y_hi_x_hi_ind, z_hi_y_hi_x_hi_ind = self._z_indices(x=x_hi, y=y_hi_x_hi, z=z)
-        z_lo_y_lo_x_lo, z_hi_y_lo_x_lo = self.zs[x_lo][y_lo_x_lo][z_lo_y_lo_x_lo_ind], self.zs[x_lo][y_lo_x_lo][z_hi_y_lo_x_lo_ind]
-        z_lo_y_lo_x_hi, z_hi_y_lo_x_hi = self.zs[x_hi][y_lo_x_hi][z_lo_y_lo_x_hi_ind], self.zs[x_hi][y_lo_x_hi][z_hi_y_lo_x_hi_ind]
-        z_lo_y_hi_x_lo, z_hi_y_hi_x_lo = self.zs[x_lo][y_hi_x_lo][z_lo_y_hi_x_lo_ind], self.zs[x_lo][y_hi_x_lo][z_hi_y_hi_x_lo_ind]
-        z_lo_y_hi_x_hi, z_hi_y_hi_x_hi = self.zs[x_hi][y_hi_x_hi][z_lo_y_hi_x_hi_ind], self.zs[x_hi][y_hi_x_hi][z_hi_y_hi_x_hi_ind]
+        z_lo_y_lo_x_lo_ind, z_hi_y_lo_x_lo_ind = self._z_indices(
+            x=x_lo, y=y_lo_x_lo, z=z
+        )
+        z_lo_y_lo_x_hi_ind, z_hi_y_lo_x_hi_ind = self._z_indices(
+            x=x_hi, y=y_lo_x_hi, z=z
+        )
+        z_lo_y_hi_x_lo_ind, z_hi_y_hi_x_lo_ind = self._z_indices(
+            x=x_lo, y=y_hi_x_lo, z=z
+        )
+        z_lo_y_hi_x_hi_ind, z_hi_y_hi_x_hi_ind = self._z_indices(
+            x=x_hi, y=y_hi_x_hi, z=z
+        )
+        z_lo_y_lo_x_lo, z_hi_y_lo_x_lo = (
+            self.zs[x_lo][y_lo_x_lo][z_lo_y_lo_x_lo_ind],
+            self.zs[x_lo][y_lo_x_lo][z_hi_y_lo_x_lo_ind],
+        )
+        z_lo_y_lo_x_hi, z_hi_y_lo_x_hi = (
+            self.zs[x_hi][y_lo_x_hi][z_lo_y_lo_x_hi_ind],
+            self.zs[x_hi][y_lo_x_hi][z_hi_y_lo_x_hi_ind],
+        )
+        z_lo_y_hi_x_lo, z_hi_y_hi_x_lo = (
+            self.zs[x_lo][y_hi_x_lo][z_lo_y_hi_x_lo_ind],
+            self.zs[x_lo][y_hi_x_lo][z_hi_y_hi_x_lo_ind],
+        )
+        z_lo_y_hi_x_hi, z_hi_y_hi_x_hi = (
+            self.zs[x_hi][y_hi_x_hi][z_lo_y_hi_x_hi_ind],
+            self.zs[x_hi][y_hi_x_hi][z_hi_y_hi_x_hi_ind],
+        )
 
-        points = [                                         # z y x
+        points = [  # z y x
             Point(x=x_lo, y=y_lo_x_lo, z=z_lo_y_lo_x_lo),  # 0 0 0
             Point(x=x_hi, y=y_lo_x_hi, z=z_lo_y_lo_x_hi),  # 0 0 1
             Point(x=x_lo, y=y_hi_x_lo, z=z_lo_y_hi_x_lo),  # 0 1 0
@@ -246,7 +301,8 @@ class FEMResponses(Responses):
             Point(x=x_lo, y=y_lo_x_lo, z=z_hi_y_lo_x_lo),  # 1 0 0
             Point(x=x_hi, y=y_lo_x_hi, z=z_hi_y_lo_x_hi),  # 1 0 1
             Point(x=x_lo, y=y_hi_x_lo, z=z_hi_y_hi_x_lo),  # 1 1 0
-            Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi)]  # 1 1 1
+            Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi),
+        ]  # 1 1 1
         [print(D, f"point = {point}") for point in points]
         request = Point(x=x, y=y, z=z)
         print(D, f"request = {request}")
@@ -259,11 +315,15 @@ class FEMResponses(Responses):
         print(D, f"sum distances = {sum_distances}")
         responses = [
             self.responses[time_index][point.x][point.y][point.z].value
-            for point in points]
+            for point in points
+        ]
         print(D, f"responses = {responses}")
-        response = sum([
-            response * (distance / sum_distances)
-            for response, distance in zip(responses, distances)])
+        response = sum(
+            [
+                response * (distance / sum_distances)
+                for response, distance in zip(responses, distances)
+            ]
+        )
         print(D, f"response = {response}")
         return response
 

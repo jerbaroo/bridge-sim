@@ -18,12 +18,17 @@ class SimParams:
             displacement in meters is reached.
 
     """
+
     def __init__(
-            self, response_types: List[ResponseType],
-            ploads: List[PointLoad] = [],
-            displacement_ctrl: Optional[DisplacementCtrl] = None):
-        if displacement_ctrl is not None: assert len(ploads) == 0
-        else: assert len(ploads) >= 1
+        self,
+        response_types: List[ResponseType],
+        ploads: List[PointLoad] = [],
+        displacement_ctrl: Optional[DisplacementCtrl] = None,
+    ):
+        if displacement_ctrl is not None:
+            assert len(ploads) == 0
+        else:
+            assert len(ploads) >= 1
         self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
@@ -48,5 +53,6 @@ class ExptParams:
     NOTE: Make into a NewType.
 
     """
+
     def __init__(self, sim_params: List[SimParams]):
         self.sim_params = sim_params

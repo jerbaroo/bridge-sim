@@ -26,8 +26,8 @@ SSTuple = NewType("SSTuple", Tuple[float, int, int])
 
 
 def opensees_to_stress_strain(
-        path: str, parse_stress: bool, parse_strain: bool
-        ) -> Tuple[Optional[List[SSTuple]], Optional[List[SSTuple]]]:
+    path: str, parse_stress: bool, parse_strain: bool
+) -> Tuple[Optional[List[SSTuple]], Optional[List[SSTuple]]]:
     """Return a tuple of stress and/or strain responses.
 
     For both stress and strain the value is None if the respective argument
@@ -48,10 +48,12 @@ def opensees_to_stress_strain(
         stress = [
             (stress_strain[time][i * 2], time, i)
             for i in range(num_measurements)
-            for time in range(num_time)]
+            for time in range(num_time)
+        ]
     if parse_strain:
         strain = [
             (stress_strain[time][i * 2 + 1], time, i)
             for i in range(num_measurements)
-            for time in range(num_time)]
+            for time in range(num_time)
+        ]
     return stress, strain

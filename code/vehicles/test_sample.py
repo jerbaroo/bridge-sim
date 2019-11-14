@@ -22,8 +22,10 @@ def test_sample_vehicle():
     true_vehicle = c.vehicle_data.loc[vehicle.index]
     for col_name in noise_col_names:
         # DataFrame is only of length 1, still need .all applied.
-        assert (vehicle.loc[vehicle.index, col_name] !=
-                c.vehicle_data.loc[vehicle.index, col_name]).all()
+        assert (
+            vehicle.loc[vehicle.index, col_name]
+            != c.vehicle_data.loc[vehicle.index, col_name]
+        ).all()
 
     # Test noise is not added.
     c.perturb_stddev = 0
@@ -31,5 +33,7 @@ def test_sample_vehicle():
     true_vehicle = c.vehicle_data.loc[vehicle.index]
     for col_name in noise_col_names:
         # DataFrame is only of length 1, still need .all applied.
-        assert (vehicle.loc[vehicle.index, col_name] ==
-                c.vehicle_data.loc[vehicle.index, col_name]).all()
+        assert (
+            vehicle.loc[vehicle.index, col_name]
+            == c.vehicle_data.loc[vehicle.index, col_name]
+        ).all()

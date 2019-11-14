@@ -7,7 +7,10 @@ from timeit import default_timer as timer
 from config import Config
 from fem.params import ExptParams
 from fem.run import Parsed
-from fem.run.opensees.parse.common import opensees_to_numpy, opensees_to_stress_strain
+from fem.run.opensees.parse.common import (
+    opensees_to_numpy,
+    opensees_to_stress_strain,
+)
 from model.response import ResponseType
 from util import print_d, print_i
 
@@ -16,7 +19,8 @@ D: bool = True
 
 
 def parse_responses_2d(
-        c: Config, expt_params: ExptParams, os_runner: "OSRunner") -> Parsed:
+    c: Config, expt_params: ExptParams, os_runner: "OSRunner"
+) -> Parsed:
     """Parse responses from a 2D OpenSees simulation."""
     # A dictionary of simulation index to ResponseType to parsed responses.
     results = defaultdict(dict)
@@ -32,16 +36,20 @@ def parse_responses_2d(
             start = timer()
             x = opensees_to_numpy(os_runner.x_translation_path(fem_params))
             x *= -1
-            print_i("OpenSees: Parsed XTranslation responses in"
-                    + f" {timer() - start:.2f}s")
+            print_i(
+                "OpenSees: Parsed XTranslation responses in"
+                + f" {timer() - start:.2f}s"
+            )
 
         # Collect y translation responses if required.
         if parse_type(ResponseType.YTranslation):
             start = timer()
             y = opensees_to_numpy(os_runner.y_translation_path(fem_params))
             y *= -1
-            print_i("OpenSees: Parsed YTranslation responses in"
-                    + f" {timer() - start:.2f}s")
+            print_i(
+                "OpenSees: Parsed YTranslation responses in"
+                + f" {timer() - start:.2f}s"
+            )
 
         stress = []
         strain = []
@@ -56,48 +64,76 @@ def parse_responses_2d(
 
                 # Start with the Patch fibers.
                 patch_paths_and_more = [
-                    zip(os_runner.patch_paths(fem_params, patch),
+                    zip(
+                        os_runner.patch_paths(fem_params, patch),
                         itertools.repeat(patch.fiber_cmd_id),
-                        patch.points())
-                    for patch in section.patches]
+                        patch.points(),
+                    )
+                    for patch in section.patches
+                ]
                 patch_paths_and_more = list(
-                    itertools.chain.from_iterable(patch_paths_and_more))
+                    itertools.chain.from_iterable(patch_paths_and_more)
+                )
 
                 # Then the layer fibers.
                 layer_paths_and_more = [
-                    zip(os_runner.layer_paths(fem_params, layer),
+                    zip(
+                        os_runner.layer_paths(fem_params, layer),
                         itertools.repeat(layer.fiber_cmd_id),
-                        layer.points())
-                    for layer in section.layers]
+                        layer.points(),
+                    )
+                    for layer in section.layers
+                ]
                 layer_paths_and_more = list(
-                    itertools.chain.from_iterable(layer_paths_and_more))
+                    itertools.chain.from_iterable(layer_paths_and_more)
+                )
 
                 # For each fiber: append the stress/strain responses.
                 for path, fiber_cmd_id, point in (
-                        patch_paths_and_more + layer_paths_and_more):
+                    patch_paths_and_more + layer_paths_and_more
+                ):
                     parsed_stress, parsed_strain = opensees_to_stress_strain(
                         path=path,
                         parse_stress=parse_type(ResponseType.Stress),
-                        parse_strain=parse_type(ResponseType.Strain))
+                        parse_strain=parse_type(ResponseType.Strain),
+                    )
                     # In both cases, stress and strain, we map the parsed
                     # tuples from opensees_to_stress_strain to a tuple that is
                     # specific to the 2D case.
                     print_d(D, f"parse_d2: path = {path}")
                     if parse_type(ResponseType.Stress):
-                        stress += list(map(
-                            lambda tup: (
-                                tup[0], tup[2], section.id, tup[1],
-                                fiber_cmd_id, point),
-                            parsed_stress))
+                        stress += list(
+                            map(
+                                lambda tup: (
+                                    tup[0],
+                                    tup[2],
+                                    section.id,
+                                    tup[1],
+                                    fiber_cmd_id,
+                                    point,
+                                ),
+                                parsed_stress,
+                            )
+                        )
                     if parse_type(ResponseType.Strain):
-                        strain += list(map(
-                            lambda tup: (
-                                tup[0], tup[2], section.id, tup[1],
-                                fiber_cmd_id, point),
-                            parsed_strain))
+                        strain += list(
+                            map(
+                                lambda tup: (
+                                    tup[0],
+                                    tup[2],
+                                    section.id,
+                                    tup[1],
+                                    fiber_cmd_id,
+                                    point,
+                                ),
+                                parsed_strain,
+                            )
+                        )
                         print_d(D, f"len appended strain = {len(strain[-1])}")
-            print_i("OpenSees: Parsed stress/strain responses in "
-                    + f" {timer() - start:.2f}s")
+            print_i(
+                "OpenSees: Parsed stress/strain responses in "
+                + f" {timer() - start:.2f}s"
+            )
 
         if parse_type(ResponseType.XTranslation):
             results[sim_ind][ResponseType.XTranslation] = x
