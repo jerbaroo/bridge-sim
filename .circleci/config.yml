@@ -6,7 +6,9 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.7.3
+      - image: circleci/python:3.7.5
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
 
     working_directory: ~/repo
 
@@ -22,13 +24,12 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            sudo pip install --upgrade pip
             sudo pip install pipenv
             pipenv install --dev
 
       - save_cache:
           paths:
-            - ./venv
+            - .venv
           key: v1-dependencies-{{ checksum "Pipfile.lock" }}
 
       - run:
