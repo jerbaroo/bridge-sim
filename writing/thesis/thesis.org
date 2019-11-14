@@ -1059,7 +1059,7 @@ $\epsilon$ for $n = 4$ as a function of the number of nodes in the bridge deck
 of the generated FEM. The Figure verifies that for the $n = 4$ chosen loading
 positions that $\epsilon$ decreases as the mesh density increases. Only four
 loading positions were chosen due to the high run time of simulations, the
-chosen loading positions are described next.
+chosen loading positions are described in Table [[tbl:verification-points]].
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1067,12 +1067,8 @@ chosen loading positions are described next.
 #+CAPTION: TODO:CAPTION
 [[fig:response-convergence]]
 
-# Point for verification.
-Four points were chosen for verification of the generated FEM. These points were
-chosen
-
 #+NAME: tbl:verification-points
-#+CAPTION: TODO:CAPTION
+#+CAPTION[Verification by maximum response comparison]: TODO:CAPTION
 | Diana | OpenSees | Point |
 |-------+----------+-------|
 |  0.49 |    0.465 | A     |
