@@ -113,6 +113,19 @@ class Responses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
+    def values(self):
+        """Yield each response value."""
+        for y_dict in self.responses.values():
+            for z_dict in y_dict.values():
+                for value in z_dict.values():
+                    yield value
+
+    def min(self):
+        return min(self.values())
+
+    def max(self):
+        return max(self.values())
+
     @staticmethod
     def from_responses(
             response_type: ResponseType, many_response: List[Respoon]):
