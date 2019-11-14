@@ -450,6 +450,7 @@ class Bridge:
     def __init__(
         self,
         name: str,
+        accuracy: str,
         length: float,
         width: float,
         supports: List[Support],
@@ -464,6 +465,7 @@ class Bridge:
     ):
         # Given arguments.
         self.name = name
+        self.accuracy = accuracy
         self.length = length
         self.width = width
         self.supports = supports
@@ -521,9 +523,15 @@ class Bridge:
                 + f"\n\tpier = {self.supports[0].sections[0]}"
             )
 
-    def id_str(self):
-        """Name with dimensions attached."""
-        return safe_str(f"{self.name}-{self.dimensions.name()}")
+    def id_str(self, acc: bool=True):
+        """Name with dimensions attached.
+
+        Args:
+            acc: bool, whether to include (True) or ignore bridge accuracy.
+
+        """
+        acc_str = f"-{self.accuracy}" if acc else ""
+        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""

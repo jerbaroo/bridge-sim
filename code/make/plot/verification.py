@@ -67,12 +67,12 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     )
     x, z = 2, 2
 
-    def bridge_overload(*args, **kwargs):
+    def bridge_overload(**kwargs):
         return bridge_705_3d(
-            name=f"Bridge 705 convergence-plot",
+            name=f"Bridge 705",
+            accuracy="convergence",
             base_mesh_deck_nodes_x=x,
             base_mesh_deck_nodes_z=z,
-            *args,
             **kwargs,
         )
 
