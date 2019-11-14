@@ -12,6 +12,6 @@ def run_model(
     """Run an OpenSees simulation."""
     subprocess.run(
         [c.os_exe_path,
-         fem_runner.fem_file_path(
-             fem_params=expt_params.fem_params[sim_ind], ext="tcl")])
+         fem_runner.sim_raw_path(
+             sim_params=expt_params.sim_params[sim_ind], ext="tcl")])
     return expt_params

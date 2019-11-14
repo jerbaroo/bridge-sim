@@ -1,6 +1,6 @@
 """Run FEM simulations of bridge 705 with Diana."""
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run import FEMRunner
 from fem.run.diana.build import build_models
 from fem.run.diana.convert import convert_responses
@@ -20,13 +20,13 @@ if __name__ == "__main__":
     c = bridge_705_config
     response_type = ResponseType.XTranslation
     expt_params = ExptParams([
-        FEMParams(
+        SimParams(
             [PointLoad(0, 87375)],
             [response_type]),
-        FEMParams(
+        SimParams(
             [PointLoad(0.1, 87375)],
             [response_type]),
-        FEMParams(
+        SimParams(
             [PointLoad(0.2, 87375)],
             [response_type])
     ])

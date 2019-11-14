@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import build_model_3d, next_node_id, get_node,\
     reset_elem_ids, reset_nodes, ff_node_ids, opensees_deck_nodes,\
@@ -48,7 +48,7 @@ def test_build_d3_deck_nodes_elems():
     os_runner = OSRunner(c=c)
 
     # Build model file.
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[PointLoad(0.65, 0.35, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(
@@ -113,7 +113,7 @@ def test_build_d3_fixed_nodes():
     os_runner = OSRunner(c=c)
 
     # Build model file.
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[], response_types=[ResponseType.YTranslation])])
     build_model_3d(
         c=c, expt_params=expt_params, os_runner=os_runner)
@@ -150,7 +150,7 @@ def test_build_d3_loads():
     load = PointLoad(x_frac=0.5, z_frac=0.5, kn=1234)
 
     # Build model file.
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[load], response_types=[ResponseType.YTranslation])])
     build_model_3d(
         c=c, expt_params=expt_params, os_runner=os_runner, simple_mesh=True)
@@ -246,7 +246,7 @@ def test_support_nodes():
     c.bridge.base_mesh_pier_nodes_z = 4
     c.bridge.base_mesh_pier_nodes_y = 5
     deck_positions = get_deck_positions(
-        c=c, fem_params=FEMParams([], []), simple_mesh=True)
+        c=c, fem_params=SimParams([], []), simple_mesh=True)
     all_support_nodes = get_all_support_nodes(
         c=c, deck_positions=deck_positions, simple_mesh=True)
 
@@ -278,9 +278,9 @@ def test_support_nodes():
     reset_nodes()
     # Start with full deck nodes..
     deck_positions = get_deck_positions(
-        c=c, fem_params=FEMParams([], []), simple_mesh=False)
+        c=c, fem_params=SimParams([], []), simple_mesh=False)
     _, deck_nodes = opensees_deck_nodes(
-        c=c, fem_params=FEMParams([], []), deck_positions=deck_positions)
+        c=c, fem_params=SimParams([], []), deck_positions=deck_positions)
     # ..then get pier nodes, without deck positions added to pier's mesh.
     all_support_nodes = get_all_support_nodes(
         c=c, deck_positions=deck_positions, simple_mesh=True)
@@ -333,7 +333,7 @@ def test_support_elements_from_small_example():
     os_runner = OSRunner(c=c)
 
     # Build model file.
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[PointLoad(x_frac=0.5, z_frac=0.5, kn=1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)
@@ -360,7 +360,7 @@ def test_make_small_example():
     c.os_support_num_nodes_y = 2
     os_runner = OSRunner(c=c)
     # Build model file.
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[PointLoad(x_frac=0.5, z_frac=0.5, kn=1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner)

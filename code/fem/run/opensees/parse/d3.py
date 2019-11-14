@@ -3,7 +3,7 @@ from collections import defaultdict
 from timeit import default_timer as timer
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run import Parsed
 from fem.run.opensees.parse.common import opensees_to_numpy
 from model.response import ResponseType
@@ -11,7 +11,7 @@ from util import print_i
 
 
 def parse_translation_responses_3d(
-        results_dict, fem_params: FEMParams, sim_ind: int, responses_path: str,
+        results_dict, fem_params: SimParams, sim_ind: int, responses_path: str,
         response_type: ResponseType):
     """Parse translation responses from a 3D OpenSees simulation."""
     print(f"response_type = {response_type}")
@@ -26,7 +26,7 @@ def parse_translation_responses_3d(
 
 
 def parse_stress_strain_responses_3d(
-        results_dict, fem_params: FEMParams, sim_ind: int, responses_path: str,
+        results_dict, fem_params: SimParams, sim_ind: int, responses_path: str,
         response_type: ResponseType):
     """Parse stress or strain responses from a 3D OpenSees simulation."""
     if response_type in fem_params.response_types:
@@ -39,7 +39,7 @@ def parse_responses_3d(
     """Parse responses from a 3D OpenSees simulation."""
     # A dictionary of simulation index to ResponseType to parsed responses.
     results_dict = defaultdict(dict)
-    for sim_ind, fem_params in enumerate(expt_params.fem_params):
+    for sim_ind, fem_params in enumerate(expt_params.sim_params):
         print(f"Parsing, sim_ind = {sim_ind}")
         # Parse x translation responses if necessary.
         parse_translation_responses_3d(

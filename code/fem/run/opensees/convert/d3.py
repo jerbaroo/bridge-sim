@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 from config import Config
-from fem.params import FEMParams, ExptParams
+from fem.params import SimParams, ExptParams
 from fem.run import Parsed
 from fem.run.opensees.common import Node, bridge_3d_nodes
 from model import Response, Point
@@ -52,7 +52,7 @@ def convert_responses_3d(
     # dictionary of simulation index to ResponseType to [Response].
     converted_expt_responses = defaultdict(dict)
     for sim_ind, parsed_sim_responses in parsed_expt_responses.items():
-        fem_params = expt_params.fem_params[sim_ind]
+        fem_params = expt_params.sim_params[sim_ind]
         nodes = bridge_3d_nodes(
             deck_nodes=fem_params.deck_nodes,
             all_support_nodes=fem_params.all_support_nodes)

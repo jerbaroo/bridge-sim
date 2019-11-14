@@ -7,7 +7,7 @@ from typing import Dict, List, NewType, Optional, Tuple, Union
 import numpy as np
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees.common import AllPierElements, AllSupportNodes,\
     DeckElements, DeckNodes, Node, ShellElement, bridge_3d_elements,\
     bridge_3d_nodes
@@ -16,8 +16,10 @@ from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from util import print_d, print_i, print_w, round_m, st
 
+
 def assert_sorted(l):
     assert all(l[i] <= l[i+1] for i in range(len(l)-1))
+
 
 # Print debug information for this file.
 D: str = "fem.run.opensees.build.d3"
@@ -403,7 +405,7 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
 
 
 def get_load_deck_positions(
-        bridge: Bridge, fem_params: FEMParams) -> DeckPositions:
+        bridge: Bridge, fem_params: SimParams) -> DeckPositions:
     """The x and z positions of deck nodes that belong to loads."""
     # TODO: Loading position for displacement control?
     return (
@@ -416,7 +418,7 @@ DeckStagesInfo = NewType("DeckStagesInfo", Dict[str, DeckPositions])
 
 
 def get_deck_positions(
-        c: Config, fem_params: FEMParams, simple_mesh: bool) -> DeckPositions:
+        c: Config, fem_params: SimParams, simple_mesh: bool) -> DeckPositions:
     """The x and z positions of deck nodes.
 
     NOTE: This function will attach 'DeckStagesInfo' to the given 'FEMParams'
@@ -469,7 +471,7 @@ def get_deck_positions(
 
 
 def print_mesh_info(
-        bridge: Bridge, fem_params: FEMParams, all_pier_nodes: AllSupportNodes):
+        bridge: Bridge, fem_params: SimParams, all_pier_nodes: AllSupportNodes):
     """Print information about the mesh after each stage of building."""
     to_lens = lambda x: np.array(list(map(len, x)))
     base = to_lens(fem_params.deck_stages_info["base"])
@@ -500,7 +502,7 @@ def print_mesh_info(
 
 
 def get_deck_nodes(
-        c: Config, fem_params: FEMParams, deck_positions: DeckPositions
+        c: Config, fem_params: SimParams, deck_positions: DeckPositions
         ) -> Tuple[str, List[List[Node]]]:
     """OpenSees nodes that belong to the bridge deck.
 
@@ -536,7 +538,7 @@ def get_deck_nodes(
 
 
 def opensees_deck_nodes(
-        c: Config, fem_params: FEMParams, deck_positions: DeckPositions
+        c: Config, fem_params: SimParams, deck_positions: DeckPositions
         ) -> Tuple[str, List[List[Node]]]:
     """OpenSees node commands for a bridge deck.
 
@@ -911,7 +913,7 @@ def opensees_loads(
 
 
 def opensees_translation_recorders(
-        c: Config, fem_params: FEMParams, os_runner: "OSRunner") -> str:
+        c: Config, fem_params: SimParams, os_runner: "OSRunner") -> str:
     """OpenSees recorder commands for translation."""
     deck_nodes = fem_params.deck_nodes
     all_support_nodes = fem_params.all_support_nodes
@@ -948,7 +950,7 @@ def opensees_translation_recorders(
 
 
 def opensees_stress_recorder(
-        c: Config, fem_params: FEMParams, os_runner: "OSRunner") -> str:
+        c: Config, fem_params: SimParams, os_runner: "OSRunner") -> str:
     """OpenSees recorder command for stresses."""
     all_elements = bridge_3d_elements(
         deck_elements=fem_params.deck_elements,
@@ -960,7 +962,7 @@ def opensees_stress_recorder(
 
 
 def opensees_recorders(
-        c: Config, fem_params: FEMParams, os_runner: "OSRunner"):
+        c: Config, fem_params: SimParams, os_runner: "OSRunner"):
     """OpenSees recorder commands for translation and stresses."""
     return "\n".join([
         opensees_translation_recorders(
@@ -1036,7 +1038,7 @@ def build_model_3d(
         in_tcl = f.read()
 
     # Build a model file for each simulation.
-    for fem_params in expt_params.fem_params:
+    for fem_params in expt_params.sim_params:
 
         # Reset before building.
         reset_nodes()
@@ -1109,7 +1111,7 @@ def build_model_3d(
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl)))
 
         # Write the generated model file.
-        model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")
+        model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         print_i(f"OpenSees: saved 3D model file to {model_path}")

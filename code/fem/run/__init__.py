@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import os
 from timeit import default_timer as timer
-from typing import Callable, Dict, List, Optional, TypeVar
+from typing import Callable, Dict, List, TypeVar, Optional
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.responses import FEMResponses
 from model import Response
 from model.bridge import Bridge
 from model.response import ResponseType
-from util import print_d, print_i, pstr
+from util import print_d, print_i, safe_str
 
 # Print debug information for this file.
 D: str = "fem.run"
@@ -21,7 +21,7 @@ Parsed = TypeVar("Parsed")
 
 
 class FEMRunner:
-    """Run FEM simulations with an external program and generate responses.
+    """Run FEM simulations with an external FE program and generate responses.
 
     NOTE: For running simulations and loading responses you should instead use
     the load_fem_responses function.
@@ -44,11 +44,6 @@ class FEMRunner:
         self.c = c
         self.name = name
         self.supported_response_types = supported_response_types
-        self.built_files_dir = os.path.join(
-            self.c.generated_dir, f"{self.name}").lower()
-        if not os.path.exists(self.built_files_dir):
-            os.makedirs(self.built_files_dir)
-
         self._build = build
         self._run = run
         self._parse = parse
@@ -70,7 +65,7 @@ class FEMRunner:
 
         supported_response_types = self.supported_response_types(self.c.bridge)
         # Check that all FEMParams contain supported response types.
-        for fem_params in expt_params.fem_params:
+        for fem_params in expt_params.sim_params:
             for response_type in fem_params.response_types:
                 if response_type not in supported_response_types:
                     raise ValueError(
@@ -85,11 +80,11 @@ class FEMRunner:
                 + f" {timer() - start:.2f}s")
 
         # Running.
-        for sim_ind, _ in enumerate(expt_params.fem_params):
+        for sim_ind, _ in enumerate(expt_params.sim_params):
             start = timer()
             expt_params = self._run(self.c, expt_params, self, sim_ind)
             print_i(f"FEMRunner: ran {self.name}"
-                    + f" {sim_ind + 1}/{len(expt_params.fem_params)}"
+                    + f" {sim_ind + 1}/{len(expt_params.sim_params)}"
                     + f" simulation in {timer() - start:.2f}s")
 
         # Parsing.
@@ -119,36 +114,67 @@ class FEMRunner:
                     converted_expt_responses[sim_ind].items()):
                 print_d(D, f"response_type in converted = {response_type}")
                 fem_responses = FEMResponses(
-                    c=self.c, fem_params=expt_params.fem_params[sim_ind],
-                    runner_name=self.name, response_type=response_type,
-                    responses=responses, skip_build=True)
+                    c=self.c, fem_params=expt_params.sim_params[sim_ind],
+                    sim_runner=self, response_type=response_type,
+                    responses=responses, skip_index=True)
 
                 start = timer()
-                fem_responses.save(self.c)
+                fem_responses.save()
                 print_i(
                     f"FEMRunner: saved simulation {sim_ind + 1} FEMResponses"
                     + f" in ([Response]) in {timer() - start:.2f}s,"
                     + f"({response_type})")
 
-    def fem_file_path(
-            self, fem_params: FEMParams, ext: str, append: str = "") -> str:
-        """A file path based on a bridge, FEMParams and this FEMRunner.
+    def sim_raw_path(
+            self, sim_params: SimParams, ext: str,
+            append: str = "", dirname: Optional[str] = None) -> str:
+        """A file path for a FE model file or raw simulation responses.
 
-        This function is used for file paths of raw responses saved by the
-        FEMRunner, you should not use this directly. Instead you may be
-        interested in load_fem_responses or fem_responses_path.
+        The file path is based on a Bridge, SimParams and this SimRunner.
+
+        NOTE: you probably don't want this function. Instead you may be
+        interested in 'load_fem_responses' or 'fem_responses_path'.
 
         Args:
-            fem_params: FEMParams, parameters for a FEM simulation.
+            sim_params: SimParams, parameters for a FEM simulation.
             ext: str, a file extension without the dot.
             append: str, appended before the file extension.
+            dirname: Optional[str], directory name, default is 'self.name'.
 
         """
-        load_str: str = fem_params.load_str()
-        for char in "[]()":
-            load_str = load_str.replace(char, "")
+        param_str = sim_params.id_str()
         append = append if len(append) == 0 else f"-{append}"
-        return pstr(os.path.join(
-            self.built_files_dir,
-            f"{self.c.bridge.long_name()}-response-params={load_str}{append}"
-        )).lower() + f".{ext}"
+        filename = f"{self.c.bridge.id_str()}-params={param_str}{append}"
+        if dirname is None:
+            dirname = self.name
+        dirname = safe_str(dirname)
+        return safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
+
+    def sim_out_path(
+            self, sim_params: SimParams, ext: str,
+            dirname: Optional[str] = None, append: str = "",
+            response_types: List[ResponseType] = []) -> str:
+        """Like 'sim_raw_path', however response types are overridden.
+
+        Intended for output files from FE simulations where we don't care what
+        other response types were recorded.
+
+        Args:
+            sim_params: SimParams, parameters for a FEM simulation.
+            ext: str, a file extension without the dot.
+            append: str, appended before the file extension.
+            dirname: Optional[str], directory name, default is 'self.name' +
+                "-responses".
+            response_types: List[ResponseType], override the response types
+                in the SimParams.
+
+        """
+        original_response_types = sim_params.response_types
+        sim_params.response_types = response_types
+        if dirname is None:
+            dirname = self.name + "-responses"
+        result = self.sim_raw_path(
+            sim_params=sim_params, ext=ext, dirname=dirname, append=append)
+        sim_params.response_types = original_response_types
+        return result
+

@@ -65,7 +65,7 @@ def nearest_index(array, value):
 
 def clean_generated(c: "Config"):
     """Remove generated files but keep folders."""
-    print_i(f"Removing all files in: {c.generated_dir}")
+    print_w(f"Removing all files in: {c.generated_data_dir}")
 
     def clean_dir(dir_path):
         for root, dir_names, file_names in os.walk(dir_path):
@@ -75,7 +75,7 @@ def clean_generated(c: "Config"):
             for dir_name in dir_names:
                 clean_dir(os.path.join(root, dir_name))
 
-    clean_dir(c.generated_dir)
+    clean_dir(c.generated_data_dir)
 
 
 def kde_sampler(data, print_: bool = False):
@@ -89,6 +89,10 @@ def kde_sampler(data, print_: bool = False):
         yield kde.resample(1)[0][0]
 
 
-def pstr(s: str) -> str:
-    """A string with some characters removed, for use in filepaths."""
-    return s.replace(".", ",").replace(" ", "").lower()
+def safe_str(s: str) -> str:
+    """A lowercase string with some special characters replaced."""
+    for char in "[]()":
+        s = s.replace(char, "")
+    s = s.replace(" ", "-")
+    s = s.replace(".", ",")
+    return s.lower()

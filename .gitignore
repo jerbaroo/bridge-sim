@@ -9,7 +9,7 @@ __pycache__/
 venv/
 
 # Code & generated data
-config_sys.py
+code/config_sys.py
 generated*/
 
 # Diana related

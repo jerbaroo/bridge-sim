@@ -3,12 +3,10 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import matplotlib.cm as cm
-import matplotlib.patches as patches
 import matplotlib.colors as colors
 
-from config import Config
 from model.bridge import Bridge
-from util import print_d
+from util import safe_str
 
 # Comment/uncomment to print debug statements for this file.
 # D: str = "model.load"
@@ -27,6 +25,9 @@ class DisplacementCtrl:
         self.displacement = displacement
         self.pier = pier
 
+    def id_str(self):
+        return safe_str(f"{self.displacement}-{self.pier}")
+
 
 class PointLoad:
     """A load concentrated at a point.
@@ -42,8 +43,8 @@ class PointLoad:
         self.z_frac = z_frac
         self.kn = kn
 
-    def __str__(self):
-        """String uniquely respresenting this load."""
+    def id_str(self):
+        """String uniquely representing this load."""
         return f"({self.x_frac}, {self.z_frac}, {self.kn})"
 
 
@@ -193,10 +194,11 @@ class MvVehicle(Vehicle):
     def xs_at(self, time: float, bridge: Bridge):
         """X position of bridge for each axle in meters at given time."""
         xs = [self.x_at(time=time, bridge=bridge)]
-        for axle_distance in self.axle_distances:
-            delta_x = axle_distance
+        if not hasattr(self, "_delta_xs"):
+            self._delta_xs = np.array(self.axle_distances)
             if bridge.lanes[self.lane].ltr:
-                delta_x *= -1
+                self._delta_xs *= -1
+        for delta_x in self._delta_xs:
             xs.append(xs[-1] + delta_x)
         return xs
 

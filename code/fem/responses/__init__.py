@@ -8,75 +8,68 @@ from timeit import default_timer as timer
 from typing import List, NewType, Tuple
 
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from model import Response
 from model.bridge import Dimensions, Point
 from model.response import ResponseType
-from util import nearest_index, print_d, print_i, pstr
+from util import nearest_index, print_d, print_i, safe_str
 
 # Print debug information for this file.
 D: str = "fem.responses"
 # D: bool = False
 
-
-def fem_responses_path(
-        c: Config, fem_params: FEMParams, response_type: ResponseType,
-        runner_name: str) -> str:
-    """Path of the responses of one sensor type for one FEM simulation."""
-    return os.path.join(
-        c.fem_responses_path_prefix,
-        pstr(f"{runner_name}-{c.bridge.long_name()}"
-             + f"-responses-params={fem_params.load_str()}"
-             + f"-type={response_type.name()}"
-             + f"-deck={c.bridge.base_mesh_deck_nodes_x}"
-             + f"-deck={c.bridge.base_mesh_deck_nodes_z}"
-             + f"-deck={c.bridge.base_mesh_pier_nodes_y}"
-             + f"-deck={c.bridge.base_mesh_pier_nodes_z}") + ".npy")
+def _responses_path(
+        sim_runner: "FEMRunner", sim_params: SimParams,
+        response_type: ResponseType) -> str:
+    """Path to responses generated with given parameters."""
+    return sim_runner.sim_out_path(
+        sim_params=sim_params, ext="npy", response_types=[response_type])
 
 
 def load_fem_responses(
-        c: Config, fem_params: FEMParams, response_type: ResponseType,
-        fem_runner: "FEMRunner") -> FEMResponses:
-    """Load responses of one type from a FEM simulation.
+        c: Config, sim_params: SimParams, response_type: ResponseType,
+        sim_runner: "FEMRunner") -> FEMResponses:
+    """Responses of one sensor type from a FEM simulation.
 
     Responses are loaded from disk, the simulation is only run if necessary
 
     Args:
         c: Config, global configuration object.
-        fem_params: FEMParams, simulation parameters. Note that these decide
+        sim_params: FEMParams, simulation parameters. Note that these decide
             which responses are generated and saved to disk.
         response_type: ResponseType, responses to load from disk and return.
+        sim_runner: FEMRunner, FE program to run the simulation with.
 
     """
-    if response_type not in fem_params.response_types:
+    if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
-    for rt in fem_params.response_types:
-        if rt not in fem_runner.supported_response_types(c.bridge):
-            raise ValueError(f"{rt} not supported by {fem_runner}")
+    for rt in sim_params.response_types:
+        if rt not in sim_runner.supported_response_types(c.bridge):
+            raise ValueError(f"{rt} not supported by {sim_runner}")
 
     # May need to free a node in y direction.
     if c.bridge.dimensions == Dimensions.D2:
         set_y_false = False
-        if fem_params.displacement_ctrl is not None:
-            pier = fem_params.displacement_ctrl.pier
+        if sim_params.displacement_ctrl is not None:
+            pier = sim_params.displacement_ctrl.pier
             fix = c.bridge.supports[pier]
             if fix.y:
                 fix.y = False
                 set_y_false = True
 
-    path = fem_responses_path(
-        c=c, fem_params=fem_params, response_type=response_type,
-        runner_name=fem_runner.name)
+    path = _responses_path(
+        sim_runner=sim_runner, sim_params=sim_params,
+        response_type=response_type)
 
     # Run an experiment with a single FEM simulation.
     if not os.path.exists(path):
-        print_d(D, f"Running fem_runner.run")
-        fem_runner.run(ExptParams([fem_params]))
+        print_d(D, f"Running sim_runner.run")
+        sim_runner.run(ExptParams([sim_params]))
         print(f"***********")
-        print_d(D, f"Ran fem_runner.run")
+        print_d(D, f"Ran sim_runner.run")
         print(f"expect FEMResponses at {path}")
     else:
-        print_d(D, f"Not running fem_runner.run")
+        print_d(D, f"Not running sim_runner.run")
 
     # And set the node as fixed again after running.
     if c.bridge.dimensions == Dimensions.D2:
@@ -90,7 +83,7 @@ def load_fem_responses(
 
     start = timer()
     fem_responses = FEMResponses(
-        c=c, fem_params=fem_params, runner_name=fem_runner.name,
+        c=c, fem_params=sim_params, sim_runner=sim_runner,
         response_type=response_type, responses=responses)
     print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
@@ -120,6 +113,19 @@ class Responses:
         self.zs = {x: {y: sorted(points[x][y].keys())
                        for y in self.ys[x]} for x in self.xs}
 
+    def values(self):
+        """Yield each response value."""
+        for y_dict in self.responses[self.times[0]].values():
+            for z_dict in y_dict.values():
+                for response in z_dict.values():
+                    yield response.value
+
+    def min(self):
+        return min(self.values())
+
+    def max(self):
+        return max(self.values())
+
     @staticmethod
     def from_responses(
             response_type: ResponseType, many_response: List[Respoon]):
@@ -142,15 +148,15 @@ class FEMResponses(Responses):
         runner_name: str, the FEMRunner used to run the simulation.
         response_type: ResponseType, the type of sensor responses to collect.
         responses: List[Response], the raw responses from simulation.
-        skip_build: bool, reduces time if responses will only be saved.
+        skip_index: bool, reduces time if responses will only be saved.
 
     TODO: Warn about assumption of equidistant points?
 
     """
     def __init__(
-            self, c: Config, fem_params: FEMParams, runner_name: str,
+            self, c: Config, fem_params: SimParams, sim_runner: "FEMRunner",
             response_type: ResponseType, responses: List[Response],
-            skip_build: bool = False):
+            skip_index: bool = False):
         super().__init__(response_type=response_type)
         assert isinstance(responses, list)
         if len(responses) == 0:
@@ -162,19 +168,20 @@ class FEMResponses(Responses):
 
         self.c = c
         self.fem_params = fem_params
-        self.runner_name = runner_name
+        self.sim_runner = sim_runner
         self.num_sensors = len(responses)
 
-        if not skip_build:
+        if not skip_index:
             print(f"building")
             for r in responses:
                 self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
             self.index()
 
-    def save(self, c: Config):
-        path = fem_responses_path(
-            c=c, fem_params=self.fem_params, response_type=self.response_type,
-            runner_name=self.runner_name)
+    def save(self):
+        """Save theses simulation responses to disk."""
+        path = _responses_path(
+            sim_runner=self.sim_runner, sim_params=self.fem_params,
+            response_type=self.response_type)
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
 

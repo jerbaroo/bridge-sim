@@ -114,17 +114,17 @@ def responses_to_traffic_array(
         c: Config, traffic_array: TrafficArray, response_type: ResponseType,
         points: List[Point], fem_runner: FEMRunner
         ):
+    # First collect the unit load simulations per wheel track.
     wheel_zs = c.bridge.wheel_tracks(c)
-    print(wheel_zs)
     il_matrices = {
         wheel_z: ILMatrix.load(
             c=c, response_type=response_type, fem_runner=fem_runner,
             load_z_frac=c.bridge.z_frac(wheel_z))
         for wheel_z in wheel_zs}
 
+    # Create a matrix of unit load simulation (rows) * point (columns).
     unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
     for w, wheel_z in enumerate(wheel_zs):
-        print(f"w = {w}, wheel z = {wheel_z}")
         i = w * c.il_num_loads  # Row index.
         il_matrix = il_matrices[wheel_z]
         # For each unit load simulation.
@@ -133,7 +133,8 @@ def responses_to_traffic_array(
                 unit_load_matrix[i][j] = (
                     sim_responses._at(x=point.x, y=point.y, z=point.z))
             i += 1
+    # Divide by the load of the unit load simulations, so the value at a cell is
+    # the response to 1 kN.
     unit_load_matrix /= c.il_unit_load_kn
-    print(unit_load_matrix.shape)
 
     return np.matmul(traffic_array, unit_load_matrix)

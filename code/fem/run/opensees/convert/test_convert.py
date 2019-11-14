@@ -1,5 +1,5 @@
 """Test fem.run.opensees.convert."""
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from model import Response
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
@@ -11,7 +11,7 @@ def test_convert_3d():
     """Test converting of responses from a 3D OpenSees simulation."""
     c = bridge_705_test_config(bridge_705_3d)
     fem_runner = OSRunner(c)
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(0.65, 0.35, 100)],
         response_types=[ResponseType.YTranslation])
     converted = fem_runner.run(

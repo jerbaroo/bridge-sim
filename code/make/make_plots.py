@@ -13,7 +13,7 @@ from classify.scenario.bridge import HealthyBridge
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from classify.data.responses import responses_to_traffic
 from config import Config
-from fem.params import FEMParams
+from fem.params import SimParams
 from fem.responses import load_fem_responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
@@ -26,10 +26,10 @@ from model.bridge import Dimensions, Point
 from model.bridge.util import wheel_tracks
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
-from util import print_d, print_i, pstr
+from util import print_d, print_i, safe_str
 from vehicles.sample import sample_vehicle
 
-from make.plot import animate, contour, matrix, vehicle
+from make.plot import animate, contour, matrix, vehicle, verification
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -69,7 +69,7 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     for response_type in ResponseType:
         animate_mv_load(
             c, mv_load, response_type, OSRunner(c), per_axle=per_axle,
-            save=pstr(c.image_path(
+            save=safe_str(c.image_path(
                 f"animations/{c.bridge.name}-{OSRunner(c).name}"
                 + f"-{response_type.name()}{per_axle_str}"
                 + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
@@ -103,7 +103,7 @@ def make_event_plots(c: Config):
                 start_time=start_index * time_step, time_step=time_step,
                 response_type=ResponseType.YTranslation,
                 points=points, fem_runner=OSRunner(c),save=c.get_image_path(
-                "events", pstr(
+                "events", safe_str(
                     f"bs-{bridge_scenario.name}-ts-{traffic_scenario.name}"
                     f"-rt-{response_type.name()}")))
 
@@ -216,14 +216,15 @@ def make_distribution_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
+    # contour.plot_of_unit_loads(c)
+    verification.make_convergence_data(c, run=True, plot=True)
+    # verification.plot_convergence(c)
     # make_geom_plots(c)
-    vehicle.vehicle_plots(c)
-    # plot_convergence_with_shell_size(
-    #     max_shell_areas=list(np.linspace(0.5, 0.8, 10)))
+    # vehicle.vehicle_plots(c)
     # make_il_plots(c)
     # matrix.dc_plots(c)
     # make_event_plots(c)
-    animate.traffic(c)
+    # animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
     # contour.plots_for_verification(

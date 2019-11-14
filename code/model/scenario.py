@@ -202,10 +202,13 @@ def to_traffic_array(
     time, t = 0, 0
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
-    # Interpolate from x position to index of unit load.
+    # Interpolate from x position to index of unit load simulation.
     bridge_length = c.bridge.length
-    _interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
-    x_interp = lambda x: int(_interp(x))
+    interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
+    # Column index where each wheel track starts.
+    j_indices = [
+        (l * 2 * c.il_num_loads, (l * 2 * c.il_num_loads) + 1)
+        for l, _ in enumerate(current)]
 
     while time <= max_time:
 
@@ -224,9 +227,8 @@ def to_traffic_array(
                 next_event_time = np.inf
 
         # For each lane.
-        for l, vehicles in enumerate(current):
-            # An index for each wheel track.
-            w0, w1 = l * 2, (l * 2) + 1
+        for (j0, j1), vehicles in zip(j_indices, current):
+            # For each vehicle.
             for vehicle in vehicles:
                 xs = vehicle.xs_at(time=time, bridge=c.bridge)
                 kns = vehicle.kn_per_axle()
@@ -234,13 +236,14 @@ def to_traffic_array(
                 # For each axle currently on the bridge.
                 for x, kn in zip(xs, kns):
                     if x >= 0 and x <= bridge_length:
+                        x_ind = int(interp(x))
                         # For each wheel.
-                        for w in [w0, w1]:
-                            j = (w * c.il_num_loads) + x_interp(x)
+                        for j in [j0, j1]:
                             # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
-                            result[t][j] = kn / 2
+                            result[t][j + x_ind] = kn
 
         time += time_step
         t += 1
 
-    return result
+    # We divide by 2 because the load per axle is shared by 2 wheels.
+    return result / 2

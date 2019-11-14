@@ -38,7 +38,7 @@ def test_scenario():
 
     # Time how long it takes to generate traffic.
     start = timer()
-    max_time = 30
+    max_time = 5
     traffic_sequence, start_time = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time)
     print_i(
@@ -63,7 +63,7 @@ def test_scenario():
     # '- 1' because the first time step is t = 0.
     sim_time = (len(traffic_array) - 1) * time_step
     print_i(
-        f"Generation of {sim_time}s of Traffic at {1 / time_step}Hz"
+        f"Generation of {sim_time}s of TrafficArray at {1 / time_step}Hz"
         + f" ({len(traffic)} steps) took {timer() - start}")
 
     from classify.data.responses import responses_to_traffic_array, responses_to_traffic

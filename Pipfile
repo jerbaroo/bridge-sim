@@ -4,9 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pycodestyle = "*"
+black = "*"
 pytest = "*"
-mypy = "*"
 pydeps = "*"
 
 [packages]
@@ -17,7 +16,9 @@ pandas = "*"
 scipy = "*"
 termcolor = "*"
 mycode = {path = "./code",editable = true}
-pyflakes = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

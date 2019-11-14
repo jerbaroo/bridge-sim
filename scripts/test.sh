@@ -1,2 +1,1 @@
-pipenv run mypy code
-pytest code
+pipenv run black --diff -l 80 -t py37 --check code/

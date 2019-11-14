@@ -1,5 +1,5 @@
 """Full pipeline tests for OpenSees FEMRunner."""
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Fix, Layer, Patch
@@ -15,7 +15,7 @@ def test_run_3d_model():
     c.os_node_step = c.bridge.length / 10
     c.os_node_step_z = c.bridge.width / 10
     clean_generated(c)
-    expt_params = ExptParams([FEMParams(
+    expt_params = ExptParams([SimParams(
         ploads=[PointLoad(0.65, 0.35, 100)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])])
     OSRunner(c).run(expt_params)
@@ -39,7 +39,7 @@ def test_opensees_patch():
 
     c = bridge_705_test_config(bridge_overload)
     clean_generated(c)
-    fem_params = FEMParams(
+    fem_params = SimParams(
         ploads=[PointLoad(0.65, 0.35, 1234)], response_types=[
             ResponseType.YTranslation, ResponseType.Strain])
     fem_responses = load_fem_responses(

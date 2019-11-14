@@ -1,6 +1,6 @@
 import numpy as np
 from config import Config
-from fem.params import ExptParams, FEMParams
+from fem.params import ExptParams, SimParams
 from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.run import FEMRunner
 from model.load import PointLoad
@@ -71,7 +71,7 @@ class ILMatrix(ResponsesMatrix):
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams([
-            FEMParams(
+            SimParams(
                 ploads=[PointLoad(
                     x_frac=x_frac, z_frac=load_z_frac, kn=c.il_unit_load_kn)],
                 response_types=[response_type])
