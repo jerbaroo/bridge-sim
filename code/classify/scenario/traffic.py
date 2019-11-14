@@ -52,14 +52,16 @@ def heavy_traffic_1(c: Config, lam: float, min_d: float, prob_heavy: float):
     the_heavy.kn = 500
 
     def mv_vehicle_f(time: float, full_lanes: int):
-        nonlocal heavy_generated; nonlocal max_kn
+        nonlocal heavy_generated
+        nonlocal max_kn
         if not heavy_generated and full_lanes > 1:
             heavy_generated = True
             # the_heavy.kn = max_kn * 5
             return the_heavy, arrival(beta=lam, min_d=min_d)
         # Otherwise just the normal scenario.
         normal, dist = normal_traffic_scenario.mv_vehicle_f(
-            time=time, full_lanes=full_lanes)
+            time=time, full_lanes=full_lanes
+        )
         max_kn = max(max_kn, normal.total_kn())
         return normal, dist
 

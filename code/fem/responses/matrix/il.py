@@ -21,8 +21,14 @@ class ILMatrix(ResponsesMatrix):
     """
 
     def response_to(
-            self, x_frac: float, z_frac: float, load_x_frac: float, load: float,
-            y_frac: float = 1, time_index: int = 0):
+        self,
+        x_frac: float,
+        z_frac: float,
+        load_x_frac: float,
+        load: float,
+        y_frac: float = 1,
+        time_index: int = 0,
+    ):
         """The response value in kN at a position to a load at a position.
 
         NOTE: only the loading position in longitudinal direction can be chosen,
@@ -42,14 +48,22 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= load_x_frac <= 1
         print_d(D, f"x_frac = {x_frac} = load_x_frac = {load_x_frac}")
         response = super().sim_response(
-            expt_frac=load_x_frac, x_frac=x_frac, y_frac=y_frac, z_frac=z_frac,
-            time_index=time_index)
+            expt_frac=load_x_frac,
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+        )
         return response * (load / self.c.il_unit_load_kn)
 
     @staticmethod
     def load(
-            c: Config, response_type: ResponseType, fem_runner: FEMRunner,
-            load_z_frac: float, save_all: bool = True) -> "ILMatrix":
+        c: Config,
+        response_type: ResponseType,
+        fem_runner: FEMRunner,
+        load_z_frac: float,
+        save_all: bool = True,
+    ) -> "ILMatrix":
         """Load an ILMatrix from disk, running simulations first if necessary.
 
         Args:
@@ -66,28 +80,50 @@ class ILMatrix(ResponsesMatrix):
         assert 0 <= load_z_frac <= 1
         id_str = (
             f"il-{response_type}-{fem_runner.name}-{c.il_unit_load_kn}"
-            + f"-{c.il_num_loads}-zfrac={load_z_frac}")
+            + f"-{c.il_num_loads}-zfrac={load_z_frac}"
+        )
         print(id_str)
 
         # Determine experiment simulation parameters.
-        _expt_params = ExptParams([
-            SimParams(
-                ploads=[PointLoad(
-                    x_frac=x_frac, z_frac=load_z_frac, kn=c.il_unit_load_kn)],
-                response_types=[response_type])
-            for x_frac in np.linspace(0, 1, c.il_num_loads)])
+        _expt_params = ExptParams(
+            [
+                SimParams(
+                    ploads=[
+                        PointLoad(
+                            x_frac=x_frac,
+                            z_frac=load_z_frac,
+                            kn=c.il_unit_load_kn,
+                        )
+                    ],
+                    response_types=[response_type],
+                )
+                for x_frac in np.linspace(0, 1, c.il_num_loads)
+            ]
+        )
 
         def load_func(expt_params):
             """Load a ResponsesMatrix from given simulation parameters."""
             il_matrix = ILMatrix(
-                c=c, response_type=response_type, expt_params=expt_params,
-                fem_runner=fem_runner, save_all=save_all,
+                c=c,
+                response_type=response_type,
+                expt_params=expt_params,
+                fem_runner=fem_runner,
+                save_all=save_all,
                 expt_responses=load_expt_responses(
-                    c=c, expt_params=expt_params, response_type=response_type,
-                    fem_runner=fem_runner))
+                    c=c,
+                    expt_params=expt_params,
+                    response_type=response_type,
+                    fem_runner=fem_runner,
+                ),
+            )
             il_matrix.load_z_frac = load_z_frac
             return il_matrix
 
         return ResponsesMatrix.load(
-            c=c, id_str=id_str, expt_params=_expt_params, load_func=load_func,
-            fem_runner=fem_runner, save_all=save_all)
+            c=c,
+            id_str=id_str,
+            expt_params=_expt_params,
+            load_func=load_func,
+            fem_runner=fem_runner,
+            save_all=save_all,
+        )

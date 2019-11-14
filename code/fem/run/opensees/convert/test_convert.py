@@ -13,14 +13,19 @@ def test_convert_3d():
     fem_runner = OSRunner(c)
     fem_params = SimParams(
         ploads=[PointLoad(0.65, 0.35, 100)],
-        response_types=[ResponseType.YTranslation])
+        response_types=[ResponseType.YTranslation],
+    )
     converted = fem_runner.run(
-        ExptParams([fem_params]), return_converted=True, simple_mesh=True)
+        ExptParams([fem_params]), return_converted=True, simple_mesh=True
+    )
     # Index converted responses by simulation, here is only one simulation.
     converted_y_responses = converted[0][ResponseType.YTranslation]
     assert isinstance(converted_y_responses[0], Response)
     # Check that all deck nodes are recorded.
     assert len(converted_y_responses) == (
         c.bridge.base_mesh_deck_nodes_x * c.bridge.base_mesh_deck_nodes_z
-        + c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z
-        * len(c.bridge.supports) * 2)
+        + c.bridge.base_mesh_pier_nodes_y
+        * c.bridge.base_mesh_pier_nodes_z
+        * len(c.bridge.supports)
+        * 2
+    )

@@ -22,14 +22,12 @@ def _next_fiber_id():
 
 class Dimensions(Enum):
     """Whether modeling in 2D or 3D."""
+
     D2 = "2D"
     D3 = "3D"
 
     def name(self):
-        return {
-            Dimensions.D2: "2D",
-            Dimensions.D3: "3D"
-        }[self]
+        return {Dimensions.D2: "2D", Dimensions.D3: "3D"}[self]
 
 
 class Fix:
@@ -44,9 +42,15 @@ class Fix:
     TODO: Rename to Support2D and move to absolute position.
 
     """
+
     def __init__(
-            self, x_frac: float, x: bool = False, y: bool = False,
-            z: bool = False, rot: bool = False):
+        self,
+        x_frac: float,
+        x: bool = False,
+        y: bool = False,
+        z: bool = False,
+        rot: bool = False,
+    ):
         assert 0 <= x_frac <= 1
         self.x_frac: float = x_frac
         self.x: bool = x
@@ -107,13 +111,23 @@ class Support3D:
         width_bottom: float, width of the bottom of the support in meters.
 
     """
+
     def __init__(
-            self, x: float, z: float, length: float, height: float,
-            width_top: float, width_bottom: float,
-            sections: List["Section3DPier"], fix_x_translation: bool = True,
-            fix_y_translation: bool = True, fix_z_translation: bool = True,
-            fix_x_rotation: bool = False, fix_y_rotation: bool = False,
-            fix_z_rotation: bool = False):
+        self,
+        x: float,
+        z: float,
+        length: float,
+        height: float,
+        width_top: float,
+        width_bottom: float,
+        sections: List["Section3DPier"],
+        fix_x_translation: bool = True,
+        fix_y_translation: bool = True,
+        fix_z_translation: bool = True,
+        fix_x_rotation: bool = False,
+        fix_y_rotation: bool = False,
+        fix_z_rotation: bool = False,
+    ):
         self.x = x
         self.z = z
         self.length = length
@@ -130,8 +144,7 @@ class Support3D:
         for s in self.sections:
             assert isinstance(s, Section3DPier)
         if self.width_top < self.width_bottom:
-            raise ValueError(
-                "Support3D: top width must be >= bottom width")
+            raise ValueError("Support3D: top width must be >= bottom width")
 
     def x_min_max(self) -> Tuple[float, float]:
         """The min and max x positions for this pier."""
@@ -160,16 +173,20 @@ class Point:
     TODO: Change default arguments to None.
 
     """
+
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.x: float = round_m(x)
         self.y: float = round_m(y)
         self.z: float = round_m(z)
 
     def distance(self, point):
-        return round_m(np.sqrt(
-            ((self.x - point.x) ** 2)
-            + ((self.y - point.y) ** 2)
-            + ((self.z - point.z) ** 2)))
+        return round_m(
+            np.sqrt(
+                ((self.x - point.x) ** 2)
+                + ((self.y - point.y) ** 2)
+                + ((self.z - point.z) ** 2)
+            )
+        )
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
@@ -188,6 +205,7 @@ class Lane:
         z_min, upper z position of the bridge in meters.
 
     """
+
     def __init__(self, z0: float, z1: float, ltr: bool):
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
@@ -220,10 +238,17 @@ class Layer:
     TODO: Avoid default argument of area_fiber.
 
     """
+
     def __init__(
-            self, y_min: float, z_min: float, y_max: float, z_max: float,
-            num_fibers: int, area_fiber: float = 4.9e-4,
-            material: Material = Material.Steel):
+        self,
+        y_min: float,
+        z_min: float,
+        y_max: float,
+        z_max: float,
+        num_fibers: int,
+        area_fiber: float = 4.9e-4,
+        material: Material = Material.Steel,
+    ):
         assert y_min <= y_max
         assert z_min <= z_max
         self.fiber_cmd_id = _next_fiber_id()
@@ -248,9 +273,16 @@ class Layer:
 
 class Patch:
     """A rectangular patch when describing a Section, when 2D modeling."""
+
     def __init__(
-            self, y_min: float, z_min: float, y_max: float, z_max: float,
-            num_sub_div_z: int = 30, material: Material = Material.Concrete):
+        self,
+        y_min: float,
+        z_min: float,
+        y_max: float,
+        z_max: float,
+        num_sub_div_z: int = 30,
+        material: Material = Material.Concrete,
+    ):
         assert y_min <= y_max
         assert z_min <= z_max
         self.fiber_cmd_id = _next_fiber_id()
@@ -268,10 +300,9 @@ class Patch:
         # Center of y and center of z for first fiber.
         point = Point(y=self.p0.y + (dy / 2), z=self.p0.z + (d_sub_div_z / 2))
         return [
-            Point(
-                y=point.y,
-                z=point.z + (d_sub_div_z * sub_div_z))
-            for sub_div_z in range(self.num_sub_div_z)]
+            Point(y=point.y, z=point.z + (d_sub_div_z * sub_div_z))
+            for sub_div_z in range(self.num_sub_div_z)
+        ]
 
 
 class Section2D:
@@ -286,7 +317,8 @@ class Section2D:
         self.layers = layers
 
     def _min_max(
-            self, direction: Callable[[Point], float]) -> Tuple[float, float]:
+        self, direction: Callable[[Point], float]
+    ) -> Tuple[float, float]:
         """The min and max values (in given direction) for this section."""
         _min, _max = np.inf, -np.inf
         for layer in self.layers:
@@ -323,8 +355,14 @@ class Section3D:
     next_id = 1
 
     def __init__(
-            self, density: float, thickness: float, youngs: float,
-            poissons: float, start_x_frac: float = 0, start_z_frac: float = 0):
+        self,
+        density: float,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_x_frac: float = 0,
+        start_z_frac: float = 0,
+    ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
         self.density = density
@@ -347,7 +385,8 @@ class Section3D:
             + f"\n  density = {self.density} kg/m"
             + f"\n  thickness = {self.thickness} m"
             + f"\n  youngs = {self.youngs} MPa"
-            + f"\n  poissons = {self.poissons}")
+            + f"\n  poissons = {self.poissons}"
+        )
 
 
 class Section3DPier(Section3D):
@@ -361,12 +400,21 @@ class Section3DPier(Section3D):
         start_frac_len: start of the section as a fraction of pier length.
 
     """
+
     def __init__(
-            self, density: float, thickness: float, youngs: float,
-            poissons: float, start_frac_len: float):
+        self,
+        density: float,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_frac_len: float,
+    ):
         super().__init__(
-            density=density, thickness=thickness, youngs=youngs,
-            poissons=poissons)
+            density=density,
+            thickness=thickness,
+            youngs=youngs,
+            poissons=poissons,
+        )
         self.start_frac_len = start_frac_len
 
 
@@ -398,15 +446,22 @@ class Bridge:
             values respectively in the tuple, only applies to a 3D model.
 
     """
+
     def __init__(
-            self, name: str, length: float, width: float,
-            supports: List[Support], sections: List[Section],
-            lanes: List[Lane], dimensions: Dimensions,
-            base_mesh_deck_nodes_x: int,
-            base_mesh_deck_nodes_z: Optional[int] = None,
-            base_mesh_pier_nodes_y: Optional[int] = None,
-            base_mesh_pier_nodes_z: Optional[int] = None,
-            single_sections: Optional[Tuple[Section, Section]] = None):
+        self,
+        name: str,
+        length: float,
+        width: float,
+        supports: List[Support],
+        sections: List[Section],
+        lanes: List[Lane],
+        dimensions: Dimensions,
+        base_mesh_deck_nodes_x: int,
+        base_mesh_deck_nodes_z: Optional[int] = None,
+        base_mesh_pier_nodes_y: Optional[int] = None,
+        base_mesh_pier_nodes_z: Optional[int] = None,
+        single_sections: Optional[Tuple[Section, Section]] = None,
+    ):
         # Given arguments.
         self.name = name
         self.length = length
@@ -427,7 +482,7 @@ class Bridge:
         if self.single_sections is not None:
             self.name += "-single-sections"
             self.sections = [self.single_sections[0]]  # Set deck section.
-            for pier in self.supports: # Set pier sections.
+            for pier in self.supports:  # Set pier sections.
                 pier.sections = [self.single_sections[1]]
 
         # Derived attributes.
@@ -441,7 +496,7 @@ class Bridge:
         if dimensions == Dimensions.D2:
             self.z_min, self.z_max = self.z_min_max()
         else:
-            self.z_min, self.z_max = - width / 2, width / 2
+            self.z_min, self.z_max = -width / 2, width / 2
         self.x_center = (self.x_min + self.x_max) / 2
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_center = (self.z_min + self.z_max) / 2
@@ -457,12 +512,14 @@ class Bridge:
             f"Bridge dimensions:"
             + f"\n\tx = ({self.x_min}, {self.x_max})"
             + f"\n\ty = ({self.y_min}, {self.y_max})"
-            + f"\n\tz = ({self.z_min}, {self.z_max})")
+            + f"\n\tz = ({self.z_min}, {self.z_max})"
+        )
         if self.single_sections:
             print_s(
                 f"Single section:"
                 + f"\n\tdeck = {self.sections[0]}"
-                + f"\n\tpier = {self.supports[0].sections[0]}")
+                + f"\n\tpier = {self.supports[0].sections[0]}"
+            )
 
     def id_str(self):
         """Name with dimensions attached."""
@@ -471,9 +528,12 @@ class Bridge:
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
         half_axle = c.axle_width / 2
-        return list(chain.from_iterable(
-            [lane.z_center() - half_axle, lane.z_center() + half_axle]
-            for lane in self.lanes))
+        return list(
+            chain.from_iterable(
+                [lane.z_center() - half_axle, lane.z_center() + half_axle]
+                for lane in self.lanes
+            )
+        )
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""
@@ -486,19 +546,26 @@ class Bridge:
     def x_axis(self) -> List[float]:
         """Position of supports in meters along the bridge's x-axis."""
         return np.interp(
-            [f.x_frac for f in self.supports], [0, 1], [0, self.length])
+            [f.x_frac for f in self.supports], [0, 1], [0, self.length]
+        )
 
     def x_axis_equi(self, n) -> List[float]:
         """n equidistant values along the bridge's x-axis, in meters."""
         return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
 
     def x_frac(self, x: float):
-        return float(interp1d(
-            [self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x))
+        return float(
+            interp1d(
+                [self.x_min, self.x_max], [0, 1], fill_value="extrapolate"
+            )(x)
+        )
 
     def x(self, x_frac: float):
-        return float(interp1d(
-            [0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac))
+        return float(
+            interp1d(
+                [0, 1], [self.x_min, self.x_max], fill_value="extrapolate"
+            )(x_frac)
+        )
 
     def y_frac(self, y: float):
         assert self.y_min <= y <= self.y_max
@@ -517,22 +584,24 @@ class Bridge:
         return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
 
     def _min_max(
-            self,
-            f: Callable[
-                [Union[Support, Section]],
-                Tuple[Optional[float], Optional[float]]]
-            ) -> Tuple[float, float]:
+        self,
+        f: Callable[
+            [Union[Support, Section]], Tuple[Optional[float], Optional[float]]
+        ],
+    ) -> Tuple[float, float]:
         """The min and max values in a direction from supports and sections."""
         z_min, z_max = None, None
 
         def set_z_min(z: float):
             nonlocal z_min
-            if z is None: return
+            if z is None:
+                return
             z_min = z if z_min is None or z < z_min else z_min
 
         def set_z_max(z: float):
             nonlocal z_max
-            if z is None: return
+            if z is None:
+                return
             z_max = z if z_max is None or z > z_max else z_max
 
         for section in self.sections:
@@ -600,7 +669,8 @@ class Bridge:
             # TODO: Remove first check in line above.
             # TODO: Check self.supports[0].x_frac == 0.
             raise ValueError(
-                "2D bridge must have node at x=0 fixed in x direction")
+                "2D bridge must have node at x=0 fixed in x direction"
+            )
 
         # 2D bridge has exactly 1 section.
         if len(self.sections) != 1:
@@ -633,19 +703,23 @@ class Bridge:
             if lane.z_min < self.z_min:
                 raise ValueError(
                     f"Lane {i} lower position {lane.z_min} less than bridge"
-                    + f" {self.z_min}")
+                    + f" {self.z_min}"
+                )
             if lane.z_min > self.z_max:
                 raise ValueError(
                     f"Lane {i} lower position {lane.z_min} greater than bridge"
-                    + f" {self.z_max}")
+                    + f" {self.z_max}"
+                )
             if lane.z_max < self.z_min:
                 raise ValueError(
                     f"Lane {i} upper position {lane.z_max} less than bridge"
-                    + f" {self.z_min}")
+                    + f" {self.z_min}"
+                )
             if lane.z_max > self.z_max:
                 raise ValueError(
                     f"Lane {i} upper position {lane.z_max} greater than bridge"
-                    + f" {self.z_max}")
+                    + f" {self.z_max}"
+                )
 
         # Supports must be in range.
         for i, support in enumerate(self.supports):
@@ -653,19 +727,23 @@ class Bridge:
             if support_z_min < self.z_min:
                 raise ValueError(
                     f"Support {i} lower position {support_z_min} less than"
-                    + f" bridge {self.z_min}")
+                    + f" bridge {self.z_min}"
+                )
             if support_z_min > self.z_max:
                 raise ValueError(
                     f"Support {i} lower position {support_z_min} greater than"
-                    + f" bridge {self.z_max}")
+                    + f" bridge {self.z_max}"
+                )
             if support_z_max < self.z_min:
                 raise ValueError(
                     f"Support {i} upper position {support_z_max} less than"
-                    + f" bridge {self.z_min}")
+                    + f" bridge {self.z_min}"
+                )
             if support_z_max > self.z_max:
                 raise ValueError(
                     f"Support {i} upper position {support_z_max} greater than"
-                    + f" bridge {self.z_max}")
+                    + f" bridge {self.z_max}"
+                )
 
 
 def _reset_model_ids():

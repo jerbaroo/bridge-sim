@@ -20,7 +20,8 @@ noise_col_names = ["speed", "length", "total_weight"]
 
 
 def _vehicle_pdf_groups(
-        vehicle_data: VehicleData, col: str, lengths: List[int]):
+    vehicle_data: VehicleData, col: str, lengths: List[int]
+):
     """Vehicle data grouped by a maximum value per group."""
     print_d(D, f"Vehicle PDF column is {repr(col)}")
     print_d(D, lengths)
@@ -43,8 +44,10 @@ def vehicle_pdf_groups(c: Config):
     if not hasattr(c, "_vehicle_pdf_groups"):
         start = timer()
         c._vehicle_pdf_groups = _vehicle_pdf_groups(
-            c.vehicle_data, c.vehicle_pdf_col,
-            list(map(lambda x: x[0], c.vehicle_pdf)))
+            c.vehicle_data,
+            c.vehicle_pdf_col,
+            list(map(lambda x: x[0], c.vehicle_pdf)),
+        )
         print_s(f"Vehicle PDF groups loaded in {timer() - start}")
     return c._vehicle_pdf_groups
 
@@ -63,9 +66,11 @@ def noise_per_column(c: Config, col_names: List[str]):
 
 
 def sample_vehicle(
-        c: Config, group_index: int = None,
-        noise_col_names: List[str] = noise_col_names, pd_row: bool = False
-    ) -> Union[MvVehicle, Tuple[MvVehicle, pd.DataFrame]]:
+    c: Config,
+    group_index: int = None,
+    noise_col_names: List[str] = noise_col_names,
+    pd_row: bool = False,
+) -> Union[MvVehicle, Tuple[MvVehicle, pd.DataFrame]]:
     """Sample a vehicle from a c.vehicle_density group.
 
     Args:
@@ -92,7 +97,8 @@ def sample_vehicle(
             if rand < running_fraction:
                 group_index = i
                 break
-    else: group_index = init_group_index
+    else:
+        group_index = init_group_index
     print_d(D, f"group_index = {group_index}")
 
     # Sample a vehicle uniformly randomly from the group.
@@ -112,11 +118,14 @@ def sample_vehicle(
     if c.perturb_stddev:
         # print(f"perturb")
         for col_name, (_, stddev) in zip(
-                noise_col_names, noise_per_column(c, noise_col_names)):
-            print_d(D,
+            noise_col_names, noise_per_column(c, noise_col_names)
+        ):
+            print_d(
+                D,
                 f"col_name = {col_name}, stddev = {stddev:.2f}"
                 + f",{c.perturb_stddev} x stddev"
-                + f" {c.perturb_stddev * stddev:.2f}")
+                + f" {c.perturb_stddev * stddev:.2f}",
+            )
             noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
             print_d(D, f"before =\n{sample[col_name]},\nnoise = {noise}")
             sample[col_name] = sample[col_name] + noise
@@ -131,6 +140,9 @@ def sample_vehicle(
     # print(axle_weights)
     # print(row["total_weight"])
     vehicle = MvVehicle(
-        kmph=40, kn=axle_weights, axle_width=c.axle_width,
-        axle_distances=np.array(axle_distances) / 100)
+        kmph=40,
+        kn=axle_weights,
+        axle_width=c.axle_width,
+        axle_distances=np.array(axle_distances) / 100,
+    )
     return (vehicle, sample) if pd_row else vehicle

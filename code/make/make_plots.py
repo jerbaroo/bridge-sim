@@ -19,8 +19,12 @@ from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
-from plot import animate_mv_vehicle, plot_bridge_deck_side,\
-    plot_bridge_first_section, plt
+from plot import (
+    animate_mv_vehicle,
+    plot_bridge_deck_side,
+    plot_bridge_first_section,
+    plt,
+)
 from plot.geom import plot_cloud_of_nodes
 from model.bridge import Dimensions, Point
 from model.bridge.util import wheel_tracks
@@ -37,42 +41,62 @@ D: str = "make.make_plots"
 
 
 def make_bridge_plots(
-        c: Config, mv_vehicles: Optional[List[List[MvVehicle]]]=None):
+    c: Config, mv_vehicles: Optional[List[List[MvVehicle]]] = None
+):
     """Make plots of the bridge with and without vehicles."""
     if mv_vehicles is None:
         mk = lambda x_frac, lane: MvVehicle(
-            kn=0, axle_distances=[2.5, 1.5], axle_width=0, kmph=0, lane=lane,
-            init_x_frac=x_frac)
-        mv_vehicles = [
-            [],
-            [mk(0.6, 0)],
-            [mk(0.6, 0), mk(0.5, 0), mk(0.4, 1)]]
+            kn=0,
+            axle_distances=[2.5, 1.5],
+            axle_width=0,
+            kmph=0,
+            lane=lane,
+            init_x_frac=x_frac,
+        )
+        mv_vehicles = [[], [mk(0.6, 0)], [mk(0.6, 0), mk(0.5, 0), mk(0.4, 1)]]
     plt.close()
     plot_bridge_first_section(
-        bridge=c.bridge, save=c.image_path("bridges/bridge-section"))
+        bridge=c.bridge, save=c.image_path("bridges/bridge-section")
+    )
     for mv_vehicles_ in mv_vehicles:
-        mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
+        mv_vehicles_str = "-".join(
+            str(l).replace(".", ",") for l in mv_vehicles_
+        )
         plot_bridge_deck_side(
-            c.bridge, mv_vehicles=mv_vehicles_,
-            save=c.image_path(f"bridges/side-{mv_vehicles_str}"))
+            c.bridge,
+            mv_vehicles=mv_vehicles_,
+            save=c.image_path(f"bridges/side-{mv_vehicles_str}"),
+        )
         plot_bridge_deck_top(
-            c.bridge, mv_vehicles=mv_vehicles_,
-            save=c.image_path(f"bridges/top-{mv_vehicles_str}"))
+            c.bridge,
+            mv_vehicles=mv_vehicles_,
+            save=c.image_path(f"bridges/top-{mv_vehicles_str}"),
+        )
 
 
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a pload moving across a bridge."""
     plt.close()
     mv_load = MovingLoad.from_vehicle(
-        x_frac=0, vehicle=sample_vehicle(c), lane=0)
+        x_frac=0, vehicle=sample_vehicle(c), lane=0
+    )
     per_axle_str = f"-peraxle" if per_axle else ""
     for response_type in ResponseType:
         animate_mv_load(
-            c, mv_load, response_type, OSRunner(c), per_axle=per_axle,
-            save=safe_str(c.image_path(
-                f"animations/{c.bridge.name}-{OSRunner(c).name}"
-                + f"-{response_type.name()}{per_axle_str}"
-                + f"-load-{mv_load.str_id()}")).lower() + ".mp4")
+            c,
+            mv_load,
+            response_type,
+            OSRunner(c),
+            per_axle=per_axle,
+            save=safe_str(
+                c.image_path(
+                    f"animations/{c.bridge.name}-{OSRunner(c).name}"
+                    + f"-{response_type.name()}{per_axle_str}"
+                    + f"-load-{mv_load.str_id()}"
+                )
+            ).lower()
+            + ".mp4",
+        )
 
 
 def make_event_plots(c: Config):
@@ -88,24 +112,36 @@ def make_event_plots(c: Config):
 
     for response_type in [ResponseType.YTranslation]:
         for traffic_scenario in [
-                normal_traffic(c=c, lam=lam, min_d=min_d),
-                heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
+            normal_traffic(c=c, lam=lam, min_d=min_d),
+            heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01),
+        ]:
 
             # Generate traffic under a scenario.
             traffic, start_index = traffic_scenario.traffic(
-                bridge=c.bridge, max_time=max_time, time_step=time_step)
+                bridge=c.bridge, max_time=max_time, time_step=time_step
+            )
             traffic = traffic[start_index:]
 
             # Plot events from traffic.
             plot_events_from_traffic(
-                c=c, bridge=c.bridge, bridge_scenario=bridge_scenario,
-                traffic_name=traffic_scenario.name, traffic=traffic,
-                start_time=start_index * time_step, time_step=time_step,
+                c=c,
+                bridge=c.bridge,
+                bridge_scenario=bridge_scenario,
+                traffic_name=traffic_scenario.name,
+                traffic=traffic,
+                start_time=start_index * time_step,
+                time_step=time_step,
                 response_type=ResponseType.YTranslation,
-                points=points, fem_runner=OSRunner(c),save=c.get_image_path(
-                "events", safe_str(
-                    f"bs-{bridge_scenario.name}-ts-{traffic_scenario.name}"
-                    f"-rt-{response_type.name()}")))
+                points=points,
+                fem_runner=OSRunner(c),
+                save=c.get_image_path(
+                    "events",
+                    safe_str(
+                        f"bs-{bridge_scenario.name}-ts-{traffic_scenario.name}"
+                        f"-rt-{response_type.name()}"
+                    ),
+                ),
+            )
 
 
 def make_cloud_of_nodes_plots(c: Config):
@@ -115,13 +151,21 @@ def make_cloud_of_nodes_plots(c: Config):
         """Make cloud of nodes plots for full and equal axes."""
         # Cloud of nodes without axis correction.
         plot_cloud_of_nodes(
-            *args, **kwargs, c=c, equal_axis=False,
-            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"))
+            *args,
+            **kwargs,
+            c=c,
+            equal_axis=False,
+            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"),
+        )
 
         # Cloud of nodes with equal axes.
         plot_cloud_of_nodes(
-            *args, **kwargs, c=c, equal_axis=True,
-            save=c.get_image_path(f"cloud-of-nodes{prop}-equal-axis", "cloud"))
+            *args,
+            **kwargs,
+            c=c,
+            equal_axis=True,
+            save=c.get_image_path(f"cloud-of-nodes{prop}-equal-axis", "cloud"),
+        )
 
     def all_plots(prop: str, *args, **kwargs):
         """Make both axis plots for all deck and pier variants."""
@@ -137,7 +181,8 @@ def make_cloud_of_nodes_plots(c: Config):
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
     make_contour_plots_for_verification(
-        c, y=-0.5, response_types=[ResponseType.Stress, ResponseType.Strain])
+        c, y=-0.5, response_types=[ResponseType.Stress, ResponseType.Strain]
+    )
     make_bridge_plots(c)
     make_il_plots(c)
     # make_dc_plots(c)
@@ -154,8 +199,13 @@ def make_geom_plots(c: Config):
 
     # First create some vehicles.
     mk = lambda init_x_frac, lane, length: MvVehicle(
-        kn=100 * length, axle_distances=[length], axle_width=2, kmph=40,
-        lane=lane, init_x_frac=init_x_frac)
+        kn=100 * length,
+        axle_distances=[length],
+        axle_width=2,
+        kmph=40,
+        lane=lane,
+        init_x_frac=init_x_frac,
+    )
     mv_vehicles = [[], [mk(0.1, 0, 2.5), mk(0.4, 0, 4), mk(0, 1, 7)]]
 
     # Create a plot for each set of vehicles.
@@ -163,8 +213,7 @@ def make_geom_plots(c: Config):
         # First the top view.
         plt.close()
         top_view_bridge(c.bridge)
-        top_view_vehicles(
-            bridge=c.bridge, mv_vehicles=set_mv_vehicles, time=2)
+        top_view_vehicles(bridge=c.bridge, mv_vehicles=set_mv_vehicles, time=2)
         plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
         # Then the side view.
@@ -181,8 +230,8 @@ def make_distribution_plots(c: Config):
 
     # Generate heavy traffic.
     heavy_traffic, start_index = heavy_traffic_1(
-        c=c, lam=lam, min_d=min_d, prob_heavy=0.01).traffic(
-            bridge=c.bridge, max_time=max_time, time_step=time_step)
+        c=c, lam=lam, min_d=min_d, prob_heavy=0.01
+    ).traffic(bridge=c.bridge, max_time=max_time, time_step=time_step)
 
     # Filter out any normal traffic so it's just one heavy vehicle.
     for t, t_traffic in enumerate(heavy_traffic):
@@ -193,12 +242,19 @@ def make_distribution_plots(c: Config):
     assert len(heavy_traffic[-1]) == 0
 
     heavy_responses = responses_to_traffic(
-        c=c, traffic=heavy_traffic, bridge_scenario=BridgeScenarioNormal(),
-        start_time=start_index * time_step, time_step=time_step,
-        points=points, response_type=response_type, fem_runner=OSRunner(c))
-    heavy_responses_values = [[
-        r.responses[0][point.x][point.y][point.z]
-        for r in heavy_responses] for point in points]
+        c=c,
+        traffic=heavy_traffic,
+        bridge_scenario=BridgeScenarioNormal(),
+        start_time=start_index * time_step,
+        time_step=time_step,
+        points=points,
+        response_type=response_type,
+        fem_runner=OSRunner(c),
+    )
+    heavy_responses_values = [
+        [r.responses[0][point.x][point.y][point.z] for r in heavy_responses]
+        for point in points
+    ]
 
     # heavy_responses_values[0] = [r for r in heavy_responses_values[0] if r != 0]
     # heavy_responses_values[1] = [r for r in heavy_responses_values[1] if r != 0]

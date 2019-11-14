@@ -13,7 +13,8 @@ fem_runner = OSRunner(c)
 def test_recorder():
     # Test one response is recorded.
     recorder = Recorder(
-        c=c, response_type=ResponseType.Strain, trigger=always_trigger())
+        c=c, response_type=ResponseType.Strain, trigger=always_trigger()
+    )
     response = 1
 
     def add_response():
@@ -53,5 +54,6 @@ def test_recorder():
     assert len(recorder.history) == history_length
     assert recorder.history == list(range(1, history_length + 1))
     assert len(recorder.responses) == overlap_length
-    assert recorder.responses == list(range(
-        history_length + 1, history_length + overlap_length + 1))
+    assert recorder.responses == list(
+        range(history_length + 1, history_length + overlap_length + 1)
+    )

@@ -14,20 +14,31 @@ def traffic(c: Config):
     c.time_step = time_step
     # for traffic_scenario in [normal_traffic(c=c, lam=lam)]:
     for traffic_scenario in [
-            normal_traffic(c=c, lam=lam, min_d=min_d),
-            heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01)]:
+        normal_traffic(c=c, lam=lam, min_d=min_d),
+        heavy_traffic_1(c=c, lam=lam, min_d=min_d, prob_heavy=0.01),
+    ]:
 
         traffic_sequence, start_time = traffic_scenario.traffic_sequence(
-            bridge=c.bridge, max_time=max_time)
+            bridge=c.bridge, max_time=max_time
+        )
 
         traffic = to_traffic(
-            bridge=c.bridge, traffic_sequence=traffic_sequence,
-            max_time=start_time + max_time, time_step=time_step)
+            bridge=c.bridge,
+            traffic_sequence=traffic_sequence,
+            max_time=start_time + max_time,
+            time_step=time_step,
+        )
 
         start_index = int(start_time / time_step) + 1
         animate_traffic_top_view(
-            c=c, bridge=c.bridge, bridge_scenario=HealthyBridge(),
-            traffic_name=traffic_scenario.name, traffic=traffic[start_index:],
-            start_time=start_index * time_step, time_step=time_step,
-            fem_runner=OSRunner(c), response_type=ResponseType.YTranslation,
-            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"))
+            c=c,
+            bridge=c.bridge,
+            bridge_scenario=HealthyBridge(),
+            traffic_name=traffic_scenario.name,
+            traffic=traffic[start_index:],
+            start_time=start_index * time_step,
+            time_step=time_step,
+            fem_runner=OSRunner(c),
+            response_type=ResponseType.YTranslation,
+            save=c.get_image_path("animations", f"{traffic_scenario.name}.mp4"),
+        )

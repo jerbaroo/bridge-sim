@@ -29,7 +29,7 @@ class ResponseType(Enum):
             ResponseType.YTranslation: "Y translation",
             ResponseType.ZTranslation: "Z translation",
             ResponseType.Stress: "Stress",
-            ResponseType.Strain: "Strain"
+            ResponseType.Strain: "Strain",
         }[self]
 
     def units(self, short: bool = True) -> str:
@@ -39,17 +39,22 @@ class ResponseType(Enum):
             ResponseType.YTranslation: ("meters", "m"),
             ResponseType.ZTranslation: ("meters", "m"),
             ResponseType.Stress: ("kilo newton", "kN"),
-            ResponseType.Strain: ("kilo newton", "kN")
+            ResponseType.Strain: ("kilo newton", "kN"),
         }[self][int(short)]
 
 
 class Event:
     """A recorded time series of responses."""
+
     def __init__(
-            self, time_series: TimeSeries = None, noise: TimeSeries = None,
-            axle_time_series: List[TimeSeries] = None,
-            axle_noise: List[TimeSeries] = None, overlap: int = None,
-            start_index: int = None):
+        self,
+        time_series: TimeSeries = None,
+        noise: TimeSeries = None,
+        axle_time_series: List[TimeSeries] = None,
+        axle_noise: List[TimeSeries] = None,
+        overlap: int = None,
+        start_index: int = None,
+    ):
         self.time_series = time_series
         self.noise = noise
         self.axle_time_series = axle_time_series
@@ -71,5 +76,4 @@ class Event:
             raise ValueError("Axle time series not defined")
         if not noise:
             return self.axle_time_series
-        return list(
-            sum(x) for x in zip(self.axle_time_series, self.axle_noise))
+        return list(sum(x) for x in zip(self.axle_time_series, self.axle_noise))

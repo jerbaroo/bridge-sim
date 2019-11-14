@@ -20,9 +20,15 @@ class Recorder:
         add_noise: bool, whether to add noise to an event.
 
     """
+
     def __init__(
-            self, c: Config, response_type: ResponseType, trigger: Trigger,
-            max_history: int = 10000, add_noise: bool = True):
+        self,
+        c: Config,
+        response_type: ResponseType,
+        trigger: Trigger,
+        max_history: int = 10000,
+        add_noise: bool = True,
+    ):
         self.c: Config = c
         self.response_type = response_type
         self.trigger: Trigger = trigger
@@ -43,7 +49,8 @@ class Recorder:
         self.responses: Union[List[float], List[List[float]]] = []
 
     def receive(
-            self, response: Union[float, List[float]], overlap: bool = False):
+        self, response: Union[float, List[float]], overlap: bool = False
+    ):
         """Receive a new response."""
         # If already recording, record the response.
         if self.recording():
@@ -69,8 +76,9 @@ class Recorder:
         if self.recording():
             event_time = len(self.responses) * self.c.time_step
             # Check if an event is ready to be returned.
-            if (event_time >= self.c.time_end or
-                    self.trigger.stop(self.responses, self.history)):
+            if event_time >= self.c.time_end or self.trigger.stop(
+                self.responses, self.history
+            ):
                 # Split the event into new overlap and new history.
                 event = self.responses
                 overlap_length = int(self.c.time_overlap / self.c.time_step)
@@ -81,7 +89,7 @@ class Recorder:
                 self.responses = []
                 self.history.extend(new_history)
                 if len(self.history) > self.max_history:
-                    self.history = self.history[-self.max_history:]
+                    self.history = self.history[-self.max_history :]
                 # Determine overlap of this event, and start time.
                 prev_overlap = self.overlap
                 prev_start_index = self.start_index
@@ -104,11 +112,14 @@ class Recorder:
                 assert isinstance(event[0], float) or isinstance(event[0], int)
                 assert not by_axle
                 noise = (
-                    None if not self.add_noise
+                    None
+                    if not self.add_noise
                     else np.random.normal(
                         self.c.noise_mean(self.response_type),
                         self.c.noise_stddev(self.response_type),
-                        len(event)))
+                        len(event),
+                    )
+                )
                 print_w(f"TODO: Axle noise")
                 return Event(
                     time_series=event if not by_axle else None,
@@ -116,4 +127,5 @@ class Recorder:
                     axle_time_series=event if by_axle else None,
                     axle_noise=None,
                     overlap=prev_overlap,
-                    start_index=prev_start_index)
+                    start_index=prev_start_index,
+                )

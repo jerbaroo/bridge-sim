@@ -31,11 +31,13 @@ def diana_mobile_load(c: Config, expt_params: ExptParams):
     dinc = (end_x - start_x) / (len(expt_params.fem_params) - 1)
     end_x -= dinc
     # Path is: start_x, start_y, start_z, end_x, end_y, end_z.
-    path = (f"{start_x:.0f} {lane_z_center:.0f} 4165"
-            + f" {end_x - 1:.0f} {lane_z_center:.0f} 4165")
+    path = (
+        f"{start_x:.0f} {lane_z_center:.0f} 4165"
+        + f" {end_x - 1:.0f} {lane_z_center:.0f} 4165"
+    )
 
     return (
-          f"CASE 2"
+        f"CASE 2"
         + f"\nMOBILE"
         + f"\n     ELEMEN 1-57129"
         + f"\n     DIRECT 3"
@@ -45,7 +47,8 @@ def diana_mobile_load(c: Config, expt_params: ExptParams):
         + f"\n     AXWIDT {axwidt}"
         + f"\n     AXDIST {axdist}"
         + f"\n     PATH {path}"
-        + f"\n     POSINC {dinc:.0f}")
+        + f"\n     POSINC {dinc:.0f}"
+    )
 
 
 def build_models(c: Config, expt_params: ExptParams) -> ExptParams:
@@ -74,6 +77,6 @@ def build_models(c: Config, expt_params: ExptParams) -> ExptParams:
 
     raise ValueError("Diana: only MOBILE load supported")
     # for fem_params in expt_params.fem_params:
-        # out_tcl = in_tcl.replace("<<LOADS>>", diana_loads(c, fem_params.loads))
-        # with open(fem_params.built_model_file, "w") as f:
-        #     f.write(out_tcl)
+    # out_tcl = in_tcl.replace("<<LOADS>>", diana_loads(c, fem_params.loads))
+    # with open(fem_params.built_model_file, "w") as f:
+    #     f.write(out_tcl)

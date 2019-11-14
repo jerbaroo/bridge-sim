@@ -21,6 +21,7 @@ class DisplacementCtrl:
         pier: int, index of a pier on a bridge.
 
     """
+
     def __init__(self, displacement: float, pier: int):
         self.displacement = displacement
         self.pier = pier
@@ -38,6 +39,7 @@ class PointLoad:
         kn: float, load intensity in kilo Newton.
 
     """
+
     def __init__(self, x_frac: float, z_frac: float, kn: float):
         self.x_frac = x_frac
         self.z_frac = z_frac
@@ -66,8 +68,10 @@ class Vehicle:
             kilo Newton.
 
     """
+
     def __init__(
-            self, kn: float, axle_distances: List[float], axle_width: float):
+        self, kn: float, axle_distances: List[float], axle_width: float
+    ):
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
@@ -91,6 +95,7 @@ class Vehicle:
     def cmap_norm(self, all_vehicles: List["Vehicle"], cmin=0, cmax=1):
         """The colormap and norm for coloring vehicles."""
         from plot import truncate_colormap
+
         cmap = truncate_colormap(cm.get_cmap("YlGn"), cmin, cmax)
         total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
         norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
@@ -131,12 +136,19 @@ class MvVehicle(Vehicle):
         num_axles: int, number of axles.
 
     """
+
     def __init__(
-            self, kn: float, axle_distances: List[float], axle_width: float,
-            kmph: float, lane: Optional["Lane"] = None,
-            init_x_frac: Optional[float] = None):
+        self,
+        kn: float,
+        axle_distances: List[float],
+        axle_width: float,
+        kmph: float,
+        lane: Optional["Lane"] = None,
+        init_x_frac: Optional[float] = None,
+    ):
         super().__init__(
-            kn=kn, axle_distances=axle_distances, axle_width=axle_width)
+            kn=kn, axle_distances=axle_distances, axle_width=axle_width
+        )
         self.kmph = kmph
         self.mps = self.kmph / 3.6  # Meters per second.
         self.lane = lane
@@ -144,8 +156,7 @@ class MvVehicle(Vehicle):
         if self.init_x_frac is not None:
             assert self.init_x_frac <= 1
 
-    def wheel_tracks(
-            self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
+    def wheel_tracks(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
         """Positions of the vehicle's wheels in transverse direction.
 
         Args:
@@ -157,7 +168,8 @@ class MvVehicle(Vehicle):
         lane = bridge.lanes[self.lane]
         tracks = [
             lane.z_center() - (self.axle_width / 2),
-            lane.z_center() + (self.axle_width + 2)]
+            lane.z_center() + (self.axle_width + 2),
+        ]
         if meters:
             return tracks
         return list(map(lambda z: bridge.z_frac(z), tracks))

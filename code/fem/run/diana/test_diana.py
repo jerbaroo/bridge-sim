@@ -1,20 +1,27 @@
 """Test that Diana builds model files correctly."""
+
+
 def test_mobile_load():
     return
     # Setup.
     c = bridge_705_config()
     response_type = ResponseType.XTranslation
-    expt_params = ExptParams([
-        FEMParams(
-            loads=[Load(x_frac=0, kn=5000, axle_distances=[2, 3])],
-            response_types=[response_type]),
-        FEMParams(
-            loads=[Load(x_frac=0.1, kn=5000, axle_distances=[2, 3])],
-            response_types=[response_type]),
-        FEMParams(
-            loads=[Load(x_frac=0.2, kn=5000, axle_distances=[2, 3])],
-            response_types=[response_type])
-    ])
+    expt_params = ExptParams(
+        [
+            FEMParams(
+                loads=[Load(x_frac=0, kn=5000, axle_distances=[2, 3])],
+                response_types=[response_type],
+            ),
+            FEMParams(
+                loads=[Load(x_frac=0.1, kn=5000, axle_distances=[2, 3])],
+                response_types=[response_type],
+            ),
+            FEMParams(
+                loads=[Load(x_frac=0.2, kn=5000, axle_distances=[2, 3])],
+                response_types=[response_type],
+            ),
+        ]
+    )
 
     # Run and read.
     build_models(c, expt_params)
