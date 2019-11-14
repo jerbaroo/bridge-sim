@@ -979,8 +979,9 @@ a matrix for ~z = -9.4m~. Each column of the matrix is an influence line, each
 row shows the response along the bridge deck for ~z = -9.4m~ for a different
 loading position.
 
-#+CAPTION: A number of vertical influence lines stacked together. Each influence line (column) shows displacement at a different point on the wheel track at ~z = -9.4m~. Each column of the matrix is an influence line. Each row shows the response along the bridge deck for ~z = -9.4m~ for a different loading position. This image shows how, closer to the center of the bridge, the bridge does not suffer as much displacement.
 #+NAME: fig:il-matrix
+#+CAPTION[Load and response combinations on a wheel track]: A number of vertical influence lines stacked together. Each influence line (column) shows displacement at a different point on the wheel track at ~z = -9.4m~. Each column of the matrix is an influence line. Each row shows the response along the bridge deck for ~z = -9.4m~ for a different loading position. This image shows how, closer to the center of the bridge, the bridge does not suffer as much displacement.
+#+ATTR_LATEX: :placement [ht]
 [[./images/il-matrix-y-z-94.png]]
 
 Another of the damage scenarios is pier displacement. To calculate responses to
@@ -1066,11 +1067,11 @@ chosen loading positions are described in Table [[tbl:verification-points]].
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
 #+NAME: fig:response-convergence
-#+CAPTION: TODO:CAPTION
-[[fig:response-convergence]]
+#+CAPTION[Error as a function of model size]: TODO:CAPTION
+[[./images/response-convergence.png]]
 
 #+NAME: tbl:verification-points
-#+CAPTION[Verification by maximum response comparison]: TODO:CAPTION
+#+CAPTION[Comparison of OpenSees and Diana]: TODO:CAPTION
 | Diana | OpenSees | (x, z) | Point label |
 |-------+----------+--------+-------------|
 |  0.49 |    0.465 |        | A           |
@@ -1090,6 +1091,11 @@ values a base mesh density of \textcolor{red}{X * Z} was chosen.
 Modeling]] that the generated mesh of the bridge deck will have greater density in
 most areas but may also have reduced density in areas away from the applied
 load.
+
+#+NAME: fig:simulation-time
+#+CAPTION[Run time as a function of model size]: TODO:CAPTION
+[[./images/simulation-time.png]]
+
 *** Model Assumptions
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
