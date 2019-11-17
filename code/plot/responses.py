@@ -14,7 +14,36 @@ from fem.responses import Responses
 from fem.run import FEMRunner
 from model import Response
 from model.load import PointLoad
+from model.response import ResponseArray, ResponseType, resize_units
 from plot import plt
+from util import print_w
+
+
+def plot_distributions(
+        response_array: ResponseArray, response_type: ResponseType,
+        titles: List[str], save: str, cols: int = 5):
+    # Transpose so points are indexed first.
+    response_array = response_array.T
+    response_array, unit_str = resize_units(response_array, response_type)
+    num_points = response_array.shape[0]
+    amax, amin = np.amax(response_array), np.amin(response_array)
+
+    # Determine the number of rows.
+    rows = int(num_points / cols)
+    if rows != num_points / cols:
+        print_w(
+            f"Cols don't divide number of points {num_points}, cols = {cols}")
+        rows += 1
+
+    # Plot responses.
+    for i in range(num_points):
+        plt.subplot(rows, cols, i + 1)
+        plt.xlim((amin, amax))
+        plt.title(titles[i])
+        plt.hist(response_array[i])
+
+    plt.savefig(save)
+    plt.close()
 
 
 def plot_contour_deck(

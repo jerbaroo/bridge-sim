@@ -1,6 +1,13 @@
 """A recorded time series of responses."""
+import numpy as np
+
 from enum import Enum
 from typing import List, NewType
+
+# A NumPy array of responses at points.
+#
+# Each row is a timestep and each column a response point.
+ResponseArray =  NewType("ResponseArray", np.ndarray)
 
 # A single response without additional information.
 Response_ = NewType("Response", float)
@@ -41,6 +48,14 @@ class ResponseType(Enum):
             ResponseType.Stress: ("kilo newton", "kN"),
             ResponseType.Strain: ("kilo newton", "kN"),
         }[self][int(short)]
+
+
+def resize_units(to_resize, response_type: ResponseType):
+    """Returns a tuple of the resized data and the units string."""
+    # If in meters resize to millimeters.
+    if response_type.units(short=True) == "m":
+        return to_resize * 1000, "mm"
+    return to_resize, response_type.units()
 
 
 class Event:
