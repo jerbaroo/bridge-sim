@@ -49,7 +49,7 @@ def plot_distributions(
 def plot_contour_deck(
     c: Config,
     responses: Responses,
-    y: float,
+    y: float=0,
     ploads: List[PointLoad] = [],
     norm=None,
     save: Optional[str] = None,
@@ -91,8 +91,8 @@ def plot_contour_deck(
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
     cs = plt.contourf(X, Z, H, levels=50, cmap=cmap, norm=norm)
 
-    if not save:
-        return cmap
+    if save is None:
+        return cs, cmap, norm
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(responses.response_type.units())

@@ -162,6 +162,7 @@ def responses_to_traffic_array(
     }
 
     # Create a matrix of unit load simulation (rows) * point (columns).
+    print_i(f"Calculating unit load matrix...")
     unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
     for w, wheel_z in enumerate(wheel_zs):
         i = w * c.il_num_loads  # Row index.
@@ -173,6 +174,7 @@ def responses_to_traffic_array(
                     x=point.x, y=point.y, z=point.z
                 )
             i += 1
+        print_i(f"Calculated unit load matrix for wheel track {w}")
     # Divide by the load of the unit load simulations, so the value at a cell is
     # the response to 1 kN. Then multiple the traffic and unit load matrices to
     # get the responses.
@@ -183,9 +185,7 @@ def responses_to_traffic_array(
     if isinstance(bridge_scenario, PierDispBridge):
         pd_responses = pd_responses.T  # Transpose so indexed by point first.
         pd_matrix = DCMatrix.load(
-            c=c,
-            response_type=response_type,
-            fem_runner=fem_runner)
+            c=c, response_type=response_type, fem_runner=fem_runner)
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):
             # TODO enumerate each pier correctly.
@@ -199,5 +199,8 @@ def responses_to_traffic_array(
                     z_frac=c.bridge.z_frac(point.z)
                 )
         pd_responses = pd_responses.T
+
+    print(responses.shape)
+    print(pd_responses.shape)
 
     return responses + pd_responses
