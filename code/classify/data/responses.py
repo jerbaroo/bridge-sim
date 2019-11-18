@@ -197,7 +197,7 @@ def responses_to_traffic_array(
                     x_frac=c.bridge.x_frac(point.x),
                     y_frac=c.bridge.y_frac(point.y),
                     z_frac=c.bridge.z_frac(point.z)
-                )
+                ) * (pier_displacement.displacement / c.pd_unit_disp)
         pd_responses = pd_responses.T
 
     print(responses.shape)

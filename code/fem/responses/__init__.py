@@ -143,9 +143,7 @@ class Responses:
         return max(self.values())
 
     @staticmethod
-    def from_responses(
-        response_type: ResponseType, responses: List[Respoon]
-    ):
+    def from_responses(response_type: ResponseType, responses: List[Respoon]):
         _responses = Responses(response_type)
         for value, point in responses:
             _responses.responses[0][point.x][point.y][point.z] = value

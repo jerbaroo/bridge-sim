@@ -3,7 +3,7 @@
 Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
 """
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -21,7 +21,8 @@ from util import print_w
 
 def plot_distributions(
         response_array: ResponseArray, response_type: ResponseType,
-        titles: List[str], save: str, cols: int = 5):
+        titles: List[str], save: str, cols: int = 5,
+        xlim: Optional[Tuple[float, float]] = None):
     # Transpose so points are indexed first.
     response_array = response_array.T
     response_array, unit_str = resize_units(response_array, response_type)
@@ -41,6 +42,8 @@ def plot_distributions(
         plt.xlim((amin, amax))
         plt.title(titles[i])
         plt.hist(response_array[i])
+        if xlim is not None:
+            plt.xlim(xlim)
 
     plt.savefig(save)
     plt.close()
