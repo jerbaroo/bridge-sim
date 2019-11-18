@@ -231,13 +231,13 @@ def make_all_3d(c: Config):
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
     # make_il_plots(c)
-    distribution.distribution_plots(c)
+    # distribution.distribution_plots(c)
     # matrix.dc_plots(c)
     # make_event_plots(c)
     # animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
-    # contour.plots_for_verification(
-    #     c=c, y=0, response_types=[ResponseType.YTranslation])
+    contour.plots_for_verification(
+        c=c, y=0, response_types=[ResponseType.YTranslation])
     # contour.plots_of_pier_displacement(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])

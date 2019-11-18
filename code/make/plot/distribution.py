@@ -5,10 +5,11 @@ import numpy as np
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic_array
-from classify.scenario.bridge import HealthyBridge
+from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.scenario.traffic import normal_traffic
 from fem.run.opensees import OSRunner
 from model.bridge import Point
+from model.load import DisplacementCtrl
 from model.response import ResponseType
 from model.scenario import BridgeScenario
 from plot.responses import plot_distributions
@@ -24,8 +25,12 @@ def load_normal_traffic_array(c: Config):
 
 def distribution_plots(c: Config):
     """Make all distribution plots."""
+    pier_disp_scenarios = [
+        PierDispBridge(DisplacementCtrl(displacement=1, pier=pier_index))
+        for pier_index, pier in enumerate(c.bridge.supports)
+    ]
     lane_distribution_plots(
-        c=c, bridge_scenarios=[HealthyBridge()],
+        c=c, bridge_scenarios=[HealthyBridge()] + pier_disp_scenarios,
         response_type=ResponseType.YTranslation)
 
 
@@ -49,8 +54,8 @@ def lane_distribution_plots(
                 for x in np.linspace(c.bridge.x_min, c.bridge.x_max / 2, num)]
             response_array = responses_to_traffic_array(
                 c=c, traffic_array=normal_traffic_array,
-                response_type=response_type, points=points,
-                fem_runner=OSRunner(c))
+                response_type=response_type, bridge_scenario=bridge_scenario,
+                points=points, fem_runner=OSRunner(c))
             plot_distributions(
                 response_array=response_array, response_type=response_type,
                 titles=[
@@ -60,7 +65,8 @@ def lane_distribution_plots(
                     for point in points],
                 save=c.get_image_path(
                     "distributions",
-                    f"distributions-{traffic_scenario.name}-lane-{lane_index}"))
+                    f"distributions-{traffic_scenario.name}"
+                    + f"-{bridge_scenario.name}-lane-{lane_index}"))
 
 
 # def make_distribution_plots(c: Config):

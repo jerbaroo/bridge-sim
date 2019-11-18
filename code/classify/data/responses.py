@@ -4,8 +4,10 @@ from typing import List, Tuple
 
 import numpy as np
 
+from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
 from fem.responses import Responses
+from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model.bridge import Point
@@ -140,9 +142,13 @@ def responses_to_traffic_array(
     c: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
+    bridge_scenario: BridgeScenario,
     points: List[Point],
     fem_runner: FEMRunner,
 ):
+    # The unit load simulations that are loaded depend on whether the bridge is
+    # healthy or cracked. TODO
+
     # First collect the unit load simulations per wheel track.
     wheel_zs = c.bridge.wheel_tracks(c)
     il_matrices = {
@@ -168,7 +174,30 @@ def responses_to_traffic_array(
                 )
             i += 1
     # Divide by the load of the unit load simulations, so the value at a cell is
-    # the response to 1 kN.
+    # the response to 1 kN. Then multiple the traffic and unit load matrices to
+    # get the responses.
     unit_load_matrix /= c.il_unit_load_kn
+    responses = np.matmul(traffic_array, unit_load_matrix)
 
-    return np.matmul(traffic_array, unit_load_matrix)
+    pd_responses = np.zeros(responses.shape)
+    if isinstance(bridge_scenario, PierDispBridge):
+        pd_responses = pd_responses.T  # Transpose so indexed by point first.
+        pd_matrix = DCMatrix.load(
+            c=c,
+            response_type=response_type,
+            fem_runner=fem_runner)
+        assert len(pd_responses) == len(points)
+        for p, point in enumerate(points):
+            # TODO enumerate each pier correctly.
+            for pier_displacement in [bridge_scenario.displacement_ctrl]:
+                pd_responses[p] += pd_matrix.sim_response(
+                    expt_frac=np.interp(pier_displacement.pier,
+                        [0, len(c.bridge.supports) - 1],
+                        [0, 1]),
+                    x_frac=c.bridge.x_frac(point.x),
+                    y_frac=c.bridge.y_frac(point.y),
+                    z_frac=c.bridge.z_frac(point.z)
+                )
+        pd_responses = pd_responses.T
+
+    return responses + pd_responses

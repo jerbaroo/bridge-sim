@@ -143,11 +143,7 @@ def load_expt_responses(
     response_type: ResponseType,
     fem_runner: FEMRunner,
 ) -> List[FEMResponses]:
-    """Load responses of one sensor type for related simulations.
-
-    Returns a list of FEMResponses for constructing a ResponsesMatrix.
-
-    """
+    """Load responses of one sensor type for related simulations."""
     results = []
     for i, fem_params in enumerate(expt_params.sim_params):
         results.append(
