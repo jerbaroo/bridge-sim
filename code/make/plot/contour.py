@@ -89,20 +89,20 @@ def plots_for_verification(
                 response_type=response_type,
                 sim_runner=fem_runner,
             )
-            plot_contour_deck(
-                c=c,
-                responses=fem_responses,
-                y=y,
-                ploads=[pload],
-                save=(
-                    c.get_image_path(
-                        "contour",
-                        safe_str(
-                            f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
-                        ),
-                    )
-                ),
-            )
+           # plot_contour_deck(
+           #     c=c,
+           #     responses=fem_responses,
+           #     y=y,
+           #     ploads=[pload],
+           #     save=(
+           #         c.get_image_path(
+           #             "contour",
+           #             safe_str(
+           #                 f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
+           #             ),
+           #         )
+           #     ),
+           # )
 
 
 def plot_of_unit_loads(c: Config):
