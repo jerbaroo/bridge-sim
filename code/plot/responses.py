@@ -8,6 +8,7 @@ from typing import List, Optional, Tuple
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 import numpy as np
+from scipy.stats import chisquare
 
 from config import Config
 from fem.responses import Responses
@@ -22,6 +23,7 @@ from util import print_w
 def plot_distributions(
         response_array: ResponseArray, response_type: ResponseType,
         titles: List[str], save: str, cols: int = 5,
+        expected: List[List[float]] = None,
         xlim: Optional[Tuple[float, float]] = None):
     # Transpose so points are indexed first.
     response_array = response_array.T
@@ -41,7 +43,17 @@ def plot_distributions(
         plt.subplot(rows, cols, i + 1)
         plt.xlim((amin, amax))
         plt.title(titles[i])
-        plt.hist(response_array[i])
+        label = None
+        if expected is not None:
+            if response_array.shape != expected.shape:
+                expected = expected.T
+                expected, _ = resize_units(expected, response_type)
+            assert response_array.shape == expected.shape
+            label = chisquare(response_array[i], expected[i])
+            # label = chisquare(expected[i], expected[i])
+        plt.hist(response_array[i], label=label)
+        if label is not None:
+            plt.legend()
         if xlim is not None:
             plt.xlim(xlim)
 
