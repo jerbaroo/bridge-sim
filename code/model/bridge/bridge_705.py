@@ -226,16 +226,17 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
 
 def bridge_705_3d(
     name: str = "bridge-705",
+    accuracy: str = "full",
     length: float = bridge_705_length,
     width: float = bridge_705_width,
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_nodes_x: int = 412,
-    base_mesh_deck_nodes_z: int = 133,
+    base_mesh_deck_nodes_x: int = 150,
+    base_mesh_deck_nodes_z: int = 49,
     base_mesh_pier_nodes_y: int = 17,
     base_mesh_pier_nodes_z: int = 16,
-    single_sections: Optional[Tuple[Section, Section]] = None,
+    **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
 
@@ -246,6 +247,7 @@ def bridge_705_3d(
     """
     return Bridge(
         name=name,
+        accuracy=accuracy,
         length=length,
         width=width,
         lanes=lanes,
@@ -256,7 +258,7 @@ def bridge_705_3d(
         base_mesh_deck_nodes_z=base_mesh_deck_nodes_z,
         base_mesh_pier_nodes_y=base_mesh_pier_nodes_y,
         base_mesh_pier_nodes_z=base_mesh_pier_nodes_z,
-        single_sections=single_sections,
+        **kwargs,
     )
 
 
@@ -267,7 +269,8 @@ def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
     """A low-as-possible accuracy 'Config' for bridge 705 in Amsterdam."""
     c = bridge_705_config(
         bridge=lambda: bridge(
-            name="Bridge 705 debug",
+            name="Bridge 705",
+            accuracy="debug",
             base_mesh_deck_nodes_x=3,
             base_mesh_deck_nodes_z=3,
             base_mesh_pier_nodes_y=3,
@@ -282,7 +285,8 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
     """A less accurate 'Config' for bridge 705 in Amsterdam."""
     return bridge_705_config(
         bridge=lambda: bridge(
-            name="Bridge 705 test",
+            name="Bridge 705",
+            accuracy="low",
             base_mesh_deck_nodes_x=50,
             base_mesh_deck_nodes_z=20,
             base_mesh_pier_nodes_y=5,

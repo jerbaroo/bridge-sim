@@ -46,6 +46,7 @@ def load_fem_responses(
         sim_runner: FEMRunner, FE program to run the simulation with.
 
     """
+    print()
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
     for rt in sim_params.response_types:
@@ -142,14 +143,12 @@ class Responses:
         return max(self.values())
 
     @staticmethod
-    def from_responses(
-        response_type: ResponseType, many_response: List[Respoon]
-    ):
-        responses = Responses(response_type)
-        for value, point in many_response:
-            responses.responses[0][point.x][point.y][point.z] = value
-        responses.index()
-        return responses
+    def from_responses(response_type: ResponseType, responses: List[Respoon]):
+        _responses = Responses(response_type)
+        for value, point in responses:
+            _responses.responses[0][point.x][point.y][point.z] = value
+        _responses.index()
+        return _responses
 
 
 class FEMResponses(Responses):

@@ -202,12 +202,16 @@ def to_traffic(
 
 
 def to_traffic_array(
-    c: Config,
-    traffic_sequence: TrafficSequence,
-    max_time: float,
-    time_step: float,
+    c: Config, traffic_sequence: TrafficSequence, max_time: float,
 ) -> Traffic:
-    """Convert a 'TrafficSequence' to 'Traffic'."""
+    """Convert a 'TrafficSequence' to 'Traffic'.
+
+    NOTE: If you are going to try understand the code in this function then
+    start with looking at 'to_traffic', as that is almost a subset of this code.
+
+    """
+    time_step = c.sensor_hz
+
     result = np.zeros(
         (
             # '+ 1' to account for time t = 0.

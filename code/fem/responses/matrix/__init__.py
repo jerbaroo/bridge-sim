@@ -130,7 +130,7 @@ class ResponsesMatrix:
         # depends on the combination of FEMRunner and bridge.
         if save_all:
             all_response_types = fem_runner.supported_response_types(c.bridge)
-            for fem_params in expt_params.fem_params:
+            for fem_params in expt_params.sim_params:
                 fem_params.response_types = all_response_types
         resp_matrix = load_func(expt_params)
         c.resp_matrices[id_str] = resp_matrix
@@ -143,20 +143,16 @@ def load_expt_responses(
     response_type: ResponseType,
     fem_runner: FEMRunner,
 ) -> List[FEMResponses]:
-    """Load responses of one sensor type for related simulations.
-
-    Returns a list of FEMResponses for constructing a ResponsesMatrix.
-
-    """
+    """Load responses of one sensor type for related simulations."""
     results = []
-    for i, fem_params in enumerate(expt_params.fem_params):
+    for i, fem_params in enumerate(expt_params.sim_params):
         results.append(
             load_fem_responses(
                 c=c,
-                fem_params=fem_params,
+                sim_params=fem_params,
                 response_type=response_type,
-                fem_runner=fem_runner,
+                sim_runner=fem_runner,
             )
         )
-        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.fem_params)}")
+        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.sim_params)}")
     return results

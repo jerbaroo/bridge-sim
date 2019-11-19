@@ -3,25 +3,75 @@
 Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
 """
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 import numpy as np
+from scipy.stats import chisquare
 
 from config import Config
 from fem.responses import Responses
 from fem.run import FEMRunner
 from model import Response
 from model.load import PointLoad
+from model.response import ResponseArray, ResponseType, resize_units
 from plot import plt
+from util import print_w
+
+
+def plot_distributions(
+    response_array: ResponseArray,
+    response_type: ResponseType,
+    titles: List[str],
+    save: str,
+    cols: int = 5,
+    expected: List[List[float]] = None,
+    xlim: Optional[Tuple[float, float]] = None,
+):
+    # Transpose so points are indexed first.
+    response_array = response_array.T
+    response_array, unit_str = resize_units(response_array, response_type)
+    num_points = response_array.shape[0]
+    amax, amin = np.amax(response_array), np.amin(response_array)
+
+    # Determine the number of rows.
+    rows = int(num_points / cols)
+    if rows != num_points / cols:
+        print_w(
+            f"Cols don't divide number of points {num_points}, cols = {cols}"
+        )
+        rows += 1
+
+    # Plot responses.
+    for i in range(num_points):
+        plt.subplot(rows, cols, i + 1)
+        plt.xlim((amin, amax))
+        plt.title(titles[i])
+        label = None
+        if expected is not None:
+            if response_array.shape != expected.shape:
+                expected = expected.T
+                expected, _ = resize_units(expected, response_type)
+            assert response_array.shape == expected.shape
+            label = chisquare(response_array[i], expected[i])
+            # label = chisquare(expected[i], expected[i])
+        plt.hist(response_array[i], label=label)
+        if label is not None:
+            plt.legend()
+        if xlim is not None:
+            plt.xlim(xlim)
+
+    plt.savefig(save)
+    plt.close()
 
 
 def plot_contour_deck(
     c: Config,
     responses: Responses,
-    y: float,
+    y: float = 0,
     ploads: List[PointLoad] = [],
+    title: Optional[str] = None,
     norm=None,
     save: Optional[str] = None,
 ):
@@ -52,6 +102,11 @@ def plot_contour_deck(
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
+    # Resize all responses.
+    H, _ = resize_units(np.array(H), responses.response_type)
+    amin, _ = resize_units(amin, responses.response_type)
+    amax, unit_str = resize_units(amax, responses.response_type)
+
     # Plot contour and colorbar.
     cmap = cm.get_cmap("bwr")
     if norm is None:
@@ -62,24 +117,45 @@ def plot_contour_deck(
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
     cs = plt.contourf(X, Z, H, levels=50, cmap=cmap, norm=norm)
 
-    if not save:
-        return cmap
+    if save is None:
+        return cs, cmap, norm
 
     clb = plt.colorbar(cs, norm=norm)
-    clb.ax.set_title(responses.response_type.units())
+    clb.ax.set_title(unit_str)
     plt.axis("equal")
 
     # Plot point loads.
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
-        plt.plot([x], [z], marker="o", markersize=5, color="red")
+        plt.plot(
+            [x],
+            [z],
+            marker="o",
+            markersize=5,
+            color="red",
+            label=f"{pload.kn} kN load",
+        )
+
+    # Plot min and max responses.
+    for point, label, color, alpha in [
+        ((amin_x, amin_z), f"min = {amin:.8f}", "orange", 1),
+        ((amax_x, amax_z), f"max = {amax:.8f}", "green", 1),
+        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.8f}", "red", 0),
+    ]:
+        plt.plot(
+            [point[0]],
+            [point[1]],
+            label=label,
+            marker="o",
+            color=color,
+            alpha=alpha,
+        )
+
     # Titles and labels.
-    plt.title(
-        f"{responses.response_type.name()}"
-        + f", min = {amin:.4f} at ({amin_x:.3f}, {amin_z:.3f})"
-        + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})"
-    )
+    plt.legend()
+    if title:
+        plt.title(title)
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
     if save:

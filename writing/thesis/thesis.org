@@ -1084,8 +1084,7 @@ chosen loading positions are described in Table [[tbl:verification-points]].
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time
-of a FE simulation of bridge 705 on three different machines juxtaposed against
-the value of $\epsilon$ from Figure [[fig:response-convergence]]. Based on these
+of a FE simulation of bridge 705 as a function of the FEM size. Based on these
 values a base mesh density of \textcolor{red}{X * Z} was chosen.
 \textcolor{red}{time reduction and $\epsilon$}. Recall from Subsection [[Bridge
 Modeling]] that the generated mesh of the bridge deck will have greater density in

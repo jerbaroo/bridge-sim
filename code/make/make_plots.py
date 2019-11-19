@@ -33,7 +33,14 @@ from model.response import ResponseType
 from util import print_d, print_i, safe_str
 from vehicles.sample import sample_vehicle
 
-from make.plot import animate, contour, matrix, vehicle, verification
+from make.plot import (
+    animate,
+    contour,
+    matrix,
+    vehicle,
+    verification,
+    distribution,
+)
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -223,67 +230,23 @@ def make_geom_plots(c: Config):
         # plt.savefig(c.get_image_path("geom", f"top-view-{i + 1}"))
 
 
-def make_distribution_plots(c: Config):
-    max_time, time_step, lam, min_d = 20, 0.01, 5, 2
-    points = [Point(x=35, y=0, z=8.4), Point(x=35, y=0, z=-8.4)]
-    response_type = ResponseType.YTranslation
-
-    # Generate heavy traffic.
-    heavy_traffic, start_index = heavy_traffic_1(
-        c=c, lam=lam, min_d=min_d, prob_heavy=0.01
-    ).traffic(bridge=c.bridge, max_time=max_time, time_step=time_step)
-
-    # Filter out any normal traffic so it's just one heavy vehicle.
-    for t, t_traffic in enumerate(heavy_traffic):
-        heavy_traffic[t] = [v for v in t_traffic if v.kn == 500]
-        assert len(heavy_traffic[t]) <= 1
-        print(len(heavy_traffic[t]))
-    assert any(len(t_traffic) == 1 for t_traffic in heavy_traffic)
-    assert len(heavy_traffic[-1]) == 0
-
-    heavy_responses = responses_to_traffic(
-        c=c,
-        traffic=heavy_traffic,
-        bridge_scenario=BridgeScenarioNormal(),
-        start_time=start_index * time_step,
-        time_step=time_step,
-        points=points,
-        response_type=response_type,
-        fem_runner=OSRunner(c),
-    )
-    heavy_responses_values = [
-        [r.responses[0][point.x][point.y][point.z] for r in heavy_responses]
-        for point in points
-    ]
-
-    # heavy_responses_values[0] = [r for r in heavy_responses_values[0] if r != 0]
-    # heavy_responses_values[1] = [r for r in heavy_responses_values[1] if r != 0]
-
-    print("first lane")
-    [print(v) for v in heavy_responses_values[0] if v != 0]
-    print("second lane")
-    [print(v) for v in heavy_responses_values[1] if v != 0]
-
-    plt.plot(heavy_responses_values[0])
-    plt.show()
-    plt.plot(heavy_responses_values[1])
-    plt.show()
-
-
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # contour.plot_of_unit_loads(c)
-    verification.make_convergence_data(c, run=True, plot=True)
+    # verification.make_convergence_data(c, run=True, plot=True)
     # verification.plot_convergence(c)
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
     # make_il_plots(c)
+    # distribution.distribution_plots(c)
+    # verification.plot_pier_displacement(c)
     # matrix.dc_plots(c)
     # make_event_plots(c)
     # animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
-    # contour.plots_for_verification(
-    #     c=c, y=0, response_types=[ResponseType.YTranslation])
+    contour.plots_for_verification(
+        c=c, y=0, response_types=[ResponseType.YTranslation]
+    )
     # contour.plots_of_pier_displacement(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])

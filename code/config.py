@@ -122,6 +122,10 @@ class Config:
         self.generated_images_dir = os.path.join(
             self.root_generated_images_dir, self.bridge.id_str()
         )
+        # Bridge-specific but accuracy-independent directory for generated data.
+        self.generated_data_dir_no_acc = os.path.join(
+            self.root_generated_data_dir, self.bridge.id_str(acc=False)
+        )
 
         # Make directories.
         for directory in [
@@ -134,16 +138,30 @@ class Config:
                 os.makedirs(directory)
 
     def get_path_in(self, in_: str, dirname: str, filename: str):
-        """Filepath in a directory in a directory (created if necessary)."""
+        """Filepath in a directory in a directory (created if necessary).
+
+        TODO: Use safe_str here.
+
+        """
         dirpath = os.path.join(in_, dirname)
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
         return os.path.join(dirpath, filename)
 
+    def get_traffic_path(self, filename: str):
+        """Get a bridge-specific traffic path in a named directory.
+
+        NOTE: The bridge accuracy is ignored here, as only geometry matters.
+
+        """
+        return self.get_path_in(
+            self.generated_data_dir_no_acc, "traffic", filename
+        )
+
     def get_data_path(self, dirname: str, filename: str):
-        """Get an image path in a directory (created if necessary)."""
+        """Get a bridge-specific image path in a named directory."""
         return self.get_path_in(self.generated_data_dir, dirname, filename)
 
     def get_image_path(self, dirname: str, filename: str):
-        """Get an image path in a directory (created if necessary)."""
+        """Get a bridge-specific image path in a named directory."""
         return self.get_path_in(self.generated_images_dir, dirname, filename)
