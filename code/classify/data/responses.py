@@ -109,14 +109,12 @@ def responses_to_traffic(
                         mv_vehicle_x_fracs
                     ):
                         mv_vehicle_responses.append(
-                            (
-                                il_matrix.response_to(
-                                    load_x_frac=mv_vehicle_x_frac,
-                                    load=mv_vehicle.kn_per_axle()[axle] / 2,
-                                    x_frac=c.bridge.x_frac(x=point.x),
-                                    y_frac=c.bridge.y_frac(y=point.y),
-                                    z_frac=c.bridge.z_frac(z=point.z),
-                                )
+                            il_matrix.response_to(
+                                load_x_frac=mv_vehicle_x_frac,
+                                load=mv_vehicle.kn_per_axle()[axle] / 2,
+                                x_frac=c.bridge.x_frac(x=point.x),
+                                y_frac=c.bridge.y_frac(y=point.y),
+                                z_frac=c.bridge.z_frac(z=point.z),
                             )
                         )
 

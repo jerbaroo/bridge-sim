@@ -42,6 +42,8 @@ from make.plot import (
     distribution,
 )
 
+from make.data import simulations
+
 # Print debug information for this file.
 D: str = "make.make_plots"
 # D: bool = False
@@ -232,6 +234,8 @@ def make_geom_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
+    simulations.run_uls(c)
+
     # contour.plot_of_unit_loads(c)
     # verification.make_convergence_data(c, run=True, plot=True)
     # verification.plot_convergence(c)
@@ -245,8 +249,8 @@ def make_all_3d(c: Config):
     # animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
-    contour.plots_for_verification(
-        c=c, y=0, response_types=[ResponseType.YTranslation]
-    )
+    # contour.plots_for_verification(
+    #     c=c, y=0, response_types=[ResponseType.YTranslation]
+    # )
     # contour.plots_of_pier_displacement(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])
