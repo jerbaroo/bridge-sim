@@ -33,7 +33,14 @@ from model.response import ResponseType
 from util import print_d, print_i, safe_str
 from vehicles.sample import sample_vehicle
 
-from make.plot import animate, contour, matrix, vehicle, verification, distribution
+from make.plot import (
+    animate,
+    contour,
+    matrix,
+    vehicle,
+    verification,
+    distribution,
+)
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -239,6 +246,7 @@ def make_all_3d(c: Config):
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
     contour.plots_for_verification(
-        c=c, y=0, response_types=[ResponseType.YTranslation])
+        c=c, y=0, response_types=[ResponseType.YTranslation]
+    )
     # contour.plots_of_pier_displacement(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])

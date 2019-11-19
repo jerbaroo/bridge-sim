@@ -523,7 +523,7 @@ class Bridge:
                 + f"\n\tpier = {self.supports[0].sections[0]}"
             )
 
-    def id_str(self, acc: bool=True):
+    def id_str(self, acc: bool = True):
         """Name with dimensions attached.
 
         Args:

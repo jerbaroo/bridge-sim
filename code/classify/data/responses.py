@@ -185,18 +185,21 @@ def responses_to_traffic_array(
     if isinstance(bridge_scenario, PierDispBridge):
         pd_responses = pd_responses.T  # Transpose so indexed by point first.
         pd_matrix = DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=fem_runner)
+            c=c, response_type=response_type, fem_runner=fem_runner
+        )
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):
             # TODO enumerate each pier correctly.
             for pier_displacement in [bridge_scenario.displacement_ctrl]:
                 pd_responses[p] += pd_matrix.sim_response(
-                    expt_frac=np.interp(pier_displacement.pier,
+                    expt_frac=np.interp(
+                        pier_displacement.pier,
                         [0, len(c.bridge.supports) - 1],
-                        [0, 1]),
+                        [0, 1],
+                    ),
                     x_frac=c.bridge.x_frac(point.x),
                     y_frac=c.bridge.y_frac(point.y),
-                    z_frac=c.bridge.z_frac(point.z)
+                    z_frac=c.bridge.z_frac(point.z),
                 ) * (pier_displacement.displacement / c.pd_unit_disp)
         pd_responses = pd_responses.T
 

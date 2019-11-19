@@ -233,12 +233,12 @@ def plot_pier_displacement(c: Config):
     pier = c.bridge.supports[pier_index]
     response_type = ResponseType.YTranslation
     pier_displacement = DisplacementCtrl(
-        displacement=c.pd_unit_disp, pier=pier_index)
+        displacement=c.pd_unit_disp, pier=pier_index
+    )
 
     # Plot responses captured directly from a pier displacement simualtion.
     sim_params = SimParams(
-        response_types=[response_type],
-        displacement_ctrl=pier_displacement,
+        response_types=[response_type], displacement_ctrl=pier_displacement,
     )
     sim_responses = load_fem_responses(
         c=c,
@@ -257,7 +257,7 @@ def plot_pier_displacement(c: Config):
                 z_frac=c.bridge.z_frac(pier.z),
                 kn=c.pd_unit_load_kn,
             )
-        ]
+        ],
     )
     plt.colorbar(norm=norm)
 
@@ -265,20 +265,27 @@ def plot_pier_displacement(c: Config):
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
             np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, 10))
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
     ]
     bridge_scenario = PierDispBridge(pier_displacement)
     wheel_zs = c.bridge.wheel_tracks(c)
     response_array = responses_to_traffic_array(
-        c=c, traffic_array=np.zeros((10, len(wheel_zs) * c.il_num_loads)),
-        response_type=response_type, bridge_scenario=bridge_scenario,
-        points=points, fem_runner=OSRunner(c))
+        c=c,
+        traffic_array=np.zeros((10, len(wheel_zs) * c.il_num_loads)),
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        fem_runner=OSRunner(c),
+    )
     plt.subplot(2, 1, 2)
     top_view_bridge(c.bridge, lanes=False, outline=False)
     responses = Responses.from_responses(
         response_type=response_type,
         responses=[
-            (response_array[0][p], point) for p, point in enumerate(points)])
+            (response_array[0][p], point) for p, point in enumerate(points)
+        ],
+    )
     _, _, norm = plot_contour_deck(
         c=c,
         responses=responses,
@@ -288,7 +295,7 @@ def plot_pier_displacement(c: Config):
                 z_frac=c.bridge.z_frac(pier.z),
                 kn=c.pd_unit_load_kn,
             )
-        ]
+        ],
     )
     plt.colorbar(norm=norm)
 

@@ -96,7 +96,8 @@ def plots_for_verification(
                 ploads=[pload],
                 title=(
                     f"{response_type.name()} from a {pload.kn} kN load"
-                    + f" at x = {load_x:.2f}m, z = {load_z:.2f}m"),
+                    + f" at x = {load_x:.2f}m, z = {load_z:.2f}m"
+                ),
                 save=(
                     c.get_image_path(
                         "contour",
@@ -105,7 +106,7 @@ def plots_for_verification(
                         ),
                     )
                 ),
-             )
+            )
 
 
 def plot_of_unit_loads(c: Config):

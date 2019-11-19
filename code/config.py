@@ -155,7 +155,8 @@ class Config:
 
         """
         return self.get_path_in(
-            self.generated_data_dir_no_acc, "traffic", filename)
+            self.generated_data_dir_no_acc, "traffic", filename
+        )
 
     def get_data_path(self, dirname: str, filename: str):
         """Get a bridge-specific image path in a named directory."""

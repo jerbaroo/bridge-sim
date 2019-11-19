@@ -202,9 +202,7 @@ def to_traffic(
 
 
 def to_traffic_array(
-    c: Config,
-    traffic_sequence: TrafficSequence,
-    max_time: float,
+    c: Config, traffic_sequence: TrafficSequence, max_time: float,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'.
 

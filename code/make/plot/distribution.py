@@ -20,9 +20,12 @@ from util import safe_str
 def load_normal_traffic_array(c: Config):
     """Distribution plots currently use this for normal traffic."""
     traffic_scenario = normal_traffic(c, 5, 2)
-    return (load_traffic_array(
-        c=c, traffic_scenario=traffic_scenario, max_time=60*5),
-            traffic_scenario)
+    return (
+        load_traffic_array(
+            c=c, traffic_scenario=traffic_scenario, max_time=60 * 5
+        ),
+        traffic_scenario,
+    )
 
 
 # Each pier displaced by 1mm.
@@ -35,15 +38,21 @@ pier_disp_scenarios = lambda c: [
 def distribution_plots(c: Config):
     """Make all distribution plots."""
     lane_distribution_plots(
-        c=c, bridge_scenarios=[HealthyBridge()] + pier_disp_scenarios(c),
-        response_type=ResponseType.YTranslation)
+        c=c,
+        bridge_scenarios=[HealthyBridge()] + pier_disp_scenarios(c),
+        response_type=ResponseType.YTranslation,
+    )
     pier_displacement_distribution_plots(
-        c=c, response_type=ResponseType.YTranslation)
+        c=c, response_type=ResponseType.YTranslation
+    )
 
 
 def lane_distribution_plots(
-        c: Config, bridge_scenarios: List[BridgeScenario],
-        response_type: ResponseType, num: int=25):
+    c: Config,
+    bridge_scenarios: List[BridgeScenario],
+    response_type: ResponseType,
+    num: int = 25,
+):
     """For each 'BridgeScenario' plot response distributions along each lane.
 
     All simulations are under the normal traffic scenario.
@@ -64,7 +73,8 @@ def lane_distribution_plots(
         """For points along half the lane."""
         return [
             Point(x=x, y=0, z=lane.z_center())
-            for x in np.linspace(c.bridge.x_min, c.bridge.x_max / 2, num)]
+            for x in np.linspace(c.bridge.x_min, c.bridge.x_max / 2, num)
+        ]
 
     healthy_responses = []
     response_arrays = []
@@ -74,10 +84,16 @@ def lane_distribution_plots(
     for b, bridge_scenario in enumerate(bridge_scenarios):
         for lane_index, lane in enumerate(c.bridge.lanes):
             points = lane_points(lane)
-            response_arrays.append(responses_to_traffic_array(
-                c=c, traffic_array=normal_traffic_array,
-                response_type=response_type, bridge_scenario=bridge_scenario,
-                points=points, fem_runner=OSRunner(c)))
+            response_arrays.append(
+                responses_to_traffic_array(
+                    c=c,
+                    traffic_array=normal_traffic_array,
+                    response_type=response_type,
+                    bridge_scenario=bridge_scenario,
+                    points=points,
+                    fem_runner=OSRunner(c),
+                )
+            )
             if b == 0:
                 healthy_responses.append(response_arrays[-1])
             resized, _ = resize_units(response_arrays[-1], response_type)
@@ -106,14 +122,18 @@ def lane_distribution_plots(
                     safe_str(
                         f"distributions-{traffic_scenario.name}"
                         + f"-{response_type.name()}"
-                        + f"-{bridge_scenario.name}-lane-{lane_index}")),
+                        + f"-{bridge_scenario.name}-lane-{lane_index}"
+                    ),
+                ),
                 expected=expected,
-                xlim=(amin, amax))
+                xlim=(amin, amax),
+            )
             index += 1
 
 
 def pier_displacement_distribution_plots(
-        c: Config, response_type: ResponseType, num: int = 19):
+    c: Config, response_type: ResponseType, num: int = 19
+):
     """Distribution of responses in x direction along each displaced pier.
 
     All simulations are under the normal traffic scenario.
@@ -134,12 +154,19 @@ def pier_displacement_distribution_plots(
         # ...for points along the pier.
         points = [
             Point(x=x, y=0, z=pier.z)
-            for x in np.linspace(pier.x - max_dist, pier.x + max_dist, num)]
+            for x in np.linspace(pier.x - max_dist, pier.x + max_dist, num)
+        ]
         all_points.append(points)
-        response_arrays.append(responses_to_traffic_array(
-            c=c, traffic_array=normal_traffic_array,
-            response_type=response_type, bridge_scenario=bridge_scenario,
-            points=points, fem_runner=OSRunner(c)))
+        response_arrays.append(
+            responses_to_traffic_array(
+                c=c,
+                traffic_array=normal_traffic_array,
+                response_type=response_type,
+                bridge_scenario=bridge_scenario,
+                points=points,
+                fem_runner=OSRunner(c),
+            )
+        )
         resized, _ = resize_units(response_arrays[-1], response_type)
         maybe_min, maybe_max = np.amin(resized), np.amax(resized)
         if maybe_min < amin:
@@ -153,16 +180,17 @@ def pier_displacement_distribution_plots(
         plot_distributions(
             response_array=response_arrays[index],
             response_type=response_type,
-            titles=[
-                f"x, z = {point.x:.2f}, {point.z:.2f}" for point in points],
+            titles=[f"x, z = {point.x:.2f}, {point.z:.2f}" for point in points],
             save=c.get_image_path(
                 "distributions",
                 safe_str(
                     f"pier-distributions-{traffic_scenario.name}"
                     + f"-{response_type.name()}"
-                    + f"-{bridge_scenario.name}")))
+                    + f"-{bridge_scenario.name}"
+                ),
+            ),
+        )
         index += 1
-
 
 
 # def make_distribution_plots(c: Config):

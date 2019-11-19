@@ -7,7 +7,7 @@ from typing import List, NewType
 # A NumPy array of responses at points.
 #
 # Each row is a timestep and each column a response point.
-ResponseArray =  NewType("ResponseArray", np.ndarray)
+ResponseArray = NewType("ResponseArray", np.ndarray)
 
 # A single response without additional information.
 Response_ = NewType("Response", float)

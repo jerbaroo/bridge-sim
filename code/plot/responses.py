@@ -21,10 +21,14 @@ from util import print_w
 
 
 def plot_distributions(
-        response_array: ResponseArray, response_type: ResponseType,
-        titles: List[str], save: str, cols: int = 5,
-        expected: List[List[float]] = None,
-        xlim: Optional[Tuple[float, float]] = None):
+    response_array: ResponseArray,
+    response_type: ResponseType,
+    titles: List[str],
+    save: str,
+    cols: int = 5,
+    expected: List[List[float]] = None,
+    xlim: Optional[Tuple[float, float]] = None,
+):
     # Transpose so points are indexed first.
     response_array = response_array.T
     response_array, unit_str = resize_units(response_array, response_type)
@@ -35,7 +39,8 @@ def plot_distributions(
     rows = int(num_points / cols)
     if rows != num_points / cols:
         print_w(
-            f"Cols don't divide number of points {num_points}, cols = {cols}")
+            f"Cols don't divide number of points {num_points}, cols = {cols}"
+        )
         rows += 1
 
     # Plot responses.
@@ -64,7 +69,7 @@ def plot_distributions(
 def plot_contour_deck(
     c: Config,
     responses: Responses,
-    y: float=0,
+    y: float = 0,
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
     norm=None,
@@ -123,15 +128,29 @@ def plot_contour_deck(
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
-        plt.plot([x], [z], marker="o", markersize=5, color="red", label=f"{pload.kn} kN load")
+        plt.plot(
+            [x],
+            [z],
+            marker="o",
+            markersize=5,
+            color="red",
+            label=f"{pload.kn} kN load",
+        )
 
     # Plot min and max responses.
     for point, label, color, alpha in [
-            ((amin_x, amin_z), f"min = {amin:.8f}", "orange", 1),
-            ((amax_x, amax_z), f"max = {amax:.8f}", "green", 1),
-            ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.8f}", "red", 0)
+        ((amin_x, amin_z), f"min = {amin:.8f}", "orange", 1),
+        ((amax_x, amax_z), f"max = {amax:.8f}", "green", 1),
+        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.8f}", "red", 0),
     ]:
-        plt.plot([point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha)
+        plt.plot(
+            [point[0]],
+            [point[1]],
+            label=label,
+            marker="o",
+            color=color,
+            alpha=alpha,
+        )
 
     # Titles and labels.
     plt.legend()
