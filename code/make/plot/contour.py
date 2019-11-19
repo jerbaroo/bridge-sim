@@ -70,8 +70,8 @@ def plots_for_verification(
             (34.95459, 29.22606 - 16.6),  # A.
             (51.25051, 16.6 - 16.6),  # B.
             (92.40638, 12.405 - 16.6),  # C.
-            (101.7649, 3.973938 - 16.6),
-        ]:  # D.
+            (101.7649, 3.973938 - 16.6),  # D.
+        ]:
             print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(load_x),
@@ -89,20 +89,23 @@ def plots_for_verification(
                 response_type=response_type,
                 sim_runner=fem_runner,
             )
-           # plot_contour_deck(
-           #     c=c,
-           #     responses=fem_responses,
-           #     y=y,
-           #     ploads=[pload],
-           #     save=(
-           #         c.get_image_path(
-           #             "contour",
-           #             safe_str(
-           #                 f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
-           #             ),
-           #         )
-           #     ),
-           # )
+            plot_contour_deck(
+                c=c,
+                responses=fem_responses,
+                y=y,
+                ploads=[pload],
+                title=(
+                    f"{response_type.name()} from a {pload.kn} kN load"
+                    + f" at x = {load_x:.2f}m, z = {load_z:.2f}m"),
+                save=(
+                    c.get_image_path(
+                        "contour",
+                        safe_str(
+                            f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
+                        ),
+                    )
+                ),
+             )
 
 
 def plot_of_unit_loads(c: Config):

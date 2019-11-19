@@ -66,6 +66,7 @@ def plot_contour_deck(
     responses: Responses,
     y: float=0,
     ploads: List[PointLoad] = [],
+    title: Optional[str] = None,
     norm=None,
     save: Optional[str] = None,
 ):
@@ -96,6 +97,11 @@ def plot_contour_deck(
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
+    # Resize all responses.
+    H, _ = resize_units(np.array(H), responses.response_type)
+    amin, _ = resize_units(amin, responses.response_type)
+    amax, unit_str = resize_units(amax, responses.response_type)
+
     # Plot contour and colorbar.
     cmap = cm.get_cmap("bwr")
     if norm is None:
@@ -110,20 +116,27 @@ def plot_contour_deck(
         return cs, cmap, norm
 
     clb = plt.colorbar(cs, norm=norm)
-    clb.ax.set_title(responses.response_type.units())
+    clb.ax.set_title(unit_str)
     plt.axis("equal")
 
     # Plot point loads.
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
-        plt.plot([x], [z], marker="o", markersize=5, color="red")
+        plt.plot([x], [z], marker="o", markersize=5, color="red", label=f"{pload.kn} kN load")
+
+    # Plot min and max responses.
+    for point, label, color, alpha in [
+            ((amin_x, amin_z), f"min = {amin:.8f}", "orange", 1),
+            ((amax_x, amax_z), f"max = {amax:.8f}", "green", 1),
+            ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.8f}", "red", 0)
+    ]:
+        plt.plot([point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha)
+
     # Titles and labels.
-    plt.title(
-        f"{responses.response_type.name()}"
-        + f", min = {amin:.4f} at ({amin_x:.3f}, {amin_z:.3f})"
-        + f", max = {amax:.4f} at ({amax_x:.3f}, {amax_z:.3f})"
-    )
+    plt.legend()
+    if title:
+        plt.title(title)
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
     if save:
