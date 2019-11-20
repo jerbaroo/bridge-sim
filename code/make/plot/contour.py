@@ -60,7 +60,7 @@ def plots_of_pier_displacement(
             )
 
 
-def plots_for_verification(
+def comparison_plots_705(
     c: Config, y: float, response_types: List[ResponseType]
 ):
     """Make contour plots for all verification points."""

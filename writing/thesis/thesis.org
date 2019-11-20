@@ -725,28 +725,29 @@ cases, which was true in this case.
 * Methods
 ** Data Collection
 # Section overview.
-This section describes the data collection system which has been created to
-model a bridge in software and to collect data from simulating the bridge's
-response under a damage scenario and traffic scenario. Following a brief
-overview of how the data collection system operates, this section describes in
-detail the model of a bridge's geometry (=Bridge=), of a damage scenario
-(=DamageScenario=) and a traffic scenario (=TrafficScenario=), the FE software
-used to simulate a bridge's response, how the data collection system operates
-from input to output, a description of the collected data, validation of the
-model, and finally an overview of the assumptions that were made in modeling.
+This section describes the data collection system which was created to model a
+bridge in software and to collect data from simulating the bridge's response
+under a damage scenario and traffic scenario. Following a brief overview of how
+the data collection system operates, this section describes in detail the model
+of a bridge's geometry (=Bridge=), of a damage scenario and a traffic scenario,
+the FE software used to simulate a bridge's response, how the data collection
+system operates from input to output, a description of the collected data,
+validation of the model, and finally an overview of the assumptions that were
+made in modeling.
 
 # Brief system overview.
-First a brief overview of the data collection system. A simulation scenario is
-defined as a combination of =DamageScenario= and =TrafficScenario=. For a given
-simulation scenario and =Bridge=, a FEM is built according to the =Bridge= and
-=DamageScenario=. A number of simulations of the FEM are run, in each simulation
-a unit load is placed at a different point on the bridge deck. Each point is
-chosen to be on a "track" where a vehicle's wheels will be when the vehicle is
-later "driven" along the bridge. Vehicles are sampled according to the given
-=TrafficScenario= and driven along the bridge on a traffic lane. Using the
-principle of superposition, responses collected from the previous simulations
-can be summed together, one for each vehicle's wheel, to calculate a response at
-a requested point. This will all be explained more thoroughly in Subsection
+First a quick summary of the data collection system. A simulation scenario is
+defined as a combination of a damage scenario and traffic scenario. For a given
+=Bridge=, a number of FEMs are generated of the bridge in undamaged state, and
+simulations are run. In each simulation a unit load is placed at a different
+point on the bridge deck. Each point is chosen to be on a "wheel track", which
+is where a vehicle's wheels will be when the vehicle is later "driven" along the
+bridge. Vehicles are sampled according to the given traffic scenario and driven
+along the bridge on a traffic lane in discrete time steps. Using the principle
+of superposition, responses collected from the previous simulations can be
+summed together (one for each vehicle's wheel) to calculate a response at a
+requested point. A number of additional simulations must be run for the bridge
+in damaged state. This will all be explained more thoroughly in Subsection
 [[System Operation]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
@@ -1110,28 +1111,31 @@ The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
 *** Verification
-The data collection system needs to be verified in order for the generated data
-to be trusted, otherwise an analysis of the generated data would offer little
-value. This subsection outlines how the data collection system was verified.
+The collected data needs to be verified, otherwise an analysis of the data would
+offer little value. In this Subsection the data collection system is set to
+bridge 705 and the generated FEM for OpenSees verified against the previously
+verified FEM of bridge 705 for Diana. Additionaly verification is also presented
+of the generated FEM against the measurements from the experimental campaign.
 
 # Error decreases as mesh density increases.
-The mesh density of a FEM generated from a =Bridge= is controlled by a number of
-parameters, as outlined in Subsection [[Bridge Modeling]]. As the mesh density of
-the FEM increases, the expectation is that the error $\epsilon$ of responses
-from the simulation will decrease to zero. $\epsilon$ is calculated for the FEM
+The density of the generated FEM's mesh is controlled by a number of parameters,
+as outlined in Subsection [[Bridge Modeling]]. As the number of nodes in the FEM
+increases, the expectation is that the error $\epsilon$ of responses from the
+OpenSees simulation will decrease to zero. $\epsilon$ is calculated for the FEM
 of bridge 705 as the mean difference of the maximum response recorded with
 OpenSees to the maximum recorded with Diana, for a number of loading positions.
 $\epsilon = \sum_{p=1}^{n} \abs{r_{op} - r_{dp}} \frac{1}{n}$, where $r_{op}$ is
 the maximum response recorded with OpenSees under a 100kN concentrated load at
 position $p$ and $r_{dp}$ is the maximum response recorded using the verified
-Diana model with the same load applied. Figure [[fig:response-convergence]] shows
-$\epsilon$ for $n = 4$ as a function of the number of nodes in the bridge deck
-of the generated FEM. The Figure verifies that for the $n = 4$ chosen loading
-positions that $\epsilon$ decreases as the mesh density increases. Only four
-loading positions were chosen due to the high run time of simulations, the
-chosen loading positions are described in Table [[tbl:verification-points]].
+Diana model with the same load applied.
 
-\textcolor{red}{Increase to $n = ~20$}
+# Figure of decreasing convergence.
+Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function of
+model size. The Figure shows that for the $n = 4$ chosen loading positions that
+$\epsilon$ decreases as the mesh density increases. Only four loading positions
+were chosen due to the high run time of simulations. Each of the $n = 4$ loading
+positions is outlined in Table [[tbl:loading-positions]] including the reason for
+including that position.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1139,14 +1143,23 @@ chosen loading positions are described in Table [[tbl:verification-points]].
 #+CAPTION[Error as a function of model size]: TODO:CAPTION
 [[./images/response-convergence.png]]
 
-#+NAME: tbl:verification-points
-#+CAPTION[Comparison of OpenSees and Diana]: TODO:CAPTION
-| Diana | OpenSees | (x, z) | Point label |
-|-------+----------+--------+-------------|
-|  0.49 |    0.465 |        | A           |
-|  0.14 |    0.130 |        | B           |
-| 0.162 |    0.180 |        | C           |
-|  0.13 |    0.128 |        | D           |
+#+NAME: tbl:loading-positions
+#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the point was chosen.
+|   x (m) |  z (m) | Name | Reason |
+|---------+--------+------+--------|
+|  34.955 | 29.226 | A    |        |
+|  51.251 |   16.6 | B    |        |
+|  92.406 | 12.405 | C    |        |
+| 101.765 |  3.974 | D    |        |
+
+#+NAME: tbl:max-displacement
+#+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:verification-points]].
+| Diana | OpenSees | Point |
+|-------+----------+-------|
+|  0.49 |    0.465 | A     |
+|  0.14 |    0.130 | B     |
+| 0.162 |    0.180 | C     |
+|  0.13 |    0.128 | D     |
 
 \textcolor{red}{Verify the model is deterministic $\epsilon$}
 
