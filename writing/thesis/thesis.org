@@ -9,13 +9,18 @@
 #+LATEX: \newpage
 #+LATEX: \tableofcontents
 #+LATEX: \newpage
-#+LATEX: \listoftables
+#+LATEX: \listoffigures
 #+LATEX: \newpage
 #+LATEX: \listoflistings
 #+LATEX: \newpage
-#+LATEX: \listoffigures
-
+#+LATEX: \listoftables
 #+LATEX: \newpage
+
+#+LATEX: \section*{Acknowledgements}
+#+LATEX: \thispagestyle{empty}
+I would like to thank...
+#+LATEX: \newpage
+
 * Introduction
 # Motivation of the research question.
 The probability of a bridge to fail increases over time until it is no longer
@@ -224,8 +229,8 @@ outlines the catgorization of the 3,283 structures in the network.
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we briefly review the cost of bridge maintenance, with a
-focus on Dutch concrete bridges. Much of the information comes from
-cite:klatter2003life which should be considered the de-facto reference.
+focus on Dutch concrete slab bridges. cite:klatter2003life should be considered
+the de-facto reference for this subsection.
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to
@@ -302,8 +307,74 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Damage to Bridges
-** SHM of Bridges
+** Types of Damage
+** Health Monitoring
+In this subsection we review some of the current methods of health monitoring of
+bridges. citet:peter2003review should be considered the default reference for
+this subsection.
+
+# Global health monitoring.
+Current state of the art health monitoring methods only indicate whether damage
+has occured in a bridge, not determining the location or severity of the damage.
+\textcolor{red}{verify by looking at more recent methods} This class of methods
+are referred to as "global health monitoring" methods. Global health monitoring
+methods are considered sufficient since knowing that damage has occured will
+allow a more accurate inspection to take place.
+
+# Local health monitoring.
+Local health monitoring refers to methods that find the location and possibly
+the extent of damage. Non-destructive evaluation (NDE) refers to methods of
+determining the location of damage without damaging the structure, for example
+with guided ultrasonic waves. NDE can be time consuming and expensive, and
+access to a location on the bridge may be difficult or not even possible.
+
+# Expense of local health monitoring.
+In the USA the Federal Highway Administration (FHA) requires that the condition
+of bridges be evaluated every two years. Such an inspection typically takes the
+form of a tap test. A tap test is a test where the surface of the bridge is
+tapped in order to find variations in the sound response. However the tap test
+is limited to finding damage near the surface and in cases, significant cracks.
+And consider that in the USA there are over 500,000 highway bridges with a span
+length of over 7m, inspection of all these bridges with a limited budget and
+staff not always achievable.
+
+# Changes in frequencies.
+Most global health monitoring techniques are based on finding changes in
+resonant frequencies or mode shapes. However for concrete structures the
+deterioration of reinforced steel has little effect on natural frequency. Some
+methods attempt to find the location and length of cracks based on natural
+frequency, however these methods assume the only damage is cracking, an
+assumption that will certainly not always be true in a real-life setting.
+
+# Bayes and ANNs.
+Damage detection methods based on Bayes' theorem attempt to determine the most
+likely damage event by comparing the relative damage probabilities of different
+damage events. Techniques based on artificial neural networks (ANN) require
+training data to map from a measurement to a damage scenario. The quality of the
+trained neural network depends on the quality of the data, "garbage in, garbage
+out".
+
+# Robust to environmental factors.
+# Novelty detection methods do not require baseline data.
+Bridges will be subjected to environmental factors that affect the responses
+recorded by sensors. If the change in responses from environmental factors is
+considered as noise, then the change from damage must be notably greater than
+the change from noise in order for the health monitoring technique to detect
+that damage has occured. Methods which compare responses to baseline responses
+from the undamaged structure will suffer from this problem. Methods based on
+novelty detection do not require baseline data but typically do not provide a
+measure of the damage severity.
+
+#  Difficult to obtain an accurate analytical model.
+#  Concrete does not guarantee uniform material properties.
+Health monitoring based on an analytical model can be challenging because the
+required data for building an analytical model is not always available. This is
+because civil infrastucture is not always built precisely to the original design
+due to changes in orders and due to on-site construction constraints. Moreover,
+concrete does not guarantee uniform material properties, which might be assumed
+in an analytical model.
+
+** Sensor Technology
 ** Extensibility
 In order for the developed DSS to be truly extensible it is not limited to
 depend on a single finite element program. The system has as a parameter a
@@ -339,8 +410,6 @@ produce more reliable software due to more people having eyes on it.
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
-\textcolor{green}{A more in-depth look at what has been done before}
-
 This section contains a review of the most relevant material studied during
 this thesis work. The section begins with an overview of related works
 followed by a more in-depth look at the most relevant material. The aim of
@@ -663,7 +732,7 @@ overview of how the data collection system operates, this section describes in
 detail the model of a bridge's geometry (=Bridge=), of a damage scenario
 (=DamageScenario=) and a traffic scenario (=TrafficScenario=), the FE software
 used to simulate a bridge's response, how the data collection system operates
-form input to output, a description of the collected data, validation of the
+from input to output, a description of the collected data, validation of the
 model, and finally an overview of the assumptions that were made in modeling.
 
 # Brief system overview.
