@@ -47,11 +47,14 @@ def campaign_measurements(
     strain_meas = meas.loc[meas["sensortype"] == "strains"]
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
     tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
+    amin, amax = np.inf, -np.inf
 
     def plot(sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
+        amin = min(amin, np.amin(diana_group["infline1"]))
+        print(amin)
 
         # Plot measured values against truck position.
         plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
