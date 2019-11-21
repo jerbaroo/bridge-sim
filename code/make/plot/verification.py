@@ -42,19 +42,29 @@ def campaign_measurements(
     ###### Strain ######
     ####################
 
-    # All strain measurements from TNO sensors (label start with "T").
-    # But ignore sensor T0 since no diana predictions are available.
-    strain_meas = meas.loc[meas["sensortype"] == "strains"]
+    # All strain measurements from TNO sensors (label start with "T"), except
+    # ignore sensor T0 since no diana predictions are available.
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
     tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
+
+    # Sort by sensor number and setup groupby sensor label.
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    tno_strain_meas = tno_strain_meas.sort_values(by=["sort"])
+    strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
+
+    # Find the min and max responses.
     amin, amax = np.inf, -np.inf
+    for sensor_label, meas_group in strain_groupby:
+        diana_group = diana[diana["sensorlabel"] == sensor_label]
+        responses = diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
+        amin = min(amin, np.amin(responses))
+        amax = max(amax, np.amax(responses))
+    amin *= 1.1; amax *= 1.1
 
     def plot(sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
-        amin = min(amin, np.amin(diana_group["infline1"]))
-        print(amin)
 
         # Plot measured values against truck position.
         plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
@@ -63,10 +73,10 @@ def campaign_measurements(
         plt.title(f"Strain at {sensor_label}")
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("strain (m/m)")
+        plt.ylim((amin, amax))
 
     # Create a subplot for each strain sensor.
     plot_i, subplot_i = 0, 0
-    strain_groupby = tno_strain_meas.groupby("sensorlabel")
     for i, (sensor_label, meas_group) in enumerate(strain_groupby):
         plt.subplot(rows, cols, subplot_i + 1)
         plot(sensor_label, meas_group)
@@ -97,6 +107,21 @@ def campaign_measurements(
 
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
+  
+    # Sort by sensor number and setup groupby sensor label. Also silence a
+    # Pandas warning.
+    displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    displa_meas = displa_meas.sort_values(by=["sort"])
+    displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
+   
+    # Find the min and max responses.
+    amin, amax = np.inf, -np.inf
+    for sensor_label, meas_group in displa_groupby:
+        diana_group = diana[diana["sensorlabel"] == sensor_label]
+        responses = diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
+        amin = min(amin, np.amin(responses))
+        amax = max(amax, np.amax(responses))
+    amin *= 1.1; amax *= 1.1
 
     def plot(sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
@@ -110,10 +135,10 @@ def campaign_measurements(
         plt.title(f"Displacement at {sensor_label}")
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("displacement (mm)")
+        plt.ylim((amin, amax))
 
     # Create a subplot for each displacement sensor.
     plot_i, subplot_i = 0, 0
-    displa_groupby = displa_meas.groupby("sensorlabel")
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         plt.subplot(rows, cols, subplot_i + 1)
         plot(sensor_label, meas_group)
