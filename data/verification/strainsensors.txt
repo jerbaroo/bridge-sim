@@ -1,4 +1,4 @@
-Z X Y plane direction unknown1 label unknown2
+z x y plane direction unknown1 label dist
 5975 16600 3590 XZ Y 1 B1 2000
 5975 9200 3590 XZ Y 1 B2 2000
 5975 7200 3590 XZ Y 1 B3 2000

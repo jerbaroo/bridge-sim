@@ -1,4 +1,4 @@
-Z X Y plane direction unknown1 label unknown2
+z x y plane direction unknown1 label unknown2
 6075 0 3590 XZ Y 2 U1 5
 6050 2750 3590 XZ Y 2 U2 5
 6050 5500 3590 XZ Y 2 U3 5
