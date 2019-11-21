@@ -63,7 +63,7 @@ def plots_of_pier_displacement(
 def comparison_plots_705(
     c: Config, y: float, response_types: List[ResponseType]
 ):
-    """Make contour plots for all verification points."""
+    """Make contour plots for all verification points on bridge 705."""
     fem_runner = OSRunner(c)
     for response_type in response_types:
         for load_x, load_z in [

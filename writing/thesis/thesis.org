@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Modeling concrete slab bridges
+#+TITLE: Modeling a decision support system for maintenance of concrete slab bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
@@ -187,12 +187,43 @@ of installing a decision support system for bridge maintenance.
 
 #+LATEX: \clearpage
 * Terminology & Preliminaries
+** Abbreviations
+| ANN      | Artificial neural network                         |
+| DSS      | Decision support software                         |
+| FEM      | Finite element model                              |
+| NDE      | Non-disruptive evaluation                         |
+| OpenSees | Open System for Earthquake Engineering Simulation |
+#+LATEX: \newpage
+** Definitions
+| =Bridge=            | Model of a concrete slab bridge's geometry          |
+| Damage scenario     | Healthy or specific damage state of a bridge        |
+| Simulation scenario | Combination of damage scenario and traffic scenario |
+| Traffic scenario    | Defines the traffic that flows over a bridge        |
+#+LATEX: \newpage
 ** Pseudocode
+# Imperative and declarative.
 Pseudocode in this thesis is given in two formats. For code written in an
-imperative style the pseudocode will resemble the syntax of Python. For code
-written in a declarative style, including declarations of data, the pseudocode
-will resemble the syntax of Haskell. An example of each syntactic style is given
-in Listing and .
+imperative style the pseudocode will closely resemble the syntax of Python. For
+declarations of data the pseudocode will resemble the syntax of Haskell. For
+most people the syntax of Python, or a similar imperative style language, will
+already be familiar. The syntax for data declarations used in this thesis is
+presented below in Listing [[lst:haskell]].
+
+#+NAME: lst:haskell
+#+CAPTION: Pseudocode for data declarations used in this thesis.
+#+BEGIN_SRC haskell
+-- | A person as a combination of name and phone number.
+data Person {
+    name  :: String
+  , phone :: Phone
+  }
+
+-- | Representation of a phone number as two integers.
+data Phone = {
+    prefix :: Integer
+  , local  :: Integer
+  }
+#+END_SRC
 
 # Type signatures.
 Sometimes the reader will be presented with a type signature that looks like
@@ -211,7 +242,7 @@ The Dutch national main road network consists of 3,200km of road. Assets in the
 road network are divided into four categories: pavements, structures, traffic
 facilities and environmental assets. Each structure is categorized into a type
 that has its own maintenance characteristics. Table [[tbl:dutch-road-network]]
-outlines the catgorization of the 3,283 structures in the network.
+outlines the categorization of the 3,283 structures in the network.
 
 #+CAPTION[Structures in the Dutch national main road network]: Structures in the Dutch national main road network. Each type of structure has its own maintenance characteristics. The table lists for each structure type the total number in the Dutch national main road network and the total deck area.
 #+NAME: tbl:dutch-road-network
@@ -406,6 +437,8 @@ leverage the knowledge of the community and prevent duplication of efforts which
 can occur when software is developed behind closed doors. Open source software
 also provides transparency to anyone wishing to investigate the software and may
 produce more reliable software due to more people having eyes on it.
+
+\textcolor{red}{extending to other types of bridges}
 ** Existing Work
 :PROPERTIES:
 :UNNUMBERED: t
@@ -1132,10 +1165,10 @@ Diana model with the same load applied.
 # Figure of decreasing convergence.
 Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function of
 model size. The Figure shows that for the $n = 4$ chosen loading positions that
-$\epsilon$ decreases as the mesh density increases. Only four loading positions
-were chosen due to the high run time of simulations. Each of the $n = 4$ loading
-positions is outlined in Table [[tbl:loading-positions]] including the reason for
-including that position.
+$\epsilon$ decreases as the model size increases. Four loading positions were
+chosen to cover various points of interest on the bridge deck. Each of the $n =
+4$ loading positions is defined in Table [[tbl:loading-positions]], including the
+reason for including that position.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1144,7 +1177,7 @@ including that position.
 [[./images/response-convergence.png]]
 
 #+NAME: tbl:loading-positions
-#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the point was chosen.
+#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the loading position was chosen.
 |   x (m) |  z (m) | Name | Reason |
 |---------+--------+------+--------|
 |  34.955 | 29.226 | A    |        |
@@ -1153,7 +1186,7 @@ including that position.
 | 101.765 |  3.974 | D    |        |
 
 #+NAME: tbl:max-displacement
-#+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:verification-points]].
+#+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:loading-positions]].
 | Diana | OpenSees | Point |
 |-------+----------+-------|
 |  0.49 |    0.465 | A     |
