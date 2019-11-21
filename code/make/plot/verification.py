@@ -28,7 +28,7 @@ from plot.responses import plot_contour_deck
 from util import clean_generated, print_i, read_csv, safe_str
 
 
-def campaign_measurements(c: Config):
+def campaign_measurements(c: Config, rows: int=5, cols: int=2):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
     meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
     diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
@@ -36,11 +36,17 @@ def campaign_measurements(c: Config):
     strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
 
     # All strain measurements from TNO sensors (label start with "T").
+    # But ignore sensor T0 since no diana predictions are available.
     strain_meas = meas.loc[meas["sensortype"] == "strains"]
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
+    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
 
-    # Create a plot for each strain sensor.
-    for sensor_label, meas_group in tno_strain_meas.groupby("sensorlabel"):
+    # Create a subplot for each strain sensor.
+    plot_i, subplot_i = 0, 0
+    strain_groupby = tno_strain_meas.groupby("sensorlabel")
+    for i, (sensor_label, meas_group) in enumerate(strain_groupby):
+        plt.subplot(rows, cols, subplot_i + 1)
+
         # Plot measured values against truck position.
         plt.plot(meas_group["xpostruck"], meas_group["inflinedata"], marker="o")
 
@@ -51,17 +57,26 @@ def campaign_measurements(c: Config):
         plt.title(sensor_label)
         plt.xlabel("x position (m)")
         plt.ylabel("strain (mm)")
-        plt.savefig(c.get_data_path(
-            dirname="verification",
-            filename=f"strain-{sensor_label}",
-            acc=False))
-        plt.close()
+        if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
+            plt.savefig(c.get_data_path(
+                dirname="verification",
+                filename=f"strain-{plot_i}",
+                acc=False))
+            plt.close()
+            plot_i += 1
+            subplot_i = 0
+        else:
+            subplot_i += 1
 
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
 
-    # Create a plot for each displacement sensor.
-    for sensor_label, meas_group in displa_meas.groupby("sensorlabel"):
+    # Create a subplot for each displacement sensor.
+    plot_i, subplot_i = 0, 0
+    displa_groupby = displa_meas.groupby("sensorlabel")
+    for i, (sensor_label, meas_group) in enumerate(displa_groupby):
+        plt.subplot(rows, cols, subplot_i + 1)
+
         # Plot measured values sorted by truck position.
         plt.plot(meas_group["xpostruck"], meas_group["inflinedata"], marker="o")
 
@@ -72,11 +87,16 @@ def campaign_measurements(c: Config):
         plt.title(sensor_label)
         plt.xlabel("x position (m)")
         plt.ylabel("displacement (mm)")
-        plt.savefig(c.get_data_path(
-            dirname="verification",
-            filename=f"displacement-{sensor_label}",
-            acc=False))
-        plt.close()
+        if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
+            plt.savefig(c.get_data_path(
+                dirname="verification",
+                filename=f"displa-{plot_i}",
+                acc=False))
+            plt.close()
+            plot_i += 1
+            subplot_i = 0
+        else:
+            subplot_i += 1
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
