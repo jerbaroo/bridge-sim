@@ -28,12 +28,19 @@ from plot.responses import plot_contour_deck
 from util import clean_generated, print_i, read_csv, safe_str
 
 
-def campaign_measurements(c: Config, rows: int=5, cols: int=2):
+def campaign_measurements(
+        c: Config, rows: int=5, cols: int=2, individual_sensors: List[str] = ["T4", "U3"]):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
+    size = 25
+
     meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
     diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
     displa_sensors = pd.read_csv("data/verification/displasensors.txt")
     strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
+
+    ####################
+    ###### Strain ######
+    ####################
 
     # All strain measurements from TNO sensors (label start with "T").
     # But ignore sensor T0 since no diana predictions are available.
@@ -41,22 +48,25 @@ def campaign_measurements(c: Config, rows: int=5, cols: int=2):
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
     tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
 
+    def plot(sensor_label, meas_group):
+        # Plot Diana predictions for the given sensor.
+        diana_group = diana[diana["sensorlabel"] == sensor_label]
+        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
+
+        # Plot measured values against truck position.
+        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
+
+        plt.legend()
+        plt.title(f"Strain at {sensor_label}")
+        plt.xlabel("x position of truck front axle (m)")
+        plt.ylabel("strain (m/m)")
+
     # Create a subplot for each strain sensor.
     plot_i, subplot_i = 0, 0
     strain_groupby = tno_strain_meas.groupby("sensorlabel")
     for i, (sensor_label, meas_group) in enumerate(strain_groupby):
         plt.subplot(rows, cols, subplot_i + 1)
-
-        # Plot measured values against truck position.
-        plt.plot(meas_group["xpostruck"], meas_group["inflinedata"], marker="o")
-
-        # Plot Diana predictions for the same sensor.
-        diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.plot(diana_group["xpostruck"], diana_group["infline1"], marker="o")
-
-        plt.title(sensor_label)
-        plt.xlabel("x position (m)")
-        plt.ylabel("strain (mm)")
+        plot(sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
             plt.savefig(c.get_data_path(
                 dirname="verification",
@@ -68,25 +78,42 @@ def campaign_measurements(c: Config, rows: int=5, cols: int=2):
         else:
             subplot_i += 1
 
+    # Create any plots for individual sensors.
+    for sensor_label, meas_group in strain_groupby:
+        if sensor_label in individual_sensors:
+            plot(sensor_label, meas_group)
+            plt.savefig(c.get_data_path(
+                dirname="verification",
+                filename=f"strain-sensor-{sensor_label}",
+                acc=False))
+            plt.close()
+
+    ##########################
+    ###### Displacement ######
+    ##########################
+
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
+
+    def plot(sensor_label, meas_group):
+        # Plot Diana predictions for the given sensor.
+        diana_group = diana[diana["sensorlabel"] == sensor_label]
+        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
+
+        # Plot measured values sorted by truck position.
+        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
+
+        plt.legend()
+        plt.title(f"Displacement at {sensor_label}")
+        plt.xlabel("x position of truck front axle (m)")
+        plt.ylabel("displacement (mm)")
 
     # Create a subplot for each displacement sensor.
     plot_i, subplot_i = 0, 0
     displa_groupby = displa_meas.groupby("sensorlabel")
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         plt.subplot(rows, cols, subplot_i + 1)
-
-        # Plot measured values sorted by truck position.
-        plt.plot(meas_group["xpostruck"], meas_group["inflinedata"], marker="o")
-
-        # Plot Diana predictions for the same sensor.
-        diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.plot(diana_group["xpostruck"], diana_group["infline1"], marker="o")
-
-        plt.title(sensor_label)
-        plt.xlabel("x position (m)")
-        plt.ylabel("displacement (mm)")
+        plot(sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
             plt.savefig(c.get_data_path(
                 dirname="verification",
@@ -98,6 +125,15 @@ def campaign_measurements(c: Config, rows: int=5, cols: int=2):
         else:
             subplot_i += 1
 
+    # Create any plots for individual sensors.
+    for sensor_label, meas_group in displa_groupby:
+        if sensor_label in individual_sensors:
+            plot(sensor_label, meas_group)
+            plt.savefig(c.get_data_path(
+                dirname="verification",
+                filename=f"displa-sensor-{sensor_label}",
+                acc=False))
+            plt.close()
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
     """Make convergence data file, increasing mesh density per simulation.
