@@ -205,3 +205,21 @@ def responses_to_traffic_array(
     print(pd_responses.shape)
 
     return responses + pd_responses
+
+
+def responses_at(
+    c: Config,
+    response_type: ResponseType,
+    bridge_scenario: BridgeScenario,
+    points: List[Point],
+    mv_vehicles: List[MvVehicle],
+    time: float,
+    fem_runner: FEMRunner,
+):
+    """Responses at a specific time at given points, to given vehicles."""
+    # Create a traffic array with one time step and no loads.
+    wheel_tracks = c.bridge.wheel_tracks(c)
+    no_traffic = np.zeros((1, c.il_num_loads * 2 * len(wheel_tracks)))
+
+    for w, wheel_track in enumerate(wheel_tracks):
+        pass
