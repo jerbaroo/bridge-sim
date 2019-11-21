@@ -9,6 +9,7 @@ from typing import List, Optional
 
 import matplotlib.cm as cm
 import numpy as np
+import pandas as pd
 
 from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
@@ -24,25 +25,17 @@ from model.response import ResponseType
 from plot import plt
 from plot.geom import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import clean_generated, print_i
+from util import clean_generated, print_i, read_csv
 
 
-def read_results(path, min_spaces: int = 0):
-    """Read CSV results.
-
-    The first line is ignored as are lines with '<= min_spaces' spaces.
-
-    """
-    with open(path) as f:
-        return list(
-            map(
-                lambda line: list(map(float, line.split(","))),
-                filter(
-                    lambda line: len(line.split()) > min_spaces,
-                    f.readlines()[1:],
-                ),
-            )
-        )
+def campaign_measurements(c: Config):
+    """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
+    meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
+    pred = pd.read_csv("data/verification/modelpredictions_april2019.csv")
+    displa_sensors = pd.read_csv("data/verification/displasensors.txt", header=None)
+    strain_sensors = pd.read_csv("data/verification/strainsensors.txt", header=None)
+    print(meas)
+    print(strain_sensors)
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):

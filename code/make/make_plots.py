@@ -234,7 +234,8 @@ def make_geom_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    simulations.run_uls(c)
+    # simulations.run_uls(c)
+    verification.campaign_measurements(c)
 
     # contour.plot_of_unit_loads(c)
     # verification.make_convergence_data(c, run=True, plot=True)
