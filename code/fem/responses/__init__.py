@@ -46,7 +46,6 @@ def load_fem_responses(
         sim_runner: FEMRunner, FE program to run the simulation with.
 
     """
-    print()
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
     for rt in sim_params.response_types:

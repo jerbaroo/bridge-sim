@@ -34,6 +34,7 @@ def load_traffic_array(
 
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path):
+        print_i(f"Generating {max_time:.3f} of 'TrafficSequence' at {c.sensor_hz}Hz")
         traffic_sequence, start_time = traffic_scenario.traffic_sequence(
             bridge=c.bridge, max_time=max_time
         )

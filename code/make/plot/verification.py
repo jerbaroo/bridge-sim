@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 
-from classify.data.responses import responses_to_traffic_array
+from classify.data.responses import responses_to_traffic_array, responses_to_loads, responses_to_loads_
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
 from fem.params import SimParams
@@ -30,8 +30,12 @@ from util import clean_generated, print_i, read_csv, safe_str
 
 def campaign_measurements(
         c: Config, rows: int=5, cols: int=2, individual_sensors: List[str] = ["T4", "U3"]):
-    """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
-    size = 25
+    """Compare the bridge 705 measurement campaign to Diana and OpenSees.
+
+    TODO: Move to plot.verification.705
+    """
+    size = 25  # Size of scatter plot points.
+    truck_front_x = np.arange(1, 116.1, 1)  # Positions of truck front axle.
 
     meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
     diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
@@ -81,7 +85,7 @@ def campaign_measurements(
         plt.subplot(rows, cols, subplot_i + 1)
         plot(sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
-            plt.savefig(c.get_data_path(
+            plt.savefig(c.get_image_path(
                 dirname="verification",
                 filename=f"strain-{plot_i}",
                 acc=False))
@@ -95,7 +99,7 @@ def campaign_measurements(
     for sensor_label, meas_group in strain_groupby:
         if sensor_label in individual_sensors:
             plot(sensor_label, meas_group)
-            plt.savefig(c.get_data_path(
+            plt.savefig(c.get_image_path(
                 dirname="verification",
                 filename=f"strain-sensor-{sensor_label}",
                 acc=False))
@@ -105,6 +109,13 @@ def campaign_measurements(
     ###### Displacement ######
     ##########################
 
+    def displa_sensor_xz(sensor_label):
+        """X and z position of a displacement sensor."""
+        sensor = displa_sensors[displa_sensors["label"] == sensor_label]
+        sensor_x = sensor.iloc[0]["x"]
+        sensor_z = sensor.iloc[0]["z"]
+        return sensor_x, sensor_z
+
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
   
@@ -113,7 +124,9 @@ def campaign_measurements(
     displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     displa_meas = displa_meas.sort_values(by=["sort"])
     displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
-   
+    displa_sensor_labels = [sensor_label for sensor_label, _ in displa_groupby]
+    displa_sensor_xzs = list(map(displa_sensor_xz, displa_sensor_labels))
+
     # Find the min and max responses.
     amin, amax = np.inf, -np.inf
     for sensor_label, meas_group in displa_groupby:
@@ -123,13 +136,31 @@ def campaign_measurements(
         amax = max(amax, np.amax(responses))
     amin *= 1.1; amax *= 1.1
 
-    def plot(sensor_label, meas_group):
+    # Calculate displacement with OpenSees.
+    os_displacement = responses_to_loads_(
+        c=c,
+        loads=[[PointLoad(
+            x_frac=c.bridge.x_frac(x),
+            z_frac=c.bridge.z_frac(-7.4),
+            kn=342.74)] for x in truck_front_x],
+        response_type=ResponseType.YTranslation,
+        bridge_scenario=HealthyBridge(),
+        points = [
+            Point(x=sensor_x, y=0, z=sensor_z)
+            for sensor_x, sensor_z in displa_sensor_xzs],
+        sim_runner=OSRunner(c),
+    ).T * 1000
+
+    def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
+        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], s=size, label="Diana")
 
         # Plot measured values sorted by truck position.
-        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
+        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label="measurement")
+
+        # Plot values from OpenSees.
+        plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
 
         plt.legend()
         plt.title(f"Displacement at {sensor_label}")
@@ -141,9 +172,9 @@ def campaign_measurements(
     plot_i, subplot_i = 0, 0
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         plt.subplot(rows, cols, subplot_i + 1)
-        plot(sensor_label, meas_group)
+        plot(i, sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
-            plt.savefig(c.get_data_path(
+            plt.savefig(c.get_image_path(
                 dirname="verification",
                 filename=f"displa-{plot_i}",
                 acc=False))
@@ -154,10 +185,10 @@ def campaign_measurements(
             subplot_i += 1
 
     # Create any plots for individual sensors.
-    for sensor_label, meas_group in displa_groupby:
+    for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         if sensor_label in individual_sensors:
-            plot(sensor_label, meas_group)
-            plt.savefig(c.get_data_path(
+            plot(i, sensor_label, meas_group)
+            plt.savefig(c.get_image_path(
                 dirname="verification",
                 filename=f"displa-sensor-{sensor_label}",
                 acc=False))
@@ -417,4 +448,4 @@ def plot_pier_displacement(c: Config):
     )
     plt.colorbar(norm=norm)
 
-    plt.savefig(c.get_image_path("verification", "pier-displacement"))
+    plt.savefig(c.get_image_path("system-verification", "pier-displacement"))

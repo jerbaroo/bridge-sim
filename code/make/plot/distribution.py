@@ -14,7 +14,7 @@ from model.load import DisplacementCtrl
 from model.response import ResponseType, resize_units
 from model.scenario import BridgeScenario
 from plot.responses import plot_distributions
-from util import safe_str
+from util import print_i, safe_str
 
 
 def load_normal_traffic_array(c: Config):
@@ -67,6 +67,7 @@ def lane_distribution_plots(
 
     """
     assert isinstance(bridge_scenarios[0], HealthyBridge)
+    print_i("Lane distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 
     def lane_points(lane):
@@ -82,7 +83,9 @@ def lane_distribution_plots(
 
     # Collect responses for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
+        print_i(f"Lane distribution plots: bridge scenario {bridge_scenario.name}")
         for lane_index, lane in enumerate(c.bridge.lanes):
+            print_i(f"Lane distribution plots: lane {lane_index}")
             points = lane_points(lane)
             response_arrays.append(
                 responses_to_traffic_array(

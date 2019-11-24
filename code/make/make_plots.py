@@ -236,6 +236,7 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # simulations.run_uls(c)
     verification.campaign_measurements(c)
+    # distribution.distribution_plots(c)
 
     # contour.plot_of_unit_loads(c)
     # verification.make_convergence_data(c, run=True, plot=True)
@@ -243,7 +244,6 @@ def make_all_3d(c: Config):
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
     # make_il_plots(c)
-    # distribution.distribution_plots(c)
     # verification.plot_pier_displacement(c)
     # matrix.dc_plots(c)
     # make_event_plots(c)

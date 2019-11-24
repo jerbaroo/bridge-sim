@@ -210,6 +210,7 @@ def to_traffic_array(
     start with looking at 'to_traffic', as that is almost a subset of this code.
 
     """
+    print_i("Converting to 'TrafficArray")
     time_step = c.sensor_hz
 
     result = np.zeros(
@@ -227,6 +228,26 @@ def to_traffic_array(
     # Interpolate from x position to index of unit load simulation.
     bridge_length = c.bridge.length
     interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
+
+    # def vehicles_to_loads(
+    #         c: Config, il_num_loads: Optional[float] = None,
+    #         out: Optional[np.array] = None):
+    #     """Decompile a list of vehicles into 'WheelTrackLoads'.
+
+    #     TODO: Loading
+
+    #     Args:
+    #         c: Config, global configuration object.
+    #         il_num_loads: Optional[float], number of unit load simulations per
+    #             wheel track.
+
+    #     """
+    #     # Column index where each wheel track starts.
+    #     j_indices = [
+    #         (l * 2 * il_num_loads, (l * 2 * il_num_loads) + 1)
+    #         for l, _ in enumerate(current)
+    #     ]
+
     # Column index where each wheel track starts.
     j_indices = [
         (l * 2 * c.il_num_loads, (l * 2 * c.il_num_loads) + 1)
@@ -234,6 +255,7 @@ def to_traffic_array(
     ]
 
     while time <= max_time:
+        print_i(f"time = {time}, max_time = {max_time}")
 
         # While events have occurred update current traffic.
         while time >= next_event_time:
@@ -248,6 +270,8 @@ def to_traffic_array(
                 next_event_time = traffic_sequence[next_event_index][1]
             except IndexError:
                 next_event_time = np.inf
+
+        # This bottom part of the loop can be parallelized.
 
         # For each lane.
         for (j0, j1), vehicles in zip(j_indices, current):
