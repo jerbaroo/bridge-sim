@@ -150,22 +150,8 @@ def campaign_measurements(
         amax = max(amax, np.amax(responses))
     amin *= 1.1; amax *= 1.1
 
-    # Calculate displacement with OpenSees via direct simulations.
-    os_displacement = responses_to_loads_(
-        c=c,
-        loads=[[PointLoad(
-            x_frac=c.bridge.x_frac(x),
-            z_frac=c.bridge.z_frac(-8.4),
-            kn=342.74)] for x in truck_front_x],
-        response_type=ResponseType.YTranslation,
-        bridge_scenario=HealthyBridge(),
-        points = [
-            Point(x=sensor_x, y=0, z=sensor_z)
-            for sensor_x, sensor_z in displa_sensor_xzs],
-        sim_runner=OSRunner(c),
-    ).T * 1000
-
-    os_displacement1 = responses_to_vehicles_(
+    # Calculate displacement with OpenSees via direct simulation.
+    os_displacement = responses_to_vehicles_(
         c=c,
         mv_vehicles=[wagen1],
         times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -182,12 +168,11 @@ def campaign_measurements(
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.scatter(diana_group["xpostruck"], diana_group["infline1"], s=size, label="Diana")
 
-        # Plot measured values sorted by truck position.
-        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label="measurement")
-
         # Plot values from OpenSees.
         plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
-        plt.scatter(truck_front_x, os_displacement1[i], s=size, label="OpenSees wagen1")
+
+        # Plot measured values sorted by truck position.
+        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label=sensor_label)
 
         plt.legend()
         plt.title(f"Displacement at {sensor_label}")
