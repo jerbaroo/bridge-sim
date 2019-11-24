@@ -263,7 +263,7 @@ def responses_to_loads_(
     points: List[Point],
     sim_runner: FEMRunner,
 ):
-    """Like 'responses_to_loads' but responses are from direct simulation.
+    """Like 'responses_to_loads' but responses are via direct simulation.
 
     Returns a numPy array of shape len(loads) * len(points).
 
@@ -285,25 +285,28 @@ def responses_to_loads_(
     return np.array(result)
 
 
-def responses_to_vehicles(
+def responses_to_vehicles_(
     c: Config,
+    mv_vehicles: List[MvVehicle],
+    times: List[float],
     response_type: ResponseType,
     bridge_scenario: BridgeScenario,
-    mv_vehicles: List[MvVehicle],
-    time: float,
-    fem_runner: FEMRunner,
+    points: List[Point],
+    sim_runner: FEMRunner,
 ):
-    """Responses to vehicles at a single time step."""
-    # Create a traffic array with one time step and no loads.
-    wheel_tracks = c.bridge.wheel_tracks(c)
-    num_load_positions = np.zeros((1, c.il_num_loads * 2 * len(wheel_tracks)))
-    traffic_array = np.zeros((1, num_load_positions))
-    print(traffic_array.shape)
+    """Responses to vehicles via direct simulation."""
     print_w("TODO: converting vehicle to point loads")
-    return responses_to_traffic_array(
+    loads = [
+        list(chain.from_iterable(chain.from_iterable(
+            v.to_point_loads(time=time, bridge=c.bridge)) for v in mv_vehicles))
+        for time in times]
+    assert isinstance(loads, list)
+    assert isinstance(loads[0], list)
+    assert isinstance(loads[0][0], PointLoad)
+    return responses_to_loads_(
         c=c,
-        traffic_array = traffic_array,
-        response_type = response_type,
-        bridge_scenario = bridge_scenario,
-        points = points,
-        fem_runner = fem_runner)
+        loads=loads,
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        sim_runner=sim_runner)

@@ -453,17 +453,14 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
         ),
     )
 
-
 def get_load_deck_positions(
     bridge: Bridge, fem_params: SimParams
 ) -> DeckPositions:
     """The x and z positions of deck nodes that belong to loads."""
-    # TODO: Loading position for displacement control?
     return (
-        [round_m(bridge.x(pload.x_frac)) for pload in fem_params.ploads],
-        [round_m(bridge.z(pload.z_frac)) for pload in fem_params.ploads],
+        sorted([round_m(bridge.x(pload.x_frac)) for pload in fem_params.ploads]),
+        sorted([round_m(bridge.z(pload.z_frac)) for pload in fem_params.ploads]),
     )
-
 
 # The x and y deck positions after each stage of building.
 DeckStagesInfo = NewType("DeckStagesInfo", Dict[str, DeckPositions])

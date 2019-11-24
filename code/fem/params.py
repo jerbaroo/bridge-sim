@@ -27,8 +27,6 @@ class SimParams:
     ):
         if displacement_ctrl is not None:
             assert len(ploads) == 0
-        else:
-            assert len(ploads) >= 1
         self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
