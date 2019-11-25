@@ -76,7 +76,7 @@ class Vehicle:
         self,
         kn: Union[float, List[float], List[Tuple[float, float]]],
         axle_distances: List[float],
-        axle_width: float
+        axle_width: float,
     ):
         self.axle_distances = axle_distances
         self.axle_width = axle_width
@@ -280,7 +280,9 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
-    def to_point_loads(self, time: float, bridge: Bridge) -> List[Tuple[float, float]]:
+    def to_point_loads(
+        self, time: float, bridge: Bridge
+    ) -> List[Tuple[float, float]]:
         """A tuple of point load per axle, one for each wheel."""
         z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
         assert z0 < z1
@@ -289,6 +291,7 @@ class MvVehicle(Vehicle):
         kn_per_wheel = list(chain.from_iterable(self.kn_per_wheel()))
 
         i = 0
+
         def next_kn():
             nonlocal i
             i += 1
@@ -299,8 +302,10 @@ class MvVehicle(Vehicle):
             if x < 0 or x > bridge.length:
                 continue
             kn0, kn1 = next_kn(), next_kn()
-            result.append((
-                PointLoad(x_frac=bridge.x_frac(x), z_frac=z0, kn=kn0),
-                PointLoad(x_frac=bridge.x_frac(x), z_frac=z1, kn=kn1)
-            ))
+            result.append(
+                (
+                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z0, kn=kn0),
+                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z1, kn=kn1),
+                )
+            )
         return result

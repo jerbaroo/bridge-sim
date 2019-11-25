@@ -146,7 +146,7 @@ def responses_to_traffic_array(
     bridge_scenario: BridgeScenario,
     points: List[Point],
     fem_runner: FEMRunner,
-    j = None
+    j=None,
 ):
     # The unit load simulations that are loaded depend on whether the bridge is
     # healthy or cracked. TODO
@@ -228,7 +228,9 @@ def responses_to_loads(
     traffic_array = np.zeros((1, num_load_positions))
 
     # Insert the point loads into the 'TrafficArray'.
-    interp = interp1d([0, c.bridge.length], [0, c.il_num_loads - 1], fill_value="extrapolate")
+    interp = interp1d(
+        [0, c.bridge.length], [0, c.il_num_loads - 1], fill_value="extrapolate"
+    )
     for load in loads:
         wheel_track_found = False
         load_z = c.bridge.z(load.z_frac)
@@ -247,12 +249,13 @@ def responses_to_loads(
 
     return responses_to_traffic_array(
         c=c,
-        traffic_array = traffic_array,
-        response_type = response_type,
-        bridge_scenario = bridge_scenario,
-        points = points,
-        j = j,
-        fem_runner = fem_runner)
+        traffic_array=traffic_array,
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        j=j,
+        fem_runner=fem_runner,
+    )
 
 
 def responses_to_loads_(
@@ -274,14 +277,19 @@ def responses_to_loads_(
     for loads_ in loads:
         sim_responses = load_fem_responses(
             c=c,
-            sim_params=SimParams(
-                response_types=[response_type], ploads=loads_),
+            sim_params=SimParams(response_types=[response_type], ploads=loads_),
             response_type=ResponseType.YTranslation,
             sim_runner=sim_runner,
         )
-        result.append([sim_responses.at(
-            x_frac=c.bridge.x_frac(point.x),
-            z_frac=c.bridge.z_frac(point.z)) for point in points])
+        result.append(
+            [
+                sim_responses.at(
+                    x_frac=c.bridge.x_frac(point.x),
+                    z_frac=c.bridge.z_frac(point.z),
+                )
+                for point in points
+            ]
+        )
     return np.array(result)
 
 
@@ -297,9 +305,16 @@ def responses_to_vehicles_(
     """Responses to vehicles via direct simulation."""
     print_w("TODO: converting vehicle to point loads")
     loads = [
-        list(chain.from_iterable(chain.from_iterable(
-            v.to_point_loads(time=time, bridge=c.bridge)) for v in mv_vehicles))
-        for time in times]
+        list(
+            chain.from_iterable(
+                chain.from_iterable(
+                    v.to_point_loads(time=time, bridge=c.bridge)
+                )
+                for v in mv_vehicles
+            )
+        )
+        for time in times
+    ]
     assert isinstance(loads, list)
     assert isinstance(loads[0], list)
     assert isinstance(loads[0][0], PointLoad)
@@ -309,4 +324,5 @@ def responses_to_vehicles_(
         response_type=response_type,
         bridge_scenario=bridge_scenario,
         points=points,
-        sim_runner=sim_runner)
+        sim_runner=sim_runner,
+    )

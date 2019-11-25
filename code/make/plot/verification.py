@@ -11,7 +11,12 @@ import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 
-from classify.data.responses import responses_to_traffic_array, responses_to_loads, responses_to_loads_, responses_to_vehicles_
+from classify.data.responses import (
+    responses_to_traffic_array,
+    responses_to_loads,
+    responses_to_loads_,
+    responses_to_vehicles_,
+)
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
 from fem.params import SimParams
@@ -32,18 +37,25 @@ from util import clean_generated, print_i, read_csv, safe_str
 to_kn = 0.00980665
 wagen1 = MvVehicle(
     kn=[
-        (5050*to_kn, 5300*to_kn), (4600*to_kn, 4000*to_kn),
-        (4350*to_kn, 3700*to_kn), (4050*to_kn, 3900*to_kn)],
+        (5050 * to_kn, 5300 * to_kn),
+        (4600 * to_kn, 4000 * to_kn),
+        (4350 * to_kn, 3700 * to_kn),
+        (4050 * to_kn, 3900 * to_kn),
+    ],
     axle_distances=[3.6, 1.32, 1.45],
     axle_width=2.5,
     kmph=40,
     lane=0,
-    init_x_frac=0
+    init_x_frac=0,
 )
 
 
 def sensor_subplots(
-        c: Config, rows: int=5, cols: int=2, individual_sensors: List[str] = ["T4", "U3"]):
+    c: Config,
+    rows: int = 5,
+    cols: int = 2,
+    individual_sensors: List[str] = ["T4", "U3"],
+):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees.
 
     TODO: Move to plot.verification.705
@@ -63,10 +75,14 @@ def sensor_subplots(
     # All strain measurements from TNO sensors (label start with "T"), except
     # ignore sensor T0 since no diana predictions are available.
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
-    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
+    tno_strain_meas = tno_strain_meas.loc[
+        tno_strain_meas["sensorlabel"] != "T0"
+    ]
 
     # Sort by sensor number and setup groupby sensor label.
-    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(
+        lambda x: int(x[1:])
+    )
     tno_strain_meas = tno_strain_meas.sort_values(by=["sort"])
     strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
 
@@ -74,18 +90,34 @@ def sensor_subplots(
     amin, amax = np.inf, -np.inf
     for sensor_label, meas_group in strain_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        responses = diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
+        responses = (
+            diana_group["infline1"].to_list()
+            + meas_group["inflinedata"].to_list()
+        )
         amin = min(amin, np.amin(responses))
         amax = max(amax, np.amax(responses))
-    amin *= 1.1; amax *= 1.1
+    amin *= 1.1
+    amax *= 1.1
 
     def plot(sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], marker="o", s=size, label="Diana")
+        plt.scatter(
+            diana_group["xpostruck"],
+            diana_group["infline1"],
+            marker="o",
+            s=size,
+            label="Diana",
+        )
 
         # Plot measured values against truck position.
-        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], marker="o", s=size, label="measurement")
+        plt.scatter(
+            meas_group["xpostruck"],
+            meas_group["inflinedata"],
+            marker="o",
+            s=size,
+            label="measurement",
+        )
 
         plt.legend()
         plt.title(f"Strain at {sensor_label}")
@@ -99,10 +131,13 @@ def sensor_subplots(
         plt.subplot(rows, cols, subplot_i + 1)
         plot(sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
-            plt.savefig(c.get_image_path(
-                dirname="verification",
-                filename=f"strain-{plot_i}",
-                acc=False))
+            plt.savefig(
+                c.get_image_path(
+                    dirname="verification",
+                    filename=f"strain-{plot_i}",
+                    acc=False,
+                )
+            )
             plt.close()
             plot_i += 1
             subplot_i = 0
@@ -113,10 +148,13 @@ def sensor_subplots(
     for sensor_label, meas_group in strain_groupby:
         if sensor_label in individual_sensors:
             plot(sensor_label, meas_group)
-            plt.savefig(c.get_image_path(
-                dirname="verification",
-                filename=f"strain-sensor-{sensor_label}",
-                acc=False))
+            plt.savefig(
+                c.get_image_path(
+                    dirname="verification",
+                    filename=f"strain-sensor-{sensor_label}",
+                    acc=False,
+                )
+            )
             plt.close()
 
     ##########################
@@ -132,7 +170,7 @@ def sensor_subplots(
 
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
-  
+
     # Sort by sensor number and setup groupby sensor label. Also silence a
     # Pandas warning.
     displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
@@ -145,40 +183,60 @@ def sensor_subplots(
     amin, amax = np.inf, -np.inf
     for sensor_label, meas_group in displa_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        responses = diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
+        responses = (
+            diana_group["infline1"].to_list()
+            + meas_group["inflinedata"].to_list()
+        )
         amin = min(amin, np.amin(responses))
         amax = max(amax, np.amax(responses))
-    amin *= 1.1; amax *= 1.1
+    amin *= 1.1
+    amax *= 1.1
 
     # Calculate displacement with OpenSees via direct simulation.
-    os_displacement = responses_to_vehicles_(
-        c=c,
-        mv_vehicles=[wagen1],
-        times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
-        response_type=ResponseType.YTranslation,
-        bridge_scenario=HealthyBridge(),
-        points = [
-            Point(x=sensor_x, y=0, z=sensor_z)
-            for sensor_x, sensor_z in displa_sensor_xzs],
-        sim_runner=OSRunner(c),
-    ).T * 1000
+    os_displacement = (
+        responses_to_vehicles_(
+            c=c,
+            mv_vehicles=[wagen1],
+            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+            response_type=ResponseType.YTranslation,
+            bridge_scenario=HealthyBridge(),
+            points=[
+                Point(x=sensor_x, y=0, z=sensor_z)
+                for sensor_x, sensor_z in displa_sensor_xzs
+            ],
+            sim_runner=OSRunner(c),
+        ).T
+        * 1000
+    )
     amin = min(amin, np.amin(os_displacement))
     amax = max(amax, np.amax(os_displacement))
 
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.scatter(diana_group["xpostruck"], diana_group["infline1"], s=size, label="Diana")
+        plt.scatter(
+            diana_group["xpostruck"],
+            diana_group["infline1"],
+            s=size,
+            label="Diana",
+        )
 
         # Plot values from OpenSees.
         plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
 
         # Plot measured values sorted by truck position.
-        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label=f"Sensor {sensor_label}")
+        plt.scatter(
+            meas_group["xpostruck"],
+            meas_group["inflinedata"],
+            s=size,
+            label=f"Sensor {sensor_label}",
+        )
 
         plt.legend()
         sensor_x, sensor_z = displa_sensor_xzs[i]
-        plt.title(f"Displacement at sensor {sensor_label}, x = {sensor_x:.3f}, z = {sensor_z:.3f}")
+        plt.title(
+            f"Displacement at sensor {sensor_label}, x = {sensor_x:.3f}, z = {sensor_z:.3f}"
+        )
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("displacement (mm)")
         plt.ylim((amin, amax))
@@ -189,10 +247,13 @@ def sensor_subplots(
         plt.subplot(rows, cols, subplot_i + 1)
         plot(i, sensor_label, meas_group)
         if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
-            plt.savefig(c.get_image_path(
-                dirname="verification",
-                filename=f"displa-{plot_i}",
-                acc=False))
+            plt.savefig(
+                c.get_image_path(
+                    dirname="verification",
+                    filename=f"displa-{plot_i}",
+                    acc=False,
+                )
+            )
             plt.close()
             plot_i += 1
             subplot_i = 0
@@ -203,11 +264,15 @@ def sensor_subplots(
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         if sensor_label in individual_sensors:
             plot(i, sensor_label, meas_group)
-            plt.savefig(c.get_image_path(
-                dirname="verification",
-                filename=f"displa-sensor-{sensor_label}",
-                acc=False))
+            plt.savefig(
+                c.get_image_path(
+                    dirname="verification",
+                    filename=f"displa-sensor-{sensor_label}",
+                    acc=False,
+                )
+            )
             plt.close()
+
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
     """Make convergence data file, increasing mesh density per simulation.

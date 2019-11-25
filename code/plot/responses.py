@@ -73,7 +73,7 @@ def plot_contour_deck(
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
     color: str = None,
-    norm = None,
+    norm=None,
     center_norm: bool = False,
     save: Optional[str] = None,
 ):
@@ -120,9 +120,6 @@ def plot_contour_deck(
             vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
     cs = plt.contourf(X, Z, H, levels=25, cmap=cmap, norm=norm)
-
-    if save is None:
-        return cs, cmap, norm
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)

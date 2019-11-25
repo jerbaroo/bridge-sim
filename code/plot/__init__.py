@@ -29,19 +29,19 @@ D: bool = False
 
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
-matplotlib.rcParams['figure.figsize'] = (16, 10)
+matplotlib.rcParams["figure.figsize"] = (16, 10)
 
 _og_savefig = _plt.savefig
 _og_show = _plt.show
 
 
 def _savefig(*args, **kwargs):
-    _plt.tight_layout()
+    plt.tight_layout()
     _og_savefig(*args, **kwargs)
 
 
 def _show(*args, **kwargs):
-    _plt.tight_layout()
+    plt.tight_layout()
     _og_show(*args, **kwargs)
 
 

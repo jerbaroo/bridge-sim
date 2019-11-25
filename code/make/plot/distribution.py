@@ -83,7 +83,9 @@ def lane_distribution_plots(
 
     # Collect responses for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
-        print_i(f"Lane distribution plots: bridge scenario {bridge_scenario.name}")
+        print_i(
+            f"Lane distribution plots: bridge scenario {bridge_scenario.name}"
+        )
         for lane_index, lane in enumerate(c.bridge.lanes):
             print_i(f"Lane distribution plots: lane {lane_index}")
             points = lane_points(lane)

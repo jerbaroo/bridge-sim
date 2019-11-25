@@ -9,7 +9,7 @@ get_wagen1 = lambda: MvVehicle(
     axle_width=2.5,
     kmph=40,
     lane=0,
-    init_x_frac=0
+    init_x_frac=0,
 )
 
 

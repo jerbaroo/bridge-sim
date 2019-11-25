@@ -2,6 +2,7 @@
 from typing import List
 
 import matplotlib.cm as cm
+import matplotlib.image as mpimg
 import numpy as np
 
 from config import Config
@@ -63,44 +64,69 @@ def plots_of_pier_displacement(
 def comparison_plots_705(c: Config):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
-        (34.95459, 29.22606 - 16.6),
-        (51.25051, 16.6 - 16.6),
-        (92.40638, 12.405 - 16.6),
-        (101.7649, 3.973938 - 16.6),
+        (34.95459, 29.22606 - 16.6, "a"),
+        (51.25051, 16.6 - 16.6, "b"),
+        (92.40638, 12.405 - 16.6, "c"),
+        (101.7649, 3.973938 - 16.6, "d"),
     ]
+    response_types = [ResponseType.YTranslation]
+    # For each response type and loading position first create contour plots for
+    # OpenSees. Then finally create subplots comparing to Diana.
     for response_type in response_types:
-        for load_x, load_z in positions:
-            loads = [PointLoad(
-                x_frac=c.bridge.x_frac(load_x),
-                z_frac=c.bridge.z_frac(load_z),
-                kn=100,
-            )]
+        for load_x, load_z, label in positions:
+            loads = [
+                PointLoad(
+                    x_frac=c.bridge.x_frac(load_x),
+                    z_frac=c.bridge.z_frac(load_z),
+                    kn=100,
+                )
+            ]
             fem_responses = load_fem_responses(
                 c=c,
                 response_type=response_type,
-                sim_runner=fem_runner,
-                sim_params=SimParams(ploads=loads, response_types=response_types)
+                sim_runner=OSRunner(c),
+                sim_params=SimParams(
+                    ploads=loads, response_types=response_types
+                ),
             )
-            title = (f"{response_type.name()} from a {loads[0].kn} kN point load"
-                    + f" at x = {load_x:.3f}m, z = {load_z:.3f}m")
+            title = (
+                f"{response_type.name()} from a {loads[0].kn} kN point load"
+                + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
+            )
             save = lambda prefix: c.get_image_path(
-                        "contour",
-                        safe_str(
-                            f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
-                        ),
-                    )
+                "contour",
+                safe_str(
+                    f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
+                ),
+            )
             # Plot once without colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
-                c=c,responses=fem_responses,y=y,ploads=loads,
-                title=title,save=save("")
+                c=c,
+                responses=fem_responses,
+                ploads=loads,
+                title=title,
+                save=save(""),
             )
             # Plot again with colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
-                c=c,responses=fem_responses,y=y,ploads=loads, center_norm=True,
-                title=title,save=save("center_norm-")
+                c=c,
+                responses=fem_responses,
+                ploads=loads,
+                center_norm=True,
+                title=title,
+                save=save("center_norm-"),
             )
+            # Finally create label/title the Diana plot.
+            di_img = mpimg.imread(f"data/verification/diana-{label}.png")
+            plt.imshow(di_img)
+            plt.title(title)
+            plt.xlabel("x position (mm)")
+            plt.ylabel("z position (mm)")
+            plt.savefig(save("diana-"))
+            plt.close()
+
 
 
 def plot_of_unit_loads(c: Config):

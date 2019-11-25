@@ -28,7 +28,7 @@ def top_view_bridge(
     lane_fill: bool = False,
     piers: bool = False,
     abutments: bool = False,
-    edges: bool = False
+    edges: bool = False,
 ):
     """Plot the top view of a bridge's geometry.
 
