@@ -60,52 +60,46 @@ def plots_of_pier_displacement(
             )
 
 
-def comparison_plots_705(
-    c: Config, y: float, response_types: List[ResponseType]
-):
+def comparison_plots_705(c: Config):
     """Make contour plots for all verification points on bridge 705."""
-    fem_runner = OSRunner(c)
+    positions = [
+        (34.95459, 29.22606 - 16.6),
+        (51.25051, 16.6 - 16.6),
+        (92.40638, 12.405 - 16.6),
+        (101.7649, 3.973938 - 16.6),
+    ]
     for response_type in response_types:
-        for load_x, load_z in [
-            (34.95459, 29.22606 - 16.6),  # A.
-            (51.25051, 16.6 - 16.6),  # B.
-            (92.40638, 12.405 - 16.6),  # C.
-            (101.7649, 3.973938 - 16.6),  # D.
-        ]:
-            print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
-            pload = PointLoad(
+        for load_x, load_z in positions:
+            loads = [PointLoad(
                 x_frac=c.bridge.x_frac(load_x),
                 z_frac=c.bridge.z_frac(load_z),
                 kn=100,
-            )
-            print_d(D, f"response_types = {response_types}")
-            fem_params = SimParams(
-                ploads=[pload], response_types=response_types
-            )
-            print_d(D, f"loading response type = {response_type}")
+            )]
             fem_responses = load_fem_responses(
                 c=c,
-                sim_params=fem_params,
                 response_type=response_type,
                 sim_runner=fem_runner,
+                sim_params=SimParams(ploads=loads, response_types=response_types)
             )
-            plot_contour_deck(
-                c=c,
-                responses=fem_responses,
-                y=y,
-                ploads=[pload],
-                title=(
-                    f"{response_type.name()} from a {pload.kn} kN load"
-                    + f" at x = {load_x:.2f}m, z = {load_z:.2f}m"
-                ),
-                save=(
-                    c.get_image_path(
+            title = (f"{response_type.name()} from a {loads[0].kn} kN point load"
+                    + f" at x = {load_x:.3f}m, z = {load_z:.3f}m")
+            save = lambda prefix: c.get_image_path(
                         "contour",
                         safe_str(
-                            f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
+                            f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
                         ),
                     )
-                ),
+            # Plot once without colormaps centered to 0.
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plot_contour_deck(
+                c=c,responses=fem_responses,y=y,ploads=loads,
+                title=title,save=save("")
+            )
+            # Plot again with colormaps centered to 0.
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plot_contour_deck(
+                c=c,responses=fem_responses,y=y,ploads=loads, center_norm=True,
+                title=title,save=save("center_norm-")
             )
 
 

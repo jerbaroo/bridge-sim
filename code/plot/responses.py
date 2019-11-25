@@ -72,7 +72,9 @@ def plot_contour_deck(
     y: float = 0,
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
-    norm=None,
+    color: str = None,
+    norm = None,
+    center_norm: bool = False,
     save: Optional[str] = None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -108,14 +110,16 @@ def plot_contour_deck(
     amax, unit_str = resize_units(amax, responses.response_type)
 
     # Plot contour and colorbar.
-    cmap = cm.get_cmap("bwr")
+    if color is None:
+        color = "jet"
+    cmap = cm.get_cmap(color)
     if norm is None:
-        vmin = min(amin, -amax)
-        vmax = max(amax, -amin)
-        print(amin, amax)
-        print(vmin, vmax)
+        vmin, vmax = amin, amax
+        if center_norm:
+            vmin = min(amin, -amax)
+            vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    cs = plt.contourf(X, Z, H, levels=50, cmap=cmap, norm=norm)
+    cs = plt.contourf(X, Z, H, levels=25, cmap=cmap, norm=norm)
 
     if save is None:
         return cs, cmap, norm

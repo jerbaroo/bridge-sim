@@ -235,7 +235,10 @@ def make_geom_plots(c: Config):
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # simulations.run_uls(c)
-    verification.campaign_measurements(c)
+
+    # verification.sensor_subplots(c)
+    contour.comparison_plots_705(c=c)
+
     # distribution.distribution_plots(c)
 
     # contour.plot_of_unit_loads(c)
@@ -250,8 +253,5 @@ def make_all_3d(c: Config):
     # animate.traffic(c)
     # make_distribution_plots(c)
     # make_cloud_of_nodes_plots(c)
-    # contour.plots_for_verification(
-    #     c=c, y=0, response_types=[ResponseType.YTranslation]
-    # )
     # contour.plots_of_pier_displacement(
     #     c=c, y=0, response_types=[ResponseType.YTranslation])

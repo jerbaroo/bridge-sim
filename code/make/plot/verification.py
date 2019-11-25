@@ -42,7 +42,7 @@ wagen1 = MvVehicle(
 )
 
 
-def campaign_measurements(
+def sensor_subplots(
         c: Config, rows: int=5, cols: int=2, individual_sensors: List[str] = ["T4", "U3"]):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees.
 
