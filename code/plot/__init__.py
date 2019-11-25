@@ -48,7 +48,7 @@ def _show(*args, **kwargs):
 def _equal_ax_lims(plt):
     xmin, xmax = plt.xlim()
     ymin, ymax = plt.ylim()
-    amin, amax = min(xmin, ymax), max(xmax, ymax)
+    amin, amax = min(xmin, ymin), max(xmax, ymax)
     plt.xlim((amin, amax))
     plt.ylim((amin, amax))
 

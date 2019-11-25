@@ -135,12 +135,6 @@ class Responses:
                 for response in z_dict.values():
                     yield response.value
 
-    def min(self):
-        return min(self.values())
-
-    def max(self):
-        return max(self.values())
-
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):
         _responses = Responses(response_type)

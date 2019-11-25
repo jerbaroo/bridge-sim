@@ -468,7 +468,7 @@ def r2_plots(c: Config):
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
 
-    plt.savefig(c.get_image_path("verification", "regression", acc=False))
+    plt.savefig(c.get_image_path("verification", "regression"))
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
@@ -506,6 +506,9 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
             accuracy="convergence",
             base_mesh_deck_nodes_x=x,
             base_mesh_deck_nodes_z=z,
+            # TODO: Remove two lines.
+            base_mesh_pier_nodes_y=5,
+            base_mesh_pier_nodes_z=5,
             **kwargs,
         )
 
@@ -517,8 +520,8 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     if run:
         with open(path + ".txt", "w") as f:
             f.write(
-                "xload, zload, xnodes, znodes, decknodes, piernodes, time, "
-                + "min, max, ..."
+                "xload,zload,xnodes,znodes,decknodes,piernodes,time,"
+                + "min,max,mean"
             )
         steps = 100
         xs = np.linspace(2, c.bridge.length * 4, steps)
@@ -549,7 +552,9 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                 with open(path + ".txt", "a") as f:
                     f.write(
                         f", {deck_nodes}, {pier_nodes}, {timer() - start}"
-                        + f", {responses.min()}, {responses.max()}"
+                        + f", {np.min(list(responses.values()))}"
+                        + f", {np.max(list(responses.values()))}"
+                        + f", {np.mean(list(responses.values()))}"
                     )
             except ValueError as e:
                 if "No responses found" in str(e):
@@ -565,9 +570,9 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
 
 
 def plot_convergence(c: Config, only: Optional[List[str]] = None):
-    """Plot convergence as mesh density is increased for multiple machines.
+    """Plot convergence as model size is increased for multiple machines.
 
-    Loads data from
+    Loads data from:
         'os.path.join(Config.root_generated_images_dir, "convergence")'.
 
     Loads a file 'truth.txt' with three columns, two for the loading position
@@ -585,63 +590,85 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     """
     convergence_dir = os.path.join(c.root_generated_images_dir, "convergence")
 
-    # Get all max responses that represent ground truth.
-    results = read_results(os.path.join(convergence_dir, "truth.txt"))
-    truth = dict()
-    for x_load, z_load, max_response in results:
-        truth[(x_load, z_load)] = max_response
-
     # Get all simulations results from each machine.
     machines = dict()
     for filepath in glob.glob(os.path.join(convergence_dir, "convergence-*")):
         machine_name = os.path.basename(filepath).split("-")[1].split(".")[0]
         if only is None or machine_name in only:
-            machines[machine_name] = read_results(path=filepath, min_spaces=4)
+            machines[machine_name] = pd.read_csv(filepath).dropna()
 
-    # Map simulation results by loading position.
+    # Map from machine name to loading position to list of Series.
     machine_results = defaultdict(lambda: defaultdict(list))
-    for machine_name, results in machines.items():
-        for line in results:
-            x_load, z_load = line[:2]
-            machine_results[machine_name][(x_load, z_load)].append(line)
+    for machine_name, df in machines.items():
+        for _, row in df.iterrows():
+            x_load, z_load = row["xload"], row["zload"]
+            machine_results[machine_name][(x_load, z_load)].append(row)
 
-    # Setup plotting data for each machine.
-    err_lines, time_lines = [], []
-    for machine_name, results_dict in machine_results.items():
-        for (x_load, z_load), results in results_dict.items():
-            if (x_load, z_load) not in truth:
-                raise ValueError("No ground truth for ({x_load}, {z_load})")
-            err, time = [], []
-            deck_nodes = []
-            for _, _, _, _, deck, sim_time, max_response in results:
-                err.append(abs(truth[(x_load, z_load)] - max_response))
-                time.append(sim_time)
-                deck_nodes.append(deck)
-            err_lines.append([machine_name, err])
-            time_lines.append([machine_name, time])
+    # Map from machine name to loading position to list of lines to plot.
+    results = defaultdict(dict)
+    for machine_name, loading_pos_dict in machine_results.items():
+        for (x_load, z_load), rows in loading_pos_dict.items():
+            basex, basez, mins, maxes, means, time, ndeck, npier = [], [], [], [], [], [], [], []
+            for row in rows:
+                basex.append(row["xnodes"])
+                basez.append(row["znodes"])
+                mins.append(row["min"])
+                maxes.append(row["max"])
+                means.append(row["mean"])
+                time.append(row["time"])
+                ndeck.append(row["decknodes"])
+                npier.append(row["piernodes"])
+            results[machine_name][(x_load, z_load)] = list(map(np.array, [
+                basex, basez, mins, maxes, means, time, ndeck, npier]))
 
-    # Error plots.
-    fig, ax1 = plt.subplots()
-    for machine_name, err in err_lines:
-        ax1.plot(err, label=machine_name)
-    ax1.legend(loc="upper left")
+    ########################################
+    ###### Min. and max. per machine #######
+    ########################################
 
-    # Number of node plots.
-    ax2 = ax1.twinx()
-    ax2.plot(deck_nodes, label="deck nodes", color="orange")
-    ax2.legend(loc="upper right")
-    plt.savefig(os.path.join(convergence_dir, "error"))
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            plt.plot(ndeck + npier, mins * 1000)
+            plt.plot(ndeck + npier, maxes * 1000)
+    plt.title("Min. and max. displacement as a function of model size")
+    plt.xlabel("Number of nodes in model")
+    plt.ylabel("Displacement (mm)")
+    plt.savefig(c.get_image_path("verification", "min-max", acc=False))
     plt.close()
 
-    # Time plots.
-    fig, ax1 = plt.subplots()
-    for machine_name, time in time_lines:
-        ax1.plot(time, label=machine_name)
-    ax1.legend(loc="upper left")
+    #####################################
+    ###### Model size per machine #######
+    #####################################
 
-    # Number of node plots.
-    ax2 = ax1.twinx()
-    ax2.plot(deck_nodes, label="deck nodes", color="orange")
-    ax2.legend(loc="upper right")
-    plt.savefig(os.path.join(convergence_dir, "time"))
+    # This should be the same for each machine, so skip the rest.
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            plt.plot(ndeck + npier, basex * basez, label="base mesh deck nodes")
+            plt.plot(ndeck + npier, ndeck, label="deck nodes")
+            plt.plot(ndeck + npier, npier, label="pier nodes")
+            plt.plot(ndeck + npier, ndeck + npier, label="total nodes")
+        break
+
+    plt.title("Deck and pier nodes as a function of model size")
+    plt.xlabel("Number of nodes in model")
+    plt.ylabel("Number of nodes")
+    plt.legend()
+    plt.savefig(c.get_image_path("verification", "model-size", acc=False))
+    plt.close()
+
+    #####################################
+    ###### Model size per machine #######
+    #####################################
+
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            plt.plot(ndeck + npier, time, label=machine_name)
+
+    plt.title("Run-time as a function of model size")
+    plt.xlabel("Number of nodes in model")
+    plt.ylabel("Run-time (s)")
+    plt.legend()
+    plt.savefig(c.get_image_path("verification", "run-time", acc=False))
     plt.close()
