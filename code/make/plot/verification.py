@@ -68,6 +68,14 @@ def displa_sensor_xz(sensor_label):
     return sensor_x, sensor_z
 
 
+def strain_sensor_xz(sensor_label):
+    """X and z position of a strain sensor."""
+    sensor = strain_sensors[strain_sensors["label"] == sensor_label]
+    sensor_x = sensor.iloc[0]["x"]
+    sensor_z = sensor.iloc[0]["z"]
+    return sensor_x, sensor_z
+
+
 # Interpolation function for each sensor position.
 diana_interp_funcs = dict()
 
@@ -307,8 +315,6 @@ def r2_plots(c: Config):
     sensors = []
     # All truck positions used in measurements.
     truck_xs_meas = set()
-    # { Sensor label : { truck x position : response value }}
-    displa_diana_dict = defaultdict(dict)
 
     # For each sensor and truck x position record measurment and Diana response.
     for row in displa_sensors.itertuples():
@@ -324,7 +330,6 @@ def r2_plots(c: Config):
             displa_diana.append(
                 diana_response(sensor_label=sensor_label, truck_x=truck_x)
             )
-            displa_diana_dict[sensor_label][truck_x] = displa_diana[-1]
     truck_xs_meas = sorted(truck_xs_meas)
 
     # Displacement in OpenSees via direct simulation (measurement points).
@@ -358,7 +363,7 @@ def r2_plots(c: Config):
     plt.subplot(3, 2, 1)
     x = list(map(lambda x: x[2], displa_meas))
     y = [
-        displa_diana_dict[sensor_label][truck_x]
+        diana_response(sensor_label=sensor_label, truck_x=truck_x)
         for sensor_label, truck_x, _ in displa_meas
     ]
     plt.scatter(x, y)
@@ -394,10 +399,14 @@ def r2_plots(c: Config):
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 2, 5)
-    x = [diana_response(sensor_label=sensor_label, truck_x=truck_x)
-        for sensor_label, truck_x, _ in displa_meas]
-    y = [get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
-        for sensor_label, truck_x, _ in displa_meas]
+    x = [
+        diana_response(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in displa_meas
+    ]
+    y = [
+        get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in displa_meas
+    ]
     plt.scatter(x, y)
     regressor = LinearRegression().fit(np.matrix(x).T, y)
     y_pred = regressor.predict(np.matrix(x).T)
@@ -409,7 +418,57 @@ def r2_plots(c: Config):
     plt.ylabel("Displacement in OpenSees (mm)")
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
-    plt.show()
+
+    ####################
+    ###### Strain ######
+    ####################
+
+    # Sensor label, truck x position, and response value.
+    strain_meas: List[Tuple(str, float, float)] = []
+    strain_diana: List[Tuple(str, float, float)] = []
+    # List of sensor labels and positions in the same order as above.
+    sensors = []
+
+    # For each sensor and truck x position record measurment and Diana response.
+    count_nan = 0
+    for row in strain_sensors.itertuples():
+        sensor_label = getattr(row, "label")
+        x, z = strain_sensor_xz(sensor_label)
+        sensors.append((sensor_label, x, z))
+        responses = meas[meas["sensorlabel"] == sensor_label]
+        for sensor_row in responses.itertuples():
+            truck_x = getattr(sensor_row, "xpostruck")
+            response = getattr(sensor_row, "inflinedata")
+            if not np.isnan(response):
+                strain_meas.append((sensor_label, truck_x, response))
+                strain_diana.append(
+                    diana_response(sensor_label=sensor_label, truck_x=truck_x)
+                )
+            else:
+                count_nan += 1
+
+    print_i(f"Count nan = {count_nan}")
+
+    # Subplot: Diana against measurements.
+    plt.subplot(3, 2, 2)
+    x = list(map(lambda x: x[2], strain_meas))
+    y = [
+        diana_response(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in strain_meas
+    ]
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Strain: Diana vs. measurements")
+    plt.xlabel("Strain measurement (m/m)")
+    plt.ylabel("Strain in Diana (m/m)")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
+
+    plt.savefig(c.get_image_path("verification", "regression", acc=False))
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
