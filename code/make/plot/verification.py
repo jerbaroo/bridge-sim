@@ -162,6 +162,8 @@ def campaign_measurements(
             for sensor_x, sensor_z in displa_sensor_xzs],
         sim_runner=OSRunner(c),
     ).T * 1000
+    amin = min(amin, np.amin(os_displacement))
+    amax = max(amax, np.amax(os_displacement))
 
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
@@ -172,10 +174,11 @@ def campaign_measurements(
         plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
 
         # Plot measured values sorted by truck position.
-        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label=sensor_label)
+        plt.scatter(meas_group["xpostruck"], meas_group["inflinedata"], s=size, label=f"Sensor {sensor_label}")
 
         plt.legend()
-        plt.title(f"Displacement at {sensor_label}")
+        sensor_x, sensor_z = displa_sensor_xzs[i]
+        plt.title(f"Displacement at sensor {sensor_label}, x = {sensor_x:.3f}, z = {sensor_z:.3f}")
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("displacement (mm)")
         plt.ylim((amin, amax))
