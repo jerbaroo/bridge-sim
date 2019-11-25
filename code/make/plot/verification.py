@@ -50,6 +50,9 @@ wagen1 = MvVehicle(
     init_x_frac=0,
 )
 
+# Positions of truck front axle.
+truck_front_x = np.arange(1, 116.1, 1)
+
 # TNO provided files.
 meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
 diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
@@ -69,14 +72,14 @@ def displa_sensor_xz(sensor_label):
 diana_interp_funcs = dict()
 
 
-def diana_response(sensor_label: str, x_truck: float):
+def diana_response(sensor_label: str, truck_x: float):
     """Strain or displacement from Diana for a sensor and truck position."""
     if sensor_label not in diana_interp_funcs:
         all_sensors = diana[diana["sensorlabel"] == sensor_label]
         diana_interp_funcs[sensor_label] = interp1d(
             all_sensors["xpostruck"], all_sensors["infline1"]
         )
-    return diana_interp_funcs[sensor_label](x_truck)
+    return diana_interp_funcs[sensor_label](truck_x)
 
 
 def sensor_subplots(
@@ -90,7 +93,6 @@ def sensor_subplots(
     TODO: Move to plot.verification.705
     """
     size = 25  # Size of scatter plot points.
-    truck_front_x = np.arange(1, 116.1, 1)  # Positions of truck front axle.
 
     ####################
     ###### Strain ######
@@ -292,44 +294,75 @@ def sensor_subplots(
 
 
 def r2_plots(c: Config):
-    """R² plots for strain and displacement."""
-    # For displacement: sensor label, truck x position, and response value.
+    """R² plots for displacement and strain."""
+
+    ##########################
+    ###### Displacement ######
+    ##########################
+
+    # Sensor label, truck x position, and response value.
     displa_meas: List[Tuple(str, float, float)] = []
     displa_diana: List[Tuple(str, float, float)] = []
-    # Dictionary of sensor label to truck x position to response value.
+    # List of sensor labels and positions in the same order as above.
+    sensors = []
+    # All truck positions used in measurements.
+    truck_xs_meas = set()
+    # { Sensor label : { truck x position : response value }}
     displa_diana_dict = defaultdict(dict)
+
+    # For each sensor and truck x position record measurment and Diana response.
     for row in displa_sensors.itertuples():
         sensor_label = getattr(row, "label")
+        x, z = displa_sensor_xz(sensor_label)
+        sensors.append((sensor_label, x, z))
         responses = meas[meas["sensorlabel"] == sensor_label]
-        # tempx = []
-        # temp1 = []
-        # temp2 = []
         for sensor_row in responses.itertuples():
-            x_truck = getattr(sensor_row, "xpostruck")
+            truck_x = getattr(sensor_row, "xpostruck")
+            truck_xs_meas.add(truck_x)
             response = getattr(sensor_row, "inflinedata")
-            displa_meas.append((sensor_label, x_truck, response))
+            displa_meas.append((sensor_label, truck_x, response))
             displa_diana.append(
-                diana_response(sensor_label=sensor_label, x_truck=x_truck)
+                diana_response(sensor_label=sensor_label, truck_x=truck_x)
             )
-            displa_diana_dict[sensor_label][x_truck] = displa_diana[-1]
-            # print(displa_meas[-1])
-            # print(displa_diana[-1])
-        #     tempx.append(x_truck)
-        #     temp1.append(response)
-        #     temp2.append(displa_diana[-1])
-        # plt.plot(tempx, temp1)
-        # plt.plot(tempx, temp2)
-        # plt.show()
+            displa_diana_dict[sensor_label][truck_x] = displa_diana[-1]
+    truck_xs_meas = sorted(truck_xs_meas)
+
+    # Displacement in OpenSees via direct simulation (measurement points).
+    displa_os_meas = (
+        responses_to_vehicles_(
+            c=c,
+            mv_vehicles=[wagen1],
+            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
+            response_type=ResponseType.YTranslation,
+            bridge_scenario=HealthyBridge(),
+            points=[
+                Point(x=sensor_x, y=0, z=sensor_z)
+                for _, sensor_x, sensor_z in sensors
+            ],
+            sim_runner=OSRunner(c),
+        )
+        * 1000
+    )
+
+    def get_os_meas(sensor_label: str, truck_x: float):
+        for i, truck_x_ in enumerate(truck_xs_meas):
+            if truck_x_ == truck_x:
+                for j, (sensor_label_, _, _) in enumerate(sensors):
+                    if sensor_label_ == sensor_label:
+                        return displa_os_meas[i][j]
+        raise ValueError(
+            f"No match. sensor_label = {sensor_label}, truck_x = {truck_x}"
+        )
 
     # Sort measurments and Diana by response value.
     # displa_meas = sorted(displa_meas, key=lambda x: x[2])
 
-    # Subplot: displacement Diana against measurements.
+    # Subplot: Diana against measurements.
     plt.subplot(3, 2, 1)
     x = list(map(lambda x: x[2], displa_meas))
     y = [
-        displa_diana_dict[sensor_label][x_truck]
-        for sensor_label, x_truck, _ in displa_meas
+        displa_diana_dict[sensor_label][truck_x]
+        for sensor_label, truck_x, _ in displa_meas
     ]
     plt.scatter(x, y)
     regressor = LinearRegression().fit(np.matrix(x).T, y)
@@ -337,10 +370,34 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Displacement: Diana against measurements")
+    plt.title("Displacement: Diana vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
     plt.ylabel("Displacement in Diana (mm)")
-    plt.axis("square")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
+    print(plt.ylim())
+    print(plt.xlim())
+
+    # Subplot: OpenSees against measurements.
+    plt.subplot(3, 2, 3)
+    x = list(map(lambda x: x[2], displa_meas))
+    y = [
+        get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in displa_meas
+    ]
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Displacement: OpenSees vs. measurements")
+    plt.xlabel("Displacement measurement (mm)")
+    plt.ylabel("Displacement in Diana (mm)")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
+    print(plt.ylim())
+    print(plt.xlim())
     plt.show()
 
 

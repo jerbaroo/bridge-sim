@@ -45,7 +45,16 @@ def _show(*args, **kwargs):
     _og_show(*args, **kwargs)
 
 
+def _equal_ax_lims(plt):
+    xmin, xmax = plt.xlim()
+    ymin, ymax = plt.ylim()
+    amin, amax = min(xmin, ymax), max(xmax, ymax)
+    plt.xlim((amin, amax))
+    plt.ylim((amin, amax))
+
+
 plt = _plt
+plt.equal_ax_lims = lambda: _equal_ax_lims(plt)
 plt.savefig = _savefig
 plt.show = _show
 
