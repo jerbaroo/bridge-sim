@@ -354,9 +354,6 @@ def r2_plots(c: Config):
             f"No match. sensor_label = {sensor_label}, truck_x = {truck_x}"
         )
 
-    # Sort measurments and Diana by response value.
-    # displa_meas = sorted(displa_meas, key=lambda x: x[2])
-
     # Subplot: Diana against measurements.
     plt.subplot(3, 2, 1)
     x = list(map(lambda x: x[2], displa_meas))
@@ -375,8 +372,6 @@ def r2_plots(c: Config):
     plt.ylabel("Displacement in Diana (mm)")
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
-    print(plt.ylim())
-    print(plt.xlim())
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 2, 3)
@@ -393,11 +388,27 @@ def r2_plots(c: Config):
     plt.legend()
     plt.title("Displacement: OpenSees vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
-    plt.ylabel("Displacement in Diana (mm)")
+    plt.ylabel("Displacement in OpenSees (mm)")
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
-    print(plt.ylim())
-    print(plt.xlim())
+
+    # Subplot: OpenSees against Diana.
+    plt.subplot(3, 2, 5)
+    x = [diana_response(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in displa_meas]
+    y = [get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in displa_meas]
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Displacement: OpenSees vs. Diana")
+    plt.xlabel("Displacement in Diana (mm)")
+    plt.ylabel("Displacement in OpenSees (mm)")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
     plt.show()
 
 
