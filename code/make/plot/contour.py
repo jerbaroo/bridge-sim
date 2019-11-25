@@ -128,7 +128,6 @@ def comparison_plots_705(c: Config):
             plt.close()
 
 
-
 def plot_of_unit_loads(c: Config):
     """Make a contour plot of response at unit load position."""
     fem_runner = OSRunner(c)

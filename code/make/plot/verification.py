@@ -10,6 +10,8 @@ from typing import List, Optional
 import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
+from scipy.interpolate import interp1d
+from sklearn.linear_model import LinearRegression
 
 from classify.data.responses import (
     responses_to_traffic_array,
@@ -32,7 +34,6 @@ from plot.geom import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import clean_generated, print_i, read_csv, safe_str
 
-
 # Wagen 1 from the experimental campaign.
 to_kn = 0.00980665
 wagen1 = MvVehicle(
@@ -49,6 +50,34 @@ wagen1 = MvVehicle(
     init_x_frac=0,
 )
 
+# TNO provided files.
+meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
+diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
+displa_sensors = pd.read_csv("data/verification/displasensors.txt")
+strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
+
+
+def displa_sensor_xz(sensor_label):
+    """X and z position of a displacement sensor."""
+    sensor = displa_sensors[displa_sensors["label"] == sensor_label]
+    sensor_x = sensor.iloc[0]["x"]
+    sensor_z = sensor.iloc[0]["z"]
+    return sensor_x, sensor_z
+
+
+# Interpolation function for each sensor position.
+diana_interp_funcs = dict()
+
+
+def diana_response(sensor_label: str, x_truck: float):
+    """Strain or displacement from Diana for a sensor and truck position."""
+    if sensor_label not in diana_interp_funcs:
+        all_sensors = diana[diana["sensorlabel"] == sensor_label]
+        diana_interp_funcs[sensor_label] = interp1d(
+            all_sensors["xpostruck"], all_sensors["infline1"]
+        )
+    return diana_interp_funcs[sensor_label](x_truck)
+
 
 def sensor_subplots(
     c: Config,
@@ -62,11 +91,6 @@ def sensor_subplots(
     """
     size = 25  # Size of scatter plot points.
     truck_front_x = np.arange(1, 116.1, 1)  # Positions of truck front axle.
-
-    meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
-    diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
-    displa_sensors = pd.read_csv("data/verification/displasensors.txt")
-    strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
 
     ####################
     ###### Strain ######
@@ -160,13 +184,6 @@ def sensor_subplots(
     ##########################
     ###### Displacement ######
     ##########################
-
-    def displa_sensor_xz(sensor_label):
-        """X and z position of a displacement sensor."""
-        sensor = displa_sensors[displa_sensors["label"] == sensor_label]
-        sensor_x = sensor.iloc[0]["x"]
-        sensor_z = sensor.iloc[0]["z"]
-        return sensor_x, sensor_z
 
     # All displacement measurements.
     displa_meas = meas.loc[meas["sensortype"] == "displacements"]
@@ -272,6 +289,59 @@ def sensor_subplots(
                 )
             )
             plt.close()
+
+
+def r2_plots(c: Config):
+    """R² plots for strain and displacement."""
+    # For displacement: sensor label, truck x position, and response value.
+    displa_meas: List[Tuple(str, float, float)] = []
+    displa_diana: List[Tuple(str, float, float)] = []
+    # Dictionary of sensor label to truck x position to response value.
+    displa_diana_dict = defaultdict(dict)
+    for row in displa_sensors.itertuples():
+        sensor_label = getattr(row, "label")
+        responses = meas[meas["sensorlabel"] == sensor_label]
+        # tempx = []
+        # temp1 = []
+        # temp2 = []
+        for sensor_row in responses.itertuples():
+            x_truck = getattr(sensor_row, "xpostruck")
+            response = getattr(sensor_row, "inflinedata")
+            displa_meas.append((sensor_label, x_truck, response))
+            displa_diana.append(
+                diana_response(sensor_label=sensor_label, x_truck=x_truck)
+            )
+            displa_diana_dict[sensor_label][x_truck] = displa_diana[-1]
+            # print(displa_meas[-1])
+            # print(displa_diana[-1])
+        #     tempx.append(x_truck)
+        #     temp1.append(response)
+        #     temp2.append(displa_diana[-1])
+        # plt.plot(tempx, temp1)
+        # plt.plot(tempx, temp2)
+        # plt.show()
+
+    # Sort measurments and Diana by response value.
+    # displa_meas = sorted(displa_meas, key=lambda x: x[2])
+
+    # Subplot: displacement Diana against measurements.
+    plt.subplot(3, 2, 1)
+    x = list(map(lambda x: x[2], displa_meas))
+    y = [
+        displa_diana_dict[sensor_label][x_truck]
+        for sensor_label, x_truck, _ in displa_meas
+    ]
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Displacement: Diana against measurements")
+    plt.xlabel("Displacement measurement (mm)")
+    plt.ylabel("Displacement in Diana (mm)")
+    plt.axis("square")
+    plt.show()
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
@@ -448,84 +518,3 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     ax2.legend(loc="upper right")
     plt.savefig(os.path.join(convergence_dir, "time"))
     plt.close()
-
-
-def plot_pier_displacement(c: Config):
-    """Comparison of two calculations of pier displacement.
-
-    One calculation is directly from a pier displacement simulation, while the
-    second is from 'responses_to_traffic_array' where the 'TrafficArray' is set
-    to 0.
-
-    """
-    pier_index = 5
-    pier = c.bridge.supports[pier_index]
-    response_type = ResponseType.YTranslation
-    pier_displacement = DisplacementCtrl(
-        displacement=c.pd_unit_disp, pier=pier_index
-    )
-
-    # Plot responses captured directly from a pier displacement simualtion.
-    sim_params = SimParams(
-        response_types=[response_type], displacement_ctrl=pier_displacement,
-    )
-    sim_responses = load_fem_responses(
-        c=c,
-        sim_params=sim_params,
-        response_type=response_type,
-        sim_runner=OSRunner(c),
-    )
-    plt.subplot(2, 1, 1)
-    top_view_bridge(c.bridge, lanes=False, outline=False)
-    _, _, norm = plot_contour_deck(
-        c=c,
-        responses=sim_responses,
-        ploads=[
-            PointLoad(
-                x_frac=c.bridge.x_frac(pier.x),
-                z_frac=c.bridge.z_frac(pier.z),
-                kn=c.pd_unit_load_kn,
-            )
-        ],
-    )
-    plt.colorbar(norm=norm)
-
-    points = [
-        Point(x=x, y=0, z=z)
-        for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
-        )
-    ]
-    bridge_scenario = PierDispBridge(pier_displacement)
-    wheel_zs = c.bridge.wheel_tracks(c)
-    response_array = responses_to_traffic_array(
-        c=c,
-        traffic_array=np.zeros((10, len(wheel_zs) * c.il_num_loads)),
-        response_type=response_type,
-        bridge_scenario=bridge_scenario,
-        points=points,
-        fem_runner=OSRunner(c),
-    )
-    plt.subplot(2, 1, 2)
-    top_view_bridge(c.bridge, lanes=False, outline=False)
-    responses = Responses.from_responses(
-        response_type=response_type,
-        responses=[
-            (response_array[0][p], point) for p, point in enumerate(points)
-        ],
-    )
-    _, _, norm = plot_contour_deck(
-        c=c,
-        responses=responses,
-        ploads=[
-            PointLoad(
-                x_frac=c.bridge.x_frac(pier.x),
-                z_frac=c.bridge.z_frac(pier.z),
-                kn=c.pd_unit_load_kn,
-            )
-        ],
-    )
-    plt.colorbar(norm=norm)
-
-    plt.savefig(c.get_image_path("system-verification", "pier-displacement"))
