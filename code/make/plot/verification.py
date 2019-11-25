@@ -608,7 +608,16 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     results = defaultdict(dict)
     for machine_name, loading_pos_dict in machine_results.items():
         for (x_load, z_load), rows in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = [], [], [], [], [], [], [], []
+            basex, basez, mins, maxes, means, time, ndeck, npier = (
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+            )
             for row in rows:
                 basex.append(row["xnodes"])
                 basez.append(row["znodes"])
@@ -618,8 +627,12 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
                 time.append(row["time"])
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
-            results[machine_name][(x_load, z_load)] = list(map(np.array, [
-                basex, basez, mins, maxes, means, time, ndeck, npier]))
+            results[machine_name][(x_load, z_load)] = list(
+                map(
+                    np.array,
+                    [basex, basez, mins, maxes, means, time, ndeck, npier],
+                )
+            )
 
     ########################################
     ###### Min. and max. per machine #######
