@@ -491,9 +491,6 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
             accuracy="convergence",
             base_mesh_deck_nodes_x=x,
             base_mesh_deck_nodes_z=z,
-            # TODO: Remove two lines.
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5,
             **kwargs,
         )
 

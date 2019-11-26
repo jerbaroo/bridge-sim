@@ -244,10 +244,10 @@ def make_all_3d(c: Config):
     # make_cloud_of_nodes_plots(c)
 
     ######################
-    ##### Generation #####
+    ##### Simulation #####
     ######################
     # simulations.run_uls(c)
-    # verification.make_convergence_data(c, run=True, plot=True)
+    verification.make_convergence_data(c, run=True, plot=True)
 
     ########################
     ##### Verification #####
