@@ -3,25 +3,50 @@ from math import ceil
 from typing import Callable, List, Tuple, TypeVar
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from scipy import stats
 
 from config import Config
 from vehicles import axle_array_and_count, load_vehicle_data
 from vehicles.sample import vehicle_pdf_groups
-from util import print_d
+from util import print_d, print_i
 
 # Print debug information for this file.
 D: bool = False
 
 
-def plot_db(c: Config, save: str = None):
-    """"""
-    print("TODO: plot.vehicles.plot_db")
-    return
-    og_a16 = load_vehicle_data("data/a16-data/a16.csv")
-    outliers = og_a16[(np.abs(stats.zscore(og_a16)) >= 3).all(axis=1)]
-    sampled_a16 = load_vehicle_data("data/a16-data/a16-sampled.csv")
+def plot_db(c: Config):
+    """Original A16 data, showing outliers, and downsampled final data."""
+    # Print information on original data.
+    a16 = load_vehicle_data("data/a16-data/original-a16.csv")
+    print_i(f"Original A16 data has {len(a16)} rows")
+    print_i(f"Minimum length = {np.min(a16['length']) / 100} m")
+    print_i(f"Minimum weight = {np.min(a16['total_weight'])} kN")
+
+    # Get and remove outliers.
+    outliers = a16[(np.abs(stats.zscore(a16[["total_weight", "length"]])) >= 3)]
+    num_outliers = len(a16) - len(outliers)
+    print_i(f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data")
+    a16_no_outliers = a16.drop(outliers.index)
+
+    # Sample to 10% of original size.
+    sampled_a16 = a16_no_outliers.sample(n=int(len(a16) * 0.1))
+    print_i(f"Sampled A16 data has {len(sampled_a16)} rows")
+    sampled_a16.to_csv("data/a16-data/a16.csv")
+    print_i("Wrote updated A16 data to disk")
+
+    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=len(sampled_a16)).T
+    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=10).T
+    print(passengers)
+    s = 1
+
+    # Plot outliers.
+    plt.subplot(1, 2, 1)
+    plt.scatter(outliers["length"], outliers["total_weight"], s=s, color="red")
+    plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=s)
+
+    plt.show()
 
 
 def plot_density(c: Config, save: str = None):

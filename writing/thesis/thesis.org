@@ -903,6 +903,11 @@ scenarios respectively.
 
  # How to test/score the models.
 *** Traffic Modeling
+
+\textcolor{red}{Distribution of passenger vehicles}
+
+https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
+
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the

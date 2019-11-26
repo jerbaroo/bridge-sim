@@ -1,6 +1,17 @@
 #+TITLE: Meeting 27th November
 
 * Vehicles
+* Dutch Main Road Network
+| Stucture type        | Number | Deck Area (m2) |
+|----------------------+--------+----------------|
+|                      |    <r> |            <r> |
+| Concrete bridge      |  3,131 |      3,319,002 |
+| Steel bridge (fixed) |     88 |        301,997 |
+| Movable bridge       |     43 |        347,876 |
+| Tunnel               |     14 |        475,228 |
+| Aqueduct             |      7 |         86,491 |
+|----------------------+--------+----------------|
+| Total                |  3,283 |      4,530,593 |
 * November Plan
 | Week 1 | Writing             | +Sensor cost emails/research+ |
 | Week 2 | Writing             | Try standard classifiers      |
@@ -8,7 +19,7 @@
 | Week 4 | Verification plot 2 | Classifiers                   |
 * Actual November
 - Writing
-- Pier displacement
+- Pier displacement in 3D
 - Speed up response calculation
   - Traffic (vehicle) sampling *much* faster
   - Response to traffic via matrix multiplication
@@ -18,16 +29,22 @@
   - Plot for each displacement sensor
   - Regression plots
   - Convergence plot
-* December
-| Goal                                       | Note                      |
-|--------------------------------------------+---------------------------|
-| Strain verified (5th Dec)                  |                           |
-| Pier displacement verified (5th Dec)       | Against AxisVM            |
-| Add temperature to model                   | "Noise" in classification |
-| Add cracked concrete to model              | Small change (change =E=) |
-| Another better classification example      |                           |
-| Mesh refinement, obery material properties | Improves model accuracy   |
-| Mesh refinement, more dense around load    | Improves model accuracy   |
-| Choose number of unit load simulations     | Parameter selection       |
-| Parallelization                            | 14days -> 4days           |
-| 20k good words (12k current, 10k good)     | Pre-alpha draft           |
+* December (1/2)
+- Writing
+- Fully verified
+- A more "concrete" classification example
+
+(In other words: free up Jan/Feb for classification!)
+* December (2/2)
+| Goal                                      | Note                      |
+|-------------------------------------------+---------------------------|
+| Strain verified (5th Dec)                 |                           |
+| Pier displacement verified (5th Dec)      | Against AxisVM            |
+| Mesh refinement, obey material properties | Improves model accuracy   |
+| Mesh refinement, more dense around load   | Improves model accuracy   |
+| Parallelization                           | 14days -> 4days           |
+| Choose number of unit load simulations    | Parameter selection       |
+| Add temperature to model                  | "Noise" in classification |
+| Add cracked concrete to model             | Small change (change =E=) |
+| Another better classification example     |                           |
+| 20k good words (12k current, 10k good)    | Pre-alpha draft           |

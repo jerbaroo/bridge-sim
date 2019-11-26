@@ -38,6 +38,7 @@ from make.plot import (
     contour,
     matrix,
     vehicle,
+    vehicles,
     verification,
     distribution,
 )
@@ -240,9 +241,9 @@ def make_all_3d(c: Config):
     ##### Objects #####
     ###################
     # make_geom_plots(c)
-    # vehicle.vehicle_plots(c)
     # make_cloud_of_nodes_plots(c)
     # vehicle.wagen1_plot(c)
+    # vehicles.vehicle_plots(c)
 
     ######################
     ##### Simulation #####
@@ -255,7 +256,7 @@ def make_all_3d(c: Config):
     ########################
     # verification.sensor_subplots(c)
     # contour.comparison_plots_705(c=c)
-    # verification.plot_convergence(c)
+    verification.plot_convergence(c)
     # verification.r2_plots(c)
 
     ###############################
@@ -281,4 +282,4 @@ def make_all_3d(c: Config):
     #####################
     ##### Animation #####
     #####################
-    animate.traffic(c)
+    # animate.traffic(c)
