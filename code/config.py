@@ -163,24 +163,20 @@ class Config:
             self.generated_data_dir_no_acc, "traffic", filename
         )
 
-    def get_data_path(self, dirname: str, filename: str, acc: bool = True):
-        """Get a bridge-specific image path in a named directory.
-
-        NOTE: Bridge accuracy can be ignored with the 'acc' argument.
-
-        """
+    def get_data_path(self, dirname: str, filename: str, bridge: bool = True, acc: bool = True):
+        """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_data_dir
-        if not acc:
+        if not bridge:
+            dir_path = self.root_generated_images_dir
+        elif not acc:
             dir_path = self.generated_data_dir_no_acc
         return self.get_path_in(dir_path, dirname, filename)
 
-    def get_image_path(self, dirname: str, filename: str, acc: bool = True):
-        """Get a bridge-specific image path in a named directory.
-
-        NOTE: Bridge accuracy can be ignored with the 'acc' argument.
-
-        """
+    def get_image_path(self, dirname: str, filename: str, bridge: bool = True, acc: bool = True):
+        """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_images_dir
-        if not acc:
+        if not bridge:
+            dir_path = self.root_generated_images_dir
+        elif not acc:
             dir_path = self.generated_images_dir_no_acc
         return self.get_path_in(dir_path, dirname, filename)

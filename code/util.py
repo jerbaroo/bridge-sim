@@ -117,3 +117,7 @@ def safe_str(s: str) -> str:
     s = s.replace(" ", "-")
     s = s.replace(".", ",")
     return s.lower()
+
+
+kg_to_kn = 0.00980665
+kn_to_kg = 1 / kg_to_kn

@@ -236,25 +236,26 @@ def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
     # make_event_plots(c)
 
-    ####################
-    ##### Geometry #####
-    ####################
+    ###################
+    ##### Objects #####
+    ###################
     # make_geom_plots(c)
     # vehicle.vehicle_plots(c)
     # make_cloud_of_nodes_plots(c)
+    vehicle.wagen1_plot(c)
 
     ######################
     ##### Simulation #####
     ######################
     # simulations.run_uls(c)
-    verification.make_convergence_data(c, run=True, plot=True)
+    # verification.make_convergence_data(c, run=True, plot=True)
 
     ########################
     ##### Verification #####
     ########################
     # verification.sensor_subplots(c)
     # contour.comparison_plots_705(c=c)
-    verification.plot_convergence(c)
+    # verification.plot_convergence(c)
     # verification.r2_plots(c)
 
     ###############################
