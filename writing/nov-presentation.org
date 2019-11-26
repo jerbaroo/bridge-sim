@@ -1,0 +1,33 @@
+#+TITLE: 27th November
+
+* Vehicles
+* November Plan
+| Week 1 | Writing             | +Sensor cost emails/research+ |
+| Week 2 | Writing             | Try standard classifiers      |
+| Week 3 | Verification plot 1 | Collect strain                |
+| Week 4 | Verification plot 2 | Classifiers                   |
+* November
+- Writing
+- Pier displacement
+- Speed up response calculation
+  - Traffic (vehicle) sampling *much* faster
+  - Response to traffic via matrix multiplication
+- Collect distribution of responses
+- Quantify distribution of responses
+- Verification
+  - Plot for each displacement sensor
+  - Regression plots
+  - Convergence plot
+* December
+| Goal                                       | Note                      |
+|--------------------------------------------+---------------------------|
+| Strain verified                            |                           |
+| Pier displacement verified                 | Against AxisVM            |
+| Add temperature to model                   | "Noise" in classification |
+| Add cracked concrete to model              | Small change (change =E=) |
+| Another better classification example      |                           |
+| Mesh refinement, obery material properties | Improves model accuracy   |
+| Mesh refinement, more dense around load    | Improves model accuracy   |
+| Choose number of unit load simulations     | Parameter selection       |
+| Parallelization                            | 14days -> 4days           |
+| 20k good words (12k current, 10k good)     | Pre-alpha draft           |

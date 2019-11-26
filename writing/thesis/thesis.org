@@ -1235,7 +1235,7 @@ is shown in Figure \textcolor{red}{TODO REF}
 
 \textcolor{red}{Figure of sensor positions}
 
-# FEM make perfect health assumption.
+# FEMs make perfect health assumption.
 It is important to know that the FEM of bridge 705 for Diana and the generated
 FEM are based on a blueprint of the bridge and make the assumption that bridge
 705 is in perfect healthy condition. However since bridge 705 was built N years
