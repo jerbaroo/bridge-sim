@@ -6,7 +6,7 @@
 | Week 2 | Writing             | Try standard classifiers      |
 | Week 3 | Verification plot 1 | Collect strain                |
 | Week 4 | Verification plot 2 | Classifiers                   |
-* November
+* Actual November
 - Writing
 - Pier displacement
 - Speed up response calculation
