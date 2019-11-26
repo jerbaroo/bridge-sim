@@ -148,41 +148,53 @@ def responses_to_traffic_array(
     fem_runner: FEMRunner,
     j=None,
 ):
+    """The magic function.
+
+    TODO: Make 'TrafficArray' optional.
+    TODO: Find references ot 'j' and remove.
+
+    """
     # The unit load simulations that are loaded depend on whether the bridge is
     # healthy or cracked. TODO
 
-    # First collect the unit load simulations per wheel track.
     wheel_zs = c.bridge.wheel_tracks(c)
-    il_matrices = {
-        wheel_z: ILMatrix.load(
-            c=c,
-            response_type=response_type,
-            fem_runner=fem_runner,
-            load_z_frac=c.bridge.z_frac(wheel_z),
-        )
-        for wheel_z in wheel_zs
-    }
+    ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 
-    # Create a matrix of unit load simulation (rows) * point (columns).
-    print_i(f"Calculating unit load matrix...")
-    unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-    for w, wheel_z in enumerate(wheel_zs):
-        i = w * c.il_num_loads  # Row index.
-        il_matrix = il_matrices[wheel_z]
-        # For each unit load simulation.
-        for sim_responses in il_matrix.expt_responses:
-            for j, point in enumerate(points):
-                unit_load_matrix[i][j] = sim_responses._at(
-                    x=point.x, y=point.y, z=point.z
-                )
-            i += 1
-        print_i(f"Calculated unit load matrix for wheel track {w}")
-    # Divide by the load of the unit load simulations, so the value at a cell is
-    # the response to 1 kN. Then multiple the traffic and unit load matrices to
-    # get the responses.
-    unit_load_matrix /= c.il_unit_load_kn
-    if j is not None:
-        print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
+    if np.count_nonzero(traffic_array) > 0:
+        # First collect the unit load simulations per wheel track.
+        il_matrices = {
+            wheel_z: ILMatrix.load(
+                c=c,
+                response_type=response_type,
+                fem_runner=fem_runner,
+                load_z_frac=c.bridge.z_frac(wheel_z),
+            )
+            for wheel_z in wheel_zs
+        }
+
+        # Create a matrix of unit load simulation (rows) * point (columns).
+        print_i(f"Calculating unit load matrix...")
+        unit_load_matrix = np.empty(ulm_shape)
+        for w, wheel_z in enumerate(wheel_zs):
+            i = w * c.il_num_loads  # Row index.
+            il_matrix = il_matrices[wheel_z]
+            # For each unit load simulation.
+            for sim_responses in il_matrix.expt_responses:
+                for j, point in enumerate(points):
+                    unit_load_matrix[i][j] = sim_responses._at(
+                        x=point.x, y=point.y, z=point.z
+                    )
+                i += 1
+            print_i(f"Calculated unit load matrix for wheel track {w}")
+        # Divide by the load of the unit load simulations, so the value at a
+        # cell is the response to 1 kN. Then multiple the traffic and unit load
+        # matrices to get the responses.
+        unit_load_matrix /= c.il_unit_load_kn
+        if j is not None:
+            print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
+    else:
+        unit_load_matrix = np.zeros(ulm_shape)
+
     responses = np.matmul(traffic_array, unit_load_matrix)
 
     pd_responses = np.zeros(responses.shape)
@@ -193,8 +205,7 @@ def responses_to_traffic_array(
         )
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):
-            # TODO enumerate each pier correctly.
-            for pier_displacement in [bridge_scenario.displacement_ctrl]:
+            for pier_displacement in bridge_scenario.pier_disps:
                 pd_responses[p] += pd_matrix.sim_response(
                     expt_frac=np.interp(
                         pier_displacement.pier,
@@ -206,9 +217,6 @@ def responses_to_traffic_array(
                     z_frac=c.bridge.z_frac(point.z),
                 ) * (pier_displacement.displacement / c.pd_unit_disp)
         pd_responses = pd_responses.T
-
-    print(responses.shape)
-    print(pd_responses.shape)
 
     return responses + pd_responses
 

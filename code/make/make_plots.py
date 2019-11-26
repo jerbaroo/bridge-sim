@@ -277,7 +277,7 @@ def make_all_3d(c: Config):
     # make_il_plots(c)
     # matrix.dc_plots(c)
     # contour.plots_of_pier_displacement(c)
-    contour.gradient_pier_displacement_plot(c)
+    contour.gradient_pier_displacement_plots(c)
 
     #####################
     ##### Animation #####
