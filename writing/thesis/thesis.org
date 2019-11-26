@@ -1225,12 +1225,12 @@ In the experimental campaign, truck 1 was parked at 13 positions on the bridge
 deck and the responses from a number of sensors measured. The positions of the
 truck are shown in Figure [[fig:truck-pos]]. Each of the sensors are listed in Table
 [[tbl:sensor-pos]], furthermore the positions of the sensors across the bridge deck
-is shown in Figure [[fig:sensor-pos]].
+is shown in Figure \textcolor{red}{TODO REF}
 
 \textcolor{red}{Use all strain sensors for verification}
 
 #+NAME: fig:truck-pos
-#+CAPTION[Truck 1]: Position of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abument of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
+#+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 [[./images/truck-pos.png]]
 
 \textcolor{red}{Figure of sensor positions}
