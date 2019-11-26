@@ -1235,6 +1235,14 @@ is shown in Figure [[fig:sensor-pos]].
 
 \textcolor{red}{Figure of sensor positions}
 
+# FEM make perfect health assumption.
+It is important to know that the FEM of bridge 705 for Diana and the generated
+FEM are based on a blueprint of the bridge and make the assumption that bridge
+705 is in perfect healthy condition. However since bridge 705 was built N years
+ago it is much more likely that some cracks now exist in the structure. Both the
+generated FEM and the FEM for Diana are based on this assumption of perfect
+health and thus the measured responses are not expected to exactly match.
+
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time
