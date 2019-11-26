@@ -620,15 +620,22 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     ###### Min. and max. per machine #######
     ########################################
 
+    fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            plt.plot(ndeck + npier, mins * 1000)
-            plt.plot(ndeck + npier, maxes * 1000)
-    plt.title("Min. and max. displacement as a function of model size")
-    plt.xlabel("Number of nodes in model")
-    plt.ylabel("Displacement (mm)")
-    plt.savefig(c.get_image_path("verification", "min-max", acc=False))
+            ax1.plot(ndeck + npier, mins * 1000, color="red", label="Min. response")
+            ax1.plot(ndeck + npier, maxes * 1000, color="orange", label="Max. response")
+            ax2 = plt.gca().twinx()
+            ax2.plot(ndeck + npier, means * 1000, color="green", label="Mean response")
+
+    plt.title("Displacement as a function of model size")
+    ax1.legend()
+    ax2.legend()
+    ax1.set_xlabel("Number of nodes in model")
+    ax1.set_ylabel("Displacement (mm)")
+    ax2.set_ylabel("Displacement (mm)")
+    plt.savefig(c.get_image_path("verification", "min-max", bridge=False))
     plt.close()
 
     #####################################
@@ -649,7 +656,7 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     plt.xlabel("Number of nodes in model")
     plt.ylabel("Number of nodes")
     plt.legend()
-    plt.savefig(c.get_image_path("verification", "model-size", acc=False))
+    plt.savefig(c.get_image_path("verification", "model-size", bridge=False))
     plt.close()
 
     #####################################
@@ -665,5 +672,5 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     plt.xlabel("Number of nodes in model")
     plt.ylabel("Run-time (s)")
     plt.legend()
-    plt.savefig(c.get_image_path("verification", "run-time", acc=False))
+    plt.savefig(c.get_image_path("verification", "run-time", bridge=False))
     plt.close()
