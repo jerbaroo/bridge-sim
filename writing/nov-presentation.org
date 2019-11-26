@@ -32,13 +32,12 @@
 * December (1/2)
 - Writing
 - Fully verified
-- A more "concrete" classification example
 
 (In other words: free up Jan/Feb for classification!)
 * December (2/2)
 | Goal                                      | Note                      |
 |-------------------------------------------+---------------------------|
-| Strain verified (5th Dec)                 |                           |
+| Strain verified (5th Dec)                 | Post-processing step      |
 | Pier displacement verified (5th Dec)      | Against AxisVM            |
 | Mesh refinement, obey material properties | Improves model accuracy   |
 | Mesh refinement, more dense around load   | Improves model accuracy   |
@@ -46,5 +45,5 @@
 | Choose number of unit load simulations    | Parameter selection       |
 | Add temperature to model                  | "Noise" in classification |
 | Add cracked concrete to model             | Small change (change =E=) |
-| Another better classification example     |                           |
+| Writing on classification                 | Experiment setup          |
 | 20k good words (12k current, 10k good)    | Pre-alpha draft           |

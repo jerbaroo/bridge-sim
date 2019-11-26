@@ -10,9 +10,11 @@ class HealthyBridge(BridgeScenario):
 
 
 class PierDispBridge(BridgeScenario):
-    def __init__(self, displacement_ctrl: DisplacementCtrl):
-        super().__init__(
-            name=f"displacement-{round_m(displacement_ctrl.displacement)}m"
-            + f"-pier-{displacement_ctrl.pier}"
-        )
-        self.displacement_ctrl = displacement_ctrl
+    def __init__(self, pier_disps: [DisplacementCtrl]):
+        name = "-".join(list(map(lambda pd: pd.id_str())))
+        print(name)
+        import sys; sys.exit()
+        super().__init__(name=name)
+        if len(pier_disps) > 0:
+            raise ValueError("At least 1 PierDisp required")
+        self.pier_disps = pier_disps

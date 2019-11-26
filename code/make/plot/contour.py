@@ -21,30 +21,31 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
-def plots_of_pier_displacement(
-    c: Config, y: float, response_types: List[ResponseType]
-):
+def plots_of_pier_displacement(c: Config):
     """Make contour plots of pier displacement."""
-    fem_runner = OSRunner(c)
+    y = 0
+    response_types = [ResponseType.YTranslation]
+
     for response_type in response_types:
         for p, pier in enumerate(c.bridge.supports):
-            fem_params = SimParams(
+            pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
+            sim_params = SimParams(
                 response_types=response_types,
-                displacement_ctrl=(
-                    DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
-                ),
+                displacement_ctrl=pier_disp,
             )
-            fem_responses = load_fem_responses(
+            sim_responses = load_fem_responses(
                 c=c,
-                fem_params=fem_params,
+                sim_params=sim_params,
                 response_type=response_type,
-                fem_runner=fem_runner,
+                sim_runner=OSRunner(c),
+                run=True
             )
-            top_view_bridge(c.bridge, lanes=False, outline=False)
+            top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
-                responses=fem_responses,
+                responses=sim_responses,
                 y=y,
+                title=f"Pier displacement of {pier_disp.displacement} m",
                 ploads=[
                     PointLoad(
                         x_frac=c.bridge.x_frac(pier.disp_node.x),
@@ -52,6 +53,7 @@ def plots_of_pier_displacement(
                         kn=c.pd_unit_load_kn,
                     )
                 ],
+                center_norm=True,
                 save=(
                     c.get_image_path(
                         "contour-pier-displacement",
