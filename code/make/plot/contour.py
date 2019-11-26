@@ -7,7 +7,7 @@ import matplotlib.image as mpimg
 import numpy as np
 
 from classify.data.responses import responses_to_traffic_array
-from classify.scenario.bridge import PierDispBridge
+from classify.scenario.bridge import PierDispBridge, equal_pier_disp, longitudinal_pier_disp
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
@@ -71,27 +71,21 @@ def gradient_pier_displacement_plots(c: Config):
     for response_type in [ResponseType.YTranslation]:
 
         # Equal pier displacement scenario.
-        displacement = 0.1
-        pier_disps = [
-            DisplacementCtrl(displacement=displacement, pier=p)
-            for p in range(len(c.bridge.supports))]
-        gradient_pier_displacement_plot(
-            c=c, pier_disps=pier_disps, response_type=response_type,
-            title=f"{response_type.name()} when each pier is displaced by {displacement} m")
+        for displacement in np.array([0.1, 0.01]) / 1000:
+            gradient_pier_displacement_plot(
+                c=c, pier_disp=equal_pier_disp(bridge=c.bridge, displacement=displacement), response_type=response_type,
+                title=f"{response_type.name()} when each pier is displaced by {displacement} m")
 
         # Gradient pier displacement scenario.
-        increase_every = len(set(pier.z for pier in c.bridge.supports))
-        displacement = 0.01
-        pier_disps = []
-        for p in range(len(c.bridge.supports)):
-            if p != 0 and p % increase_every == 0:
-                displacement += 0.01
-            pier_disps.append(DisplacementCtrl(displacement=displacement, pier=p))
-        gradient_pier_displacement_plot(
-            c=c, pier_disps=pier_disps, response_type=response_type,
-            title=f"{response_type.name()} when piers are incrementally displaced by 0.01 m")
+        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05]):
+            start, step = np.array([start, step]) / 1000
+            gradient_pier_displacement_plot(
+                c=c, pier_disp=longitudinal_pier_disp(bridge=c.bridge, start=start, step=step), response_type=response_type,
+                title=f"{response_type.name()} when piers are incrementally displaced by {step} m starting at {start} m")
 
-def gradient_pier_displacement_plot(c: Config, pier_disps: List[DisplacementCtrl], response_type: ResponseType, title: str):
+
+def gradient_pier_displacement_plot(
+        c: Config, pier_disp: PierDispBridge, response_type: ResponseType, title: str):
     """Contour plot of piers displaced in an increasing gradient."""
 
     # 10 x 10 grid of points on the bridge deck where to record responses.
@@ -108,7 +102,7 @@ def gradient_pier_displacement_plot(c: Config, pier_disps: List[DisplacementCtrl
         c=c,
         traffic_array=np.zeros((1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)),
         response_type=response_type,
-        bridge_scenario=PierDispBridge(pier_disps),
+        bridge_scenario=pier_disp,
         points=points,
         fem_runner=OSRunner(c),
     )

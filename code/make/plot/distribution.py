@@ -6,7 +6,7 @@ from scipy.stats import chisquare
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic_array
-from classify.scenario.bridge import HealthyBridge, PierDispBridge
+from classify.scenario.bridge import HealthyBridge, PierDispBridge, equal_pier_disp, longitudinal_pier_disp
 from classify.scenario.traffic import normal_traffic
 from fem.run.opensees import OSRunner
 from model.bridge import Point
@@ -35,11 +35,21 @@ pier_disp_scenarios = lambda c: [
 ]
 
 
+additional_pier_scenarios = lambda c: (
+   [equal_pier_disp(bridge=c.bridge, displacement=displacement)
+    for displacement in [0.1, 0.01]]
+    + [longitudinal_pier_disp(bridge=c.bridge, start=start, step=step)
+        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05])]
+)
+
 def distribution_plots(c: Config):
     """Make all distribution plots."""
     lane_distribution_plots(
         c=c,
-        bridge_scenarios=[HealthyBridge()] + pier_disp_scenarios(c),
+        bridge_scenarios=(
+            [HealthyBridge()] + pier_disp_scenarios(c)
+            + additional_pier_scenarios(c)
+            ),
         response_type=ResponseType.YTranslation,
     )
     pier_displacement_distribution_plots(
