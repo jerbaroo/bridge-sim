@@ -254,7 +254,7 @@ def make_all_3d(c: Config):
     ##### Verification #####
     ########################
     # verification.sensor_subplots(c)
-    contour.comparison_plots_705(c=c)
+    # contour.comparison_plots_705(c=c)
     # verification.plot_convergence(c)
     # verification.r2_plots(c)
 
@@ -281,4 +281,4 @@ def make_all_3d(c: Config):
     #####################
     ##### Animation #####
     #####################
-    # animate.traffic(c)
+    animate.traffic(c)

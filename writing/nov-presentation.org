@@ -1,4 +1,4 @@
-#+TITLE: 27th November
+#+TITLE: Meeting 27th November
 
 * Vehicles
 * November Plan
@@ -21,8 +21,8 @@
 * December
 | Goal                                       | Note                      |
 |--------------------------------------------+---------------------------|
-| Strain verified                            |                           |
-| Pier displacement verified                 | Against AxisVM            |
+| Strain verified (5th Dec)                  |                           |
+| Pier displacement verified (5th Dec)       | Against AxisVM            |
 | Add temperature to model                   | "Noise" in classification |
 | Add cracked concrete to model              | Small change (change =E=) |
 | Another better classification example      |                           |
