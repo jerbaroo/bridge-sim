@@ -11,10 +11,8 @@ class HealthyBridge(BridgeScenario):
 
 class PierDispBridge(BridgeScenario):
     def __init__(self, pier_disps: [DisplacementCtrl]):
-        name = "-".join(list(map(lambda pd: pd.id_str())))
-        print(name)
-        import sys; sys.exit()
+        name = "-".join(list(map(lambda pd: pd.id_str(), pier_disps)))
         super().__init__(name=name)
-        if len(pier_disps) > 0:
+        if len(pier_disps) < 1:
             raise ValueError("At least 1 PierDisp required")
         self.pier_disps = pier_disps

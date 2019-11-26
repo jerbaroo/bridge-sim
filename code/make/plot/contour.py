@@ -1,14 +1,18 @@
 """Make contour plots."""
+import itertools
 from typing import List
 
 import matplotlib.cm as cm
 import matplotlib.image as mpimg
 import numpy as np
 
+from classify.data.responses import responses_to_traffic_array
+from classify.scenario.bridge import PierDispBridge
 from config import Config
 from fem.params import SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
+from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import plt
@@ -61,6 +65,64 @@ def plots_of_pier_displacement(c: Config):
                     )
                 ),
             )
+
+
+def gradient_pier_displacement_plot(c: Config):
+    """Contour plot of piers displaced in an increasing gradient."""
+    response_type = ResponseType.YTranslation
+
+    # Setup gradient pier displacement scenario.
+    increase_every = len(set(pier.z for pier in c.bridge.supports))
+    displacement = 0.1
+    pier_disps = []
+    for p in range(len(c.bridge.supports))[:1]:
+        pier_disps.append(DisplacementCtrl(displacement=displacement, pier=p))
+        if p != 0 and p % increase_every == 0:
+            displacement += 0.1
+    bridge_scenario = PierDispBridge(pier_disps)
+
+    # 10 x 10 grid of points on the bridge deck where to record responses.
+    points = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
+    ]
+
+    # Create empty traffic array and collect responses.
+    wheel_zs = c.bridge.wheel_tracks(c)
+    response_array = responses_to_traffic_array(
+        c=c,
+        traffic_array=np.zeros((10, len(wheel_zs) * c.il_num_loads)),
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        fem_runner=OSRunner(c),
+    )
+
+    plt.subplot(2, 1, 2)
+    top_view_bridge(c.bridge, lanes=False, outline=False)
+    responses = Responses.from_responses(
+        response_type=response_type,
+        responses=[
+            (response_array[0][p], point) for p, point in enumerate(points)
+        ],
+    )
+    _, _, norm = plot_contour_deck(
+        c=c,
+        responses=responses,
+        ploads=[
+            PointLoad(
+                x_frac=c.bridge.x_frac(pier.x),
+                z_frac=c.bridge.z_frac(pier.z),
+                kn=c.pd_unit_load_kn,
+            )
+        ],
+    )
+    plt.colorbar(norm=norm)
+    plt.savefig(c.get_image_path("system-verification", "pier-displacement"))
+    plt.close()
 
 
 def comparison_plots_705(c: Config):
