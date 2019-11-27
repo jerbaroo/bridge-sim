@@ -1,6 +1,5 @@
 #+TITLE: Meeting 27th November
 
-* Vehicles
 * Dutch Main Road Network
 | Stucture type        | Number | Deck Area (m2) |
 |----------------------+--------+----------------|
@@ -12,11 +11,59 @@
 | Aqueduct             |      7 |         86,491 |
 |----------------------+--------+----------------|
 | Total                |  3,283 |      4,530,593 |
-* November Plan
+* Verification: Truck 1
+[[./wagen1.png]]
+* Verification: Truck positions
+[[./truck-pos.png]]
+* Fast Response Calculation
+- Via Matrix multiplication
+- Cluster not needed
+On white board
+* Verification: Contour A
+[[./contour/diana-displacement-loadx=101,765-loadz=-12,626.png]]
+* Verification: Contour A
+[[./contour/displacement-loadx=101,765-loadz=-12,626.png]]
+* Verification: Contour B
+[[./contour/diana-displacement-loadx=34,955-loadz=12,626.png]]
+* Verification: Contour B
+[[./contour/displacement-loadx=34,955-loadz=12,626.png]]
+* Verification: Contour C
+[[./contour/diana-displacement-loadx=51,251-loadz=0,000.png]]
+* Verification: Contour C
+[[./contour/displacement-loadx=51,251-loadz=0,000.png]]
+* Verification: Contour D
+[[./contour/diana-displacement-loadx=92,406-loadz=-4,195.png]]
+* Verification: Contour D
+[[./contour/displacement-loadx=92,406-loadz=-4,195.png]]
+* Verification: Displacement
+[[./displa-0-copy.png]]
+* Verification: Displacement
+[[./displa-1-copy.png]]
+* Verification: Displacement
+[[./displa-2-copy.png]]
+* Verification: Displacement
+[[./regression.png]]
+* Pier Settlement
+[[./pier-1.png]]
+* Pier Settlement
+[[./pier-2.png]]
+* Response Distributions: Healthy
+[[./distribution-1.png]]
+* Response Distributions: Healthy
+[[./distribution-2.png]]
+* Pier Settlement: Compared to Healthy Distributions
+[[./pier-3.png]]
+* Verification: Convergence
+[[./min-max.png]]
+* IAS presentation: November Plan
 | Week 1 | Writing             | +Sensor cost emails/research+ |
 | Week 2 | Writing             | Try standard classifiers      |
 | Week 3 | Verification plot 1 | Collect strain                |
 | Week 4 | Verification plot 2 | Classifiers                   |
+* IAS presentation: December Plan
+| December week 1 | writing | add temperature to model |
+| December week 2 | writing | add soil creep to model  |
+| December week 4 | writing |                          |
 * Actual November
 - Writing
 - Pier displacement in 3D
@@ -29,21 +76,24 @@
   - Plot for each displacement sensor
   - Regression plots
   - Convergence plot
-* December (1/2)
+* December: Overview
 - Writing
 - Fully verified
 
 (In other words: free up Jan/Feb for classification!)
-* December (2/2)
+* December: Timeline
+Dynamic timeline:
+- https://github.com/barischrooneyj/bridge-dss/issues/104
+
 | Goal                                      | Note                      |
 |-------------------------------------------+---------------------------|
 | Strain verified (5th Dec)                 | Post-processing step      |
 | Pier displacement verified (5th Dec)      | Against AxisVM            |
+| Location classifier (5th Dec)             |                           |
 | Mesh refinement, obey material properties | Improves model accuracy   |
-| Mesh refinement, more dense around load   | Improves model accuracy   |
+| Mesh refinement, density++ around load    | Improves model accuracy   |
 | Parallelization                           | 14days -> 4days           |
 | Choose number of unit load simulations    | Parameter selection       |
 | Add temperature to model                  | "Noise" in classification |
 | Add cracked concrete to model             | Small change (change =E=) |
-| Writing on classification                 | Experiment setup          |
-| 20k good words (12k current, 10k good)    | Pre-alpha draft           |
+| 15k good words (12k current, 10k good)    | Pre-alpha draft           |

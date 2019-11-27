@@ -256,6 +256,54 @@ def pier_displacement_distribution_plots(
 #     plt.show()
 #     plt.plot(heavy_responses_values[1])
 #     plt.show()
+#
+# 4.9 / 1 = 4
+# 4.1 / 4 = 4
+# 4 / 1 = 4
+# 0.9 / 1 = 0
+# 0.1 /1 = 0
+# 0 / 1 = 0
+
+
+def bin_responses(response_array, bins, amin, amax):
+    """
+    TODO: Speed up with Numba.
+    """
+    new_response_array = []
+    bin_size = abs(amax - amin) / bins
+    for p, time_series in enumerate(response_array):
+        frequencies = np.zeros(bins)
+        for t, response in enumerate(time_series):
+            bin_index = int(abs(response - amin) / bin_size)
+            if response == amax:
+                print("woooo")
+                print(response)
+                print(bin_size)
+                print(bin_index)
+                print(len(frequencies))
+            try:
+                frequencies[bin_index] += 1
+            except IndexError:
+                frequencies[bin_index - 1] += 1
+        new_response_array.append(frequencies)
+    return np.array(new_response_array)
+
+
+def standardized(response_array):
+    # Mean and standard deviation at each timestep.
+    mean = np.mean(response_array, axis=0)
+    std = np.std(response_array, axis=0)
+    # assert len(mean) == normal_traffic_array.shape[0]
+    # Standardize the responses at each point.
+    assert len(response_array) < len(response_array[0])
+    return [np.abs(x - mean) / std for x in response_array]
+
+
+def check_non_numeric(a):
+    if np.isnan(a).any():
+        raise ValueError("found nan")
+    if np.isinf(a).any():
+        raise ValueError("found inf")
 
 
 def deck_distribution_plots(c: Config):
@@ -288,8 +336,6 @@ def deck_distribution_plots(c: Config):
     ]
 
     response_arrays = []
-    amin, amax = np.inf, -np.inf
-
     # Collect responses for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
         print_i(
@@ -306,35 +352,52 @@ def deck_distribution_plots(c: Config):
             ).T
         )
         print(response_arrays[-1].shape)
+    response_arrays = np.array(response_arrays)
+    check_non_numeric(response_arrays)
+
+    # Standardize
+    standardized_response_arrays = np.empty(response_arrays.shape)
+    for r, response_array in enumerate(response_arrays):
+        standardized_response_arrays[r] = standardized(response_array)
+    check_non_numeric(standardized_response_arrays)
+
+    # Binned
+    amin=np.amin(standardized_response_arrays)
+    amax=np.amax(standardized_response_arrays)
+    binned_response_arrays = []
+    for standardized_response_array in standardized_response_arrays:
+        binned_response_arrays.append(bin_responses(
+            standardized_response_array, bins=1000000, amin=amin, amax=amax))
+    binned_response_arrays = np.array(binned_response_arrays)
 
     from scipy.stats import chisquare
     measure = lambda a, b: chisquare(a, b).statistic
 
-
-    def standardized(response_array):
-        # Mean and standard deviation at each timestep.
-        mean = np.mean(response_array, axis=0)
-        std = np.std(response_array, axis=0)
-        assert len(mean) == normal_traffic_array.shape[0]
-        # Standardize the responses at each point.
-        assert len(response_array) == len(points)
-        return [np.abs(x - mean) / std for x in response_array]
-
     healthy = response_arrays[0]
-    healthy_standardized = standardized(healthy)
+    healthy_standardized = standardized_response_arrays[0]
+    healthy_binned = binned_response_arrays[0]
     assert len(healthy) == len(points)
     assert len(healthy_standardized) == len(points)
+    assert len(healthy_binned) == len(points)
 
     for b, bridge_scenario in enumerate(bridge_scenarios):
         response_array = response_arrays[b]
+        response_array_standardized = standardized_response_arrays[b]
+        response_array_binned = binned_response_arrays[b]
         if b == 0:
             assert np.array_equal(response_array, healthy)
+
+
+        response_tuples = [
+            (measure(healthy[p], response_array[p]), point)
+            for p, point in enumerate(points)
+        ]
+        print("normal")
+        print(len(response_tuples))
+        response_tuples = list(filter(lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]), response_tuples))
+        print(len(response_tuples))
         responses = Responses.from_responses(
-            response_type=response_type,
-            responses=[
-                (measure(healthy[p], response_array[p]), point)
-                for p, point in enumerate(points)
-            ]
+            response_type=response_type, responses=response_tuples
         )
         for value in responses.values():
             print(type(value))
@@ -342,17 +405,34 @@ def deck_distribution_plots(c: Config):
         plt.savefig(c.get_image_path("distribution-heatmap", bridge_scenario.name))
         plt.close()
 
+
         # Again but standardized.
-        response_array_standardized = standardized(response_array)
+        responses_tuples = [
+            (measure(healthy_standardized[p], response_array_standardized[p]), point)
+            for p, point in enumerate(points)
+        ]
+        response_tuples = list(filter(lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]), response_tuples))
         responses = Responses.from_responses(
-            response_type=response_type,
-            responses=[
-                (measure(healthy_standardized[p], response_array_standardized[p]), point)
-                for p, point in enumerate(points)
-            ]
+            response_type=response_type, responses=response_tuples
         )
         for value in responses.values():
             print(type(value))
         plot_contour_deck(c=c, responses=responses, center_norm=True)
         plt.savefig(c.get_image_path("distribution-heatmap-standardized", bridge_scenario.name))
+        plt.close()
+
+
+        # Again but binned.
+        responses_tuples = [
+            (measure(healthy_binned[p], response_array_binned[p]), point)
+            for p, point in enumerate(points)
+        ]
+        response_tuples = list(filter(lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]), response_tuples))
+        responses = Responses.from_responses(
+            response_type=response_type, responses=response_tuples
+        )
+        for value in responses.values():
+            print(type(value))
+        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        plt.savefig(c.get_image_path("distribution-heatmap-binned", bridge_scenario.name))
         plt.close()

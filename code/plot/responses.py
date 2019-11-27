@@ -115,6 +115,8 @@ def plot_contour_deck(
     if norm is None:
         vmin, vmax = amin, amax
         if center_norm:
+            print(f"vmin = {vmin}")
+            print(f"vmax = {vmax}")
             vmin = min(amin, -amax)
             vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
