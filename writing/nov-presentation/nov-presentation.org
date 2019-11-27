@@ -60,10 +60,6 @@ On white board
 | Week 2 | Writing             | Try standard classifiers      |
 | Week 3 | Verification plot 1 | Collect strain                |
 | Week 4 | Verification plot 2 | Classifiers                   |
-* IAS presentation: December Plan
-| December week 1 | writing | add temperature to model |
-| December week 2 | writing | add soil creep to model  |
-| December week 4 | writing |                          |
 * Actual November
 - Writing
 - Pier displacement in 3D
@@ -76,11 +72,10 @@ On white board
   - Plot for each displacement sensor
   - Regression plots
   - Convergence plot
-* December: Overview
-- Writing
-- Fully verified
-
-(In other words: free up Jan/Feb for classification!)
+* IAS presentation: December Plan
+| December week 1 | writing | add temperature to model |
+| December week 2 | writing | add soil creep to model  |
+| December week 4 | writing |                          |
 * December: Timeline
 Dynamic timeline:
 - https://github.com/barischrooneyj/bridge-dss/issues/104
@@ -97,3 +92,10 @@ Dynamic timeline:
 | Add temperature to model                  | "Noise" in classification |
 | Add cracked concrete to model             | Small change (change =E=) |
 | 15k good words (12k current, 10k good)    | Pre-alpha draft           |
+* December: Overview
+- Writing
+- Fully verified
+- Location classifier
+- Temperature in model
+
+(In other words: free up Jan/Feb for classification!)
