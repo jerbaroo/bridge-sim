@@ -28,7 +28,7 @@ class DisplacementCtrl:
         self.pier = pier
 
     def id_str(self):
-        return safe_str(f"{self.displacement}-{self.pier}")
+        return safe_str(f"{self.displacement:.3f}-{self.pier}")
 
 
 class PointLoad:

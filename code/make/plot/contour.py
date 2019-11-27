@@ -114,11 +114,7 @@ def gradient_pier_displacement_plot(
             (response_array[0][p], point) for p, point in enumerate(points)
         ],
     )
-    plot_contour_deck(
-        c=c,
-        responses=responses,
-        center_norm=True
-    )
+    plot_contour_deck(c=c, responses=responses, center_norm=True)
     plt.title(title)
     plt.savefig(c.get_image_path("pier-scenarios", f"pier-displacement-{safe_str(title)}"))
     plt.close()

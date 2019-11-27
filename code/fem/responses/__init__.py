@@ -135,7 +135,9 @@ class Responses:
         for y_dict in self.responses[self.times[0]].values():
             for z_dict in y_dict.values():
                 for response in z_dict.values():
-                    yield response.value
+                    if hasattr(response, "value"):
+                        yield response.value
+                    return response
 
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):

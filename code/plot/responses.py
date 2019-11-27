@@ -55,7 +55,6 @@ def plot_distributions(
                 expected, _ = resize_units(expected, response_type)
             assert response_array.shape == expected.shape
             label = chisquare(response_array[i], expected[i])
-            # label = chisquare(expected[i], expected[i])
         plt.hist(response_array[i], label=label)
         if label is not None:
             plt.legend()
