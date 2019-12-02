@@ -1,14 +1,15 @@
 """Time series of responses to moving loads."""
 from itertools import chain
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
+from fem.responses.matrix import load_expt_responses
 from scipy.interpolate import interp1d
 
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
-from fem.params import SimParams
-from fem.responses import Responses, load_fem_responses
+from fem.params import SimParams, ExptParams
+from fem.responses import Responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
@@ -16,7 +17,7 @@ from model.bridge import Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from model.scenario import BridgeScenario, Traffic, TrafficArray
-from util import print_d, print_i, print_w
+from util import print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"
@@ -281,14 +282,16 @@ def responses_to_loads_(
     """
     if not isinstance(bridge_scenario, HealthyBridge):
         raise ValueError("Only HealthyBridge supported in direct simulation")
+    expt_responses = load_expt_responses(
+        c=c,
+        expt_params=ExptParams([
+            SimParams(response_types=[response_type], ploads=loads_)
+            for loads_ in loads]),
+        response_type=ResponseType.YTranslation,
+        sim_runner=sim_runner,
+    )
     result = []
-    for loads_ in loads:
-        sim_responses = load_fem_responses(
-            c=c,
-            sim_params=SimParams(response_types=[response_type], ploads=loads_),
-            response_type=ResponseType.YTranslation,
-            sim_runner=sim_runner,
-        )
+    for sim_responses in expt_responses:
         result.append(
             [
                 sim_responses.at(
