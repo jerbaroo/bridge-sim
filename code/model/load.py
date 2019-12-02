@@ -1,5 +1,6 @@
 """Loads and vehicles"""
-from typing import List, Optional, Tuple
+from itertools import chain
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import matplotlib.cm as cm
@@ -27,7 +28,7 @@ class DisplacementCtrl:
         self.pier = pier
 
     def id_str(self):
-        return safe_str(f"{self.displacement}-{self.pier}")
+        return safe_str(f"{self.displacement:.3f}-{self.pier}")
 
 
 class PointLoad:
@@ -47,15 +48,17 @@ class PointLoad:
 
     def id_str(self):
         """String uniquely representing this load."""
-        return f"({self.x_frac}, {self.z_frac}, {self.kn})"
+        return f"({self.x_frac:.3f}, {self.z_frac:.3f}, {self.kn:.3f})"
 
 
 class Vehicle:
     """A vehicle's geometry.
 
     Args:
-        kn: Union[float, List[float]], load intensity, either for the entire
-            vehicle or per axle, in kilo Newton.
+        kn: Union[float, List[float], List[Tuple[float, float]]], load
+            intensity, either for the entire vehicle or per axle, or as a list
+            of tuple (per wheel, each tuple is left then right wheel), in kilo
+            Newton.
         axle_distances: List[float], distance between axles in meters.
         axle_width: float, width of the vehicle's axles in meters.
 
@@ -70,27 +73,43 @@ class Vehicle:
     """
 
     def __init__(
-        self, kn: float, axle_distances: List[float], axle_width: float
+        self,
+        kn: Union[float, List[float], List[Tuple[float, float]]],
+        axle_distances: List[float],
+        axle_width: float,
     ):
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
         self.num_axles = len(self.axle_distances) + 1
+        self.num_wheels = self.num_axles * 2
         self.kn = kn
 
         def total_kn():
             if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return sum(chain.from_iterable(self.kn))
                 return sum(self.kn)
             return self.kn
 
-        self.total_kn = total_kn
-
         def kn_per_axle():
             if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return list(map(sum, self.kn))
                 return self.kn
             return [(self.kn / self.num_axles) for _ in range(self.num_axles)]
 
+        def kn_per_wheel():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return self.kn
+                return list(map(lambda kn: (kn / 2, kn / 2), self.kn))
+            wheel_kn = self.kn / self.num_wheels
+            return [(wheel_kn, wheel_kn) for _ in range(self.num_axles)]
+
+        self.total_kn = total_kn
         self.kn_per_axle = kn_per_axle
+        self.kn_per_wheel = kn_per_wheel
 
     def cmap_norm(self, all_vehicles: List["Vehicle"], cmin=0, cmax=1):
         """The colormap and norm for coloring vehicles."""
@@ -119,8 +138,10 @@ class MvVehicle(Vehicle):
         are optional and may be set later.
 
     Args:
-        kn: Union[float, List[float]], load intensity, either for the entire
-            vehicle or per axle, in kilo Newton.
+        kn: Union[float, List[float], List[Tuple[float, float]]], load
+            intensity, either for the entire vehicle or per axle, or as a list
+            of tuple (per wheel, each tuple is left then right wheel), in kilo
+            Newton.
         axle_distances: List[float], distance between axles in meters.
         axle_width: float, width of the vehicle's axles in meters.
         kmph: float, speed of the vehicle in kmph.
@@ -139,7 +160,7 @@ class MvVehicle(Vehicle):
 
     def __init__(
         self,
-        kn: float,
+        kn: Union[float, List[float], List[Tuple[float, float]]],
         axle_distances: List[float],
         axle_width: float,
         kmph: float,
@@ -239,6 +260,14 @@ class MvVehicle(Vehicle):
         """Whether the current vehicle has travelled over the bridge."""
         return self.full_lanes(time=time, bridge=bridge) > 1
 
+    def time_at(self, x, bridge: Bridge):
+        """Time the front axle is at the given x position."""
+        if not bridge.lanes[self.lane].ltr:
+            raise NotImplementedError()
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x < x
+        return float(abs(init_x - x)) / self.mps
+
     def enters_bridge(self, bridge: Bridge):
         """Time the vehicle enters the bridge."""
         init_x = bridge.x(self.init_x_frac)
@@ -250,3 +279,33 @@ class MvVehicle(Vehicle):
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
+
+    def to_point_loads(
+        self, time: float, bridge: Bridge
+    ) -> List[Tuple[float, float]]:
+        """A tuple of point load per axle, one for each wheel."""
+        z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
+        assert z0 < z1
+        if bridge.lanes[self.lane].ltr:
+            z0, z1 = z1, z0
+        kn_per_wheel = list(chain.from_iterable(self.kn_per_wheel()))
+
+        i = 0
+
+        def next_kn():
+            nonlocal i
+            i += 1
+            return kn_per_wheel[i - 1]
+
+        result = []
+        for x in self.xs_at(time=time, bridge=bridge):
+            if x < 0 or x > bridge.length:
+                continue
+            kn0, kn1 = next_kn(), next_kn()
+            result.append(
+                (
+                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z0, kn=kn0),
+                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z1, kn=kn1),
+                )
+            )
+        return result

@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 
 import numpy as np
@@ -6,15 +7,22 @@ from scipy.stats import chisquare
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic_array
-from classify.scenario.bridge import HealthyBridge, PierDispBridge
+from classify.scenario.bridge import (
+    HealthyBridge,
+    PierDispBridge,
+    equal_pier_disp,
+    longitudinal_pier_disp,
+)
 from classify.scenario.traffic import normal_traffic
+from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.load import DisplacementCtrl
 from model.response import ResponseType, resize_units
 from model.scenario import BridgeScenario
-from plot.responses import plot_distributions
-from util import safe_str
+from plot import plt
+from plot.responses import plot_contour_deck, plot_distributions
+from util import print_i, safe_str
 
 
 def load_normal_traffic_array(c: Config):
@@ -30,16 +38,34 @@ def load_normal_traffic_array(c: Config):
 
 # Each pier displaced by 1mm.
 pier_disp_scenarios = lambda c: [
-    PierDispBridge(DisplacementCtrl(displacement=0.001, pier=pier_index))
-    for pier_index, pier in enumerate(c.bridge.supports)
+    PierDispBridge([DisplacementCtrl(displacement=0.001, pier=p)])
+    for p, _ in enumerate(c.bridge.supports)
 ]
+
+
+additional_pier_scenarios = lambda c: (
+    [
+        equal_pier_disp(bridge=c.bridge, displacement=displacement)
+        for displacement in [0.1, 0.01]
+    ]
+    + [
+        longitudinal_pier_disp(bridge=c.bridge, start=start, step=step)
+        for start, step in itertools.product(
+            [0.01, 0.02, 0.05], [0.01, 0.02, 0.05]
+        )
+    ]
+)
 
 
 def distribution_plots(c: Config):
     """Make all distribution plots."""
     lane_distribution_plots(
         c=c,
-        bridge_scenarios=[HealthyBridge()] + pier_disp_scenarios(c),
+        bridge_scenarios=(
+            [HealthyBridge()]
+            + pier_disp_scenarios(c)
+            + additional_pier_scenarios(c)
+        ),
         response_type=ResponseType.YTranslation,
     )
     pier_displacement_distribution_plots(
@@ -67,6 +93,7 @@ def lane_distribution_plots(
 
     """
     assert isinstance(bridge_scenarios[0], HealthyBridge)
+    print_i("Lane distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 
     def lane_points(lane):
@@ -82,7 +109,11 @@ def lane_distribution_plots(
 
     # Collect responses for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
+        print_i(
+            f"Lane distribution plots: bridge scenario {bridge_scenario.name}"
+        )
         for lane_index, lane in enumerate(c.bridge.lanes):
+            print_i(f"Lane distribution plots: lane {lane_index}")
             points = lane_points(lane)
             response_arrays.append(
                 responses_to_traffic_array(
@@ -126,7 +157,7 @@ def lane_distribution_plots(
                     ),
                 ),
                 expected=expected,
-                xlim=(amin, amax),
+                # xlim=(amin, amax),
             )
             index += 1
 
@@ -238,3 +269,217 @@ def pier_displacement_distribution_plots(
 #     plt.show()
 #     plt.plot(heavy_responses_values[1])
 #     plt.show()
+#
+# 4.9 / 1 = 4
+# 4.1 / 4 = 4
+# 4 / 1 = 4
+# 0.9 / 1 = 0
+# 0.1 /1 = 0
+# 0 / 1 = 0
+
+
+def bin_responses(response_array, bins, amin, amax):
+    """
+    TODO: Speed up with Numba.
+    """
+    new_response_array = []
+    bin_size = abs(amax - amin) / bins
+    for p, time_series in enumerate(response_array):
+        frequencies = np.zeros(bins)
+        for t, response in enumerate(time_series):
+            bin_index = int(abs(response - amin) / bin_size)
+            if response == amax:
+                print("woooo")
+                print(response)
+                print(bin_size)
+                print(bin_index)
+                print(len(frequencies))
+            try:
+                frequencies[bin_index] += 1
+            except IndexError:
+                frequencies[bin_index - 1] += 1
+        new_response_array.append(frequencies)
+    return np.array(new_response_array)
+
+
+def standardized(response_array):
+    # Mean and standard deviation at each timestep.
+    mean = np.mean(response_array, axis=0)
+    std = np.std(response_array, axis=0)
+    # assert len(mean) == normal_traffic_array.shape[0]
+    # Standardize the responses at each point.
+    assert len(response_array) < len(response_array[0])
+    return [np.abs(x - mean) / std for x in response_array]
+
+
+def check_non_numeric(a):
+    if np.isnan(a).any():
+        raise ValueError("found nan")
+    if np.isinf(a).any():
+        raise ValueError("found inf")
+
+
+def deck_distribution_plots(c: Config):
+    """For each 'BridgeScenario' plot response distributions along each lane.
+
+    All simulations are under the normal traffic scenario.
+
+    Args:
+        c: Config, global configuration object.
+        bridge_scenarios: List[BridgeScenario], each bridge scenario for which
+            to plot the distribution of responses. The first scenario must be
+            the healthy scenario.
+        response_type: ResponseType, the type of sensor response to record.
+
+    """
+    bridge_scenarios = (
+        [HealthyBridge()]
+        + pier_disp_scenarios(c)
+        + additional_pier_scenarios(c)
+    )
+    response_type = ResponseType.YTranslation
+    assert isinstance(bridge_scenarios[0], HealthyBridge)
+    print_i("Deck distribution plots: loading traffic")
+    normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
+
+    # 10 x 10 grid of points on the bridge deck where to record responses.
+    points = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 30),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
+    ]
+
+    response_arrays = []
+    # Collect responses for each bridge scenario and lane combination.
+    for b, bridge_scenario in enumerate(bridge_scenarios):
+        print_i(
+            f"Deck distribution plots: bridge scenario {bridge_scenario.name}"
+        )
+        response_arrays.append(
+            responses_to_traffic_array(
+                c=c,
+                traffic_array=normal_traffic_array,
+                response_type=response_type,
+                bridge_scenario=bridge_scenario,
+                points=points,
+                fem_runner=OSRunner(c),
+            ).T
+        )
+        print(response_arrays[-1].shape)
+    response_arrays = np.array(response_arrays)
+    check_non_numeric(response_arrays)
+
+    # Standardize
+    standardized_response_arrays = np.empty(response_arrays.shape)
+    for r, response_array in enumerate(response_arrays):
+        standardized_response_arrays[r] = standardized(response_array)
+    check_non_numeric(standardized_response_arrays)
+
+    # Binned
+    amin = np.amin(standardized_response_arrays)
+    amax = np.amax(standardized_response_arrays)
+    binned_response_arrays = []
+    for standardized_response_array in standardized_response_arrays:
+        binned_response_arrays.append(
+            bin_responses(
+                standardized_response_array, bins=1000000, amin=amin, amax=amax
+            )
+        )
+    binned_response_arrays = np.array(binned_response_arrays)
+
+    from scipy.stats import chisquare
+
+    measure = lambda a, b: chisquare(a, b).statistic
+
+    healthy = response_arrays[0]
+    healthy_standardized = standardized_response_arrays[0]
+    healthy_binned = binned_response_arrays[0]
+    assert len(healthy) == len(points)
+    assert len(healthy_standardized) == len(points)
+    assert len(healthy_binned) == len(points)
+
+    for b, bridge_scenario in enumerate(bridge_scenarios):
+        response_array = response_arrays[b]
+        response_array_standardized = standardized_response_arrays[b]
+        response_array_binned = binned_response_arrays[b]
+        if b == 0:
+            assert np.array_equal(response_array, healthy)
+
+        response_tuples = [
+            (measure(healthy[p], response_array[p]), point)
+            for p, point in enumerate(points)
+        ]
+        print("normal")
+        print(len(response_tuples))
+        response_tuples = list(
+            filter(
+                lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]),
+                response_tuples,
+            )
+        )
+        print(len(response_tuples))
+        responses = Responses.from_responses(
+            response_type=response_type, responses=response_tuples
+        )
+        for value in responses.values():
+            print(type(value))
+        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        plt.savefig(
+            c.get_image_path("distribution-heatmap", bridge_scenario.name)
+        )
+        plt.close()
+
+        # Again but standardized.
+        responses_tuples = [
+            (
+                measure(
+                    healthy_standardized[p], response_array_standardized[p]
+                ),
+                point,
+            )
+            for p, point in enumerate(points)
+        ]
+        response_tuples = list(
+            filter(
+                lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]),
+                response_tuples,
+            )
+        )
+        responses = Responses.from_responses(
+            response_type=response_type, responses=response_tuples
+        )
+        for value in responses.values():
+            print(type(value))
+        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        plt.savefig(
+            c.get_image_path(
+                "distribution-heatmap-standardized", bridge_scenario.name
+            )
+        )
+        plt.close()
+
+        # Again but binned.
+        responses_tuples = [
+            (measure(healthy_binned[p], response_array_binned[p]), point)
+            for p, point in enumerate(points)
+        ]
+        response_tuples = list(
+            filter(
+                lambda rt: not np.isnan(rt[0]) and not np.isinf(rt[0]),
+                response_tuples,
+            )
+        )
+        responses = Responses.from_responses(
+            response_type=response_type, responses=response_tuples
+        )
+        for value in responses.values():
+            print(type(value))
+        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        plt.savefig(
+            c.get_image_path(
+                "distribution-heatmap-binned", bridge_scenario.name
+            )
+        )
+        plt.close()

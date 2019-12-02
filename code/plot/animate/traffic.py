@@ -48,7 +48,8 @@ def animate_traffic_top_view(
 
     """
     # First convert the inner list of lanes into a flat list of vehicles.
-    traffic = list(map(lambda l: list(chain.from_iterable(l)), traffic))
+    # traffic = list(map(lambda l: list(chain.from_iterable(l)), traffic))
+    print(np.array(traffic).shape)
 
     all_vehicles = list(chain.from_iterable(traffic))
     total_kn = [sum(v.total_kn() for v in t) for t in traffic]

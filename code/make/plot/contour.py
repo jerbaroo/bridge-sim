@@ -1,13 +1,22 @@
 """Make contour plots."""
+import itertools
 from typing import List
 
 import matplotlib.cm as cm
+import matplotlib.image as mpimg
 import numpy as np
 
+from classify.data.responses import responses_to_traffic_array
+from classify.scenario.bridge import (
+    PierDispBridge,
+    equal_pier_disp,
+    longitudinal_pier_disp,
+)
 from config import Config
 from fem.params import SimParams
-from fem.responses import load_fem_responses
+from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
+from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import plt
@@ -20,30 +29,30 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
-def plots_of_pier_displacement(
-    c: Config, y: float, response_types: List[ResponseType]
-):
+def plots_of_pier_displacement(c: Config):
     """Make contour plots of pier displacement."""
-    fem_runner = OSRunner(c)
+    y = 0
+    response_types = [ResponseType.YTranslation]
+
     for response_type in response_types:
         for p, pier in enumerate(c.bridge.supports):
-            fem_params = SimParams(
-                response_types=response_types,
-                displacement_ctrl=(
-                    DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
-                ),
+            pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
+            sim_params = SimParams(
+                response_types=response_types, displacement_ctrl=pier_disp,
             )
-            fem_responses = load_fem_responses(
+            sim_responses = load_fem_responses(
                 c=c,
-                fem_params=fem_params,
+                sim_params=sim_params,
                 response_type=response_type,
-                fem_runner=fem_runner,
+                sim_runner=OSRunner(c),
+                run=True,
             )
-            top_view_bridge(c.bridge, lanes=False, outline=False)
+            top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
-                responses=fem_responses,
+                responses=sim_responses,
                 y=y,
+                title=f"Pier displacement of {pier_disp.displacement} m",
                 ploads=[
                     PointLoad(
                         x_frac=c.bridge.x_frac(pier.disp_node.x),
@@ -51,6 +60,7 @@ def plots_of_pier_displacement(
                         kn=c.pd_unit_load_kn,
                     )
                 ],
+                center_norm=True,
                 save=(
                     c.get_image_path(
                         "contour-pier-displacement",
@@ -60,53 +70,147 @@ def plots_of_pier_displacement(
             )
 
 
-def plots_for_verification(
-    c: Config, y: float, response_types: List[ResponseType]
+def gradient_pier_displacement_plots(c: Config):
+    """Contour plot of piers displaced in an increasing gradient."""
+    for response_type in [ResponseType.YTranslation]:
+
+        # Equal pier displacement scenario.
+        for displacement in np.array([0.1, 0.01]) / 1000:
+            gradient_pier_displacement_plot(
+                c=c,
+                pier_disp=equal_pier_disp(
+                    bridge=c.bridge, displacement=displacement
+                ),
+                response_type=response_type,
+                title=f"{response_type.name()} when each pier is displaced by {displacement} m",
+            )
+
+        # Gradient pier displacement scenario.
+        for start, step in itertools.product(
+            [0.01, 0.02, 0.05], [0.01, 0.02, 0.05]
+        ):
+            start, step = np.array([start, step]) / 1000
+            gradient_pier_displacement_plot(
+                c=c,
+                pier_disp=longitudinal_pier_disp(
+                    bridge=c.bridge, start=start, step=step
+                ),
+                response_type=response_type,
+                title=f"{response_type.name()} when piers are incrementally displaced by {step} m starting at {start} m",
+            )
+
+
+def gradient_pier_displacement_plot(
+    c: Config,
+    pier_disp: PierDispBridge,
+    response_type: ResponseType,
+    title: str,
 ):
-    """Make contour plots for all verification points."""
-    fem_runner = OSRunner(c)
+    """Contour plot of piers displaced in an increasing gradient."""
+
+    # 10 x 10 grid of points on the bridge deck where to record responses.
+    points = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
+    ]
+
+    # Create empty traffic array and collect responses.
+    response_array = responses_to_traffic_array(
+        c=c,
+        traffic_array=np.zeros(
+            (1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)
+        ),
+        response_type=response_type,
+        bridge_scenario=pier_disp,
+        points=points,
+        fem_runner=OSRunner(c),
+    )
+
+    top_view_bridge(c.bridge, abutments=True, piers=True)
+    responses = Responses.from_responses(
+        response_type=response_type,
+        responses=[
+            (response_array[0][p], point) for p, point in enumerate(points)
+        ],
+    )
+    plot_contour_deck(c=c, responses=responses, center_norm=True)
+    plt.title(title)
+    plt.savefig(
+        c.get_image_path(
+            "pier-scenarios", f"pier-displacement-{safe_str(title)}"
+        )
+    )
+    plt.close()
+
+
+def comparison_plots_705(c: Config):
+    """Make contour plots for all verification points on bridge 705."""
+    positions = [
+        (34.95459, 29.22606 - 16.6, "a"),
+        (51.25051, 16.6 - 16.6, "b"),
+        (92.40638, 12.405 - 16.6, "c"),
+        (101.7649, 3.973938 - 16.6, "d"),
+    ]
+    response_types = [ResponseType.YTranslation]
+    # For each response type and loading position first create contour plots for
+    # OpenSees. Then finally create subplots comparing to Diana.
     for response_type in response_types:
-        for load_x, load_z in [
-            (34.95459, 29.22606 - 16.6),  # A.
-            (51.25051, 16.6 - 16.6),  # B.
-            (92.40638, 12.405 - 16.6),  # C.
-            (101.7649, 3.973938 - 16.6),  # D.
-        ]:
-            print_i(f"Contour plot at x, z, = {load_x}, {load_z}")
-            pload = PointLoad(
-                x_frac=c.bridge.x_frac(load_x),
-                z_frac=c.bridge.z_frac(load_z),
-                kn=100,
-            )
-            print_d(D, f"response_types = {response_types}")
-            fem_params = SimParams(
-                ploads=[pload], response_types=response_types
-            )
-            print_d(D, f"loading response type = {response_type}")
+        for load_x, load_z, label in positions:
+            loads = [
+                PointLoad(
+                    x_frac=c.bridge.x_frac(load_x),
+                    z_frac=c.bridge.z_frac(load_z),
+                    kn=100,
+                )
+            ]
             fem_responses = load_fem_responses(
                 c=c,
-                sim_params=fem_params,
                 response_type=response_type,
-                sim_runner=fem_runner,
+                sim_runner=OSRunner(c),
+                sim_params=SimParams(
+                    ploads=loads, response_types=response_types
+                ),
             )
+            title = (
+                f"{response_type.name()} from a {loads[0].kn} kN point load"
+                + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
+            )
+            save = lambda prefix: c.get_image_path(
+                "contour",
+                safe_str(
+                    f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
+                ),
+            )
+            # Plot once without colormaps centered to 0.
+            top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
                 c=c,
                 responses=fem_responses,
-                y=y,
-                ploads=[pload],
-                title=(
-                    f"{response_type.name()} from a {pload.kn} kN load"
-                    + f" at x = {load_x:.2f}m, z = {load_z:.2f}m"
-                ),
-                save=(
-                    c.get_image_path(
-                        "contour",
-                        safe_str(
-                            f"{response_type.name()}-loadx={load_x}-loadz={load_z}"
-                        ),
-                    )
-                ),
+                ploads=loads,
+                title=title,
+                save=save(""),
             )
+            # Plot again with colormaps centered to 0.
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plot_contour_deck(
+                c=c,
+                responses=fem_responses,
+                ploads=loads,
+                center_norm=True,
+                title=title,
+                save=save("center_norm-"),
+            )
+            # Finally create label/title the Diana plot.
+            di_img = mpimg.imread(f"data/verification/diana-{label}.png")
+            plt.imshow(di_img)
+            plt.title(title)
+            plt.xlabel("x position (mm)")
+            plt.ylabel("z position (mm)")
+            plt.savefig(save("diana-"))
+            plt.close()
 
 
 def plot_of_unit_loads(c: Config):

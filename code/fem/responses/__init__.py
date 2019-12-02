@@ -33,6 +33,7 @@ def load_fem_responses(
     sim_params: SimParams,
     response_type: ResponseType,
     sim_runner: "FEMRunner",
+    run: bool = False,
 ) -> FEMResponses:
     """Responses of one sensor type from a FEM simulation.
 
@@ -44,9 +45,9 @@ def load_fem_responses(
             which responses are generated and saved to disk.
         response_type: ResponseType, responses to load from disk and return.
         sim_runner: FEMRunner, FE program to run the simulation with.
+        run:
 
     """
-    print()
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
     for rt in sim_params.response_types:
@@ -70,7 +71,7 @@ def load_fem_responses(
     )
 
     # Run an experiment with a single FEM simulation.
-    if not os.path.exists(path):
+    if run or not os.path.exists(path):
         print_d(D, f"Running sim_runner.run")
         sim_runner.run(ExptParams([sim_params]))
         print(f"***********")
@@ -134,13 +135,9 @@ class Responses:
         for y_dict in self.responses[self.times[0]].values():
             for z_dict in y_dict.values():
                 for response in z_dict.values():
-                    yield response.value
-
-    def min(self):
-        return min(self.values())
-
-    def max(self):
-        return max(self.values())
+                    if hasattr(response, "value"):
+                        yield response.value
+                    return response
 
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):

@@ -63,7 +63,7 @@ class ResponsesMatrix:
         # if expt_ind == int(expt_ind) or not interp_sim:
 
         expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        return self.expt_responses[int(expt_ind)].at(
+        return self.expt_responses[int(np.rint(expt_ind))].at(
             x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
         )
 

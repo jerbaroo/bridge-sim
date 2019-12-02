@@ -55,7 +55,6 @@ def plot_distributions(
                 expected, _ = resize_units(expected, response_type)
             assert response_array.shape == expected.shape
             label = chisquare(response_array[i], expected[i])
-            # label = chisquare(expected[i], expected[i])
         plt.hist(response_array[i], label=label)
         if label is not None:
             plt.legend()
@@ -72,7 +71,9 @@ def plot_contour_deck(
     y: float = 0,
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
+    color: str = None,
     norm=None,
+    center_norm: bool = False,
     save: Optional[str] = None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -108,17 +109,18 @@ def plot_contour_deck(
     amax, unit_str = resize_units(amax, responses.response_type)
 
     # Plot contour and colorbar.
-    cmap = cm.get_cmap("bwr")
+    if color is None:
+        color = "jet"
+    cmap = cm.get_cmap(color)
     if norm is None:
-        vmin = min(amin, -amax)
-        vmax = max(amax, -amin)
-        print(amin, amax)
-        print(vmin, vmax)
+        vmin, vmax = amin, amax
+        if center_norm:
+            print(f"vmin = {vmin}")
+            print(f"vmax = {vmax}")
+            vmin = min(amin, -amax)
+            vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    cs = plt.contourf(X, Z, H, levels=50, cmap=cmap, norm=norm)
-
-    if save is None:
-        return cs, cmap, norm
+    cs = plt.contourf(X, Z, H, levels=25, cmap=cmap, norm=norm)
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)
@@ -128,22 +130,17 @@ def plot_contour_deck(
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
-        plt.plot(
-            [x],
-            [z],
-            marker="o",
-            markersize=5,
-            color="red",
-            label=f"{pload.kn} kN load",
+        plt.scatter(
+            [x], [z], label=f"{pload.kn} kN load", marker="o", color="red",
         )
 
     # Plot min and max responses.
     for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin:.8f}", "orange", 1),
-        ((amax_x, amax_z), f"max = {amax:.8f}", "green", 1),
-        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.8f}", "red", 0),
+        ((amin_x, amin_z), f"min = {amin:.4f} mm", "orange", 1),
+        ((amax_x, amax_z), f"max = {amax:.4f} mm", "green", 1),
+        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} mm", "red", 0),
     ]:
-        plt.plot(
+        plt.scatter(
             [point[0]],
             [point[1]],
             label=label,

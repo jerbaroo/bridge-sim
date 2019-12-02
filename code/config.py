@@ -122,9 +122,12 @@ class Config:
         self.generated_images_dir = os.path.join(
             self.root_generated_images_dir, self.bridge.id_str()
         )
-        # Bridge-specific but accuracy-independent directory for generated data.
+        # Bridge-specific but accuracy-independent directories.
         self.generated_data_dir_no_acc = os.path.join(
             self.root_generated_data_dir, self.bridge.id_str(acc=False)
+        )
+        self.generated_images_dir_no_acc = os.path.join(
+            self.root_generated_images_dir, self.bridge.id_str(acc=False)
         )
 
         # Make directories.
@@ -153,15 +156,31 @@ class Config:
 
         NOTE: The bridge accuracy is ignored here, as only geometry matters.
 
+        TODO: Replace usage with get_data_path.
+
         """
         return self.get_path_in(
             self.generated_data_dir_no_acc, "traffic", filename
         )
 
-    def get_data_path(self, dirname: str, filename: str):
+    def get_data_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
         """Get a bridge-specific image path in a named directory."""
-        return self.get_path_in(self.generated_data_dir, dirname, filename)
+        dir_path = self.generated_data_dir
+        if not bridge:
+            dir_path = self.root_generated_images_dir
+        elif not acc:
+            dir_path = self.generated_data_dir_no_acc
+        return self.get_path_in(dir_path, dirname, filename)
 
-    def get_image_path(self, dirname: str, filename: str):
+    def get_image_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
         """Get a bridge-specific image path in a named directory."""
-        return self.get_path_in(self.generated_images_dir, dirname, filename)
+        dir_path = self.generated_images_dir
+        if not bridge:
+            dir_path = self.root_generated_images_dir
+        elif not acc:
+            dir_path = self.generated_images_dir_no_acc
+        return self.get_path_in(dir_path, dirname, filename)

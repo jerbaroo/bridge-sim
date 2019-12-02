@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Modeling concrete slab bridges
+#+TITLE: Modeling a decision support system for maintenance of concrete slab bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
@@ -9,13 +9,18 @@
 #+LATEX: \newpage
 #+LATEX: \tableofcontents
 #+LATEX: \newpage
-#+LATEX: \listoftables
+#+LATEX: \listoffigures
 #+LATEX: \newpage
 #+LATEX: \listoflistings
 #+LATEX: \newpage
-#+LATEX: \listoffigures
-
+#+LATEX: \listoftables
 #+LATEX: \newpage
+
+#+LATEX: \section*{Acknowledgements}
+#+LATEX: \thispagestyle{empty}
+I would like to thank...
+#+LATEX: \newpage
+
 * Introduction
 # Motivation of the research question.
 The probability of a bridge to fail increases over time until it is no longer
@@ -182,12 +187,43 @@ of installing a decision support system for bridge maintenance.
 
 #+LATEX: \clearpage
 * Terminology & Preliminaries
+** Abbreviations
+| ANN      | Artificial neural network                         |
+| DSS      | Decision support software                         |
+| FEM      | Finite element model                              |
+| NDE      | Non-disruptive evaluation                         |
+| OpenSees | Open System for Earthquake Engineering Simulation |
+#+LATEX: \newpage
+** Definitions
+| =Bridge=            | Model of a concrete slab bridge's geometry          |
+| Damage scenario     | Healthy or specific damage state of a bridge        |
+| Simulation scenario | Combination of damage scenario and traffic scenario |
+| Traffic scenario    | Defines the traffic that flows over a bridge        |
+#+LATEX: \newpage
 ** Pseudocode
+# Imperative and declarative.
 Pseudocode in this thesis is given in two formats. For code written in an
-imperative style the pseudocode will resemble the syntax of Python. For code
-written in a declarative style, including declarations of data, the pseudocode
-will resemble the syntax of Haskell. An example of each syntactic style is given
-in Listing and .
+imperative style the pseudocode will closely resemble the syntax of Python. For
+declarations of data the pseudocode will resemble the syntax of Haskell. For
+most people the syntax of Python, or a similar imperative style language, will
+already be familiar. The syntax for data declarations used in this thesis is
+presented below in Listing [[lst:haskell]].
+
+#+NAME: lst:haskell
+#+CAPTION: Pseudocode for data declarations used in this thesis.
+#+BEGIN_SRC haskell
+-- | A person as a combination of name and phone number.
+data Person {
+    name  :: String
+  , phone :: Phone
+  }
+
+-- | Representation of a phone number as two integers.
+data Phone = {
+    prefix :: Integer
+  , local  :: Integer
+  }
+#+END_SRC
 
 # Type signatures.
 Sometimes the reader will be presented with a type signature that looks like
@@ -206,7 +242,7 @@ The Dutch national main road network consists of 3,200km of road. Assets in the
 road network are divided into four categories: pavements, structures, traffic
 facilities and environmental assets. Each structure is categorized into a type
 that has its own maintenance characteristics. Table [[tbl:dutch-road-network]]
-outlines the catgorization of the 3,283 structures in the network.
+outlines the categorization of the 3,283 structures in the network.
 
 #+CAPTION[Structures in the Dutch national main road network]: Structures in the Dutch national main road network. Each type of structure has its own maintenance characteristics. The table lists for each structure type the total number in the Dutch national main road network and the total deck area.
 #+NAME: tbl:dutch-road-network
@@ -224,8 +260,8 @@ outlines the catgorization of the 3,283 structures in the network.
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we briefly review the cost of bridge maintenance, with a
-focus on Dutch concrete bridges. Much of the information comes from
-cite:klatter2003life which should be considered the de-facto reference.
+focus on Dutch concrete slab bridges. cite:klatter2003life should be considered
+the de-facto reference for this subsection.
 
 # What is bridge maintenance.
 Bridge maintenance is a requirement in the life-cycle of a bridge in order to
@@ -302,8 +338,74 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Damage to Bridges
-** SHM of Bridges
+** Types of Damage
+** Health Monitoring
+In this subsection we review some of the current methods of health monitoring of
+bridges. citet:peter2003review should be considered the default reference for
+this subsection.
+
+# Global health monitoring.
+Current state of the art health monitoring methods only indicate whether damage
+has occured in a bridge, not determining the location or severity of the damage.
+\textcolor{red}{verify by looking at more recent methods} This class of methods
+are referred to as "global health monitoring" methods. Global health monitoring
+methods are considered sufficient since knowing that damage has occured will
+allow a more accurate inspection to take place.
+
+# Local health monitoring.
+Local health monitoring refers to methods that find the location and possibly
+the extent of damage. Non-destructive evaluation (NDE) refers to methods of
+determining the location of damage without damaging the structure, for example
+with guided ultrasonic waves. NDE can be time consuming and expensive, and
+access to a location on the bridge may be difficult or not even possible.
+
+# Expense of local health monitoring.
+In the USA the Federal Highway Administration (FHA) requires that the condition
+of bridges be evaluated every two years. Such an inspection typically takes the
+form of a tap test. A tap test is a test where the surface of the bridge is
+tapped in order to find variations in the sound response. However the tap test
+is limited to finding damage near the surface and in cases, significant cracks.
+And consider that in the USA there are over 500,000 highway bridges with a span
+length of over 7m, inspection of all these bridges with a limited budget and
+staff not always achievable.
+
+# Changes in frequencies.
+Most global health monitoring techniques are based on finding changes in
+resonant frequencies or mode shapes. However for concrete structures the
+deterioration of reinforced steel has little effect on natural frequency. Some
+methods attempt to find the location and length of cracks based on natural
+frequency, however these methods assume the only damage is cracking, an
+assumption that will certainly not always be true in a real-life setting.
+
+# Bayes and ANNs.
+Damage detection methods based on Bayes' theorem attempt to determine the most
+likely damage event by comparing the relative damage probabilities of different
+damage events. Techniques based on artificial neural networks (ANN) require
+training data to map from a measurement to a damage scenario. The quality of the
+trained neural network depends on the quality of the data, "garbage in, garbage
+out".
+
+# Robust to environmental factors.
+# Novelty detection methods do not require baseline data.
+Bridges will be subjected to environmental factors that affect the responses
+recorded by sensors. If the change in responses from environmental factors is
+considered as noise, then the change from damage must be notably greater than
+the change from noise in order for the health monitoring technique to detect
+that damage has occured. Methods which compare responses to baseline responses
+from the undamaged structure will suffer from this problem. Methods based on
+novelty detection do not require baseline data but typically do not provide a
+measure of the damage severity.
+
+#  Difficult to obtain an accurate analytical model.
+#  Concrete does not guarantee uniform material properties.
+Health monitoring based on an analytical model can be challenging because the
+required data for building an analytical model is not always available. This is
+because civil infrastucture is not always built precisely to the original design
+due to changes in orders and due to on-site construction constraints. Moreover,
+concrete does not guarantee uniform material properties, which might be assumed
+in an analytical model.
+
+** Sensor Technology
 ** Extensibility
 In order for the developed DSS to be truly extensible it is not limited to
 depend on a single finite element program. The system has as a parameter a
@@ -335,12 +437,12 @@ leverage the knowledge of the community and prevent duplication of efforts which
 can occur when software is developed behind closed doors. Open source software
 also provides transparency to anyone wishing to investigate the software and may
 produce more reliable software due to more people having eyes on it.
+
+\textcolor{red}{extending to other types of bridges}
 ** Existing Work
 :PROPERTIES:
 :UNNUMBERED: t
 :END:
-\textcolor{green}{A more in-depth look at what has been done before}
-
 This section contains a review of the most relevant material studied during
 this thesis work. The section begins with an overview of related works
 followed by a more in-depth look at the most relevant material. The aim of
@@ -656,28 +758,29 @@ cases, which was true in this case.
 * Methods
 ** Data Collection
 # Section overview.
-This section describes the data collection system which has been created to
-model a bridge in software and to collect data from simulating the bridge's
-response under a damage scenario and traffic scenario. Following a brief
-overview of how the data collection system operates, this section describes in
-detail the model of a bridge's geometry (=Bridge=), of a damage scenario
-(=DamageScenario=) and a traffic scenario (=TrafficScenario=), the FE software
-used to simulate a bridge's response, how the data collection system operates
-form input to output, a description of the collected data, validation of the
-model, and finally an overview of the assumptions that were made in modeling.
+This section describes the data collection system which was created to model a
+bridge in software and to collect data from simulating the bridge's response
+under a damage scenario and traffic scenario. Following a brief overview of how
+the data collection system operates, this section describes in detail the model
+of a bridge's geometry (=Bridge=), of a damage scenario and a traffic scenario,
+the FE software used to simulate a bridge's response, how the data collection
+system operates from input to output, a description of the collected data,
+validation of the model, and finally an overview of the assumptions that were
+made in modeling.
 
 # Brief system overview.
-First a brief overview of the data collection system. A simulation scenario is
-defined as a combination of =DamageScenario= and =TrafficScenario=. For a given
-simulation scenario and =Bridge=, a FEM is built according to the =Bridge= and
-=DamageScenario=. A number of simulations of the FEM are run, in each simulation
-a unit load is placed at a different point on the bridge deck. Each point is
-chosen to be on a "track" where a vehicle's wheels will be when the vehicle is
-later "driven" along the bridge. Vehicles are sampled according to the given
-=TrafficScenario= and driven along the bridge on a traffic lane. Using the
-principle of superposition, responses collected from the previous simulations
-can be summed together, one for each vehicle's wheel, to calculate a response at
-a requested point. This will all be explained more thoroughly in Subsection
+First a quick summary of the data collection system. A simulation scenario is
+defined as a combination of a damage scenario and traffic scenario. For a given
+=Bridge=, a number of FEMs are generated of the bridge in undamaged state, and
+simulations are run. In each simulation a unit load is placed at a different
+point on the bridge deck. Each point is chosen to be on a "wheel track", which
+is where a vehicle's wheels will be when the vehicle is later "driven" along the
+bridge. Vehicles are sampled according to the given traffic scenario and driven
+along the bridge on a traffic lane in discrete time steps. Using the principle
+of superposition, responses collected from the previous simulations can be
+summed together (one for each vehicle's wheel) to calculate a response at a
+requested point. A number of additional simulations must be run for the bridge
+in damaged state. This will all be explained more thoroughly in Subsection
 [[System Operation]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
@@ -800,6 +903,11 @@ scenarios respectively.
 
  # How to test/score the models.
 *** Traffic Modeling
+
+\textcolor{red}{Distribution of passenger vehicles}
+
+https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
+
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
@@ -1041,28 +1149,31 @@ The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
 *** Verification
-The data collection system needs to be verified in order for the generated data
-to be trusted, otherwise an analysis of the generated data would offer little
-value. This subsection outlines how the data collection system was verified.
+The collected data needs to be verified, otherwise an analysis of the data would
+offer little value. In this Subsection the data collection system is set to
+bridge 705 and the generated FEM for OpenSees verified against the previously
+verified FEM of bridge 705 for Diana. Additionaly verification is also presented
+of the generated FEM against the measurements from the experimental campaign.
 
 # Error decreases as mesh density increases.
-The mesh density of a FEM generated from a =Bridge= is controlled by a number of
-parameters, as outlined in Subsection [[Bridge Modeling]]. As the mesh density of
-the FEM increases, the expectation is that the error $\epsilon$ of responses
-from the simulation will decrease to zero. $\epsilon$ is calculated for the FEM
+The density of the generated FEM's mesh is controlled by a number of parameters,
+as outlined in Subsection [[Bridge Modeling]]. As the number of nodes in the FEM
+increases, the expectation is that the error $\epsilon$ of responses from the
+OpenSees simulation will decrease to zero. $\epsilon$ is calculated for the FEM
 of bridge 705 as the mean difference of the maximum response recorded with
 OpenSees to the maximum recorded with Diana, for a number of loading positions.
 $\epsilon = \sum_{p=1}^{n} \abs{r_{op} - r_{dp}} \frac{1}{n}$, where $r_{op}$ is
 the maximum response recorded with OpenSees under a 100kN concentrated load at
 position $p$ and $r_{dp}$ is the maximum response recorded using the verified
-Diana model with the same load applied. Figure [[fig:response-convergence]] shows
-$\epsilon$ for $n = 4$ as a function of the number of nodes in the bridge deck
-of the generated FEM. The Figure verifies that for the $n = 4$ chosen loading
-positions that $\epsilon$ decreases as the mesh density increases. Only four
-loading positions were chosen due to the high run time of simulations, the
-chosen loading positions are described in Table [[tbl:verification-points]].
+Diana model with the same load applied.
 
-\textcolor{red}{Increase to $n = ~20$}
+# Figure of decreasing convergence.
+Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function of
+model size. The Figure shows that for the $n = 4$ chosen loading positions that
+$\epsilon$ decreases as the model size increases. Four loading positions were
+chosen to cover various points of interest on the bridge deck. Each of the $n =
+4$ loading positions is defined in Table [[tbl:loading-positions]], including the
+reason for including that position.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1070,16 +1181,74 @@ chosen loading positions are described in Table [[tbl:verification-points]].
 #+CAPTION[Error as a function of model size]: TODO:CAPTION
 [[./images/response-convergence.png]]
 
-#+NAME: tbl:verification-points
-#+CAPTION[Comparison of OpenSees and Diana]: TODO:CAPTION
-| Diana | OpenSees | (x, z) | Point label |
-|-------+----------+--------+-------------|
-|  0.49 |    0.465 |        | A           |
-|  0.14 |    0.130 |        | B           |
-| 0.162 |    0.180 |        | C           |
-|  0.13 |    0.128 |        | D           |
+#+NAME: tbl:loading-positions
+#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the loading position was chosen.
+|   x (m) |  z (m) | Name | Reason |
+|---------+--------+------+--------|
+|  34.955 | 29.226 | A    |        |
+|  51.251 |   16.6 | B    |        |
+|  92.406 | 12.405 | C    |        |
+| 101.765 |  3.974 | D    |        |
+
+#+NAME: tbl:max-displacement
+#+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:loading-positions]].
+| Diana | OpenSees | Point |
+|-------+----------+-------|
+|  0.49 |    0.465 | A     |
+|  0.14 |    0.130 | B     |
+| 0.162 |    0.180 | C     |
+|  0.13 |    0.128 | D     |
 
 \textcolor{red}{Verify the model is deterministic $\epsilon$}
+
+# Introduction to experimental campaign.
+An experimental campaign was carried out by TNO where two trucks were driven on
+bridge 705 in Amsterdam and sensor responses measured. Sensors were installed by
+TNO aswell as by other companies. The sensors measured strain, displacement and
+acceleration. The measured responses allowed the FEM of bridge 705 for Diana to
+be verified by comparing the responses in simulation with Diana against the
+measured responses.
+
+# Only truck 1 is considered.
+For the verification of the generated FEM against both the FEM of bridge 705 for
+Diana, and against the measured responses, only one of the trucks (truck 1) is
+considered. This is because the measured responses and the responses from Diana
+for truck 1 were available from TNO in a simple format.
+
+# Truck 1.
+The specification of truck 1 is shown in Figure [[fig:truck-1]] on the left. The
+plot on the left shows the size of the wheels however in simulation the force
+from each wheel is represented by a point load as shown on the right in the same
+Figure.
+
+#+NAME: fig:truck-1
+#+CAPTION[Truck 1]: Specification of truck 1 from the experimental campaign. The plot on the left shows the distance between each axle in meters, the axle width in meters, the weight per wheel in kilogram, the total weight per axle in kilogram and the total weight of the truck in kilogram. The plot on the right is generated by the model of truck used in simulation, here the force from each wheel is represented by a point load.
+[[./images/wagen1.png]]
+
+# Truck 1 positions.
+In the experimental campaign, truck 1 was parked at 13 positions on the bridge
+deck and the responses from a number of sensors measured. The positions of the
+truck are shown in Figure [[fig:truck-pos]]. Each of the sensors are listed in Table
+[[tbl:sensor-pos]], furthermore the positions of the sensors across the bridge deck
+is shown in Figure \textcolor{red}{TODO REF}
+
+\textcolor{red}{Use all strain sensors for verification}
+
+#+NAME: fig:truck-pos
+#+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
+[[./images/truck-pos.png]]
+
+\textcolor{red}{Figure of sensor positions}
+
+\textcolor{red}{When bridge 705 was built}
+
+# FEMs make perfect health assumption.
+Amn important point is that the FEM of bridge 705 for Diana and the generated
+FEM are based on a blueprint of the bridge and make the assumption that bridge
+705 is in perfect healthy condition. However since bridge 705 was built N years
+ago, it is more likely that some imperfections now exist in the structure. Both
+the generated FEM and the FEM for Diana are based on the assumption of perfect
+health and thus the measured responses are not expected to exactly match.
 
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
@@ -1148,6 +1317,17 @@ built is discussed.
 ** Modeling Damage Scenarios
 ** Sensor Placement
 ** Anomally Detection
+* Appendix
+
+#+NAME: tbl:sensor-pos
+#+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
+| Label |     X | Z | Type | Company |
+|-------+-------+---+------+---------|
+|  0.49 | 0.465 | A |      |         |
+|  0.14 | 0.130 | B |      |         |
+| 0.162 | 0.180 | C |      |         |
+|  0.13 | 0.128 | D |      |         |
+
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
 bibliography:myrefs.bib

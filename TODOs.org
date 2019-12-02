@@ -164,8 +164,10 @@ CLOSED: [2019-10-22 Tue 11:40]
 *** DONE I want to go over Diana and Axis now
 CLOSED: [2019-10-22 Tue 11:40]
 ** Presentation
-*** TODO Talk about how a team can perform inspection after detection
-*** TODO Validation is super important to Valeria
+*** DONE Talk about how a team can perform inspection after detection
+CLOSED: [2019-12-02 Mon 07:40]
+*** DONE Validation is super important to Valeria
+CLOSED: [2019-12-02 Mon 07:40]
 ** 4rd November
 *** DONE Sleeping
 CLOSED: [2019-11-10 Sun 20:21]
@@ -188,16 +190,20 @@ CLOSED: [2019-11-10 Sun 20:21]
 - [[http://openseesforfire.github.io/Subpages/ThermalActionCmds.html]]
 ** 11th November
 *** TODO Pier displacement
-- Running simulation for each pier under unit displacement
-- Need to calculate response due to varied pier displacement
+**** TODO Running simulation for each pier under unit displacement
+**** TODO Need to calculate response due to varied pier displacement
 **** TODO Pier displacment against Axis
 Will be useful to see the edge piers.
 *** TODO Responses via matrix multiplication
-- TrafficSequence (low memory)
-- Traffic (natural semantics)
-- TrafficArray (numpy array)
-- Creation of traffic array not so fast (consider Hz)
-- Calculation of responses very fast
+**** DONE TrafficSequence (low memory)
+CLOSED: [2019-12-02 Mon 07:41]
+**** DONE Traffic (natural semantics)
+CLOSED: [2019-12-02 Mon 07:41]
+**** DONE TrafficArray (numpy array)
+CLOSED: [2019-12-02 Mon 07:41]
+**** TODO Creation of traffic array not so fast (consider Hz)
+Part of this loop is independent, so can factor it out
+**** TODO Calculation of responses very fast
 *** TODO Collect responses under different scenarios at different points
 - Look at change in distribution along x axis (unit load plot)
 - Look at change in distribution moving away from damage site
@@ -218,6 +224,7 @@ Will be useful to see the edge piers.
 - 1 day is approx 72 GB
 *** TODO How to argue value of 2D model
 *** TODO Look at numba
+** Next meeting
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -361,10 +368,8 @@ CLOSED: [2019-11-07 Thu 10:46]
 *** TODO Research & writing
 ** 18th November
 *** TODO Collect strain
-*** TODO Verification plot 1
+*** TODO Verification: sensor plot
 - Position and load intensity of truck wheels
--
 ** 25th November
 *** TODO Collect strain
-*** TODO Verification plot 2
-*** TODO
+*** TODO Verification: regression plot

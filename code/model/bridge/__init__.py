@@ -534,7 +534,11 @@ class Bridge:
         return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
     def wheel_tracks(self, c: "Config"):
-        """Z positions of wheel track on the bridge."""
+        """Z positions of wheel track on the bridge.
+
+        TODO: Deprecate in favour of self.wheel_track_zs
+
+        """
         half_axle = c.axle_width / 2
         return list(
             chain.from_iterable(
@@ -542,6 +546,9 @@ class Bridge:
                 for lane in self.lanes
             )
         )
+
+    def wheel_track_zs(self, c: "Config"):
+        return self.wheel_track(c)
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

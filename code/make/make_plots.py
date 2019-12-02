@@ -38,9 +38,12 @@ from make.plot import (
     contour,
     matrix,
     vehicle,
+    vehicles,
     verification,
     distribution,
 )
+
+from make.data import simulations
 
 # Print debug information for this file.
 D: str = "make.make_plots"
@@ -232,21 +235,52 @@ def make_geom_plots(c: Config):
 
 def make_all_3d(c: Config):
     """Make all plots for a 3D bridge for the thesis."""
-    # contour.plot_of_unit_loads(c)
-    # verification.make_convergence_data(c, run=True, plot=True)
-    # verification.plot_convergence(c)
-    # make_geom_plots(c)
-    # vehicle.vehicle_plots(c)
-    # make_il_plots(c)
-    # distribution.distribution_plots(c)
-    # verification.plot_pier_displacement(c)
-    # matrix.dc_plots(c)
     # make_event_plots(c)
-    # animate.traffic(c)
-    # make_distribution_plots(c)
+
+    ###################
+    ##### Objects #####
+    ###################
+    # make_geom_plots(c)
     # make_cloud_of_nodes_plots(c)
-    contour.plots_for_verification(
-        c=c, y=0, response_types=[ResponseType.YTranslation]
-    )
-    # contour.plots_of_pier_displacement(
-    #     c=c, y=0, response_types=[ResponseType.YTranslation])
+    # vehicle.wagen1_plot(c)
+    # vehicles.vehicle_plots(c)
+
+    ######################
+    ##### Simulation #####
+    ######################
+    # simulations.run_uls(c)
+    # verification.make_convergence_data(c, run=True, plot=True)
+
+    ########################
+    ##### Verification #####
+    ########################
+    # verification.sensor_subplots(c)
+    # contour.comparison_plots_705(c=c)
+    # verification.plot_convergence(c)
+    verification.r2_plots(c)
+
+    ###############################
+    ##### System verification #####
+    ###############################
+    # sys_verification.plot_pier_displacement(c)
+
+    ########################
+    ##### Distribution #####
+    ########################
+    # make_distribution_plots(c)
+    # distribution.distribution_plots(c)
+    # distribution.deck_distribution_plots(c)
+
+    ####################
+    ##### Scenario #####
+    ####################
+    # contour.plot_of_unit_loads(c)
+    # make_il_plots(c)
+    # matrix.dc_plots(c)
+    # contour.plots_of_pier_displacement(c)
+    # contour.gradient_pier_displacement_plots(c)
+
+    #####################
+    ##### Animation #####
+    #####################
+    # animate.traffic(c)

@@ -7,6 +7,7 @@ import copy
 from collections import OrderedDict
 from typing import Callable, List, Optional
 
+import matplotlib
 import matplotlib.colors as colors
 import matplotlib.patches as patches
 import matplotlib.pyplot as _plt
@@ -28,26 +29,32 @@ D: bool = False
 
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
+matplotlib.rcParams["figure.figsize"] = (16, 10)
 
 _og_savefig = _plt.savefig
-
-
-def _savefig(*args, **kwargs):
-    _plt.gcf().set_size_inches(16, 10)
-    _plt.tight_layout()
-    _og_savefig(*args, **kwargs)
-
-
 _og_show = _plt.show
 
 
+def _savefig(*args, **kwargs):
+    plt.tight_layout()
+    _og_savefig(*args, **kwargs)
+
+
 def _show(*args, **kwargs):
-    _plt.gcf().set_size_inches(16, 10)
-    _plt.tight_layout()
+    plt.tight_layout()
     _og_show(*args, **kwargs)
 
 
+def _equal_ax_lims(plt):
+    xmin, xmax = plt.xlim()
+    ymin, ymax = plt.ylim()
+    amin, amax = min(xmin, ymin), max(xmax, ymax)
+    plt.xlim((amin, amax))
+    plt.ylim((amin, amax))
+
+
 plt = _plt
+plt.equal_ax_lims = lambda: _equal_ax_lims(plt)
 plt.savefig = _savefig
 plt.show = _show
 

@@ -92,6 +92,24 @@ def kde_sampler(data, print_: bool = False):
         yield kde.resample(1)[0][0]
 
 
+def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
+    """Read CSV data from a file.
+
+    'ignore' first lines are ignored as are lines with '<= min_spaces' spaces.
+
+    """
+    with open(path) as f:
+        return list(
+            map(
+                lambda line: list(map(float, line.split(","))),
+                filter(
+                    lambda line: len(line.split()) > min_spaces,
+                    f.readlines()[ignore],
+                ),
+            )
+        )
+
+
 def safe_str(s: str) -> str:
     """A lowercase string with some special characters replaced."""
     for char in "[]()":
@@ -99,3 +117,7 @@ def safe_str(s: str) -> str:
     s = s.replace(" ", "-")
     s = s.replace(".", ",")
     return s.lower()
+
+
+kg_to_kn = 0.00980665
+kn_to_kg = 1 / kg_to_kn

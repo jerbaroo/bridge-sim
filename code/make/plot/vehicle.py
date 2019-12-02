@@ -1,23 +1,28 @@
+"""Plots for individual vehicles."""
+import matplotlib.image as mpimg
+
+from classify.vehicle import wagen1
 from config import Config
-from plot.vehicles import (
-    plot_db,
-    plot_density,
-    plot_length_vs_axles,
-    plot_length_vs_weight,
-    plot_weight_vs_axles,
-)
+from plot.vehicle import topview_vehicle
+from plot import plt
 
 
-def vehicle_plots(c: Config):
-    """Plot vehicle information based on Config.vehicle_density."""
-    plot_db(c=c, save=c.get_image_path("vehicles", f"db"))
-    plot_density(c=c, save=c.get_image_path("vehicles", f"density"))
-    plot_length_vs_axles(
-        c=c, save=c.get_image_path("vehicles", f"length-vs-axles")
-    )
-    plot_length_vs_weight(
-        c=c, save=c.get_image_path("vehicles", f"length-vs-weight")
-    )
-    plot_weight_vs_axles(
-        c=c, save=c.get_image_path("vehicles", f"weight-vs-axles")
-    )
+def wagen1_plot(c: Config):
+    """Plot of wagen1 compared to given specification."""
+    plt.subplot(1, 2, 1)
+    img = mpimg.imread("data/vehicle/truck-1.png")
+    plt.imshow(img, aspect="auto")
+    plt.title("Truck 1 specification")
+    plt.xticks([], [])
+    plt.yticks([], [])
+    plt.xlabel("")
+    plt.ylabel("")
+
+    plt.subplot(1, 2, 2)
+    topview_vehicle(wagen1)
+    plt.title("Truck 1 in simulation")
+    plt.xlabel("Width (m)")
+    plt.ylabel("Length (m)")
+
+    plt.savefig(c.get_image_path("vehicle", "wagen1", bridge=False))
+    plt.close()

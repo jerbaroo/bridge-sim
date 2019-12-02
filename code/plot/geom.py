@@ -24,10 +24,11 @@ D: str = "plot.bridge"
 
 def top_view_bridge(
     bridge: Bridge,
-    lanes: bool = True,
-    lane_fill: bool = True,
-    piers: bool = True,
-    outline: bool = True,
+    lanes: bool = False,
+    lane_fill: bool = False,
+    piers: bool = False,
+    abutments: bool = False,
+    edges: bool = False,
 ):
     """Plot the top view of a bridge's geometry.
 
@@ -36,16 +37,14 @@ def top_view_bridge(
         lanes: bool, whether to plot lanes on the bridge.
         lane_fill: bool, whether to plot fill or only outline.
         piers: bool, whether to plot where the piers connect to the deck.
-        outline: bool, whether to plot the bridge outline.
+        abutments: bool, whether to plot the bridge's abutments.
+        edges: bool, whether to plot the longitudinal edges.
 
     """
-    if outline:
-        plt.hlines(
-            [bridge.z_min, bridge.z_max], 0, bridge.length, color=Color.bridge
-        )
-        plt.vlines(
-            [0, bridge.length], bridge.z_min, bridge.z_max, color=Color.bridge
-        )
+    if edges:
+        plt.hlines([bridge.z_min, bridge.z_max], 0, bridge.length)
+    if abutments:
+        plt.vlines([0, bridge.length], bridge.z_min, bridge.z_max)
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
@@ -53,8 +52,7 @@ def top_view_bridge(
                     (0, lane.z_min),
                     bridge.length,
                     lane.z_max - lane.z_min,
-                    edgecolor=Color.bridge,
-                    facecolor=Color.bridge if lane_fill else "none",
+                    facecolor="black" if lane_fill else "none",
                 )
             )
     if piers:

@@ -3,17 +3,20 @@ from itertools import chain
 from typing import List, Tuple
 
 import numpy as np
+from scipy.interpolate import interp1d
 
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
-from fem.responses import Responses
+from fem.params import SimParams
+from fem.responses import Responses, load_fem_responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model.bridge import Point
+from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from model.scenario import BridgeScenario, Traffic, TrafficArray
-from util import print_d, print_i
+from util import print_d, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"
@@ -109,14 +112,12 @@ def responses_to_traffic(
                         mv_vehicle_x_fracs
                     ):
                         mv_vehicle_responses.append(
-                            (
-                                il_matrix.response_to(
-                                    load_x_frac=mv_vehicle_x_frac,
-                                    load=mv_vehicle.kn_per_axle()[axle] / 2,
-                                    x_frac=c.bridge.x_frac(x=point.x),
-                                    y_frac=c.bridge.y_frac(y=point.y),
-                                    z_frac=c.bridge.z_frac(z=point.z),
-                                )
+                            il_matrix.response_to(
+                                load_x_frac=mv_vehicle_x_frac,
+                                load=mv_vehicle.kn_per_axle()[axle] / 2,
+                                x_frac=c.bridge.x_frac(x=point.x),
+                                y_frac=c.bridge.y_frac(y=point.y),
+                                z_frac=c.bridge.z_frac(z=point.z),
                             )
                         )
 
@@ -145,40 +146,55 @@ def responses_to_traffic_array(
     bridge_scenario: BridgeScenario,
     points: List[Point],
     fem_runner: FEMRunner,
+    j=None,
 ):
+    """The magic function.
+
+    TODO: Make 'TrafficArray' optional.
+    TODO: Find references ot 'j' and remove.
+
+    """
     # The unit load simulations that are loaded depend on whether the bridge is
     # healthy or cracked. TODO
 
-    # First collect the unit load simulations per wheel track.
     wheel_zs = c.bridge.wheel_tracks(c)
-    il_matrices = {
-        wheel_z: ILMatrix.load(
-            c=c,
-            response_type=response_type,
-            fem_runner=fem_runner,
-            load_z_frac=c.bridge.z_frac(wheel_z),
-        )
-        for wheel_z in wheel_zs
-    }
+    ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 
-    # Create a matrix of unit load simulation (rows) * point (columns).
-    print_i(f"Calculating unit load matrix...")
-    unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-    for w, wheel_z in enumerate(wheel_zs):
-        i = w * c.il_num_loads  # Row index.
-        il_matrix = il_matrices[wheel_z]
-        # For each unit load simulation.
-        for sim_responses in il_matrix.expt_responses:
-            for j, point in enumerate(points):
-                unit_load_matrix[i][j] = sim_responses._at(
-                    x=point.x, y=point.y, z=point.z
-                )
-            i += 1
-        print_i(f"Calculated unit load matrix for wheel track {w}")
-    # Divide by the load of the unit load simulations, so the value at a cell is
-    # the response to 1 kN. Then multiple the traffic and unit load matrices to
-    # get the responses.
-    unit_load_matrix /= c.il_unit_load_kn
+    if np.count_nonzero(traffic_array) > 0:
+        # First collect the unit load simulations per wheel track.
+        il_matrices = {
+            wheel_z: ILMatrix.load(
+                c=c,
+                response_type=response_type,
+                fem_runner=fem_runner,
+                load_z_frac=c.bridge.z_frac(wheel_z),
+            )
+            for wheel_z in wheel_zs
+        }
+
+        # Create a matrix of unit load simulation (rows) * point (columns).
+        print_i(f"Calculating unit load matrix...")
+        unit_load_matrix = np.empty(ulm_shape)
+        for w, wheel_z in enumerate(wheel_zs):
+            i = w * c.il_num_loads  # Row index.
+            il_matrix = il_matrices[wheel_z]
+            # For each unit load simulation.
+            for sim_responses in il_matrix.expt_responses:
+                for j, point in enumerate(points):
+                    unit_load_matrix[i][j] = sim_responses._at(
+                        x=point.x, y=point.y, z=point.z
+                    )
+                i += 1
+            print_i(f"Calculated unit load matrix for wheel track {w}")
+        # Divide by the load of the unit load simulations, so the value at a
+        # cell is the response to 1 kN. Then multiple the traffic and unit load
+        # matrices to get the responses.
+        unit_load_matrix /= c.il_unit_load_kn
+        if j is not None:
+            print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
+    else:
+        unit_load_matrix = np.zeros(ulm_shape)
+
     responses = np.matmul(traffic_array, unit_load_matrix)
 
     pd_responses = np.zeros(responses.shape)
@@ -189,8 +205,7 @@ def responses_to_traffic_array(
         )
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):
-            # TODO enumerate each pier correctly.
-            for pier_displacement in [bridge_scenario.displacement_ctrl]:
+            for pier_displacement in bridge_scenario.pier_disps:
                 pd_responses[p] += pd_matrix.sim_response(
                     expt_frac=np.interp(
                         pier_displacement.pier,
@@ -203,7 +218,119 @@ def responses_to_traffic_array(
                 ) * (pier_displacement.displacement / c.pd_unit_disp)
         pd_responses = pd_responses.T
 
-    print(responses.shape)
-    print(pd_responses.shape)
-
     return responses + pd_responses
+
+
+def responses_to_loads(
+    c: Config,
+    loads: List[PointLoad],
+    response_type: ResponseType,
+    bridge_scenario: BridgeScenario,
+    points: List[Point],
+    fem_runner: FEMRunner,
+):
+    """Responses to point loads."""
+    # Create an empty 'TrafficArray' with one time step.
+    wheel_track_zs = c.bridge.wheel_tracks(c)
+    num_load_positions = c.il_num_loads * len(wheel_track_zs)
+    traffic_array = np.zeros((1, num_load_positions))
+
+    # Insert the point loads into the 'TrafficArray'.
+    interp = interp1d(
+        [0, c.bridge.length], [0, c.il_num_loads - 1], fill_value="extrapolate"
+    )
+    for load in loads:
+        wheel_track_found = False
+        load_z = c.bridge.z(load.z_frac)
+        for w, wheel_track_z in enumerate(wheel_track_zs):
+            if np.isclose(wheel_track_z, load_z):
+                wheel_track_found = True
+                x_ind = int(interp(c.bridge.x(load.x_frac)))
+                j = w * c.il_num_loads + x_ind
+                print(f"j = {j}")
+                traffic_array[0][j] = load.kn
+        if not wheel_track_found:
+            print(wheel_track_zs)
+            raise ValueError(f"No wheel track for point load at z = {load_z}")
+
+    print([(point.x, point.z, point.y) for point in points])
+
+    return responses_to_traffic_array(
+        c=c,
+        traffic_array=traffic_array,
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        j=j,
+        fem_runner=fem_runner,
+    )
+
+
+def responses_to_loads_(
+    c: Config,
+    loads: List[List[PointLoad]],
+    response_type: ResponseType,
+    bridge_scenario: BridgeScenario,
+    points: List[Point],
+    sim_runner: FEMRunner,
+):
+    """Like 'responses_to_loads' but responses are via direct simulation.
+
+    Returns a numPy array of shape len(loads) * len(points).
+
+    """
+    if not isinstance(bridge_scenario, HealthyBridge):
+        raise ValueError("Only HealthyBridge supported in direct simulation")
+    result = []
+    for loads_ in loads:
+        sim_responses = load_fem_responses(
+            c=c,
+            sim_params=SimParams(response_types=[response_type], ploads=loads_),
+            response_type=ResponseType.YTranslation,
+            sim_runner=sim_runner,
+        )
+        result.append(
+            [
+                sim_responses.at(
+                    x_frac=c.bridge.x_frac(point.x),
+                    z_frac=c.bridge.z_frac(point.z),
+                )
+                for point in points
+            ]
+        )
+    return np.array(result)
+
+
+def responses_to_vehicles_(
+    c: Config,
+    mv_vehicles: List[MvVehicle],
+    times: List[float],
+    response_type: ResponseType,
+    bridge_scenario: BridgeScenario,
+    points: List[Point],
+    sim_runner: FEMRunner,
+):
+    """Responses to vehicles via direct simulation."""
+    print_w("TODO: converting vehicle to point loads")
+    loads = [
+        list(
+            chain.from_iterable(
+                chain.from_iterable(
+                    v.to_point_loads(time=time, bridge=c.bridge)
+                )
+                for v in mv_vehicles
+            )
+        )
+        for time in times
+    ]
+    assert isinstance(loads, list)
+    assert isinstance(loads[0], list)
+    assert isinstance(loads[0][0], PointLoad)
+    return responses_to_loads_(
+        c=c,
+        loads=loads,
+        response_type=response_type,
+        bridge_scenario=bridge_scenario,
+        points=points,
+        sim_runner=sim_runner,
+    )
