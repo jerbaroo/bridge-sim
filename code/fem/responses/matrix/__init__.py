@@ -155,7 +155,7 @@ def load_expt_responses(
             sim_params=sim_params,
             response_type=response_type,
             sim_runner=sim_runner,
-            index=(i + 1, len(expt_params.sim_params))
+            index=(i + 1, len(expt_params.sim_params)),
         )
 
     with Pool() as pool:

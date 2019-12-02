@@ -5,7 +5,7 @@ import os
 import pickle
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import List, NewType, Tuple, Optional
+from typing import List, NewType, Optional, Tuple
 
 from config import Config
 from fem.params import ExptParams, SimParams
@@ -34,7 +34,7 @@ def load_fem_responses(
     response_type: ResponseType,
     sim_runner: "FEMRunner",
     run: bool = False,
-    index: Optional[Tuple[int, int]] = None
+    index: Optional[Tuple[int, int]] = None,
 ) -> FEMResponses:
     """Load responses of one sensor type from a FE simulation.
 
@@ -103,7 +103,8 @@ def load_fem_responses(
         responses=responses,
     )
     print_prog(
-        f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
+        f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})"
+    )
 
     return fem_responses
 

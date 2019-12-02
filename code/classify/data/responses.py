@@ -284,9 +284,12 @@ def responses_to_loads_(
         raise ValueError("Only HealthyBridge supported in direct simulation")
     expt_responses = load_expt_responses(
         c=c,
-        expt_params=ExptParams([
-            SimParams(response_types=[response_type], ploads=loads_)
-            for loads_ in loads]),
+        expt_params=ExptParams(
+            [
+                SimParams(response_types=[response_type], ploads=loads_)
+                for loads_ in loads
+            ]
+        ),
         response_type=ResponseType.YTranslation,
         sim_runner=sim_runner,
     )
