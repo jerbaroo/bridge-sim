@@ -5,14 +5,14 @@ import os
 import pickle
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import List, NewType, Tuple
+from typing import List, NewType, Tuple, Optional
 
 from config import Config
 from fem.params import ExptParams, SimParams
 from model import Response
 from model.bridge import Dimensions, Point
 from model.response import ResponseType
-from util import nearest_index, print_d, print_i, safe_str
+from util import nearest_index, print_d, print_i
 
 # Print debug information for this file.
 D: str = "fem.responses"
@@ -22,7 +22,7 @@ D: str = "fem.responses"
 def _responses_path(
     sim_runner: "FEMRunner", sim_params: SimParams, response_type: ResponseType
 ) -> str:
-    """Path to responses generated with given parameters."""
+    """Path to responses that were generated with given parameters."""
     return sim_runner.sim_out_path(
         sim_params=sim_params, ext="npy", response_types=[response_type]
     )
@@ -34,8 +34,9 @@ def load_fem_responses(
     response_type: ResponseType,
     sim_runner: "FEMRunner",
     run: bool = False,
+    index: Optional[Tuple[int, int]] = None
 ) -> FEMResponses:
-    """Responses of one sensor type from a FEM simulation.
+    """Load responses of one sensor type from a FE simulation.
 
     Responses are loaded from disk, the simulation is only run if necessary
 
@@ -46,6 +47,7 @@ def load_fem_responses(
         response_type: ResponseType, responses to load from disk and return.
         sim_runner: FEMRunner, FE program to run the simulation with.
         run:
+        index: Optional[int], simulation progress (n/m) printed if given.
 
     """
     if response_type not in sim_params.response_types:
@@ -53,6 +55,11 @@ def load_fem_responses(
     for rt in sim_params.response_types:
         if rt not in sim_runner.supported_response_types(c.bridge):
             raise ValueError(f"{rt} not supported by {sim_runner}")
+
+    prog_str = "1/1: "
+    if index is not None:
+        prog_str = f"{index[0]}/{index[1]}: "
+    print_prog = lambda s: print_i(prog_str + s, end="\r")
 
     # May need to free a node in y direction.
     if c.bridge.dimensions == Dimensions.D2:
@@ -72,13 +79,10 @@ def load_fem_responses(
 
     # Run an experiment with a single FEM simulation.
     if run or not os.path.exists(path):
-        print_d(D, f"Running sim_runner.run")
+        print_prog(f"Running simulation")
         sim_runner.run(ExptParams([sim_params]))
-        print(f"***********")
-        print_d(D, f"Ran sim_runner.run")
-        print(f"expect FEMResponses at {path}")
     else:
-        print_d(D, f"Not running sim_runner.run")
+        print_prog(f"Not running simulation")
 
     # And set the node as fixed again after running.
     if c.bridge.dimensions == Dimensions.D2:
@@ -88,7 +92,7 @@ def load_fem_responses(
     start = timer()
     with open(path, "rb") as f:
         responses = pickle.load(f)
-    print_i(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
+    print_prog(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
 
     start = timer()
     fem_responses = FEMResponses(
@@ -98,7 +102,8 @@ def load_fem_responses(
         response_type=response_type,
         responses=responses,
     )
-    print_i(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
+    print_prog(
+        f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
     return fem_responses
 
@@ -190,7 +195,6 @@ class FEMResponses(Responses):
         self.num_sensors = len(responses)
 
         if not skip_index:
-            print(f"building")
             for r in responses:
                 self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
             self.index()

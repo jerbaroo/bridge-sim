@@ -21,10 +21,11 @@ Parsed = TypeVar("Parsed")
 
 
 class FEMRunner:
-    """Run FEM simulations with an external FE program and generate responses.
+    """An interface to run simulations with an external FE program .
 
     NOTE: For running simulations and loading responses you should instead use
-    the load_fem_responses function.
+    the higher-level 'load_fem_responses' function, or 'load_expt_responses'
+    for parallelization.
 
     Args:
         supported_response_types: Callable[[Bridge], List[ResponseType]], the
