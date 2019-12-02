@@ -74,7 +74,6 @@ def plot_contour_deck(
     color: str = None,
     norm=None,
     center_norm: bool = False,
-    save: Optional[str] = None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -124,7 +123,6 @@ def plot_contour_deck(
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)
-    plt.axis("equal")
 
     # Plot point loads.
     for pload in ploads:
@@ -155,6 +153,3 @@ def plot_contour_deck(
         plt.title(title)
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
-    if save:
-        plt.savefig(save)
-        plt.close()

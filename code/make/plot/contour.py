@@ -191,8 +191,10 @@ def comparison_plots_705(c: Config):
                 responses=fem_responses,
                 ploads=loads,
                 title=title,
-                save=save(""),
             )
+            plt.savefig(save(""))
+            plt.close()
+
             # Plot again with colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
@@ -201,8 +203,10 @@ def comparison_plots_705(c: Config):
                 ploads=loads,
                 center_norm=True,
                 title=title,
-                save=save("center_norm-"),
             )
+            plt.savefig(save("center_norm-"))
+            plt.close()
+
             # Finally create label/title the Diana plot.
             di_img = mpimg.imread(f"data/verification/diana-{label}.png")
             plt.imshow(di_img)

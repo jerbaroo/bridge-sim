@@ -1,4 +1,5 @@
 """Plot geometry of a bridge."""
+import os
 from typing import Callable, List, Optional
 
 import matplotlib.patches as patches
@@ -10,41 +11,50 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 from config import Config
 from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.common import Node
 from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
 from model.bridge import Bridge, Section3D
-from model.load import PointLoad
 from plot import Color, plt
-from util import print_d, print_w
 
 # Print debug information for this file.
-D: str = "plot.bridge"
+D: str = "plot.geom"
 # D: bool = False
 
 
 def top_view_bridge(
     bridge: Bridge,
+    edges: bool = False,
+    abutments: bool = False,
+    piers: bool = False,
     lanes: bool = False,
     lane_fill: bool = False,
-    piers: bool = False,
-    abutments: bool = False,
-    edges: bool = False,
+    landscape: bool = True,
+    compass: bool = True,
 ):
     """Plot the top view of a bridge's geometry.
 
     Args:
         bridge: Bridge, the bridge top to plot.
+        landscape: bool, whether to orient the plot in landscape.
+        edges: bool, whether to plot the longitudinal edges.
+        abutments: bool, whether to plot the bridge's abutments.
+        piers: bool, whether to plot where the piers connect to the deck.
         lanes: bool, whether to plot lanes on the bridge.
         lane_fill: bool, whether to plot fill or only outline.
-        piers: bool, whether to plot where the piers connect to the deck.
-        abutments: bool, whether to plot the bridge's abutments.
-        edges: bool, whether to plot the longitudinal edges.
+        compass: bool, whether to plot a compass rose.
 
     """
+    if landscape:
+        plt.landscape()
+    plt.axis("equal")
     if edges:
         plt.hlines([bridge.z_min, bridge.z_max], 0, bridge.length)
     if abutments:
         plt.vlines([0, bridge.length], bridge.z_min, bridge.z_max)
+    if piers:
+        for pier in bridge.supports:
+            z_min_top, z_max_top = pier.z_min_max_top()
+            x_min, x_max = pier.x_min_max()
+            plt.vlines([x_min, x_max], z_min_top, z_max_top)
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
@@ -55,12 +65,17 @@ def top_view_bridge(
                     facecolor="black" if lane_fill else "none",
                 )
             )
-    if piers:
-        for pier in bridge.supports:
-            z_min_top, z_max_top = pier.z_min_max_top()
-            x_min, x_max = pier.x_min_max()
-            plt.vlines([x_min, x_max], z_min_top, z_max_top)
-    plt.axis("equal")
+    if compass:
+        ax = plt.gca()  # Reference to the original axis.
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        compass_img = plt.imread(os.path.join(dir_path, "compass-rose.png"))
+        c_len = max(bridge.width, bridge.length) * 0.2
+        ax_c = ax.inset_axes(
+            [0, bridge.z_max + (c_len * 0.05), c_len, c_len],
+            transform=ax.transData)
+        ax_c.imshow(compass_img)
+        ax_c.axis("off")
+        plt.sca(ax)  # Return control to the original axis.
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
 

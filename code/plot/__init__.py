@@ -20,8 +20,8 @@ from scipy import stats
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Bridge, Dimensions, Point, Section
-from model.load import MvVehicle, PointLoad, Vehicle
-from model.response import Event, ResponseType
+from model.load import MvVehicle
+from model.response import ResponseType
 from util import print_d, print_w, kde_sampler
 
 # Print debug information for this file.
