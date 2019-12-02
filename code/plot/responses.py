@@ -131,11 +131,7 @@ def plot_contour_deck(
         x = pload.x_frac * c.bridge.length
         z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
         plt.scatter(
-            [x],
-            [z],
-            label=f"{pload.kn} kN load",
-            marker="o",
-            color="red",
+            [x], [z], label=f"{pload.kn} kN load", marker="o", color="red",
         )
 
     # Plot min and max responses.

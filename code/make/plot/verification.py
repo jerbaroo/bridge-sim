@@ -628,10 +628,22 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            ax1.plot(ndeck + npier, mins * 1000, color="red", label="Min. response")
-            ax1.plot(ndeck + npier, maxes * 1000, color="orange", label="Max. response")
+            ax1.plot(
+                ndeck + npier, mins * 1000, color="red", label="Min. response"
+            )
+            ax1.plot(
+                ndeck + npier,
+                maxes * 1000,
+                color="orange",
+                label="Max. response",
+            )
             ax2 = plt.gca().twinx()
-            ax2.plot(ndeck + npier, means * 1000, color="green", label="Mean response")
+            ax2.plot(
+                ndeck + npier,
+                means * 1000,
+                color="green",
+                label="Mean response",
+            )
 
     plt.title("Displacement as a function of model size")
     ax1.legend()

@@ -7,7 +7,11 @@ import matplotlib.image as mpimg
 import numpy as np
 
 from classify.data.responses import responses_to_traffic_array
-from classify.scenario.bridge import PierDispBridge, equal_pier_disp, longitudinal_pier_disp
+from classify.scenario.bridge import (
+    PierDispBridge,
+    equal_pier_disp,
+    longitudinal_pier_disp,
+)
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
@@ -34,15 +38,14 @@ def plots_of_pier_displacement(c: Config):
         for p, pier in enumerate(c.bridge.supports):
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
-                response_types=response_types,
-                displacement_ctrl=pier_disp,
+                response_types=response_types, displacement_ctrl=pier_disp,
             )
             sim_responses = load_fem_responses(
                 c=c,
                 sim_params=sim_params,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                run=True
+                run=True,
             )
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
@@ -66,6 +69,7 @@ def plots_of_pier_displacement(c: Config):
                 ),
             )
 
+
 def gradient_pier_displacement_plots(c: Config):
     """Contour plot of piers displaced in an increasing gradient."""
     for response_type in [ResponseType.YTranslation]:
@@ -73,19 +77,35 @@ def gradient_pier_displacement_plots(c: Config):
         # Equal pier displacement scenario.
         for displacement in np.array([0.1, 0.01]) / 1000:
             gradient_pier_displacement_plot(
-                c=c, pier_disp=equal_pier_disp(bridge=c.bridge, displacement=displacement), response_type=response_type,
-                title=f"{response_type.name()} when each pier is displaced by {displacement} m")
+                c=c,
+                pier_disp=equal_pier_disp(
+                    bridge=c.bridge, displacement=displacement
+                ),
+                response_type=response_type,
+                title=f"{response_type.name()} when each pier is displaced by {displacement} m",
+            )
 
         # Gradient pier displacement scenario.
-        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05]):
+        for start, step in itertools.product(
+            [0.01, 0.02, 0.05], [0.01, 0.02, 0.05]
+        ):
             start, step = np.array([start, step]) / 1000
             gradient_pier_displacement_plot(
-                c=c, pier_disp=longitudinal_pier_disp(bridge=c.bridge, start=start, step=step), response_type=response_type,
-                title=f"{response_type.name()} when piers are incrementally displaced by {step} m starting at {start} m")
+                c=c,
+                pier_disp=longitudinal_pier_disp(
+                    bridge=c.bridge, start=start, step=step
+                ),
+                response_type=response_type,
+                title=f"{response_type.name()} when piers are incrementally displaced by {step} m starting at {start} m",
+            )
 
 
 def gradient_pier_displacement_plot(
-        c: Config, pier_disp: PierDispBridge, response_type: ResponseType, title: str):
+    c: Config,
+    pier_disp: PierDispBridge,
+    response_type: ResponseType,
+    title: str,
+):
     """Contour plot of piers displaced in an increasing gradient."""
 
     # 10 x 10 grid of points on the bridge deck where to record responses.
@@ -100,7 +120,9 @@ def gradient_pier_displacement_plot(
     # Create empty traffic array and collect responses.
     response_array = responses_to_traffic_array(
         c=c,
-        traffic_array=np.zeros((1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)),
+        traffic_array=np.zeros(
+            (1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)
+        ),
         response_type=response_type,
         bridge_scenario=pier_disp,
         points=points,
@@ -116,7 +138,11 @@ def gradient_pier_displacement_plot(
     )
     plot_contour_deck(c=c, responses=responses, center_norm=True)
     plt.title(title)
-    plt.savefig(c.get_image_path("pier-scenarios", f"pier-displacement-{safe_str(title)}"))
+    plt.savefig(
+        c.get_image_path(
+            "pier-scenarios", f"pier-displacement-{safe_str(title)}"
+        )
+    )
     plt.close()
 
 

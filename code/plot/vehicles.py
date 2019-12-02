@@ -27,7 +27,9 @@ def plot_db(c: Config):
     # Get and remove outliers.
     outliers = a16[(np.abs(stats.zscore(a16[["total_weight", "length"]])) >= 3)]
     num_outliers = len(a16) - len(outliers)
-    print_i(f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data")
+    print_i(
+        f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data"
+    )
     a16_no_outliers = a16.drop(outliers.index)
 
     # Sample to 10% of original size.
@@ -36,8 +38,12 @@ def plot_db(c: Config):
     sampled_a16.to_csv("data/a16-data/a16.csv")
     print_i("Wrote updated A16 data to disk")
 
-    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=len(sampled_a16)).T
-    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=10).T
+    passengers = np.random.multivariate_normal(
+        [700, 12.53], cov=np.eye(2), size=len(sampled_a16)
+    ).T
+    passengers = np.random.multivariate_normal(
+        [700, 12.53], cov=np.eye(2), size=10
+    ).T
     print(passengers)
     s = 1
 

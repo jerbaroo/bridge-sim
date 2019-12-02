@@ -33,7 +33,7 @@ def load_fem_responses(
     sim_params: SimParams,
     response_type: ResponseType,
     sim_runner: "FEMRunner",
-    run: bool = False
+    run: bool = False,
 ) -> FEMResponses:
     """Responses of one sensor type from a FEM simulation.
 

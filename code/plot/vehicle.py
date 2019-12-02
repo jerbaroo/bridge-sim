@@ -14,13 +14,14 @@ def topview_vehicle(vehicle: Vehicle):
     for axle_delta in [0] + vehicle.axle_distances:
         axle_y -= axle_delta
         y = axle_y + vehicle.length
-        plt.plot(
-            [0, vehicle.axle_width],
-            [y, y],
-            marker="o", color="black")
+        plt.plot([0, vehicle.axle_width], [y, y], marker="o", color="black")
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)}kN"
         wheel_index += 1
         plt.annotate(wheel_kn, (0, y), (0, y + 0.1))
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)}kN"
         wheel_index += 1
-        plt.annotate(wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 0.1, y + 0.1))
+        plt.annotate(
+            wheel_kn,
+            (vehicle.axle_width, y),
+            (vehicle.axle_width - 0.1, y + 0.1),
+        )
