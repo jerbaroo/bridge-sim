@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from config import Config
-from fem.params import SimParams, ExptParams
+from fem.params import ExptParams, SimParams
 from fem.responses import Responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
