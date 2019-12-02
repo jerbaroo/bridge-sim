@@ -9,14 +9,15 @@ pytest = "*"
 pydeps = "*"
 
 [packages]
+mycode = {path = "./code",editable = true}
 colorama = "*"
 matplotlib = "*"
 numpy = "*"
 pandas = "*"
+pathos = "*"
 scipy = "*"
-termcolor = "*"
-mycode = {path = "./code",editable = true}
 sklearn = "*"
+termcolor = "*"
 
 [requires]
 python_version = "3.7"

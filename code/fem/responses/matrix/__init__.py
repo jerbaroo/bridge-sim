@@ -1,4 +1,6 @@
 """Responses of one type for a number of related simulations."""
+import itertools
+from pathos.multiprocessing import Pool
 from typing import Callable, List
 
 import numpy as np
@@ -141,18 +143,22 @@ def load_expt_responses(
     c: Config,
     expt_params: ExptParams,
     response_type: ResponseType,
-    fem_runner: FEMRunner,
+    sim_runner: FEMRunner,
 ) -> List[FEMResponses]:
     """Load responses of one sensor type for related simulations."""
-    results = []
-    for i, fem_params in enumerate(expt_params.sim_params):
-        results.append(
-            load_fem_responses(
-                c=c,
-                sim_params=fem_params,
-                response_type=response_type,
-                sim_runner=fem_runner,
-            )
+    indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
+
+    def process(index_and_params):
+        i, sim_params = index_and_params
+        return load_fem_responses(
+            c=c,
+            sim_params=sim_params,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            index=(i + 1, len(expt_params.sim_params)),
         )
-        print_i(f"Loading FEMResponses {i + 1}/{len(expt_params.sim_params)}")
+
+    with Pool() as pool:
+        results = pool.map(process, indices_and_params)
+    print()  # Add a newline to fix cursor position.
     return results
