@@ -62,6 +62,8 @@ class FEMRunner:
     ):
         """Run simulations and save responses using this FEMRunner.
 
+        TODO: Change ExptParams to SimParams.
+
         Args:
             expt_params: ExptParams, parameters for a number of simulations.
             return_parsed: bool, for testing, return parsed responses.
