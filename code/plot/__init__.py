@@ -29,7 +29,14 @@ D: bool = False
 
 ###### Apply modifications to matplotlib.pyplot. ##############################
 
-matplotlib.rcParams["figure.figsize"] = (16, 10)
+
+def _portrait():
+    matplotlib.rcParams["figure.figsize"] = (10, 16)
+
+
+def _landspace():
+    matplotlib.rcParams["figure.figsize"] = (16, 10)
+
 
 _og_savefig = _plt.savefig
 _og_show = _plt.show
@@ -57,6 +64,21 @@ plt = _plt
 plt.equal_ax_lims = lambda: _equal_ax_lims(plt)
 plt.savefig = _savefig
 plt.show = _show
+plt.portrait = _portrait
+plt.landscape = _landspace
+plt.portrait()
+
+SMALL_SIZE = 14
+MEDIUM_SIZE = 18
+BIGGER_SIZE = 22
+
+plt.rc("font", size=SMALL_SIZE)          # Default text sizes.
+plt.rc("axes", titlesize=BIGGER_SIZE)    # Axes titles.
+plt.rc("axes", labelsize=MEDIUM_SIZE)    # Axes titles.
+plt.rc("xtick", labelsize=SMALL_SIZE)    # X tick labels.
+plt.rc("ytick", labelsize=SMALL_SIZE)    # Y tick labels.
+plt.rc("legend", fontsize=SMALL_SIZE)    # Legend.
+plt.rc("figure", titlesize=BIGGER_SIZE)  # Figure title
 
 
 ###############################################################################
