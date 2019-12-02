@@ -257,7 +257,7 @@ def make_all_3d(c: Config):
     # verification.sensor_subplots(c)
     # contour.comparison_plots_705(c=c)
     # verification.plot_convergence(c)
-    # verification.r2_plots(c)
+    verification.r2_plots(c)
 
     ###############################
     ##### System verification #####
@@ -269,7 +269,7 @@ def make_all_3d(c: Config):
     ########################
     # make_distribution_plots(c)
     # distribution.distribution_plots(c)
-    distribution.deck_distribution_plots(c)
+    # distribution.deck_distribution_plots(c)
 
     ####################
     ##### Scenario #####

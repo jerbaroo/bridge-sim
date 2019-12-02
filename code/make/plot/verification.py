@@ -5,7 +5,7 @@ import os
 from collections import defaultdict
 from itertools import chain
 from timeit import default_timer as timer
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import matplotlib.cm as cm
 import numpy as np
@@ -294,14 +294,15 @@ def r2_plots(c: Config):
     ##########################
 
     # Sensor label, truck x position, and response value.
-    displa_meas: List[Tuple(str, float, float)] = []
-    displa_diana: List[Tuple(str, float, float)] = []
+    displa_meas: List[Tuple[str, float, float]] = []
+    displa_diana: List[Tuple[str, float, float]] = []
     # List of sensor labels and positions in the same order as above.
     sensors = []
     # All truck positions used in measurements.
     truck_xs_meas = set()
 
-    # For each sensor and truck x position record measurment and Diana response.
+    # For each sensor and truck x position plot the recorded measurement and
+    # Diana response.
     for row in displa_sensors.itertuples():
         sensor_label = getattr(row, "label")
         x, z = displa_sensor_xz(sensor_label)
@@ -345,7 +346,7 @@ def r2_plots(c: Config):
         )
 
     # Subplot: Diana against measurements.
-    plt.subplot(3, 2, 1)
+    plt.subplot(3, 1, 1)
     x = list(map(lambda x: x[2], displa_meas))
     y = [
         diana_response(sensor_label=sensor_label, truck_x=truck_x)
@@ -364,7 +365,7 @@ def r2_plots(c: Config):
     plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against measurements.
-    plt.subplot(3, 2, 3)
+    plt.subplot(3, 1, 2)
     x = list(map(lambda x: x[2], displa_meas))
     y = [
         get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
@@ -383,7 +384,7 @@ def r2_plots(c: Config):
     plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against Diana.
-    plt.subplot(3, 2, 5)
+    plt.subplot(3, 1, 3)
     x = [
         diana_response(sensor_label=sensor_label, truck_x=truck_x)
         for sensor_label, truck_x, _ in displa_meas
@@ -404,13 +405,16 @@ def r2_plots(c: Config):
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
 
+    plt.savefig(c.get_image_path("verification", "regression-displa"))
+    plt.close()
+
     ####################
     ###### Strain ######
     ####################
 
     # Sensor label, truck x position, and response value.
-    strain_meas: List[Tuple(str, float, float)] = []
-    strain_diana: List[Tuple(str, float, float)] = []
+    strain_meas: List[Tuple[str, float, float]] = []
+    strain_diana: List[Tuple[str, float, float]] = []
     # List of sensor labels and positions in the same order as above.
     sensors = []
 
@@ -435,7 +439,7 @@ def r2_plots(c: Config):
     print_i(f"Count nan = {count_nan}")
 
     # Subplot: Diana against measurements.
-    plt.subplot(3, 2, 2)
+    plt.subplot(3, 1, 1)
     x = list(map(lambda x: x[2], strain_meas))
     y = [
         diana_response(sensor_label=sensor_label, truck_x=truck_x)
@@ -453,7 +457,7 @@ def r2_plots(c: Config):
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
 
-    plt.savefig(c.get_image_path("verification", "regression"))
+    plt.savefig(c.get_image_path("verification", "regression-strain"))
 
 
 def make_convergence_data(c: Config, run: bool, plot: bool):
