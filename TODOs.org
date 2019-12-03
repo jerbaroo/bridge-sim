@@ -226,6 +226,7 @@ Part of this loop is independent, so can factor it out
 *** TODO Look at numba
 ** Next meeting
 *** TODO Go over Stress/Strain TCL file
+*** TODO Ask about VPN login
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

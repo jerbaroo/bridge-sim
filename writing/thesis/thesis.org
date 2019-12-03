@@ -19,6 +19,7 @@
 #+LATEX: \section*{Acknowledgements}
 #+LATEX: \thispagestyle{empty}
 I would like to thank...
+\textcolor{red}{TODO: Acknowledgements}
 #+LATEX: \newpage
 
 * Introduction
@@ -235,7 +236,33 @@ function =bar= which takes a list of =Float= as input and returns a value of
 type =Int=".
 
 #+LATEX: \clearpage
-* Background & Motivation
+* Literature Review
+# Introduction.
+The goal of this Section is to summarise the existing body of work that is
+related to the subject area of this thesis. This Section outlines the current
+state of anomaly detection and structural health monitoring, traffic and bridge
+simulations, and real-life installations of sensors for the purpose of health
+monitoring.
+
+# Anomaly detection.
+
+# Structural health monitoring.
+
+# Traffic simulations.
+
+# Bridge simulations.
+
+# Sensor installations for health monitoring.
+
+* Motivation
+The Literature Review provided information on /what/ has already been achieved
+in the subject area of this thesis. This Section however focuses on the question
+of /why/. Why is it /useful/ to perform anomaly dection of bridges? Why should
+sensors be installed on bridges for the purpose of health monitoring and anomaly
+detection? This Section will provide motivation that installing sensors for the
+purpose of health monitoring can be useful. In providing this motivation it also
+also necessary to provide some background information on related technology, for
+example on the types of sensors which are currently used in health monitoring.
 ** Existing Bridges
 # Dutch road network overview.
 The Dutch national main road network consists of 3,200km of road. Assets in the
@@ -781,7 +808,7 @@ of superposition, responses collected from the previous simulations can be
 summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
-[[System Operation]] but it is useful to present a brief overview in advance.
+[[System Design]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
@@ -972,7 +999,7 @@ including structural and geotechnical, and engineering related to tunnelling,
 earthquake, and oil and gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
-*** System Operation
+*** System Design
 The goal of the data collection system is to translate a =Bridge=, along with a
 =TrafficScenario= and =BridgeScenario=, into a time series of responses. This
 subsection details how that translation takes place.
@@ -1143,7 +1170,8 @@ for vehicle in traffic:
         ru = unit_load_simulation.response_at(point)
         response += ru * (wi / ul)
 #+END_SRC
-*** Design and Interface
+**** Meshing
+*** System Interface
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
@@ -1308,7 +1336,6 @@ built is discussed.
 *** Test setup
 *** Data analysis
 *** Damage identification model
-** Decision Support System
 *** Sensor Placement
 *** Noise
 *** Other Bridges
