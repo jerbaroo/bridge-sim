@@ -172,7 +172,7 @@ def ff_elem_ids(mod: int):
 # If you call 'build_model_3d' and then call '.values' on this dictionary it
 # provides an easy way to get all 'ShellElement's for the previously built
 # model.
-elems_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
+shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
 
 
 def get_shell(
@@ -184,7 +184,7 @@ def get_shell(
 
     """
     key = (ni_id, nj_id, nk_id, nl_id)
-    if key in elems_by_id:
+    if key in shells_by_id:
         raise ValueError("Attempt to construct same element twice")
     return ShellElement(
         e_id=next_elem_id(),
@@ -1121,12 +1121,15 @@ def opensees_stress_variables(
     These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
     """
+    import sys;
     if not any(
         rt in sim_params.response_types
         for rt in [ResponseType.Stress, ResponseType.Strain]
     ):
+        print("woops")
         return "", os_runner.element_path(sim_params)
-    return "", os_runner.element_path(sim_params)
+    print(len(shells_by_id))
+    return " ".join(map(lambda sh: sh.e_id, shells_by_id.values())), os_runner.element_path(sim_params)
 
 
 def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
@@ -1254,10 +1257,6 @@ def build_model_3d(
             c=c, all_support_nodes=all_support_nodes
         )
 
-        elem_ids, forces_out_file = opensees_stress_variables(
-            c=c, sim_params=fem_params, os_runner=os_runner
-        )
-
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -1303,8 +1302,6 @@ def build_model_3d(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
             )
-            .replace("<<ELEM_IDS>>", elem_ids)
-            .replace("<<FORCES_OUT_FILE>>", forces_out_file)
             .replace(
                 "<<DECK_ELEMENTS>>",
                 opensees_deck_elements(
@@ -1330,11 +1327,17 @@ def build_model_3d(
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl))
         )
 
+        elem_ids, forces_out_file = opensees_stress_variables(
+            c=c, sim_params=fem_params, os_runner=os_runner
+        )
+        out_tcl = out_tcl.replace("<<ELEM_IDS>>", elem_ids
+            ).replace("<<FORCES_OUT_FILE>>", forces_out_file)
+
         # Write the generated model file.
         model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
-        print_i(f"OpenSees: saved 3D model file to {model_path}")
+        num_nodes = len(list(nodes_by_id.values()))
+        print_i(f"OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}")
 
-    print(len(list(nodes_by_id.values())))
     return expt_params
