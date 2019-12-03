@@ -144,6 +144,12 @@ def set_ff_mod(n: int):
 _elem_id = None
 
 
+# If you call 'build_model_3d' and then call '.values' on this dictionary it
+# provides an easy way to get all 'ShellElement's for the previously built
+# model.
+shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
+
+
 def next_elem_id() -> int:
     """Return the next element ID and increment the counter."""
     global _elem_id
@@ -155,10 +161,11 @@ def next_elem_id() -> int:
 def reset_elem_ids():
     """Reset element IDs to 0, e.g. when building a new model file."""
     global _elem_id
+    global shells_by_id
+    shells_by_id.clear()
     _elem_id = 1
 
 
-# TODO: Move into build function.
 reset_elem_ids()
 
 
@@ -167,12 +174,6 @@ def ff_elem_ids(mod: int):
     global _elem_id
     while _elem_id % mod != 0:
         _elem_id += 1
-
-
-# If you call 'build_model_3d' and then call '.values' on this dictionary it
-# provides an easy way to get all 'ShellElement's for the previously built
-# model.
-shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
 
 
 def get_shell(
@@ -185,6 +186,7 @@ def get_shell(
     """
     key = (ni_id, nj_id, nk_id, nl_id)
     if key in shells_by_id:
+        print(key)
         raise ValueError("Attempt to construct same element twice")
     shells_by_id[key] = ShellElement(
         e_id=next_elem_id(),
