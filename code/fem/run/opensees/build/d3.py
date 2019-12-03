@@ -1122,10 +1122,11 @@ def opensees_stress_variables(
 
     """
     if not any(
-            rt in sim_params.response_types
-            for rt in [ResponseType.Stress, ResponseType.Strain]):
-        return "", ""
-    return "", ""
+        rt in sim_params.response_types
+        for rt in [ResponseType.Stress, ResponseType.Strain]
+    ):
+        return "", os_runner.element_path(sim_params)
+    return "", os_runner.element_path(sim_params)
 
 
 def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
@@ -1253,6 +1254,10 @@ def build_model_3d(
             c=c, all_support_nodes=all_support_nodes
         )
 
+        elem_ids, forces_out_file = opensees_stress_variables(
+            c=c, sim_params=fem_params, os_runner=os_runner
+        )
+
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
@@ -1298,6 +1303,8 @@ def build_model_3d(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
             )
+            .replace("<<ELEM_IDS>>", elem_ids)
+            .replace("<<FORCES_OUT_FILE>>", forces_out_file)
             .replace(
                 "<<DECK_ELEMENTS>>",
                 opensees_deck_elements(
@@ -1322,11 +1329,6 @@ def build_model_3d(
             )
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl))
         )
-        elem_ids, forces_out_file = opensees_stress_variables(
-            c=c, sim_params=fem_params, os_runner=os_runner
-        )
-        outfile = outfile.replace("<<ELEM_IDS>>", elem_ids
-            ).replace("<<FORCES_OUT_FILE>>", forces_out_file)
 
         # Write the generated model file.
         model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")
