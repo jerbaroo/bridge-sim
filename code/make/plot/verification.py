@@ -75,7 +75,7 @@ def diana_response(sensor_label: str, truck_x: float):
     return diana_interp_funcs[sensor_label](truck_x)
 
 
-def sensor_subplots(
+def per_sensor_plots(
     c: Config,
     rows: int = 5,
     cols: int = 2,
@@ -84,6 +84,7 @@ def sensor_subplots(
     """Compare the bridge 705 measurement campaign to Diana and OpenSees.
 
     TODO: Move to plot.verification.705
+
     """
     size = 25  # Size of scatter plot points.
 

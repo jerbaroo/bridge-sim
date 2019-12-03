@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Modeling a decision support system for maintenance of concrete slab bridges
+#+TITLE: Simulation-based anomaly detection of concrete slab bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}

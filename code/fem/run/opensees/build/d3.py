@@ -158,6 +158,7 @@ def reset_elem_ids():
     _elem_id = 1
 
 
+# TODO: Move into build function.
 reset_elem_ids()
 
 
@@ -166,6 +167,33 @@ def ff_elem_ids(mod: int):
     global _elem_id
     while _elem_id % mod != 0:
         _elem_id += 1
+
+
+# If you call 'build_model_3d' and then call '.values' on this dictionary it
+# provides an easy way to get all 'ShellElement's for the previously built
+# model.
+elems_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
+
+
+def get_shell(
+        ni_id: int, nj_id: int, nk_id: int, nl_id: int, **kwargs
+):
+    """Get a 'Shell' if already exists with Node IDs, else create a new one.
+
+    NOTE: Use this to contruct 'Shell's, don't do it directly!
+
+    """
+    key = (ni_id, nj_id, nk_id, nl_id)
+    if key in elems_by_id:
+        raise ValueError("Attempt to construct same element twice")
+    return ShellElement(
+        e_id=next_elem_id(),
+        ni_id=i_node,
+        nj_id=j_node,
+        nk_id=k_node,
+        nl_id=l_node,
+        **kwargs
+    )
 
 
 ##### End element IDs #####
@@ -1085,31 +1113,19 @@ def opensees_translation_recorders(
     )
 
 
-def opensees_stress_recorder(
-    c: Config, fem_params: SimParams, os_runner: "OSRunner"
-) -> str:
-    """OpenSees recorder command for stresses."""
-    all_elements = bridge_3d_elements(
-        deck_elements=fem_params.deck_elements,
-        all_pier_elements=fem_params.all_pier_elements,
-    )
-    ele_str = " ".join(str(e.e_id) for e in all_elements)
-    recorder_str = f"recorder Element -file test.out -ele {ele_str} stresses"
-    return comment("element recorders", recorder_str, units="TODO units")
+def opensees_stress_variables(
+    c: Config, sim_params: SimParams, os_runner: "OSRunner"
+) -> Tuple[str, str]:
+    """OpenSees stress recorder variables.
 
+    These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
-def opensees_recorders(c: Config, fem_params: SimParams, os_runner: "OSRunner"):
-    """OpenSees recorder commands for translation and stresses."""
-    return "\n".join(
-        [
-            opensees_translation_recorders(
-                c=c, fem_params=fem_params, os_runner=os_runner
-            ),
-            opensees_stress_recorder(
-                c=c, fem_params=fem_params, os_runner=os_runner
-            ),
-        ]
-    )
+    """
+    if not any(
+            rt in sim_params.response_types
+            for rt in [ResponseType.Stress, ResponseType.Strain]):
+        return "", ""
+    return "", ""
 
 
 def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
@@ -1278,7 +1294,7 @@ def build_model_3d(
             .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
             .replace(
                 "<<RECORDERS>>",
-                opensees_recorders(
+                opensees_translation_recorders(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
             )
@@ -1306,6 +1322,11 @@ def build_model_3d(
             )
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl))
         )
+        elem_ids, forces_out_file = opensees_stress_variables(
+            c=c, sim_params=fem_params, os_runner=os_runner
+        )
+        outfile = outfile.replace("<<ELEM_IDS>>", elem_ids
+            ).replace("<<FORCES_OUT_FILE>>", forces_out_file)
 
         # Write the generated model file.
         model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")

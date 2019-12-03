@@ -14,20 +14,19 @@ from model.response import ResponseType
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
-    d2_response_types = [
-        ResponseType.XTranslation,
-        ResponseType.YTranslation,
-        ResponseType.Strain,
-        ResponseType.Stress,
-    ]
     if bridge.dimensions == Dimensions.D2:
-        return d2_response_types
+        return [
+            ResponseType.XTranslation,
+            ResponseType.YTranslation,
+            ResponseType.Strain,
+            ResponseType.Stress,
+        ]
     elif bridge.dimensions == Dimensions.D3:
-        # return d2_response_types + [ResponseType.ZTranslation]
         return [
             ResponseType.XTranslation,
             ResponseType.YTranslation,
             ResponseType.ZTranslation,
+            ResponseType.Stress,
         ]
     else:
         raise ValueError(f"{bridge.dimensions} not supported by OSRunner")

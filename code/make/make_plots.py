@@ -254,7 +254,7 @@ def make_all_3d(c: Config):
     ########################
     ##### Verification #####
     ########################
-    # verification.sensor_subplots(c)
+    # verification.per_sensor_plots(c)
     contour.comparison_plots_705(c)
     # verification.plot_convergence(c)
     # verification.r2_plots(c)
