@@ -26,6 +26,7 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
             ResponseType.XTranslation,
             ResponseType.YTranslation,
             ResponseType.ZTranslation,
+            ResponseType.Strain,
             ResponseType.Stress,
         ]
     else:
@@ -89,4 +90,14 @@ class OSRunner(FEMRunner):
     def element_path(self, fem_params: SimParams):
         return self.opensees_out_path(
             sim_params=fem_params, ext="out", append="-elems"
+        )
+
+    def stress_path(self, sim_params: SimParams):
+        return self.opensees_out_path(
+            sim_params=sim_params, ext="out", append="-stress"
+        )
+
+    def strain_path(self, sim_params: SimParams, point: int):
+        return self.opensees_out_path(
+            sim_params=sim_params, ext="out", append=f"-strain-{point}"
         )

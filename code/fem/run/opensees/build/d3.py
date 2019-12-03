@@ -1114,6 +1114,24 @@ def opensees_translation_recorders(
     )
 
 
+elem_ids_str = lambda: (
+    " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())))
+
+
+def opensees_strain_recorders(
+    c: Config, sim_params: SimParams, os_runner: "OSRunner"
+):
+    """OpenSees recorder commands for translation."""
+    if not ResponseType.Strain in sim_params.response_types:
+        return ""
+    return "\n".join(
+        f"recorder Element"
+        f" -file {os_runner.strain_path(sim_params=sim_params, point=point)}"
+        f" -ele {elem_ids_str()} material {str(point)} deformation"
+        for point in [1, 2, 3, 4]
+    )
+
+
 def opensees_stress_variables(
     c: Config, sim_params: SimParams, os_runner: "OSRunner"
 ) -> Tuple[str, str]:
@@ -1122,12 +1140,9 @@ def opensees_stress_variables(
     These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
     """
-    if not any(
-        rt in sim_params.response_types
-        for rt in [ResponseType.Stress, ResponseType.Strain]
-    ):
-        return "", os_runner.element_path(sim_params)
-    return " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())), os_runner.element_path(sim_params)
+    if not ResponseType.Stress in sim_params.response_types:
+        return "", os_runner.stress_path(sim_params)
+    return elem_ids_str(), os_runner.stress_path(sim_params)
 
 
 def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
@@ -1295,7 +1310,7 @@ def build_model_3d(
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
             .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
             .replace(
-                "<<RECORDERS>>",
+                "<<TRANS_RECORDERS>>",
                 opensees_translation_recorders(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
@@ -1330,6 +1345,10 @@ def build_model_3d(
         )
         out_tcl = out_tcl.replace("<<ELEM_IDS>>", elem_ids
             ).replace("<<FORCES_OUT_FILE>>", forces_out_file)
+        out_tcl = out_tcl.replace(
+            "<<STRAIN_RECORDERS>>",
+            opensees_strain_recorders(
+                c=c, sim_params=fem_params, os_runner=os_runner))
 
         # Write the generated model file.
         model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")

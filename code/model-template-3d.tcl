@@ -28,15 +28,19 @@ pattern Plain 1 1 {
 <<LOAD>>
 }
 
+<<TRANS_RECORDERS>>
+
+<<STRAIN_RECORDERS>>
+
 system BandGeneral
 numberer RCM
-constraints Transformation
+constraints Plain
 <<INTEGRATOR>>
 <<ALGORITHM>>
 <<TEST>>
 analysis Static
 
-<<RECORDERS>>
+analyze 1
 
 # Array of each element's ID.
 set l [list <<ELEM_IDS>>]
@@ -50,5 +54,3 @@ foreach i $l {
 	puts $outfile $internal_force
 }
 close $outfile
-
-analyze 1

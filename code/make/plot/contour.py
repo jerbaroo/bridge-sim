@@ -155,6 +155,7 @@ def comparison_plots_705(c: Config):
         (101.7649, 3.973938 - 16.6, "d"),
     ]
     response_types = [ResponseType.YTranslation]
+    response_types = [ResponseType.Strain]
     response_types = [ResponseType.Stress]
     # For each response type and loading position first create contour plots for
     # OpenSees. Then finally create subplots comparing to Diana.
