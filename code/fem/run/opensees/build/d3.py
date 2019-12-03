@@ -186,14 +186,15 @@ def get_shell(
     key = (ni_id, nj_id, nk_id, nl_id)
     if key in shells_by_id:
         raise ValueError("Attempt to construct same element twice")
-    return ShellElement(
+    shells_by_id[key] = ShellElement(
         e_id=next_elem_id(),
-        ni_id=i_node,
-        nj_id=j_node,
-        nk_id=k_node,
-        nl_id=l_node,
+        ni_id=ni_id,
+        nj_id=nj_id,
+        nk_id=nk_id,
+        nl_id=nl_id,
         **kwargs
     )
+    return shells_by_id[key]
 
 
 ##### End element IDs #####
@@ -908,8 +909,7 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
                 element_z=nodes_by_id[i_node].z,
             )
             deck_elements[-1].append(
-                ShellElement(
-                    e_id=next_elem_id(),
+                get_shell(
                     ni_id=i_node,
                     nj_id=j_node,
                     nk_id=k_node,
@@ -969,8 +969,7 @@ def get_pier_elements(
                         element_start_frac_len=element_start_frac_len,
                     )
                     pier_elements.append(
-                        ShellElement(
-                            e_id=next_elem_id(),
+                        get_shell(
                             ni_id=y_lo_z_lo.n_id,
                             nj_id=y_hi_z_lo.n_id,
                             nk_id=y_hi_z_hi.n_id,
@@ -1129,7 +1128,7 @@ def opensees_stress_variables(
         print("woops")
         return "", os_runner.element_path(sim_params)
     print(len(shells_by_id))
-    return " ".join(map(lambda sh: sh.e_id, shells_by_id.values())), os_runner.element_path(sim_params)
+    return " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())), os_runner.element_path(sim_params)
 
 
 def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
