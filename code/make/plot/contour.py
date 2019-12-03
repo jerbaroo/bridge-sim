@@ -188,10 +188,7 @@ def comparison_plots_705(c: Config):
             # Plot once without colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
-                c=c,
-                responses=fem_responses,
-                ploads=loads,
-                title=title,
+                c=c, responses=fem_responses, ploads=loads, title=title,
             )
             plt.savefig(save(""))
             plt.close()

@@ -72,7 +72,8 @@ def top_view_bridge(
         c_len = max(bridge.width, bridge.length) * 0.2
         ax_c = ax.inset_axes(
             [0, bridge.z_max + (c_len * 0.05), c_len, c_len],
-            transform=ax.transData)
+            transform=ax.transData,
+        )
         ax_c.imshow(compass_img)
         ax_c.axis("off")
         plt.sca(ax)  # Return control to the original axis.

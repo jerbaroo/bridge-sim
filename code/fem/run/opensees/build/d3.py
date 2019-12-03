@@ -1120,14 +1120,11 @@ def opensees_stress_variables(
     These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
     """
-    import sys;
     if not any(
         rt in sim_params.response_types
         for rt in [ResponseType.Stress, ResponseType.Strain]
     ):
-        print("woops")
         return "", os_runner.element_path(sim_params)
-    print(len(shells_by_id))
     return " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())), os_runner.element_path(sim_params)
 
 

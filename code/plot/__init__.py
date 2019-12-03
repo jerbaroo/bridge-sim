@@ -72,12 +72,12 @@ SMALL_SIZE = 14
 MEDIUM_SIZE = 18
 BIGGER_SIZE = 22
 
-plt.rc("font", size=SMALL_SIZE)          # Default text sizes.
-plt.rc("axes", titlesize=BIGGER_SIZE)    # Axes titles.
-plt.rc("axes", labelsize=MEDIUM_SIZE)    # Axes titles.
-plt.rc("xtick", labelsize=SMALL_SIZE)    # X tick labels.
-plt.rc("ytick", labelsize=SMALL_SIZE)    # Y tick labels.
-plt.rc("legend", fontsize=SMALL_SIZE)    # Legend.
+plt.rc("font", size=SMALL_SIZE)  # Default text sizes.
+plt.rc("axes", titlesize=BIGGER_SIZE)  # Axes titles.
+plt.rc("axes", labelsize=MEDIUM_SIZE)  # Axes titles.
+plt.rc("xtick", labelsize=SMALL_SIZE)  # X tick labels.
+plt.rc("ytick", labelsize=SMALL_SIZE)  # Y tick labels.
+plt.rc("legend", fontsize=SMALL_SIZE)  # Legend.
 plt.rc("figure", titlesize=BIGGER_SIZE)  # Figure title
 
 
