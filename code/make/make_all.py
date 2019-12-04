@@ -39,7 +39,7 @@ def main():
         c_func = bridge_705_config
 
     d3 = "--3d" in sys.argv
-    single_sections = "--single-sections" in sys.argv
+    single_sections = "--ss" in sys.argv
 
     if d3:
         print_i("Main: using 3D model")

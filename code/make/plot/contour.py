@@ -149,6 +149,7 @@ def gradient_pier_displacement_plot(
 def comparison_plots_705(c: Config):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
+        (35, 25 - 16.6, None),
         (34.95459, 29.22606 - 16.6, "a"),
         (51.25051, 16.6 - 16.6, "b"),
         (92.40638, 12.405 - 16.6, "c"),
@@ -207,13 +208,14 @@ def comparison_plots_705(c: Config):
             plt.close()
 
             # Finally create label/title the Diana plot.
-            di_img = mpimg.imread(f"data/verification/diana-{label}.png")
-            plt.imshow(di_img)
-            plt.title(title)
-            plt.xlabel("x position (mm)")
-            plt.ylabel("z position (mm)")
-            plt.savefig(save("diana-"))
-            plt.close()
+            if label is not None:
+                di_img = mpimg.imread(f"data/verification/diana-{label}.png")
+                plt.imshow(di_img)
+                plt.title(title)
+                plt.xlabel("x position (mm)")
+                plt.ylabel("z position (mm)")
+                plt.savefig(save("diana-"))
+                plt.close()
 
 
 def plot_of_unit_loads(c: Config):

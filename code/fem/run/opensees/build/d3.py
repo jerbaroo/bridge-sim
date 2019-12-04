@@ -1114,6 +1114,10 @@ def opensees_translation_recorders(
     )
 
 
+node_ids_str = lambda: (
+    " ".join(map(lambda n: str(sh.n_id), nodes_by_id.values())))
+
+
 elem_ids_str = lambda: (
     " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())))
 
@@ -1130,6 +1134,13 @@ def opensees_strain_recorders(
         f" -ele {elem_ids_str()} material {str(point)} deformation"
         for point in [1, 2, 3, 4]
     )
+
+
+def opensees_forces(sim_params: SimParams, os_runner: "OSRunner"):
+    return (
+        f"recorder Element"
+        f" -file {os_runner.forces_path(sim_params)}"
+        f" -ele 1 400 forces")
 
 
 def opensees_stress_variables(
@@ -1315,6 +1326,8 @@ def build_model_3d(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
             )
+            .replace("<<FORCES>>", opensees_forces(
+                sim_params=fem_params, os_runner=os_runner))
             .replace(
                 "<<DECK_ELEMENTS>>",
                 opensees_deck_elements(

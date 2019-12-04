@@ -512,15 +512,15 @@ class Bridge:
     def print_info(self):
         print_s(
             f"Bridge dimensions:"
-            + f"\n\tx = ({self.x_min}, {self.x_max})"
-            + f"\n\ty = ({self.y_min}, {self.y_max})"
-            + f"\n\tz = ({self.z_min}, {self.z_max})"
+            + f"\n  x = ({self.x_min}, {self.x_max})"
+            + f"\n  y = ({self.y_min}, {self.y_max})"
+            + f"\n  z = ({self.z_min}, {self.z_max})"
         )
         if self.single_sections:
             print_s(
-                f"Single section:"
-                + f"\n\tdeck = {self.sections[0]}"
-                + f"\n\tpier = {self.supports[0].sections[0]}"
+                f"Single section per deck and pier:"
+                + f"\ndeck = {self.sections[0]}"
+                + f"\npier = {self.supports[0].sections[0]}"
             )
 
     def id_str(self, acc: bool = True):

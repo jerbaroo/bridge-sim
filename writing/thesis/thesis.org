@@ -7,6 +7,7 @@
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
+#+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}
 #+LATEX: \thispagestyle{empty}
 I would like to thank...
@@ -190,11 +191,13 @@ of installing a decision support system for bridge maintenance.
 #+LATEX: \clearpage
 * Terminology & Preliminaries
 ** Abbreviations
-| ANN      | Artificial neural network                         |
-| DSS      | Decision support software                         |
-| FEM      | Finite element model                              |
-| NDE      | Non-disruptive evaluation                         |
-| OpenSees | Open System for Earthquake Engineering Simulation |
+| ANN      | Artificial neural network                                     |
+| DSS      | Decision support software                                     |
+| FEM      | Finite element model                                          |
+| NDE      | Non-disruptive evaluation                                     |
+| NDW      | (Netherlands) National Data Warehouse for Traffic Information |
+| OpenSees | Open System for Earthquake Engineering Simulation             |
+| RNN      | Recurrent Neural Network                                      |
 #+LATEX: \newpage
 ** Definitions
 | =Bridge=            | Model of a concrete slab bridge's geometry          |
@@ -214,16 +217,12 @@ presented below in Listing [[lst:haskell]].
 #+NAME: lst:haskell
 #+CAPTION: Pseudocode for data declarations used in this thesis.
 #+BEGIN_SRC haskell
--- | A person as a combination of name and phone number.
-data Person {
-    name  :: String
-  , phone :: Phone
-  }
-
--- | Representation of a phone number as two integers.
-data Phone = {
-    prefix :: Integer
-  , local  :: Integer
+-- A vehicle as a list of axle distances and wheel loads.
+data Vehicle = {
+    -- Distance betwen each pair of axles.
+    axleDistances :: [Float],
+    -- A tuple per axle, of wheel load intensity in kilo Newton.
+    wheelLoads :: [(Float, Float)]
   }
 #+END_SRC
 
@@ -963,6 +962,28 @@ number of selected damage scenarios.
 
 https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
 
+# Introduction to the two datasets used.
+A model of the normal traffic on bridge 705 is based on two datasets. A dataset
+was provided by TNO of vehicles recorded using Weight-in-motion (WIM) technology
+on the A16 highway in The Netherlands. This dataset will be referred to as the
+A16 dataset. Additionaly data was used from the National Data Warehouse for
+Traffic Information (NDW). NDW provides a database of real-time and historic
+traffic data in The Netherlands. The dataset used from the NDW will be referred
+to as the NDW dataset.
+
+# A16 dataset filtered.
+The A16 these vehicles are all above 3500kg in weight and 7m in length.
+
+# A16 dataset structure.
+The A16 dataset contains a number of columns, including time and date, lane the
+vehicle was travelling on, the vehicle type, vehicle speed, distance between
+axles and load per axle. Only the distance between axles and the load per axle
+are considered, all other columns are ignored. All vehicles in the implemented
+traffic simulation travel at equal speed thus the vehicle column is ignored.
+
+The A16 dataset was filtered so that the total weight and the the total
+length of vehicles
+
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
@@ -1369,7 +1390,7 @@ built is discussed.
 *** Other Bridges
 #+LATEX: \clearpage
 * Results
-** Modeling Damage Scenarios
+** Simulation
 ** Sensor Placement
 ** Anomally Detection
 * Appendix

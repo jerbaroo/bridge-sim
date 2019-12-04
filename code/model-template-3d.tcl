@@ -28,6 +28,8 @@ pattern Plain 1 1 {
 <<LOAD>>
 }
 
+<<FORCES>>
+
 <<TRANS_RECORDERS>>
 
 <<STRAIN_RECORDERS>>

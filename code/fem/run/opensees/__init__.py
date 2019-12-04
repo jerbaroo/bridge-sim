@@ -101,3 +101,8 @@ class OSRunner(FEMRunner):
         return self.opensees_out_path(
             sim_params=sim_params, ext="out", append=f"-strain-{point}"
         )
+
+    def forces_path(self, sim_params: SimParams):
+        return self.opensees_out_path(
+            sim_params=sim_params, ext="out", append=f"-forces"
+        )
