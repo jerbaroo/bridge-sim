@@ -4,8 +4,14 @@
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{commath}
+#+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
+#+LATEX: \section*{Acknowledgements}
+#+LATEX: \thispagestyle{empty}
+I would like to thank...
+
+\textcolor{red}{TODO: Acknowledgements}
 #+LATEX: \newpage
 #+LATEX: \tableofcontents
 #+LATEX: \newpage
@@ -16,11 +22,6 @@
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
-#+LATEX: \section*{Acknowledgements}
-#+LATEX: \thispagestyle{empty}
-I would like to thank...
-\textcolor{red}{TODO: Acknowledgements}
-#+LATEX: \newpage
 
 * Introduction
 # Motivation of the research question.
@@ -244,9 +245,23 @@ state of anomaly detection and structural health monitoring, traffic and bridge
 simulations, and real-life installations of sensors for the purpose of health
 monitoring.
 
-# Anomaly detection.
-
 # Structural health monitoring.
+
+
+# Detecting faulty sensors.
+Faulty sensors can be detected via sensor data reconstruction. In this approach
+the sensor data is reconstructed based on spatial and temporal correlations
+among the sensor network. If there are discrepancies between the measurement
+data and the reconstructed data then the sensor may be faulty. Spatial
+correlations are used to reconstruct sensor data via principal component
+analysis cite:kerschen2004sensor, minimum mean square error estimation
+cite:kullaa2010sensor, support vector regression cite:law2017data and ANNs.
+cite:mattern1998using,xu1999sensor. cite:moustapha2008wireless use a recurrent
+neural network (RNN) that takes into account spatial and past temporal data. In
+citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
+future temporal correlations.
+
+# Anomaly detection.
 
 # Traffic simulations.
 
@@ -254,10 +269,10 @@ monitoring.
 
 # Sensor installations for health monitoring.
 
-* Motivation
+* Background & Motivation
 The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however focuses on the question
-of /why/. Why is it /useful/ to perform anomaly dection of bridges? Why should
+of /why/, why is it /useful/ to perform anomaly dection of bridges? Why should
 sensors be installed on bridges for the purpose of health monitoring and anomaly
 detection? This Section will provide motivation that installing sensors for the
 purpose of health monitoring can be useful. In providing this motivation it also
@@ -365,7 +380,54 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Types of Damage
+** Damage Scenarios
+Damage scenarios can be classified as short-term or long-term. Short-term damage
+scenarios are defined as a change of the properties of structural materials and
+elements, and of the behaviour of the whole structure, due to effects that occur
+during a very short period of time. Long-term scenarios are time-dependent and
+may not only be related to external factors but also due to a change of state of
+materials with time. Tables [[table:short-term-events]] and [[table:long-term-events]]
+cite:sousa2019tool outline some of the predominant types of damage due to
+short-term and long-term scenarios respectively.
+
+\textcolor{red}{TODO: Factor examples/consequences out of table}
+#+NAME: table:short-term-events
+#+CAPTION: Types of damage due to short-term events.
+| Event                       | Examples/Consequences                                                        | Critical component |
+|-----------------------------+------------------------------------------------------------------------------+--------------------|
+| Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
+| Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
+| Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
+| Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
+| Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
+| Excessive vibration         | Earthquake                                                                   | Pier               |
+| Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
+
+#+NAME: table:long-term-events
+#+CAPTION: Types of damage due to long-term events.
+| Event                        | Examples/Consequences                                  | Critical component |
+|------------------------------+--------------------------------------------------------+--------------------|
+| Corrosion                    | Degradation of the bearings                            | Deck               |
+|                              | Loss of cross-section area in the prestressing tendons | Deck               |
+| Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
+| the structural materials     | Concrete deterioration                                 | All                |
+| Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
+| fatigue                      |                                                        |                    |
+| High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
+| fatigue                      |                                                        |                    |
+| Environmental effects        | Freezing water leading to concrete expansion           | All                |
+| Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
+|                              | degradation in the zone of the tendon anchorages       | Deck               |
+| Pier settlement              | Change in the soil properties                          | Deck               |
+
+# Detecting faulty sensors is an important scenario.
+When damage is detected based on sensor measurements another possibility is of
+course that the sensor is itself faulty. Sensors can become faulty for a number
+of reasons, increased noise, bad installation, battery issues, harsh environment
+etc. cite:ni2009sensor. Maintaining a healthy sensor network is important
+because faulty sensors can cause not only permanent loss of data but also
+inaccurate damage detection, if for example the detection system is being
+trained on the faulty sensor data.
 ** Health Monitoring
 In this subsection we review some of the current methods of health monitoring of
 bridges. citet:peter2003review should be considered the default reference for
@@ -481,25 +543,29 @@ relating the reviewed material back to this thesis.
 *** The application of machine learning to structural health monitoring
 # Introduction.
 cite:worden2006application illustrates the utility of a data-driven approach to
-structural health monitoring (SHM) by a number of case studies. In particular
-the paper focuses on pattern recognition and machine learning (ML) algorithms
-that are applicable to damage identification problems.
+structural health monitoring (SHM) by a number of case studies attempting to
+identify damage on an aircraft wing. In particular the paper focuses on pattern
+recognition and machine learning (ML) algorithms that are applicable to damage
+identification problems.
 
 # Hierarchy of levels.
-The question of /damage detection/ is simply to identify if a system has
-departed from normal (i.e. undamaged) condition. The more sophisticated problem
-of /damage identification/ seeks to determine a greater level of information on
-the damage status, even to provide a forecast of the likely outcome of a
-situation. The problem of detection and identification can be considered as a
-hierarchy of levels as described in cite:rytter1993vibrational.
+The question of /damage detection/ is to identify if a system has departed from
+normal (i.e. undamaged) condition, simple "is there damage or not?". The more
+sophisticated problem of /damage identification/ seeks to determine a greater
+level of information on the damage status, even to predict the future of the
+situation. The problem of damage identification can be considered as a hierarchy
+of levels as described in cite:rytter1993vibrational.
+
  - Level 1. (Detection) indication that damage might be present in the
    structure.
  - Level 2. (Localization) information about the probable position of the
    damage.
  - Level 3. (Assessment) an estimate of the extend of the damage.
  - Level 4. (Prediction) information about the safety of the structure.
-This paper argues that ML provides solutions to these problems at upto level 3,
-and that in general level 4 cannot be addressed by ML methods.
+  
+cite:worden2006application argues that ML can provide solutions to these
+problems upto level 3, but that in general level 4 cannot be addressed by ML
+methods.
 
 # Waterfall model. (ML is only a step).
 Applying ML for the purpose of SHM is usually only a single step in a broader
@@ -861,45 +927,7 @@ bridge705 = Bridge {
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
 The goal of the damage identification model is to identify that damage in a
-number of selected damage scenarios. Damage scenarios can be classified as
-short-term or long-term. Short-term scenarios are defined as a change of the
-properties of structural materials and elements, and of the behaviour of the
-whole structure, due to effects that occur during a very short period of time.
-Long-term scenarios are time-dependent and may not only be related to external
-factors but also due to a change of state of materials with time. Tables
-[[table:short-term-events]] and [[table:long-term-events]] cite:sousa2019tool outline
-some of the predominant types of damage due to short-term and long-term
-scenarios respectively.
-
-\textcolor{red}{TODO: Use table.el to fix tables}
-#+NAME: table:short-term-events
-#+CAPTION: Types of damage due to short-term events.
-| Event                       | Examples/Consequences                                                        | Critical component |
-|-----------------------------+------------------------------------------------------------------------------+--------------------|
-| Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
-| Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
-| Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
-| Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
-| Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
-| Excessive vibration         | Earthquake                                                                   | Pier               |
-| Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
-
-#+NAME: table:long-term-events
-#+CAPTION: Types of damage due to long-term events.
-| Event                        | Examples/Consequences                                  | Critical component |
-|------------------------------+--------------------------------------------------------+--------------------|
-| Corrosion                    | Degradation of the bearings                            | Deck               |
-|                              | Loss of cross-section area in the prestressing tendons | Deck               |
-| Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
-| the structural materials     | Concrete deterioration                                 | All                |
-| Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
-| fatigue                      |                                                        |                    |
-| High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
-| fatigue                      |                                                        |                    |
-| Environmental effects        | Freezing water leading to concrete expansion           | All                |
-| Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
-|                              | degradation in the zone of the tendon anchorages       | Deck               |
-| Pier settlement              | Change in the soil properties                          | Deck               |
+number of selected damage scenarios.
 
  Of the damage scenarios listed in Tables [[table:short-term-events]] and
  [[table:long-term-events]], four scenarios are selected for identification by the
