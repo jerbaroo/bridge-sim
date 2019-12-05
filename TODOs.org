@@ -230,6 +230,7 @@ Part of this loop is independent, so can factor it out
 *** TODO AxisVM pier displacement
 *** TODO Temperature load
 *** TODO Remote desktop
+*** TODO Go over fixed nodes in TCL file
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

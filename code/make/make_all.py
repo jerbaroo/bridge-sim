@@ -57,11 +57,16 @@ def main():
     else:
         print_i("Main: using 2D model")
         c = c_func(bridge_705_2d)
+
+    # Print Bridge information.
+    c.bridge.print_info(pier_fix_info="--pier-fix-info" in sys.argv)
+
     if "--clean" in sys.argv:
         clean_generated(c)
         print_i("Main: finished cleaning")
 
-    make_all(c=c, d3=d3)
+    if "--run" in sys.argv:
+        make_all(c=c, d3=d3)
 
 
 if __name__ == "__main__":

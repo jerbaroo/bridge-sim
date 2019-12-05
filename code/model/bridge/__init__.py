@@ -507,9 +507,14 @@ class Bridge:
         # Assert the bridge is fine and print info.
         # TODO Move to another file.
         self._assert_bridge()
-        self.print_info()
 
-    def print_info(self):
+    def print_info(self, pier_fix_info: bool = False):
+        """Print summary information about this bridge.
+
+        Args:
+            fix_info: print information on pier's fixed nodes.
+
+        """
         print_s(
             f"Bridge dimensions:"
             + f"\n  x = ({self.x_min}, {self.x_max})"
@@ -522,6 +527,17 @@ class Bridge:
                 + f"\ndeck = {self.sections[0]}"
                 + f"\npier = {self.supports[0].sections[0]}"
             )
+        if pier_fix_info:
+            for p, pier in enumerate(self.supports):
+                print_s(
+                    f"Pier {p} fixed:"
+                    f"\n  x-trans {pier.fix_x_translation}"
+                    f"\n  y-trans {pier.fix_y_translation}"
+                    f"\n  z-trans {pier.fix_z_translation}"
+                    f"\n  x-rot   {pier.fix_x_rotation}"
+                    f"\n  y-rot   {pier.fix_y_rotation}"
+                    f"\n  z-rot   {pier.fix_z_rotation}"
+                )
 
     def id_str(self, acc: bool = True):
         """Name with dimensions attached.
