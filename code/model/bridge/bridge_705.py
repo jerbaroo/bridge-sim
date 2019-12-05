@@ -235,7 +235,7 @@ def bridge_705_3d(
     base_mesh_deck_nodes_x: int = 50,
     base_mesh_deck_nodes_z: int = 20,
     base_mesh_pier_nodes_y: int = 17,
-    base_mesh_pier_nodes_z: int = 16,
+    base_mesh_pier_nodes_z: int = 17,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
