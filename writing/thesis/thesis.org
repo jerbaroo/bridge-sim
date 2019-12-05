@@ -201,6 +201,7 @@ of installing a decision support system for bridge maintenance.
 | NDW      | (Netherlands) National Data Warehouse for Traffic Information |
 | OpenSees | Open System for Earthquake Engineering Simulation             |
 | RNN      | Recurrent Neural Network                                      |
+| PyPI     | Python Package Index                                          |
 #+LATEX: \newpage
 ** Definitions
 | =Bridge=            | Model of a concrete slab bridge's geometry          |
@@ -1223,6 +1224,64 @@ for vehicle in traffic:
 #+END_SRC
 **** Meshing
 *** System Interface
+# Emphasis on reproduceable research.
+In recent years there is an increased emphasis on reproducable research within
+the scientific community. Reproducable research can be more easily verified by
+peers than research which must be reimplemented. If research is accomplished
+through code, for example as simulations are, then the research can be verified
+be downloading the software and running it.
+
+# Lifted parameters
+# TODO: Not extensible, but on the way to extensible.
+If the parameters of the research are not buried deep in the code but instead
+"lifted" to the boundaries of the system, then that research can be considered
+not just reproduceable but extensible.
+
+# Reuse through composition of modular components.
+Furthermore if the software is presented as composable functions instead of
+scripts, then this allows for the reuse of the research, whereby a researcher
+can compose some of the functions in a manner which was not done in the original
+research.
+
+# DRY and reuse.
+Reuse of software aligns with the /don't repeat yourself/ (DRY) principle of
+software engineering. Violations of DRY are creatively referred to as WET, or
+/write every time/. The downside of WET solutions are that each implementation
+has its own bugs, whereas in DRY solutions the bug fixes and optimizations are
+shared by all contributors and users. To aid reuse and avoid repitition,
+software must be made easy to use, which is the very next tip after the DRY
+principle in the book The Pragmatic Programmer cite:hunt1900pragmatic.
+
+#+BEGIN_QUOTE
+Make It Easy To Reuse
+
+If it’s easy to reuse, people will. Create an environment that supports reuse.
+
+-- The Pragmatic Programmer \textcolor{red}{page number}
+#+END_QUOTE
+
+Keeping with these principles, an effort has been made for the research in this
+thesis to me not just reproduceable but extensible. A system for running traffic
+simulations on concrete slab bridges and analyzing results is published on the
+Python Package Index (PyPI) cite:rankingpypi under the name =traffic-sim= where
+you will also find the documentation. Two examples showing the use of the system
+are presented in Listing [[lst:ts-point-load]] and Listing [[lst:ts-wagen-1]], for
+=traffic-sim= installation instructions see the documentation on PyPI.
+
+#+NAME: lst:ts-point-load
+#+CAPTION: Contour load of a point load in =traffic-sim=.
+#+BEGIN_SRC python
+# example.py
+from traffic_sim import PointLoad
+#+END_SRC
+
+#+NAME: lst:ts-wagen-1
+#+CAPTION: Animation of a truck in =traffic-sim=.
+#+BEGIN_SRC python
+# example.py
+from traffic_sim import PointLoad
+#+END_SRC
+
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
