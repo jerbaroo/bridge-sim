@@ -228,6 +228,8 @@ Part of this loop is independent, so can factor it out
 *** TODO Go over Stress/Strain TCL file
 *** TODO Ask about VPN login
 *** TODO AxisVM pier displacement
+*** TODO Temperature load
+*** TODO Remote desktop
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

@@ -691,3 +691,7 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     plt.legend()
     plt.savefig(c.get_image_path("verification", "run-time", bridge=False))
     plt.close()
+
+
+def axis_comparison(c: Config):
+    """"""
