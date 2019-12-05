@@ -113,7 +113,7 @@ class ILMatrix(ResponsesMatrix):
                     c=c,
                     expt_params=expt_params,
                     response_type=response_type,
-                    fem_runner=fem_runner,
+                    sim_runner=fem_runner,
                 ),
             )
             il_matrix.load_z_frac = load_z_frac

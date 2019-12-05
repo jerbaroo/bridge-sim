@@ -32,6 +32,7 @@ from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from util import print_d, print_i, safe_str
 from vehicles.sample import sample_vehicle
+from vehicles.stats import vehicle_data_noise_stats, vehicle_density_stats
 
 from make.plot import (
     animate,
@@ -48,6 +49,12 @@ from make.data import simulations
 # Print debug information for this file.
 D: str = "make.make_plots"
 # D: bool = False
+
+
+def make_stats(c: Config):
+    """Make all textual information for the thesis."""
+    print_i("\n\n" + vehicle_density_stats(c) + "\n")
+    print_i("\n\n" + vehicle_data_noise_stats(c) + "\n")
 
 
 def make_bridge_plots(
@@ -244,12 +251,6 @@ def make_all_3d(c: Config):
     # make_cloud_of_nodes_plots(c)
     # vehicle.wagen1_plot(c)
     # vehicles.vehicle_plots(c)
-
-    ######################
-    ##### Simulation #####
-    ######################
-    # simulations.run_uls(c)
-    # verification.make_convergence_data(c, run=True, plot=True)
 
     ########################
     ##### Verification #####
