@@ -225,11 +225,13 @@ Part of this loop is independent, so can factor it out
 *** TODO How to argue value of 2D model
 *** TODO Look at numba
 ** Next meeting
+*** TODO Go over goals
 *** TODO Go over Stress/Strain TCL file
 *** TODO Ask about VPN login
 *** TODO AxisVM pier displacement
 *** TODO Temperature load
-*** TODO Remote desktop
+*** TODO OpenSees in parallel
+*** TODO Single section takes a lot longer?
 *** TODO Go over fixed nodes in TCL file
 * Week's work
 ** 7th October

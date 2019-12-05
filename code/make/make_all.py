@@ -28,14 +28,14 @@ def make_all(c: Config, d3: bool):
 def main():
     # util.DEBUG = False
 
-    if "--test" in sys.argv:
-        print_i("Main: using test Config")
+    if "--low" in sys.argv:
+        print_i("Main: using low Config")
         c_func = bridge_705_test_config
     elif "--debug" in sys.argv:
         print_i("Main: using debug Config")
         c_func = bridge_705_debug_config
     else:
-        print_i("Main: using normal Config")
+        print_i("Main: using full Config")
         c_func = bridge_705_config
 
     d3 = "--3d" in sys.argv
