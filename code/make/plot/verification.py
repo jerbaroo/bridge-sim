@@ -695,3 +695,48 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
 
 def axis_comparison(c: Config):
     """"""
+    if len(c.bridge.sections) > 1:
+        raise ValueError("Bridge deck has more than one section")
+    for pier in c.bridge.supports:
+        if len(pier.sections) > 1:
+            raise ValueError("Bridge pier has more than one section")
+
+    ###############################
+    ###### Point load plots #######
+    ###############################
+
+    positions = [(35, 25 - 16.6)]
+    response_types = [ResponseType.YTranslation]
+    for response_type in response_types:
+        for load_x, load_z in positions:
+            loads = [
+                PointLoad(
+                    x_frac=c.bridge.x_frac(load_x),
+                    z_frac=c.bridge.z_frac(load_z),
+                    kn=100,
+                )
+            ]
+            fem_responses = load_fem_responses(
+                c=c,
+                response_type=response_type,
+                sim_runner=OSRunner(c),
+                sim_params=SimParams(
+                    ploads=loads, response_types=response_types
+                ),
+            )
+            title = (
+                f"{response_type.name()} from a {loads[0].kn} kN point load"
+                + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
+            )
+            save = lambda prefix: c.get_image_path(
+                "contour-axis-comparison",
+                safe_str(
+                    f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
+                ),
+            )
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plot_contour_deck(
+                c=c, responses=fem_responses, ploads=loads, title=title,
+            )
+            plt.savefig(save(""))
+            plt.close()

@@ -254,8 +254,9 @@ def make_all_3d(c: Config):
     ########################
     ##### Verification #####
     ########################
+    verification.axis_comparison(c)
     # verification.per_sensor_plots(c)
-    contour.comparison_plots_705(c)
+    # contour.comparison_plots_705(c)
     # verification.plot_convergence(c)
     # verification.r2_plots(c)
 
@@ -277,7 +278,7 @@ def make_all_3d(c: Config):
     # contour.plot_of_unit_loads(c)
     # make_il_plots(c)
     # matrix.dc_plots(c)
-    contour.plots_of_pier_displacement(c)
+    # contour.plots_of_pier_displacement(c)
     # contour.gradient_pier_displacement_plots(c)
 
     #####################
