@@ -61,13 +61,13 @@ def plots_of_pier_displacement(c: Config):
                     )
                 ],
                 center_norm=True,
-                save=(
-                    c.get_image_path(
-                        "contour-pier-displacement",
-                        safe_str(f"{response_type.name()}-pier-{p}"),
-                    )
-                ),
             )
+            plt.savefig(
+                c.get_image_path(
+                    "contour-pier-displacement",
+                    safe_str(f"{response_type.name()}-pier-{p}"))
+            )
+            plt.close()
 
 
 def gradient_pier_displacement_plots(c: Config):

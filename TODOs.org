@@ -225,14 +225,22 @@ Part of this loop is independent, so can factor it out
 *** TODO How to argue value of 2D model
 *** TODO Look at numba
 ** Next meeting
-*** TODO Go over goals
-*** TODO Go over Stress/Strain TCL file
+*** TODO Goals on paper
+- 12th Dec: presentation
+- 13th Dec: submit literature review
+
+*** TODO Stress/Strain TCL file
 *** TODO Ask about VPN login
 *** TODO AxisVM pier displacement
 *** TODO Temperature load
+*** TODO Mean in convergence plot
+- Calculating over a grid makes sense
+- Because additional nodes near the point load will influence the mean
 *** TODO OpenSees in parallel
 *** TODO Single section takes a lot longer?
-*** TODO Go over fixed nodes in TCL file
+*** TODO Axis: Look at pier displacement I messed up
+*** TODO Go over fixed nodes in TCL & in Axis
+*** TODO Go over
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
