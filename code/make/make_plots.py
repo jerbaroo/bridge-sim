@@ -248,14 +248,14 @@ def make_all_3d(c: Config):
     ######################
     ##### Simulation #####
     ######################
-    # simulations.run_uls(c)
+    simulations.run_uls(c)
     # verification.make_convergence_data(c, run=True, plot=True)
 
     ########################
     ##### Verification #####
     ########################
     # verification.sensor_subplots(c)
-    contour.comparison_plots_705(c)
+    # contour.comparison_plots_705(c)
     # verification.plot_convergence(c)
     # verification.r2_plots(c)
 
