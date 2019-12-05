@@ -22,7 +22,10 @@ I would like to thank...
 #+LATEX: \newpage
 #+LATEX: \listoftables
 #+LATEX: \newpage
-
+#+BEGIN_CENTER
+Blank page
+#+END_CENTER
+#+LATEX: \newpage
 
 * Introduction
 # Motivation of the research question.
@@ -215,7 +218,7 @@ already be familiar. The syntax for data declarations used in this thesis is
 presented below in Listing [[lst:haskell]].
 
 #+NAME: lst:haskell
-#+CAPTION: Pseudocode for data declarations used in this thesis.
+#+CAPTION[Pseudocode for data declarations]: Pseudocode for data declarations used in this thesis.
 #+BEGIN_SRC haskell
 -- A vehicle as a list of axle distances and wheel loads.
 data Vehicle = {
@@ -239,13 +242,14 @@ type =Int=".
 * Literature Review
 # Introduction.
 The goal of this Section is to summarise the existing body of work that is
-related to the subject area of this thesis. This Section outlines the current
-state of anomaly detection and structural health monitoring, traffic and bridge
-simulations, and real-life installations of sensors for the purpose of health
-monitoring.
+related to the subject area of this thesis. This Section thus outlines the
+current state of anomaly detection and structural health monitoring, traffic and
+bridge simulations, and real-life installations of sensors for the purpose of
+structural health monitoring.
 
 # Structural health monitoring.
 
+# ML for SHM.
 
 # Detecting faulty sensors.
 Faulty sensors can be detected via sensor data reconstruction. In this approach
@@ -260,13 +264,11 @@ neural network (RNN) that takes into account spatial and past temporal data. In
 citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
 future temporal correlations.
 
-# Anomaly detection.
-
 # Traffic simulations.
 
 # Bridge simulations.
 
-# Sensor installations for health monitoring.
+# Sensor installations for SHM.
 
 * Background & Motivation
 The Literature Review provided information on /what/ has already been achieved
@@ -848,7 +850,7 @@ cases, which was true in this case.
 \textcolor{red}{TODO: conclude the literature review}
 #+LATEX: \clearpage
 * Methods
-** Data Collection
+** Simulation
 # Section overview.
 This section describes the data collection system which was created to model a
 bridge in software and to collect data from simulating the bridge's response
@@ -1225,7 +1227,7 @@ for vehicle in traffic:
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
-*** Verification
+*** Validation
 The collected data needs to be verified, otherwise an analysis of the data would
 offer little value. In this Subsection the data collection system is set to
 bridge 705 and the generated FEM for OpenSees verified against the previously
@@ -1391,7 +1393,6 @@ built is discussed.
 #+LATEX: \clearpage
 * Results
 ** Simulation
-** Sensor Placement
 ** Anomally Detection
 * Appendix
 
