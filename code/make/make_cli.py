@@ -18,6 +18,7 @@ from util import clean_generated, print_i
 c = None
 c_func = None
 two_materials_ = None
+parallel_ = None
 
 
 def bridge_705_3d_overload(*args, **kwargs):
@@ -35,7 +36,8 @@ def bridge_705_3d_overload(*args, **kwargs):
 @click.option("--dimensions", type=click.Choice(["2", "3"]), default="3", help="2D or 3D bridge.")
 @click.option("--mesh", type=click.Choice(["debug", "low", "full"]), default="low", help="Mesh density of the bridge.")
 @click.option("--two-materials", is_flag=True, help="One material for the deck and one for the piers.")
-def cli(dimensions, mesh, two_materials):
+@click.option("--parallel", is_flag=True, default=True, help="Run simulations in parallel.")
+def cli(dimensions, mesh, two_materials, parallel):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
     global c
@@ -44,7 +46,9 @@ def cli(dimensions, mesh, two_materials):
     click.echo(f"Dimensions: {dimensions}")
     click.echo(f"Mesh density: {mesh}")
     click.echo(f"Two materials: {two_materials}")
+    click.echo(f"Parallel: {parallel}")
     two_materials_ = two_materials
+    parallel_ = parallel
     if mesh == "debug":
         c_func = bridge_705_debug_config
     elif mesh == "low":

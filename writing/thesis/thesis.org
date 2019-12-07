@@ -22,10 +22,6 @@ I would like to thank...
 #+LATEX: \newpage
 #+LATEX: \listoftables
 #+LATEX: \newpage
-#+BEGIN_CENTER
-Blank page
-#+END_CENTER
-#+LATEX: \newpage
 
 * Introduction
 # Motivation of the research question.
@@ -53,6 +49,11 @@ thereof. The primary aim of the analysis techniques applied to sensor data in
 this thesis are to classify data in two states, a normal or healthy state, and
 an abnormal or damaged state.
 
+# Structural health monitoring typically finds damage has occured.
+Structural health monitoring (SHM) is a term used to describe a range of system
+implemented on civil infrastructure for the purpose of assisting and informing
+about the structure's "fitness of purpose".
+
 # Necessary to simulate sensor data with a FEM.
 In the development of a DSS for bridge maintenance it is **necessary to have
 sensor data** corresponding to both the damaged and undamaged states of the
@@ -61,6 +62,10 @@ unsurprisingly not permitted to impose a damaged state on a bridge. The use of
 finite element (FE) software allows us to create simulated sensor data via a
 finite element model (FEM) of a bridge on which different damage states can be
 imposed.
+
+Because nearly every structure in civil infrastructure is unique a major part of
+any SHM system has to be geared towards long term evaluation of what is "normal"
+of "healthy" performance of the system cite:aktan2001monitoring.
 
 # A FEM (sensor data) is different from reality.
 A FEM is a model of a structure in software. All models are wrong
@@ -192,7 +197,7 @@ of installing a decision support system for bridge maintenance.
   # at equivalent positions on each substructure.
 
 #+LATEX: \clearpage
-* Terminology & Preliminaries
+* Preliminaries
 ** Abbreviations
 | ANN      | Artificial neural network                                     |
 | DSS      | Decision support software                                     |
@@ -242,22 +247,48 @@ type =Int=".
 #+LATEX: \clearpage
 * Literature Review
 # Introduction.
-The goal of this Section is to summarise the existing body of work that is
-related to the subject area of this thesis. This Section thus outlines the
-current state of anomaly detection and structural health monitoring, traffic and
-bridge simulations, and real-life installations of sensors for the purpose of
-structural health monitoring.
+The goal of this Section is to summarise the existing body of work related to
+the subject area of this thesis. This Section thus outlines the existing work on
+damage detection and damage identification of civil infrastructure, traffic and
+bridge simulations, and real-life installations of sensors on bridges for the
+purpose of structural health monitoring.
 
-# Structural health monitoring.
+# Damage identification: vibration and modal properties.
+A significant amount of the research into damage identification of civil
+infrastructure is based on vibration data and modal properties
+cite:stubbs2000global, the idea being that changes in physical properties will
+cause a measurable change in natural frequencies, mode shapes and damping.
 
-# ML for SHM.
+# Downside of modal properties.
+
+# Damage detection (level 1).
+The most basic form of damage identification is determining whether damage has
+occured or not (detection).
+
+# Damage localization and assessment (levels 2 and 3): have limitations.
+SHM methods that attempt to determine the location (localization) or extent
+(assessment) of the damage require either severe damage or make assumptions
+about the type of damage cite:peter2003review. While an SHM system should be
+capable of a minimal amount of condition assessment (CA) the more likely
+scenario is an additional investigation for CA is triggered by the system
+cite:brownjohn2006structural.
+
+# ML for SHM: prediction (level 4) not possible.
+A number of damage identification experiments were applied on an aircraft wing
+showing damage localization and assessment to be possible with machine learning
+methods cite:worden2006application, however the experiments were in a controlled
+lab setting without environmental factors present. In the same paper it is
+argued that damage prediction cannot be addressed by machine learning methods in
+general. \textcolor{red}{why}
 
 # Detecting faulty sensors.
-Faulty sensors can be detected via sensor data reconstruction. In this approach
-the sensor data is reconstructed based on spatial and temporal correlations
-among the sensor network. If there are discrepancies between the measurement
-data and the reconstructed data then the sensor may be faulty. Spatial
-correlations are used to reconstruct sensor data via principal component
+Damaged sensors can be considered a special class of damage that is very
+important to identify because faulty data can interfere with damage detection of
+the structure. Damaged sensors can be detected via sensor data reconstruction.
+In this approach the sensor data is reconstructed based on spatial and temporal
+correlations among the sensor network. If there are discrepancies between the
+measurement data and the reconstructed data then the sensor may be faulty.
+Spatial correlations are used to reconstruct sensor data via principal component
 analysis cite:kerschen2004sensor, minimum mean square error estimation
 cite:kullaa2010sensor, support vector regression cite:law2017data and ANNs.
 cite:mattern1998using,xu1999sensor. cite:moustapha2008wireless use a recurrent
@@ -265,21 +296,34 @@ neural network (RNN) that takes into account spatial and past temporal data. In
 citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
 future temporal correlations.
 
-# Traffic simulations.
+# Sensitivity to noise.
+To avoid false positive detection of anomalies due to environmental factors such
+as temperature, the process of normalization of data becomes very important to
+SHM. The temperature across a bridge deck was measured during a 24 hour cycle
+and correlated with the bridge's natural frequencies in cite:doebling1997using.
+
+# Traffic simulations for damage detection on bridges.
+Data for damage detection on bridges can be collected in simulation. In doing
+so, some traffic on the bridge must be simulated in order to collect a response
+from the structure. Damage detection on bridges using neural networks was based
+on simulated vibration data in cite:yeung2005damage, in this case the "traffic"
+was simply a single truck simulated with two point loads, one per axle, and
+moving at different speeds in different simulations.
 
 # Bridge simulations.
 
 # Sensor installations for SHM.
 
-* Background & Motivation
+#+LATEX: \newpage
+* Motivation
 The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however focuses on the question
-of /why/, why is it /useful/ to perform anomaly dection of bridges? Why should
-sensors be installed on bridges for the purpose of health monitoring and anomaly
-detection? This Section will provide motivation that installing sensors for the
-purpose of health monitoring can be useful. In providing this motivation it also
-also necessary to provide some background information on related technology, for
-example on the types of sensors which are currently used in health monitoring.
+of /why/. Why should sensors be installed on concrete slab bridges for the
+purpose of anomaly detection? This Section will provide background information
+to the reader, answering this questin and motivating this thesis. Doing so this
+Section will examine the different types of Bridges, types of damage that occur,
+how health monitoring takes place, and why an extensible system for researching
+damage detection on bridges is desirable.
 ** Existing Bridges
 # Dutch road network overview.
 The Dutch national main road network consists of 3,200km of road. Assets in the
@@ -876,7 +920,7 @@ of superposition, responses collected from the previous simulations can be
 summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
-[[System Design]] but it is useful to present a brief overview in advance.
+[[System Details]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
@@ -1051,7 +1095,7 @@ including structural and geotechnical, and engineering related to tunnelling,
 earthquake, and oil and gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
-*** System Design
+*** System Details
 The goal of the data collection system is to translate a =Bridge=, along with a
 =TrafficScenario= and =BridgeScenario=, into a time series of responses. This
 subsection details how that translation takes place.
