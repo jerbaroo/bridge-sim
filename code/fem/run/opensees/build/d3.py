@@ -246,14 +246,13 @@ def opensees_deck_sections(c: Config):
     )
 
 
-def opensees_pier_sections(c: Config):
+def opensees_pier_sections(c: Config, all_pier_elements: AllPierElements):
     """Sections used in the bridge's piers."""
     # Some pier's may refer to the same section so we create a set to avoid
     # rendering duplicate section definitions into the .tcl file.
-    pier_sections = set()
-    for pier in c.bridge.supports:
-        for section in pier.sections:
-            pier_sections.add(section)
+    pier_sections = set([
+        pier_element.section for pier_element in all_pier_elements
+    ])
     return comment(
         "pier sections",
         "\n".join([opensees_section(section) for section in pier_sections]),
@@ -574,7 +573,7 @@ def build_model_3d(
                     c=c, all_pier_elements=fem_params.all_pier_elements
                 ),
             )
-            .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c))
+            .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c, all_pier_elements=fem_params.all_pier_elements))
             .replace(
                 "<<INTEGRATOR>>",
                 opensees_integrator(

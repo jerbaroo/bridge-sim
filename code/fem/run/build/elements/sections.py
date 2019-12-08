@@ -9,7 +9,7 @@ from util import round_m
 def section_for_deck_element(
     c: Config, element_x: float, element_z: float
 ) -> int:
-    """Section for a shell element on the deck.
+    """Section for an element on the deck.
 
     Creates a list (if not already created) of all section's x positions to z
     position to Section3D. Then iterate through sorted x positions finding last
@@ -22,6 +22,10 @@ def section_for_deck_element(
         element_z: float, z position which belongs in some section.
 
     """
+    if callable(c.bridge.sections):
+        raise NotImplementedError(
+            "Function to vary material properties not yet supported")
+
     # Create the dictionary if not already created.
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)

@@ -47,7 +47,6 @@ class Config:
 
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
-        _reset_model_ids()
         self.bridge = bridge()
 
         # OpenSees

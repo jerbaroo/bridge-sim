@@ -254,14 +254,27 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
     )
 
 
-def get_load_deck_positions(
-    bridge: Bridge, fem_params: SimParams
-) -> DeckPositions:
+def get_deck_load_positions(bridge: Bridge, fem_params: SimParams) -> DeckPositions:
     """The x and z positions of deck nodes that belong to loads."""
     return (
-        sorted([round_m(bridge.x(pload.x_frac)) for pload in fem_params.ploads]),
-        sorted([round_m(bridge.z(pload.z_frac)) for pload in fem_params.ploads]),
+        sorted([round_m(bridge.x(load.x_frac)) for load in fem_params.ploads]),
+        sorted([round_m(bridge.z(load.z_frac)) for load in fem_params.ploads]),
     )
+
+
+def get_deck_section_positions(bridge: Bridge):
+    """The x and z positions where material properties change on the deck."""
+    if callable(bridge.sections):
+        print_w(
+            "Not adding additional nodes to bridge deck based on changing"
+            " material properties"
+        )
+        return [], []
+    x_positions, z_positions = set(), set()
+    for section in bridge.sections:
+        x_positions.add(round_m(bridge.x(section.start_x_frac)))
+        z_positions.add(round_m(bridge.z(section.start_z_frac)))
+    return sorted(x_positions), sorted(z_positions)
 
 
 def get_deck_nodes(
@@ -278,12 +291,11 @@ def get_deck_nodes(
     # Unpack x and z positions of nodes on the deck.
     x_positions, z_positions = deck_positions
 
-    # Get positions of pier nodes on the deck.
+    # Get positions of pier nodes that are on the deck, to check if a deck node
+    # also belongs to the pier. The check is only to add a comment.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
-
-    def is_pier_node(x_: float, z_: float):
-        """Is a deck node from a pier?"""
-        return x_ in x_positions_piers and z_ in z_positions_piers
+    is_pier_node = lambda x_, z_: (
+        x_ in x_positions_piers and z_ in z_positions_piers)
 
     set_ff_mod(len(x_positions))
     nodes = []
@@ -344,7 +356,7 @@ def get_deck_positions(
     deck_stages_info["piers"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     # Collect loading positions.
-    x_positions_loads, z_positions_loads = get_load_deck_positions(
+    x_positions_loads, z_positions_loads = get_deck_load_positions(
         bridge=c.bridge, fem_params=fem_params
     )
     assert_sorted(x_positions_loads)
@@ -366,8 +378,16 @@ def get_deck_positions(
     # Update the 'DeckStagesInfo' with pier information.
     deck_stages_info["loads"] = (deepcopy(x_positions), deepcopy(z_positions))
 
-    for section in c.bridge.sections:
-        print(section)
+    # Collect positions from material properties.
+    x_positions_sections, z_positions_sections = get_deck_section_positions(c.bridge)
+    if not simple_mesh:
+        for x_pos in x_positions_sections:
+            x_positions.add(x_pos)
+        for z_pos in z_positions_sections:
+            z_positions.add(z_pos)
+
+    # Update the 'DeckStagesInfo' with material property information.
+    deck_stages_info["sections"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     return sorted(x_positions), sorted(z_positions)
 

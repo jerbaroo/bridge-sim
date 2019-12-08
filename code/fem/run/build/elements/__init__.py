@@ -32,9 +32,6 @@ def reset_elem_ids():
     _elem_id = 1
 
 
-reset_elem_ids()
-
-
 def ff_elem_ids(mod: int):
     """Fast forward element IDs until divisible by "mod"."""
     global _elem_id
