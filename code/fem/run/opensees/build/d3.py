@@ -404,10 +404,12 @@ def opensees_translation_recorders(
     )
 
 
+from fem.run.build import nodes_by_id
 node_ids_str = lambda: (
     " ".join(map(lambda n: str(sh.n_id), nodes_by_id.values())))
 
 
+from fem.run.build.elements import shells_by_id
 elem_ids_str = lambda: (
     " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())))
 
@@ -498,6 +500,7 @@ def build_model_3d(
         # Reset before building.
         # TODO: Remove.
         from fem.run.build.elements import reset_elem_ids
+        reset_nodes()
         reset_elem_ids()
 
 

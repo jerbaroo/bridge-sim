@@ -35,7 +35,7 @@ def bridge_705_3d_overload(*args, **kwargs):
 
 @click.group()
 @click.option("--dimensions", type=click.Choice(["2", "3"]), default="3", help="2D or 3D bridge.")
-@click.option("--mesh", type=click.Choice(["debug", "low", "full"]), default="low", help="Mesh density of the bridge.")
+@click.option("--mesh", type=click.Choice(["debug", "low", "full"]), default="debug", help="Mesh density of the bridge.")
 @click.option("--two-materials", is_flag=True, help="One material for the deck and one for the piers.")
 @click.option("--parallel", is_flag=True, default=True, help="Run simulations in parallel.")
 def cli(dimensions, mesh, two_materials, parallel):
@@ -96,6 +96,21 @@ def unit_load_simulations():
 @simulation.command()
 def convergence_data():
     verification.make_convergence_data(c, run=True, plot=False)
+
+
+########################
+##### Verification #####
+########################
+
+
+@cli.group()
+def verification():
+    pass
+
+
+@verification.command()
+def comparison_plots_705():
+    contour.comparison_plots_705(c)
 
 
 ####################
