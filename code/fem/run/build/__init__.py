@@ -1,13 +1,29 @@
 """Shared functionality for building FEMs."""
-from collections import defaultdict
+from itertools import chain
+from copy import deepcopy
+from collections import OrderedDict, defaultdict
 from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 
 from config import Config
 from fem.params import SimParams
-from fem.run.build.types import AllSupportNodes, Node
+from fem.run.build.assert_ import assert_all_pier_nodes, assert_deck_in_pier_pier_in_deck
+from fem.run.build.types import AllSupportNodes, DeckNodes, Node
+from fem.run.build.util import print_mesh_info
 from model.bridge import Bridge, Section3D, Support3D
+from util import print_d, round_m, st
+
+# TODO: Experimental, but I think this works.
+DECK_NODES_IN_PIER = True
+
+# Print debug information for this file.
+D: str = "fem.run.build"
+# D: bool = False
+
+
+def assert_sorted(l):
+    assert all(l[i] <= l[i + 1] for i in range(len(l) - 1))
 
 
 ##### Begin node factory #####
@@ -89,9 +105,6 @@ def reset_nodes():
     assert len(list(nodes_by_id.values())) == 0
 
 
-reset_nodes()
-
-
 # Amount to fast forward Node IDs by.
 ff_mod = 10000  # A large default value for testing.
 
@@ -121,21 +134,6 @@ def set_ff_mod(n: int):
 
 # A list of x and z positions of deck nodes.
 DeckPositions = NewType("DeckPositions", Tuple[List[float], List[float]])
-
-
-def assert_support_nodes(c: Config, all_support_nodes: AllSupportNodes):
-    """Sanity check that support nodes have the correct structure.
-
-    TODO: Remove this function.
-
-    """
-    assert len(all_support_nodes) == len(c.bridge.supports)
-    for s_nodes in all_support_nodes:
-        assert len(s_nodes) == 2
-        assert isinstance(s_nodes, tuple)
-        for w_nodes in s_nodes:
-            assert isinstance(w_nodes, list)
-            assert isinstance(w_nodes[0], list)
 
 
 def get_x_positions_of_pier_bottom_nodes(c: Config) -> List[List[float]]:
@@ -268,7 +266,7 @@ def get_load_deck_positions(
 
 def get_deck_nodes(
     c: Config, fem_params: SimParams, deck_positions: DeckPositions
-) -> Tuple[str, List[List[Node]]]:
+) -> Tuple[str, DeckNodes]:
     """OpenSees nodes that belong to the bridge deck.
 
     The nodes are created based on given positions of deck nodes.
@@ -375,7 +373,7 @@ def get_deck_positions(
 
 
 
-def get_all_support_nodes(
+def get_all_pier_nodes(
     c: Config, deck_positions: DeckPositions, simple_mesh: bool
 ) -> AllSupportNodes:
     """All nodes for all a bridge's supports.
@@ -447,19 +445,34 @@ def get_all_support_nodes(
                     y_pos += y_diff
                     z_pos += z_diff
                     append_wall_node(y)
-    assert_support_nodes(c, nodes)
+    assert_all_pier_nodes(c, nodes)
     return nodes
 
 
-def get_all_nodes(c: Config, sim_params: SimParams, simple_mesh: bool):
-    """Returns the deck nodes and pier nodes."""
+def get_all_nodes(
+        c: Config, sim_params: SimParams, simple_mesh: bool, print_mesh: bool=True
+) -> Tuple[DeckNodes, AllSupportNodes, Dict[int, Node]]:
+    """Returns all the nodes of a new mesh."""
+    reset_nodes()
     deck_positions = get_deck_positions(
-        c=c, fem_params=fem_params, simple_mesh=simple_mesh
+        c=c, fem_params=sim_params, simple_mesh=simple_mesh
     )
     deck_nodes = get_deck_nodes(
-        c=c, fem_params=fem_params, deck_positions=deck_positions
+        c=c, fem_params=sim_params, deck_positions=deck_positions
     )
-    all_support_nodes = get_all_support_nodes(
+    all_pier_nodes = get_all_pier_nodes(
         c, deck_positions=deck_positions, simple_mesh=simple_mesh
     )
-    assert_support_nodes(c=c, all_support_nodes=all_support_nodes)
+    assert_all_pier_nodes(c=c, all_pier_nodes=all_pier_nodes)
+
+    if print_mesh:
+        print_mesh_info(
+            bridge=c.bridge,
+            sim_params=sim_params,
+            all_pier_nodes=all_pier_nodes,
+        )
+    if not simple_mesh:
+        assert_deck_in_pier_pier_in_deck(
+            deck_nodes=deck_nodes, all_pier_nodes=all_pier_nodes
+        )
+    return deck_nodes, all_pier_nodes, nodes_by_id

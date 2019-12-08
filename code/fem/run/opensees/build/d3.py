@@ -1,100 +1,32 @@
 """Build OpenSees 3D model files."""
-from itertools import chain
 from collections import OrderedDict, defaultdict
-from copy import deepcopy
-from typing import Dict, List, NewType, Optional, Tuple, Union
+from itertools import chain
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-
 from config import Config
 from fem.params import ExptParams, SimParams
-from fem.run.build import get_all_nodes
-from fem.run.opensees.common import (
+from fem.run.build import get_all_nodes, reset_nodes
+from fem.run.build.elements import get_deck_elements, get_pier_elements
+from fem.run.build.types import (
     AllPierElements,
     AllSupportNodes,
     DeckElements,
     DeckNodes,
     Node,
     ShellElement,
-    bridge_3d_elements,
     bridge_3d_nodes,
 )
-from model.bridge import Bridge, Section3D, Support3D
+from model.bridge import Section3D, Support3D
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
-from util import print_d, print_i, print_w, round_m, st
-
-
-def assert_sorted(l):
-    assert all(l[i] <= l[i + 1] for i in range(len(l) - 1))
+from util import print_d, print_i, print_w, round_m
 
 
 # Print debug information for this file.
 D: str = "fem.run.opensees.build.d3"
 # D: bool = False
 
-##### Begin element IDs #####
-
-_elem_id = None
-
-
-# A dictionary of node's to shell elements.
-#
-# If you call 'build_model_3d' and then call '.values' on this dictionary it
-# provides an easy way to get all 'ShellElement's for the previously built
-# model.
-shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
-
-
-def next_elem_id() -> int:
-    """Return the next element ID and increment the counter."""
-    global _elem_id
-    result = _elem_id
-    _elem_id = result + 1
-    return result
-
-
-def reset_elem_ids():
-    """Reset element IDs to 0, e.g. when building a new model file."""
-    global _elem_id
-    global shells_by_id
-    shells_by_id.clear()
-    _elem_id = 1
-
-
-reset_elem_ids()
-
-
-def ff_elem_ids(mod: int):
-    """Fast forward element IDs until divisible by "mod"."""
-    global _elem_id
-    while _elem_id % mod != 0:
-        _elem_id += 1
-
-
-def get_shell(
-    ni_id: int, nj_id: int, nk_id: int, nl_id: int, **kwargs
-):
-    """Get a 'Shell' if already exists with Node IDs, else create a new one.
-
-    NOTE: Use this to contruct 'Shell's, don't do it directly!
-
-    """
-    key = (ni_id, nj_id, nk_id, nl_id)
-    if key in shells_by_id:
-        raise ValueError("Attempt to get same element twice, with key {key}")
-    shells_by_id[key] = ShellElement(
-        e_id=next_elem_id(),
-        ni_id=ni_id,
-        nj_id=nj_id,
-        nk_id=nk_id,
-        nl_id=nl_id,
-        **kwargs
-    )
-    return shells_by_id[key]
-
-
-##### End element IDs #####
 ##### Begin some comment-related things #####
 
 opensees_intro = """
@@ -122,9 +54,6 @@ def comment(c: str, inner: str, units: Optional[str] = None):
 
 ##### End some comment-related things #####
 ##### Begin nodes #####
-
-# TODO: Experimental, but I think this works.
-DECK_NODES_IN_PIER = True
 
 
 def opensees_support_nodes(
@@ -335,132 +264,8 @@ def opensees_pier_sections(c: Config):
     )
 
 
-def section_for_deck_element(
-    c: Config, element_x: float, element_z: float
-) -> int:
-    """Section for a shell element on the deck.
-
-    Creates a list (if not already created) of all section's x positions to z
-    position to Section3D. Then iterate through sorted x positions finding last
-    one less than or equal to the given element's lowest x position, then do the
-    same for the z position, then the section is found.
-
-    Args:
-        c: Config, global configuration object.
-        element_x: float, x position which belongs in some section.
-        element_z: float, z position which belongs in some section.
-
-    """
-    # Create the dictionary if not already created.
-    if not hasattr(c.bridge, "deck_sections_dict"):
-        c.bridge.deck_sections_dict = defaultdict(dict)
-        for section in c.bridge.sections:
-            c.bridge.deck_sections_dict[
-                round_m(c.bridge.x(section.start_x_frac))
-            ][round_m(c.bridge.z(section.start_z_frac))] = section
-
-    # print(sorted(c.bridge.deck_sections_dict.keys()))
-    # print(sorted(c.bridge.deck_sections_dict[0.0].keys()))
-
-    element_x, element_z = round_m(element_x), round_m(element_z)
-    # Find the last x position less than element_x.
-    section_x = None
-    for next_section_x in sorted(c.bridge.deck_sections_dict.keys()):
-        if next_section_x <= element_x:
-            section_x = next_section_x
-        else:
-            break
-    # print(f"section_x = {section_x}")
-
-    # Find the last z position less than element_z.
-    section_z = None
-    for next_section_z in sorted(c.bridge.deck_sections_dict[section_x].keys()):
-        if next_section_z <= element_z:
-            section_z = next_section_z
-        else:
-            break
-        # print(f"next_section_z = {next_section_z}")
-    # print(f"section_z = {section_z}")
-
-    return c.bridge.deck_sections_dict[section_x][section_z]
-
-
-def section_for_pier_element(
-        c: Config, pier: Support3D, start_frac_len: float) -> int:
-    """Section for a shell element on a pier.
-
-    Args:
-        c: Config, global configuration object.
-        pier: Support3DPier, the pier from which to select a section.
-        element_start_frac_len: float, fraction of pier wall length.
-
-    """
-
-    # If 'pier.sections' is a function simply defer to that..
-    if callable(pier.sections):
-        return pier.sections(start_frac_len)
-
-    # ..else find the last pier section where: the fraction of the pier wall's
-    # length is less than the given value 'start_frac_len'.
-    section = None
-    for next_section in sorted(pier.sections, key=lambda s: s.start_frac_len):
-        if next_section.start_frac_len <= start_frac_len:
-            section = next_section
-        else:
-            break
-    return section
-
-
 ##### End sections #####
 ##### Begin shell elements #####
-
-
-def get_deck_elements(c: Config, deck_nodes: DeckNodes) -> DeckElements:
-    """Shell elements that make up a bridge deck."""
-
-    first_node_z_0 = deck_nodes[0][0].n_id
-    first_node_z_1 = deck_nodes[-1][0].n_id
-    last_node_z_0 = deck_nodes[0][-1].n_id
-    z_skip = deck_nodes[1][0].n_id - deck_nodes[0][0].n_id
-    # print_d(D, f"first_node_z_0 = {first_node_z_0}")
-    # print_d(D, f"first_node_z_1 = {first_node_z_1}")
-    # print_d(D, f"last_node_z_0 = {last_node_z_0}")
-    # print_d(D, f"z_skip = {z_skip}")
-
-    deck_elements = []  # The result.
-    # Shell nodes are input in counter-clockwise order starting bottom left
-    # with i, then bottom right with j, top right k, top left with l.
-
-    # From first until second last node along z (when x == 0).
-    for z_node in range(first_node_z_0, first_node_z_1, z_skip):
-        deck_elements.append([])
-        # print_d(D, f"deck element z_node = {z_node}")
-        # Count from first node at 0 until second last node along x.
-        for x_node in range(last_node_z_0 - first_node_z_0):
-            # print_d(D, f"deck element x_node = {x_node}")
-            # i is the bottom left node, j the bottom right, k the top right
-            # and l the top left.
-            i_node, j_node = z_node + x_node, z_node + x_node + 1
-            k_node, l_node = j_node + z_skip, i_node + z_skip
-            # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
-            section = section_for_deck_element(
-                c=c,
-                element_x=nodes_by_id[i_node].x,
-                element_z=nodes_by_id[i_node].z,
-            )
-            deck_elements[-1].append(
-                get_shell(
-                    ni_id=i_node,
-                    nj_id=j_node,
-                    nk_id=k_node,
-                    nl_id=l_node,
-                    section=section,
-                    pier=False,
-                    nodes_by_id=nodes_by_id,
-                )
-            )
-        ff_elem_ids(z_skip)
-    return deck_elements
 
 
 def opensees_deck_elements(c: Config, deck_elements: DeckElements) -> str:
@@ -471,58 +276,6 @@ def opensees_deck_elements(c: Config, deck_elements: DeckElements) -> str:
         "\n".join(map(lambda e: e.command_3d(), deck_elements)),
         units="element ShellMITC4 eleTag iNode jNode kNode lNode secTag",
     )
-
-
-def get_pier_elements(
-    c: Config, all_support_nodes: AllSupportNodes
-) -> AllPierElements:
-    """Shell elements that make up a bridge's piers."""
-    pier_elements = []  # The result.
-    for s, support_nodes in enumerate(all_support_nodes):
-        for w, wall_nodes in enumerate(support_nodes):
-            z = 0  # Keep an index of current transverse (z) line.
-            # For each pair of (line of nodes in y direction).
-            for y_nodes_z_lo, y_nodes_z_hi in zip(
-                wall_nodes[:-1], wall_nodes[1:]
-            ):
-                assert len(y_nodes_z_lo) == len(y_nodes_z_hi)
-                # For each element (so for each node - 1) on the line of nodes
-                # in y direction.
-                for y in range(len(y_nodes_z_lo) - 1):
-                    y_lo_z_lo: Node = y_nodes_z_lo[y]
-                    y_hi_z_lo: Node = y_nodes_z_lo[y + 1]
-                    y_lo_z_hi: Node = y_nodes_z_hi[y]
-                    y_hi_z_hi: Node = y_nodes_z_hi[y + 1]
-                    assert isinstance(y_lo_z_lo, Node)
-                    for other_node in [y_hi_z_lo, y_lo_z_hi, y_hi_z_hi]:
-                        assert other_node.y <= y_lo_z_lo.y
-                    assert y_lo_z_lo.z < y_lo_z_hi.z
-                    assert y_hi_z_lo.z < y_hi_z_hi.z
-                    # print(f"Section ID ={s}")
-                    # The reason we do "- 2" is because: if len(y_nodes_z_lo) is
-                    # 5 then the max value of range(len(y_nodes_z_lo) - 1) is 3.
-                    start_frac_len = y / (len(y_nodes_z_lo) - 2)
-                    # print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
-                    section = section_for_pier_element(
-                        c=c,
-                        pier=c.bridge.supports[s],
-                        start_frac_len=start_frac_len,
-                    )
-                    pier_elements.append(
-                        get_shell(
-                            ni_id=y_lo_z_lo.n_id,
-                            nj_id=y_hi_z_lo.n_id,
-                            nk_id=y_hi_z_hi.n_id,
-                            nl_id=y_lo_z_hi.n_id,
-                            section=section,
-                            pier=True,
-                            nodes_by_id=nodes_by_id,
-                            support_position_index=(s, w, z, y),
-                        )
-                    )
-                ff_elem_ids(ff_mod)
-                z += 1
-    return pier_elements
 
 
 def opensees_pier_elements(
@@ -722,37 +475,6 @@ def opensees_test(pier_disp: Optional[DisplacementCtrl]):
 ##### End recorders #####
 
 
-def assert_deck_in_pier_pier_in_deck(
-    deck_nodes: DeckNodes, all_pier_nodes: AllSupportNodes
-):
-    """The number of top nodes per pier must equal that range in the mesh."""
-    # First create a list of deck nodes sorted by x then z position.
-    sorted_deck_nodes = sorted(
-        chain.from_iterable(deck_nodes), key=lambda n: (n.x, n.z)
-    )
-    for pier_nodes in all_pier_nodes:
-        for wall_nodes in pier_nodes:
-            # Get the top line of nodes of the wall and assert we got them
-            # correctly.
-            wall_top_nodes = list(map(lambda ys: ys[0], wall_nodes))
-            for z, node in enumerate(wall_top_nodes):
-                assert node.y > wall_nodes[z][1].y
-            x = wall_top_nodes[0].x
-            for x_index in range(1, len(wall_top_nodes)):
-                assert x == wall_top_nodes[x_index].x
-            # Find the deck nodes with the correct x position and range of z.
-            min_z = wall_top_nodes[0].z
-            max_z = wall_top_nodes[-1].z
-            deck_in_range = len(
-                list(
-                    n
-                    for n in sorted_deck_nodes
-                    if n.x == x and n.z >= min_z and n.z <= max_z
-                )
-            )
-            assert deck_in_range == len(wall_top_nodes)
-
-
 def build_model_3d(
     c: Config,
     expt_params: ExptParams,
@@ -775,24 +497,10 @@ def build_model_3d(
     for fem_params in expt_params.sim_params:
 
         # Reset before building.
-        reset_nodes()
+        # TODO: Remove.
+        from fem.run.build.elements import reset_elem_ids
         reset_elem_ids()
 
-        # Displacement control is not supported yet in 3D.
-        if fem_params.displacement_ctrl is not None:
-            print("OpenSees: Displacement not supported in 3D")
-
-        deck_nodes, all_support_nodes = get_all_nodes(c=c, sim_params=fem_params, simple_mesh=simple_mesh)
-        # Print info on, and assert the generated mesh.
-        print_mesh_info(
-            bridge=c.bridge,
-            fem_params=fem_params,
-            all_pier_nodes=all_support_nodes,
-        )
-        if not simple_mesh:
-            assert_deck_in_pier_pier_in_deck(
-                deck_nodes=deck_nodes, all_pier_nodes=all_support_nodes
-            )
 
         # Attach deck and pier nodes and elements to the FEMParams to be
         # available when converting raw responses to responses with positions
@@ -801,36 +509,36 @@ def build_model_3d(
         # NOTE: there is some overlap between deck nodes and pier nodes, and
         # some over lap between nodes of both walls of one pier (at the bottom
         # where they meet).
-        fem_params.deck_nodes = deck_nodes
-        fem_params.all_support_nodes = all_support_nodes
-        fem_params.deck_elements = get_deck_elements(c=c, deck_nodes=deck_nodes)
+        fem_params.deck_nodes, fem_params.all_support_nodes, nodes_by_id = get_all_nodes(
+            c=c, sim_params=fem_params, simple_mesh=simple_mesh)
+        fem_params.deck_elements = get_deck_elements(c=c, deck_nodes=fem_params.deck_nodes, nodes_by_id=nodes_by_id)
         fem_params.all_pier_elements = get_pier_elements(
-            c=c, all_support_nodes=all_support_nodes
+            c=c, all_support_nodes=fem_params.all_support_nodes, nodes_by_id=nodes_by_id
         )
 
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
             in_tcl.replace("<<INTRO>>", opensees_intro)
-            .replace("<<DECK_NODES>>", opensees_deck_nodes(c=c, deck_nodes=deck_nodes))
+            .replace("<<DECK_NODES>>", opensees_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes))
             .replace(
                 "<<SUPPORT_NODES>>",
                 opensees_support_nodes(
                     c=c,
-                    deck_nodes=deck_nodes,
-                    all_support_nodes=all_support_nodes,
+                    deck_nodes=fem_params.deck_nodes,
+                    all_support_nodes=fem_params.all_support_nodes,
                     simple_mesh=simple_mesh,
                 ),
             )
             .replace(
                 "<<FIX_DECK>>",
-                opensees_fixed_deck_nodes(c=c, deck_nodes=deck_nodes),
+                opensees_fixed_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes),
             )
             .replace(
                 "<<FIX_SUPPORTS>>",
                 opensees_fixed_pier_nodes(
                     c=c,
-                    all_support_nodes=all_support_nodes,
+                    all_support_nodes=fem_params.all_support_nodes,
                     pier_disp=fem_params.displacement_ctrl,
                 ),
             )
@@ -839,7 +547,7 @@ def build_model_3d(
                 opensees_loads(
                     c=c,
                     ploads=fem_params.ploads,
-                    deck_nodes=deck_nodes,
+                    deck_nodes=fem_params.deck_nodes,
                     simple_mesh=simple_mesh,
                     pier_disp=fem_params.displacement_ctrl,
                 ),

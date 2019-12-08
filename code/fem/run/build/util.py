@@ -1,16 +1,19 @@
-from fem.build import AllSupportNodes
+import numpy as np
+
 from fem.params import SimParams
+from fem.run.build.types import AllSupportNodes
 from model.bridge import Bridge
+from util import print_i
 
 
 def print_mesh_info(
-    bridge: Bridge, fem_params: SimParams, all_pier_nodes: AllSupportNodes
+    bridge: Bridge, sim_params: SimParams, all_pier_nodes: AllSupportNodes
 ):
     """Print information about the mesh after each stage of building."""
     to_lens = lambda x: np.array(list(map(len, x)))
-    base = to_lens(fem_params.deck_stages_info["base"])
-    piers = to_lens(fem_params.deck_stages_info["piers"])
-    loads = to_lens(fem_params.deck_stages_info["loads"])
+    base = to_lens(sim_params.deck_stages_info["base"])
+    piers = to_lens(sim_params.deck_stages_info["piers"])
+    loads = to_lens(sim_params.deck_stages_info["loads"])
 
     loads -= piers
     piers -= base

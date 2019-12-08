@@ -5,7 +5,7 @@ from typing import Dict, List
 from config import Config
 from fem.params import SimParams, ExptParams
 from fem.run import Parsed
-from fem.run.opensees.common import Node, bridge_3d_nodes
+from fem.run.build.types import Node, bridge_3d_nodes
 from model import Response, Point
 from model.response import ResponseType
 from util import print_d

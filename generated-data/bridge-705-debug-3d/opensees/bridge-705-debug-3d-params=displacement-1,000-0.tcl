@@ -604,26 +604,26 @@ section ElasticMembranePlateSection 25 38400000000.0 0.2 0.75 0.0027240000000000
 
 # section ElasticMembranePlateSection secTag youngs_modulus poisson_ratio depth mass_density
 # Begin pier sections
-section ElasticMembranePlateSection 28 38400000000.0 0.2 1.170842105263158 0.0027240000000000003
-section ElasticMembranePlateSection 29 38400000000.0 0.2 1.123263157894737 0.0027240000000000003
-section ElasticMembranePlateSection 37 38400000000.0 0.2 0.7426315789473684 0.0027240000000000003
-section ElasticMembranePlateSection 30 38400000000.0 0.2 1.0756842105263158 0.0027240000000000003
-section ElasticMembranePlateSection 35 38400000000.0 0.2 0.8377894736842105 0.0027240000000000003
-section ElasticMembranePlateSection 31 38400000000.0 0.2 1.0281052631578946 0.0027240000000000003
 section ElasticMembranePlateSection 32 38400000000.0 0.2 0.9805263157894737 0.0027240000000000003
-section ElasticMembranePlateSection 33 38400000000.0 0.2 0.9329473684210526 0.0027240000000000003
-section ElasticMembranePlateSection 34 38400000000.0 0.2 0.8853684210526316 0.0027240000000000003
-section ElasticMembranePlateSection 38 38400000000.0 0.2 0.6950526315789474 0.0027240000000000003
-section ElasticMembranePlateSection 39 38400000000.0 0.2 0.6474736842105264 0.0027240000000000003
 section ElasticMembranePlateSection 40 38400000000.0 0.2 0.5998947368421053 0.0027240000000000003
-section ElasticMembranePlateSection 41 38400000000.0 0.2 0.5523157894736842 0.0027240000000000003
-section ElasticMembranePlateSection 45 38400000000.0 0.2 0.362 0.0027240000000000003
-section ElasticMembranePlateSection 36 38400000000.0 0.2 0.7902105263157895 0.0027240000000000003
 section ElasticMembranePlateSection 42 38400000000.0 0.2 0.5047368421052632 0.0027240000000000003
 section ElasticMembranePlateSection 43 38400000000.0 0.2 0.4571578947368422 0.0027240000000000003
 section ElasticMembranePlateSection 44 38400000000.0 0.2 0.40957894736842104 0.0027240000000000003
-section ElasticMembranePlateSection 26 38400000000.0 0.2 1.266 0.0027240000000000003
+section ElasticMembranePlateSection 45 38400000000.0 0.2 0.362 0.0027240000000000003
+section ElasticMembranePlateSection 31 38400000000.0 0.2 1.0281052631578946 0.0027240000000000003
+section ElasticMembranePlateSection 35 38400000000.0 0.2 0.8377894736842105 0.0027240000000000003
+section ElasticMembranePlateSection 39 38400000000.0 0.2 0.6474736842105264 0.0027240000000000003
+section ElasticMembranePlateSection 34 38400000000.0 0.2 0.8853684210526316 0.0027240000000000003
+section ElasticMembranePlateSection 41 38400000000.0 0.2 0.5523157894736842 0.0027240000000000003
+section ElasticMembranePlateSection 38 38400000000.0 0.2 0.6950526315789474 0.0027240000000000003
+section ElasticMembranePlateSection 29 38400000000.0 0.2 1.123263157894737 0.0027240000000000003
+section ElasticMembranePlateSection 33 38400000000.0 0.2 0.9329473684210526 0.0027240000000000003
+section ElasticMembranePlateSection 28 38400000000.0 0.2 1.170842105263158 0.0027240000000000003
+section ElasticMembranePlateSection 37 38400000000.0 0.2 0.7426315789473684 0.0027240000000000003
 section ElasticMembranePlateSection 27 38400000000.0 0.2 1.2184210526315788 0.0027240000000000003
+section ElasticMembranePlateSection 30 38400000000.0 0.2 1.0756842105263158 0.0027240000000000003
+section ElasticMembranePlateSection 36 38400000000.0 0.2 0.7902105263157895 0.0027240000000000003
+section ElasticMembranePlateSection 26 38400000000.0 0.2 1.266 0.0027240000000000003
 # End pier sections
 
 # element ShellMITC4 eleTag iNode jNode kNode lNode secTag
@@ -830,196 +830,196 @@ element ShellMITC4 1313 1413 1414 1514 1513 23; # Section3D   starts at (x_frac,
 # Begin pier shell elements
 element ShellMITC4 1400 201 1600 1700 301 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
 element ShellMITC4 1401 1600 1601 1701 1700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1500 301 1700 1800 401 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1501 1700 1701 1801 1800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1600 202 1900 2000 302 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1601 1900 1601 1701 2000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1700 302 2000 2100 402 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1701 2000 1701 1801 2100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1800 501 2200 2300 601 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1801 2200 2201 2301 2300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1900 601 2300 2400 701 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 1901 2300 2301 2401 2400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2000 502 2500 2600 602 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2001 2500 2201 2301 2600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2100 602 2600 2700 702 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2101 2600 2301 2401 2700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2200 901 2800 2900 1001 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2201 2800 2801 2901 2900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2300 1001 2900 3000 1101 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2301 2900 2901 3001 3000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2400 902 3100 3200 1002 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2401 3100 2801 2901 3200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2500 1002 3200 3300 1102 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2501 3200 2901 3001 3300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2600 1201 3400 3500 1301 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2601 3400 3401 3501 3500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2700 1301 3500 3600 1401 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2701 3500 3501 3601 3600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2800 1202 3700 3800 1302 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2801 3700 3401 3501 3800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2900 1302 3800 3900 1402 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 2901 3800 3501 3601 3900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3000 203 4000 4100 303 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3001 4000 4001 4101 4100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3100 303 4100 4200 403 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3101 4100 4101 4201 4200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3200 204 4300 4400 304 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3201 4300 4001 4101 4400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3300 304 4400 4500 404 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3301 4400 4101 4201 4500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3400 503 4600 4700 603 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3401 4600 4601 4701 4700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3500 603 4700 4800 703 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3501 4700 4701 4801 4800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3600 504 4900 5000 604 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3601 4900 4601 4701 5000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3700 604 5000 5100 704 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3701 5000 4701 4801 5100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3800 903 5200 5300 1003 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3801 5200 5201 5301 5300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3900 1003 5300 5400 1103 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 3901 5300 5301 5401 5400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4000 904 5500 5600 1004 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4001 5500 5201 5301 5600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4100 1004 5600 5700 1104 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4101 5600 5301 5401 5700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4200 1203 5800 5900 1303 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4201 5800 5801 5901 5900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4300 1303 5900 6000 1403 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4301 5900 5901 6001 6000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4400 1204 6100 6200 1304 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4401 6100 5801 5901 6200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4500 1304 6200 6300 1404 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4501 6200 5901 6001 6300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4600 205 6400 6500 305 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4601 6400 6401 6501 6500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4700 305 6500 6600 405 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4701 6500 6501 6601 6600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4800 206 6700 6800 306 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4801 6700 6401 6501 6800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4900 306 6800 6900 406 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 4901 6800 6501 6601 6900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5000 505 7000 7100 605 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5001 7000 7001 7101 7100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5100 605 7100 7200 705 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5101 7100 7101 7201 7200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5200 506 7300 7400 606 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5201 7300 7001 7101 7400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5300 606 7400 7500 706 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5301 7400 7101 7201 7500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5400 905 7600 7700 1005 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5401 7600 7601 7701 7700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5500 1005 7700 7800 1105 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5501 7700 7701 7801 7800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5600 906 7900 8000 1006 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5601 7900 7601 7701 8000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5700 1006 8000 8100 1106 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5701 8000 7701 7801 8100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5800 1205 8200 8300 1305 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5801 8200 8201 8301 8300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5900 1305 8300 8400 1405 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 5901 8300 8301 8401 8400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6000 1206 8500 8600 1306 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6001 8500 8201 8301 8600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6100 1306 8600 8700 1406 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6101 8600 8301 8401 8700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6200 208 8800 8900 308 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6201 8800 8801 8901 8900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6300 308 8900 9000 408 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6301 8900 8901 9001 9000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6400 209 9100 9200 309 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6401 9100 8801 8901 9200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6500 309 9200 9300 409 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6501 9200 8901 9001 9300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6600 508 9400 9500 608 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6601 9400 9401 9501 9500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6700 608 9500 9600 708 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6701 9500 9501 9601 9600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6800 509 9700 9800 609 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6801 9700 9401 9501 9800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6900 609 9800 9900 709 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 6901 9800 9501 9601 9900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7000 908 10000 10100 1008 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7001 10000 10001 10101 10100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7100 1008 10100 10200 1108 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7101 10100 10101 10201 10200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7200 909 10300 10400 1009 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7201 10300 10001 10101 10400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7300 1009 10400 10500 1109 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7301 10400 10101 10201 10500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7400 1208 10600 10700 1308 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7401 10600 10601 10701 10700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7500 1308 10700 10800 1408 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7501 10700 10701 10801 10800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7600 1209 10900 11000 1309 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7601 10900 10601 10701 11000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7700 1309 11000 11100 1409 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7701 11000 10701 10801 11100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7800 210 11200 11300 310 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7801 11200 11201 11301 11300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7900 310 11300 11400 410 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 7901 11300 11301 11401 11400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8000 211 11500 11600 311 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8001 11500 11201 11301 11600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8100 311 11600 11700 411 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8101 11600 11301 11401 11700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8200 510 11800 11900 610 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8201 11800 11801 11901 11900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8300 610 11900 12000 710 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8301 11900 11901 12001 12000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8400 511 12100 12200 611 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8401 12100 11801 11901 12200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8500 611 12200 12300 711 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8501 12200 11901 12001 12300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8600 910 12400 12500 1010 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8601 12400 12401 12501 12500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8700 1010 12500 12600 1110 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8701 12500 12501 12601 12600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8800 911 12700 12800 1011 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8801 12700 12401 12501 12800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8900 1011 12800 12900 1111 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 8901 12800 12501 12601 12900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9000 1210 13000 13100 1310 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9001 13000 13001 13101 13100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9100 1310 13100 13200 1410 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9101 13100 13101 13201 13200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9200 1211 13300 13400 1311 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9201 13300 13001 13101 13400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9300 1311 13400 13500 1411 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9301 13400 13101 13201 13500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9400 212 13600 13700 312 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9401 13600 13601 13701 13700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9500 312 13700 13800 412 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9501 13700 13701 13801 13800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9600 213 13900 14000 313 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9601 13900 13601 13701 14000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9700 313 14000 14100 413 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9701 14000 13701 13801 14100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9800 512 14200 14300 612 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9801 14200 14201 14301 14300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9900 612 14300 14400 712 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 9901 14300 14301 14401 14400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10000 513 14500 14600 613 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10001 14500 14201 14301 14600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10100 613 14600 14700 713 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10101 14600 14301 14401 14700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10200 912 14800 14900 1012 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10201 14800 14801 14901 14900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10300 1012 14900 15000 1112 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10301 14900 14901 15001 15000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10400 913 15100 15200 1013 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10401 15100 14801 14901 15200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10500 1013 15200 15300 1113 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10501 15200 14901 15001 15300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10600 1212 15400 15500 1312 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10601 15400 15401 15501 15500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10700 1312 15500 15600 1412 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10701 15500 15501 15601 15600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10800 1213 15700 15800 1313 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10801 15700 15401 15501 15800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10900 1313 15800 15900 1413 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
-element ShellMITC4 10901 15800 15501 15601 15900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 10000 301 1700 1800 401 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 10001 1700 1701 1801 1800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 20000 202 1900 2000 302 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 20001 1900 1601 1701 2000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 30000 302 2000 2100 402 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 30001 2000 1701 1801 2100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 40000 501 2200 2300 601 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 40001 2200 2201 2301 2300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 50000 601 2300 2400 701 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 50001 2300 2301 2401 2400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 60000 502 2500 2600 602 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 60001 2500 2201 2301 2600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 70000 602 2600 2700 702 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 70001 2600 2301 2401 2700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 80000 901 2800 2900 1001 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 80001 2800 2801 2901 2900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 90000 1001 2900 3000 1101 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 90001 2900 2901 3001 3000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 100000 902 3100 3200 1002 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 100001 3100 2801 2901 3200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 110000 1002 3200 3300 1102 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 110001 3200 2901 3001 3300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 120000 1201 3400 3500 1301 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 120001 3400 3401 3501 3500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 130000 1301 3500 3600 1401 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 130001 3500 3501 3601 3600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 140000 1202 3700 3800 1302 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 140001 3700 3401 3501 3800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 150000 1302 3800 3900 1402 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 150001 3800 3501 3601 3900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 160000 203 4000 4100 303 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 160001 4000 4001 4101 4100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 170000 303 4100 4200 403 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 170001 4100 4101 4201 4200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 180000 204 4300 4400 304 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 180001 4300 4001 4101 4400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 190000 304 4400 4500 404 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 190001 4400 4101 4201 4500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 200000 503 4600 4700 603 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 200001 4600 4601 4701 4700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 210000 603 4700 4800 703 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 210001 4700 4701 4801 4800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 220000 504 4900 5000 604 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 220001 4900 4601 4701 5000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 230000 604 5000 5100 704 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 230001 5000 4701 4801 5100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 240000 903 5200 5300 1003 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 240001 5200 5201 5301 5300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 250000 1003 5300 5400 1103 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 250001 5300 5301 5401 5400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 260000 904 5500 5600 1004 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 260001 5500 5201 5301 5600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 270000 1004 5600 5700 1104 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 270001 5600 5301 5401 5700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 280000 1203 5800 5900 1303 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 280001 5800 5801 5901 5900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 290000 1303 5900 6000 1403 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 290001 5900 5901 6001 6000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 300000 1204 6100 6200 1304 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 300001 6100 5801 5901 6200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 310000 1304 6200 6300 1404 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 310001 6200 5901 6001 6300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 320000 205 6400 6500 305 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 320001 6400 6401 6501 6500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 330000 305 6500 6600 405 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 330001 6500 6501 6601 6600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 340000 206 6700 6800 306 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 340001 6700 6401 6501 6800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 350000 306 6800 6900 406 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 350001 6800 6501 6601 6900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 360000 505 7000 7100 605 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 360001 7000 7001 7101 7100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 370000 605 7100 7200 705 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 370001 7100 7101 7201 7200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 380000 506 7300 7400 606 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 380001 7300 7001 7101 7400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 390000 606 7400 7500 706 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 390001 7400 7101 7201 7500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 400000 905 7600 7700 1005 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 400001 7600 7601 7701 7700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 410000 1005 7700 7800 1105 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 410001 7700 7701 7801 7800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 420000 906 7900 8000 1006 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 420001 7900 7601 7701 8000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 430000 1006 8000 8100 1106 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 430001 8000 7701 7801 8100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 440000 1205 8200 8300 1305 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 440001 8200 8201 8301 8300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 450000 1305 8300 8400 1405 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 450001 8300 8301 8401 8400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 460000 1206 8500 8600 1306 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 460001 8500 8201 8301 8600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 470000 1306 8600 8700 1406 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 470001 8600 8301 8401 8700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 480000 208 8800 8900 308 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 480001 8800 8801 8901 8900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 490000 308 8900 9000 408 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 490001 8900 8901 9001 9000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 500000 209 9100 9200 309 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 500001 9100 8801 8901 9200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 510000 309 9200 9300 409 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 510001 9200 8901 9001 9300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 520000 508 9400 9500 608 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 520001 9400 9401 9501 9500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 530000 608 9500 9600 708 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 530001 9500 9501 9601 9600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 540000 509 9700 9800 609 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 540001 9700 9401 9501 9800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 550000 609 9800 9900 709 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 550001 9800 9501 9601 9900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 560000 908 10000 10100 1008 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 560001 10000 10001 10101 10100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 570000 1008 10100 10200 1108 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 570001 10100 10101 10201 10200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 580000 909 10300 10400 1009 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 580001 10300 10001 10101 10400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 590000 1009 10400 10500 1109 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 590001 10400 10101 10201 10500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 600000 1208 10600 10700 1308 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 600001 10600 10601 10701 10700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 610000 1308 10700 10800 1408 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 610001 10700 10701 10801 10800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 620000 1209 10900 11000 1309 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 620001 10900 10601 10701 11000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 630000 1309 11000 11100 1409 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 630001 11000 10701 10801 11100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 640000 210 11200 11300 310 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 640001 11200 11201 11301 11300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 650000 310 11300 11400 410 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 650001 11300 11301 11401 11400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 660000 211 11500 11600 311 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 660001 11500 11201 11301 11600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 670000 311 11600 11700 411 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 670001 11600 11301 11401 11700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 680000 510 11800 11900 610 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 680001 11800 11801 11901 11900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 690000 610 11900 12000 710 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 690001 11900 11901 12001 12000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 700000 511 12100 12200 611 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 700001 12100 11801 11901 12200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 710000 611 12200 12300 711 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 710001 12200 11901 12001 12300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 720000 910 12400 12500 1010 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 720001 12400 12401 12501 12500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 730000 1010 12500 12600 1110 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 730001 12500 12501 12601 12600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 740000 911 12700 12800 1011 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 740001 12700 12401 12501 12800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 750000 1011 12800 12900 1111 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 750001 12800 12501 12601 12900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 760000 1210 13000 13100 1310 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 760001 13000 13001 13101 13100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 770000 1310 13100 13200 1410 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 770001 13100 13101 13201 13200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 780000 1211 13300 13400 1311 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 780001 13300 13001 13101 13400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 790000 1311 13400 13500 1411 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 790001 13400 13101 13201 13500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 800000 212 13600 13700 312 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 800001 13600 13601 13701 13700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 810000 312 13700 13800 412 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 810001 13700 13701 13801 13800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 820000 213 13900 14000 313 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 820001 13900 13601 13701 14000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 830000 313 14000 14100 413 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 830001 14000 13701 13801 14100 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 840000 512 14200 14300 612 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 840001 14200 14201 14301 14300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 850000 612 14300 14400 712 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 850001 14300 14301 14401 14400 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 860000 513 14500 14600 613 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 860001 14500 14201 14301 14600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 870000 613 14600 14700 713 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 870001 14600 14301 14401 14700 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 880000 912 14800 14900 1012 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 880001 14800 14801 14901 14900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 890000 1012 14900 15000 1112 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 890001 14900 14901 15001 15000 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 900000 913 15100 15200 1013 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 900001 15100 14801 14901 15200 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 910000 1013 15200 15300 1113 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 910001 15200 14901 15001 15300 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 920000 1212 15400 15500 1312 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 920001 15400 15401 15501 15500 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 930000 1312 15500 15600 1412 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 930001 15500 15501 15601 15600 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 940000 1213 15700 15800 1313 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 940001 15700 15401 15501 15800 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 950000 1313 15800 15900 1413 26; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 1.266 m   youngs = 38400 MPa   poissons = 0.2
+element ShellMITC4 950001 15800 15501 15601 15900 45; # Section3D   starts at (x_frac, z_frac) = (0, 0)   density = 2.724 kg/m   thickness = 0.362 m   youngs = 38400 MPa   poissons = 0.2
 # End pier shell elements
 
 

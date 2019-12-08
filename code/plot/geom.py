@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 from config import Config
 from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d, nodes_by_id
+from fem.run.build import nodes_by_id
 from model.bridge import Bridge, Section3D
 from plot import Color, plt
 
