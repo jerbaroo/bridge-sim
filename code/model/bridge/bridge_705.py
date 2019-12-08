@@ -153,6 +153,7 @@ bridge_705_sections_3d = load_bridge_705_deck_sections()
 ############################
 
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
+
 pier_section_f = lambda start_frac_len: Section3DPier(
     density=2.724,
     thickness=np.interp(
@@ -216,6 +217,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 height=3.5,
                 width_top=3.666,
                 width_bottom=1.8,
+                # sections=pier_section_f,
                 sections=bridge_705_pier_sections,
                 fix_x_rotation=True,
                 fix_y_rotation=True,

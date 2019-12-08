@@ -120,7 +120,9 @@ class Support3D:
         height: float,
         width_top: float,
         width_bottom: float,
-        sections: List["Section3DPier"],
+        sections: Union[
+            List["Section3DPier"],
+            Callable[[float], "Section3DPier"]],
         fix_x_translation: bool = True,
         fix_y_translation: bool = True,
         fix_z_translation: bool = True,
@@ -141,8 +143,10 @@ class Support3D:
         self.fix_y_rotation = fix_y_rotation
         self.fix_z_rotation = fix_z_rotation
         self.sections = sections
-        for s in self.sections:
-            assert isinstance(s, Section3DPier)
+        # Must be callable or a list.
+        if not callable(self.sections):
+            assert isinstance(self.sections, list)
+            assert all(isinstance(s, Section3DPier) for s in self.sections)
         if self.width_top < self.width_bottom:
             raise ValueError("Support3D: top width must be >= bottom width")
 
