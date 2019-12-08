@@ -252,11 +252,16 @@ def make_all_3d(c: Config):
     # vehicle.wagen1_plot(c)
     # vehicles.vehicle_plots(c)
 
+    ######################
+    ##### Simulation #####
+    ######################
+    simulations.run_uls(c)
+    # verification.make_convergence_data(c, run=True, plot=True)
+
     ########################
     ##### Verification #####
     ########################
-    # verification.axis_comparison(c)
-    # verification.per_sensor_plots(c)
+    # verification.sensor_subplots(c)
     # contour.comparison_plots_705(c)
     # verification.plot_convergence(c)
     # verification.r2_plots(c)
