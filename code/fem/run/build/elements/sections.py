@@ -2,19 +2,32 @@
 from collections import defaultdict
 
 from config import Config
-from model.bridge import Support3D
+from model.bridge import Section3D, Support3D
 from util import round_m
+
+
+# Sections indexed by strings that uniquely represent their values.
+sections_by_value = dict()
+
+
+def get_section(section: Section3D) -> Section3D:
+    """An equivalent previously created Section if possible."""
+    id_str = section.id_str()
+    print(id_str)
+    if id_str not in sections_by_value:
+        sections_by_value[id_str] = section
+    return sections_by_value[id_str]
 
 
 def section_for_deck_element(
     c: Config, element_x: float, element_z: float
-) -> int:
+) -> Section3D:
     """Section for an element on the deck.
 
-    Creates a list (if not already created) of all section's x positions to z
-    position to Section3D. Then iterate through sorted x positions finding last
-    one less than or equal to the given element's lowest x position, then do the
-    same for the z position, then the section is found.
+    Creates a dict (if not already created) of all section's x positions, to z
+    positions, to Section3D. Then iterates through sorted x positions finding
+    the last one less than or equal to the given element's lowest x position,
+    then does the same for the sorted z positions, then the section is found.
 
     Args:
         c: Config, global configuration object.
@@ -57,11 +70,11 @@ def section_for_deck_element(
         # print(f"next_section_z = {next_section_z}")
     # print(f"section_z = {section_z}")
 
-    return c.bridge.deck_sections_dict[section_x][section_z]
+    return get_section(c.bridge.deck_sections_dict[section_x][section_z])
 
 
 def section_for_pier_element(
-        c: Config, pier: Support3D, start_frac_len: float) -> int:
+        c: Config, pier: Support3D, start_frac_len: float) -> Section3D:
     """Section for a shell element on a pier.
 
     Args:
@@ -73,7 +86,7 @@ def section_for_pier_element(
 
     # If 'pier.sections' is a function simply defer to that..
     if callable(pier.sections):
-        return pier.sections(start_frac_len)
+        return get_section(pier.sections(start_frac_len))
 
     # ..else find the last pier section where: the fraction of the pier wall's
     # length is less than the given value 'start_frac_len'.
@@ -83,4 +96,4 @@ def section_for_pier_element(
             section = next_section
         else:
             break
-    return section
+    return get_section(section)

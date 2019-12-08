@@ -376,6 +376,10 @@ class Section3D:
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
 
+    def id_str(self):
+        """Representation of this section by material properties."""
+        return f"{self.density}-{self.thickness}-{self.youngs}-{self.poissons}"
+
     def y_min_max(self) -> Tuple[float, float]:
         """The min and max values in y for this section."""
         return -self.thickness, 0
