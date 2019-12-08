@@ -260,20 +260,16 @@ health monitoring.
 
 # Damage identification: vibration and modal properties: assumptions made.
 A significant amount of the research into damage identification of civil
-infrastructure is based on vibration data and modal properties, with methods
-based on modal properties such as a change in the natural frequency shift
-cite:stubbs2000global or change in mode shapes cite:pandey1991damage. The
-location of damage on a computer model of a reinforced concrete bridge is
-identified based on a combination of modal properties in cite:dilena2011dynamic.
-In all of these cases the research is based on a controlled lab experiment and
-the assumption is made that the type of damage is limited to the type being
-identified.
-
-# Damage identification: vibration and modal properties: insensitivity.
-Damage was applied to a girder bridge and the mode shapes used to detect the
-location of damage, however the location was only detectable once the damage was
-increased to a point that the bridge would have collapsed under load
-cite:doebling1998statistical.
+infrastructure is based on vibration data and modal properties, with methods on
+changes in a shift in natural frequency cite:stubbs2000global or change in mode
+shape cite:pandey1991damage. The location of damage on a computer model of a
+reinforced concrete bridge is identified based on a combination of modal
+properties in cite:dilena2011dynamic. In each of these cases the research is
+based on a controlled lab experiment and the assumption is made that the type of
+damage is limited to the type being identified. Damage was applied to a girder
+bridge and the mode shapes used to detect the location of damage, however the
+location was only detectable once the damage increased to a point that the
+bridge would have collapsed under a live load cite:doebling1998statistical.
 
 # Additional methods of damage identification.
 Additional methods of damage identification of civil infrastructure include the
@@ -281,7 +277,7 @@ matrix update method, Bayes theorem, and neural networks. Damage identification
 based on the matrix update method cite:doebling1996damage is a model-based
 method that attempts to minimize the difference between the measured and model
 responses by an optimization technique that modifies a matrix representing model
-properties such as the stiffness matrix. A problem with this method is that the
+properties, such as the stiffness matrix. A problem with this method is that the
 optimization it not unique and the baseline matrix is possibly inaccurate. A
 Bayesian probabilistic approach was applied to a reinforced-concrete bridge
 column cite:sohn2000bayesian, this method compared the relative damage
@@ -329,22 +325,22 @@ neural network (RNN) that takes into account spatial and past temporal data. In
 citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
 future temporal correlations.
 
-# Sensitivity to noise.
-
 # Feature extraction.
 To avoid incorrect detection of anomalies due to environmental factors such as
 temperature, the feature extraction of data becomes is a very important to SHM.
 Feature extraction is arguably the most important and difficult step in ML-based
 health monitoring cite:worden2006application. The temperature across a bridge
 deck was measured during a 24 hour cycle and correlated with the bridge's
-natural frequencies in cite:doebling1997using. A machine learning based
-algorithm based on PCA is presented in cite:ye2018integrated for separating the
-individual components of the deflection signal. When the noise level was under
-10%, each individual component (temperature, live load, structural damage) was
-succesfully separated based on data from a computer model of a long-span bridge.
-An autoassociateive neural network is employed for seaprating the effect of
-damage in extracted features from that caused by the environmental variations
-of the system cite:sohn2002statistical.
+natural frequencies in cite:doebling1997using. A machine learning algorithm
+based on PCA is presented in cite:ye2018integrated for separating the individual
+components of the deflection signal. An auto-associateive neural network is
+employed for separating the effect of damage in extracted features from that
+caused by the environmental variations of the system cite:sohn2002statistical.
+
+# Sensitivity to noise.
+When the noise level was under 10%, each individual component (temperature, live
+load, structural damage) was succesfully separated based on data from a computer
+model of a long-span bridge.
 
 # Traffic simulations for damage detection on bridges.
 Data for damage detection on bridges can be collected in simulation. In doing

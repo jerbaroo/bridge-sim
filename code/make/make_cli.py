@@ -3,6 +3,7 @@ import click
 
 from config import Config
 from make.data import simulations
+from make.plot import contour
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -97,4 +98,20 @@ def convergence_data():
     verification.make_convergence_data(c, run=True, plot=False)
 
 
-cli()
+####################
+##### Scenario #####
+####################
+
+
+@cli.group()
+def scenario():
+    pass
+
+
+@scenario.command()
+def contour_pier_displacement():
+    contour.plots_of_pier_displacement(c)
+
+
+if __name__ == "__main__":
+    cli()

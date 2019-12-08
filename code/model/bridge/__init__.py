@@ -458,9 +458,10 @@ class Bridge:
         lanes: List[Lane],
         dimensions: Dimensions,
         base_mesh_deck_nodes_x: int,
-        base_mesh_deck_nodes_z: Optional[int] = None,
-        base_mesh_pier_nodes_y: Optional[int] = None,
-        base_mesh_pier_nodes_z: Optional[int] = None,
+        base_mesh_deck_nodes_z: int,
+        base_mesh_pier_nodes_y: int,
+        base_mesh_pier_nodes_z: int,
+        nodes_at_mat_props: bool = False,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
         # Given arguments.
@@ -474,10 +475,12 @@ class Bridge:
         self.dimensions = dimensions
 
         # Mesh.
+        # TODO: All arguments start with mesh_.
         self.base_mesh_deck_nodes_x = base_mesh_deck_nodes_x
         self.base_mesh_deck_nodes_z = base_mesh_deck_nodes_z
         self.base_mesh_pier_nodes_y = base_mesh_pier_nodes_y
         self.base_mesh_pier_nodes_z = base_mesh_pier_nodes_z
+        self.nodes_at_mat_props = nodes_at_mat_props
 
         # Attach single section option for asserts and printing info.
         self.single_sections = single_sections
