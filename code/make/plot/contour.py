@@ -65,7 +65,8 @@ def plots_of_pier_displacement(c: Config):
             plt.savefig(
                 c.get_image_path(
                     "contour-pier-displacement",
-                    safe_str(f"{response_type.name()}-pier-{p}"))
+                    safe_str(f"{response_type.name()}-pier-{p}"),
+                )
             )
             plt.close()
 

@@ -121,8 +121,8 @@ class Support3D:
         width_top: float,
         width_bottom: float,
         sections: Union[
-            List["Section3DPier"],
-            Callable[[float], "Section3DPier"]],
+            List["Section3DPier"], Callable[[float], "Section3DPier"]
+        ],
         fix_x_translation: bool = True,
         fix_y_translation: bool = True,
         fix_z_translation: bool = True,

@@ -8,7 +8,10 @@ import numpy as np
 
 from config import Config
 from fem.params import SimParams
-from fem.run.build.assert_ import assert_all_pier_nodes, assert_deck_in_pier_pier_in_deck
+from fem.run.build.assert_ import (
+    assert_all_pier_nodes,
+    assert_deck_in_pier_pier_in_deck,
+)
 from fem.run.build.types import AllSupportNodes, DeckNodes, Node
 from fem.run.build.util import print_mesh_info
 from model.bridge import Bridge, Section3D, Support3D
@@ -225,7 +228,6 @@ def get_base_mesh_z_positions_of_pier_deck_nodes(
     return list(map(round_m, z_positions))
 
 
-
 def get_base_mesh_deck_positions(bridge: Bridge) -> DeckPositions:
     """X and z positions of deck nodes in the base mesh.
 
@@ -254,7 +256,9 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
     )
 
 
-def get_deck_load_positions(bridge: Bridge, fem_params: SimParams) -> DeckPositions:
+def get_deck_load_positions(
+    bridge: Bridge, fem_params: SimParams
+) -> DeckPositions:
     """The x and z positions of deck nodes that belong to loads."""
     return (
         sorted([round_m(bridge.x(load.x_frac)) for load in fem_params.ploads]),
@@ -295,7 +299,8 @@ def get_deck_nodes(
     # also belongs to the pier. The check is only to add a comment.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
     is_pier_node = lambda x_, z_: (
-        x_ in x_positions_piers and z_ in z_positions_piers)
+        x_ in x_positions_piers and z_ in z_positions_piers
+    )
 
     set_ff_mod(len(x_positions))
     nodes = []
@@ -379,7 +384,9 @@ def get_deck_positions(
     deck_stages_info["loads"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     # Collect positions from material properties.
-    x_positions_sections, z_positions_sections = get_deck_section_positions(c.bridge)
+    x_positions_sections, z_positions_sections = get_deck_section_positions(
+        c.bridge
+    )
     if not simple_mesh:
         for x_pos in x_positions_sections:
             x_positions.add(x_pos)
@@ -387,10 +394,12 @@ def get_deck_positions(
             z_positions.add(z_pos)
 
     # Update the 'DeckStagesInfo' with material property information.
-    deck_stages_info["sections"] = (deepcopy(x_positions), deepcopy(z_positions))
+    deck_stages_info["sections"] = (
+        deepcopy(x_positions),
+        deepcopy(z_positions),
+    )
 
     return sorted(x_positions), sorted(z_positions)
-
 
 
 def get_all_pier_nodes(
@@ -470,7 +479,7 @@ def get_all_pier_nodes(
 
 
 def get_all_nodes(
-        c: Config, sim_params: SimParams, simple_mesh: bool, print_mesh: bool=True
+    c: Config, sim_params: SimParams, simple_mesh: bool, print_mesh: bool = True
 ) -> Tuple[DeckNodes, AllSupportNodes, Dict[int, Node]]:
     """Returns all the nodes of a new mesh."""
     reset_nodes()

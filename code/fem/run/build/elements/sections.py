@@ -37,7 +37,8 @@ def section_for_deck_element(
     """
     if callable(c.bridge.sections):
         raise NotImplementedError(
-            "Function to vary material properties not yet supported")
+            "Function to vary material properties not yet supported"
+        )
 
     # Create the dictionary if not already created.
     if not hasattr(c.bridge, "deck_sections_dict"):
@@ -74,7 +75,8 @@ def section_for_deck_element(
 
 
 def section_for_pier_element(
-        c: Config, pier: Support3D, start_frac_len: float) -> Section3D:
+    c: Config, pier: Support3D, start_frac_len: float
+) -> Section3D:
     """Section for a shell element on a pier.
 
     Args:

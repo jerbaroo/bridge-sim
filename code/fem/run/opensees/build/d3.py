@@ -250,9 +250,9 @@ def opensees_pier_sections(c: Config, all_pier_elements: AllPierElements):
     """Sections used in the bridge's piers."""
     # Some pier's may refer to the same section so we create a set to avoid
     # rendering duplicate section definitions into the .tcl file.
-    pier_sections = set([
-        pier_element.section for pier_element in all_pier_elements
-    ])
+    pier_sections = set(
+        [pier_element.section for pier_element in all_pier_elements]
+    )
     return comment(
         "pier sections",
         "\n".join([opensees_section(section) for section in pier_sections]),
@@ -405,13 +405,17 @@ def opensees_translation_recorders(
 
 
 from fem.run.build import nodes_by_id
+
 node_ids_str = lambda: (
-    " ".join(map(lambda n: str(sh.n_id), nodes_by_id.values())))
+    " ".join(map(lambda n: str(sh.n_id), nodes_by_id.values()))
+)
 
 
 from fem.run.build.elements import shells_by_id
+
 elem_ids_str = lambda: (
-    " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())))
+    " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values()))
+)
 
 
 def opensees_strain_recorders(
@@ -432,7 +436,8 @@ def opensees_forces(sim_params: SimParams, os_runner: "OSRunner"):
     return (
         f"recorder Element"
         f" -file {os_runner.forces_path(sim_params)}"
-        f" -ele 1 400 forces")
+        f" -ele 1 400 forces"
+    )
 
 
 def opensees_stress_variables(
@@ -500,9 +505,9 @@ def build_model_3d(
         # Reset before building.
         # TODO: Remove.
         from fem.run.build.elements import reset_elem_ids
+
         reset_nodes()
         reset_elem_ids()
-
 
         # Attach deck and pier nodes and elements to the FEMParams to be
         # available when converting raw responses to responses with positions
@@ -511,18 +516,28 @@ def build_model_3d(
         # NOTE: there is some overlap between deck nodes and pier nodes, and
         # some over lap between nodes of both walls of one pier (at the bottom
         # where they meet).
-        fem_params.deck_nodes, fem_params.all_support_nodes, nodes_by_id = get_all_nodes(
-            c=c, sim_params=fem_params, simple_mesh=simple_mesh)
-        fem_params.deck_elements = get_deck_elements(c=c, deck_nodes=fem_params.deck_nodes, nodes_by_id=nodes_by_id)
+        (
+            fem_params.deck_nodes,
+            fem_params.all_support_nodes,
+            nodes_by_id,
+        ) = get_all_nodes(c=c, sim_params=fem_params, simple_mesh=simple_mesh)
+        fem_params.deck_elements = get_deck_elements(
+            c=c, deck_nodes=fem_params.deck_nodes, nodes_by_id=nodes_by_id
+        )
         fem_params.all_pier_elements = get_pier_elements(
-            c=c, all_support_nodes=fem_params.all_support_nodes, nodes_by_id=nodes_by_id
+            c=c,
+            all_support_nodes=fem_params.all_support_nodes,
+            nodes_by_id=nodes_by_id,
         )
 
         # Build the 3D model file by replacing each placeholder in the model
         # template file with OpenSees commands.
         out_tcl = (
             in_tcl.replace("<<INTRO>>", opensees_intro)
-            .replace("<<DECK_NODES>>", opensees_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes))
+            .replace(
+                "<<DECK_NODES>>",
+                opensees_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes),
+            )
             .replace(
                 "<<SUPPORT_NODES>>",
                 opensees_support_nodes(
@@ -534,7 +549,9 @@ def build_model_3d(
             )
             .replace(
                 "<<FIX_DECK>>",
-                opensees_fixed_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes),
+                opensees_fixed_deck_nodes(
+                    c=c, deck_nodes=fem_params.deck_nodes
+                ),
             )
             .replace(
                 "<<FIX_SUPPORTS>>",
@@ -562,8 +579,10 @@ def build_model_3d(
                     c=c, fem_params=fem_params, os_runner=os_runner
                 ),
             )
-            .replace("<<FORCES>>", opensees_forces(
-                sim_params=fem_params, os_runner=os_runner))
+            .replace(
+                "<<FORCES>>",
+                opensees_forces(sim_params=fem_params, os_runner=os_runner),
+            )
             .replace(
                 "<<DECK_ELEMENTS>>",
                 opensees_deck_elements(
@@ -576,7 +595,12 @@ def build_model_3d(
                     c=c, all_pier_elements=fem_params.all_pier_elements
                 ),
             )
-            .replace("<<PIER_SECTIONS>>", opensees_pier_sections(c=c, all_pier_elements=fem_params.all_pier_elements))
+            .replace(
+                "<<PIER_SECTIONS>>",
+                opensees_pier_sections(
+                    c=c, all_pier_elements=fem_params.all_pier_elements
+                ),
+            )
             .replace(
                 "<<INTEGRATOR>>",
                 opensees_integrator(
@@ -593,18 +617,23 @@ def build_model_3d(
         elem_ids, forces_out_file = opensees_stress_variables(
             c=c, sim_params=fem_params, os_runner=os_runner
         )
-        out_tcl = out_tcl.replace("<<ELEM_IDS>>", elem_ids
-            ).replace("<<FORCES_OUT_FILE>>", forces_out_file)
+        out_tcl = out_tcl.replace("<<ELEM_IDS>>", elem_ids).replace(
+            "<<FORCES_OUT_FILE>>", forces_out_file
+        )
         out_tcl = out_tcl.replace(
             "<<STRAIN_RECORDERS>>",
             opensees_strain_recorders(
-                c=c, sim_params=fem_params, os_runner=os_runner))
+                c=c, sim_params=fem_params, os_runner=os_runner
+            ),
+        )
 
         # Write the generated model file.
         model_path = os_runner.sim_raw_path(sim_params=fem_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         num_nodes = len(list(nodes_by_id.values()))
-        print_i(f"OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}")
+        print_i(
+            f"OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}"
+        )
 
     return expt_params

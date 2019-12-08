@@ -2,8 +2,18 @@ from typing import Dict, Tuple
 
 from config import Config
 from fem.run.build import ff_mod
-from fem.run.build.types import AllSupportNodes, AllPierElements, DeckElements, DeckNodes, Node, ShellElement
-from fem.run.build.elements.sections import section_for_deck_element, section_for_pier_element
+from fem.run.build.types import (
+    AllSupportNodes,
+    AllPierElements,
+    DeckElements,
+    DeckNodes,
+    Node,
+    ShellElement,
+)
+from fem.run.build.elements.sections import (
+    section_for_deck_element,
+    section_for_pier_element,
+)
 
 
 _elem_id = None
@@ -39,9 +49,7 @@ def ff_elem_ids(mod: int):
         _elem_id += 1
 
 
-def get_shell(
-    ni_id: int, nj_id: int, nk_id: int, nl_id: int, **kwargs
-):
+def get_shell(ni_id: int, nj_id: int, nk_id: int, nl_id: int, **kwargs):
     """Get a 'Shell' if already exists with Node IDs, else create a new one.
 
     NOTE: Use this to contruct 'Shell's, don't do it directly!
@@ -56,7 +64,7 @@ def get_shell(
         nj_id=nj_id,
         nk_id=nk_id,
         nl_id=nl_id,
-        **kwargs
+        **kwargs,
     )
     return shells_by_id[key]
 
@@ -64,7 +72,9 @@ def get_shell(
 ##### End element IDs #####
 
 
-def get_deck_elements(c: Config, deck_nodes: DeckNodes, nodes_by_id: Dict[int, Node]) -> DeckElements:
+def get_deck_elements(
+    c: Config, deck_nodes: DeckNodes, nodes_by_id: Dict[int, Node]
+) -> DeckElements:
     """Shell elements that make up a bridge deck."""
 
     first_node_z_0 = deck_nodes[0][0].n_id
@@ -113,7 +123,7 @@ def get_deck_elements(c: Config, deck_nodes: DeckNodes, nodes_by_id: Dict[int, N
 
 
 def get_pier_elements(
-        c: Config, all_support_nodes: AllSupportNodes, nodes_by_id: Dict[int, Node]
+    c: Config, all_support_nodes: AllSupportNodes, nodes_by_id: Dict[int, Node]
 ) -> AllPierElements:
     """Shell elements that make up a bridge's piers."""
     pier_elements = []  # The result.
