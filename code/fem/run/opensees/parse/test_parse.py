@@ -13,8 +13,7 @@ def test_parse_3d():
     c = bridge_705_test_config(bridge_705_3d)
     fem_runner = OSRunner(c)
     fem_params = SimParams(
-        ploads=[PointLoad(0.65, 0.35, 100)],
-        response_types=[ResponseType.YTranslation],
+        ploads=[PointLoad(0.65, 0.35, 100)], response_types=[ResponseType.YTranslation],
     )
     parsed = fem_runner.run(
         ExptParams([fem_params]), return_parsed=True, simple_mesh=True

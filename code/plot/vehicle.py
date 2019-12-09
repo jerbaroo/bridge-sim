@@ -21,7 +21,5 @@ def topview_vehicle(vehicle: Vehicle):
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)}kN"
         wheel_index += 1
         plt.annotate(
-            wheel_kn,
-            (vehicle.axle_width, y),
-            (vehicle.axle_width - 0.1, y + 0.1),
+            wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 0.1, y + 0.1),
         )

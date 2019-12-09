@@ -111,16 +111,19 @@ def convert_strain_stress_responses(
 
             # Calculate and record the response.
             eps11, eps22, _g12, theta11, theta22, theta33, _g13, _g23 = list(
-                el_responses)
+                el_responses
+            )
             half_height = element.section.thickness / 2
             print(response_point.x, response_point.y, response_point.z)
             print(eps11)
-            result.append(Response(
-                value=eps11 - (theta11 * half_height),
-                x=response_point.x,
-                y=response_point.y,
-                z=response_point.z,
-            ))
+            result.append(
+                Response(
+                    value=eps11 - (theta11 * half_height),
+                    x=response_point.x,
+                    y=response_point.y,
+                    z=response_point.z,
+                )
+            )
 
     converted_expt_responses[sim_ind][ResponseType.Strain] = result
     print(len(result))
@@ -141,6 +144,7 @@ def convert_responses_3d(
         )
         # TODO: Improve deterministic element calculation.
         from fem.run.build.elements import shells_by_id
+
         elements = shells_by_id.values()
         # Parse x, y, and z translation responses if necessary.
         for response_type in [

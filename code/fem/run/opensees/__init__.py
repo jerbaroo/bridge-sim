@@ -88,9 +88,7 @@ class OSRunner(FEMRunner):
         ]
 
     def element_path(self, fem_params: SimParams):
-        return self.opensees_out_path(
-            sim_params=fem_params, ext="out", append="-elems"
-        )
+        return self.opensees_out_path(sim_params=fem_params, ext="out", append="-elems")
 
     def stress_path(self, sim_params: SimParams):
         return self.opensees_out_path(

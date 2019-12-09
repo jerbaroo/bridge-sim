@@ -26,18 +26,13 @@ def bridge_705_3d_overload(*args, **kwargs):
     return bridge_705_3d(
         *args,
         **kwargs,
-        single_sections=(
-            bridge_705_single_sections if two_materials_ else None
-        ),
+        single_sections=(bridge_705_single_sections if two_materials_ else None),
     )
 
 
 @click.group()
 @click.option(
-    "--dimensions",
-    type=click.Choice(["2", "3"]),
-    default="3",
-    help="2D or 3D bridge.",
+    "--dimensions", type=click.Choice(["2", "3"]), default="3", help="2D or 3D bridge.",
 )
 @click.option(
     "--mesh",
@@ -51,10 +46,7 @@ def bridge_705_3d_overload(*args, **kwargs):
     help="One material for the deck and one for the piers.",
 )
 @click.option(
-    "--parallel",
-    is_flag=True,
-    default=True,
-    help="Run simulations in parallel.",
+    "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
 )
 def cli(dimensions, mesh, two_materials, parallel):
     if dimensions == 2 and two_materials:

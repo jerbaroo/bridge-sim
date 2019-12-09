@@ -66,9 +66,7 @@ def test_fem_responses():
             response_type=response_type,
             fem_runner=fem_runner,
         )
-        assert np.isclose(
-            len(fem_responses.xs), c.bridge.length / c.os_node_step + 1
-        )
+        assert np.isclose(len(fem_responses.xs), c.bridge.length / c.os_node_step + 1)
         assert len(fem_responses.ys[fem_responses.xs[0]]) == 1
         assert len(fem_responses.zs[fem_responses.xs[0]]) == 1
         assert (
@@ -92,9 +90,7 @@ def test_fem_responses():
             response_type=response_type,
             fem_runner=fem_runner,
         )
-        assert np.isclose(
-            len(fem_responses.xs), c.bridge.length / c.os_node_step
-        )
+        assert np.isclose(len(fem_responses.xs), c.bridge.length / c.os_node_step)
         assert len(fem_responses.ys[fem_responses.xs[0]]) == (
             len(c.bridge.sections[0].patches) + len(c.bridge.sections[0].layers)
         )
@@ -125,10 +121,7 @@ def test_fem_responses_at():
 
     # Load simulation responses.
     fem_responses = load_fem_responses(
-        c=c,
-        fem_params=fem_params,
-        response_type=response_type,
-        fem_runner=fem_runner,
+        c=c, fem_params=fem_params, response_type=response_type, fem_runner=fem_runner,
     )
 
     # Retrieve a response.

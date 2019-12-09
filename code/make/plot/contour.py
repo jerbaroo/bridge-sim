@@ -79,17 +79,13 @@ def gradient_pier_displacement_plots(c: Config):
         for displacement in np.array([0.1, 0.01]) / 1000:
             gradient_pier_displacement_plot(
                 c=c,
-                pier_disp=equal_pier_disp(
-                    bridge=c.bridge, displacement=displacement
-                ),
+                pier_disp=equal_pier_disp(bridge=c.bridge, displacement=displacement),
                 response_type=response_type,
                 title=f"{response_type.name()} when each pier is displaced by {displacement} m",
             )
 
         # Gradient pier displacement scenario.
-        for start, step in itertools.product(
-            [0.01, 0.02, 0.05], [0.01, 0.02, 0.05]
-        ):
+        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05]):
             start, step = np.array([start, step]) / 1000
             gradient_pier_displacement_plot(
                 c=c,
@@ -102,10 +98,7 @@ def gradient_pier_displacement_plots(c: Config):
 
 
 def gradient_pier_displacement_plot(
-    c: Config,
-    pier_disp: PierDispBridge,
-    response_type: ResponseType,
-    title: str,
+    c: Config, pier_disp: PierDispBridge, response_type: ResponseType, title: str,
 ):
     """Contour plot of piers displaced in an increasing gradient."""
 
@@ -121,9 +114,7 @@ def gradient_pier_displacement_plot(
     # Create empty traffic array and collect responses.
     response_array = responses_to_traffic_array(
         c=c,
-        traffic_array=np.zeros(
-            (1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)
-        ),
+        traffic_array=np.zeros((1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)),
         response_type=response_type,
         bridge_scenario=pier_disp,
         points=points,
@@ -133,16 +124,12 @@ def gradient_pier_displacement_plot(
     top_view_bridge(c.bridge, abutments=True, piers=True)
     responses = Responses.from_responses(
         response_type=response_type,
-        responses=[
-            (response_array[0][p], point) for p, point in enumerate(points)
-        ],
+        responses=[(response_array[0][p], point) for p, point in enumerate(points)],
     )
     plot_contour_deck(c=c, responses=responses, center_norm=True)
     plt.title(title)
     plt.savefig(
-        c.get_image_path(
-            "pier-scenarios", f"pier-displacement-{safe_str(title)}"
-        )
+        c.get_image_path("pier-scenarios", f"pier-displacement-{safe_str(title)}")
     )
     plt.close()
 
@@ -172,9 +159,7 @@ def comparison_plots_705(c: Config):
                 c=c,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                sim_params=SimParams(
-                    ploads=loads, response_types=response_types
-                ),
+                sim_params=SimParams(ploads=loads, response_types=response_types),
             )
             title = (
                 f"{response_type.name()} from a {loads[0].kn} kN point load"
@@ -226,15 +211,11 @@ def plot_of_unit_loads(c: Config):
         X.append([])
         Z.append([])
         R.append([])
-        for z in np.linspace(
-            c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)
-        ):
+        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)):
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=100
             )
-            fem_params = SimParams(
-                ploads=[pload], response_types=[response_type]
-            )
+            fem_params = SimParams(ploads=[pload], response_types=[response_type])
             fem_responses = load_fem_responses(
                 c=c,
                 fem_params=fem_params,

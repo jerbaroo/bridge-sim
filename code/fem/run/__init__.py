@@ -78,17 +78,12 @@ class FEMRunner:
         for fem_params in expt_params.sim_params:
             for response_type in fem_params.response_types:
                 if response_type not in supported_response_types:
-                    raise ValueError(
-                        f"{response_type} not supported by {self.name}"
-                    )
+                    raise ValueError(f"{response_type} not supported by {self.name}")
 
         # Building.
         start = timer()
         expt_params = self._build(
-            c=self.c,
-            expt_params=expt_params,
-            fem_runner=self,
-            simple_mesh=simple_mesh,
+            c=self.c, expt_params=expt_params, fem_runner=self, simple_mesh=simple_mesh,
         )
         print_i(
             f"FEMRunner: built {self.name} model file(s) in"
@@ -108,9 +103,7 @@ class FEMRunner:
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(
-            f"FEMRunner: parsed all responses in" + f" {timer() - start:.2f}s"
-        )
+        print_i(f"FEMRunner: parsed all responses in" + f" {timer() - start:.2f}s")
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
@@ -133,9 +126,7 @@ class FEMRunner:
         # Saving.
         for sim_ind in converted_expt_responses:
             print_d(D, f"sim_ind = {sim_ind}")
-            for response_type, responses in converted_expt_responses[
-                sim_ind
-            ].items():
+            for response_type, responses in converted_expt_responses[sim_ind].items():
                 print_d(D, f"response_type in converted = {response_type}")
                 print(len(responses))
                 fem_responses = FEMResponses(

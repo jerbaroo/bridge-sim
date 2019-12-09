@@ -48,9 +48,7 @@ class Recorder:
         # Responses of current event so far.
         self.responses: Union[List[float], List[List[float]]] = []
 
-    def receive(
-        self, response: Union[float, List[float]], overlap: bool = False
-    ):
+    def receive(self, response: Union[float, List[float]], overlap: bool = False):
         """Receive a new response."""
         # If already recording, record the response.
         if self.recording():

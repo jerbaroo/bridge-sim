@@ -35,19 +35,13 @@ def test_opensees_patch():
     # TODO: Fix 2D model.
     return
     num_sub_div_z = 20
-    patch = Patch(
-        y_min=-1, y_max=0, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z
-    )
+    patch = Patch(y_min=-1, y_max=0, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z)
 
     def bridge_overload(*args, **kwargs):
         return bridge_705_2d(
             width=2,
             patches=[patch],
-            layers=[
-                Layer(
-                    y_min=-0.5, y_max=-0.5, z_min=-0.5, z_max=0.5, num_fibers=2
-                )
-            ],
+            layers=[Layer(y_min=-0.5, y_max=-0.5, z_min=-0.5, z_max=0.5, num_fibers=2)],
             *args,
             **kwargs,
         )

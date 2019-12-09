@@ -57,9 +57,7 @@ def make_stats(c: Config):
     print_i("\n\n" + vehicle_data_noise_stats(c) + "\n")
 
 
-def make_bridge_plots(
-    c: Config, mv_vehicles: Optional[List[List[MvVehicle]]] = None
-):
+def make_bridge_plots(c: Config, mv_vehicles: Optional[List[List[MvVehicle]]] = None):
     """Make plots of the bridge with and without vehicles."""
     if mv_vehicles is None:
         mk = lambda x_frac, lane: MvVehicle(
@@ -76,9 +74,7 @@ def make_bridge_plots(
         bridge=c.bridge, save=c.image_path("bridges/bridge-section")
     )
     for mv_vehicles_ in mv_vehicles:
-        mv_vehicles_str = "-".join(
-            str(l).replace(".", ",") for l in mv_vehicles_
-        )
+        mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
         plot_bridge_deck_side(
             c.bridge,
             mv_vehicles=mv_vehicles_,
@@ -94,9 +90,7 @@ def make_bridge_plots(
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a pload moving across a bridge."""
     plt.close()
-    mv_load = MovingLoad.from_vehicle(
-        x_frac=0, vehicle=sample_vehicle(c), lane=0
-    )
+    mv_load = MovingLoad.from_vehicle(x_frac=0, vehicle=sample_vehicle(c), lane=0)
     per_axle_str = f"-peraxle" if per_axle else ""
     for response_type in ResponseType:
         animate_mv_load(

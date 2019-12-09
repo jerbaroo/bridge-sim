@@ -17,10 +17,6 @@ def parse_responses(
     """Parse responses from an OpenSees simulation."""
     print_d(D, f"parsing {c.bridge.dimensions} bridge responses")
     if c.bridge.dimensions == Dimensions.D2:
-        return parse_responses_2d(
-            c=c, expt_params=expt_params, os_runner=os_runner
-        )
+        return parse_responses_2d(c=c, expt_params=expt_params, os_runner=os_runner)
     else:
-        return parse_responses_3d(
-            c=c, expt_params=expt_params, os_runner=os_runner
-        )
+        return parse_responses_3d(c=c, expt_params=expt_params, os_runner=os_runner)

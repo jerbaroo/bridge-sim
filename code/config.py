@@ -107,9 +107,7 @@ class Config:
         # Root directories for generated data.
         self.root_generated_data_dir = generated_data
         if self.root_generated_data_dir[-1] in "/\\":
-            raise ValueError(
-                "Please ensure generated_data does not end in separator"
-            )
+            raise ValueError("Please ensure generated_data does not end in separator")
         self.root_generated_images_dir = os.path.join(
             self.root_generated_data_dir + "-images"
         )
@@ -158,9 +156,7 @@ class Config:
         TODO: Replace usage with get_data_path.
 
         """
-        return self.get_path_in(
-            self.generated_data_dir_no_acc, "traffic", filename
-        )
+        return self.get_path_in(self.generated_data_dir_no_acc, "traffic", filename)
 
     def get_data_path(
         self, dirname: str, filename: str, bridge: bool = True, acc: bool = True

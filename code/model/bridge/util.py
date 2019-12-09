@@ -16,18 +16,14 @@ def wheel_tracks(c: Config) -> List[float]:
     # A moving vehicle for each bridge lane.
     mv_vehicles = [
         next(
-            normal_traffic(c=c, lam=1, min_d=1).mv_vehicles(
-                bridge=c.bridge, lane=lane
-            )
+            normal_traffic(c=c, lam=1, min_d=1).mv_vehicles(bridge=c.bridge, lane=lane)
         )(traffic=[], time=0, full_lanes=0)
         for lane in range(len(c.bridge.lanes))
     ]
 
     # From the moving vehicles we can calculate wheel tracks on the bridge.
     for mv_vehicle in mv_vehicles:
-        for wheel_z_frac in mv_vehicle.wheel_tracks(
-            bridge=c.bridge, meters=False
-        ):
+        for wheel_z_frac in mv_vehicle.wheel_tracks(bridge=c.bridge, meters=False):
             tracks.append(wheel_z_frac)
 
     return tracks

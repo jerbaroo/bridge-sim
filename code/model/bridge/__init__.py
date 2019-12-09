@@ -120,9 +120,7 @@ class Support3D:
         height: float,
         width_top: float,
         width_bottom: float,
-        sections: Union[
-            List["Section3DPier"], Callable[[float], "Section3DPier"]
-        ],
+        sections: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
         fix_x_translation: bool = True,
         fix_y_translation: bool = True,
         fix_z_translation: bool = True,
@@ -320,9 +318,7 @@ class Section2D:
         self.patches = patches
         self.layers = layers
 
-    def _min_max(
-        self, direction: Callable[[Point], float]
-    ) -> Tuple[float, float]:
+    def _min_max(self, direction: Callable[[Point], float]) -> Tuple[float, float]:
         """The min and max values (in given direction) for this section."""
         _min, _max = np.inf, -np.inf
         for layer in self.layers:
@@ -418,10 +414,7 @@ class Section3DPier(Section3D):
         start_frac_len: float,
     ):
         super().__init__(
-            density=density,
-            thickness=thickness,
-            youngs=youngs,
-            poissons=poissons,
+            density=density, thickness=thickness, youngs=youngs, poissons=poissons,
         )
         self.start_frac_len = start_frac_len
 
@@ -587,9 +580,7 @@ class Bridge:
 
     def x_axis(self) -> List[float]:
         """Position of supports in meters along the bridge's x-axis."""
-        return np.interp(
-            [f.x_frac for f in self.supports], [0, 1], [0, self.length]
-        )
+        return np.interp([f.x_frac for f in self.supports], [0, 1], [0, self.length])
 
     def x_axis_equi(self, n) -> List[float]:
         """n equidistant values along the bridge's x-axis, in meters."""
@@ -597,16 +588,12 @@ class Bridge:
 
     def x_frac(self, x: float):
         return float(
-            interp1d(
-                [self.x_min, self.x_max], [0, 1], fill_value="extrapolate"
-            )(x)
+            interp1d([self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x)
         )
 
     def x(self, x_frac: float):
         return float(
-            interp1d(
-                [0, 1], [self.x_min, self.x_max], fill_value="extrapolate"
-            )(x_frac)
+            interp1d([0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac)
         )
 
     def y_frac(self, y: float):
@@ -627,9 +614,7 @@ class Bridge:
 
     def _min_max(
         self,
-        f: Callable[
-            [Union[Support, Section]], Tuple[Optional[float], Optional[float]]
-        ],
+        f: Callable[[Union[Support, Section]], Tuple[Optional[float], Optional[float]]],
     ) -> Tuple[float, float]:
         """The min and max values in a direction from supports and sections."""
         z_min, z_max = None, None
@@ -710,9 +695,7 @@ class Bridge:
         if self.supports and not self.supports[0].x:
             # TODO: Remove first check in line above.
             # TODO: Check self.supports[0].x_frac == 0.
-            raise ValueError(
-                "2D bridge must have node at x=0 fixed in x direction"
-            )
+            raise ValueError("2D bridge must have node at x=0 fixed in x direction")
 
         # 2D bridge has exactly 1 section.
         if len(self.sections) != 1:

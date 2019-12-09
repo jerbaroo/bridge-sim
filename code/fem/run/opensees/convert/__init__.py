@@ -23,7 +23,5 @@ def convert_responses(
         return convert_responses_2d(c=c, parsed_responses=parsed_expt_responses)
     else:
         return convert_responses_3d(
-            c=c,
-            expt_params=expt_params,
-            parsed_expt_responses=parsed_expt_responses,
+            c=c, expt_params=expt_params, parsed_expt_responses=parsed_expt_responses,
         )

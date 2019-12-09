@@ -24,9 +24,7 @@ def vehicle_density_stats(c: Config):
             [
                 f"Vehicles < than {length} in {c.vehicle_density_col}:"
                 + f" {lengths_dict[i]}"
-                for i, length in enumerate(
-                    map(lambda x: x[0], c.vehicle_density)
-                )
+                for i, length in enumerate(map(lambda x: x[0], c.vehicle_density))
             ]
         )
         + f"\nmean vehicles per group: {int(np.mean(lengths_list))}"
@@ -36,9 +34,7 @@ def vehicle_density_stats(c: Config):
     )
 
 
-def vehicle_data_noise_stats(
-    c: Config, noise_col_names: List[str] = noise_col_names
-):
+def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_names):
     """Human readable statistics on noise for vehicle data columns."""
     noise_data = noise_per_column(c, noise_col_names)
     data_len = len(c.vehicle_data[noise_col_names[0]])

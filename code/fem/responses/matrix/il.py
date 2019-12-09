@@ -92,9 +92,7 @@ class ILMatrix(ResponsesMatrix):
                 SimParams(
                     ploads=[
                         PointLoad(
-                            x_frac=x_frac,
-                            z_frac=load_z_frac,
-                            kn=c.il_unit_load_kn,
+                            x_frac=x_frac, z_frac=load_z_frac, kn=c.il_unit_load_kn,
                         )
                     ],
                     response_types=[response_type],

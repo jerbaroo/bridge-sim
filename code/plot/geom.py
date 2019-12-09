@@ -71,8 +71,7 @@ def top_view_bridge(
         compass_img = plt.imread(os.path.join(dir_path, "compass-rose.png"))
         c_len = max(bridge.width, bridge.length) * 0.2
         ax_c = ax.inset_axes(
-            [0, bridge.z_max + (c_len * 0.05), c_len, c_len],
-            transform=ax.transData,
+            [0, bridge.z_max + (c_len * 0.05), c_len, c_len], transform=ax.transData,
         )
         ax_c.imshow(compass_img)
         ax_c.axis("off")
@@ -107,11 +106,7 @@ def plot_cloud_of_nodes(
         else:
             assert hasattr(node, "deck_section")
 
-    nodes = [
-        n
-        for n in nodes
-        if (deck and n.deck) or (piers and (n.pier is not None))
-    ]
+    nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
     nodes = sorted(nodes, key=lambda n: (n.deck, not n.pier))
 
     # Split into separate arrays of x, y and z position, and colors.
@@ -150,12 +145,7 @@ def plot_cloud_of_nodes(
         plot_and_save(fig, ax, append=equal_axis_str + f"-no-rotate")
 
     for fig, ax, angle in angles_3d(
-        angles=range(0, 360, 90),
-        equal_axis=equal_axis,
-        elev=0,
-        xs=xs,
-        ys=ys,
-        zs=zs,
+        angles=range(0, 360, 90), equal_axis=equal_axis, elev=0, xs=xs, ys=ys, zs=zs,
     ):
         plot_and_save(fig, ax, append=equal_axis_str + f"-{angle}")
 
@@ -176,9 +166,7 @@ def angles_3d(
     """
     # Determine values for scaling axes.
     max_range = (
-        np.array(
-            [xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]
-        ).max()
+        np.array([xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]).max()
         / 2.0
     )
     mid_x = (xs.max() + xs.min()) * 0.5

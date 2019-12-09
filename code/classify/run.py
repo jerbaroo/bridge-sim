@@ -48,9 +48,7 @@ if __name__ == "__main__":
     )
 
     # # Plot corresponding events for each scenario.
-    for i, (bridge_scenario, b_events) in enumerate(
-        events_per_bridge_scenario.items()
-    ):
+    for i, (bridge_scenario, b_events) in enumerate(events_per_bridge_scenario.items()):
         for t, events in enumerate(b_events):
             for e, event in enumerate(events):
                 plt.close()

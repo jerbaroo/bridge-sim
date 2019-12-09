@@ -15,7 +15,7 @@ from util import print_i
 
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
-    bridge_scenarios = ([HealthyBridge()] + pier_disp_scenarios(c))
+    bridge_scenarios = [HealthyBridge()] + pier_disp_scenarios(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
@@ -27,9 +27,7 @@ def oneclass(c: Config):
     results = []
 
     for b, bridge_scenario in enumerate(bridge_scenarios):
-        print_i(
-            f"One class: bridge scenario {bridge_scenario.name}"
-        )
+        print_i(f"One class: bridge scenario {bridge_scenario.name}")
         responses = responses_to_traffic_array(
             c=c,
             traffic_array=normal_traffic_array,

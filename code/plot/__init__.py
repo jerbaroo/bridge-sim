@@ -138,9 +138,7 @@ def animate_plot(
 
 
 def _plot_vehicle_deck_side(
-    bridge: Bridge,
-    mv_vehicle: MvVehicle,
-    normalize_vehicle_height: bool = False,
+    bridge: Bridge, mv_vehicle: MvVehicle, normalize_vehicle_height: bool = False,
 ):
     """Plot a vehicle on the side of the deck (but don't plot the deck)."""
     xl = bridge.x(x_frac=mv_vehicle.init_x_frac)
@@ -155,9 +153,7 @@ def _plot_vehicle_deck_side(
         width_frac = width / x_length
         height_frac = (height / width) * width_frac
         height = height_frac * y_length
-    plt.gca().add_patch(
-        patches.Rectangle((xl, 0), width, height, facecolor=load_color)
-    )
+    plt.gca().add_patch(patches.Rectangle((xl, 0), width, height, facecolor=load_color))
 
 
 def plot_bridge_deck_side(
@@ -179,16 +175,10 @@ def plot_bridge_deck_side(
     # A horizontal line that is the top of the bridge deck.
     plt.hlines(0, 0, bridge.length, color=Color.bridge)
     pier_x_positions = [
-        (
-            bridge.x(pier.x_frac)
-            if bridge.dimensions == Dimensions.D2
-            else pier.x
-        )
+        (bridge.x(pier.x_frac) if bridge.dimensions == Dimensions.D2 else pier.x)
         for pier in bridge.supports
     ]
-    plt.plot(
-        pier_x_positions, [0 for _ in bridge.supports], "o", color=Color.pier
-    )
+    plt.plot(pier_x_positions, [0 for _ in bridge.supports], "o", color=Color.pier)
     if equal_axis:
         plt.axis("equal")
     plt.xlabel("x position (m)")
@@ -207,9 +197,7 @@ def plot_bridge_deck_side(
         plt.close()
 
 
-def plot_bridge_first_section(
-    bridge: Bridge, save: str = None, show: bool = False
-):
+def plot_bridge_first_section(bridge: Bridge, save: str = None, show: bool = False):
     """Plot the first cross section of a bridge."""
     plot_section(bridge.sections[0], save=save, show=show)
 
@@ -217,12 +205,8 @@ def plot_bridge_first_section(
 def plot_section(section: Section, save: str = None, show: bool = False):
     """Plot the cross section of a bridge."""
     for p in section.patches:
-        plt.plot(
-            [p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=bridge_color
-        )  # Bottom.
-        plt.plot(
-            [p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color=bridge_color
-        )  # Left.
+        plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=bridge_color)  # Bottom.
+        plt.plot([p.p0.z, p.p0.z], [p.p0.y, p.p1.y], color=bridge_color)  # Left.
         plt.plot([p.p0.z, p.p1.z], [p.p1.y, p.p1.y], color=bridge_color)  # Top.
         plt.plot(
             [p.p1.z, p.p1.z],
@@ -233,11 +217,7 @@ def plot_section(section: Section, save: str = None, show: bool = False):
     for l in section.layers:
         for point in l.points():
             plt.plot(
-                [point.z],
-                [point.y],
-                "o",
-                color=rebar_color,
-                label=l.material.name,
+                [point.z], [point.y], "o", color=rebar_color, label=l.material.name,
             )
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
@@ -285,9 +265,7 @@ def animate_bridge_response(
     """
     per_axle = not isinstance(responses[0][0][0], float)
     responses_per_vehicle = (
-        np.apply_along_axis(sum, axis=3, arr=responses)
-        if per_axle
-        else responses
+        np.apply_along_axis(sum, axis=3, arr=responses) if per_axle else responses
     )
     # Find max and min of all responses.
     top, bottom = np.amax(responses_per_vehicle), np.amin(responses_per_vehicle)
@@ -371,9 +349,7 @@ def animate_mv_vehicle(
 ):
     """Animate the bridge's response to a moving vehicle."""
     times = list(times_on_bridge(c=c, mv_vehicles=[mv_vehicles]))
-    at = [
-        Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num_x_fracs)
-    ]
+    at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_vehicles(
         c=c,
         mv_vehicles=[mv_vehicles],

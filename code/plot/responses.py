@@ -38,9 +38,7 @@ def plot_distributions(
     # Determine the number of rows.
     rows = int(num_points / cols)
     if rows != num_points / cols:
-        print_w(
-            f"Cols don't divide number of points {num_points}, cols = {cols}"
-        )
+        print_w(f"Cols don't divide number of points {num_points}, cols = {cols}")
         rows += 1
 
     # Plot responses.
@@ -139,12 +137,7 @@ def plot_contour_deck(
         ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} mm", "red", 0),
     ]:
         plt.scatter(
-            [point[0]],
-            [point[1]],
-            label=label,
-            marker="o",
-            color=color,
-            alpha=alpha,
+            [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
         )
 
     # Titles and labels.

@@ -46,9 +46,7 @@ for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
 # for _i in range(len(bridge_705_spans)):
 #     print(sum(bridge_705_spans[:_i + 1]))
-bridge_705_supports_2d = [
-    Fix(x / bridge_705_length, y=True) for x in bridge_705_piers
-]
+bridge_705_supports_2d = [Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
 
 
@@ -64,29 +62,10 @@ bridge_705_patches = [
 ]
 bridge_705_layers = [
     Layer(
-        y_min=-0.4,
-        y_max=-0.4,
-        z_min=-15,
-        z_max=15,
-        num_fibers=20,
-        area_fiber=4.9e-4,
+        y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15, num_fibers=20, area_fiber=4.9e-4,
     ),
-    Layer(
-        y_min=-8,
-        y_max=-8,
-        z_min=-4.5,
-        z_max=4.5,
-        num_fibers=10,
-        area_fiber=4.9e-4,
-    ),
-    Layer(
-        y_min=-9,
-        y_max=-9,
-        z_min=-4.5,
-        z_max=4.5,
-        num_fibers=10,
-        area_fiber=4.9e-4,
-    ),
+    Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
+    Layer(y_min=-9, y_max=-9, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
 ]
 
 
@@ -128,10 +107,7 @@ def bridge_705_2d(
 def load_bridge_705_deck_sections():
     with open("bridge705/bridge-705.org") as f:
         values = list(
-            map(
-                lambda l: list(map(float, l.split("|")[1:-1])),
-                f.readlines()[2:],
-            )
+            map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
     return [
         Section3D(
@@ -198,9 +174,7 @@ bridge_705_supports_z = [2.167 + 3.666 / 2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):
     bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
-bridge_705_supports_z = list(
-    map(lambda x: x - half_width, bridge_705_supports_z)
-)
+bridge_705_supports_z = list(map(lambda x: x - half_width, bridge_705_supports_z))
 # Ignoring beginning and end of bridge.
 bridge_705_supports_3d = []
 for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
