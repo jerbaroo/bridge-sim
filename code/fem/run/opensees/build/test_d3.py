@@ -32,10 +32,7 @@ from util import round_m
 
 
 def get_lines(
-    contains: str,
-    lines: List[str],
-    after: str = "",
-    before: Optional[str] = None,
+    contains: str, lines: List[str], after: str = "", before: Optional[str] = None,
 ):
     """Return lines that contain a string, after and before a string."""
     started = False
@@ -71,9 +68,7 @@ def test_build_d3_deck_nodes_elems():
             )
         ]
     )
-    build_model_3d(
-        c=c, expt_params=expt_params, os_runner=os_runner, simple_mesh=True
-    )
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner, simple_mesh=True)
     with open(
         os_runner.fem_file_path(fem_params=expt_params.fem_params[0], ext="tcl")
     ) as f:
@@ -103,9 +98,7 @@ def test_build_d3_deck_nodes_elems():
     )
     sline = section_lines[0]
     # Check youngs.
-    id_, youngs, poissons, thickness, density = list(
-        map(float, sline.split()[2:])
-    )
+    id_, youngs, poissons, thickness, density = list(map(float, sline.split()[2:]))
     assert id_ == 1
     assert youngs == 38400 * 1e6
     assert poissons == 0.2
@@ -198,9 +191,7 @@ def test_build_d3_loads():
     expt_params = ExptParams(
         [SimParams(ploads=[load], response_types=[ResponseType.YTranslation])]
     )
-    build_model_3d(
-        c=c, expt_params=expt_params, os_runner=os_runner, simple_mesh=True
-    )
+    build_model_3d(c=c, expt_params=expt_params, os_runner=os_runner, simple_mesh=True)
     with open(
         os_runner.fem_file_path(fem_params=expt_params.fem_params[0], ext="tcl")
     ) as f:
@@ -270,9 +261,7 @@ def test_z_positions_of_pier_bottom_nodes():
     )
     z_positions = list(
         itertools.chain.from_iterable(
-            get_z_positions_of_pier_bottom_nodes(
-                c=c, positions_deck=positions_deck
-            )
+            get_z_positions_of_pier_bottom_nodes(c=c, positions_deck=positions_deck)
         )
     )
     assert len(z_positions) == (
@@ -320,19 +309,14 @@ def test_support_nodes():
         assert len(s_nodes) == 2
         count += len(list(itertools.chain.from_iterable(s_nodes[0])))
         count += len(list(itertools.chain.from_iterable(s_nodes[1])))
-    nodes_per_wall = (
-        c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z
-    )
+    nodes_per_wall = c.bridge.base_mesh_pier_nodes_y * c.bridge.base_mesh_pier_nodes_z
     expected = len(c.bridge.supports) * nodes_per_wall * 2
     assert expected == count
 
     # Test the amount of pier nodes without overlap between bottom nodes.
     reset_nodes()
     node_lines = opensees_support_nodes(
-        c=c,
-        deck_nodes=[[]],
-        all_support_nodes=all_support_nodes,
-        simple_mesh=True,
+        c=c, deck_nodes=[[]], all_support_nodes=all_support_nodes, simple_mesh=True,
     )
     num_nodes = len(node_lines.split("\n")) - 3  # Minus comments.
     # Subtract 1x overlap of bottom nodes, per support.
@@ -382,9 +366,7 @@ def test_support_elements():
         c=c, deck_positions=([], []), simple_mesh=False
     )
     all_pier_elements = get_pier_elements(c=c, all_support_nodes=all_pier_nodes)
-    lines = opensees_pier_elements(
-        c=c, all_pier_elements=all_pier_elements
-    ).split("\n")
+    lines = opensees_pier_elements(c=c, all_pier_elements=all_pier_elements).split("\n")
     lines = get_lines(
         contains="ShellMITC4 ",
         lines=lines,

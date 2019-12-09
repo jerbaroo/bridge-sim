@@ -43,9 +43,9 @@ def section_for_deck_element(
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)
         for section in c.bridge.sections:
-            c.bridge.deck_sections_dict[
-                round_m(c.bridge.x(section.start_x_frac))
-            ][round_m(c.bridge.z(section.start_z_frac))] = section
+            c.bridge.deck_sections_dict[round_m(c.bridge.x(section.start_x_frac))][
+                round_m(c.bridge.z(section.start_z_frac))
+            ] = section
 
     # print(sorted(c.bridge.deck_sections_dict.keys()))
     # print(sorted(c.bridge.deck_sections_dict[0.0].keys()))

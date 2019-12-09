@@ -104,9 +104,7 @@ def get_deck_elements(
             k_node, l_node = j_node + z_skip, i_node + z_skip
             # print_d(D, f"i, j, k, l = {i_node}, {j_node}, {k_node}, {l_node}")
             section = section_for_deck_element(
-                c=c,
-                element_x=nodes_by_id[i_node].x,
-                element_z=nodes_by_id[i_node].z,
+                c=c, element_x=nodes_by_id[i_node].x, element_z=nodes_by_id[i_node].z,
             )
             deck_elements[-1].append(
                 get_shell(
@@ -132,9 +130,7 @@ def get_pier_elements(
         for w, wall_nodes in enumerate(support_nodes):
             z = 0  # Keep an index of current transverse (z) line.
             # For each pair of (line of nodes in y direction).
-            for y_nodes_z_lo, y_nodes_z_hi in zip(
-                wall_nodes[:-1], wall_nodes[1:]
-            ):
+            for y_nodes_z_lo, y_nodes_z_hi in zip(wall_nodes[:-1], wall_nodes[1:]):
                 assert len(y_nodes_z_lo) == len(y_nodes_z_hi)
                 # For each element (so for each node - 1) on the line of nodes
                 # in y direction.
@@ -154,9 +150,7 @@ def get_pier_elements(
                     start_frac_len = y / (len(y_nodes_z_lo) - 2)
                     # print(f"y = {y}, len nodes = {len(y_nodes_z_lo)}, element_start_frac = {element_start_frac_len}")
                     section = section_for_pier_element(
-                        c=c,
-                        pier=c.bridge.supports[s],
-                        start_frac_len=start_frac_len,
+                        c=c, pier=c.bridge.supports[s], start_frac_len=start_frac_len,
                     )
                     pier_elements.append(
                         get_shell(

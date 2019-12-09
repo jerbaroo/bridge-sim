@@ -17,8 +17,7 @@ D: bool = False
 def opensees_nodes(c: Config):
     """OpenSees node commands for a .tcl file."""
     return "\n".join(
-        f"node {i + 1} {c.os_node_step * i} 0"
-        for i in np.arange(c.os_num_nodes())
+        f"node {i + 1} {c.os_node_step * i} 0" for i in np.arange(c.os_num_nodes())
     )
 
 
@@ -43,10 +42,7 @@ def opensees_elements(c: Config):
     """OpenSees element commands for a .tcl file."""
 
     def opensees_element(left_nid):
-        return (
-            f"element dispBeamColumn {left_nid} {left_nid} {left_nid + 1}"
-            + " 5 1 1"
-        )
+        return f"element dispBeamColumn {left_nid} {left_nid} {left_nid + 1}" + " 5 1 1"
 
     return "\n".join(opensees_element(nid) for nid in c.os_node_ids()[:-1])
 
@@ -120,10 +116,7 @@ def opensees_recorders(c: Config, os_runner: "OSRunner", fem_params: SimParams):
         recorders += " -ele " + " ".join(map(str, c.os_elem_ids()))
         recorders += " globalForce"
 
-    if (
-        ResponseType.Stress in response_types
-        or ResponseType.Strain in response_types
-    ):
+    if ResponseType.Stress in response_types or ResponseType.Strain in response_types:
 
         # Record stress and strain for each patch.
         for patch in c.bridge.sections[0].patches:
@@ -174,8 +167,7 @@ def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
     fix = c.bridge.supports[displacement_ctrl.pier]
     nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
     return (
-        f"integrator DisplacementControl {nid} 2"
-        + f" {displacement_ctrl.displacement}"
+        f"integrator DisplacementControl {nid} 2" + f" {displacement_ctrl.displacement}"
     )
 
 
@@ -215,32 +207,26 @@ def build_model_2d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
             if fix.y:
                 nid = int(np.interp(fix.x_frac, (0, 1), (1, c.os_num_nodes())))
                 raise ValueError(
-                    f"Displacement control node ({nid}) not fixed in y"
-                    + " direction."
+                    f"Displacement control node ({nid}) not fixed in y" + " direction."
                 )
         # Replace template with generated TCL code.
         out_tcl = (
             in_tcl.replace("<<NODES>>", opensees_nodes(c))
             .replace("<<SUPPORTS>>", opensees_supports(c))
             .replace(
-                "<<MATERIALS>>",
-                opensees_materials(c, fem_params.displacement_ctrl),
+                "<<MATERIALS>>", opensees_materials(c, fem_params.displacement_ctrl),
             )
             .replace("<<ELEMENTS>>", opensees_elements(c))
             .replace("<<LOAD>>", opensees_loads(c, fem_params))
             .replace("<<SECTIONS>>", opensees_sections(c))
             .replace("<<TEST>>", opensees_test(c, fem_params.displacement_ctrl))
             .replace(
-                "<<ALGORITHM>>",
-                opensees_algorithm(c, fem_params.displacement_ctrl),
+                "<<ALGORITHM>>", opensees_algorithm(c, fem_params.displacement_ctrl),
             )
             .replace(
-                "<<INTEGRATOR>>",
-                opensees_integrator(c, fem_params.displacement_ctrl),
+                "<<INTEGRATOR>>", opensees_integrator(c, fem_params.displacement_ctrl),
             )
-            .replace(
-                "<<RECORDERS>>", opensees_recorders(c, os_runner, fem_params)
-            )
+            .replace("<<RECORDERS>>", opensees_recorders(c, os_runner, fem_params))
         )
         # Write the generated model file.
         model_path = os_runner.fem_file_path(fem_params=fem_params, ext="tcl")

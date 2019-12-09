@@ -163,9 +163,7 @@ def get_z_positions_of_pier_bottom_nodes(
         assert min(pier_positions_deck) == pier_positions_deck[0]
         assert max(pier_positions_deck) == pier_positions_deck[-1]
         all_z_positions.append(
-            np.interp(
-                pier_positions_deck, [old_min, old_max], [new_min, new_max]
-            )
+            np.interp(pier_positions_deck, [old_min, old_max], [new_min, new_max])
         )
         assert_sorted(all_z_positions[-1])
     return list(map(round_m, all_z_positions))
@@ -187,8 +185,7 @@ def get_z_positions_of_pier_deck_nodes(
         base_pier_min_z_pos = base_pier_z_positions[0]
         base_pier_max_z_pos = base_pier_z_positions[-1]
         print_d(
-            D,
-            f"pier {p}. min, max = {base_pier_min_z_pos}, {base_pier_max_z_pos}",
+            D, f"pier {p}. min, max = {base_pier_min_z_pos}, {base_pier_max_z_pos}",
         )
         # And include z positions from the deck grid within the pier's range.
         assert_sorted(deck_positions[1])
@@ -214,9 +211,7 @@ def get_x_positions_of_pier_deck_nodes(c: Config) -> List[List[float]]:
     return x_positions
 
 
-def get_base_mesh_z_positions_of_pier_deck_nodes(
-    c: Config,
-) -> List[List[float]]:
+def get_base_mesh_z_positions_of_pier_deck_nodes(c: Config,) -> List[List[float]]:
     """The z positions of deck nodes of each pier's base mesh."""
     z_positions = []
     for support in c.bridge.supports:
@@ -250,15 +245,11 @@ def get_pier_deck_positions(c: Config) -> DeckPositions:
     """The x and z positions of deck nodes that belong to piers."""
     return (
         sorted(chain.from_iterable(get_x_positions_of_pier_deck_nodes(c))),
-        sorted(
-            chain.from_iterable(get_base_mesh_z_positions_of_pier_deck_nodes(c))
-        ),
+        sorted(chain.from_iterable(get_base_mesh_z_positions_of_pier_deck_nodes(c))),
     )
 
 
-def get_deck_load_positions(
-    bridge: Bridge, fem_params: SimParams
-) -> DeckPositions:
+def get_deck_load_positions(bridge: Bridge, fem_params: SimParams) -> DeckPositions:
     """The x and z positions of deck nodes that belong to loads."""
     return (
         sorted([round_m(bridge.x(load.x_frac)) for load in fem_params.ploads]),
@@ -298,9 +289,7 @@ def get_deck_nodes(
     # Get positions of pier nodes that are on the deck, to check if a deck node
     # also belongs to the pier. The check is only to add a comment.
     x_positions_piers, z_positions_piers = get_pier_deck_positions(c=c)
-    is_pier_node = lambda x_, z_: (
-        x_ in x_positions_piers and z_ in z_positions_piers
-    )
+    is_pier_node = lambda x_, z_: (x_ in x_positions_piers and z_ in z_positions_piers)
 
     set_ff_mod(len(x_positions))
     nodes = []
@@ -309,13 +298,9 @@ def get_deck_nodes(
         ff_node_ids()
         nodes.append([])
         for x_pos in x_positions:
-            comment_str = (
-                "support node" if is_pier_node(x_=x_pos, z_=z_pos) else None
-            )
+            comment_str = "support node" if is_pier_node(x_=x_pos, z_=z_pos) else None
             nodes[-1].append(
-                get_node(
-                    x=x_pos, y=0, z=z_pos, deck=True, comment_str=comment_str
-                )
+                get_node(x=x_pos, y=0, z=z_pos, deck=True, comment_str=comment_str)
             )
     return nodes
 
@@ -370,23 +355,17 @@ def get_deck_positions(
     print_d(D, f"deck z positions from loads = {z_positions_loads})")
     if not simple_mesh:
         for x_pos in x_positions_loads:
-            print_d(
-                D, f"load x pos already in x positions {x_pos in x_positions}"
-            )
+            print_d(D, f"load x pos already in x positions {x_pos in x_positions}")
             x_positions.add(round_m(x_pos))
         for z_pos in z_positions_loads:
-            print_d(
-                D, f"load z pos already in x positions {z_pos in z_positions}"
-            )
+            print_d(D, f"load z pos already in x positions {z_pos in z_positions}")
             z_positions.add(round_m(z_pos))
 
     # Update the 'DeckStagesInfo' with pier information.
     deck_stages_info["loads"] = (deepcopy(x_positions), deepcopy(z_positions))
 
     # Collect positions from material properties.
-    x_positions_sections, z_positions_sections = get_deck_section_positions(
-        c.bridge
-    )
+    x_positions_sections, z_positions_sections = get_deck_section_positions(c.bridge)
     if not simple_mesh:
         for x_pos in x_positions_sections:
             x_positions.add(x_pos)
@@ -442,13 +421,9 @@ def get_all_pier_nodes(
                 z_pos = z_deck
                 # Difference for each x, y, z as we move down the wall. Remember
                 # that the walls may be tapered.
-                x_diff = (x_bottom - x_deck) / (
-                    c.bridge.base_mesh_pier_nodes_y - 1
-                )
+                x_diff = (x_bottom - x_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
                 y_diff = -support.height / (c.bridge.base_mesh_pier_nodes_y - 1)
-                z_diff = (z_bottom - z_deck) / (
-                    c.bridge.base_mesh_pier_nodes_y - 1
-                )
+                z_diff = (z_bottom - z_deck) / (c.bridge.base_mesh_pier_nodes_y - 1)
 
                 def append_wall_node(y):
                     """Append another node with current positions."""
@@ -496,9 +471,7 @@ def get_all_nodes(
 
     if print_mesh:
         print_mesh_info(
-            bridge=c.bridge,
-            sim_params=sim_params,
-            all_pier_nodes=all_pier_nodes,
+            bridge=c.bridge, sim_params=sim_params, all_pier_nodes=all_pier_nodes,
         )
     if not simple_mesh:
         assert_deck_in_pier_pier_in_deck(

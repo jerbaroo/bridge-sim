@@ -160,9 +160,7 @@ class ShellElement:
             min_y = min(node_0.y, node_1.y)
             min_z = min(node_0.z, node_1.z)
             self._center = Point(
-                x=min_x + delta_x / 2,
-                y=min_y + delta_y / 2,
-                z=min_z + delta_z / 2
+                x=min_x + delta_x / 2, y=min_y + delta_y / 2, z=min_z + delta_z / 2
             )
         return self._center
 

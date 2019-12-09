@@ -114,14 +114,9 @@ def opensees_deck_nodes(c: Config, deck_nodes: List[List[Node]]) -> str:
     """
     node_strings = []
     node_strings += list(
-        map(
-            lambda node: node.command_3d(),
-            list(chain.from_iterable(deck_nodes)),
-        )
+        map(lambda node: node.command_3d(), list(chain.from_iterable(deck_nodes)),)
     )
-    return comment(
-        "deck nodes", "\n".join(node_strings), units="node nodeTag x y z"
-    )
+    return comment("deck nodes", "\n".join(node_strings), units="node nodeTag x y z")
 
 
 ##### End nodes #####
@@ -137,9 +132,7 @@ class FixNode:
 
     """
 
-    def __init__(
-        self, node: Node, free_y: bool = False, comment: Optional[str] = None
-    ):
+    def __init__(self, node: Node, free_y: bool = False, comment: Optional[str] = None):
         self.node = node
         self.free_y = free_y
         self.comment = comment
@@ -209,9 +202,7 @@ def opensees_fixed_pier_nodes(
             # We will fix the bottom node.
             fixed_nodes.append(
                 FixNode(
-                    node=y_nodes[-1],
-                    free_y=free_y,
-                    comment=f"support {p+1} y {y+1}",
+                    node=y_nodes[-1], free_y=free_y, comment=f"support {p+1} y {y+1}",
                 )
             )
     return comment(
@@ -250,9 +241,7 @@ def opensees_pier_sections(c: Config, all_pier_elements: AllPierElements):
     """Sections used in the bridge's piers."""
     # Some pier's may refer to the same section so we create a set to avoid
     # rendering duplicate section definitions into the .tcl file.
-    pier_sections = set(
-        [pier_element.section for pier_element in all_pier_elements]
-    )
+    pier_sections = set([pier_element.section for pier_element in all_pier_elements])
     return comment(
         "pier sections",
         "\n".join([opensees_section(section) for section in pier_sections]),
@@ -277,9 +266,7 @@ def opensees_deck_elements(c: Config, deck_elements: DeckElements) -> str:
     )
 
 
-def opensees_pier_elements(
-    c: Config, all_pier_elements: AllPierElements
-) -> str:
+def opensees_pier_elements(c: Config, all_pier_elements: AllPierElements) -> str:
     """OpenSees element commands for a bridge's piers."""
     return comment(
         "pier shell elements",
@@ -351,9 +338,7 @@ def opensees_loads(
             for pload in ploads
         )
 
-    return comment(
-        "loads", load_str, units="load nodeTag N_x N_y N_z N_rx N_ry N_rz"
-    )
+    return comment("loads", load_str, units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
 
 
 ##### End loads #####
@@ -406,21 +391,15 @@ def opensees_translation_recorders(
 
 from fem.run.build import nodes_by_id
 
-node_ids_str = lambda: (
-    " ".join(map(lambda n: str(sh.n_id), nodes_by_id.values()))
-)
+node_ids_str = lambda: (" ".join(map(lambda n: str(sh.n_id), nodes_by_id.values())))
 
 
 from fem.run.build.elements import shells_by_id
 
-elem_ids_str = lambda: (
-    " ".join(map(lambda sh: str(sh.e_id), shells_by_id.values()))
-)
+elem_ids_str = lambda: (" ".join(map(lambda sh: str(sh.e_id), shells_by_id.values())))
 
 
-def opensees_strain_recorders(
-    c: Config, sim_params: SimParams, os_runner: "OSRunner"
-):
+def opensees_strain_recorders(c: Config, sim_params: SimParams, os_runner: "OSRunner"):
     """OpenSees recorder commands for translation."""
     if not ResponseType.Strain in sim_params.response_types:
         return ""
@@ -459,8 +438,7 @@ def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
         return "integrator LoadControl 1"
     node = c.bridge.supports[pier_disp.pier].disp_node
     return (
-        f"integrator DisplacementControl {node.n_id} 2"
-        + f" {pier_disp.displacement}"
+        f"integrator DisplacementControl {node.n_id} 2" + f" {pier_disp.displacement}"
     )
 
 
@@ -549,9 +527,7 @@ def build_model_3d(
             )
             .replace(
                 "<<FIX_DECK>>",
-                opensees_fixed_deck_nodes(
-                    c=c, deck_nodes=fem_params.deck_nodes
-                ),
+                opensees_fixed_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes),
             )
             .replace(
                 "<<FIX_SUPPORTS>>",
@@ -585,9 +561,7 @@ def build_model_3d(
             )
             .replace(
                 "<<DECK_ELEMENTS>>",
-                opensees_deck_elements(
-                    c=c, deck_elements=fem_params.deck_elements
-                ),
+                opensees_deck_elements(c=c, deck_elements=fem_params.deck_elements),
             )
             .replace(
                 "<<PIER_ELEMENTS>>",
@@ -603,14 +577,9 @@ def build_model_3d(
             )
             .replace(
                 "<<INTEGRATOR>>",
-                opensees_integrator(
-                    c=c, pier_disp=fem_params.displacement_ctrl
-                ),
+                opensees_integrator(c=c, pier_disp=fem_params.displacement_ctrl),
             )
-            .replace(
-                "<<ALGORITHM>>",
-                opensees_algorithm(fem_params.displacement_ctrl),
-            )
+            .replace("<<ALGORITHM>>", opensees_algorithm(fem_params.displacement_ctrl),)
             .replace("<<TEST>>", opensees_test(fem_params.displacement_ctrl))
         )
 
@@ -622,9 +591,7 @@ def build_model_3d(
         )
         out_tcl = out_tcl.replace(
             "<<STRAIN_RECORDERS>>",
-            opensees_strain_recorders(
-                c=c, sim_params=fem_params, os_runner=os_runner
-            ),
+            opensees_strain_recorders(c=c, sim_params=fem_params, os_runner=os_runner),
         )
 
         # Write the generated model file.
@@ -632,8 +599,6 @@ def build_model_3d(
         with open(model_path, "w") as f:
             f.write(out_tcl)
         num_nodes = len(list(nodes_by_id.values()))
-        print_i(
-            f"OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}"
-        )
+        print_i(f"OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}")
 
     return expt_params
