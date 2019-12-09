@@ -158,7 +158,7 @@ def load_expt_responses(
             index=(i + 1, len(expt_params.sim_params)),
         )
 
-    with Pool() as pool:
+    with Pool(processes=os.cpu_count() if c.parallel else 1) as pool:
         results = pool.map(process, indices_and_params)
     print()  # Add a newline to fix cursor position.
     return results

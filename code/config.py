@@ -55,6 +55,7 @@ class Config:
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
         # Simulation settings.
+        self.parallel = False
         self.resp_matrices = dict()
         self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000

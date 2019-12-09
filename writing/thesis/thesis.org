@@ -223,16 +223,21 @@ of installing a decision support system for bridge maintenance.
 # Imperative and declarative.
 Pseudocode in this thesis is given in two formats. For code written in an
 imperative style the pseudocode will closely resemble the syntax of Python. For
-declarations of data the pseudocode will resemble the syntax of Haskell. For
-most people the syntax of Python, or a similar imperative style language, will
+type declarations the pseudocode will resemble the syntax of Haskell. For most
+people the syntax of Python, or a similar imperative style language, will
 already be familiar. The syntax for data declarations used in this thesis is
 presented below in Listing [[lst:haskell]].
 
 #+NAME: lst:haskell
-#+CAPTION[Pseudocode for data declarations]: Pseudocode for data declarations used in this thesis.
+#+CAPTION[Pseudocode example for type declarations]: Pseudocode example for type
+declarations used in this thesis. This pseudocode declares a type for describing
+a vehicle in terms of two pieces of data, a list of axle distance and a list of
+loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type
+=bar=. The square brackets represent the list type and the curly brackets
+represent a tuple type.
 #+BEGIN_SRC haskell
 -- A vehicle as a list of axle distances and wheel loads.
-data Vehicle = {
+data Vehicle {
     -- Distance betwen each pair of axles.
     axleDistances :: [Float],
     -- A tuple per axle, of wheel load intensity in kilo Newton.

@@ -28,6 +28,8 @@ class DCMatrix(ResponsesMatrix):
         """
 
         id_str = f"dc-{response_type}-{fem_runner.name}"
+        print_w("TODO: Change save_all back to True!!!")
+        save_all = False
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams(

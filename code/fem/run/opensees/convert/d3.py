@@ -56,12 +56,14 @@ def convert_sim_translation_responses(
     converted_expt_responses[sim_ind][response_type] = result
 
 
-def convert_strain_stress_responses(
+def convert_strain_responses(
     elements: List[ShellElement],
     sim_ind: int,
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
     converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
 ):
+    if ResponseType.Strain not in parsed_sim_responses:
+        return
     parsed_sim_strain = parsed_sim_responses[ResponseType.Strain]
     result = []
     print_w("Elements belonging to piers will not have strain recorded")
@@ -159,7 +161,7 @@ def convert_responses_3d(
                 parsed_sim_responses=parsed_expt_responses[sim_ind],
                 converted_expt_responses=converted_expt_responses,
             )
-        convert_strain_stress_responses(
+        convert_strain_responses(
             elements=elements,
             sim_ind=sim_ind,
             parsed_sim_responses=parsed_expt_responses[sim_ind],
