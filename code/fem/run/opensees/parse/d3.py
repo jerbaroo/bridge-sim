@@ -1,6 +1,9 @@
 """Parse responses from a 3D OpenSees simulation."""
 from collections import defaultdict
 from timeit import default_timer as timer
+from typing import List
+
+import numpy as np
 
 from config import Config
 from fem.params import ExptParams, SimParams
@@ -33,16 +36,25 @@ def parse_translation_responses_3d(
 
 def parse_stress_strain_responses_3d(
     results_dict,
-    fem_params: SimParams,
+    sim_params: SimParams,
     sim_ind: int,
-    responses_path: str,
-    response_type: ResponseType,
+    response_paths: List[str],
 ):
     """Parse stress or strain responses from a 3D OpenSees simulation."""
-    if response_type in fem_params.response_types:
-        raise NotImplementedError(
-            f"3D Cannot parse stress or strain: was {response_type}"
-        )
+    if any(rt in sim_params.response_types for rt in [ResponseType.Strain, ResponseType.Stress]):
+        lines = []
+        for response_path in response_paths:
+            with open(response_path) as f:
+                new_lines = f.read()
+                if new_lines.endswith("\n"):
+                    new_lines = new_lines[:-1]
+                new_lines = list(map(float, new_lines.split()))
+                sections = len(new_lines) / 8
+                if int(len(new_lines)) / 8 != sections:
+                    raise ValueError("Unexpected length of parsed strains")
+                per_element_lines = np.array_split(new_lines, sections)
+                lines.append(per_element_lines)
+        results_dict[sim_ind][ResponseType.Strain] = lines
 
 
 def parse_responses_3d(
@@ -80,17 +92,9 @@ def parse_responses_3d(
         # Parse strain responses if necessary.
         parse_stress_strain_responses_3d(
             results_dict=results_dict,
-            fem_params=fem_params,
+            sim_params=fem_params,
             sim_ind=sim_ind,
-            responses_path=None,
-            response_type=ResponseType.Strain,
-        )
-        # Parse stress responses if necessary.
-        parse_stress_strain_responses_3d(
-            results_dict=results_dict,
-            fem_params=fem_params,
-            sim_ind=sim_ind,
-            responses_path=None,
-            response_type=ResponseType.Stress,
+            response_paths=[
+                os_runner.strain_path(fem_params, i) for i in [1, 2, 3, 4]]
         )
     return results_dict

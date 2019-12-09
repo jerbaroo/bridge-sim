@@ -122,11 +122,11 @@ def convergence_data():
 
 
 @cli.group()
-def verification():
+def verify():
     pass
 
 
-@verification.command()
+@verify.command()
 def comparison_plots_705():
     contour.comparison_plots_705(c)
 
@@ -157,11 +157,11 @@ def contour_pier_displacement():
 
 
 @cli.group()
-def classification():
+def classify():
     pass
 
 
-@classification.command()
+@classify.command()
 def oneclass():
     classification_.oneclass(c)
 

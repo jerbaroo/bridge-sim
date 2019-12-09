@@ -54,5 +54,6 @@ foreach i $l {
 	# [Nxx, Nyy, Nxy, Mxx, Myy, Mxy, Vxz, Vyz]
 	set internal_force [eleResponse $i stresses]
 	puts $outfile $internal_force
+	puts $outfile "\n"
 }
 close $outfile
