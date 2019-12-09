@@ -36,13 +36,23 @@ def oneclass(c: Config):
             points=points,
             fem_runner=OSRunner(c),
         )
+
         # Fit on the healthy scenario.
         if b == 0:
             assert len(responses) == len(points)
-            clfs = [OneClassSVM().fit(rs) for rs in responses]
+            clfs = []
+            for r, rs in enumerate(responses):
+                print_i(f"Running classifier {r} / {len(responses)}")
+                clfs.append(OneClassSVM().fit(rs))
+
         scenario_results = []
         for p, _ in enumerate(points):
             prediction = clfs[p].predict(responses[p])
             print(prediction)
             print(len(prediction[prediction < 0]))
             print(len(prediction[prediction > 0]))
+
+
+def clustering(c: Config):
+    """"""
+    pass
