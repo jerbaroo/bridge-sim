@@ -1,1 +1,1 @@
-pipenv run python code/make/make_cli.py "$@"
+pipenv run python code/cli.py "$@"

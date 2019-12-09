@@ -5,7 +5,7 @@ from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.run import FEMRunner
 from model.load import PointLoad
 from model.response import ResponseType
-from util import print_d
+from util import print_d, print_w
 
 # Print debug information for this file.
 D: bool = False
@@ -83,6 +83,8 @@ class ILMatrix(ResponsesMatrix):
             + f"-{c.il_num_loads}-zfrac={load_z_frac}"
         )
         print(id_str)
+        print_w("TODO: Change save_all back to True!!!")
+        save_all = False
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams(

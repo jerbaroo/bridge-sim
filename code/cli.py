@@ -4,6 +4,7 @@ import click
 from config import Config
 from make.data import simulations
 from make.plot import contour
+from make.plot import classification as classification_
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -143,6 +144,26 @@ def scenario():
 @scenario.command()
 def contour_pier_displacement():
     contour.plots_of_pier_displacement(c)
+
+
+########################
+##### Distribution #####
+########################
+
+
+##########################
+##### Classification #####
+##########################
+
+
+@cli.group()
+def classification():
+    pass
+
+
+@classification.command()
+def oneclass():
+    classification_.oneclass(c)
 
 
 if __name__ == "__main__":

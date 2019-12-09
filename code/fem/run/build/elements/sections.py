@@ -13,7 +13,6 @@ sections_by_value = dict()
 def get_section(section: Section3D) -> Section3D:
     """An equivalent previously created Section if possible."""
     id_str = section.id_str()
-    print(id_str)
     if id_str not in sections_by_value:
         sections_by_value[id_str] = section
     return sections_by_value[id_str]
