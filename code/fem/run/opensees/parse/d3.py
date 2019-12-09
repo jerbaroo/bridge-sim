@@ -54,6 +54,8 @@ def parse_stress_strain_responses_3d(
                     raise ValueError("Unexpected length of parsed strains")
                 per_element_lines = np.array_split(new_lines, sections)
                 lines.append(per_element_lines)
+        lines = np.array(lines)
+        print(lines.shape)
         results_dict[sim_ind][ResponseType.Strain] = lines
 
 

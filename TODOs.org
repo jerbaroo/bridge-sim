@@ -259,6 +259,9 @@ CLOSED: [2019-12-05 Thu 15:49]
 **** TODO: Check fixed values of abutments, usually rollers
 *** TODO Go over Valeria's notes
 *** TODO Check linear function of peirs for thickness
+** Next meeting
+*** TODO +- 1/srtq(3) = 0.57?
+*** TODO If responses are at midpoints than displacements recorded there?
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes

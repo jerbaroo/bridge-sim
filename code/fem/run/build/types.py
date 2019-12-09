@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial import distance
 
 from config import Config
-from model.bridge import Section3D, Section3DPier, Support3D
+from model.bridge import Point, Section3D, Section3DPier, Support3D
 from util import print_d, round_m
 
 
@@ -134,17 +134,63 @@ class ShellElement:
         self.nj_id = nj_id
         self.nk_id = nk_id
         self.nl_id = nl_id
+        self.pier = pier
         self.section = section
         self.support_position_index = support_position_index
+        self.nodes_by_id = nodes_by_id
 
         # Attach a reference to the section to each 'Node' and note if the node
         # belongs to a pier or to the bridge deck.
         for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
-            node = nodes_by_id[n_id]
+            node = self.nodes_by_id[n_id]
             if pier:
                 node.pier_section = self.section
             else:
                 node.deck_section = self.section
+
+    def center(self) -> Point:
+        """Point at the center of the element."""
+        if not hasattr(self, "_center"):
+            node_0 = self.nodes_by_id[self.ni_id]
+            node_1 = self.nodes_by_id[self.nk_id]
+            delta_x = abs(node_0.x - node_1.x)
+            delta_y = abs(node_0.y - node_1.y)
+            delta_z = abs(node_0.z - node_1.z)
+            min_x = min(node_0.x, node_1.x)
+            min_y = min(node_0.y, node_1.y)
+            min_z = min(node_0.z, node_1.z)
+            self._center = Point(
+                x=min_x + delta_x / 2,
+                y=min_y + delta_y / 2,
+                z=min_z + delta_z / 2
+            )
+        return self._center
+
+    def length(self) -> float:
+        """The length of this element (longitudinal direction)."""
+        if not hasattr(self, "_length"):
+            min_x, max_x = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_x = self.nodes_by_id[n_id].x
+                if node_x < min_x:
+                    min_x = node_x
+                if node_x > max_x:
+                    max_x = node_x
+            self._length = max_x - min_x
+        return self._length
+
+    def width(self) -> float:
+        """The width of this element (longitudinal direction)."""
+        if not hasattr(self, "_width"):
+            min_z, max_z = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_z = self.nodes_by_id[n_id].z
+                if node_z < min_z:
+                    min_z = node_z
+                if node_z > max_z:
+                    max_z = node_z
+            self._width = max_z - min_z
+        return self._width
 
     def command_3d(self):
         """OpenSees element command."""

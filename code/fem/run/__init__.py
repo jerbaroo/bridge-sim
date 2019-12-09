@@ -137,6 +137,7 @@ class FEMRunner:
                 sim_ind
             ].items():
                 print_d(D, f"response_type in converted = {response_type}")
+                print(len(responses))
                 fem_responses = FEMResponses(
                     c=self.c,
                     fem_params=expt_params.sim_params[sim_ind],

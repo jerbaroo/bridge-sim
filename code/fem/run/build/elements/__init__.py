@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import Dict, Tuple
 
 from config import Config
@@ -23,7 +24,7 @@ _elem_id = None
 # If you call 'build_model_3d' and then call '.values' on this dictionary it
 # provides an easy way to get all 'ShellElement's for the previously built
 # model.
-shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = dict()
+shells_by_id: Dict[Tuple[int, int, int, int], ShellElement] = OrderedDict()
 
 
 def next_elem_id() -> int:

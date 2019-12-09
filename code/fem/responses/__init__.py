@@ -143,7 +143,8 @@ class Responses:
                 for response in z_dict.values():
                     if hasattr(response, "value"):
                         yield response.value
-                    return response
+                    else:
+                        yield response
 
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):
@@ -195,7 +196,7 @@ class FEMResponses(Responses):
         self.sim_runner = sim_runner
         self.num_sensors = len(responses)
 
-        if not skip_index:
+        if True or not skip_index:
             for r in responses:
                 self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
             self.index()

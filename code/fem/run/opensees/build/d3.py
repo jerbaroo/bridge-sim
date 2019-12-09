@@ -322,7 +322,7 @@ def opensees_load(
         assert np.isclose(best_node.x, pload_x)
         assert np.isclose(best_node.z, pload_z)
 
-    return f"load {best_node.n_id} 0 {pload.kn * 1000} 0 0 0 0"
+    return f"load {best_node.n_id} 0 {pload.kn * 1000000} 0 0 0 0"
 
 
 def opensees_loads(
