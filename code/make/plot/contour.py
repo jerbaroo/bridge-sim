@@ -12,7 +12,7 @@ from classify.scenario.bridge import (
     equal_pier_disp,
     longitudinal_pier_disp,
 )
-from classify.scenarios import cracked_scenario
+from classify.scenarios import cracked_scenario, all_scenarios
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
@@ -29,6 +29,45 @@ from util import print_d, print_i, safe_str
 # Print debug information for this file.
 D: str = "make.plots.contour"
 # D: bool = False
+
+
+def mean_traffic_response_plots(c: Config):
+    """Contour plots of the mean response per damage scenario."""
+    response_type = ResponseType.YTranslation
+    # 10 x 10 grid of points on the bridge deck where to record responses.
+    points = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 100),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
+    ]
+    for damage_scenario in all_scenarios(c):
+        response_array = responses_to_traffic_array(
+            c=c,
+            traffic_array=load_normal_traffic_array(c, mins=10)[0],
+            response_type=response_type,
+            bridge_scenario=damage_scenario,
+            points=points,
+            sim_runner=OSRunner,
+        )
+        print(response_array.shape)
+        mean_response_array = np.mean(response_array, axis=0).T
+        print(mean_response_array.shape)
+        print(mean_response_array.shape)
+
+        top_view_bridge(c.bridge, abutments=True, piers=True)
+        responses = Responses.from_responses(
+            response_type=response_type,
+            responses=[
+                (response_array[0][p], point)
+                for p, point in enumerate(points)],
+        )
+        plot_contour_deck(c=c, responses=responses, center_norm=True, levels=100)
+        plt.title(damage_scenario.name)
+        plt.savefig(
+            c.get_image_path("contour-damage-scenario", damage_scenario.name))
+        plt.close()
 
 
 def cracked_concrete_plots(c: Config):
@@ -50,7 +89,7 @@ def cracked_concrete_plots(c: Config):
         response_type=response_type,
         bridge_scenario=cracked_scenario,
         points=points,
-        fem_runner=OSRunner(c),
+        sim_runner=OSRunner,
     )
 
     for t in range(len(response_array)):

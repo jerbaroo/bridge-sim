@@ -1,3 +1,5 @@
+import itertools
+
 from classify.scenario.bridge import (
     HealthyBridge,
     PierDispBridge,
@@ -5,6 +7,7 @@ from classify.scenario.bridge import (
     equal_pier_disp,
     longitudinal_pier_disp,
 )
+from model.load import DisplacementCtrl
 
 healthy_scenario = HealthyBridge()
 

@@ -26,11 +26,11 @@ from plot.responses import plot_contour_deck, plot_distributions
 from util import print_i, safe_str
 
 
-def load_normal_traffic_array(c: Config):
+def load_normal_traffic_array(c: Config, mins: float = 5):
     """Distribution plots currently use this for normal traffic."""
     traffic_scenario = normal_traffic(c, 5, 2)
     return (
-        load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * 5),
+        load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * mins),
         traffic_scenario,
     )
 

@@ -1,6 +1,6 @@
 """Time series of responses to moving loads."""
 from itertools import chain
-from typing import List
+from typing import Callable, List
 
 import numpy as np
 from fem.responses.matrix import load_expt_responses
@@ -139,7 +139,7 @@ def responses_to_traffic_array(
     response_type: ResponseType,
     bridge_scenario: BridgeScenario,
     points: List[Point],
-    fem_runner: FEMRunner,
+    sim_runner: Callable[[Config], FEMRunner],
     j=None,
 ):
     """The magic function.
@@ -158,11 +158,12 @@ def responses_to_traffic_array(
         # First collect the unit load simulations per wheel track.
         # Cracked...
         if isinstance(bridge_scenario, CrackedBridge):
+            c_cracked = bridge_scenario.crack_config(c)
             il_matrices = {
                 wheel_z: ILMatrix.load(
                     c=bridge_scenario.crack_config(c),
                     response_type=response_type,
-                    fem_runner=fem_runner,
+                    fem_runner=sim_runner(c_cracked),
                     load_z_frac=c.bridge.z_frac(wheel_z),
                 )
                 for wheel_z in wheel_zs
@@ -173,7 +174,7 @@ def responses_to_traffic_array(
                 wheel_z: ILMatrix.load(
                     c=c,
                     response_type=response_type,
-                    fem_runner=fem_runner,
+                    fem_runner=sim_runner(c),
                     load_z_frac=c.bridge.z_frac(wheel_z),
                 )
                 for wheel_z in wheel_zs
@@ -198,7 +199,8 @@ def responses_to_traffic_array(
         # matrices to get the responses.
         unit_load_matrix /= c.il_unit_load_kn
         if j is not None:
-            print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
+            pass
+            # print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
     else:
         unit_load_matrix = np.zeros(ulm_shape)
 
@@ -208,7 +210,7 @@ def responses_to_traffic_array(
     if isinstance(bridge_scenario, PierDispBridge):
         pd_responses = pd_responses.T  # Transpose so indexed by point first.
         pd_matrix = DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=fem_runner
+            c=c, response_type=response_type, fem_runner=sim_runner(c)
         )
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):

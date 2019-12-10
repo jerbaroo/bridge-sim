@@ -57,9 +57,10 @@ class CrackedBridge(BridgeScenario):
                     ))
 
         # Create new cracked sections for each of these overlaps.
-        cracked_sections = []
-        for section, x_start, z_start, x_end, z_end in overlaps:
+        cracked_sections, max_id = [], bridge.sections[-1].id
+        for i, (section, x_start, z_start, x_end, z_end) in enumerate(overlaps):
             cracked_section = deepcopy(section)
+            cracked_section.id = max_id + i + 1
             cracked_section.youngs *= (1/3)
             cracked_section.start_x_frac = bridge.x_frac(x_start)
             cracked_section.start_z_frac = bridge.z_frac(z_start)

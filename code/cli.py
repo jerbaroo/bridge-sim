@@ -148,6 +148,11 @@ def scenario():
     pass
 
 
+@scenario.command(help="Mean sensor response per damage scenario")
+def contour_mean_traffic_response():
+    contour.mean_traffic_response_plots(c())
+
+
 @scenario.command()
 def contour_cracked_concrete():
     contour.cracked_concrete_plots(c())
