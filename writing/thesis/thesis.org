@@ -265,9 +265,9 @@ health monitoring.
 
 # Damage identification: vibration and modal properties: assumptions made.
 A significant amount of the research into damage identification of civil
-infrastructure is based on vibration data and modal properties, with methods on
-changes in a shift in natural frequency cite:stubbs2000global or change in mode
-shape cite:pandey1991damage. The location of damage on a computer model of a
+infrastructure is based on vibration data, with methods based on changes in
+natural frequency cite:stubbs2000global or changes in mode shape
+cite:pandey1991damage. The location of damage on a computer model of a
 reinforced concrete bridge is identified based on a combination of modal
 properties in cite:dilena2011dynamic. In each of these cases the research is
 based on a controlled lab experiment and the assumption is made that the type of
