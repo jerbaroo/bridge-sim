@@ -5,6 +5,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model.load import DisplacementCtrl
 from model.response import ResponseType
+from util import print_w
 
 
 class DCMatrix(ResponsesMatrix):
@@ -53,7 +54,7 @@ class DCMatrix(ResponsesMatrix):
                     c=c,
                     expt_params=expt_params,
                     response_type=response_type,
-                    fem_runner=fem_runner,
+                    sim_runner=fem_runner,
                 ),
             )
 

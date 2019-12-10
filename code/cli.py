@@ -158,5 +158,10 @@ def oneclass():
     classification_.oneclass(c)
 
 
+@classify.command()
+def joint_clustering_bridge():
+    classification_.joint_clustering_bridge(c)
+
+
 if __name__ == "__main__":
     cli()
