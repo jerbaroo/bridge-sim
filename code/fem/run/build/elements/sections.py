@@ -2,6 +2,8 @@
 from collections import defaultdict
 from itertools import chain
 
+import numpy as np
+
 from config import Config
 from model.bridge import Section3D, Support3D
 from util import round_m
@@ -35,6 +37,17 @@ def section_for_deck_element(
         element_z: float, z position which belongs in some section.
 
     """
+
+    def assert_deck_sections():
+        last_x = -np.inf
+        # For every list that have the same x position.
+        for deck_sections in c.bridge.sections:
+            x = deck_sections[0].start_x_frac
+            assert last_x < x
+            for deck_section in deck_sections:
+                assert deck_section.start_x_frac == x
+            last_x = x
+
     if callable(c.bridge.sections):
         raise NotImplementedError(
             "Function to vary material properties not yet supported"
@@ -42,6 +55,7 @@ def section_for_deck_element(
 
     # Create the dictionary if not already created.
     if not hasattr(c.bridge, "deck_sections_dict"):
+        assert_deck_sections()
         c.bridge.deck_sections_dict = defaultdict(dict)
         for section in chain.from_iterable(c.bridge.sections):
             c.bridge.deck_sections_dict[round_m(c.bridge.x(section.start_x_frac))][
