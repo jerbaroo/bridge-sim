@@ -47,7 +47,6 @@ class Config:
 
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
-        _reset_model_ids()
         self.bridge = bridge()
 
         # OpenSees
@@ -56,6 +55,7 @@ class Config:
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
         # Simulation settings.
+        self.parallel = False
         self.resp_matrices = dict()
         self.il_num_loads: int = 100
         self.il_unit_load_kn: float = 1000
@@ -108,9 +108,7 @@ class Config:
         # Root directories for generated data.
         self.root_generated_data_dir = generated_data
         if self.root_generated_data_dir[-1] in "/\\":
-            raise ValueError(
-                "Please ensure generated_data does not end in separator"
-            )
+            raise ValueError("Please ensure generated_data does not end in separator")
         self.root_generated_images_dir = os.path.join(
             self.root_generated_data_dir + "-images"
         )
@@ -159,9 +157,7 @@ class Config:
         TODO: Replace usage with get_data_path.
 
         """
-        return self.get_path_in(
-            self.generated_data_dir_no_acc, "traffic", filename
-        )
+        return self.get_path_in(self.generated_data_dir_no_acc, "traffic", filename)
 
     def get_data_path(
         self, dirname: str, filename: str, bridge: bool = True, acc: bool = True

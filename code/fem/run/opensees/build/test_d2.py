@@ -22,11 +22,7 @@ def test_build_2d():
             layers=[],
             patches=[
                 Patch(
-                    y_min=-1,
-                    y_max=1,
-                    z_min=-1,
-                    z_max=1,
-                    num_sub_div_z=num_sub_div_z,
+                    y_min=-1, y_max=1, z_min=-1, z_max=1, num_sub_div_z=num_sub_div_z,
                 )
             ],
             supports=[Fix(0, x=True), Fix(0.5, y=True), Fix(1, rot=True)],
@@ -46,9 +42,7 @@ def test_build_2d():
     # Build model file and read it into memory.
     build_model_2d(c=c, expt_params=expt_params, os_runner=OSRunner(c))
     with open(
-        OSRunner(c).fem_file_path(
-            fem_params=expt_params.fem_params[0], ext="tcl"
-        )
+        OSRunner(c).fem_file_path(fem_params=expt_params.fem_params[0], ext="tcl")
     ) as f:
         lines = f.readlines()
 
@@ -93,17 +87,13 @@ def test_build_2d_displacement_ctrl():
     # Build model file and read.
     build_model_2d(c, expt_params, OSRunner(c))
     with open(
-        OSRunner(c).fem_file_path(
-            fem_params=expt_params.fem_params[0], ext="tcl"
-        )
+        OSRunner(c).fem_file_path(fem_params=expt_params.fem_params[0], ext="tcl")
     ) as f:
         lines = f.readlines()
 
     assert any(line == "load 11 0 10000 0\n" for line in lines)
     assert any(line == "test NormDispIncr 1.0e-12 100\n" for line in lines)
-    assert any(
-        line == "integrator DisplacementControl 11 2 0.1\n" for line in lines
-    )
+    assert any(line == "integrator DisplacementControl 11 2 0.1\n" for line in lines)
 
     # No error if the displacement control node is not fixed in y direction.
     c.bridge.supports = [Fix(0, y=True), Fix(0.5, y=False), Fix(1, y=True)]

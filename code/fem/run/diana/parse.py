@@ -84,14 +84,10 @@ def parse_responses(c: Config, expt_params: ExptParams) -> Parsed:
     def parse_type(response_type: ResponseType):
         return response_type in expt_params.fem_params[0].response_types
 
-    if parse_type(ResponseType.XTranslation) or parse_type(
-        ResponseType.YTranslation
-    ):
+    if parse_type(ResponseType.XTranslation) or parse_type(ResponseType.YTranslation):
         start = timer()
         parsed_translation = parse_translation(c)
-        print_i(
-            f"Diana: Parsed translation responses in {timer() - start:.2f}s"
-        )
+        print_i(f"Diana: Parsed translation responses in {timer() - start:.2f}s")
         results["translation"] = parsed_translation
 
     if parse_type(ResponseType.Strain):

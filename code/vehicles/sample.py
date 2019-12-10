@@ -19,9 +19,7 @@ D: bool = False
 noise_col_names = ["speed", "length", "total_weight"]
 
 
-def _vehicle_pdf_groups(
-    vehicle_data: VehicleData, col: str, lengths: List[int]
-):
+def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int]):
     """Vehicle data grouped by a maximum value per group."""
     print_d(D, f"Vehicle PDF column is {repr(col)}")
     print_d(D, lengths)
@@ -44,9 +42,7 @@ def vehicle_pdf_groups(c: Config):
     if not hasattr(c, "_vehicle_pdf_groups"):
         start = timer()
         c._vehicle_pdf_groups = _vehicle_pdf_groups(
-            c.vehicle_data,
-            c.vehicle_pdf_col,
-            list(map(lambda x: x[0], c.vehicle_pdf)),
+            c.vehicle_data, c.vehicle_pdf_col, list(map(lambda x: x[0], c.vehicle_pdf)),
         )
         print_s(f"Vehicle PDF groups loaded in {timer() - start}")
     return c._vehicle_pdf_groups

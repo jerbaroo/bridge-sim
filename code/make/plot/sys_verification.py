@@ -12,19 +12,14 @@ def plot_pier_displacement(c: Config):
     pier_index = 5
     pier = c.bridge.supports[pier_index]
     response_type = ResponseType.YTranslation
-    pier_displacement = DisplacementCtrl(
-        displacement=c.pd_unit_disp, pier=pier_index
-    )
+    pier_displacement = DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_index)
 
     # Plot responses captured directly from a pier displacement simualtion.
     sim_params = SimParams(
         response_types=[response_type], displacement_ctrl=pier_displacement,
     )
     sim_responses = load_fem_responses(
-        c=c,
-        sim_params=sim_params,
-        response_type=response_type,
-        sim_runner=OSRunner(c),
+        c=c, sim_params=sim_params, response_type=response_type, sim_runner=OSRunner(c),
     )
     plt.subplot(2, 1, 1)
     top_view_bridge(c.bridge, lanes=False, outline=False)
@@ -62,9 +57,7 @@ def plot_pier_displacement(c: Config):
     top_view_bridge(c.bridge, lanes=False, outline=False)
     responses = Responses.from_responses(
         response_type=response_type,
-        responses=[
-            (response_array[0][p], point) for p, point in enumerate(points)
-        ],
+        responses=[(response_array[0][p], point) for p, point in enumerate(points)],
     )
     _, _, norm = plot_contour_deck(
         c=c,

@@ -127,9 +127,7 @@ def matrix_subplots(
     for i, response_frac in enumerate(np.linspace(0, 1, rows * cols)):
         plt.subplot(rows, cols, i + 1)
         plot_bridge_deck_side(c.bridge, show=False, equal_axis=False)
-        rs = plot_func(
-            c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x
-        )
+        rs = plot_func(c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x)
         plt.axvline(x=c.bridge.x(x_frac=response_frac), color="red")
         # Keep track of min and max on y axis (only when non-zero responses).
         if any(rs):

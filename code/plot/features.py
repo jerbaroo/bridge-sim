@@ -129,9 +129,7 @@ def plot_events_from_traffic(
                 event = events_[event_index]
                 print_i(f"row, col = {row}, {col}")
                 plt.subplot2grid((rows, cols), (row, col))
-                end_overlap = (
-                    event.overlap if event_index < len(events_) - 1 else 0
-                )
+                end_overlap = event.overlap if event_index < len(events_) - 1 else 0
                 plot_event(
                     c=c,
                     event=event,

@@ -32,6 +32,7 @@ from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from util import print_d, print_i, safe_str
 from vehicles.sample import sample_vehicle
+from vehicles.stats import vehicle_data_noise_stats, vehicle_density_stats
 
 from make.plot import (
     animate,
@@ -50,9 +51,13 @@ D: str = "make.make_plots"
 # D: bool = False
 
 
-def make_bridge_plots(
-    c: Config, mv_vehicles: Optional[List[List[MvVehicle]]] = None
-):
+def make_stats(c: Config):
+    """Make all textual information for the thesis."""
+    print_i("\n\n" + vehicle_density_stats(c) + "\n")
+    print_i("\n\n" + vehicle_data_noise_stats(c) + "\n")
+
+
+def make_bridge_plots(c: Config, mv_vehicles: Optional[List[List[MvVehicle]]] = None):
     """Make plots of the bridge with and without vehicles."""
     if mv_vehicles is None:
         mk = lambda x_frac, lane: MvVehicle(
@@ -69,9 +74,7 @@ def make_bridge_plots(
         bridge=c.bridge, save=c.image_path("bridges/bridge-section")
     )
     for mv_vehicles_ in mv_vehicles:
-        mv_vehicles_str = "-".join(
-            str(l).replace(".", ",") for l in mv_vehicles_
-        )
+        mv_vehicles_str = "-".join(str(l).replace(".", ",") for l in mv_vehicles_)
         plot_bridge_deck_side(
             c.bridge,
             mv_vehicles=mv_vehicles_,
@@ -87,9 +90,7 @@ def make_bridge_plots(
 def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
     """Make animations of a pload moving across a bridge."""
     plt.close()
-    mv_load = MovingLoad.from_vehicle(
-        x_frac=0, vehicle=sample_vehicle(c), lane=0
-    )
+    mv_load = MovingLoad.from_vehicle(x_frac=0, vehicle=sample_vehicle(c), lane=0)
     per_axle_str = f"-peraxle" if per_axle else ""
     for response_type in ResponseType:
         animate_mv_load(
@@ -277,7 +278,7 @@ def make_all_3d(c: Config):
     # contour.plot_of_unit_loads(c)
     # make_il_plots(c)
     # matrix.dc_plots(c)
-    # contour.plots_of_pier_displacement(c)
+    contour.plots_of_pier_displacement(c)
     # contour.gradient_pier_displacement_plots(c)
 
     #####################

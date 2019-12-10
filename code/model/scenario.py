@@ -21,9 +21,7 @@ class BridgeScenario:
 # A list of vehicle, time they enter/leave the bridge, and a boolean if they are
 # entering (true) or leaving. This sequence should be time ordered. This is a
 # memory efficient representation of traffic.
-TrafficSequence = NewType(
-    "TrafficSequence", List[Tuple[MvVehicle, float, bool]]
-)
+TrafficSequence = NewType("TrafficSequence", List[Tuple[MvVehicle, float, bool]])
 
 # A list of vehicles per lane per time step. This representation naturally fits
 # the semantics of real life traffic on a bridge.
@@ -50,9 +48,7 @@ class TrafficScenario:
 
     """
 
-    def __init__(
-        self, name: str, mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]]
-    ):
+    def __init__(self, name: str, mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]]):
         self.name = name
         self.mv_vehicle_f = mv_vehicle_f
 
@@ -154,9 +150,9 @@ class TrafficScenario:
             # Update vehicles entering/leaving the bridge.
             if enter:
                 time_leave.append((vehicle, vehicle.leaves_bridge(bridge)))
-                next_vehicles[vehicle.lane] = next(
-                    mv_vehicle_gens[vehicle.lane]
-                )(time=time, full_lanes=full_lanes())
+                next_vehicles[vehicle.lane] = next(mv_vehicle_gens[vehicle.lane])(
+                    time=time, full_lanes=full_lanes()
+                )
             else:
                 time_leave.popleft()
 

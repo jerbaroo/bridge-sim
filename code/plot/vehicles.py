@@ -41,9 +41,7 @@ def plot_db(c: Config):
     passengers = np.random.multivariate_normal(
         [700, 12.53], cov=np.eye(2), size=len(sampled_a16)
     ).T
-    passengers = np.random.multivariate_normal(
-        [700, 12.53], cov=np.eye(2), size=10
-    ).T
+    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=10).T
     print(passengers)
     s = 1
 

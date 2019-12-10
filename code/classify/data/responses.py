@@ -67,10 +67,7 @@ def responses_to_traffic(
     )
     il_matrices = {
         z_frac: ILMatrix.load(
-            c=c,
-            response_type=response_type,
-            fem_runner=fem_runner,
-            load_z_frac=z_frac,
+            c=c, response_type=response_type, fem_runner=fem_runner, load_z_frac=z_frac,
         )
         for z_frac in z_fracs
     }
@@ -96,9 +93,7 @@ def responses_to_traffic(
                 for x_frac in mv_vehicle.x_fracs_at(time=time, bridge=c.bridge)
                 if 0 <= x_frac <= 1
             ]
-            mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(
-                bridge=c.bridge, meters=False
-            )
+            mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(bridge=c.bridge, meters=False)
 
             # Update the response at each point due to this vehicle..
             for p, point in enumerate(points):
@@ -109,9 +104,7 @@ def responses_to_traffic(
                 mv_vehicle_responses = []
                 for mv_vehicle_z_frac in mv_vehicle_z_fracs:
                     il_matrix = il_matrices[mv_vehicle_z_frac]
-                    for axle, mv_vehicle_x_frac in enumerate(
-                        mv_vehicle_x_fracs
-                    ):
+                    for axle, mv_vehicle_x_frac in enumerate(mv_vehicle_x_fracs):
                         mv_vehicle_responses.append(
                             il_matrix.response_to(
                                 load_x_frac=mv_vehicle_x_frac,
@@ -209,9 +202,7 @@ def responses_to_traffic_array(
             for pier_displacement in bridge_scenario.pier_disps:
                 pd_responses[p] += pd_matrix.sim_response(
                     expt_frac=np.interp(
-                        pier_displacement.pier,
-                        [0, len(c.bridge.supports) - 1],
-                        [0, 1],
+                        pier_displacement.pier, [0, len(c.bridge.supports) - 1], [0, 1],
                     ),
                     x_frac=c.bridge.x_frac(point.x),
                     y_frac=c.bridge.y_frac(point.y),
@@ -298,8 +289,7 @@ def responses_to_loads_(
         result.append(
             [
                 sim_responses.at(
-                    x_frac=c.bridge.x_frac(point.x),
-                    z_frac=c.bridge.z_frac(point.z),
+                    x_frac=c.bridge.x_frac(point.x), z_frac=c.bridge.z_frac(point.z),
                 )
                 for point in points
             ]
@@ -321,9 +311,7 @@ def responses_to_vehicles_(
     loads = [
         list(
             chain.from_iterable(
-                chain.from_iterable(
-                    v.to_point_loads(time=time, bridge=c.bridge)
-                )
+                chain.from_iterable(v.to_point_loads(time=time, bridge=c.bridge))
                 for v in mv_vehicles
             )
         )

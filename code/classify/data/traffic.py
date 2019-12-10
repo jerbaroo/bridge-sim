@@ -10,9 +10,7 @@ from model.scenario import TrafficScenario, to_traffic_array
 from util import print_i, safe_str
 
 
-def _traffic_name(
-    c: Config, traffic_scenario: TrafficScenario, max_time: float
-):
+def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float):
     return safe_str(
         f"{traffic_scenario.name} {c.il_num_loads} {max_time} {c.sensor_hz}"
     )
@@ -24,9 +22,7 @@ def load_traffic_array(
     """Load a 'TrafficArray' from disk, is is generated if necessary."""
     path = (
         c.get_traffic_path(
-            _traffic_name(
-                c=c, traffic_scenario=traffic_scenario, max_time=max_time
-            )
+            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time)
         )
         + ".npy"
     )
@@ -34,9 +30,7 @@ def load_traffic_array(
 
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path):
-        print_i(
-            f"Generating {max_time:.3f} of 'TrafficSequence' at {c.sensor_hz}Hz"
-        )
+        print_i(f"Generating {max_time:.3f} of 'TrafficSequence' at {c.sensor_hz}Hz")
         traffic_sequence, start_time = traffic_scenario.traffic_sequence(
             bridge=c.bridge, max_time=max_time
         )
@@ -61,6 +55,4 @@ if __name__ == "__main__":
 
     c = bridge_705_config(bridge_705_3d)
     traffic_scenario = normal_traffic(c, 5, 2)
-    load_traffic_array(
-        c=c, traffic_scenario=traffic_scenario, max_time=60 * 0.5
-    )
+    load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * 0.5)

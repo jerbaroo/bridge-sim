@@ -48,9 +48,7 @@ def convert_responses(
             for sim in parsed["strain"]
             for elem_id, srf_id, node_id, _ex, ey, _ez, gx, gy, gz, x, y, z in parsed[
                 "strain"
-            ][
-                sim
-            ]
+            ][sim]
         ]
 
     return results

@@ -46,9 +46,7 @@ for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
 # for _i in range(len(bridge_705_spans)):
 #     print(sum(bridge_705_spans[:_i + 1]))
-bridge_705_supports_2d = [
-    Fix(x / bridge_705_length, y=True) for x in bridge_705_piers
-]
+bridge_705_supports_2d = [Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
 
 
@@ -64,29 +62,10 @@ bridge_705_patches = [
 ]
 bridge_705_layers = [
     Layer(
-        y_min=-0.4,
-        y_max=-0.4,
-        z_min=-15,
-        z_max=15,
-        num_fibers=20,
-        area_fiber=4.9e-4,
+        y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15, num_fibers=20, area_fiber=4.9e-4,
     ),
-    Layer(
-        y_min=-8,
-        y_max=-8,
-        z_min=-4.5,
-        z_max=4.5,
-        num_fibers=10,
-        area_fiber=4.9e-4,
-    ),
-    Layer(
-        y_min=-9,
-        y_max=-9,
-        z_min=-4.5,
-        z_max=4.5,
-        num_fibers=10,
-        area_fiber=4.9e-4,
-    ),
+    Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
+    Layer(y_min=-9, y_max=-9, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
 ]
 
 
@@ -128,10 +107,7 @@ def bridge_705_2d(
 def load_bridge_705_deck_sections():
     with open("bridge705/bridge-705.org") as f:
         values = list(
-            map(
-                lambda l: list(map(float, l.split("|")[1:-1])),
-                f.readlines()[2:],
-            )
+            map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
     return [
         Section3D(
@@ -152,19 +128,21 @@ bridge_705_sections_3d = load_bridge_705_deck_sections()
 ##### 3D pier sections #####
 ############################
 
-
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
+
+pier_section_f = lambda start_frac_len: Section3DPier(
+    density=2.724,
+    thickness=np.interp(
+        start_frac_len, [0, 1], [pier_thickness_top, pier_thickness_bottom]
+    ),
+    youngs=38400,
+    poissons=0.2,
+    start_frac_len=start_frac_len,
+)
+
 num_pier_sections = 20
 bridge_705_pier_sections = [
-    Section3DPier(
-        density=2.724,
-        thickness=np.interp(
-            start_frac_len, [0, 1], [pier_thickness_top, pier_thickness_bottom]
-        ),
-        youngs=38400,
-        poissons=0.2,
-        start_frac_len=start_frac_len,
-    )
+    pier_section_f(start_frac_len)
     for start_frac_len in np.linspace(0, 1, num_pier_sections)
 ]
 
@@ -196,9 +174,7 @@ bridge_705_supports_z = [2.167 + 3.666 / 2]  # To first support + half support.
 # For remaining supports add space between support and support width.
 for _ in range(3):
     bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
-bridge_705_supports_z = list(
-    map(lambda x: x - half_width, bridge_705_supports_z)
-)
+bridge_705_supports_z = list(map(lambda x: x - half_width, bridge_705_supports_z))
 # Ignoring beginning and end of bridge.
 bridge_705_supports_3d = []
 for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
@@ -215,7 +191,8 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 height=3.5,
                 width_top=3.666,
                 width_bottom=1.8,
-                sections=bridge_705_pier_sections,
+                sections=pier_section_f,
+                # sections=bridge_705_pier_sections,
                 fix_x_rotation=True,
                 fix_y_rotation=True,
                 fix_z_rotation=False,
@@ -235,7 +212,7 @@ def bridge_705_3d(
     base_mesh_deck_nodes_x: int = 100,
     base_mesh_deck_nodes_z: int = 40,
     base_mesh_pier_nodes_y: int = 17,
-    base_mesh_pier_nodes_z: int = 16,
+    base_mesh_pier_nodes_z: int = 17,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.

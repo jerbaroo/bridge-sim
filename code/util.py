@@ -58,8 +58,7 @@ def nearest_index(array, value):
     """Return the index of the nearest value in a sorted array."""
     i = np.searchsorted(array, value, side="left")
     if i > 0 and (
-        i == len(array)
-        or math.fabs(value - array[i - 1]) < math.fabs(value - array[i])
+        i == len(array) or math.fabs(value - array[i - 1]) < math.fabs(value - array[i])
     ):
         return i - 1
     else:
@@ -103,8 +102,7 @@ def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
             map(
                 lambda line: list(map(float, line.split(","))),
                 filter(
-                    lambda line: len(line.split()) > min_spaces,
-                    f.readlines()[ignore],
+                    lambda line: len(line.split()) > min_spaces, f.readlines()[ignore],
                 ),
             )
         )

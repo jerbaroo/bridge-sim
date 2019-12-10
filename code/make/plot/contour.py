@@ -35,7 +35,7 @@ def plots_of_pier_displacement(c: Config):
     response_types = [ResponseType.YTranslation]
 
     for response_type in response_types:
-        for p, pier in enumerate(c.bridge.supports):
+        for p, pier in list(enumerate(c.bridge.supports))[:1]:
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
                 response_types=response_types, displacement_ctrl=pier_disp,
@@ -61,13 +61,14 @@ def plots_of_pier_displacement(c: Config):
                     )
                 ],
                 center_norm=True,
-                save=(
-                    c.get_image_path(
-                        "contour-pier-displacement",
-                        safe_str(f"{response_type.name()}-pier-{p}"),
-                    )
-                ),
             )
+            plt.savefig(
+                c.get_image_path(
+                    "contour-pier-displacement",
+                    safe_str(f"{response_type.name()}-pier-{p}"),
+                )
+            )
+            plt.close()
 
 
 def gradient_pier_displacement_plots(c: Config):
@@ -78,17 +79,13 @@ def gradient_pier_displacement_plots(c: Config):
         for displacement in np.array([0.1, 0.01]) / 1000:
             gradient_pier_displacement_plot(
                 c=c,
-                pier_disp=equal_pier_disp(
-                    bridge=c.bridge, displacement=displacement
-                ),
+                pier_disp=equal_pier_disp(bridge=c.bridge, displacement=displacement),
                 response_type=response_type,
                 title=f"{response_type.name()} when each pier is displaced by {displacement} m",
             )
 
         # Gradient pier displacement scenario.
-        for start, step in itertools.product(
-            [0.01, 0.02, 0.05], [0.01, 0.02, 0.05]
-        ):
+        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05]):
             start, step = np.array([start, step]) / 1000
             gradient_pier_displacement_plot(
                 c=c,
@@ -101,10 +98,7 @@ def gradient_pier_displacement_plots(c: Config):
 
 
 def gradient_pier_displacement_plot(
-    c: Config,
-    pier_disp: PierDispBridge,
-    response_type: ResponseType,
-    title: str,
+    c: Config, pier_disp: PierDispBridge, response_type: ResponseType, title: str,
 ):
     """Contour plot of piers displaced in an increasing gradient."""
 
@@ -120,9 +114,7 @@ def gradient_pier_displacement_plot(
     # Create empty traffic array and collect responses.
     response_array = responses_to_traffic_array(
         c=c,
-        traffic_array=np.zeros(
-            (1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)
-        ),
+        traffic_array=np.zeros((1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)),
         response_type=response_type,
         bridge_scenario=pier_disp,
         points=points,
@@ -132,16 +124,12 @@ def gradient_pier_displacement_plot(
     top_view_bridge(c.bridge, abutments=True, piers=True)
     responses = Responses.from_responses(
         response_type=response_type,
-        responses=[
-            (response_array[0][p], point) for p, point in enumerate(points)
-        ],
+        responses=[(response_array[0][p], point) for p, point in enumerate(points)],
     )
     plot_contour_deck(c=c, responses=responses, center_norm=True)
     plt.title(title)
     plt.savefig(
-        c.get_image_path(
-            "pier-scenarios", f"pier-displacement-{safe_str(title)}"
-        )
+        c.get_image_path("pier-scenarios", f"pier-displacement-{safe_str(title)}")
     )
     plt.close()
 
@@ -149,16 +137,17 @@ def gradient_pier_displacement_plot(
 def comparison_plots_705(c: Config):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
+        (35, 25 - 16.6, None),
         (34.95459, 29.22606 - 16.6, "a"),
         (51.25051, 16.6 - 16.6, "b"),
         (92.40638, 12.405 - 16.6, "c"),
         (101.7649, 3.973938 - 16.6, "d"),
     ]
-    response_types = [ResponseType.YTranslation]
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # For each response type and loading position first create contour plots for
     # OpenSees. Then finally create subplots comparing to Diana.
     for response_type in response_types:
-        for load_x, load_z, label in positions:
+        for load_x, load_z, label in positions[:1]:
             loads = [
                 PointLoad(
                     x_frac=c.bridge.x_frac(load_x),
@@ -170,9 +159,7 @@ def comparison_plots_705(c: Config):
                 c=c,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                sim_params=SimParams(
-                    ploads=loads, response_types=response_types
-                ),
+                sim_params=SimParams(ploads=loads, response_types=response_types),
             )
             title = (
                 f"{response_type.name()} from a {loads[0].kn} kN point load"
@@ -187,10 +174,7 @@ def comparison_plots_705(c: Config):
             # Plot once without colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
-                c=c,
-                responses=fem_responses,
-                ploads=loads,
-                title=title,
+                c=c, responses=fem_responses, ploads=loads, title=title,
             )
             plt.savefig(save(""))
             plt.close()
@@ -208,13 +192,14 @@ def comparison_plots_705(c: Config):
             plt.close()
 
             # Finally create label/title the Diana plot.
-            di_img = mpimg.imread(f"data/verification/diana-{label}.png")
-            plt.imshow(di_img)
-            plt.title(title)
-            plt.xlabel("x position (mm)")
-            plt.ylabel("z position (mm)")
-            plt.savefig(save("diana-"))
-            plt.close()
+            if label is not None:
+                di_img = mpimg.imread(f"data/verification/diana-{label}.png")
+                plt.imshow(di_img)
+                plt.title(title)
+                plt.xlabel("x position (mm)")
+                plt.ylabel("z position (mm)")
+                plt.savefig(save("diana-"))
+                plt.close()
 
 
 def plot_of_unit_loads(c: Config):
@@ -226,15 +211,11 @@ def plot_of_unit_loads(c: Config):
         X.append([])
         Z.append([])
         R.append([])
-        for z in np.linspace(
-            c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)
-        ):
+        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)):
             pload = PointLoad(
                 x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=100
             )
-            fem_params = SimParams(
-                ploads=[pload], response_types=[response_type]
-            )
+            fem_params = SimParams(ploads=[pload], response_types=[response_type])
             fem_responses = load_fem_responses(
                 c=c,
                 fem_params=fem_params,

@@ -157,9 +157,7 @@ class Events:
         }
         # Traffic simulation IDs for each BridgeScenario.
         traffic_dict = {
-            bridge_scenario: set(
-                map(lambda x: x[1], events_dict[bridge_scenario])
-            )
+            bridge_scenario: set(map(lambda x: x[1], events_dict[bridge_scenario]))
             for bridge_scenario in bridge_scenarios
         }
         # Traffic simulation IDs used in all BridgeScenarios.

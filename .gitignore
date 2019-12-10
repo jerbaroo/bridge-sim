@@ -1,7 +1,9 @@
+# System
 .DS_Store
 *.swp
 *.tb
-*.auctex-auto
+
+# Python
 *.egg-info/
 .idea/
 .mypy_cache/
@@ -12,11 +14,14 @@ venv/
 code/config_sys.py
 generated*/
 
-# Diana related
+# Diana
 diana*.out
 diana.ff
 diana*.dat
 
-# Axis related
+# Axis
 *.axr
 **/Revisions/
+
+# Private
+thesis-questions/

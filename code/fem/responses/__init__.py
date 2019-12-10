@@ -72,9 +72,7 @@ def load_fem_responses(
                 set_y_false = True
 
     path = _responses_path(
-        sim_runner=sim_runner,
-        sim_params=sim_params,
-        response_type=response_type,
+        sim_runner=sim_runner, sim_params=sim_params, response_type=response_type,
     )
 
     # Run an experiment with a single FEM simulation.
@@ -102,9 +100,7 @@ def load_fem_responses(
         response_type=response_type,
         responses=responses,
     )
-    print_prog(
-        f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})"
-    )
+    print_prog(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
     return fem_responses
 
@@ -121,9 +117,7 @@ class Responses:
     def __init__(self, response_type: ResponseType):
         self.response_type = response_type
         # Nested dictionaries for indexing responses by position.
-        self.responses = defaultdict(
-            lambda: defaultdict(lambda: defaultdict(dict))
-        )
+        self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 
     def index(self):
         """Create attributes for fast indexing of times and positions."""
@@ -132,8 +126,7 @@ class Responses:
         self.xs = sorted(points.keys())
         self.ys = {x: sorted(points[x].keys()) for x in self.xs}
         self.zs = {
-            x: {y: sorted(points[x][y].keys()) for y in self.ys[x]}
-            for x in self.xs
+            x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
         }
 
     def values(self):
@@ -143,7 +136,8 @@ class Responses:
                 for response in z_dict.values():
                     if hasattr(response, "value"):
                         yield response.value
-                    return response
+                    else:
+                        yield response
 
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):
@@ -195,7 +189,7 @@ class FEMResponses(Responses):
         self.sim_runner = sim_runner
         self.num_sensors = len(responses)
 
-        if not skip_index:
+        if True or not skip_index:
             for r in responses:
                 self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
             self.index()

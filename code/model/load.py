@@ -167,9 +167,7 @@ class MvVehicle(Vehicle):
         lane: Optional["Lane"] = None,
         init_x_frac: Optional[float] = None,
     ):
-        super().__init__(
-            kn=kn, axle_distances=axle_distances, axle_width=axle_width
-        )
+        super().__init__(kn=kn, axle_distances=axle_distances, axle_width=axle_width)
         self.kmph = kmph
         self.mps = self.kmph / 3.6  # Meters per second.
         self.lane = lane
@@ -280,9 +278,7 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
-    def to_point_loads(
-        self, time: float, bridge: Bridge
-    ) -> List[Tuple[float, float]]:
+    def to_point_loads(self, time: float, bridge: Bridge) -> List[Tuple[float, float]]:
         """A tuple of point load per axle, one for each wheel."""
         z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
         assert z0 < z1

@@ -120,7 +120,7 @@ class Support3D:
         height: float,
         width_top: float,
         width_bottom: float,
-        sections: List["Section3DPier"],
+        sections: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
         fix_x_translation: bool = True,
         fix_y_translation: bool = True,
         fix_z_translation: bool = True,
@@ -141,8 +141,10 @@ class Support3D:
         self.fix_y_rotation = fix_y_rotation
         self.fix_z_rotation = fix_z_rotation
         self.sections = sections
-        for s in self.sections:
-            assert isinstance(s, Section3DPier)
+        # Must be callable or a list.
+        if not callable(self.sections):
+            assert isinstance(self.sections, list)
+            assert all(isinstance(s, Section3DPier) for s in self.sections)
         if self.width_top < self.width_bottom:
             raise ValueError("Support3D: top width must be >= bottom width")
 
@@ -316,9 +318,7 @@ class Section2D:
         self.patches = patches
         self.layers = layers
 
-    def _min_max(
-        self, direction: Callable[[Point], float]
-    ) -> Tuple[float, float]:
+    def _min_max(self, direction: Callable[[Point], float]) -> Tuple[float, float]:
         """The min and max values (in given direction) for this section."""
         _min, _max = np.inf, -np.inf
         for layer in self.layers:
@@ -372,6 +372,10 @@ class Section3D:
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
 
+    def id_str(self):
+        """Representation of this section by material properties."""
+        return f"{self.density}-{self.thickness}-{self.youngs}-{self.poissons}"
+
     def y_min_max(self) -> Tuple[float, float]:
         """The min and max values in y for this section."""
         return -self.thickness, 0
@@ -410,10 +414,7 @@ class Section3DPier(Section3D):
         start_frac_len: float,
     ):
         super().__init__(
-            density=density,
-            thickness=thickness,
-            youngs=youngs,
-            poissons=poissons,
+            density=density, thickness=thickness, youngs=youngs, poissons=poissons,
         )
         self.start_frac_len = start_frac_len
 
@@ -458,9 +459,10 @@ class Bridge:
         lanes: List[Lane],
         dimensions: Dimensions,
         base_mesh_deck_nodes_x: int,
-        base_mesh_deck_nodes_z: Optional[int] = None,
-        base_mesh_pier_nodes_y: Optional[int] = None,
-        base_mesh_pier_nodes_z: Optional[int] = None,
+        base_mesh_deck_nodes_z: int,
+        base_mesh_pier_nodes_y: int,
+        base_mesh_pier_nodes_z: int,
+        nodes_at_mat_props: bool = False,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
         # Given arguments.
@@ -474,10 +476,12 @@ class Bridge:
         self.dimensions = dimensions
 
         # Mesh.
+        # TODO: All arguments start with mesh_.
         self.base_mesh_deck_nodes_x = base_mesh_deck_nodes_x
         self.base_mesh_deck_nodes_z = base_mesh_deck_nodes_z
         self.base_mesh_pier_nodes_y = base_mesh_pier_nodes_y
         self.base_mesh_pier_nodes_z = base_mesh_pier_nodes_z
+        self.nodes_at_mat_props = nodes_at_mat_props
 
         # Attach single section option for asserts and printing info.
         self.single_sections = single_sections
@@ -507,21 +511,37 @@ class Bridge:
         # Assert the bridge is fine and print info.
         # TODO Move to another file.
         self._assert_bridge()
-        self.print_info()
 
-    def print_info(self):
+    def print_info(self, pier_fix_info: bool = False):
+        """Print summary information about this bridge.
+
+        Args:
+            fix_info: print information on pier's fixed nodes.
+
+        """
         print_s(
             f"Bridge dimensions:"
-            + f"\n\tx = ({self.x_min}, {self.x_max})"
-            + f"\n\ty = ({self.y_min}, {self.y_max})"
-            + f"\n\tz = ({self.z_min}, {self.z_max})"
+            + f"\n  x = ({self.x_min}, {self.x_max})"
+            + f"\n  y = ({self.y_min}, {self.y_max})"
+            + f"\n  z = ({self.z_min}, {self.z_max})"
         )
         if self.single_sections:
             print_s(
-                f"Single section:"
-                + f"\n\tdeck = {self.sections[0]}"
-                + f"\n\tpier = {self.supports[0].sections[0]}"
+                f"Single section per deck and pier:"
+                + f"\ndeck = {self.sections[0]}"
+                + f"\npier = {self.supports[0].sections[0]}"
             )
+        if pier_fix_info:
+            for p, pier in enumerate(self.supports):
+                print_s(
+                    f"Pier {p} fixed:"
+                    f"\n  x-trans {pier.fix_x_translation}"
+                    f"\n  y-trans {pier.fix_y_translation}"
+                    f"\n  z-trans {pier.fix_z_translation}"
+                    f"\n  x-rot   {pier.fix_x_rotation}"
+                    f"\n  y-rot   {pier.fix_y_rotation}"
+                    f"\n  z-rot   {pier.fix_z_rotation}"
+                )
 
     def id_str(self, acc: bool = True):
         """Name with dimensions attached.
@@ -560,9 +580,7 @@ class Bridge:
 
     def x_axis(self) -> List[float]:
         """Position of supports in meters along the bridge's x-axis."""
-        return np.interp(
-            [f.x_frac for f in self.supports], [0, 1], [0, self.length]
-        )
+        return np.interp([f.x_frac for f in self.supports], [0, 1], [0, self.length])
 
     def x_axis_equi(self, n) -> List[float]:
         """n equidistant values along the bridge's x-axis, in meters."""
@@ -570,16 +588,12 @@ class Bridge:
 
     def x_frac(self, x: float):
         return float(
-            interp1d(
-                [self.x_min, self.x_max], [0, 1], fill_value="extrapolate"
-            )(x)
+            interp1d([self.x_min, self.x_max], [0, 1], fill_value="extrapolate")(x)
         )
 
     def x(self, x_frac: float):
         return float(
-            interp1d(
-                [0, 1], [self.x_min, self.x_max], fill_value="extrapolate"
-            )(x_frac)
+            interp1d([0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac)
         )
 
     def y_frac(self, y: float):
@@ -600,9 +614,7 @@ class Bridge:
 
     def _min_max(
         self,
-        f: Callable[
-            [Union[Support, Section]], Tuple[Optional[float], Optional[float]]
-        ],
+        f: Callable[[Union[Support, Section]], Tuple[Optional[float], Optional[float]]],
     ) -> Tuple[float, float]:
         """The min and max values in a direction from supports and sections."""
         z_min, z_max = None, None
@@ -683,9 +695,7 @@ class Bridge:
         if self.supports and not self.supports[0].x:
             # TODO: Remove first check in line above.
             # TODO: Check self.supports[0].x_frac == 0.
-            raise ValueError(
-                "2D bridge must have node at x=0 fixed in x direction"
-            )
+            raise ValueError("2D bridge must have node at x=0 fixed in x direction")
 
         # 2D bridge has exactly 1 section.
         if len(self.sections) != 1:

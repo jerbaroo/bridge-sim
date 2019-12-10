@@ -118,9 +118,9 @@ def test_events_class():
     metadata = events.metadata.load()
     assert len(metadata) == len(at) * len(response_types) * iterations
     for i in range(iterations):
-        assert len(
-            [x for x in list(metadata["param-sim-num"]) if x == i]
-        ) == len(at) * len(response_types)
+        assert len([x for x in list(metadata["param-sim-num"]) if x == i]) == len(
+            at
+        ) * len(response_types)
 
     # Test events.num_events.
     for a in range(len(at)):
@@ -169,7 +169,5 @@ def test_events_class():
         num_vehicles=num_vehicles,
     )
     assert len(set(events.metadata.load()["bridge-scenario"])) == 2
-    assert "displacement-0.1m-pier-1" in set(
-        events.metadata.load()["bridge-scenario"]
-    )
+    assert "displacement-0.1m-pier-1" in set(events.metadata.load()["bridge-scenario"])
     print(events.metadata.load())

@@ -75,7 +75,7 @@ def diana_response(sensor_label: str, truck_x: float):
     return diana_interp_funcs[sensor_label](truck_x)
 
 
-def sensor_subplots(
+def per_sensor_plots(
     c: Config,
     rows: int = 5,
     cols: int = 2,
@@ -84,6 +84,7 @@ def sensor_subplots(
     """Compare the bridge 705 measurement campaign to Diana and OpenSees.
 
     TODO: Move to plot.verification.705
+
     """
     size = 25  # Size of scatter plot points.
 
@@ -94,14 +95,10 @@ def sensor_subplots(
     # All strain measurements from TNO sensors (label start with "T"), except
     # ignore sensor T0 since no diana predictions are available.
     tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
-    tno_strain_meas = tno_strain_meas.loc[
-        tno_strain_meas["sensorlabel"] != "T0"
-    ]
+    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
 
     # Sort by sensor number and setup groupby sensor label.
-    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(
-        lambda x: int(x[1:])
-    )
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     tno_strain_meas = tno_strain_meas.sort_values(by=["sort"])
     strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
 
@@ -110,8 +107,7 @@ def sensor_subplots(
     for sensor_label, meas_group in strain_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         responses = (
-            diana_group["infline1"].to_list()
-            + meas_group["inflinedata"].to_list()
+            diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
         )
         amin = min(amin, np.amin(responses))
         amax = max(amax, np.amax(responses))
@@ -152,9 +148,7 @@ def sensor_subplots(
         if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification",
-                    filename=f"strain-{plot_i}",
-                    acc=False,
+                    dirname="verification", filename=f"strain-{plot_i}", acc=False,
                 )
             )
             plt.close()
@@ -196,8 +190,7 @@ def sensor_subplots(
     for sensor_label, meas_group in displa_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         responses = (
-            diana_group["infline1"].to_list()
-            + meas_group["inflinedata"].to_list()
+            diana_group["infline1"].to_list() + meas_group["inflinedata"].to_list()
         )
         amin = min(amin, np.amin(responses))
         amax = max(amax, np.amax(responses))
@@ -227,10 +220,7 @@ def sensor_subplots(
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.scatter(
-            diana_group["xpostruck"],
-            diana_group["infline1"],
-            s=size,
-            label="Diana",
+            diana_group["xpostruck"], diana_group["infline1"], s=size, label="Diana",
         )
 
         # Plot values from OpenSees.
@@ -261,9 +251,7 @@ def sensor_subplots(
         if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification",
-                    filename=f"displa-{plot_i}",
-                    acc=False,
+                    dirname="verification", filename=f"displa-{plot_i}", acc=False,
                 )
             )
             plt.close()
@@ -327,8 +315,7 @@ def r2_plots(c: Config):
             response_type=ResponseType.YTranslation,
             bridge_scenario=HealthyBridge(),
             points=[
-                Point(x=sensor_x, y=0, z=sensor_z)
-                for _, sensor_x, sensor_z in sensors
+                Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
             sim_runner=OSRunner(c),
         )
@@ -506,8 +493,7 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     if run:
         with open(path + ".txt", "w") as f:
             f.write(
-                "xload,zload,xnodes,znodes,decknodes,piernodes,time,"
-                + "min,max,mean"
+                "xload,zload,xnodes,znodes,decknodes,piernodes,time," + "min,max,mean"
             )
         steps = 100
         xs = np.linspace(2, c.bridge.length * 4, steps)
@@ -614,10 +600,7 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
             results[machine_name][(x_load, z_load)] = list(
-                map(
-                    np.array,
-                    [basex, basez, mins, maxes, means, time, ndeck, npier],
-                )
+                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier],)
             )
 
     ########################################
@@ -628,21 +611,13 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            ax1.plot(ndeck + npier, mins * 1000, color="red", label="Min. response")
             ax1.plot(
-                ndeck + npier, mins * 1000, color="red", label="Min. response"
-            )
-            ax1.plot(
-                ndeck + npier,
-                maxes * 1000,
-                color="orange",
-                label="Max. response",
+                ndeck + npier, maxes * 1000, color="orange", label="Max. response",
             )
             ax2 = plt.gca().twinx()
             ax2.plot(
-                ndeck + npier,
-                means * 1000,
-                color="green",
-                label="Mean response",
+                ndeck + npier, means * 1000, color="green", label="Mean response",
             )
 
     plt.title("Displacement as a function of model size")
@@ -690,3 +665,50 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     plt.legend()
     plt.savefig(c.get_image_path("verification", "run-time", bridge=False))
     plt.close()
+
+
+def axis_comparison(c: Config):
+    """"""
+    if len(c.bridge.sections) > 1:
+        raise ValueError("Bridge deck has more than one section")
+    for pier in c.bridge.supports:
+        if len(pier.sections) > 1:
+            raise ValueError("Bridge pier has more than one section")
+
+    ###############################
+    ###### Point load plots #######
+    ###############################
+
+    positions = [(35, 25 - 16.6)]
+    response_types = [ResponseType.YTranslation]
+    for response_type in response_types:
+        for load_x, load_z in positions:
+            loads = [
+                PointLoad(
+                    x_frac=c.bridge.x_frac(load_x),
+                    z_frac=c.bridge.z_frac(load_z),
+                    kn=100,
+                )
+            ]
+            fem_responses = load_fem_responses(
+                c=c,
+                response_type=response_type,
+                sim_runner=OSRunner(c),
+                sim_params=SimParams(ploads=loads, response_types=response_types),
+            )
+            title = (
+                f"{response_type.name()} from a {loads[0].kn} kN point load"
+                + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
+            )
+            save = lambda prefix: c.get_image_path(
+                "contour-axis-comparison",
+                safe_str(
+                    f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
+                ),
+            )
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plot_contour_deck(
+                c=c, responses=fem_responses, ploads=loads, title=title,
+            )
+            plt.savefig(save(""))
+            plt.close()

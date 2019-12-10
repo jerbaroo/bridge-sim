@@ -86,10 +86,7 @@ def animate_traffic_top_view(
             time=time_index * time_step + start_time,
         )
         contour_cmap = plot_contour_deck(
-            c=c,
-            responses=traffic_responses[time_index],
-            y=0,
-            norm=response_norm,
+            c=c, responses=traffic_responses[time_index], y=0, norm=response_norm,
         )
         plt.xlim((bridge.x_min, bridge.x_max))
 
@@ -106,14 +103,11 @@ def animate_traffic_top_view(
         plt.gcf().subplots_adjust(right=0.75)
         cbar_ax = plt.gcf().add_axes([0.80, 0.1, 0.01, 0.8])
         cbar = plt.gcf().colorbar(
-            cm.ScalarMappable(norm=response_norm, cmap=contour_cmap),
-            cax=cbar_ax,
+            cm.ScalarMappable(norm=response_norm, cmap=contour_cmap), cax=cbar_ax,
         )
         cbar.set_label(response_type.units(short=False))
 
-    animate_traffic(
-        traffic=traffic, time_step=time_step, plot_f=plot_f, save=save
-    )
+    animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)
 
 
 def animate_traffic(

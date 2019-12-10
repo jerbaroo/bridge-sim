@@ -225,6 +225,43 @@ Part of this loop is independent, so can factor it out
 *** TODO How to argue value of 2D model
 *** TODO Look at numba
 ** Next meeting
+*** DONE Goals on paper
+CLOSED: [2019-12-05 Thu 15:26]
+- 12th Dec: presentation
+- 13th Dec: submit literature review
+- Two weeks working at home
+  - Focus on writing
+*** DONE Stress/Strain TCL file
+CLOSED: [2019-12-05 Thu 15:26]
+*** TODO Ask about VPN login
+**** TODO Talk to tech guy
+*** TODO AxisVM pier displacement
+- Axis converges faster due to second order shape function
+- Check mesh has converged in Axis
+- Plot deflection in one longitudinal line to see the < 1m part
+- Refine deck mesh between piers
+*** TODO Temperature load
+- Let's have a look on Monday
+- Thickness -> Young's -> Thermal expansion coefficient ?
+- Two components:
+  axial component
+  bending moment component
+*** DONE Mean in convergence plot
+CLOSED: [2019-12-05 Thu 15:45]
+- Calculating over a grid makes sense
+- Because additional nodes near the point load will influence the mean
+*** DONE OpenSees in parallel
+CLOSED: [2019-12-05 Thu 15:45]
+*** DONE Axis: Look at pier displacement I messed up
+CLOSED: [2019-12-05 Thu 15:46]
+*** DONE Go over fixed nodes in TCL & in Axis
+CLOSED: [2019-12-05 Thu 15:49]
+**** TODO: Check fixed values of abutments, usually rollers
+*** TODO Go over Valeria's notes
+*** TODO Check linear function of peirs for thickness
+** Next meeting
+*** TODO +- 1/srtq(3) = 0.57?
+*** TODO If responses are at midpoints than displacements recorded there?
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -373,3 +410,6 @@ CLOSED: [2019-11-07 Thu 10:46]
 ** 25th November
 *** TODO Collect strain
 *** TODO Verification: regression plot
+** 9th December
+*** TODO Run one-class SVM on pier displacement vs healthy
+*** TODO

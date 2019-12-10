@@ -48,11 +48,7 @@ def convert_responses_2d(
             return [
                 Response(
                     val,
-                    x=(
-                        c.bridge.x_min
-                        + (i * c.os_node_step)
-                        + (c.os_node_step / 2)
-                    ),
+                    x=(c.bridge.x_min + (i * c.os_node_step) + (c.os_node_step / 2)),
                     y=point.y,
                     z=point.z,
                     time=time,
@@ -60,14 +56,9 @@ def convert_responses_2d(
                     section_id=section_id,
                     fiber_cmd_id=fiber_cmd_id,
                 )
-                for _, (
-                    val,
-                    i,
-                    section_id,
-                    time,
-                    fiber_cmd_id,
-                    point,
-                ) in enumerate(stress)
+                for _, (val, i, section_id, time, fiber_cmd_id, point,) in enumerate(
+                    stress
+                )
             ]
 
         if ResponseType.Stress in sim_responses:

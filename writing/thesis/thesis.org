@@ -1,11 +1,18 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Modeling a decision support system for maintenance of concrete slab bridges
+#+TITLE: Simulation-based anomaly detection of concrete slab bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{commath}
+#+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
+#+LATEX: \newpage
+#+LATEX: \section*{Acknowledgements}
+#+LATEX: \thispagestyle{empty}
+I would like to thank...
+
+\textcolor{red}{TODO: Acknowledgements}
 #+LATEX: \newpage
 #+LATEX: \tableofcontents
 #+LATEX: \newpage
@@ -16,20 +23,20 @@
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
-#+LATEX: \section*{Acknowledgements}
-#+LATEX: \thispagestyle{empty}
-I would like to thank...
-#+LATEX: \newpage
-
 * Introduction
 # Motivation of the research question.
 The probability of a bridge to fail increases over time until it is no longer
 considered safe for use. Maintenance of a bridge is typically carried out when
 something goes wrong or according to a preventative maintenance schedule based
 on expert knowledge, neither approach making the best use of limited maintenance
-resources. Sensors can provide real-time information without the delay or cost
-of a manual maintenance check. What are the costs and benefits of installing a
-decision support system (DSS) based on real-time sensor data for the purpose of
+resources. The Nanfang'ao bridge collapse in which six people were killed and
+more were injured is a recent example of the importance of maintainence of civil
+infrastructure, the bridge was only twenty years old.
+
+# Let's use sensors!
+Sensors can provide real-time information without the delay or cost of a manual
+maintenance check. What are the costs and benefits of installing a decision
+support system (DSS) based on real-time sensor data for the purpose of
 maintenance of a no-prestress no-postension concrete slab bridge? This question
 is the topic of this thesis, to answer it we need to answer a few sub questions.
 What analyses of sensor data do and do not provide valuable information to the
@@ -47,6 +54,11 @@ thereof. The primary aim of the analysis techniques applied to sensor data in
 this thesis are to classify data in two states, a normal or healthy state, and
 an abnormal or damaged state.
 
+# Structural health monitoring typically finds damage has occured.
+Structural health monitoring (SHM) is a term used to describe a range of system
+implemented on civil infrastructure for the purpose of assisting and informing
+about the structure's "fitness of purpose".
+
 # Necessary to simulate sensor data with a FEM.
 In the development of a DSS for bridge maintenance it is **necessary to have
 sensor data** corresponding to both the damaged and undamaged states of the
@@ -55,6 +67,10 @@ unsurprisingly not permitted to impose a damaged state on a bridge. The use of
 finite element (FE) software allows us to create simulated sensor data via a
 finite element model (FEM) of a bridge on which different damage states can be
 imposed.
+
+Because nearly every structure in civil infrastructure is unique a major part of
+any SHM system has to be geared towards long term evaluation of what is "normal"
+of "healthy" performance of the system cite:aktan2001monitoring.
 
 # A FEM (sensor data) is different from reality.
 A FEM is a model of a structure in software. All models are wrong
@@ -186,13 +202,16 @@ of installing a decision support system for bridge maintenance.
   # at equivalent positions on each substructure.
 
 #+LATEX: \clearpage
-* Terminology & Preliminaries
+* Preliminaries
 ** Abbreviations
-| ANN      | Artificial neural network                         |
-| DSS      | Decision support software                         |
-| FEM      | Finite element model                              |
-| NDE      | Non-disruptive evaluation                         |
-| OpenSees | Open System for Earthquake Engineering Simulation |
+| ANN      | Artificial neural network                                     |
+| DSS      | Decision support software                                     |
+| FEM      | Finite element model                                          |
+| NDE      | Non-disruptive evaluation                                     |
+| NDW      | (Netherlands) National Data Warehouse for Traffic Information |
+| OpenSees | Open System for Earthquake Engineering Simulation             |
+| RNN      | Recurrent Neural Network                                      |
+| PyPI     | Python Package Index                                          |
 #+LATEX: \newpage
 ** Definitions
 | =Bridge=            | Model of a concrete slab bridge's geometry          |
@@ -204,24 +223,25 @@ of installing a decision support system for bridge maintenance.
 # Imperative and declarative.
 Pseudocode in this thesis is given in two formats. For code written in an
 imperative style the pseudocode will closely resemble the syntax of Python. For
-declarations of data the pseudocode will resemble the syntax of Haskell. For
-most people the syntax of Python, or a similar imperative style language, will
+type declarations the pseudocode will resemble the syntax of Haskell. For most
+people the syntax of Python, or a similar imperative style language, will
 already be familiar. The syntax for data declarations used in this thesis is
 presented below in Listing [[lst:haskell]].
 
 #+NAME: lst:haskell
-#+CAPTION: Pseudocode for data declarations used in this thesis.
+#+CAPTION[Pseudocode example for type declarations]: Pseudocode example for type
+declarations used in this thesis. This pseudocode declares a type for describing
+a vehicle in terms of two pieces of data, a list of axle distance and a list of
+loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type
+=bar=. The square brackets represent the list type and the curly brackets
+represent a tuple type.
 #+BEGIN_SRC haskell
--- | A person as a combination of name and phone number.
-data Person {
-    name  :: String
-  , phone :: Phone
-  }
-
--- | Representation of a phone number as two integers.
-data Phone = {
-    prefix :: Integer
-  , local  :: Integer
+-- A vehicle as a list of axle distances and wheel loads.
+data Vehicle {
+    -- Distance betwen each pair of axles.
+    axleDistances :: [Float],
+    -- A tuple per axle, of wheel load intensity in kilo Newton.
+    wheelLoads :: [(Float, Float)]
   }
 #+END_SRC
 
@@ -235,7 +255,121 @@ function =bar= which takes a list of =Float= as input and returns a value of
 type =Int=".
 
 #+LATEX: \clearpage
-* Background & Motivation
+* Literature Review
+# Introduction.
+The goal of this Section is to summarise the existing body of work related to
+the subject area of this thesis. This Section thus outlines the existing work on
+damage identification of civil infrastructure, traffic and bridge simulations,
+and real-life installations of sensors on bridges for the purpose of structural
+health monitoring.
+
+# Damage identification: vibration and modal properties: assumptions made.
+A significant amount of the research into damage identification of civil
+infrastructure is based on vibration data and modal properties, with methods on
+changes in a shift in natural frequency cite:stubbs2000global or change in mode
+shape cite:pandey1991damage. The location of damage on a computer model of a
+reinforced concrete bridge is identified based on a combination of modal
+properties in cite:dilena2011dynamic. In each of these cases the research is
+based on a controlled lab experiment and the assumption is made that the type of
+damage is limited to the type being identified. Damage was applied to a girder
+bridge and the mode shapes used to detect the location of damage, however the
+location was only detectable once the damage increased to a point that the
+bridge would have collapsed under a live load cite:doebling1998statistical.
+
+# Additional methods of damage identification.
+Additional methods of damage identification of civil infrastructure include the
+matrix update method, Bayes theorem, and neural networks. Damage identification
+based on the matrix update method cite:doebling1996damage is a model-based
+method that attempts to minimize the difference between the measured and model
+responses by an optimization technique that modifies a matrix representing model
+properties, such as the stiffness matrix. A problem with this method is that the
+optimization it not unique and the baseline matrix is possibly inaccurate. A
+Bayesian probabilistic approach was applied to a reinforced-concrete bridge
+column cite:sohn2000bayesian, this method compared the relative damage
+probabilites of different damage events based on data from vibration tests.
+Methods based on ANNs cite:yeung2005damage are based on labeled training data
+for different damage types, these methods depend largely on the quality of
+training data.
+
+# Damage localization and assessment (levels 2 and 3): have limitations.
+The most basic form of damage identification is determining whether damage has
+occured or not (detection). SHM methods that attempt to determine the location
+(localization) or extent (assessment) of the damage require either severe damage
+or make assumptions about the type of damage cite:peter2003review. While an SHM
+system should be capable of a minimal amount of condition assessment (CA) the
+more likely scenario is an additional investigation for CA is triggered by the
+system cite:brownjohn2006structural.
+
+# ML for SHM: prediction (level 4) not possible.
+A number of damage identification experiments were applied on an aircraft wing
+showing damage localization and assessment to be possible with machine learning
+methods cite:worden2006application, however the experiments were in a controlled
+lab setting without environmental factors present. The same paper argues that
+damage prediction cannot be addressed by machine learning methods in general.
+\textcolor{red}{why}
+
+# Unsupervised learning for damage detection.
+A clustering approach was applied to detect damaged joints on the Syndey Harbour
+Bridge (SHB) cite:diez2016clustering. This method attempts to group joints with
+similar behaviour and then detect damage when a sensor's responses are different
+from those in its group. This method succesfully detected a damaged joint and a
+joint with a damaged sensor.
+
+# Detecting faulty sensors.
+Damaged sensors can be considered a special class of damage that is very
+important to identify because faulty data can interfere with damage detection of
+a structure. Damaged sensors can be detected via sensor data reconstruction. In
+this approach the sensor data is reconstructed based on spatial and temporal
+correlations among the sensor network. If there are discrepancies between the
+measurement data and the reconstructed data then the sensor may be faulty.
+Spatial correlations are used to reconstruct sensor data via principal component
+analysis cite:kerschen2004sensor, minimum mean square error estimation
+cite:kullaa2010sensor, support vector regression cite:law2017data and ANNs
+cite:mattern1998using,xu1999sensor. cite:moustapha2008wireless use a recurrent
+neural network (RNN) that takes into account spatial and past temporal data. In
+citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
+future temporal correlations.
+
+# Feature extraction.
+To avoid incorrect detection of anomalies due to environmental factors such as
+temperature, the feature extraction of data is very important in SHM. Feature
+extraction is arguably the most important and difficult step in ML-based health
+monitoring cite:worden2006application. The temperature across a bridge deck was
+measured during a 24 hour cycle and correlated with the bridge's natural
+frequencies in cite:doebling1997using. A machine learning algorithm based on PCA
+is presented in cite:ye2018integrated for separating the individual components
+of the deflection signal. An auto-associateive neural network is employed for
+separating the effect of damage in extracted features from that caused by the
+environmental variations of the system cite:sohn2002statistical.
+
+# Sensitivity to noise.
+When the noise level was under 10%, each individual component (temperature, live
+load, structural damage) was succesfully separated based on data from a computer
+model of a long-span bridge.
+
+# Traffic simulations for damage detection on bridges.
+Data for damage detection on bridges can be collected in simulation. In doing
+so, some traffic on the bridge must be simulated in order to collect a response
+from the structure. Damage detection on bridges using neural networks was based
+on simulated vibration data in cite:yeung2005damage, in this case the "traffic"
+was simply a single truck simulated with two point loads, one per axle, and
+moving at different speeds in different simulations.
+
+# Bridge simulations.
+
+# Sensor installations for SHM.
+
+
+#+LATEX: \newpage
+* Motivation
+The Literature Review provided information on /what/ has already been achieved
+in the subject area of this thesis. This Section however focuses on the question
+of /why/. Why should sensors be installed on concrete slab bridges for the
+purpose of anomaly detection? This Section will provide background information
+to the reader, answering this questin and motivating this thesis. Doing so this
+Section will examine the different types of Bridges, types of damage that occur,
+how health monitoring takes place, and why an extensible system for researching
+damage detection on bridges is desirable.
 ** Existing Bridges
 # Dutch road network overview.
 The Dutch national main road network consists of 3,200km of road. Assets in the
@@ -338,7 +472,54 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Types of Damage
+** Damage Scenarios
+Damage scenarios can be classified as short-term or long-term. Short-term damage
+scenarios are defined as a change of the properties of structural materials and
+elements, and of the behaviour of the whole structure, due to effects that occur
+during a very short period of time. Long-term scenarios are time-dependent and
+may not only be related to external factors but also due to a change of state of
+materials with time. Tables [[table:short-term-events]] and [[table:long-term-events]]
+cite:sousa2019tool outline some of the predominant types of damage due to
+short-term and long-term scenarios respectively.
+
+\textcolor{red}{TODO: Factor examples/consequences out of table}
+#+NAME: table:short-term-events
+#+CAPTION: Types of damage due to short-term events.
+| Event                       | Examples/Consequences                                                        | Critical component |
+|-----------------------------+------------------------------------------------------------------------------+--------------------|
+| Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
+| Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
+| Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
+| Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
+| Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
+| Excessive vibration         | Earthquake                                                                   | Pier               |
+| Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
+
+#+NAME: table:long-term-events
+#+CAPTION: Types of damage due to long-term events.
+| Event                        | Examples/Consequences                                  | Critical component |
+|------------------------------+--------------------------------------------------------+--------------------|
+| Corrosion                    | Degradation of the bearings                            | Deck               |
+|                              | Loss of cross-section area in the prestressing tendons | Deck               |
+| Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
+| the structural materials     | Concrete deterioration                                 | All                |
+| Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
+| fatigue                      |                                                        |                    |
+| High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
+| fatigue                      |                                                        |                    |
+| Environmental effects        | Freezing water leading to concrete expansion           | All                |
+| Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
+|                              | degradation in the zone of the tendon anchorages       | Deck               |
+| Pier settlement              | Change in the soil properties                          | Deck               |
+
+# Detecting faulty sensors is an important scenario.
+When damage is detected based on sensor measurements another possibility is of
+course that the sensor is itself faulty. Sensors can become faulty for a number
+of reasons, increased noise, bad installation, battery issues, harsh environment
+etc. cite:ni2009sensor. Maintaining a healthy sensor network is important
+because faulty sensors can cause not only permanent loss of data but also
+inaccurate damage detection, if for example the detection system is being
+trained on the faulty sensor data.
 ** Health Monitoring
 In this subsection we review some of the current methods of health monitoring of
 bridges. citet:peter2003review should be considered the default reference for
@@ -454,25 +635,29 @@ relating the reviewed material back to this thesis.
 *** The application of machine learning to structural health monitoring
 # Introduction.
 cite:worden2006application illustrates the utility of a data-driven approach to
-structural health monitoring (SHM) by a number of case studies. In particular
-the paper focuses on pattern recognition and machine learning (ML) algorithms
-that are applicable to damage identification problems.
+structural health monitoring (SHM) by a number of case studies attempting to
+identify damage on an aircraft wing. In particular the paper focuses on pattern
+recognition and machine learning (ML) algorithms that are applicable to damage
+identification problems.
 
 # Hierarchy of levels.
-The question of /damage detection/ is simply to identify if a system has
-departed from normal (i.e. undamaged) condition. The more sophisticated problem
-of /damage identification/ seeks to determine a greater level of information on
-the damage status, even to provide a forecast of the likely outcome of a
-situation. The problem of detection and identification can be considered as a
-hierarchy of levels as described in cite:rytter1993vibrational.
+The question of /damage detection/ is to identify if a system has departed from
+normal (i.e. undamaged) condition, simple "is there damage or not?". The more
+sophisticated problem of /damage identification/ seeks to determine a greater
+level of information on the damage status, even to predict the future of the
+situation. The problem of damage identification can be considered as a hierarchy
+of levels as described in cite:rytter1993vibrational.
+
  - Level 1. (Detection) indication that damage might be present in the
    structure.
  - Level 2. (Localization) information about the probable position of the
    damage.
  - Level 3. (Assessment) an estimate of the extend of the damage.
  - Level 4. (Prediction) information about the safety of the structure.
-This paper argues that ML provides solutions to these problems at upto level 3,
-and that in general level 4 cannot be addressed by ML methods.
+  
+cite:worden2006application argues that ML can provide solutions to these
+problems upto level 3, but that in general level 4 cannot be addressed by ML
+methods.
 
 # Waterfall model. (ML is only a step).
 Applying ML for the purpose of SHM is usually only a single step in a broader
@@ -756,7 +941,7 @@ cases, which was true in this case.
 \textcolor{red}{TODO: conclude the literature review}
 #+LATEX: \clearpage
 * Methods
-** Data Collection
+** Simulation
 # Section overview.
 This section describes the data collection system which was created to model a
 bridge in software and to collect data from simulating the bridge's response
@@ -781,7 +966,7 @@ of superposition, responses collected from the previous simulations can be
 summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
-[[System Operation]] but it is useful to present a brief overview in advance.
+[[System Details]] but it is useful to present a brief overview in advance.
 *** Bridge Modeling
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
@@ -834,45 +1019,7 @@ bridge705 = Bridge {
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
 The goal of the damage identification model is to identify that damage in a
-number of selected damage scenarios. Damage scenarios can be classified as
-short-term or long-term. Short-term scenarios are defined as a change of the
-properties of structural materials and elements, and of the behaviour of the
-whole structure, due to effects that occur during a very short period of time.
-Long-term scenarios are time-dependent and may not only be related to external
-factors but also due to a change of state of materials with time. Tables
-[[table:short-term-events]] and [[table:long-term-events]] cite:sousa2019tool outline
-some of the predominant types of damage due to short-term and long-term
-scenarios respectively.
-
-\textcolor{red}{TODO: Use table.el to fix tables}
-#+NAME: table:short-term-events
-#+CAPTION: Types of damage due to short-term events.
-| Event                       | Examples/Consequences                                                        | Critical component |
-|-----------------------------+------------------------------------------------------------------------------+--------------------|
-| Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
-| Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
-| Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
-| Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
-| Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
-| Excessive vibration         | Earthquake                                                                   | Pier               |
-| Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
-
-#+NAME: table:long-term-events
-#+CAPTION: Types of damage due to long-term events.
-| Event                        | Examples/Consequences                                  | Critical component |
-|------------------------------+--------------------------------------------------------+--------------------|
-| Corrosion                    | Degradation of the bearings                            | Deck               |
-|                              | Loss of cross-section area in the prestressing tendons | Deck               |
-| Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
-| the structural materials     | Concrete deterioration                                 | All                |
-| Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
-| fatigue                      |                                                        |                    |
-| High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
-| fatigue                      |                                                        |                    |
-| Environmental effects        | Freezing water leading to concrete expansion           | All                |
-| Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
-|                              | degradation in the zone of the tendon anchorages       | Deck               |
-| Pier settlement              | Change in the soil properties                          | Deck               |
+number of selected damage scenarios.
 
  Of the damage scenarios listed in Tables [[table:short-term-events]] and
  [[table:long-term-events]], four scenarios are selected for identification by the
@@ -907,6 +1054,28 @@ scenarios respectively.
 \textcolor{red}{Distribution of passenger vehicles}
 
 https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
+
+# Introduction to the two datasets used.
+A model of the normal traffic on bridge 705 is based on two datasets. A dataset
+was provided by TNO of vehicles recorded using Weight-in-motion (WIM) technology
+on the A16 highway in The Netherlands. This dataset will be referred to as the
+A16 dataset. Additionaly data was used from the National Data Warehouse for
+Traffic Information (NDW). NDW provides a database of real-time and historic
+traffic data in The Netherlands. The dataset used from the NDW will be referred
+to as the NDW dataset.
+
+# A16 dataset filtered.
+The A16 these vehicles are all above 3500kg in weight and 7m in length.
+
+# A16 dataset structure.
+The A16 dataset contains a number of columns, including time and date, lane the
+vehicle was travelling on, the vehicle type, vehicle speed, distance between
+axles and load per axle. Only the distance between axles and the load per axle
+are considered, all other columns are ignored. All vehicles in the implemented
+traffic simulation travel at equal speed thus the vehicle column is ignored.
+
+The A16 dataset was filtered so that the total weight and the the total
+length of vehicles
 
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
@@ -972,7 +1141,7 @@ including structural and geotechnical, and engineering related to tunnelling,
 earthquake, and oil and gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
-*** System Operation
+*** System Details
 The goal of the data collection system is to translate a =Bridge=, along with a
 =TrafficScenario= and =BridgeScenario=, into a time series of responses. This
 subsection details how that translation takes place.
@@ -1143,12 +1312,71 @@ for vehicle in traffic:
         ru = unit_load_simulation.response_at(point)
         response += ru * (wi / ul)
 #+END_SRC
-*** Design and Interface
+**** Meshing
+*** System Interface
+# Emphasis on reproduceable research.
+In recent years there is an increased emphasis on reproducable research within
+the scientific community. Reproducable research can be more easily verified by
+peers than research which must be reimplemented. If research is accomplished
+through code, for example as simulations are, then the research can be verified
+be downloading the software and running it.
+
+# Lifted parameters
+# TODO: Not extensible, but on the way to extensible.
+If the parameters of the research are not buried deep in the code but instead
+"lifted" to the boundaries of the system, then that research can be considered
+not just reproduceable but extensible.
+
+# Reuse through composition of modular components.
+Furthermore if the software is presented as composable functions instead of
+scripts, then this allows for the reuse of the research, whereby a researcher
+can compose some of the functions in a manner which was not done in the original
+research.
+
+# DRY and reuse.
+Reuse of software aligns with the /don't repeat yourself/ (DRY) principle of
+software engineering. Violations of DRY are creatively referred to as WET, or
+/write every time/. The downside of WET solutions are that each implementation
+has its own bugs, whereas in DRY solutions the bug fixes and optimizations are
+shared by all contributors and users. To aid reuse and avoid repitition,
+software must be made easy to use, which is the very next tip after the DRY
+principle in the book The Pragmatic Programmer cite:hunt1900pragmatic.
+
+#+BEGIN_QUOTE
+Make It Easy To Reuse
+
+If it’s easy to reuse, people will. Create an environment that supports reuse.
+
+-- The Pragmatic Programmer \textcolor{red}{page number}
+#+END_QUOTE
+
+Keeping with these principles, an effort has been made for the research in this
+thesis to me not just reproduceable but extensible. A system for running traffic
+simulations on concrete slab bridges and analyzing results is published on the
+Python Package Index (PyPI) cite:rankingpypi under the name =traffic-sim= where
+you will also find the documentation. Two examples showing the use of the system
+are presented in Listing [[lst:ts-point-load]] and Listing [[lst:ts-wagen-1]], for
+=traffic-sim= installation instructions see the documentation on PyPI.
+
+#+NAME: lst:ts-point-load
+#+CAPTION: Contour load of a point load in =traffic-sim=.
+#+BEGIN_SRC python
+# example.py
+from traffic_sim import PointLoad
+#+END_SRC
+
+#+NAME: lst:ts-wagen-1
+#+CAPTION: Animation of a truck in =traffic-sim=.
+#+BEGIN_SRC python
+# example.py
+from traffic_sim import PointLoad
+#+END_SRC
+
 *** Collected Data
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
-*** Verification
+*** Validation
 The collected data needs to be verified, otherwise an analysis of the data would
 offer little value. In this Subsection the data collection system is set to
 bridge 705 and the generated FEM for OpenSees verified against the previously
@@ -1308,14 +1536,12 @@ built is discussed.
 *** Test setup
 *** Data analysis
 *** Damage identification model
-** Decision Support System
 *** Sensor Placement
 *** Noise
 *** Other Bridges
 #+LATEX: \clearpage
 * Results
-** Modeling Damage Scenarios
-** Sensor Placement
+** Simulation
 ** Anomally Detection
 * Appendix
 

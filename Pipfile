@@ -10,6 +10,7 @@ pydeps = "*"
 
 [packages]
 mycode = {path = "./code",editable = true}
+click = "*"
 colorama = "*"
 matplotlib = "*"
 numpy = "*"

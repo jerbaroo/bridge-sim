@@ -5,6 +5,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
 from model.load import DisplacementCtrl
 from model.response import ResponseType
+from util import print_w
 
 
 class DCMatrix(ResponsesMatrix):
@@ -28,6 +29,8 @@ class DCMatrix(ResponsesMatrix):
         """
 
         id_str = f"dc-{response_type}-{fem_runner.name}"
+        print_w("TODO: Change save_all back to True!!!")
+        save_all = False
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams(
@@ -51,7 +54,7 @@ class DCMatrix(ResponsesMatrix):
                     c=c,
                     expt_params=expt_params,
                     response_type=response_type,
-                    fem_runner=fem_runner,
+                    sim_runner=fem_runner,
                 ),
             )
 

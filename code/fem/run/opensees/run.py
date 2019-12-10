@@ -6,9 +6,7 @@ from fem.params import ExptParams
 from fem.run import FEMRunner
 
 
-def run_model(
-    c: Config, expt_params: ExptParams, fem_runner: FEMRunner, sim_ind: int
-):
+def run_model(c: Config, expt_params: ExptParams, fem_runner: FEMRunner, sim_ind: int):
     """Run an OpenSees simulation."""
     subprocess.run(
         [
