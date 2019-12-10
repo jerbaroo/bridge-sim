@@ -986,7 +986,9 @@ summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
 [[System Details]] but it is useful to present a brief overview in advance.
-*** Bridge Modeling
+
+*** Bridge Model
+
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
 bridges was created for the programming language Python. The parametric model
@@ -996,31 +998,32 @@ exists as the type =Bridge=.
 A =Bridge= is parameterized by dimensionality, length, width, piers, lanes,
 material properties and parameters that define the mesh density. A =Bridge= can
 be declared as 2D or 3D, this defines if the resulting FEM will be 2D or 3D. The
-length and width define the length and width of the bridge deck. Piers define
-the position, size and angle of the piers which support the bridge deck. Lanes
-define where vehicles are allowed to drive on the bridge, and the direction of
-traffic. Material properties determine the materials' interaction and their
-behaviour under load. Mesh parameters define the density of the base mesh.
+length and width define the area of the bridge deck. Piers define the position,
+size and angle of the piers which support the bridge deck. Lanes define where
+vehicles are allowed to drive on the bridge and the direction of traffic.
+Material properties determine the interaction between the bridge elements and
+their behaviour under load. Mesh parameters define the density of the base mesh
+and how the mesh is built.
 
 #+NAME: lst:bridge
 #+BEGIN_SRC haskell
-data Bridge = Bridge {
-    length   :: Float
-  , width    :: Float
-  , lanes    :: [Lane]
-  , sections :: [Section]
-  , piers    :: [Pier]
+data Bridge {
+  length   :: Float,
+  width    :: Float,
+  lanes    :: [Lane],
+  sections :: [Section],
+  piers    :: [Pier]
   }
 #+END_SRC
 
 #+NAME: lst:bridge-705
 #+BEGIN_SRC haskell
 bridge705 = Bridge {
-    length   :: 102
-  , width    :: 33.2
-  , lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)]
-  , sections :: [Section]
-  , piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
+  length   :: 102,
+  width    :: 33.2,
+  lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)],
+  sections :: [Section],
+  piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
   }
 #+END_SRC
    
@@ -1068,7 +1071,7 @@ number of selected damage scenarios.
  malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
-*** Traffic Modeling
+*** Traffic Model
 
 \textcolor{red}{Distribution of passenger vehicles}
 

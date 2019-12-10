@@ -109,7 +109,7 @@ def load_bridge_705_deck_sections():
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
-    return [
+    return [[
         Section3D(
             start_z_frac=(position / 1000) / bridge_705_width,
             density=density * 1e6,
@@ -118,7 +118,7 @@ def load_bridge_705_deck_sections():
             poissons=0.2,
         )
         for position, density, thickness, youngs in values
-    ]
+    ]]
 
 
 bridge_705_sections_3d = load_bridge_705_deck_sections()
@@ -156,7 +156,7 @@ assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
 
 bridge_705_single_sections = (
-    deepcopy(bridge_705_sections_3d[len(bridge_705_sections_3d) // 2]),
+    deepcopy(bridge_705_sections_3d[0][len(bridge_705_sections_3d[0]) // 2]),
     deepcopy(bridge_705_pier_sections[len(bridge_705_pier_sections) // 2]),
 )
 for section in bridge_705_single_sections:

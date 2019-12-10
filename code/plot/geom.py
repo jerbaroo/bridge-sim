@@ -11,6 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 from config import Config
 from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
+from fem.run.opensees.build import build_model_3d
 from fem.run.build import nodes_by_id
 from model.bridge import Bridge, Section3D
 from plot import Color, plt
@@ -131,6 +132,7 @@ def plot_cloud_of_nodes(
 
     def plot_and_save(fig, ax, append: str = ""):
         """Plot the cloud of points with optional additional operation."""
+        plt.landscape()
         plt.set_cmap("coolwarm")
         p = ax.scatter(xs, zs, ys, c=cs, s=1)
         if cs is not None:
@@ -138,6 +140,7 @@ def plot_cloud_of_nodes(
         deck_str = "-deck" if deck else ""
         piers_str = "-piers" if piers else ""
         plt.savefig(f"{save}{deck_str}{piers_str}{append}")
+        plt.close()
 
     equal_axis_str = "-equalaxis" if equal_axis else "-fullaxis"
 

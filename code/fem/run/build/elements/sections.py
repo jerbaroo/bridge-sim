@@ -1,5 +1,6 @@
 """Sections for elements."""
 from collections import defaultdict
+from itertools import chain
 
 from config import Config
 from model.bridge import Section3D, Support3D
@@ -42,7 +43,7 @@ def section_for_deck_element(
     # Create the dictionary if not already created.
     if not hasattr(c.bridge, "deck_sections_dict"):
         c.bridge.deck_sections_dict = defaultdict(dict)
-        for section in c.bridge.sections:
+        for section in chain.from_iterable(c.bridge.sections):
             c.bridge.deck_sections_dict[round_m(c.bridge.x(section.start_x_frac))][
                 round_m(c.bridge.z(section.start_z_frac))
             ] = section

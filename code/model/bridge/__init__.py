@@ -203,8 +203,9 @@ class Lane:
         ltr: bool, whether traffic moves left to right, or opposite.
 
     Attrs:
-        z_min, lower z position of the bridge in meters.
-        z_min, upper z position of the bridge in meters.
+        z_min, float, lower z position of the bridge in meters.
+        z_min, float, upper z position of the bridge in meters.
+        width, float, Width of the lane in meters.
 
     """
 
@@ -212,14 +213,8 @@ class Lane:
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr
-
-    def width(self):
-        """Width of the lane in meters."""
-        return round_m(self.z_max - self.z_min)
-
-    def z_center(self):
-        """Z position of the center of the lane in meters."""
-        return round_m(self.z_min + (self.width() / 2))
+        self.width = round_m(self.z_max - self.z_min)
+        self.z_center = round_m(self.z_min + (self.width / 2))
 
 
 class Material(Enum):
@@ -349,6 +344,7 @@ class Section3D:
         youngs: float, Young's modulus of the section in MPa.
         poisson: float, Poisson's ratio.
         start_x_frac: float, start of the section as a fraction of x position.
+        start_z_frac: float, start of the section as a fraction of z position.
 
     """
 
@@ -465,6 +461,8 @@ class Bridge:
         nodes_at_mat_props: bool = False,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
+        self.type = None
+
         # Given arguments.
         self.name = name
         self.accuracy = accuracy
@@ -551,7 +549,8 @@ class Bridge:
 
         """
         acc_str = f"-{self.accuracy}" if acc else ""
-        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
+        type_str = f"-{self.type}" if self.type is not None else ""
+        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}{type_str}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge.
@@ -631,7 +630,7 @@ class Bridge:
                 return
             z_max = z if z_max is None or z > z_max else z_max
 
-        for section in self.sections:
+        for section in chain.from_iterable(self.sections):
             s_z_min, s_z_max = f(section)
             set_z_min(s_z_min)
             set_z_max(s_z_max)
@@ -707,18 +706,20 @@ class Bridge:
             if not isinstance(support, Support3D):
                 raise ValueError("3D bridge must use Support3D supports")
 
+        all_sections = list(chain.from_iterable(self.sections))
+
         # All sections are Section3D.
-        for section in self.sections:
+        for section in all_sections:
             if not isinstance(section, Section3D):
                 raise ValueError("3D bridge must use Section3D sections")
 
         # First section must start at 0.
-        if self.sections[0].start_x_frac != 0:
+        if all_sections[0].start_x_frac != 0:
             raise ValueError("First section of 3D bridge must start at 0")
 
         # Section must be in order.
-        last_start_x_frac = self.sections[0].start_x_frac
-        for section in self.sections[1:]:
+        last_start_x_frac = all_sections[0].start_x_frac
+        for section in all_sections[1:]:
             if section.start_x_frac < last_start_x_frac:
                 raise ValueError("Sections not in order of start_x_frac")
             last_start_x_frac = section.start_x_frac

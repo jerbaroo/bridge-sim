@@ -266,7 +266,7 @@ def get_deck_section_positions(bridge: Bridge):
         )
         return [], []
     x_positions, z_positions = set(), set()
-    for section in bridge.sections:
+    for section in chain.from_iterable(bridge.sections):
         x_positions.add(round_m(bridge.x(section.start_x_frac)))
         z_positions.add(round_m(bridge.z(section.start_z_frac)))
     return sorted(x_positions), sorted(z_positions)

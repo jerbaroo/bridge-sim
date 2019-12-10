@@ -25,7 +25,6 @@ from plot import (
     plot_bridge_first_section,
     plt,
 )
-from plot.geom import plot_cloud_of_nodes
 from model.bridge import Dimensions, Point
 from model.bridge.util import wheel_tracks
 from model.load import PointLoad, MvVehicle
@@ -155,38 +154,6 @@ def make_event_plots(c: Config):
             )
 
 
-def make_cloud_of_nodes_plots(c: Config):
-    """Make all variations of the cloud of nodes plots."""
-
-    def both_axis_plots(prop: str, *args, **kwargs):
-        """Make cloud of nodes plots for full and equal axes."""
-        # Cloud of nodes without axis correction.
-        plot_cloud_of_nodes(
-            *args,
-            **kwargs,
-            c=c,
-            equal_axis=False,
-            save=c.get_image_path(f"cloud-of-nodes{prop}", "cloud"),
-        )
-
-        # Cloud of nodes with equal axes.
-        plot_cloud_of_nodes(
-            *args,
-            **kwargs,
-            c=c,
-            equal_axis=True,
-            save=c.get_image_path(f"cloud-of-nodes{prop}-equal-axis", "cloud"),
-        )
-
-    def all_plots(prop: str, *args, **kwargs):
-        """Make both axis plots for all deck and pier variants."""
-        both_axis_plots(prop, *args, deck=True, piers=False, **kwargs)
-        both_axis_plots(prop, *args, deck=False, piers=True, **kwargs)
-        both_axis_plots(prop, *args, deck=True, piers=True, **kwargs)
-
-    # Plots of some node property.
-    all_plots("-density", node_prop=lambda s: s.density)
-    all_plots("-thickness", node_prop=lambda s: s.thickness)
 
 
 def make_all_2d(c: Config):
@@ -242,7 +209,6 @@ def make_all_3d(c: Config):
     ##### Objects #####
     ###################
     # make_geom_plots(c)
-    # make_cloud_of_nodes_plots(c)
     # vehicle.wagen1_plot(c)
     # vehicles.vehicle_plots(c)
 
