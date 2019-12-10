@@ -134,10 +134,7 @@ def joint_clustering_bridge(c: Config):
 
     responses = Responses.from_responses(
         response_type=response_type,
-        responses=[
-            (sum(ks_values_comp[p]), point)
-            for p, point in enumerate(points)
-        ],
+        responses=[(sum(ks_values_comp[p]), point) for p, point in enumerate(points)],
     )
     top_view_bridge(c.bridge, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses)
