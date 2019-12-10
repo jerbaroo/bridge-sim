@@ -332,15 +332,15 @@ future temporal correlations.
 
 # Feature extraction.
 To avoid incorrect detection of anomalies due to environmental factors such as
-temperature, the feature extraction of data becomes is a very important to SHM.
-Feature extraction is arguably the most important and difficult step in ML-based
-health monitoring cite:worden2006application. The temperature across a bridge
-deck was measured during a 24 hour cycle and correlated with the bridge's
-natural frequencies in cite:doebling1997using. A machine learning algorithm
-based on PCA is presented in cite:ye2018integrated for separating the individual
-components of the deflection signal. An auto-associateive neural network is
-employed for separating the effect of damage in extracted features from that
-caused by the environmental variations of the system cite:sohn2002statistical.
+temperature, the feature extraction of data is very important in SHM. Feature
+extraction is arguably the most important and difficult step in ML-based health
+monitoring cite:worden2006application. The temperature across a bridge deck was
+measured during a 24 hour cycle and correlated with the bridge's natural
+frequencies in cite:doebling1997using. A machine learning algorithm based on PCA
+is presented in cite:ye2018integrated for separating the individual components
+of the deflection signal. An auto-associateive neural network is employed for
+separating the effect of damage in extracted features from that caused by the
+environmental variations of the system cite:sohn2002statistical.
 
 # Sensitivity to noise.
 When the noise level was under 10%, each individual component (temperature, live
