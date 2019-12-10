@@ -345,6 +345,8 @@ class Section3D:
         poisson: float, Poisson's ratio.
         start_x_frac: float, start of the section as a fraction of x position.
         start_z_frac: float, start of the section as a fraction of z position.
+        end_x_frac: float, end of the section as a fraction of x position.
+        end_z_frac: float, end of the section as a fraction of z position.
 
     """
 
@@ -356,8 +358,10 @@ class Section3D:
         thickness: float,
         youngs: float,
         poissons: float,
-        start_x_frac: float = 0,
-        start_z_frac: float = 0,
+        start_x_frac: float,
+        start_z_frac: float,
+        end_x_frac: float,
+        end_z_frac: float,
     ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
@@ -367,8 +371,16 @@ class Section3D:
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
+        self.end_x_frac = end_x_frac
+        self.end_z_frac = end_z_frac
 
-    def id_str(self):
+    def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
+        """Whether this section contains the given point."""
+        return (
+            (self.start_x_frac <= bridge.x_frac(x) <= self.end_x_frac) and
+            (self.start_z_frac <= bridge.z_frac(z) <= self.end_z_frac))
+
+    def mat_id_str(self):
         """Representation of this section by material properties."""
         return f"{self.density}-{self.thickness}-{self.youngs}-{self.poissons}"
 
@@ -411,8 +423,20 @@ class Section3DPier(Section3D):
     ):
         super().__init__(
             density=density, thickness=thickness, youngs=youngs, poissons=poissons,
+            start_x_frac=None, start_z_frac=None, end_x_frac=None, end_z_frac=None,
         )
         self.start_frac_len = start_frac_len
+
+    def __repr__(self):
+        """Readable representation."""
+        return (
+            "Section3D"
+            + f"\n  starts at {round_m(self.start_frac_len)}"
+            + f"\n  density = {self.density} kg/m"
+            + f"\n  thickness = {self.thickness} m"
+            + f"\n  youngs = {self.youngs} MPa"
+            + f"\n  poissons = {self.poissons}"
+        )
 
 
 # Deck Sections are either 2D or 3D sections.
@@ -509,6 +533,15 @@ class Bridge:
         # Assert the bridge is fine and print info.
         # TODO Move to another file.
         self._assert_bridge()
+
+
+    def deck_section_at(self, x: float, z: float) -> Section3D:
+        """Return the deck section at given position."""
+        for section in self.sections:
+            if section.contains(bridge=self, x=x, z=z):
+                return section
+
+        raise ValueError("No section for x, z = {x}, {z}")
 
     def print_info(self, pier_fix_info: bool = False):
         """Print summary information about this bridge.
@@ -630,7 +663,7 @@ class Bridge:
                 return
             z_max = z if z_max is None or z > z_max else z_max
 
-        for section in chain.from_iterable(self.sections):
+        for section in self.sections:
             s_z_min, s_z_max = f(section)
             set_z_min(s_z_min)
             set_z_max(s_z_max)
@@ -706,20 +739,18 @@ class Bridge:
             if not isinstance(support, Support3D):
                 raise ValueError("3D bridge must use Support3D supports")
 
-        all_sections = list(chain.from_iterable(self.sections))
-
         # All sections are Section3D.
-        for section in all_sections:
+        for section in self.sections:
             if not isinstance(section, Section3D):
                 raise ValueError("3D bridge must use Section3D sections")
 
         # First section must start at 0.
-        if all_sections[0].start_x_frac != 0:
+        if self.sections[0].start_x_frac != 0:
             raise ValueError("First section of 3D bridge must start at 0")
 
         # Section must be in order.
-        last_start_x_frac = all_sections[0].start_x_frac
-        for section in all_sections[1:]:
+        last_start_x_frac = self.sections[0].start_x_frac
+        for section in self.sections[1:]:
             if section.start_x_frac < last_start_x_frac:
                 raise ValueError("Sections not in order of start_x_frac")
             last_start_x_frac = section.start_x_frac

@@ -1549,8 +1549,8 @@ section ElasticMembranePlateSection 25 38400000000.0 0.2 0.75 0.0027240000000000
 
 # section ElasticMembranePlateSection secTag youngs_modulus poisson_ratio depth mass_density
 # Begin pier sections
-section ElasticMembranePlateSection 46 38400000000.0 0.2 1.266 0.0027240000000000003
 section ElasticMembranePlateSection 47 38400000000.0 0.2 0.362 0.0027240000000000003
+section ElasticMembranePlateSection 46 38400000000.0 0.2 1.266 0.0027240000000000003
 # End pier sections
 
 # element ShellMITC4 eleTag iNode jNode kNode lNode secTag

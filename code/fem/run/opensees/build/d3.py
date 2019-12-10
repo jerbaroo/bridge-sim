@@ -229,7 +229,7 @@ def opensees_deck_sections(c: Config):
     """Sections used in the bridge deck."""
     return comment(
         "deck sections",
-        "\n".join([opensees_section(section) for section in chain.from_iterable(c.bridge.sections)]),
+        "\n".join([opensees_section(section) for section in c.bridge.sections]),
         units=(
             "section ElasticMembranePlateSection secTag youngs_modulus"
             + " poisson_ratio depth mass_density"
