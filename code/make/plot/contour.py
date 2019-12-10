@@ -12,10 +12,12 @@ from classify.scenario.bridge import (
     equal_pier_disp,
     longitudinal_pier_disp,
 )
+from classify.scenarios import cracked_scenario
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
+from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
@@ -29,8 +31,44 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
-def plots_of_pier_displacement(c: Config):
-    """Make contour plots of pier displacement."""
+def cracked_concrete_plots(c: Config):
+    """Contour plots of cracked concrete scenarios."""
+    response_type = ResponseType.YTranslation
+    # 10 x 10 grid of points on the bridge deck where to record responses.
+    points = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
+        )
+    ]
+
+    # Create empty traffic array and collect responses.
+    response_array = responses_to_traffic_array(
+        c=c,
+        traffic_array=load_normal_traffic_array(c)[0],
+        response_type=response_type,
+        bridge_scenario=cracked_scenario,
+        points=points,
+        fem_runner=OSRunner(c),
+    )
+
+    for t in range(len(response_array)):
+        top_view_bridge(c.bridge, abutments=True, piers=True)
+        responses = Responses.from_responses(
+            response_type=response_type,
+            responses=[
+                (response_array[t][p], point)
+                for p, point in enumerate(points)],
+        )
+        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        plt.title("Cracked Concrete")
+        plt.savefig(c.get_image_path("cracked-scenario", f"cracked-time-{t}"))
+        plt.close()
+
+
+def each_pier_displacement_plots(c: Config):
+    """Contour plots of pier displacement of each pier."""
     y = 0
     response_types = [ResponseType.YTranslation]
 

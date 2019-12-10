@@ -594,7 +594,7 @@ class Bridge:
         half_axle = c.axle_width / 2
         return list(
             chain.from_iterable(
-                [lane.z_center() - half_axle, lane.z_center() + half_axle]
+                [lane.z_center - half_axle, lane.z_center + half_axle]
                 for lane in self.lanes
             )
         )

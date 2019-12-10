@@ -18,7 +18,11 @@ CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 
 class CrackedBridge(BridgeScenario):
-    def __init__(self, name: str, crack_area: Callable[[Bridge], CrackArea]):
+    def __init__(
+            self,
+            name: str,
+            crack_area: Callable[[Bridge], CrackArea],
+    ):
         super().__init__(name=name)
         self.crack_area = crack_area
 
@@ -56,7 +60,7 @@ class CrackedBridge(BridgeScenario):
         cracked_sections = []
         for section, x_start, z_start, x_end, z_end in overlaps:
             cracked_section = deepcopy(section)
-            cracked_section.youngs *= 0.3
+            cracked_section.youngs *= (1/3)
             cracked_section.start_x_frac = bridge.x_frac(x_start)
             cracked_section.start_z_frac = bridge.z_frac(z_start)
             cracked_section.end_x_frac = bridge.x_frac(x_end)

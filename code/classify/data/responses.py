@@ -6,7 +6,7 @@ import numpy as np
 from fem.responses.matrix import load_expt_responses
 from scipy.interpolate import interp1d
 
-from classify.scenario.bridge import HealthyBridge, PierDispBridge
+from classify.scenario.bridge import CrackedBridge, HealthyBridge, PierDispBridge
 from config import Config
 from fem.params import ExptParams, SimParams
 from fem.responses import Responses
@@ -156,15 +156,28 @@ def responses_to_traffic_array(
 
     if np.count_nonzero(traffic_array) > 0:
         # First collect the unit load simulations per wheel track.
-        il_matrices = {
-            wheel_z: ILMatrix.load(
-                c=c,
-                response_type=response_type,
-                fem_runner=fem_runner,
-                load_z_frac=c.bridge.z_frac(wheel_z),
-            )
-            for wheel_z in wheel_zs
-        }
+        # Cracked...
+        if isinstance(bridge_scenario, CrackedBridge):
+            il_matrices = {
+                wheel_z: ILMatrix.load(
+                    c=bridge_scenario.crack_config(c),
+                    response_type=response_type,
+                    fem_runner=fem_runner,
+                    load_z_frac=c.bridge.z_frac(wheel_z),
+                )
+                for wheel_z in wheel_zs
+            }
+        # ...or healthy.
+        else:
+            il_matrices = {
+                wheel_z: ILMatrix.load(
+                    c=c,
+                    response_type=response_type,
+                    fem_runner=fem_runner,
+                    load_z_frac=c.bridge.z_frac(wheel_z),
+                )
+                for wheel_z in wheel_zs
+            }
 
         # Create a matrix of unit load simulation (rows) * point (columns).
         print_i(f"Calculating unit load matrix...")

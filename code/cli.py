@@ -149,8 +149,13 @@ def scenario():
 
 
 @scenario.command()
-def contour_pier_displacement():
-    contour.plots_of_pier_displacement(c())
+def contour_cracked_concrete():
+    contour.cracked_concrete_plots(c())
+
+
+@scenario.command()
+def contour_each_pier_displaced():
+    contour.each_pier_displacement_plots(c())
 
 
 ########################
