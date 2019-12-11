@@ -65,14 +65,21 @@ def oneclass(c: Config):
 
 def ks_no_outliers(d0, d1):
     """D statistic of ks_2samp with outliers removed."""
-    z0 = np.abs(stats.zscore(d0))
-    z1 = np.abs(stats.zscore(d1))
-    print(len(d0))
-    d0 = np.where(z0 <= 3, d0)
-    print(len(d0))
-    print(len(d1))
-    d1 = np.where(z1 <= 3, d1)
-    print(len(d1))
+    # print(len(d0))
+    # d0 = d0[~np.isnan(d0)]
+    # print(len(d0))
+    # d1 = d1[~np.isnan(d1)]
+    if np.sum(d0) > 0:
+        z0 = np.abs(stats.zscore(d0))
+        print(f"d0 shape = {d0.shape}")
+        d0 = np.where(z0 <= 3, d0, np.zeros(z0.shape)).nonzero()[0]
+        print(f"d0 shape = {d0.shape}")
+    if np.sum(d1) > 0:
+        z1 = np.abs(stats.zscore(d1))
+        print(f"d1 shape = {d1.shape}")
+        d1 = np.where(z1 <= 3, d1, np.zeros(z1.shape)).nonzero()[0]
+        print(d1)
+        print(f"d1 shape = {d1.shape}")
     return stats.ks_2samp(d0, d1)[0]
 
 
@@ -105,7 +112,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
         ks_values_healthy.append([])
         for p1, point1 in enumerate(points):
             ks = dist_measure(responses[p0], responses[p1])
-            ks_values_healthy[-1].append(ks[0])
+            ks_values_healthy[-1].append(ks)
 
     plt.landscape()
     plt.imshow(ks_values_healthy)
@@ -129,7 +136,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
         ks_values_damage.append([])
         for p1, point1 in enumerate(points):
             ks = dist_measure(responses[p0], responses[p1])
-            ks_values_damage[-1].append(ks[0])
+            ks_values_damage[-1].append(ks)
 
     plt.imshow(ks_values_damage)
     plt.savefig(c.get_image_path("joint-clustering", "damage-bridge"))
