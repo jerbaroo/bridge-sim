@@ -2,7 +2,6 @@ import itertools
 
 import numpy as np
 from scipy import stats
-from scipy.stats import ks_2samp
 from sklearn.svm import OneClassSVM
 
 from config import Config
@@ -71,15 +70,14 @@ def ks_no_outliers(d0, d1):
     # d1 = d1[~np.isnan(d1)]
     if np.sum(d0) > 0:
         z0 = np.abs(stats.zscore(d0))
-        print(f"d0 shape = {d0.shape}")
-        d0 = np.where(z0 <= 3, d0, np.zeros(z0.shape)).nonzero()[0]
-        print(f"d0 shape = {d0.shape}")
+        # print(f"d0 shape = {d0.shape}")
+        # d0 = np.where(z0 <= 4, d0, np.zeros(z0.shape)).nonzero()[0]
+        # print(f"d0 shape = {d0.shape}")
     if np.sum(d1) > 0:
         z1 = np.abs(stats.zscore(d1))
-        print(f"d1 shape = {d1.shape}")
-        d1 = np.where(z1 <= 3, d1, np.zeros(z1.shape)).nonzero()[0]
-        print(d1)
-        print(f"d1 shape = {d1.shape}")
+        # print(f"d1 shape = {d1.shape}")
+        # d1 = np.where(z1 <= 4, d1, np.zeros(z1.shape)).nonzero()[0]
+        # print(f"d1 shape = {d1.shape}")
     return stats.ks_2samp(d0, d1)[0]
 
 
@@ -90,8 +88,8 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, 20),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, 2),
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 50),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 4),
         )
     ]
 

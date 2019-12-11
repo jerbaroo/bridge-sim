@@ -12,6 +12,7 @@ from fem.run.build.assert_ import (
     assert_all_pier_nodes,
     assert_deck_in_pier_pier_in_deck,
 )
+from fem.run.build.refinement import get_deck_refinement_positions
 from fem.run.build.types import AllSupportNodes, DeckNodes, Node
 from fem.run.build.util import print_mesh_info
 from model.bridge import Bridge, Section3D, Support3D
@@ -374,6 +375,20 @@ def get_deck_positions(
 
     # Update the 'DeckStagesInfo' with material property information.
     deck_stages_info["sections"] = (
+        deepcopy(x_positions),
+        deepcopy(z_positions),
+    )
+
+    # Collect positions from refinement.
+    x_positions_refinement, z_positions_refinement = get_deck_refinement_positions(c.bridge)
+    if not simple_mesh:
+        for x_pos in x_positions_refinement:
+            x_positions.add(x_pos)
+        for z_pos in z_positions_refinement:
+            z_positions.add(z_pos)
+
+    # Update the 'DeckStagesInfo' with refinement information.
+    deck_stages_info["refinement"] = (
         deepcopy(x_positions),
         deepcopy(z_positions),
     )

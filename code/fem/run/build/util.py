@@ -14,14 +14,22 @@ def print_mesh_info(
     base = to_lens(sim_params.deck_stages_info["base"])
     piers = to_lens(sim_params.deck_stages_info["piers"])
     loads = to_lens(sim_params.deck_stages_info["loads"])
+    sections = to_lens(sim_params.deck_stages_info["sections"])
+    refinement = to_lens(sim_params.deck_stages_info["refinement"])
+    total = to_lens(sim_params.deck_stages_info["refinement"])
 
+    refinement -= sections
+    sections -= loads
     loads -= piers
     piers -= base
     print_i(
         "Deck nodes (x * z)"
-        + f"\n\tbase mesh  = {base[0]} * {base[1]}"
-        + f"\n\tfrom piers = {piers[0]} * {piers[1]}"
-        + f"\n\tfrom loads = {loads[0]} * {loads[1]}"
+        f"\n  base mesh  = {base[0]} * {base[1]}"
+        f"\n  from piers = {piers[0]} * {piers[1]}"
+        f"\n  from loads = {loads[0]} * {loads[1]}"
+        f"\n  from materials = {sections[0]} * {sections[1]}"
+        f"\n  from refinement = {refinement[0]} * {refinement[1]}"
+        f"\n  total = {total[0]} * {total[1]}"
     )
 
     num_pier_nodes_z, num_pier_nodes_y = [], []
@@ -35,6 +43,6 @@ def print_mesh_info(
     piers -= np.array(base)
     print_i(
         "Pier nodes (y * z)"
-        + f"\n\tbase mesh  = {base[0]} * {base[1]}"
-        + f"\n\tfrom piers = {piers[0]} * {piers[1]} (mean)"
+        + f"\n  base mesh  = {base[0]} * {base[1]}"
+        + f"\n  from piers = {piers[0]} * {piers[1]} (mean)"
     )

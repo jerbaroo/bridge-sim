@@ -165,7 +165,7 @@ def each_pier_displacement_plots(c: Config):
     response_types = [ResponseType.YTranslation]
 
     for response_type in response_types:
-        for p, pier in list(enumerate(c.bridge.supports))[:1]:
+        for p, pier in list(enumerate(c.bridge.supports)):
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
                 response_types=response_types, displacement_ctrl=pier_disp,
