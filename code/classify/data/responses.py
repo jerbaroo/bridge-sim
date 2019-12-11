@@ -150,35 +150,23 @@ def responses_to_traffic_array(
     """
     # The unit load simulations that are loaded depend on whether the bridge is
     # healthy or cracked. TODO
+    if isinstance(bridge_scenario, CrackedBridge):
+        c = bridge_scenario.crack_config(c)
 
     wheel_zs = c.bridge.wheel_tracks(c)
     ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 
     if np.count_nonzero(traffic_array) > 0:
         # First collect the unit load simulations per wheel track.
-        # Cracked...
-        if isinstance(bridge_scenario, CrackedBridge):
-            c_cracked = bridge_scenario.crack_config(c)
-            il_matrices = {
-                wheel_z: ILMatrix.load(
-                    c=bridge_scenario.crack_config(c),
-                    response_type=response_type,
-                    fem_runner=sim_runner(c_cracked),
-                    load_z_frac=c.bridge.z_frac(wheel_z),
-                )
-                for wheel_z in wheel_zs
-            }
-        # ...or healthy.
-        else:
-            il_matrices = {
-                wheel_z: ILMatrix.load(
-                    c=c,
-                    response_type=response_type,
-                    fem_runner=sim_runner(c),
-                    load_z_frac=c.bridge.z_frac(wheel_z),
-                )
-                for wheel_z in wheel_zs
-            }
+        il_matrices = {
+            wheel_z: ILMatrix.load(
+                c=c,
+                response_type=response_type,
+                fem_runner=sim_runner(c),
+                load_z_frac=c.bridge.z_frac(wheel_z),
+            )
+            for wheel_z in wheel_zs
+        }
 
         # Create a matrix of unit load simulation (rows) * point (columns).
         print_i(f"Calculating unit load matrix...")

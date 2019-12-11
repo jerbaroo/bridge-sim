@@ -31,10 +31,14 @@ gradient_pier_scenarios = lambda c: [
     for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05])
 ]
 
-all_scenarios = lambda c: (
-    [cracked_scenario2]
+healthy_and_cracked_scenarios = lambda c: (
+    [healthy_scenario]
     + [cracked_scenario]
-    + [healthy_scenario]
+    + [cracked_scenario2]
+)
+
+all_scenarios = lambda c: (
+    healthy_and_cracked_scenarios(c)
     + each_pier_scenarios(c)
     + equal_pier_scenarios(c)
     + gradient_pier_scenarios(c))

@@ -93,12 +93,12 @@ def bridge_info(piers):
 ####################
 
 
-@cli.group()
+@cli.group(help="Plots of the geometry of the bridge")
 def geometry():
     pass
 
 
-@geometry.command()
+@geometry.command(help="Nodes coloured by material properties")
 def node_cloud():
     geometry_.make_cloud_of_node_plots(c())
 
@@ -143,14 +143,19 @@ def comparison_plots_705():
 ####################
 
 
-@cli.group()
+@cli.group(help="Plots for damage scenarios.")
 def scenario():
     pass
 
 
-@scenario.command(help="Mean sensor response per damage scenario")
-def contour_mean_traffic_response():
+@scenario.command(help="Mean response to traffic per scenario.")
+def contour_traffic():
     contour.mean_traffic_response_plots(c())
+
+
+@scenario.command(help="Response to point loads per scenario.")
+def contour_point_load():
+    contour.point_load_response_plots(c())
 
 
 @scenario.command()

@@ -1,4 +1,5 @@
-from classify.scenario.bridge import center_lane_crack
+from classify.scenario.bridge import CrackedBridge, center_lane_crack
+from classify.scenarios import healthy_and_cracked_scenarios
 from config import Config
 from plot.geom import plot_cloud_of_nodes
 
@@ -29,12 +30,14 @@ def make_cloud_of_node_plots(c: Config):
         both_axis_plots(prop, deck=False, piers=True, **kwargs)
         both_axis_plots(prop, deck=True, piers=True, **kwargs)
 
+    _c = c
+
     def all_plots(prop: str, **kwargs):
         """Plots of healthy and cracked bridge."""
-        deck_pier_plots(prop, c=center_lane_crack().crack_config(c), **kwargs)
-        deck_pier_plots(prop, c=c, **kwargs)
+        for damage_scenario in healthy_and_cracked_scenarios(_c):
+            c = damage_scenario.crack_config(_c) if isinstance(damage_scenario, CrackedBridge) else _c
+            deck_pier_plots(prop, c=c, **kwargs)
 
-    # Plots of some node property.
     all_plots("-youngs", node_prop=lambda s: s.youngs)
     all_plots("-density", node_prop=lambda s: s.density)
     all_plots("-thickness", node_prop=lambda s: s.thickness)

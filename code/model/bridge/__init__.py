@@ -537,6 +537,7 @@ class Bridge:
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
+        print(len(self.sections))
         for section in self.sections:
             if section.contains(bridge=self, x=x, z=z):
                 return section
