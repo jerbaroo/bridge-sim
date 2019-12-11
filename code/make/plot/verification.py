@@ -348,8 +348,6 @@ def r2_plots(c: Config):
     plt.title("Displacement: Diana vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
     plt.ylabel("Displacement in Diana (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -367,8 +365,6 @@ def r2_plots(c: Config):
     plt.title("Displacement: OpenSees vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -389,8 +385,6 @@ def r2_plots(c: Config):
     plt.title("Displacement: OpenSees vs. Diana")
     plt.xlabel("Displacement in Diana (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     plt.savefig(c.get_image_path("verification", "regression-displa"))
     plt.close()
@@ -464,8 +458,6 @@ def r2_plots(c: Config):
     plt.title("Strain: Diana vs. measurements")
     plt.xlabel("Strain measurement (m/m)")
     plt.ylabel("Strain in Diana (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -485,8 +477,6 @@ def r2_plots(c: Config):
     plt.title("Strain: OpenSees vs. measurements")
     plt.xlabel("Strain measurement (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -507,8 +497,6 @@ def r2_plots(c: Config):
     plt.title("Strain: OpenSees vs. Diana")
     plt.xlabel("Strain in Diana (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     plt.savefig(c.get_image_path("verification", "regression-strain"))
 
