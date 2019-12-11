@@ -274,8 +274,8 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
             accuracy="low",
             base_mesh_deck_nodes_x=50,
             base_mesh_deck_nodes_z=20,
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5,
+            base_mesh_pier_nodes_y=10,
+            base_mesh_pier_nodes_z=11,
         )
     )
 
