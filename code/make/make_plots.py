@@ -154,8 +154,6 @@ def make_event_plots(c: Config):
             )
 
 
-
-
 def make_all_2d(c: Config):
     """Make all plots for a 2D bridge for the thesis."""
     make_contour_plots_for_verification(

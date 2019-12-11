@@ -88,6 +88,7 @@ def clean():
 def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
 
+
 ####################
 ##### Geometry #####
 ####################

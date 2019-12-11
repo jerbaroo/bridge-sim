@@ -19,22 +19,22 @@ CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 class CrackedBridge(BridgeScenario):
     def __init__(
-            self,
-            name: str,
-            crack_area: Callable[[Bridge], CrackArea],
+        self, name: str, crack_area: Callable[[Bridge], CrackArea],
     ):
         super().__init__(name=name)
         self.crack_area = crack_area
 
     def _crack_deck(self, bridge: Bridge):
         """Adds cracked sections to the given bridge's deck."""
-        c_x_start, c_z_start, c_x_end, c_z_end = list(map(round_m, self.crack_area(bridge)))
+        c_x_start, c_z_start, c_x_end, c_z_end = list(
+            map(round_m, self.crack_area(bridge))
+        )
 
         if callable(bridge.sections):
             raise NotImplementedError()
 
         # Find where the cracked area and current sections overlap.
-        overlaps: List[Tuple[Section3D, float, float, float, float]]= []
+        overlaps: List[Tuple[Section3D, float, float, float, float]] = []
         for section in bridge.sections:
             s_x_start = round_m(bridge.x(section.start_x_frac))
             s_z_start = round_m(bridge.z(section.start_z_frac))
@@ -48,20 +48,22 @@ class CrackedBridge(BridgeScenario):
 
             if overlap_x_end - overlap_x_start > 0:
                 if overlap_z_end - overlap_z_start > 0:
-                    overlaps.append((
-                        section,
-                        overlap_x_start,
-                        overlap_z_start,
-                        overlap_x_end,
-                        overlap_z_end,
-                    ))
+                    overlaps.append(
+                        (
+                            section,
+                            overlap_x_start,
+                            overlap_z_start,
+                            overlap_x_end,
+                            overlap_z_end,
+                        )
+                    )
 
         # Create new cracked sections for each of these overlaps.
         cracked_sections, max_id = [], bridge.sections[-1].id
         for i, (section, x_start, z_start, x_end, z_end) in enumerate(overlaps):
             cracked_section = deepcopy(section)
             cracked_section.id = max_id + i + 1
-            cracked_section.youngs *= (1/3)
+            cracked_section.youngs *= 1 / 3
             cracked_section.start_x_frac = bridge.x_frac(x_start)
             cracked_section.start_z_frac = bridge.z_frac(z_start)
             cracked_section.end_x_frac = bridge.x_frac(x_end)
@@ -82,7 +84,7 @@ class CrackedBridge(BridgeScenario):
         return config_copy
 
 
-def center_lane_crack(percent: float=20, lane: int=0) -> CrackedBridge:
+def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
     """A bridge with the center of a lane cracked."""
     x_frac = percent / 100
 
@@ -92,10 +94,11 @@ def center_lane_crack(percent: float=20, lane: int=0) -> CrackedBridge:
         return x_start, z_start, x_start + length, z_start + width
 
     return CrackedBridge(
-        name=f"crack-lane-{lane}-center-{percent}", crack_area=crack_area)
+        name=f"crack-lane-{lane}-center-{percent}", crack_area=crack_area
+    )
 
 
-def start_lane_crack(percent: float=20, lane: int=0) -> CrackedBridge:
+def start_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
     """A bridge with the start of the lane cracked."""
     x_frac = percent / 100
 
@@ -105,7 +108,8 @@ def start_lane_crack(percent: float=20, lane: int=0) -> CrackedBridge:
         return x_start, z_start, x_start + length, z_start + width
 
     return CrackedBridge(
-        name=f"crack-lane-{lane}-start-{percent}", crack_area=crack_area)
+        name=f"crack-lane-{lane}-start-{percent}", crack_area=crack_area
+    )
 
 
 class PierDispBridge(BridgeScenario):

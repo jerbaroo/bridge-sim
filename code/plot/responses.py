@@ -72,7 +72,7 @@ def plot_contour_deck(
     color: str = None,
     norm=None,
     center_norm: bool = False,
-    levels: int = 25
+    levels: int = 25,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.

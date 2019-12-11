@@ -35,7 +35,11 @@ def make_cloud_of_node_plots(c: Config):
     def all_plots(prop: str, **kwargs):
         """Plots of healthy and cracked bridge."""
         for damage_scenario in healthy_and_cracked_scenarios(_c):
-            c = damage_scenario.crack_config(_c) if isinstance(damage_scenario, CrackedBridge) else _c
+            c = (
+                damage_scenario.crack_config(_c)
+                if isinstance(damage_scenario, CrackedBridge)
+                else _c
+            )
             deck_pier_plots(prop, c=c, **kwargs)
 
     all_plots("-youngs", node_prop=lambda s: s.youngs)

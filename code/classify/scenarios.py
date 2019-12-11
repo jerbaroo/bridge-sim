@@ -32,13 +32,12 @@ gradient_pier_scenarios = lambda c: [
 ]
 
 healthy_and_cracked_scenarios = lambda c: (
-    [healthy_scenario]
-    + [cracked_scenario]
-    + [cracked_scenario2]
+    [healthy_scenario] + [cracked_scenario] + [cracked_scenario2]
 )
 
 all_scenarios = lambda c: (
     healthy_and_cracked_scenarios(c)
     + each_pier_scenarios(c)
     + equal_pier_scenarios(c)
-    + gradient_pier_scenarios(c))
+    + gradient_pier_scenarios(c)
+)

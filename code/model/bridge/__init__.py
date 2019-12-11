@@ -376,9 +376,9 @@ class Section3D:
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
         """Whether this section contains the given point."""
-        return (
-            (self.start_x_frac <= bridge.x_frac(x) <= self.end_x_frac) and
-            (self.start_z_frac <= bridge.z_frac(z) <= self.end_z_frac))
+        return (self.start_x_frac <= bridge.x_frac(x) <= self.end_x_frac) and (
+            self.start_z_frac <= bridge.z_frac(z) <= self.end_z_frac
+        )
 
     def mat_id_str(self):
         """Representation of this section by material properties."""
@@ -422,8 +422,14 @@ class Section3DPier(Section3D):
         start_frac_len: float,
     ):
         super().__init__(
-            density=density, thickness=thickness, youngs=youngs, poissons=poissons,
-            start_x_frac=None, start_z_frac=None, end_x_frac=None, end_z_frac=None,
+            density=density,
+            thickness=thickness,
+            youngs=youngs,
+            poissons=poissons,
+            start_x_frac=None,
+            start_z_frac=None,
+            end_x_frac=None,
+            end_z_frac=None,
         )
         self.start_frac_len = start_frac_len
 
@@ -533,7 +539,6 @@ class Bridge:
         # Assert the bridge is fine and print info.
         # TODO Move to another file.
         self._assert_bridge()
-
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
