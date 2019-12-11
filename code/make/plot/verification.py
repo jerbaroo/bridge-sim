@@ -543,11 +543,15 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     x, z = 2, 2
 
     def bridge_overload(**kwargs):
+        print()
+        print(x, z)
         return bridge_705_3d(
             name=f"Bridge 705",
             accuracy="convergence",
             base_mesh_deck_nodes_x=x,
             base_mesh_deck_nodes_z=z,
+            base_mesh_pier_nodes_y=5,
+            base_mesh_pier_nodes_z=5,
             **kwargs,
         )
 
@@ -556,17 +560,35 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
         c.root_generated_images_dir, "convergence", "convergence_results"
     )
 
+    # A grid of points over which to calculate the mean response. The reason for
+    # this is because if the number of nodes increases, as model size increases,
+    # then there will be an increase in nodes where responses are large, thus
+    # model size will influence the mean calculation.
+    grid = [
+        Point(x=x, y=0, z=z) for x, z
+        in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 2 * int(c.bridge.length)),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 2 * int(c.bridge.width)),
+        )
+    ]
+
     if run:
+        print("hi")
         with open(path + ".txt", "w") as f:
             f.write(
                 "xload,zload,xnodes,znodes,decknodes,piernodes,time," + "min,max,mean"
             )
+        print("steps")
         steps = 100
         xs = np.linspace(2, c.bridge.length * 4, steps)
         zs = np.linspace(2, c.bridge.width * 4, steps)
         for step in range(steps):
+            print("step")
             clean_generated(c)
             x, z = int(xs[step]), int(zs[step])
+            print("step")
+            print_i(f"Running model with x, z = {x}, {z}")
+            print("step")
             with open(path + ".txt", "a") as f:
                 f.write(f"\n{load_point.x}, {load_point.z}, {x}, {z}")
             c = bridge_705_config(bridge_overload)
@@ -578,6 +600,18 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                     response_type=response_type,
                     sim_runner=OSRunner(c),
                 )
+
+                # print()
+                # print(responses.xs)
+                for x in responses.xs:
+                    if 0 in responses.zs[x]:
+                        for z in responses.zs[x][0]:
+                            # print()
+                            og = responses.responses[0][x][0][z].value
+                            ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
+                            assert np.isclose(og, ip)
+                            # print()
+
                 deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
                 pier_nodes = len(
                     [
@@ -586,13 +620,18 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                         if n.pier is not None and not n.deck
                     ]
                 )
+                min_ = np.min(list(responses.values()))
+                max_ = np.max(list(responses.values()))
+                mean_ = np.mean(list(responses.at_deck(point, interp=True) for point in grid))
+                assert len(mean_) == 1
+                mean_ = mean_[0]
                 assert deck_nodes + pier_nodes == len(nodes_by_id)
                 with open(path + ".txt", "a") as f:
                     f.write(
                         f", {deck_nodes}, {pier_nodes}, {timer() - start}"
-                        + f", {np.min(list(responses.values()))}"
-                        + f", {np.max(list(responses.values()))}"
-                        + f", {np.mean(list(responses.values()))}"
+                        + f", {min_}"
+                        + f", {max_}"
+                        + f", {mean_}"
                     )
             except ValueError as e:
                 if "No responses found" in str(e):
@@ -673,25 +712,29 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     ###### Min. and max. per machine #######
     ########################################
 
+    plt.landscape()
     fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            ax1.plot(ndeck + npier, mins * 1000, color="red", label="Min. response")
+            final_mean = np.mean(means[-5:])
+            final_max = np.mean(maxes[-5:])
+            final_min = np.mean(mins[-5:])
+            ax1.plot(ndeck + npier, mins /final_min, color="red", label="Min. response")
             ax1.plot(
-                ndeck + npier, maxes * 1000, color="orange", label="Max. response",
+                ndeck + npier, maxes / final_max, color="orange", label="Max. response",
             )
-            ax2 = plt.gca().twinx()
-            ax2.plot(
-                ndeck + npier, means * 1000, color="green", label="Mean response",
+            # ax2 = plt.gca().twinx()
+            ax1.plot(
+                ndeck + npier, means / final_mean, color="green", label="Mean response",
             )
 
     plt.title("Displacement as a function of model size")
     ax1.legend()
-    ax2.legend()
+    # ax2.legend()
     ax1.set_xlabel("Number of nodes in model")
     ax1.set_ylabel("Displacement (mm)")
-    ax2.set_ylabel("Displacement (mm)")
+    # ax2.set_ylabel("Displacement (mm)")
     plt.savefig(c.get_image_path("verification", "min-max", bridge=False))
     plt.close()
 
