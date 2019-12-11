@@ -425,6 +425,29 @@ def r2_plots(c: Config):
 
     print_i(f"Count nan = {count_nan}")
 
+    # Strain in OpenSees via direct simulation (measurement points).
+    strain_os_meas = responses_to_vehicles_(
+        c=c,
+        mv_vehicles=[wagen1],
+        times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
+        response_type=ResponseType.Strain,
+        bridge_scenario=HealthyBridge(),
+        points=[
+            Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
+        ],
+        sim_runner=OSRunner(c),
+    )
+
+    def get_os_meas(sensor_label: str, truck_x: float):
+        for i, truck_x_ in enumerate(truck_xs_meas):
+            if truck_x_ == truck_x:
+                for j, (sensor_label_, _, _) in enumerate(sensors):
+                    if sensor_label_ == sensor_label:
+                        return strain_os_meas[i][j]
+        raise ValueError(
+            f"No match. sensor_label = {sensor_label}, truck_x = {truck_x}"
+        )
+
     # Subplot: Diana against measurements.
     plt.subplot(3, 1, 1)
     x = list(map(lambda x: x[2], strain_meas))
@@ -441,6 +464,49 @@ def r2_plots(c: Config):
     plt.title("Strain: Diana vs. measurements")
     plt.xlabel("Strain measurement (m/m)")
     plt.ylabel("Strain in Diana (m/m)")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
+
+    # Subplot: OpenSees against measurements.
+    plt.subplot(3, 1, 2)
+    x = list(map(lambda x: x[2], strain_meas))
+    y = np.array(
+        [
+            get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
+            for sensor_label, truck_x, _ in strain_meas
+        ]
+    )
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Strain: OpenSees vs. measurements")
+    plt.xlabel("Strain measurement (m/m)")
+    plt.ylabel("Strain in OpenSees (m/m)")
+    plt.equal_ax_lims()
+    plt.gca().set_aspect("equal")
+
+    # Subplot: OpenSees against Diana.
+    plt.subplot(3, 1, 3)
+    x = [
+        diana_response(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in strain_meas
+    ]
+    y = [
+        get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
+        for sensor_label, truck_x, _ in strain_meas
+    ]
+    plt.scatter(x, y)
+    regressor = LinearRegression().fit(np.matrix(x).T, y)
+    y_pred = regressor.predict(np.matrix(x).T)
+    score = regressor.score(np.matrix(x).T, y)
+    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.legend()
+    plt.title("Strain: OpenSees vs. Diana")
+    plt.xlabel("Strain in Diana (m/m)")
+    plt.ylabel("Strain in OpenSees (m/m)")
     plt.equal_ax_lims()
     plt.gca().set_aspect("equal")
 

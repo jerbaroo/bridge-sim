@@ -3,7 +3,7 @@ import click
 
 from config import Config
 from make.data import simulations
-from make.plot import contour
+from make.plot import contour, verification
 from make.plot import classification as classification_
 from make.plot import geometry as geometry_
 from model.bridge.bridge_705 import (
@@ -134,9 +134,14 @@ def verify():
     pass
 
 
-@verify.command()
-def comparison_plots_705():
+@verify.command(help="Contour plots comparing OpenSees and Diana.")
+def diana_comparison():
     contour.comparison_plots_705(c())
+
+
+@verify.command(help="Regression plots against bridge 705 measurements.")
+def r2_plots():
+    verification.r2_plots(c())
 
 
 ####################
