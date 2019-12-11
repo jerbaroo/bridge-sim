@@ -120,7 +120,7 @@ def convert_strain_responses(
             print(eps11)
             result.append(
                 Response(
-                    value=eps11 - (theta11 * half_height),
+                    value=(eps11 - (theta11 * half_height)) * -1E6,
                     x=response_point.x,
                     y=response_point.y,
                     z=response_point.z,

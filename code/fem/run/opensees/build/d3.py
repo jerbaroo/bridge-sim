@@ -415,7 +415,7 @@ def opensees_forces(sim_params: SimParams, os_runner: "OSRunner"):
     return (
         f"recorder Element"
         f" -file {os_runner.forces_path(sim_params)}"
-        f" -ele 1 400 forces"
+        f" -ele {elem_ids_str()} forces"
     )
 
 

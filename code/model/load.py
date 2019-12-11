@@ -186,8 +186,8 @@ class MvVehicle(Vehicle):
         """
         lane = bridge.lanes[self.lane]
         tracks = [
-            lane.z_center() - (self.axle_width / 2),
-            lane.z_center() + (self.axle_width + 2),
+            lane.z_center - (self.axle_width / 2),
+            lane.z_center + (self.axle_width + 2),
         ]
         if meters:
             return tracks

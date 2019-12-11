@@ -284,7 +284,7 @@ def responses_to_loads_(
                 for loads_ in loads
             ]
         ),
-        response_type=ResponseType.YTranslation,
+        response_type=response_type,
         sim_runner=sim_runner,
     )
     result = []
