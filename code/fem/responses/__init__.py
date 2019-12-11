@@ -241,10 +241,7 @@ class FEMResponses(Responses):
         z_lo, z_hi = self._lo_hi(a=self.zs[x_lo][0], b=z)
         xs = [x_lo, x_lo, x_hi, x_hi]
         zs = [z_lo, z_hi, z_lo, z_hi]
-        vs = [
-            self.responses[0][xs[i]][0][zs[i]].value
-            for i in range(len(xs))
-        ]
+        vs = [self.responses[0][xs[i]][0][zs[i]].value for i in range(len(xs))]
         if x_lo == x_hi:
             if z_lo == z_hi:
                 # print("interp1d, x == x, z == z")
@@ -267,7 +264,6 @@ class FEMResponses(Responses):
         # print(vs)
         # print("interp2d")
         return interp2d(x=xs, y=zs, z=vs)(x, z)
-
 
     def at_deck(self, point: Point, interp: bool = False):
         """Response at the deck (y = 0) with optional interpolation."""

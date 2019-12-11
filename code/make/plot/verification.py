@@ -565,8 +565,8 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     # then there will be an increase in nodes where responses are large, thus
     # model size will influence the mean calculation.
     grid = [
-        Point(x=x, y=0, z=z) for x, z
-        in itertools.product(
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
             np.linspace(c.bridge.x_min, c.bridge.x_max, 2 * int(c.bridge.length)),
             np.linspace(c.bridge.z_min, c.bridge.z_max, 2 * int(c.bridge.width)),
         )
@@ -622,7 +622,9 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                 )
                 min_ = np.min(list(responses.values()))
                 max_ = np.max(list(responses.values()))
-                mean_ = np.mean(list(responses.at_deck(point, interp=True) for point in grid))
+                mean_ = np.mean(
+                    list(responses.at_deck(point, interp=True) for point in grid)
+                )
                 assert len(mean_) == 1
                 mean_ = mean_[0]
                 assert deck_nodes + pier_nodes == len(nodes_by_id)
@@ -720,7 +722,9 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
             final_mean = np.mean(means[-5:])
             final_max = np.mean(maxes[-5:])
             final_min = np.mean(mins[-5:])
-            ax1.plot(ndeck + npier, mins /final_min, color="red", label="Min. response")
+            ax1.plot(
+                ndeck + npier, mins / final_min, color="red", label="Min. response"
+            )
             ax1.plot(
                 ndeck + npier, maxes / final_max, color="orange", label="Max. response",
             )
