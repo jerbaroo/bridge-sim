@@ -190,7 +190,6 @@ def each_pier_displacement_plots(c: Config):
                         kn=c.pd_unit_load_kn,
                     )
                 ],
-                center_norm=True,
             )
             plt.savefig(
                 c.get_image_path(
