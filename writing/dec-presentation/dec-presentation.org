@@ -1,0 +1,74 @@
+#+TITLE: Presentation 12th December
+
+* Dutch Main Road Network
+| Stucture type        | Number | Deck Area (m2) |
+|----------------------+--------+----------------|
+|                      |    <r> |            <r> |
+| Concrete bridge      |  3,131 |      3,319,002 |
+| Steel bridge (fixed) |     88 |        301,997 |
+| Movable bridge       |     43 |        347,876 |
+| Tunnel               |     14 |        475,228 |
+| Aqueduct             |      7 |         86,491 |
+|----------------------+--------+----------------|
+| Total                |  3,283 |      4,530,593 |
+* Verification: Truck 1
+[[./wagen1.png]]
+* Verification: Truck positions
+[[./truck-pos.png]]
+* Fast Response Calculation
+- Via Matrix multiplication
+- Cluster not needed
+* Verification: Contour A
+[[./contour/diana-displacement-loadx=101,765-loadz=-12,626.png]]
+* Verification: Contour A
+[[./contour/displacement-loadx=101,765-loadz=-12,626.png]]
+* Verification: Contour B
+[[./contour/diana-displacement-loadx=34,955-loadz=12,626.png]]
+* Verification: Contour B
+[[./contour/displacement-loadx=34,955-loadz=12,626.png]]
+* Verification: Contour C
+[[./contour/diana-displacement-loadx=51,251-loadz=0,000.png]]
+* Verification: Contour C
+[[./contour/displacement-loadx=51,251-loadz=0,000.png]]
+* Verification: Contour D
+[[./contour/diana-displacement-loadx=92,406-loadz=-4,195.png]]
+* Verification: Contour D
+[[./contour/displacement-loadx=92,406-loadz=-4,195.png]]
+* Verification: Displacement
+[[./displa-0-copy.png]]
+* Verification: Displacement
+[[./displa-1-copy.png]]
+* Verification: Displacement
+[[./displa-2-copy.png]]
+* Verification: Displacement
+[[./regression.png]]
+* Pier Settlement
+[[./pier-1.png]]
+* Pier Settlement
+[[./pier-2.png]]
+* Response Distributions: Healthy
+[[./distribution-1.png]]
+* Response Distributions: Healthy
+[[./distribution-2.png]]
+* Pier Settlement: Compared to Healthy Distributions
+[[./pier-3.png]]
+* Verification: Convergence
+[[./min-max.png]]
+* Overview
+- December Remainder
+  - Writing
+  - ML-based damage experiment
+  - Temperature in model
+- January/February
+  - Classification
+* Questions for You
+- Data on passenger vehicles?
+  - Axles distances and weights
+- Typical size and position of crack groups?
+  - Concrete slab bridges
+- Convinced by 5 variables for classification experiments?
+  - vehicle loading
+  - temperature load
+  - pier settlement
+  - cracked concrete
+  - sensor noise
