@@ -674,7 +674,8 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     results = defaultdict(dict)
     for machine_name, loading_pos_dict in machine_results.items():
         for (x_load, z_load), rows in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = (
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = (
+                [],
                 [],
                 [],
                 [],
@@ -693,8 +694,9 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
                 time.append(row["time"])
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
+                shell_size.append(row["shell-size"])
             results[machine_name][(x_load, z_load)] = list(
-                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier],)
+                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier, shell_size])
             )
 
     ########################################
@@ -705,46 +707,46 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
             final_mean = np.mean(means[-5:])
             final_max = np.mean(maxes[-5:])
             final_min = np.mean(mins[-5:])
             ax1.plot(
-                ndeck + npier, mins / final_min, color="red", label="Min. response"
+                shell_size, mins / final_min, color="red", label="Min. response"
             )
             ax1.plot(
-                ndeck + npier, maxes / final_max, color="orange", label="Max. response",
+                shell_size, maxes / final_max, color="orange", label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                ndeck + npier, means / final_mean, color="green", label="Mean response",
+                shell_size, means / final_mean, color="green", label="Mean response",
             )
 
     plt.title("Displacement as a function of model size")
     ax1.legend()
     # ax2.legend()
-    ax1.set_xlabel("Number of nodes in model")
+    ax1.set_xlabel("Mean shell size (m²)")
     ax1.set_ylabel("Displacement (mm)")
     # ax2.set_ylabel("Displacement (mm)")
     plt.savefig(c.get_image_path("verification", "min-max", bridge=False))
     plt.close()
 
-    #####################################
-    ###### Model size per machine #######
-    #####################################
+    #########################
+    ###### Model size #######
+    #########################
 
     # This should be the same for each machine, so skip the rest.
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            plt.plot(ndeck + npier, basex * basez, label="base mesh deck nodes")
-            plt.plot(ndeck + npier, ndeck, label="deck nodes")
-            plt.plot(ndeck + npier, npier, label="pier nodes")
-            plt.plot(ndeck + npier, ndeck + npier, label="total nodes")
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            plt.plot(shell_size, basex * basez, label="base mesh deck nodes")
+            plt.plot(shell_size, ndeck, label="deck nodes")
+            plt.plot(shell_size, npier, label="pier nodes")
+            plt.plot(shell_size, ndeck + npier, label="total nodes")
         break
 
     plt.title("Deck and pier nodes as a function of model size")
-    plt.xlabel("Number of nodes in model")
+    plt.xlabel("Mean shell size (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
     plt.savefig(c.get_image_path("verification", "model-size", bridge=False))
@@ -756,11 +758,11 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
 
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            plt.plot(ndeck + npier, time, label=machine_name)
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            plt.plot(shell_size, time, label=machine_name)
 
     plt.title("Run-time as a function of model size")
-    plt.xlabel("Number of nodes in model")
+    plt.xlabel("Mean shell size (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
     plt.savefig(c.get_image_path("verification", "run-time", bridge=False))
