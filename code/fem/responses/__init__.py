@@ -7,6 +7,9 @@ from collections import defaultdict
 from timeit import default_timer as timer
 from typing import List, NewType, Optional, Tuple
 
+import numpy as np
+from scipy.interpolate import interp1d, interp2d
+
 from config import Config
 from fem.params import ExptParams, SimParams
 from model import Response
@@ -125,6 +128,7 @@ class Responses:
         points = self.responses[self.times[0]]
         self.xs = sorted(points.keys())
         self.ys = {x: sorted(points[x].keys()) for x in self.xs}
+        self.deck_xs = [x for x in self.xs if 0 in points[x].keys()]
         self.zs = {
             x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
         }
@@ -203,6 +207,72 @@ class FEMResponses(Responses):
         )
         with open(path, "wb") as f:
             pickle.dump(self._responses, f)
+
+    def _at_deck_no_interp(self, x: float, z: float):
+        x_ind = nearest_index(self.xs, x)
+        x_near = self.xs[x_ind]
+        z_ind = nearest_index(self.zs[x_near][y], z)
+        z_near = self.zs[x_near][y_near][z_ind]
+        return self.responses[0][x_near][y][z_near].value
+
+    def _lo_hi(self, a: List[float], b: float) -> Tuple[int, int]:
+        """Indices of the z positions of sensors either side of z.
+
+        TODO: Assert sorted.
+        TODO: Test this.
+        TODO: Switch to numpy.searchsorted for performance.
+
+        """
+        # print(f"b = {b}")
+        # If only one point, return that.
+        if len(a) == 1:
+            return a[0], a[0]
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(a)):
+            if np.isclose(a[i], b):
+                return a[i], a[i]
+            if a[i] > b and i > 0:
+                return a[i - 1], a[i]
+        # Else the last point.
+        return a[i], a[i]
+
+    def _at_deck_interp(self, x: float, z: float):
+        x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
+        z_lo, z_hi = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        xs = [x_lo, x_lo, x_hi, x_hi]
+        zs = [z_lo, z_hi, z_lo, z_hi]
+        vs = [self.responses[0][xs[i]][0][zs[i]].value for i in range(len(xs))]
+        if x_lo == x_hi:
+            if z_lo == z_hi:
+                # print("interp1d, x == x, z == z")
+                return vs[0]
+            # print("interp1d, x == x")
+            return interp1d([z_lo, z_hi], [vs[0], vs[1]])(z)
+        if z_lo == z_hi:
+            # print("interp1d, z == z")
+            return interp1d([x_lo, x_hi], [vs[0], vs[2]])(x)
+        # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
+        # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        # print(x, z)
+        # print(xs)
+        # print(self.zs[x_lo][0])
+        # print(self.zs[x_hi][0])
+        # print(zs)
+        # print(xs)
+        # print(zs)
+        # print(vs)
+        # print("interp2d")
+        return interp2d(x=xs, y=zs, z=vs)(x, z)
+
+    def at_deck(self, point: Point, interp: bool = False):
+        """Response at the deck (y = 0) with optional interpolation."""
+        assert point.y == 0
+        # print(point.x, point.z)
+        if not interp:
+            raise ValueError("hello")
+            return self._at_deck_no_interp(x=point.x, z=point.z)
+        return self._at_deck_interp(x=point.x, z=point.z)
 
     def _at(self, x: float, y: float, z: float, time_index: int = 0):
         x_ind = nearest_index(self.xs, x)
