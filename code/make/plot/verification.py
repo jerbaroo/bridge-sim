@@ -24,6 +24,7 @@ from classify.vehicle import wagen1
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
+from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import nodes_by_id
 from model.bridge import Point
@@ -564,7 +565,7 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
         print("hi")
         with open(path + ".txt", "w") as f:
             f.write(
-                "xload,zload,xnodes,znodes,decknodes,piernodes,time," + "min,max,mean"
+                "xload,zload,xnodes,znodes,decknodes,piernodes,time,min,max,mean,shell-size"
             )
         print("steps")
         steps = 100
@@ -588,17 +589,17 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                     response_type=response_type,
                     sim_runner=OSRunner(c),
                 )
+                shells = shells_by_id.values()
+                shell_sizes = list(map(lambda s: s.area(), shells))
+                avg_shell_size = np.mean(shell_sizes)
 
-                # print()
-                # print(responses.xs)
+                # TODO: Remove.
                 for x in responses.xs:
                     if 0 in responses.zs[x]:
                         for z in responses.zs[x][0]:
-                            # print()
                             og = responses.responses[0][x][0][z].value
                             ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
                             assert np.isclose(og, ip)
-                            # print()
 
                 deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
                 pier_nodes = len(
@@ -619,9 +620,7 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                 with open(path + ".txt", "a") as f:
                     f.write(
                         f", {deck_nodes}, {pier_nodes}, {timer() - start}"
-                        + f", {min_}"
-                        + f", {max_}"
-                        + f", {mean_}"
+                        + f", {min_}, {max_}, {mean_}, {avg_shell_size}"
                     )
             except ValueError as e:
                 if "No responses found" in str(e):
