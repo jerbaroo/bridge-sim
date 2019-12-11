@@ -38,7 +38,7 @@ def mean_traffic_response_plots(c: Config):
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, 100),
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 10),
             np.linspace(c.bridge.z_min, c.bridge.z_max, 10),
         )
     ]

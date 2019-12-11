@@ -6,12 +6,14 @@ from classify.scenario.bridge import (
     center_lane_crack,
     equal_pier_disp,
     longitudinal_pier_disp,
+    start_lane_crack,
 )
 from model.load import DisplacementCtrl
 
 healthy_scenario = HealthyBridge()
 
 cracked_scenario = center_lane_crack()
+cracked_scenario2 = start_lane_crack()
 
 # Each pier displaced by 1mm.
 each_pier_scenarios = lambda c: [
@@ -30,8 +32,9 @@ gradient_pier_scenarios = lambda c: [
 ]
 
 all_scenarios = lambda c: (
-    [healthy_scenario]
+    [cracked_scenario2]
     + [cracked_scenario]
+    + [healthy_scenario]
     + each_pier_scenarios(c)
     + equal_pier_scenarios(c)
     + gradient_pier_scenarios(c))
