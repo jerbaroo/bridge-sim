@@ -203,8 +203,9 @@ class Lane:
         ltr: bool, whether traffic moves left to right, or opposite.
 
     Attrs:
-        z_min, lower z position of the bridge in meters.
-        z_min, upper z position of the bridge in meters.
+        z_min, float, lower z position of the bridge in meters.
+        z_min, float, upper z position of the bridge in meters.
+        width, float, Width of the lane in meters.
 
     """
 
@@ -212,14 +213,8 @@ class Lane:
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr
-
-    def width(self):
-        """Width of the lane in meters."""
-        return round_m(self.z_max - self.z_min)
-
-    def z_center(self):
-        """Z position of the center of the lane in meters."""
-        return round_m(self.z_min + (self.width() / 2))
+        self.width = round_m(self.z_max - self.z_min)
+        self.z_center = round_m(self.z_min + (self.width / 2))
 
 
 class Material(Enum):
@@ -349,6 +344,9 @@ class Section3D:
         youngs: float, Young's modulus of the section in MPa.
         poisson: float, Poisson's ratio.
         start_x_frac: float, start of the section as a fraction of x position.
+        start_z_frac: float, start of the section as a fraction of z position.
+        end_x_frac: float, end of the section as a fraction of x position.
+        end_z_frac: float, end of the section as a fraction of z position.
 
     """
 
@@ -360,8 +358,10 @@ class Section3D:
         thickness: float,
         youngs: float,
         poissons: float,
-        start_x_frac: float = 0,
-        start_z_frac: float = 0,
+        start_x_frac: float,
+        start_z_frac: float,
+        end_x_frac: float,
+        end_z_frac: float,
     ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
@@ -371,8 +371,16 @@ class Section3D:
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
+        self.end_x_frac = end_x_frac
+        self.end_z_frac = end_z_frac
 
-    def id_str(self):
+    def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
+        """Whether this section contains the given point."""
+        return (self.start_x_frac <= bridge.x_frac(x) <= self.end_x_frac) and (
+            self.start_z_frac <= bridge.z_frac(z) <= self.end_z_frac
+        )
+
+    def mat_id_str(self):
         """Representation of this section by material properties."""
         return f"{self.density}-{self.thickness}-{self.youngs}-{self.poissons}"
 
@@ -414,9 +422,27 @@ class Section3DPier(Section3D):
         start_frac_len: float,
     ):
         super().__init__(
-            density=density, thickness=thickness, youngs=youngs, poissons=poissons,
+            density=density,
+            thickness=thickness,
+            youngs=youngs,
+            poissons=poissons,
+            start_x_frac=None,
+            start_z_frac=None,
+            end_x_frac=None,
+            end_z_frac=None,
         )
         self.start_frac_len = start_frac_len
+
+    def __repr__(self):
+        """Readable representation."""
+        return (
+            "Section3D"
+            + f"\n  starts at {round_m(self.start_frac_len)}"
+            + f"\n  density = {self.density} kg/m"
+            + f"\n  thickness = {self.thickness} m"
+            + f"\n  youngs = {self.youngs} MPa"
+            + f"\n  poissons = {self.poissons}"
+        )
 
 
 # Deck Sections are either 2D or 3D sections.
@@ -465,6 +491,8 @@ class Bridge:
         nodes_at_mat_props: bool = False,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
+        self.type = None
+
         # Given arguments.
         self.name = name
         self.accuracy = accuracy
@@ -512,6 +540,15 @@ class Bridge:
         # TODO Move to another file.
         self._assert_bridge()
 
+    def deck_section_at(self, x: float, z: float) -> Section3D:
+        """Return the deck section at given position."""
+        print(len(self.sections))
+        for section in self.sections:
+            if section.contains(bridge=self, x=x, z=z):
+                return section
+
+        raise ValueError("No section for x, z = {x}, {z}")
+
     def print_info(self, pier_fix_info: bool = False):
         """Print summary information about this bridge.
 
@@ -551,7 +588,8 @@ class Bridge:
 
         """
         acc_str = f"-{self.accuracy}" if acc else ""
-        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
+        type_str = f"-{self.type}" if self.type is not None else ""
+        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}{type_str}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge.
@@ -562,7 +600,7 @@ class Bridge:
         half_axle = c.axle_width / 2
         return list(
             chain.from_iterable(
-                [lane.z_center() - half_axle, lane.z_center() + half_axle]
+                [lane.z_center - half_axle, lane.z_center + half_axle]
                 for lane in self.lanes
             )
         )

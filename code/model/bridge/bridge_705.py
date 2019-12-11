@@ -109,16 +109,24 @@ def load_bridge_705_deck_sections():
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
-    return [
+    # A list of each deck section, with incorrect 'end_z_frac'.
+    _deck_sections = [
         Section3D(
-            start_z_frac=(position / 1000) / bridge_705_width,
             density=density * 1e6,
             thickness=thickness / 1000,
             youngs=youngs,
             poissons=0.2,
+            start_x_frac=0,
+            start_z_frac=(position / 1000) / bridge_705_width,
+            end_x_frac=1,
+            end_z_frac=1,
         )
         for position, density, thickness, youngs in values
     ]
+    # Update 'end_z_frac'.
+    for i in range(len(_deck_sections) - 1):
+        _deck_sections[i].end_z_frac = _deck_sections[i + 1].start_z_frac
+    return _deck_sections
 
 
 bridge_705_sections_3d = load_bridge_705_deck_sections()

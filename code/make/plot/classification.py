@@ -9,7 +9,8 @@ from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import HealthyBridge
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
-from make.plot.distribution import load_normal_traffic_array, pier_disp_scenarios
+from make.plot.distribution import load_normal_traffic_array
+from classify.scenarios import each_pier_scenarios
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
@@ -20,7 +21,7 @@ from util import print_i
 
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
-    bridge_scenarios = [HealthyBridge()] + pier_disp_scenarios(c)
+    bridge_scenarios = [HealthyBridge()] + each_pier_scenarios(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
@@ -97,7 +98,7 @@ def joint_clustering_bridge(c: Config):
     plt.savefig(c.get_image_path("joint-clustering", "healthy-bridge"))
     plt.close()
 
-    bridge_scenario = pier_disp_scenarios(c)[0]
+    bridge_scenario = each_pier_scenarios(c)[0]
     responses = responses_to_traffic_array(
         c=c,
         traffic_array=normal_traffic_array,

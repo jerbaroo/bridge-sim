@@ -72,6 +72,7 @@ def plot_contour_deck(
     color: str = None,
     norm=None,
     center_norm: bool = False,
+    levels: int = 25,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -117,7 +118,7 @@ def plot_contour_deck(
             vmin = min(amin, -amax)
             vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    cs = plt.contourf(X, Z, H, levels=25, cmap=cmap, norm=norm)
+    cs = plt.contourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)

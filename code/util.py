@@ -77,7 +77,7 @@ def clean_generated(c: "Config"):
             for dir_name in dir_names:
                 clean_dir(os.path.join(root, dir_name))
 
-    clean_dir(c.generated_data_dir)
+    clean_dir(c.generated_data_dir())
 
 
 def kde_sampler(data, print_: bool = False):

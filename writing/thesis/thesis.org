@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Simulation-based anomaly detection of concrete slab bridges
+#+TITLE: Simulation-based damage detection of concrete slab bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
@@ -263,33 +263,7 @@ damage identification of civil infrastructure, traffic and bridge simulations,
 and real-life installations of sensors on bridges for the purpose of structural
 health monitoring.
 
-# Damage identification: vibration and modal properties: assumptions made.
-A significant amount of the research into damage identification of civil
-infrastructure is based on vibration data and modal properties, with methods on
-changes in a shift in natural frequency cite:stubbs2000global or change in mode
-shape cite:pandey1991damage. The location of damage on a computer model of a
-reinforced concrete bridge is identified based on a combination of modal
-properties in cite:dilena2011dynamic. In each of these cases the research is
-based on a controlled lab experiment and the assumption is made that the type of
-damage is limited to the type being identified. Damage was applied to a girder
-bridge and the mode shapes used to detect the location of damage, however the
-location was only detectable once the damage increased to a point that the
-bridge would have collapsed under a live load cite:doebling1998statistical.
-
-# Additional methods of damage identification.
-Additional methods of damage identification of civil infrastructure include the
-matrix update method, Bayes theorem, and neural networks. Damage identification
-based on the matrix update method cite:doebling1996damage is a model-based
-method that attempts to minimize the difference between the measured and model
-responses by an optimization technique that modifies a matrix representing model
-properties, such as the stiffness matrix. A problem with this method is that the
-optimization it not unique and the baseline matrix is possibly inaccurate. A
-Bayesian probabilistic approach was applied to a reinforced-concrete bridge
-column cite:sohn2000bayesian, this method compared the relative damage
-probabilites of different damage events based on data from vibration tests.
-Methods based on ANNs cite:yeung2005damage are based on labeled training data
-for different damage types, these methods depend largely on the quality of
-training data.
+** Damage Identification
 
 # Damage localization and assessment (levels 2 and 3): have limitations.
 The most basic form of damage identification is determining whether damage has
@@ -299,6 +273,39 @@ or make assumptions about the type of damage cite:peter2003review. While an SHM
 system should be capable of a minimal amount of condition assessment (CA) the
 more likely scenario is an additional investigation for CA is triggered by the
 system cite:brownjohn2006structural.
+
+# Vibration: assumptions made.
+A significant amount of the research into damage identification of civil
+infrastructure is based on vibration data, with methods based on changes in
+natural frequency cite:stubbs2000global or changes in mode shape
+cite:pandey1991damage.
+
+# Vibration: assumptions made.
+The location of damage on a computer model of a reinforced concrete bridge is
+identified based on a combination of modal properties in cite:dilena2011dynamic.
+In each of these cases the research is based on a controlled lab experiment and
+the assumption is made that the type of damage is limited to the type being
+identified. Damage was applied to a girder bridge and the mode shapes used to
+detect the location of damage, however the location was only detectable once the
+damage increased to a point that the bridge would have collapsed under a live
+load cite:doebling1998statistical.
+
+# Additional methods of damage identification.
+Additional methods of damage identification of civil infrastructure include
+model-updating methods, a probabilistic approach e.g. Bayes theorem, and pattern
+recognition approaches such as artificial neural networks. Damage identification
+based on model updating cite:doebling1996damage attempts to minimize the
+difference between the measured and model responses by an optimization technique
+that modifies model parameters, such as the stiffness matrix. A problem with
+this method is that the optimization it not unique and the initial parameters
+are possible inaccurate. A Bayesian probabilistic approach was applied to a
+reinforced-concrete bridge column cite:sohn2000bayesian, this method compared
+the relative damage probabilites of different damage events based on data from
+vibration tests. Methods based on ANNs cite:yeung2005damage are based on labeled
+training data for different damage types, these methods depend largely on the
+quality of training data.
+
+** Machine Learning
 
 # ML for SHM: prediction (level 4) not possible.
 A number of damage identification experiments were applied on an aircraft wing
@@ -315,6 +322,8 @@ similar behaviour and then detect damage when a sensor's responses are different
 from those in its group. This method succesfully detected a damaged joint and a
 joint with a damaged sensor.
 
+** Damage Types
+
 # Detecting faulty sensors.
 Damaged sensors can be considered a special class of damage that is very
 important to identify because faulty data can interfere with damage detection of
@@ -330,22 +339,7 @@ neural network (RNN) that takes into account spatial and past temporal data. In
 citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
 future temporal correlations.
 
-# Feature extraction.
-To avoid incorrect detection of anomalies due to environmental factors such as
-temperature, the feature extraction of data is very important in SHM. Feature
-extraction is arguably the most important and difficult step in ML-based health
-monitoring cite:worden2006application. The temperature across a bridge deck was
-measured during a 24 hour cycle and correlated with the bridge's natural
-frequencies in cite:doebling1997using. A machine learning algorithm based on PCA
-is presented in cite:ye2018integrated for separating the individual components
-of the deflection signal. An auto-associateive neural network is employed for
-separating the effect of damage in extracted features from that caused by the
-environmental variations of the system cite:sohn2002statistical.
-
-# Sensitivity to noise.
-When the noise level was under 10%, each individual component (temperature, live
-load, structural damage) was succesfully separated based on data from a computer
-model of a long-span bridge.
+** Simulation
 
 # Traffic simulations for damage detection on bridges.
 Data for damage detection on bridges can be collected in simulation. In doing
@@ -355,7 +349,32 @@ on simulated vibration data in cite:yeung2005damage, in this case the "traffic"
 was simply a single truck simulated with two point loads, one per axle, and
 moving at different speeds in different simulations.
 
-# Bridge simulations.
+** Environmental Factors
+
+# Feature extraction.
+To avoid incorrect detection of anomalies due to environmental factors such as
+temperature, the feature extraction of data is very important in SHM. Feature
+extraction is arguably the most important and difficult step in ML-based health
+monitoring cite:worden2006application.
+
+# Separations form environment.
+The temperature across a bridge deck was measured during a 24 hour cycle and
+correlated with the bridge's natural frequencies in cite:doebling1997using. A
+machine learning algorithm based on PCA is presented in cite:ye2018integrated
+for separating the individual components of the deflection signal. An
+auto-associative neural network is employed for separating the effect of damage
+in extracted features from that caused by the environmental variations of the
+system cite:sohn2002statistical.
+
+# Sensitivity to noise.
+When the noise level was under 10%, each individual component (temperature, live
+load, structural damage) was succesfully separated based on data from a computer
+model of a long-span bridge.
+
+** Health Monitoring Installations
+# ###############
+# Installations #
+# ###############
 
 # Sensor installations for SHM.
 
@@ -967,7 +986,9 @@ summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
 [[System Details]] but it is useful to present a brief overview in advance.
-*** Bridge Modeling
+
+*** Bridge Model
+
 # The bridge type.
 A parametric model for describing no-prestress no-posttension concrete slab
 bridges was created for the programming language Python. The parametric model
@@ -977,31 +998,32 @@ exists as the type =Bridge=.
 A =Bridge= is parameterized by dimensionality, length, width, piers, lanes,
 material properties and parameters that define the mesh density. A =Bridge= can
 be declared as 2D or 3D, this defines if the resulting FEM will be 2D or 3D. The
-length and width define the length and width of the bridge deck. Piers define
-the position, size and angle of the piers which support the bridge deck. Lanes
-define where vehicles are allowed to drive on the bridge, and the direction of
-traffic. Material properties determine the materials' interaction and their
-behaviour under load. Mesh parameters define the density of the base mesh.
+length and width define the area of the bridge deck. Piers define the position,
+size and angle of the piers which support the bridge deck. Lanes define where
+vehicles are allowed to drive on the bridge and the direction of traffic.
+Material properties determine the interaction between the bridge elements and
+their behaviour under load. Mesh parameters define the density of the base mesh
+and how the mesh is built.
 
 #+NAME: lst:bridge
 #+BEGIN_SRC haskell
-data Bridge = Bridge {
-    length   :: Float
-  , width    :: Float
-  , lanes    :: [Lane]
-  , sections :: [Section]
-  , piers    :: [Pier]
+data Bridge {
+  length   :: Float,
+  width    :: Float,
+  lanes    :: [Lane],
+  sections :: [Section],
+  piers    :: [Pier]
   }
 #+END_SRC
 
 #+NAME: lst:bridge-705
 #+BEGIN_SRC haskell
 bridge705 = Bridge {
-    length   :: 102
-  , width    :: 33.2
-  , lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)]
-  , sections :: [Section]
-  , piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
+  length   :: 102,
+  width    :: 33.2,
+  lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)],
+  sections :: [Section],
+  piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
   }
 #+END_SRC
    
@@ -1015,7 +1037,7 @@ bridge705 = Bridge {
   points.
 
   # \textcolor{red, TODO: shell boundaries at requested variation points}
-*** Bridge Scenario
+*** Damage Types
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
 The goal of the damage identification model is to identify that damage in a
@@ -1049,7 +1071,7 @@ number of selected damage scenarios.
  malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
-*** Traffic Modeling
+*** Traffic Model
 
 \textcolor{red}{Distribution of passenger vehicles}
 

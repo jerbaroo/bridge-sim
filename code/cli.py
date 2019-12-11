@@ -5,6 +5,7 @@ from config import Config
 from make.data import simulations
 from make.plot import contour
 from make.plot import classification as classification_
+from make.plot import geometry as geometry_
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -67,9 +68,9 @@ def cli(dimensions, mesh, two_materials, parallel):
     elif mesh == "full":
         c_func = bridge_705_config
     if dimensions == "3":
-        c = c_func(bridge_705_3d_overload)
+        c = lambda: c_func(bridge_705_3d_overload)
     elif dimensions == "2":
-        c = c_func(bridge_705_2d)
+        c = lambda: c_func(bridge_705_2d)
 
 
 #######################
@@ -79,13 +80,28 @@ def cli(dimensions, mesh, two_materials, parallel):
 
 @cli.command()
 def clean():
-    clean_generated(c)
+    clean_generated(c())
 
 
 @cli.command()
 @click.option("--piers", is_flag=True)
 def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
+
+
+####################
+##### Geometry #####
+####################
+
+
+@cli.group(help="Plots of the geometry of the bridge")
+def geometry():
+    pass
+
+
+@geometry.command(help="Nodes coloured by material properties")
+def node_cloud():
+    geometry_.make_cloud_of_node_plots(c())
 
 
 ######################
@@ -100,12 +116,12 @@ def simulation():
 
 @simulation.command()
 def unit_load_simulations():
-    simulations.run_uls(c)
+    simulations.run_uls(c())
 
 
 @simulation.command()
 def convergence_data():
-    verification.make_convergence_data(c, run=True, plot=False)
+    verification.make_convergence_data(c(), run=True, plot=False)
 
 
 ########################
@@ -120,7 +136,7 @@ def verify():
 
 @verify.command()
 def comparison_plots_705():
-    contour.comparison_plots_705(c)
+    contour.comparison_plots_705(c())
 
 
 ####################
@@ -128,14 +144,29 @@ def comparison_plots_705():
 ####################
 
 
-@cli.group()
+@cli.group(help="Plots for damage scenarios.")
 def scenario():
     pass
 
 
+@scenario.command(help="Mean response to traffic per scenario.")
+def contour_traffic():
+    contour.mean_traffic_response_plots(c())
+
+
+@scenario.command(help="Response to point loads per scenario.")
+def contour_point_load():
+    contour.point_load_response_plots(c())
+
+
 @scenario.command()
-def contour_pier_displacement():
-    contour.plots_of_pier_displacement(c)
+def contour_cracked_concrete():
+    contour.cracked_concrete_plots(c())
+
+
+@scenario.command()
+def contour_each_pier_displaced():
+    contour.each_pier_displacement_plots(c())
 
 
 ########################
@@ -155,12 +186,12 @@ def classify():
 
 @classify.command()
 def oneclass():
-    classification_.oneclass(c)
+    classification_.oneclass(c())
 
 
 @classify.command()
 def joint_clustering_bridge():
-    classification_.joint_clustering_bridge(c)
+    classification_.joint_clustering_bridge(c())
 
 
 if __name__ == "__main__":

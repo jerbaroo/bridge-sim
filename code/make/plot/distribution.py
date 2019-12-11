@@ -7,6 +7,7 @@ from scipy.stats import chisquare
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic_array
+from classify.scenarios import all_scenarios
 from classify.scenario.bridge import (
     HealthyBridge,
     PierDispBridge,
@@ -25,41 +26,20 @@ from plot.responses import plot_contour_deck, plot_distributions
 from util import print_i, safe_str
 
 
-def load_normal_traffic_array(c: Config):
+def load_normal_traffic_array(c: Config, mins: float = 5):
     """Distribution plots currently use this for normal traffic."""
     traffic_scenario = normal_traffic(c, 5, 2)
     return (
-        load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * 5),
+        load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * mins),
         traffic_scenario,
     )
-
-
-# Each pier displaced by 1mm.
-pier_disp_scenarios = lambda c: [
-    PierDispBridge([DisplacementCtrl(displacement=0.001, pier=p)])
-    for p, _ in enumerate(c.bridge.supports)
-]
-
-
-additional_pier_scenarios = lambda c: (
-    [
-        equal_pier_disp(bridge=c.bridge, displacement=displacement)
-        for displacement in [0.1, 0.01]
-    ]
-    + [
-        longitudinal_pier_disp(bridge=c.bridge, start=start, step=step)
-        for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05])
-    ]
-)
 
 
 def distribution_plots(c: Config):
     """Make all distribution plots."""
     lane_distribution_plots(
         c=c,
-        bridge_scenarios=(
-            [HealthyBridge()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
-        ),
+        bridge_scenarios=(all_scenarios(c)),
         response_type=ResponseType.YTranslation,
     )
     pier_displacement_distribution_plots(c=c, response_type=ResponseType.YTranslation)
