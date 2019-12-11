@@ -200,8 +200,8 @@ def oneclass():
 
 
 @classify.command()
-def joint_clustering_bridge():
-    classification_.joint_clustering_bridge(c())
+def pairwise_sensors():
+    classification_.pairwise_sensors(c())
 
 
 if __name__ == "__main__":
