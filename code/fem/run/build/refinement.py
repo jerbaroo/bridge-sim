@@ -11,7 +11,7 @@ def get_deck_refinement_positions(bridge: Bridge):
     x_positions, z_positions = [], []
 
     # Adds three x positions per pier.
-    add_x_per_pier = 5
+    add_x_per_pier = 9
     for pier in bridge.supports:
         half = pier.width_top / 2
         assert half * 2 == pier.width_top

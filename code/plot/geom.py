@@ -84,6 +84,8 @@ def top_view_bridge(
 def plot_cloud_of_nodes(
     c: Config,
     equal_axis: bool,
+    title: str,
+    units: str,
     save: str,
     node_prop: Optional[Callable[[Section3D], float]] = None,
     deck: bool = True,
@@ -132,11 +134,13 @@ def plot_cloud_of_nodes(
 
     def plot_and_save(fig, ax, append: str = ""):
         """Plot the cloud of points with optional additional operation."""
+        plt.title(title)
         plt.landscape()
         plt.set_cmap("coolwarm")
         p = ax.scatter(xs, zs, ys, c=cs, s=1)
         if cs is not None:
-            fig.colorbar(p)
+            clb = fig.colorbar(p)
+            clb.ax.set_title(units)
         deck_str = "-deck" if deck else ""
         piers_str = "-piers" if piers else ""
         plt.savefig(f"{save}{deck_str}{piers_str}{append}")

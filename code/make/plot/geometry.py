@@ -11,6 +11,7 @@ def make_cloud_of_node_plots(c: Config):
         """Make cloud of nodes plots for full and equal axes."""
         # Cloud of nodes with equal axes.
         plot_cloud_of_nodes(
+            title=prop,
             c=c,
             equal_axis=True,
             save=c.get_image_path(f"cloud-of-nodes{prop}-equal-axis", "cloud"),
@@ -42,6 +43,6 @@ def make_cloud_of_node_plots(c: Config):
             )
             deck_pier_plots(prop, c=c, **kwargs)
 
-    all_plots("-youngs", node_prop=lambda s: s.youngs)
-    all_plots("-density", node_prop=lambda s: s.density)
-    all_plots("-thickness", node_prop=lambda s: s.thickness)
+    all_plots("Bridge 705: Young's Modulus", units="MPa", node_prop=lambda s: s.youngs)
+    # all_plots("Density", node_prop=lambda s: s.density)
+    # all_plots("Thickness", node_prop=lambda s: s.thickness)

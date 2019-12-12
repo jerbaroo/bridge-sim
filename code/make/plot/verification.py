@@ -614,6 +614,8 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
                 mean_ = np.mean(
                     list(responses.at_deck(point, interp=True) for point in grid)
                 )
+                # Aside: if this assertion fails it may be because the
+                # simulations have reached a size where they are failing.
                 assert len(mean_) == 1
                 mean_ = mean_[0]
                 assert deck_nodes + pier_nodes == len(nodes_by_id)
@@ -722,12 +724,24 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
                 shell_size, means / final_mean, color="green", label="Mean response",
             )
 
-    plt.title("Displacement as a function of model size")
-    ax1.legend()
+            # Zoomed in part.
+            # from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+            # axins = zoomed_inset_axes(ax1, 2.5, loc=4)
+            # half_len = int(len(shell_size) / 2)
+            # axins.plot(shell_size[half_len:], mins[half_len:] / final_min, color="red")
+            # axins.plot(shell_size[half_len:], maxes[half_len:] / final_max, color="orange")
+            # axins.plot(shell_size[half_len:], means[half_len:] / final_mean, color="green")
+
+            plt.sca(ax1)
+
+    ax1.set_xlim(max(shell_size), min(shell_size))
+    plt.title("Displacement as a function of shell area")
     # ax2.legend()
-    ax1.set_xlabel("Mean shell size (m²)")
+    ax1.set_xlabel("Mean shell area (m²)")
     ax1.set_ylabel("Displacement (mm)")
+    ax1.legend()
     # ax2.set_ylabel("Displacement (mm)")
+
     plt.savefig(c.get_image_path("verification", "min-max", bridge=False))
     plt.close()
 
@@ -745,8 +759,9 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
             plt.plot(shell_size, ndeck + npier, label="total nodes")
         break
 
-    plt.title("Deck and pier nodes as a function of model size")
-    plt.xlabel("Mean shell size (m²)")
+    plt.xlim(max(shell_size), min(shell_size))
+    plt.title("Number of nodes as a function of shell area")
+    plt.xlabel("Mean shell area (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
     plt.savefig(c.get_image_path("verification", "model-size", bridge=False))
@@ -761,8 +776,9 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
             basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
             plt.plot(shell_size, time, label=machine_name)
 
-    plt.title("Run-time as a function of model size")
-    plt.xlabel("Mean shell size (m²)")
+    plt.xlim(max(shell_size), min(shell_size))
+    plt.title("Run-time as a function of shell area")
+    plt.xlabel("Mean shell area (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
     plt.savefig(c.get_image_path("verification", "run-time", bridge=False))

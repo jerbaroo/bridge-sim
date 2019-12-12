@@ -1,4 +1,4 @@
-#+TITLE: Presentation 12th December
+#+TITLE: Simulation-based damage detection of concrete slab bridges
 
 * Dutch Main Road Network
 | Stucture type        | Number | Deck Area (m2) |
@@ -11,60 +11,191 @@
 | Aqueduct             |      7 |         86,491 |
 |----------------------+--------+----------------|
 | Total                |  3,283 |      4,530,593 |
-* Verification: Truck 1
-[[./wagen1.png]]
-* Verification: Truck positions
-[[./truck-pos.png]]
-* Fast Response Calculation
-- Via Matrix multiplication
-- Cluster not needed
-* Verification: Contour A
-[[./contour/diana-displacement-loadx=101,765-loadz=-12,626.png]]
-* Verification: Contour A
-[[./contour/displacement-loadx=101,765-loadz=-12,626.png]]
-* Verification: Contour B
-[[./contour/diana-displacement-loadx=34,955-loadz=12,626.png]]
-* Verification: Contour B
-[[./contour/displacement-loadx=34,955-loadz=12,626.png]]
-* Verification: Contour C
-[[./contour/diana-displacement-loadx=51,251-loadz=0,000.png]]
-* Verification: Contour C
-[[./contour/displacement-loadx=51,251-loadz=0,000.png]]
-* Verification: Contour D
-[[./contour/diana-displacement-loadx=92,406-loadz=-4,195.png]]
-* Verification: Contour D
-[[./contour/displacement-loadx=92,406-loadz=-4,195.png]]
-* Verification: Displacement
-[[./displa-0-copy.png]]
-* Verification: Displacement
-[[./displa-1-copy.png]]
-* Verification: Displacement
-[[./displa-2-copy.png]]
-* Verification: Displacement
-[[./regression.png]]
+* Existing SHM
+- State of the art do not determine extent of damage
+- If they do:
+  - assumptions are made
+  - or in a controlled experiment
+- Only determine whether damage present or not
+  - global health monitoring
+- Detection only necessary to then take further action
+  - on-site examination
+* Bridge Model
+#+BEGIN_SRC haskell
+data Bridge {
+  length         :: Float,
+  width          :: Float,
+  piers          :: [Pier],
+  deck_materials :: [Section],
+  lanes          :: [Lane],
+}
+#+END_SRC
+* Bridge Model: Pier
+#+BEGIN_SRC haskell
+data Pier {
+  x            :: Float,
+  z            :: Float,
+  length       :: Float,
+  height       :: Float,
+  widthTop     :: Float,
+  widthBottom  :: Float,
+  materials    :: [Material]
+  baseMesh     :: (Int, Int, Int, Int)
+  fixXTrans    :: Bool,
+  fixYTrans ...
+}
+#+END_SRC
+* Bridge Model: Pier
+- Pier: side view
+#+BEGIN_SRC haskell
+<--------x--------->
+             <---length-->
+|------------|-----------|--------| ↑ h
+              \         /           | e
+               \       /            | i
+                \     /             | g
+                 \   /              | h
+                  \ /               ↓ t
+#+END_SRC
+* Bridge Model: Pier
+- Pier: top view
+#+BEGIN_SRC haskell
+|---------------------------------| ↑+
+|---------------------------------| |
+|---------------------------------| |
+|---------------------------------| |
+|---------------------------------| 0
+|------------|-----------|--------| |
+|------------|-----------|--------| | z = -2
+|------------|-----------|--------| |
+|---------------------------------| ↓-
+#+END_SRC
+* Bridge Model: Pier
+- Pier: front view
+#+BEGIN_SRC haskell
+                width-top
+              <---------->
+              |----------|
+               \         /
+                \       /
+                 \     /
+                  \   /
+                   \_/
+                   <->
+               width-bottom
+#+END_SRC
+* Bridge Model: Material
+#+BEGIN_SRC haskell
+data Material {
+    density   :: Float, -- density in kg/m
+    thickness :: Float, -- thickness in m
+    youngs    :: Float, -- Young's modulus in MPa
+    poissons  :: Float, -- Poisson's ratio
+    start_x   :: Float, -- start position in x direction
+    start_z   :: Float  -- start position in z direction
+}
+#+END_SRC
+* Generated Model: Bridge 705
+[[./cloud.png]]
+* Generated Model
+- bridge is parametric
+  - material propertes, dimensions
+- can generate 2D beam or 3D shell model
+* Mesh: Deck Nodes
+  - base mesh  = 50 * 20
+  - from piers = 12 * 68
+  - from loads = 0 * 0
+  - from materials = 0 * 24
+  - from pier refinement = 66 * 0
+  - total = 128 * 112
+* Mesh: Pier Nodes
+  - base mesh  = 17 * 17
+  - from deck = 0.0 * 7.0 (mean)
+  - total = 17 * 24
+* Unit Load Simulations
+[[./ils.png]]
+* Responses via Superposition: Traffic
+- 2 lanes, 4 wheel tracks
+- vehicle leaving on bottom lane
+- lighter vehicle leaving top lane
+#+BEGIN_SRC python
+traffic_at_time_0 = [
+    1, 2, 0,
+    1, 2, 0,
+    0, 3, 3,
+    0, 3, 3]
+#+END_SRC
+* Responses via Superposition: Traffic
+- =t= rows, one per unit time
+- =n * 4= columns, n per wheel track
+#+BEGIN_SRC python
+$ traffic = [
+    [1, 2, 0, 1, 2, 0, 0, 3, 3, 0, 3, 3],
+    [2, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 3],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+#+END_SRC
+* Responses via Superposition: Unit Load Simulations
+- =n * 4= rows, n per wheel track
+- =p= columns, points you want a response at
+- Each cell is
+  - the response at point =$p_i$=
+  - from unit load simulation =j=
+#+BEGIN_SRC python
+$ points = [
+    [1, 0, 0, 2]
+    [1, 0, 0, 3]
+    [2, 1, 0, 3]
+    [2, 1, 0, 2]
+    [1, 2, 1, 2]
+    [1, 2, 1, 1]
+    [0, 1, 0, 1]
+    ...
+#+END_SRC
+* Validation: Truck 1 in experimental campaign
+[[../nov-presentation/wagen1.png]]
+* Validation: Truck positions in Experimental Campaign
+[[../nov-presentation/truck-pos.png]]
+* Validation: Displacement Diana
+[[./diana-a.png]]
+* Validation: Displacement OpenSees
+[[./opensees-a.png]]
+* Validation: Displacement Diana
+[[./diana-b.png]]
+* Validation: Displacement OpenSees
+[[./opensees-b.png]]
+* Validation: Displacement
+[[./displa-0.png]]
+* Validation: Displacement
+[[./displa-1.png]]
+* Validation: Displacement
+[[./regression-displa.png]]
+* Validation Strain: OpenSees
+* Validation Strain: OpenSees
+* Validation: Strain
+[[./regression-strain.png]]
 * Pier Settlement
 [[./pier-1.png]]
 * Pier Settlement
 [[./pier-2.png]]
-* Response Distributions: Healthy
-[[./distribution-1.png]]
-* Response Distributions: Healthy
-[[./distribution-2.png]]
 * Pier Settlement: Compared to Healthy Distributions
 [[./pier-3.png]]
-* Verification: Convergence
+* Model size
+[[./model-size.png]]
+* Model convergence
 [[./min-max.png]]
+* Model run-time
+[[./run-time.png]]
 * Overview
 - December Remainder
-  - Writing
-  - ML-based damage experiment
+  - Model agreement
   - Temperature in model
+  - First ML-based damage experiment
 - January/February
-  - Classification
+  - Further classification...
 * Questions for You
 - Data on passenger vehicles?
   - Axles distances and weights
-- Typical size and position of crack groups?
+- Typical size and position of crack zones?
   - Concrete slab bridges
 - Convinced by 5 variables for classification experiments?
   - vehicle loading
