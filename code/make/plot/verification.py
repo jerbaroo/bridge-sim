@@ -1,6 +1,7 @@
 """Verification plots."""
 import glob
 import itertools
+import math
 import os
 from collections import defaultdict
 from itertools import chain
@@ -539,8 +540,6 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
             accuracy="convergence",
             base_mesh_deck_nodes_x=x,
             base_mesh_deck_nodes_z=z,
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5,
             **kwargs,
         )
 
@@ -562,22 +561,24 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     ]
 
     if run:
-        print("hi")
         with open(path + ".txt", "w") as f:
             f.write(
                 "xload,zload,xnodes,znodes,decknodes,piernodes,time,min,max,mean,shell-size"
             )
-        print("steps")
-        steps = 100
-        xs = np.linspace(2, c.bridge.length * 4, steps)
-        zs = np.linspace(2, c.bridge.width * 4, steps)
+
+        min_shell_len = 0.2
+        max_x = math.ceil(c.bridge.length / min_shell_len) + 1
+        max_z = math.ceil(c.bridge.width / min_shell_len) + 1
+        steps = max(max_x, max_z)
+        print_i(f"max_x, max_z, steps = {max_x}, {max_z}, {steps}")
+        # The '-1' is because we are starting from '2'.
+        xs = np.linspace(2, max_x, steps - 1)
+        zs = np.linspace(2, max_z, steps - 1)
+
         for step in range(steps):
-            print("step")
             clean_generated(c)
             x, z = int(xs[step]), int(zs[step])
-            print("step")
             print_i(f"Running model with x, z = {x}, {z}")
-            print("step")
             with open(path + ".txt", "a") as f:
                 f.write(f"\n{load_point.x}, {load_point.z}, {x}, {z}")
             c = bridge_705_config(bridge_overload)
