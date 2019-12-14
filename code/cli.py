@@ -121,7 +121,7 @@ def unit_load_simulations():
 
 @simulation.command()
 def convergence_data(help="Record simulation as model size is increased."):
-    verification.make_convergence_data(c(), run=True, plot=False)
+    verification.make_convergence_data(c())
 
 
 ########################

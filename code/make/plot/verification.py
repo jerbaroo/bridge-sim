@@ -503,20 +503,8 @@ def r2_plots(c: Config):
     plt.savefig(c.get_image_path("verification", "regression-strain"))
 
 
-def make_convergence_data(c: Config, run: bool, plot: bool):
-    """Make convergence data file, increasing mesh density per simulation.
-
-    NOTE: This is a simplistic plot. After running this function with argument
-    'run=True' on a few different machines, the results should be gathered as
-    specified in 'plot_convergence' and that function run to generate a better
-    plot.
-
-    Args:
-        c: Config, global configuration object.
-        run: bool, whether to re-run data collection simulations.
-        plot: bool, whether to plot the resulting data.
-
-    """
+def make_convergence_data(c: Config):
+    """Make convergence data file, increasing mesh density per simulation."""
     response_type = ResponseType.YTranslation
     load_point = Point(x=35, y=0, z=9.4)
     bridge = bridge_705_3d()
@@ -530,23 +518,19 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
         ],
         response_types=[response_type],
     )
-    x, z = 2, 2
+    deck_x, deck_z, pier_y, pier_z = 2, 2, 3, 3
 
     def bridge_overload(**kwargs):
-        print()
-        print(x, z)
+        print(deck_x, deck_z, pier_y, pier_z)
         return bridge_705_3d(
             name=f"Bridge 705",
             accuracy="convergence",
-            base_mesh_deck_nodes_x=x,
-            base_mesh_deck_nodes_z=z,
+            base_mesh_deck_nodes_x=deck_x,
+            base_mesh_deck_nodes_z=deck_z,
+            base_mesh_pier_nodes_y=pier_y,
+            base_mesh_pier_nodes_z=pier_z,
             **kwargs,
         )
-
-    c = bridge_705_config(bridge_overload)
-    path = os.path.join(
-        c.root_generated_images_dir, "convergence", "convergence_results"
-    )
 
     # A grid of points over which to calculate the mean response. The reason for
     # this is because if the number of nodes increases, as model size increases,
@@ -560,82 +544,118 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
         )
     ]
 
-    if run:
-        with open(path + ".txt", "w") as f:
+    # Write the header information to the results file.
+    c = bridge_705_config(bridge_overload)
+    path = os.path.join(
+        c.root_generated_images_dir, "convergence", "convergence_results")
+    with open(path + ".txt", "w") as f:
+        f.write(
+            "xload,zload,xnodes,znodes,ypierz,zpier,decknodes,piernodes,time"
+            + ",min,max,mean,shell-size,deck-size,pier-size"
+        )
+
+    # Here we create an increaseing list of the number of nodes for the
+    # deck, one list for the number of x nodes and one for the number of z
+    # nodes. These lists are such that at each position the number of nodes
+    # for z will be scaled to the number of nodes for x, based on the ratio
+    # of width/length of the bridge.
+    min_shell_len = 0.2
+    max_x = math.ceil(c.bridge.length / min_shell_len) + 1
+    max_z = math.ceil(c.bridge.width / min_shell_len) + 1
+    print_i(f"max_x, max_z = {max_x}, {max_z}")
+    # The '-1' is because we are starting from '2'.
+    deck_max = max(max_x, max_z)
+    xs = np.linspace(2, max_x, deck_max - 1)
+    zs = np.linspace(2, max_z, deck_max - 1)
+
+    # After each run of the model, the average element size of the deck
+    # elements and the pier elements is checked. Whichever is lower will be
+    # incremented.
+    deck_index = 0
+    while deck_index < len(xs):
+
+        # Start by cleaning old results, and determining deck nodes.
+        clean_generated(c)
+        deck_x, deck_z = int(xs[deck_index]), int(zs[deck_index])
+        print_i(
+            "Running model with:"
+            f"\n  deck_x, deck_z = {deck_x}, {deck_z}"
+            f"\n  pier_y, pier_z = {pier_y}, {pier_z}")
+        with open(path + ".txt", "a") as f:
             f.write(
-                "xload,zload,xnodes,znodes,decknodes,piernodes,time,min,max,mean,shell-size"
+                f"\n{load_point.x}, {load_point.z}, {deck_x}, {deck_z}"
+                f", {pier_y}, {pier_z}")
+
+        c = bridge_705_config(bridge_overload)
+        try:
+            # Start timing and run the simulation.
+            start = timer()
+            responses = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=response_type,
+                sim_runner=OSRunner(c),
             )
 
-        min_shell_len = 0.2
-        max_x = math.ceil(c.bridge.length / min_shell_len) + 1
-        max_z = math.ceil(c.bridge.width / min_shell_len) + 1
-        steps = max(max_x, max_z)
-        print_i(f"max_x, max_z, steps = {max_x}, {max_z}, {steps}")
-        # The '-1' is because we are starting from '2'.
-        xs = np.linspace(2, max_x, steps - 1)
-        zs = np.linspace(2, max_z, steps - 1)
+            # Determine shell sizes for the deck, pier and whole bridge.
+            shells = shells_by_id.values()
+            avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
+            avg_pier_size = np.mean([s.area() for s in shells if s.pier])
+            avg_shell_size = np.mean([s.area() for s in shells])
 
-        for step in range(steps):
-            clean_generated(c)
-            x, z = int(xs[step]), int(zs[step])
-            print_i(f"Running model with x, z = {x}, {z}")
+            # TODO: Remove to deck interpolation test.
+            for x in responses.xs:
+                if 0 in responses.zs[x]:
+                    for z in responses.zs[x][0]:
+                        og = responses.responses[0][x][0][z].value
+                        ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
+                        assert np.isclose(og, ip)
+
+            # Determine number of deck and pier nodes.
+            deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
+            pier_nodes = len(
+                [
+                    n for n in nodes_by_id.values()
+                    if n.pier is not None and not n.deck
+                ]
+            )
+            assert deck_nodes + pier_nodes == len(nodes_by_id)
+
+            # Determine min, max and mean responses.
+            all_values = list(responses.values())
+            min_ = np.min(all_values)
+            max_ = np.max(all_values)
+            mean_ = np.mean(
+                list(responses.at_deck(point, interp=True) for point in grid)
+            )
+            # NOTE: if this assertion fails it may be because the
+            # simulations have reached a size where they are failing.
+            assert len(mean_) == 1
+            mean_ = mean_[0]
+
+            # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
-                f.write(f"\n{load_point.x}, {load_point.z}, {x}, {z}")
-            c = bridge_705_config(bridge_overload)
-            start = timer()
-            try:
-                responses = load_fem_responses(
-                    c=c,
-                    sim_params=fem_params,
-                    response_type=response_type,
-                    sim_runner=OSRunner(c),
+                f.write(
+                    f", {deck_nodes}, {pier_nodes}, {timer() - start}"
+                    f", {min_}, {max_}, {mean_}, {avg_shell_size}"
+                    f", {avg_deck_size}, {avg_pier_size}"
                 )
-                shells = shells_by_id.values()
-                shell_sizes = list(map(lambda s: s.area(), shells))
-                avg_shell_size = np.mean(shell_sizes)
 
-                # TODO: Remove.
-                for x in responses.xs:
-                    if 0 in responses.zs[x]:
-                        for z in responses.zs[x][0]:
-                            og = responses.responses[0][x][0][z].value
-                            ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
-                            assert np.isclose(og, ip)
+            # Either update the deck index, or number of pier nodes.
+            if avg_deck_size > avg_pier_size:
+                deck_index += 1
+            else:
+                # Number of pier nodes in z direction must be an odd number.
+                # Thus we always add 2. We add 2 in y direction aswell to keep
+                # them consistent.
+                pier_y += 2
+                pier_z += 2
 
-                deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
-                pier_nodes = len(
-                    [
-                        n
-                        for n in nodes_by_id.values()
-                        if n.pier is not None and not n.deck
-                    ]
-                )
-                min_ = np.min(list(responses.values()))
-                max_ = np.max(list(responses.values()))
-                mean_ = np.mean(
-                    list(responses.at_deck(point, interp=True) for point in grid)
-                )
-                # Aside: if this assertion fails it may be because the
-                # simulations have reached a size where they are failing.
-                assert len(mean_) == 1
-                mean_ = mean_[0]
-                assert deck_nodes + pier_nodes == len(nodes_by_id)
-                with open(path + ".txt", "a") as f:
-                    f.write(
-                        f", {deck_nodes}, {pier_nodes}, {timer() - start}"
-                        + f", {min_}, {max_}, {mean_}, {avg_shell_size}"
-                    )
-            except ValueError as e:
-                if "No responses found" in str(e):
-                    print_i("Simulation failed. Time to plot results")
-                else:
-                    raise e
-
-    if plot:
-        results = read_results(path + ".txt", min_spaces=4)
-        plt.plot([r[7] for r in results])
-        plt.savefig(path)
-        plt.close()
+        except ValueError as e:
+            if "No responses found" in str(e):
+                print_i("Simulation failed. Time to plot results")
+            else:
+                raise e
 
 
 def plot_convergence(c: Config, only: Optional[List[str]] = None):
