@@ -130,21 +130,21 @@ def convergence_data(help="Record simulation as model size is increased."):
 
 
 @cli.group()
-def verify():
+def validate():
     pass
 
 
-@verify.command(help="Contour plots comparing OpenSees and Diana.")
+@validate.command(help="Contour plots comparing OpenSees and Diana.")
 def diana_comp():
     contour.comparison_plots_705(c())
 
 
-@verify.command(help="Regression plots against bridge 705 measurements.")
+@validate.command(help="Regression plots against bridge 705 measurements.")
 def r2():
     verification.r2_plots(c())
 
 
-@verify.command(help="Plot of model convergence as model size increases.")
+@validate.command(help="Plot of model convergence as model size increases.")
 def convergence():
     verification.plot_convergence(c())
 
