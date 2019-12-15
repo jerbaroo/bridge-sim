@@ -2,9 +2,9 @@
 import os
 from typing import Callable, List, Optional
 
-import matplotlib.patches as patches
+import matplotlib
 import numpy as np
-from mpl_toolkits import mplot3d
+from scipy.interpolate import interp2d
 
 # This import registers the 3D projection, but is otherwise unused.
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
@@ -60,7 +60,7 @@ def top_view_bridge(
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
-                patches.Rectangle(
+                matplotlib.patches.Rectangle(
                     (0, lane.z_min),
                     bridge.length,
                     lane.z_max - lane.z_min,
@@ -88,42 +88,50 @@ def shell_plots(shells, prop_name, prop_f, outline, save):
     # Coordinates for the purpose of rotating the plot perspective.
     xs, ys, zs = [], [], []
     rects = []
+    prop_min, prop_max = np.inf, -np.inf
     for shell in shells:
         for node in shell.nodes():
             xs.append(node.x)
             ys.append(node.y)
             zs.append(node.z)
-            # print(node.x, node.y, node.z)
+        shell_prop = prop_f(shell)
+        if shell_prop < prop_min:
+            prop_min = shell_prop
+        if shell_prop > prop_max:
+            prop_max = shell_prop
     xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
+
+    norm = matplotlib.colors.Normalize(vmin=prop_min, vmax=prop_max)
+    cmap = matplotlib.cm.get_cmap("coolwarm")
 
     def plot_and_save(fig, ax, append):
         """Plot the cloud of points with optional additional operation."""
 
-        from scipy.interpolate import interp2d
+        for shell_i, shell_pos_i in enumerate(np.arange(0, len(xs), step=4)):
+            shell_end = shell_pos_i + 4
+            shell_xs = xs[shell_pos_i:shell_end]
+            shell_zs = zs[shell_pos_i:shell_end]
+            shell_ys = ys[shell_pos_i:shell_end]
 
-        for shell_i in np.arange(0, len(xs), step=4):
-            shell_end = shell_i + 4
-            shell_xs = xs[shell_i:shell_end]
-            shell_zs = zs[shell_i:shell_end]
-            shell_ys = ys[shell_i:shell_end]
-
+            # Plot the shell's surface.
             interp = interp2d(x=shell_xs, y=shell_zs, z=shell_ys)
-
             X, Z = np.meshgrid(shell_xs, shell_zs)
             Y = np.empty(X.shape)
             for i in range(X.shape[0]):
                 for j in range(X.shape[1]):
                     Y[i, j] = interp(X[i, j], Z[i, j])
-
-            ax.plot_surface(X, Z, Y, facecolor="orange")
+            colour = cmap(norm(prop_f(shells[shell_i])))
+            ax.plot_surface(
+                X, Z, Y, rcount=2, ccount=2, color=colour, shade=False, alpha=1,
+                edgecolors="black" if outline else None, linewidth=0.1)
 
         plt.title(prop_name)
-        plt.landscape()
             # clb = fig.colorbar(p)
             # clb.ax.set_title("TODO")
-        plt.savefig(f"{save}{append}")
+        plt.savefig(f"{save}{append}.pdf")
         plt.close()
 
+    plt.landscape()
     # plot_and_save(None, None, "")
     for fig, ax, angle in angles_3d(equal_axis=True, xs=xs, ys=zs, zs=ys):
         plot_and_save(fig, ax, "")

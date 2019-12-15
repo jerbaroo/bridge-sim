@@ -18,16 +18,17 @@ def make_shell_plots(c: Config):
     all_shells = shells_by_id.values()
     deck_shells = [s for s in all_shells if not s.pier]
     pier_shells = [s for s in all_shells if s.pier]
+    all_shells = pier_shells + deck_shells
 
     # For each combination of parameters plot the shells.
     for shells_name, shells in [("all", all_shells), ("deck", deck_shells), ("pier", pier_shells)]:
         for outline in [True, False]:
-            for prop_name, prop_f in [("Young's modulus", lambda s: s.youngs)]:
+            for prop_name, prop_f in [("Young's modulus", lambda s: s.section.youngs)]:
                 shell_plots(
                     shells=shells,
                     prop_name=prop_name,
                     prop_f=prop_f,
-                    outline=False,
+                    outline=outline,
                     save=c.get_image_path(
                         "geometry",
                         f"shells-{shells_name}-{prop_name}-outline-{outline}"))
