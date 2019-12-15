@@ -671,6 +671,9 @@ def plot_convergence(c: Config):
         machine_name = os.path.basename(filepath).split("-")[1].split(".")[0]
         machines[machine_name] = pd.read_csv(filepath).dropna()
 
+    if len(machines) == 0:
+        raise ValueError(f"No results found in {convergence_dir}")
+
     # Map from machine name to loading position to list of Series.
     machine_results = defaultdict(lambda: defaultdict(list))
     for machine_name, df in machines.items():
@@ -682,7 +685,9 @@ def plot_convergence(c: Config):
     results = defaultdict(dict)
     for machine_name, loading_pos_dict in machine_results.items():
         for (x_load, z_load), rows in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = (
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size = (
+                [],
+                [],
                 [],
                 [],
                 [],
@@ -703,8 +708,10 @@ def plot_convergence(c: Config):
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
                 shell_size.append(row["shell-size"])
+                deck_shell_size.append(row["deck-size"])
+                pier_shell_size.append(row["pier-size"])
             results[machine_name][(x_load, z_load)] = list(
-                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier, shell_size])
+                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size])
             )
 
     ########################################
@@ -715,7 +722,7 @@ def plot_convergence(c: Config):
     fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size = lines
             final_mean = np.mean(means[-5:])
             final_max = np.mean(maxes[-5:])
             final_min = np.mean(mins[-5:])
@@ -741,8 +748,8 @@ def plot_convergence(c: Config):
             plt.sca(ax1)
 
     plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Displacement as a function of shell area")
-    ax1.set_xlabel("Mean shell area (m²)")
+    plt.title("Displacement as a function of element area")
+    ax1.set_xlabel("Mean element area (m²)")
     ax1.set_ylabel("Displacement (mm)")
     ax1.legend()
     # ax2.set_ylabel("Displacement (mm)")
@@ -758,7 +765,7 @@ def plot_convergence(c: Config):
     # This should be the same for each machine, so skip the rest.
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size = lines
             plt.plot(shell_size, basex * basez, label="base mesh deck nodes")
             plt.plot(shell_size, ndeck, label="deck nodes")
             plt.plot(shell_size, npier, label="pier nodes")
@@ -766,8 +773,8 @@ def plot_convergence(c: Config):
         break
 
     plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Number of nodes as a function of shell area")
-    plt.xlabel("Mean shell area (m²)")
+    plt.title("Number of nodes as a function of element area")
+    plt.xlabel("Mean element area (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
     plt.savefig(c.get_image_path("validation", "model-size", bridge=False))
@@ -779,12 +786,12 @@ def plot_convergence(c: Config):
 
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size = lines
             plt.plot(shell_size, time, label=machine_name)
 
     plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Run-time as a function of shell area")
-    plt.xlabel("Mean shell area (m²)")
+    plt.title("Run-time as a function of element area")
+    plt.xlabel("Mean element area (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
     plt.savefig(c.get_image_path("validation", "run-time", bridge=False))
@@ -796,12 +803,12 @@ def plot_convergence(c: Config):
 
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size = lines
+            basex, basez, mins, maxes, means, time, ndeck, npier, shell_size, deck_shell_size, pier_shell_size = lines
 
             plt.plot(shell_size, maxes)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Maximum response as a function of shell area")
-            plt.xlabel("Mean shell area (m²)")
+            plt.xlabel("Mean element area (m²)")
             plt.ylabel("Maximum response (mm)")
             plt.savefig(c.get_image_path(
                 "validation", f"max-response-{machine_name}", bridge=False))
@@ -810,7 +817,7 @@ def plot_convergence(c: Config):
             plt.plot(shell_size, mins)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Minimum response as a function of shell area")
-            plt.xlabel("Mean shell area (m²)")
+            plt.xlabel("Mean element area (m²)")
             plt.ylabel("Minimum response (mm)")
             plt.savefig(c.get_image_path(
                 "validation", f"min-response-{machine_name}", bridge=False))
@@ -819,10 +826,26 @@ def plot_convergence(c: Config):
             plt.plot(shell_size, means)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Mean response as a function of shell area")
-            plt.xlabel("Mean shell area (m²)")
+            plt.xlabel("Mean element area (m²)")
             plt.ylabel("Mean response (mm)")
             plt.savefig(c.get_image_path(
                 "validation", f"mean-response-{machine_name}", bridge=False))
+            plt.close()
+
+    ############################################
+    ###### Individual: Mean element size #######
+    ############################################
+
+            plt.plot(shell_size, shell_size, label="Mean element area")
+            plt.plot(shell_size, deck_shell_size, label="Mean deck element area")
+            plt.plot(shell_size, pier_shell_size, label="Mean pier element area")
+            plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            plt.ylim(plt.ylim()[1], plt.ylim()[0])
+            plt.title("Mean element area")
+            plt.xlabel("Mean element area (m²)")
+            plt.ylabel("Maximum response (mm)")
+            plt.savefig(c.get_image_path(
+                "validation", f"mean-element-size-{machine_name}", bridge=False))
             plt.close()
 
 

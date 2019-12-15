@@ -262,6 +262,33 @@ CLOSED: [2019-12-05 Thu 15:49]
 ** Next meeting
 *** TODO +- 1/srtq(3) = 0.57?
 *** TODO If responses are at midpoints than displacements recorded there?
+** Next meeting
+*** TODO Are you in the office next Monday?
+*** TODO Who's Pim?
+*** TODO Temperature load effect
+- Wim mentioned correlation with temperature
+*** TODO Home on the 23rd
+- Most important thing before then
+  - temperature load implemented
+- At home
+  - mostly writing
+*** TODO This week's plan
+- Try ML-based localization
+  - input: 1 feature per damage scenario
+  - output: position on deck
+  - features:
+    - pairwise sensor comparison
+      - try different comparison measures
+    - instead of direct value (e.g. displacement):
+      - use velocity
+      - use acceleration
+- Temperature load implemented (go over today)
+- Ask Arthur how to?
+  - collect Diana strain contour plots
+  - collect exact Diana values (not just contour plot)
+  - increase Diana mesh density
+*** TODO Check Axis distributed load vs. point load
+*** TODO Go over temperature load
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
@@ -410,6 +437,3 @@ CLOSED: [2019-11-07 Thu 10:46]
 ** 25th November
 *** TODO Collect strain
 *** TODO Verification: regression plot
-** 9th December
-*** TODO Run one-class SVM on pier displacement vs healthy
-*** TODO
