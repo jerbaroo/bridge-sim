@@ -1,3 +1,4 @@
+from copy import deepcopy
 import numpy as np
 
 from fem.params import SimParams
@@ -10,27 +11,29 @@ def print_mesh_info(
     bridge: Bridge, sim_params: SimParams, all_pier_nodes: AllSupportNodes
 ):
     """Print information about the mesh after each stage of building."""
-    to_lens = lambda x: np.array(list(map(len, x)))
-    base = to_lens(sim_params.deck_stages_info["base"])
-    piers = to_lens(sim_params.deck_stages_info["piers"])
-    loads = to_lens(sim_params.deck_stages_info["loads"])
-    sections = to_lens(sim_params.deck_stages_info["sections"])
-    refinement = to_lens(sim_params.deck_stages_info["refinement"])
-    total = to_lens(sim_params.deck_stages_info["refinement"])
 
-    refinement -= sections
-    sections -= loads
-    loads -= piers
-    piers -= base
-    print_i(
-        "Deck nodes (x * z)"
-        f"\n  base mesh  = {base[0]} * {base[1]}"
-        f"\n  from piers = {piers[0]} * {piers[1]}"
-        f"\n  from loads = {loads[0]} * {loads[1]}"
-        f"\n  from materials = {sections[0]} * {sections[1]}"
-        f"\n  from refinement = {refinement[0]} * {refinement[1]}"
-        f"\n  total = {total[0]} * {total[1]}"
-    )
+    ################
+    ##### Deck #####
+    ################
+
+    to_lens = lambda x: np.array(list(map(len, x)))
+
+    mesh_name_lens = []
+    for name, positions in list(sim_params.deck_stages_info.items()):
+        mesh_name_lens.append((name, to_lens(positions)))
+
+    print_i("Deck nodes (x * z)")
+    for i, (name, lens) in enumerate(mesh_name_lens):
+        lens_from = deepcopy(lens)
+        if i != 0:
+            lens_from -= mesh_name_lens[i - 1][1]
+        print_i(f"  from {name} = {lens_from[0]} * {lens_from[1]}")
+        if i == len(mesh_name_lens) - 1:
+            print_i(f"  total = {lens[0]} * {lens[1]}")
+
+    #################
+    ##### Piers #####
+    #################
 
     num_pier_nodes_z, num_pier_nodes_y = [], []
     for pier_nodes in all_pier_nodes:
@@ -44,5 +47,5 @@ def print_mesh_info(
     print_i(
         "Pier nodes (y * z)"
         + f"\n  base mesh  = {base[0]} * {base[1]}"
-        + f"\n  from piers = {piers[0]} * {piers[1]} (mean)"
+        + f"\n  from deck = {piers[0]} * {piers[1]} (mean)"
     )
