@@ -379,19 +379,18 @@ def get_deck_positions(
         deepcopy(z_positions),
     )
 
-    # Collect positions from refinement.
-    x_positions_refinement, z_positions_refinement = get_deck_refinement_positions(c.bridge)
-    if not simple_mesh:
-        for x_pos in x_positions_refinement:
-            x_positions.add(x_pos)
-        for z_pos in z_positions_refinement:
-            z_positions.add(z_pos)
-
-    # Update the 'DeckStagesInfo' with refinement information.
-    deck_stages_info["refinement"] = (
-        deepcopy(x_positions),
-        deepcopy(z_positions),
-    )
+    for refinement_str, (refinement_x_positions, refinement_z_positions) in get_deck_refinement_positions(c.bridge).items():
+        # Update mesh positions based on each refinement.
+        if not simple_mesh:
+            for x_pos in refinement_x_positions:
+                x_positions.add(x_pos)
+            for z_pos in refinement_z_positions:
+                z_positions.add(z_pos)
+        # Update the 'DeckStagesInfo' with refinement information.
+        deck_stages_info["refinement"] = (
+            deepcopy(x_positions),
+            deepcopy(z_positions),
+        )
 
     return sorted(x_positions), sorted(z_positions)
 
