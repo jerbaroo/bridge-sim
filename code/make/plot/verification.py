@@ -596,6 +596,7 @@ def make_convergence_data(c: Config):
                 response_type=response_type,
                 sim_runner=OSRunner(c),
             )
+            end = timer()
 
             # Determine shell sizes for the deck, pier and whole bridge.
             shells = shells_by_id.values()
@@ -636,7 +637,7 @@ def make_convergence_data(c: Config):
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
                 f.write(
-                    f", {deck_nodes}, {pier_nodes}, {timer() - start}"
+                    f", {deck_nodes}, {pier_nodes}, {end - start}"
                     f", {min_}, {max_}, {mean_}, {avg_shell_size}"
                     f", {avg_deck_size}, {avg_pier_size}"
                 )
