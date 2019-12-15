@@ -148,6 +148,14 @@ class ShellElement:
             else:
                 node.deck_section = self.section
 
+    def node_ids(self):
+        """IDs of this element's nodes."""
+        return [self.ni_id, self.nj_id, self.nk_id, self.nl_id]
+
+    def nodes(self):
+        """This element's nodes."""
+        return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
+
     def area(self):
         """Assumes a tetrahedron shape."""
         ni = self.nodes_by_id[self.ni_id]

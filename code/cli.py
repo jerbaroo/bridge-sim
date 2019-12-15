@@ -94,13 +94,18 @@ def bridge_info(piers):
 ####################
 
 
-@cli.group(help="Plots of the geometry of the bridge")
+@cli.group(help="Plots of the geometry of the bridge.")
 def geometry():
     pass
 
 
-@geometry.command(help="Nodes coloured by material properties")
-def node_cloud():
+@geometry.command(help="Shells coloured by material properties.")
+def shells():
+    geometry_.make_shell_plots(c())
+
+
+@geometry.command(help="Nodes coloured by material properties.")
+def nodes():
     geometry_.make_cloud_of_node_plots(c())
 
 
