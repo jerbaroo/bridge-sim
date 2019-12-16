@@ -94,14 +94,20 @@ def info():
     pass
 
 
-@info.command()
+@info.command(help="Print a summary of this bridge.")
 @click.option("--piers", is_flag=True)
 def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
 
 
+@info.command(help="Z positions of the wheel tracks.")
+def wheel_tracks():
+    config = c()
+    print_i(f"Wheel tracks: {config.bridge.wheel_tracks(config)}")
+
+
 @info.command(help="Plot of specification of Truck 1.")
-def wagen1():
+def wagen_1():
     vehicle.wagen1_plot(c())
 
 
