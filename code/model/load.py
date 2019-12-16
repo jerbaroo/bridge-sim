@@ -283,7 +283,9 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
-    def to_point_loads(self, time: float, bridge: Bridge) -> List[Tuple[PointLoad, PointLoad]]:
+    def to_point_loads(
+        self, time: float, bridge: Bridge
+    ) -> List[Tuple[PointLoad, PointLoad]]:
         """A tuple of point load per axle, one for each wheel."""
         z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
         assert z0 < z1

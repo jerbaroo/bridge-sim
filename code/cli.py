@@ -113,7 +113,12 @@ def truck_1():
 
 
 @info.command(help="Load position and intensity per wheel of Truck 1.")
-@click.option("--x", type=float, required=True, help="X position of front axle of Truck 1, in meters.")
+@click.option(
+    "--x",
+    type=float,
+    required=True,
+    help="X position of front axle of Truck 1, in meters.",
+)
 def truck_1_loads(x):
     config = c()
     time = wagen1.time_at(x=x, bridge=config.bridge)
@@ -122,8 +127,8 @@ def truck_1_loads(x):
     for i in range(len(axle_loads)):
         print_i(
             f"Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), "
-            f" ({axle_loads[i][1].repr(config.bridge)})")
-
+            f" ({axle_loads[i][1].repr(config.bridge)})"
+        )
 
 
 ####################

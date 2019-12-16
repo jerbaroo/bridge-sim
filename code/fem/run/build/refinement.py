@@ -18,13 +18,14 @@ def get_pier_refinement_positions(bridge: Bridge) -> "DeckPositions":
         assert half * 2 == pier.width_top
         # The '+ 2' is to account for positions of the supports which will
         # already be accounted for.
-        for x_position in np.linspace(
-                pier.x - half, pier.x + half, add_x_per_pier + 2):
+        for x_position in np.linspace(pier.x - half, pier.x + half, add_x_per_pier + 2):
             x_positions.append(x_position)
     return x_positions, z_positions
 
 
-def get_load_refinement_positions(bridge: Bridge, loads: [PointLoad]) -> "DeckPositions":
+def get_load_refinement_positions(
+    bridge: Bridge, loads: [PointLoad]
+) -> "DeckPositions":
     # Offsets from the load, where to add a node line.
     offsets = [-1, -3, -6, -10, 1, 3, 6, 10]  # In mm
     offsets = np.array(offsets) / 1000  # In m.
@@ -42,8 +43,12 @@ def get_load_refinement_positions(bridge: Bridge, loads: [PointLoad]) -> "DeckPo
     return x_positions, z_positions
 
 
-def get_deck_refinement_positions(bridge: Bridge, sim_params: SimParams) -> Dict[str, "DeckPositions"]:
+def get_deck_refinement_positions(
+    bridge: Bridge, sim_params: SimParams
+) -> Dict[str, "DeckPositions"]:
     result = OrderedDict()
     result["pier-refinement"] = get_pier_refinement_positions(bridge)
-    result["load-refinement"] = get_load_refinement_positions(bridge=bridge, loads=sim_params.ploads)
+    result["load-refinement"] = get_load_refinement_positions(
+        bridge=bridge, loads=sim_params.ploads
+    )
     return result

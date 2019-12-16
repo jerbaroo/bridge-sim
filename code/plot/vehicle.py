@@ -10,10 +10,10 @@ from util import kn_to_kg
 
 
 def topview_vehicle(
-        vehicle: Vehicle,
-        wheel_print: Optional[Tuple[float, float]] = None,
-        xlim: Tuple[float, float] = None,
-        ylim: Tuple[float, float] = None,
+    vehicle: Vehicle,
+    wheel_print: Optional[Tuple[float, float]] = None,
+    xlim: Tuple[float, float] = None,
+    ylim: Tuple[float, float] = None,
 ):
     """Plot a vehicle from a top view."""
     if wheel_print is not None:
@@ -31,34 +31,43 @@ def topview_vehicle(
         if wheel_print is None:
             plt.plot([0, vehicle.axle_width], [y, y], marker="o", color="black")
         else:
-            plt.plot([0 + half_wheel_width, vehicle.axle_width - half_wheel_width], [y, y], color="black")
+            plt.plot(
+                [0 + half_wheel_width, vehicle.axle_width - half_wheel_width],
+                [y, y],
+                color="black",
+            )
 
         # Annotate one wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
         plt.annotate(wheel_kn, (0, y), (0, y + 0.25))
         if wheel_print is not None:
-            plt.gca().add_patch(Rectangle(
-                (0 - half_wheel_width, y - half_wheel_length),
-                wheel_print[1],
-                wheel_print[0],
-                facecolor="none",
-                edgecolor="black",
-            ))
-
+            plt.gca().add_patch(
+                Rectangle(
+                    (0 - half_wheel_width, y - half_wheel_length),
+                    wheel_print[1],
+                    wheel_print[0],
+                    facecolor="none",
+                    edgecolor="black",
+                )
+            )
 
         # Annotate the other wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
-        plt.annotate(wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 1, y + 0.25))
+        plt.annotate(
+            wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 1, y + 0.25)
+        )
         if wheel_print is not None:
-            plt.gca().add_patch(Rectangle(
-                (vehicle.axle_width - half_wheel_width, y - half_wheel_length),
-                wheel_print[1],
-                wheel_print[0],
-                facecolor="none",
-                edgecolor="black",
-            ))
+            plt.gca().add_patch(
+                Rectangle(
+                    (vehicle.axle_width - half_wheel_width, y - half_wheel_length),
+                    wheel_print[1],
+                    wheel_print[0],
+                    facecolor="none",
+                    edgecolor="black",
+                )
+            )
 
     plt.axis("equal")
     if xlim is not None:

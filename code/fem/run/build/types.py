@@ -164,12 +164,15 @@ class ShellElement:
         nl = self.nodes_by_id[self.nl_id]
 
         from fem.run.build.elements.util import poly_area
-        return poly_area([
-            (ni.x, ni.y, ni.z),
-            (nj.x, nj.y, nj.z),
-            (nk.x, nk.y, nk.z),
-            (nl.x, nl.y, nl.z),
-        ])
+
+        return poly_area(
+            [
+                (ni.x, ni.y, ni.z),
+                (nj.x, nj.y, nj.z),
+                (nk.x, nk.y, nk.z),
+                (nl.x, nl.y, nl.z),
+            ]
+        )
 
     def center(self) -> Point:
         """Point at the center of the element."""

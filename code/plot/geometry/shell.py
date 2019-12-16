@@ -38,12 +38,14 @@ def shell_plots_3d(shells, prop_units, prop_f, outline, cb):
         """Plot the cloud of points with optional additional operation."""
 
         for i, verts_ in enumerate(verts):
-            ax.add_collection3d(Poly3DCollection(
-                [verts_],
-                facecolors=cmap(norm(prop_f(shells[i]))),
-                edgecolors="black" if outline else "none",
-                linewidths=0.1 if outline else 0,
-            ))
+            ax.add_collection3d(
+                Poly3DCollection(
+                    [verts_],
+                    facecolors=cmap(norm(prop_f(shells[i]))),
+                    edgecolors="black" if outline else "none",
+                    linewidths=0.1 if outline else 0,
+                )
+            )
         mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
         clb = fig.colorbar(mappable, shrink=0.7)
         clb.ax.set_title(prop_units)

@@ -328,7 +328,9 @@ def get_deck_positions(
     z_positions = set(map(round_m, z_positions))
 
     # Start creating the 'DeckStagesInfo', it is attached to the 'FEMParams'.
-    deck_stages_info = OrderedDict([("base", (deepcopy(x_positions), deepcopy(z_positions)))])
+    deck_stages_info = OrderedDict(
+        [("base", (deepcopy(x_positions), deepcopy(z_positions)))]
+    )
     fem_params.deck_stages_info = deck_stages_info
 
     # If requested, collect positions from piers.
@@ -374,7 +376,10 @@ def get_deck_positions(
     # Update the 'DeckStagesInfo' with material property information.
     deck_stages_info["sections"] = (deepcopy(x_positions), deepcopy(z_positions))
 
-    for refinement_str, (refinement_x_positions, refinement_z_positions) in get_deck_refinement_positions(bridge=c.bridge, sim_params=fem_params).items():
+    for (
+        refinement_str,
+        (refinement_x_positions, refinement_z_positions),
+    ) in get_deck_refinement_positions(bridge=c.bridge, sim_params=fem_params).items():
         # Update mesh positions based on each refinement.
         if not simple_mesh:
             for x_pos in refinement_x_positions:
@@ -382,7 +387,10 @@ def get_deck_positions(
             for z_pos in refinement_z_positions:
                 z_positions.add(round_m(z_pos))
         # Update the 'DeckStagesInfo' with refinement information.
-        deck_stages_info[refinement_str] = (deepcopy(x_positions), deepcopy(z_positions))
+        deck_stages_info[refinement_str] = (
+            deepcopy(x_positions),
+            deepcopy(z_positions),
+        )
 
     return sorted(x_positions), sorted(z_positions)
 
