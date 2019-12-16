@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 
 from model.bridge import Bridge
-from util import safe_str
+from util import round_m, safe_str
 
 # Comment/uncomment to print debug statements for this file.
 # D: str = "model.load"
@@ -49,6 +49,11 @@ class PointLoad:
     def id_str(self):
         """String uniquely representing this load."""
         return f"({self.x_frac:.3f}, {self.z_frac:.3f}, {self.kn:.3f})"
+
+    def repr(self, bridge: Bridge):
+        x = round_m(bridge.x(self.x_frac))
+        z = round_m(bridge.z(self.z_frac))
+        return f"x={x}, z={z}, kN={self.kn}"
 
 
 class Vehicle:
@@ -278,7 +283,7 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
-    def to_point_loads(self, time: float, bridge: Bridge) -> List[Tuple[float, float]]:
+    def to_point_loads(self, time: float, bridge: Bridge) -> List[Tuple[PointLoad, PointLoad]]:
         """A tuple of point load per axle, one for each wheel."""
         z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
         assert z0 < z1

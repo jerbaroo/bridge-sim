@@ -1,6 +1,7 @@
 """Command line interface to bridge-sim."""
 import click
 
+from classify.vehicle import wagen1, wagen1_x_pos
 from config import Config
 from make.data import simulations
 from make.plot import contour, vehicle, verification
@@ -86,7 +87,6 @@ def clean():
 ################
 ##### Util #####
 ################
-################
 
 
 @cli.group()
@@ -100,15 +100,30 @@ def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
 
 
-@info.command(help="Z positions of the wheel tracks.")
+@info.command(help="Z positions of the wheel tracks, in meters.")
 def wheel_tracks():
     config = c()
     print_i(f"Wheel tracks: {config.bridge.wheel_tracks(config)}")
 
 
-@info.command(help="Plot of specification of Truck 1.")
-def wagen_1():
+@info.command(help="Plot and information on Truck 1.")
+def truck_1():
     vehicle.wagen1_plot(c())
+    print_i(f"Truck 1 x positions: {wagen1_x_pos()}")
+
+
+@info.command(help="Load position and intensity per wheel of Truck 1.")
+@click.option("--x", type=float, required=True, help="X position of front axle of Truck 1, in meters.")
+def truck_1_loads(x):
+    config = c()
+    time = wagen1.time_at(x=x, bridge=config.bridge)
+    print_i(f"Time = {time:.4f}s")
+    axle_loads = wagen1.to_point_loads(time=time, bridge=config.bridge)
+    for i in range(len(axle_loads)):
+        print_i(
+            f"Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), "
+            f" ({axle_loads[i][1].repr(config.bridge)})")
+
 
 
 ####################

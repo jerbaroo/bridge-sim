@@ -1,3 +1,5 @@
+import pandas as pd
+
 from model.load import MvVehicle
 from util import kg_to_kn
 
@@ -15,3 +17,9 @@ wagen1 = MvVehicle(
     lane=0,
     init_x_frac=0,
 )
+
+
+def wagen1_x_pos():
+    """X positions of the front of Truck 1 in the experimental campaign."""
+    meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
+    return sorted(set(meas["xpostruck"]))
