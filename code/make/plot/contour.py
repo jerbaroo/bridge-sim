@@ -1,5 +1,6 @@
 """Make contour plots."""
 import itertools
+from itertools import chain
 from typing import List
 
 import matplotlib.cm as cm
@@ -15,6 +16,7 @@ from classify.scenario.bridge import (
     longitudinal_pier_disp,
 )
 from classify.scenarios import cracked_scenario, all_scenarios
+from classify.vehicle import wagen1
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
@@ -24,6 +26,7 @@ from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import plt
+from plot.contour import contour_plot_3d
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
 from util import print_d, print_i, safe_str
@@ -31,6 +34,32 @@ from util import print_d, print_i, safe_str
 # Print debug information for this file.
 D: str = "make.plots.contour"
 # D: bool = False
+
+
+def cover_photo(c: Config, x: float):
+    """
+
+    TODO: SimParams takes any loads iterable, to be flattened.
+    TODO: Wrap SimRunner into Config.
+    TODO: Ignore response type in SimParams (fill in by load_sim_responses).
+
+    """
+    response_type=ResponseType.YTranslation
+    sim_responses = load_fem_responses(
+        c=c,
+        sim_runner=OSRunner(c),
+        response_type=response_type,
+        sim_params=SimParams(
+            response_types=[response_type],
+            ploads=list(chain.from_iterable(
+                wagen1.to_point_loads(
+                    bridge=c.bridge,
+                    time=wagen1.time_at(x=x, bridge=c.bridge),
+                )
+            ))
+        )
+    )
+    contour_plot_3d(c=c, sim_responses=sim_responses)
 
 
 def mean_traffic_response_plots(c: Config):

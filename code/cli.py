@@ -4,9 +4,10 @@ import click
 from classify.vehicle import wagen1, wagen1_x_pos
 from config import Config
 from make.data import simulations
-from make.plot import contour, vehicle, verification
 from make.plot import classification as classification_
+from make.plot import contour as contour_
 from make.plot import geometry as geometry_
+from make.plot import vehicle, verification
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -45,7 +46,7 @@ def bridge_705_3d_overload(*args, **kwargs):
 @click.option(
     "--two-materials",
     is_flag=True,
-    help="One material for the deck and one for the piers.",
+    help="One material for the deck and one for piers.",
 )
 @click.option(
     "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
@@ -79,8 +80,9 @@ def cli(dimensions, mesh, two_materials, parallel):
 ################
 
 
-@cli.command()
+@cli.command(help="Remove simulation data for the selected bridge.")
 def clean():
+    """TODO: Require confirmation."""
     clean_generated(c())
 
 
@@ -89,7 +91,7 @@ def clean():
 ################
 
 
-@cli.group()
+@cli.group(help="Print and plot useful information.")
 def info():
     pass
 
@@ -119,7 +121,7 @@ def truck_1():
     required=True,
     help="X position of front axle of Truck 1, in meters.",
 )
-def truck_1_loads(x):
+def truck_1_loads(x: float):
     config = c()
     time = wagen1.time_at(x=x, bridge=config.bridge)
     print_i(f"Time = {time:.4f}s")
@@ -156,27 +158,27 @@ def nodes():
 ######################
 
 
-@cli.group()
-def simulation():
+@cli.group(help="Run simulations and generate data.")
+def simulate():
     pass
 
 
-@simulation.command()
-def unit_load_simulations():
+@simulate.command(help="Run all unit load simulations.")
+def uls():
     simulations.run_uls(c())
 
 
-@simulation.command()
-def convergence_data(help="Record simulation as model size is increased."):
+@simulate.command()
+def convergence(help="Record simulation info as model size is increased."):
     verification.make_convergence_data(c())
 
 
-########################
-##### Verification #####
-########################
+######################
+##### Validation #####
+######################
 
 
-@cli.group()
+@cli.group(help="Validate the generated FEM of bridge 705.")
 def validate():
     pass
 
@@ -197,33 +199,44 @@ def convergence():
 
 
 ####################
-##### Scenario #####
+##### Contour #####
 ####################
 
 
-@cli.group(help="Plots for damage scenarios.")
-def scenario():
+@cli.group(help="Contour plots for loading & damage scenarios.")
+def contour():
     pass
 
 
-@scenario.command(help="Mean response to traffic per scenario.")
-def contour_traffic():
-    contour.mean_traffic_response_plots(c())
+@contour.command(help="3D angled contour plot of bridge 705.")
+@click.option(
+    "--x",
+    type=float,
+    required=True,
+    help="X position of front axle of Truck 1, in meters.",
+)
+def cover_photo(x: float):
+    contour_.cover_photo(c=c(), x=x)
 
 
-@scenario.command(help="Response to point loads per scenario.")
-def contour_point_load():
-    contour.point_load_response_plots(c())
+@contour.command(help="Mean response to traffic per scenario.")
+def traffic():
+    contour_.mean_traffic_response_plots(c())
 
 
-@scenario.command()
-def contour_cracked_concrete():
-    contour.cracked_concrete_plots(c())
+@contour.command(help="Response to point loads per scenario.")
+def point_load():
+    contour_.point_load_response_plots(c())
 
 
-@scenario.command()
-def contour_each_pier_displaced():
-    contour.each_pier_displacement_plots(c())
+@contour.command(help="Response to traffic with cracked concrete.")
+def cracked():
+    contour_.cracked_concrete_plots(c())
+
+
+@contour.command(help="Response to each pier being displaced in turn.")
+def each_pier_displaced():
+    contour_.each_pier_displacement_plots(c())
 
 
 ########################
@@ -236,7 +249,7 @@ def contour_each_pier_displaced():
 ##########################
 
 
-@cli.group()
+@cli.group(help="Run classification experiments.")
 def classify():
     pass
 

@@ -272,10 +272,10 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="low",
-            base_mesh_deck_nodes_x=50,
-            base_mesh_deck_nodes_z=20,
-            base_mesh_pier_nodes_y=17,
-            base_mesh_pier_nodes_z=17,
+            base_mesh_deck_nodes_x=100,
+            base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=6,
+            base_mesh_pier_nodes_z=6,
         )
     )
 

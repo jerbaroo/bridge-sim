@@ -11,7 +11,7 @@ from plot.geometry.angles import angles_3d
 def shell_plots_3d(shells, prop_units, prop_f, outline, cb):
     """Plot the given shells from multiple angles."""
 
-    # Coordinates for the purpose of rotating the plot perspective.
+    # Coordinates for rotating the plot perspective.
     xs, ys, zs = [], [], []
     # Vertices of nodes for each shell.
     verts = []
