@@ -5,7 +5,9 @@ from fem.params import ExptParams, SimParams
 from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_3d
-from plot.geom import plot_cloud_of_nodes, shell_plots
+from plot import plt
+from plot.geometry import plot_cloud_of_nodes
+from plot.geometry.shell import shell_plots_3d
 
 
 def make_shell_plots(c: Config):
@@ -24,14 +26,15 @@ def make_shell_plots(c: Config):
     for shells_name, shells in [("all", all_shells), ("deck", deck_shells), ("pier", pier_shells)]:
         for outline in [True, False]:
             for prop_name, prop_f in [("Young's modulus", lambda s: s.section.youngs)]:
-                shell_plots(
-                    shells=shells,
-                    prop_name=prop_name,
-                    prop_f=prop_f,
-                    outline=outline,
-                    save=c.get_image_path(
+
+                def cb(angle):
+                    plt.title(f"{prop_name} of {c.bridge.name}")
+                    plt.savefig(c.get_image_path(
                         "geometry",
-                        f"shells-{shells_name}-{prop_name}-outline-{outline}"))
+                        f"shells-{shells_name}-{prop_name}-outline-{outline}-{angle}.pdf"))
+                    plt.close()
+
+                shell_plots_3d(shells=shells, prop_units="MPa", prop_f=prop_f, outline=outline, cb=cb)
 
 
 def make_cloud_of_node_plots(c: Config):

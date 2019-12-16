@@ -18,7 +18,7 @@ from model.bridge import Bridge, Section3D
 from plot import Color, plt
 
 # Print debug information for this file.
-D: str = "plot.geom"
+D: str = "plot.geometry"
 # D: bool = False
 
 
@@ -80,65 +80,6 @@ def top_view_bridge(
         plt.sca(ax)  # Return control to the original axis.
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
-
-
-def shell_plots(shells, prop_name, prop_f, outline, save):
-    """Save a plot of the given shells from multiple angles."""
-
-    # Coordinates for the purpose of rotating the plot perspective.
-    xs, ys, zs = [], [], []
-    rects = []
-    prop_min, prop_max = np.inf, -np.inf
-    for shell in shells:
-        for node in shell.nodes():
-            xs.append(node.x)
-            ys.append(node.y)
-            zs.append(node.z)
-        shell_prop = prop_f(shell)
-        if shell_prop < prop_min:
-            prop_min = shell_prop
-        if shell_prop > prop_max:
-            prop_max = shell_prop
-    xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
-
-    norm = matplotlib.colors.Normalize(vmin=prop_min, vmax=prop_max)
-    cmap = matplotlib.cm.get_cmap("coolwarm")
-
-    def plot_and_save(fig, ax, append):
-        """Plot the cloud of points with optional additional operation."""
-
-        for shell_i, shell_pos_i in enumerate(np.arange(0, len(xs), step=4)):
-            shell_end = shell_pos_i + 4
-            shell_xs = xs[shell_pos_i:shell_end]
-            shell_zs = zs[shell_pos_i:shell_end]
-            shell_ys = ys[shell_pos_i:shell_end]
-
-            # Plot the shell's surface.
-            interp = interp2d(x=shell_xs, y=shell_zs, z=shell_ys)
-            X, Z = np.meshgrid(shell_xs, shell_zs)
-            Y = np.empty(X.shape)
-            for i in range(X.shape[0]):
-                for j in range(X.shape[1]):
-                    Y[i, j] = interp(X[i, j], Z[i, j])
-            colour = cmap(norm(prop_f(shells[shell_i])))
-            ax.plot_surface(
-                X, Z, Y, rcount=2, ccount=2, color=colour, shade=False, alpha=1,
-                edgecolors="black" if outline else None, linewidth=0.1)
-
-        plt.title(prop_name)
-            # clb = fig.colorbar(p)
-            # clb.ax.set_title("TODO")
-        plt.savefig(f"{save}{append}.pdf")
-        plt.close()
-
-    plt.landscape()
-    # plot_and_save(None, None, "")
-    for fig, ax, angle in angles_3d(equal_axis=True, xs=xs, ys=zs, zs=ys):
-        plot_and_save(fig, ax, "")
-    # for fig, ax, angle in angles_3d(
-    #     angles=range(0, 360, 90), equal_axis=True, elev=0, xs=xs, ys=ys, zs=zs,
-    # ):
-    #     plot_and_save(fig, ax, append=f"-{angle}")
 
 
 def plot_cloud_of_nodes(
@@ -215,44 +156,3 @@ def plot_cloud_of_nodes(
         angles=range(0, 360, 90), equal_axis=equal_axis, elev=0, xs=xs, ys=ys, zs=zs,
     ):
         plot_and_save(fig, ax, append=equal_axis_str + f"-{angle}")
-
-
-def angles_3d(
-    equal_axis: bool,
-    xs: List[float],
-    ys: List[float],
-    zs: List[float],
-    angles: Optional[List[float]] = None,
-    elev: Optional[float] = None,
-):
-    """Rotate a plot in 3D, yielding the axis and angle.
-
-    Args:
-        angles: Optional[List[float]], angles to plot at, if None use default.
-        elev: Optional[float], elevation used if 'angles' is given.
-    """
-    # Determine values for scaling axes.
-    max_range = (
-        np.array([xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]).max()
-        / 2.0
-    )
-    mid_x = (xs.max() + xs.min()) * 0.5
-    mid_y = (ys.max() + ys.min()) * 0.5
-    mid_z = (zs.max() + zs.min()) * 0.5
-    print(mid_x, mid_y, mid_z)
-
-    # Ensure at least one angle in default case.
-    if angles is None:
-        angles = [None]
-    # Plot for different angles.
-    for ii in angles:
-        plt.close()
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d", proj_type="ortho")
-        if equal_axis:
-            ax.set_xlim(mid_x - max_range, mid_x + max_range)
-            ax.set_ylim(mid_y - max_range, mid_y + max_range)
-            ax.set_zlim(mid_z - max_range, mid_z + max_range)
-        if ii is not None:
-            ax.view_init(elev=elev, azim=ii)
-        yield fig, ax, ii

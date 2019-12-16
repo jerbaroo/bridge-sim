@@ -33,7 +33,7 @@ from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
 from model.load import DisplacementCtrl, MvVehicle, PointLoad
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import clean_generated, print_i, read_csv, safe_str
 

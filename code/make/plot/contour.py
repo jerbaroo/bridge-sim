@@ -24,7 +24,7 @@ from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
 from util import print_d, print_i, safe_str
 

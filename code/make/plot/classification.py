@@ -14,7 +14,7 @@ from classify.scenarios import each_pier_scenarios
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import print_i
 
