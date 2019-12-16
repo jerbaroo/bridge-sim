@@ -207,7 +207,6 @@ def make_all_3d(c: Config):
     ##### Objects #####
     ###################
     # make_geom_plots(c)
-    # vehicle.wagen1_plot(c)
     # vehicles.vehicle_plots(c)
 
     ######################

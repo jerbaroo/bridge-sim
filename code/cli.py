@@ -3,7 +3,7 @@ import click
 
 from config import Config
 from make.data import simulations
-from make.plot import contour, verification
+from make.plot import contour, vehicle, verification
 from make.plot import classification as classification_
 from make.plot import geometry as geometry_
 from model.bridge.bridge_705 import (
@@ -73,9 +73,9 @@ def cli(dimensions, mesh, two_materials, parallel):
         c = lambda: c_func(bridge_705_2d)
 
 
-#######################
-##### Util & Info #####
-#######################
+################
+##### Util #####
+################
 
 
 @cli.command()
@@ -83,10 +83,26 @@ def clean():
     clean_generated(c())
 
 
-@cli.command()
+################
+##### Util #####
+################
+################
+
+
+@cli.group()
+def info():
+    pass
+
+
+@info.command()
 @click.option("--piers", is_flag=True)
 def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
+
+
+@info.command(help="Plot of specification of Truck 1.")
+def wagen1():
+    vehicle.wagen1_plot(c())
 
 
 ####################
