@@ -1,6 +1,7 @@
 """Verification plots."""
 import glob
 import itertools
+import math
 import os
 from collections import defaultdict
 from itertools import chain
@@ -24,6 +25,7 @@ from classify.vehicle import wagen1
 from config import Config
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
+from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import nodes_by_id
 from model.bridge import Point
@@ -31,7 +33,7 @@ from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
 from model.load import DisplacementCtrl, MvVehicle, PointLoad
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import clean_generated, print_i, read_csv, safe_str
 
@@ -148,7 +150,7 @@ def per_sensor_plots(
         if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification", filename=f"strain-{plot_i}", acc=False,
+                    dirname="validation", filename=f"strain-{plot_i}", acc=False,
                 )
             )
             plt.close()
@@ -163,7 +165,7 @@ def per_sensor_plots(
             plot(sensor_label, meas_group)
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification",
+                    dirname="validation",
                     filename=f"strain-sensor-{sensor_label}",
                     acc=False,
                 )
@@ -251,7 +253,7 @@ def per_sensor_plots(
         if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification", filename=f"displa-{plot_i}", acc=False,
+                    dirname="validation", filename=f"displa-{plot_i}", acc=False,
                 )
             )
             plt.close()
@@ -266,7 +268,7 @@ def per_sensor_plots(
             plot(i, sensor_label, meas_group)
             plt.savefig(
                 c.get_image_path(
-                    dirname="verification",
+                    dirname="validation",
                     filename=f"displa-sensor-{sensor_label}",
                     acc=False,
                 )
@@ -348,8 +350,6 @@ def r2_plots(c: Config):
     plt.title("Displacement: Diana vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
     plt.ylabel("Displacement in Diana (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -367,8 +367,6 @@ def r2_plots(c: Config):
     plt.title("Displacement: OpenSees vs. measurements")
     plt.xlabel("Displacement measurement (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -389,10 +387,8 @@ def r2_plots(c: Config):
     plt.title("Displacement: OpenSees vs. Diana")
     plt.xlabel("Displacement in Diana (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
-    plt.savefig(c.get_image_path("verification", "regression-displa"))
+    plt.savefig(c.get_image_path("validation", "regression-displa"))
     plt.close()
 
     ####################
@@ -464,8 +460,6 @@ def r2_plots(c: Config):
     plt.title("Strain: Diana vs. measurements")
     plt.xlabel("Strain measurement (m/m)")
     plt.ylabel("Strain in Diana (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -485,8 +479,6 @@ def r2_plots(c: Config):
     plt.title("Strain: OpenSees vs. measurements")
     plt.xlabel("Strain measurement (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -507,26 +499,12 @@ def r2_plots(c: Config):
     plt.title("Strain: OpenSees vs. Diana")
     plt.xlabel("Strain in Diana (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
-    plt.equal_ax_lims()
-    plt.gca().set_aspect("equal")
 
-    plt.savefig(c.get_image_path("verification", "regression-strain"))
+    plt.savefig(c.get_image_path("validation", "regression-strain"))
 
 
-def make_convergence_data(c: Config, run: bool, plot: bool):
-    """Make convergence data file, increasing mesh density per simulation.
-
-    NOTE: This is a simplistic plot. After running this function with argument
-    'run=True' on a few different machines, the results should be gathered as
-    specified in 'plot_convergence' and that function run to generate a better
-    plot.
-
-    Args:
-        c: Config, global configuration object.
-        run: bool, whether to re-run data collection simulations.
-        plot: bool, whether to plot the resulting data.
-
-    """
+def make_convergence_data(c: Config):
+    """Make convergence data file, increasing mesh density per simulation."""
     response_type = ResponseType.YTranslation
     load_point = Point(x=35, y=0, z=9.4)
     bridge = bridge_705_3d()
@@ -540,25 +518,19 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
         ],
         response_types=[response_type],
     )
-    x, z = 2, 2
+    deck_x, deck_z, pier_y, pier_z = 2, 2, 3, 3
 
     def bridge_overload(**kwargs):
-        print()
-        print(x, z)
+        print(deck_x, deck_z, pier_y, pier_z)
         return bridge_705_3d(
             name=f"Bridge 705",
             accuracy="convergence",
-            base_mesh_deck_nodes_x=x,
-            base_mesh_deck_nodes_z=z,
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5,
+            base_mesh_deck_nodes_x=deck_x,
+            base_mesh_deck_nodes_z=deck_z,
+            base_mesh_pier_nodes_y=pier_y,
+            base_mesh_pier_nodes_z=pier_z,
             **kwargs,
         )
-
-    c = bridge_705_config(bridge_overload)
-    path = os.path.join(
-        c.root_generated_images_dir, "convergence", "convergence_results"
-    )
 
     # A grid of points over which to calculate the mean response. The reason for
     # this is because if the number of nodes increases, as model size increases,
@@ -567,104 +539,129 @@ def make_convergence_data(c: Config, run: bool, plot: bool):
     grid = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, 2 * int(c.bridge.length)),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, 2 * int(c.bridge.width)),
+            np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
         )
     ]
 
-    if run:
-        print("hi")
-        with open(path + ".txt", "w") as f:
+    # Write the header information to the results file.
+    c = bridge_705_config(bridge_overload)
+    path = os.path.join(
+        c.root_generated_images_dir, "convergence", "convergence_results"
+    )
+    with open(path + ".txt", "w") as f:
+        f.write(
+            "xload,zload,xnodes,znodes,ypierz,zpier,decknodes,piernodes,time"
+            + ",min,max,mean,shell-size,deck-size,pier-size"
+        )
+
+    # Here we create an increaseing list of the number of nodes for the
+    # deck, one list for the number of x nodes and one for the number of z
+    # nodes. These lists are such that at each position the number of nodes
+    # for z will be scaled to the number of nodes for x, based on the ratio
+    # of width/length of the bridge.
+    min_shell_len = 0.2
+    max_x = math.ceil(c.bridge.length / min_shell_len) + 1
+    max_z = math.ceil(c.bridge.width / min_shell_len) + 1
+    print_i(f"max_x, max_z = {max_x}, {max_z}")
+    # The '-1' is because we are starting from '2'.
+    deck_max = max(max_x, max_z)
+    xs = np.linspace(2, max_x, deck_max - 1)
+    zs = np.linspace(2, max_z, deck_max - 1)
+
+    # After each run of the model, the average element size of the deck
+    # elements and the pier elements is checked. Whichever is lower will be
+    # incremented.
+    deck_index = 0
+    while deck_index < len(xs):
+
+        # Start by cleaning old results, and determining deck nodes.
+        clean_generated(c)
+        deck_x, deck_z = int(xs[deck_index]), int(zs[deck_index])
+        print_i(
+            "Running model with:"
+            f"\n  deck_x, deck_z = {deck_x}, {deck_z}"
+            f"\n  pier_y, pier_z = {pier_y}, {pier_z}"
+        )
+        with open(path + ".txt", "a") as f:
             f.write(
-                "xload,zload,xnodes,znodes,decknodes,piernodes,time," + "min,max,mean"
+                f"\n{load_point.x}, {load_point.z}, {deck_x}, {deck_z}"
+                f", {pier_y}, {pier_z}"
             )
-        print("steps")
-        steps = 100
-        xs = np.linspace(2, c.bridge.length * 4, steps)
-        zs = np.linspace(2, c.bridge.width * 4, steps)
-        for step in range(steps):
-            print("step")
-            clean_generated(c)
-            x, z = int(xs[step]), int(zs[step])
-            print("step")
-            print_i(f"Running model with x, z = {x}, {z}")
-            print("step")
-            with open(path + ".txt", "a") as f:
-                f.write(f"\n{load_point.x}, {load_point.z}, {x}, {z}")
-            c = bridge_705_config(bridge_overload)
+
+        c = bridge_705_config(bridge_overload)
+        try:
+            # Start timing and run the simulation.
             start = timer()
-            try:
-                responses = load_fem_responses(
-                    c=c,
-                    sim_params=fem_params,
-                    response_type=response_type,
-                    sim_runner=OSRunner(c),
+            responses = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=response_type,
+                sim_runner=OSRunner(c),
+            )
+            end = timer()
+
+            # Determine shell sizes for the deck, pier and whole bridge.
+            shells = shells_by_id.values()
+            avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
+            avg_pier_size = np.mean([s.area() for s in shells if s.pier])
+            avg_shell_size = np.mean([s.area() for s in shells])
+
+            # TODO: Remove to deck interpolation test.
+            for x in responses.xs:
+                if 0 in responses.zs[x]:
+                    for z in responses.zs[x][0]:
+                        og = responses.responses[0][x][0][z].value
+                        ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
+                        assert np.isclose(og, ip)
+
+            # Determine number of deck and pier nodes.
+            deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
+            pier_nodes = len(
+                [n for n in nodes_by_id.values() if n.pier is not None and not n.deck]
+            )
+            assert deck_nodes + pier_nodes == len(nodes_by_id)
+
+            # Determine min, max and mean responses.
+            all_values = list(responses.values())
+            min_ = np.min(all_values)
+            max_ = np.max(all_values)
+            mean_ = np.mean(
+                list(responses.at_deck(point, interp=True) for point in grid)
+            )
+            # NOTE: if this assertion fails it may be because the
+            # simulations have reached a size where they are failing.
+            assert len(mean_) == 1
+            mean_ = mean_[0]
+
+            # Write results for this simulation to disk.
+            with open(path + ".txt", "a") as f:
+                f.write(
+                    f", {deck_nodes}, {pier_nodes}, {end - start}"
+                    f", {min_}, {max_}, {mean_}, {avg_shell_size}"
+                    f", {avg_deck_size}, {avg_pier_size}"
                 )
 
-                # print()
-                # print(responses.xs)
-                for x in responses.xs:
-                    if 0 in responses.zs[x]:
-                        for z in responses.zs[x][0]:
-                            # print()
-                            og = responses.responses[0][x][0][z].value
-                            ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
-                            assert np.isclose(og, ip)
-                            # print()
+            # Either update the deck index, or number of pier nodes.
+            if avg_deck_size > avg_pier_size:
+                deck_index += 1
+            else:
+                pier_y += 1
+                pier_z += 1
 
-                deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
-                pier_nodes = len(
-                    [
-                        n
-                        for n in nodes_by_id.values()
-                        if n.pier is not None and not n.deck
-                    ]
-                )
-                min_ = np.min(list(responses.values()))
-                max_ = np.max(list(responses.values()))
-                mean_ = np.mean(
-                    list(responses.at_deck(point, interp=True) for point in grid)
-                )
-                assert len(mean_) == 1
-                mean_ = mean_[0]
-                assert deck_nodes + pier_nodes == len(nodes_by_id)
-                with open(path + ".txt", "a") as f:
-                    f.write(
-                        f", {deck_nodes}, {pier_nodes}, {timer() - start}"
-                        + f", {min_}"
-                        + f", {max_}"
-                        + f", {mean_}"
-                    )
-            except ValueError as e:
-                if "No responses found" in str(e):
-                    print_i("Simulation failed. Time to plot results")
-                else:
-                    raise e
-
-    if plot:
-        results = read_results(path + ".txt", min_spaces=4)
-        plt.plot([r[7] for r in results])
-        plt.savefig(path)
-        plt.close()
+        except ValueError as e:
+            if "No responses found" in str(e):
+                print_i("Simulation failed. Time to plot results")
+            else:
+                raise e
 
 
-def plot_convergence(c: Config, only: Optional[List[str]] = None):
+def plot_convergence(c: Config):
     """Plot convergence as model size is increased for multiple machines.
 
-    Loads data from:
-        'os.path.join(Config.root_generated_images_dir, "convergence")'.
-
-    Loads a file 'truth.txt' with three columns, two for the loading position
-    (x, z), and one containing the maximum response recorded in the simulation.
-
-    Also loads files named 'convergence-*'. These are files generated by
-    'make_convergence' and renamed manually by you. Note that the '*' indicates
-    the plot label/machine name.
-
-    Args:
-        c: Config, global configuration object.
-        only: Optional[List[str]], an optional list of machine names to limit
-            the plot to.
+    Loads files named 'convergence-*', generated by 'make_convergence' and
+    renamed manually by you. Note that the '*' indicates the plot label/machine
+    name.
 
     """
     convergence_dir = os.path.join(c.root_generated_images_dir, "convergence")
@@ -673,8 +670,10 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     machines = dict()
     for filepath in glob.glob(os.path.join(convergence_dir, "convergence-*")):
         machine_name = os.path.basename(filepath).split("-")[1].split(".")[0]
-        if only is None or machine_name in only:
-            machines[machine_name] = pd.read_csv(filepath).dropna()
+        machines[machine_name] = pd.read_csv(filepath).dropna()
+
+    if len(machines) == 0:
+        raise ValueError(f"No results found in {convergence_dir}")
 
     # Map from machine name to loading position to list of Series.
     machine_results = defaultdict(lambda: defaultdict(list))
@@ -687,7 +686,22 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     results = defaultdict(dict)
     for machine_name, loading_pos_dict in machine_results.items():
         for (x_load, z_load), rows in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = (
+            (
+                basex,
+                basez,
+                mins,
+                maxes,
+                means,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = (
+                [],
+                [],
+                [],
                 [],
                 [],
                 [],
@@ -706,8 +720,26 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
                 time.append(row["time"])
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
+                shell_size.append(row["shell-size"])
+                deck_shell_size.append(row["deck-size"])
+                pier_shell_size.append(row["pier-size"])
             results[machine_name][(x_load, z_load)] = list(
-                map(np.array, [basex, basez, mins, maxes, means, time, ndeck, npier],)
+                map(
+                    np.array,
+                    [
+                        basex,
+                        basez,
+                        mins,
+                        maxes,
+                        means,
+                        time,
+                        ndeck,
+                        npier,
+                        shell_size,
+                        deck_shell_size,
+                        pier_shell_size,
+                    ],
+                )
             )
 
     ########################################
@@ -718,49 +750,84 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
     fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
+            (
+                basex,
+                basez,
+                mins,
+                maxes,
+                means,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
             final_mean = np.mean(means[-5:])
             final_max = np.mean(maxes[-5:])
             final_min = np.mean(mins[-5:])
+            ax1.plot(shell_size, mins / final_min, color="red", label="Min. response")
             ax1.plot(
-                ndeck + npier, mins / final_min, color="red", label="Min. response"
-            )
-            ax1.plot(
-                ndeck + npier, maxes / final_max, color="orange", label="Max. response",
+                shell_size, maxes / final_max, color="orange", label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                ndeck + npier, means / final_mean, color="green", label="Mean response",
+                shell_size, means / final_mean, color="green", label="Mean response",
             )
 
-    plt.title("Displacement as a function of model size")
-    ax1.legend()
-    # ax2.legend()
-    ax1.set_xlabel("Number of nodes in model")
+            # Zoomed in part.
+            # from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+            # axins = zoomed_inset_axes(ax1, 2.5, loc=4)
+            # half_len = int(len(shell_size) / 2)
+            # axins.plot(shell_size[half_len:], mins[half_len:] / final_min, color="red")
+            # axins.plot(shell_size[half_len:], maxes[half_len:] / final_max, color="orange")
+            # axins.plot(shell_size[half_len:], means[half_len:] / final_mean, color="green")
+
+            plt.sca(ax1)
+
+    plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Displacement as a function of element area")
+    ax1.set_xlabel("Mean element area (m²)")
     ax1.set_ylabel("Displacement (mm)")
+    ax1.legend()
     # ax2.set_ylabel("Displacement (mm)")
-    plt.savefig(c.get_image_path("verification", "min-max", bridge=False))
+    # ax2.legend()
+
+    plt.savefig(c.get_image_path("validation", "min-max", bridge=False))
     plt.close()
 
-    #####################################
-    ###### Model size per machine #######
-    #####################################
+    #########################
+    ###### Model size #######
+    #########################
 
     # This should be the same for each machine, so skip the rest.
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            plt.plot(ndeck + npier, basex * basez, label="base mesh deck nodes")
-            plt.plot(ndeck + npier, ndeck, label="deck nodes")
-            plt.plot(ndeck + npier, npier, label="pier nodes")
-            plt.plot(ndeck + npier, ndeck + npier, label="total nodes")
+            (
+                basex,
+                basez,
+                mins,
+                maxes,
+                means,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+            plt.plot(shell_size, basex * basez, label="base mesh deck nodes")
+            plt.plot(shell_size, ndeck, label="deck nodes")
+            plt.plot(shell_size, npier, label="pier nodes")
+            plt.plot(shell_size, ndeck + npier, label="total nodes")
         break
 
-    plt.title("Deck and pier nodes as a function of model size")
-    plt.xlabel("Number of nodes in model")
+    plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Number of nodes as a function of element area")
+    plt.xlabel("Mean element area (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
-    plt.savefig(c.get_image_path("verification", "model-size", bridge=False))
+    plt.savefig(c.get_image_path("validation", "model-size", bridge=False))
     plt.close()
 
     #####################################
@@ -769,15 +836,103 @@ def plot_convergence(c: Config, only: Optional[List[str]] = None):
 
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
-            basex, basez, mins, maxes, means, time, ndeck, npier = lines
-            plt.plot(ndeck + npier, time, label=machine_name)
+            (
+                basex,
+                basez,
+                mins,
+                maxes,
+                means,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+            plt.plot(shell_size, time, label=machine_name)
 
-    plt.title("Run-time as a function of model size")
-    plt.xlabel("Number of nodes in model")
+    plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Run-time as a function of element area")
+    plt.xlabel("Mean element area (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
-    plt.savefig(c.get_image_path("verification", "run-time", bridge=False))
+    plt.savefig(c.get_image_path("validation", "run-time", bridge=False))
     plt.close()
+
+    #########################################
+    ###### Individual: min, max, mean #######
+    #########################################
+
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            (
+                basex,
+                basez,
+                mins,
+                maxes,
+                means,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+
+            plt.plot(shell_size, maxes)
+            plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            plt.title("Maximum response as a function of shell area")
+            plt.xlabel("Mean element area (m²)")
+            plt.ylabel("Maximum response (mm)")
+            plt.savefig(
+                c.get_image_path(
+                    "validation", f"max-response-{machine_name}", bridge=False
+                )
+            )
+            plt.close()
+
+            plt.plot(shell_size, mins)
+            plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            plt.title("Minimum response as a function of shell area")
+            plt.xlabel("Mean element area (m²)")
+            plt.ylabel("Minimum response (mm)")
+            plt.savefig(
+                c.get_image_path(
+                    "validation", f"min-response-{machine_name}", bridge=False
+                )
+            )
+            plt.close()
+
+            plt.plot(shell_size, means)
+            plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            plt.title("Mean response as a function of shell area")
+            plt.xlabel("Mean element area (m²)")
+            plt.ylabel("Mean response (mm)")
+            plt.savefig(
+                c.get_image_path(
+                    "validation", f"mean-response-{machine_name}", bridge=False
+                )
+            )
+            plt.close()
+
+            ############################################
+            ###### Individual: Mean element size #######
+            ############################################
+
+            plt.plot(shell_size, shell_size, label="Mean element area")
+            plt.plot(shell_size, deck_shell_size, label="Mean deck element area")
+            plt.plot(shell_size, pier_shell_size, label="Mean pier element area")
+            plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            plt.ylim(plt.ylim()[1], plt.ylim()[0])
+            plt.title("Mean element area")
+            plt.xlabel("Mean element area (m²)")
+            plt.ylabel("Maximum response (mm)")
+            plt.savefig(
+                c.get_image_path(
+                    "validation", f"mean-element-size-{machine_name}", bridge=False
+                )
+            )
+            plt.close()
 
 
 def axis_comparison(c: Config):

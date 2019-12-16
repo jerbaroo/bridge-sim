@@ -24,7 +24,7 @@ from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
 from util import print_d, print_i, safe_str
 
@@ -165,7 +165,7 @@ def each_pier_displacement_plots(c: Config):
     response_types = [ResponseType.YTranslation]
 
     for response_type in response_types:
-        for p, pier in list(enumerate(c.bridge.supports))[:1]:
+        for p, pier in list(enumerate(c.bridge.supports)):
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
                 response_types=response_types, displacement_ctrl=pier_disp,
@@ -190,7 +190,6 @@ def each_pier_displacement_plots(c: Config):
                         kn=c.pd_unit_load_kn,
                     )
                 ],
-                center_norm=True,
             )
             plt.savefig(
                 c.get_image_path(

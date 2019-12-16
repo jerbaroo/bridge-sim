@@ -89,7 +89,7 @@ class Config:
 
         # Vehicles.
         self.perturb_stddev: float = 0.1
-        self.axle_width: float = 2
+        self.axle_width: float = 2.5
         self.vehicle_pdf = vehicle_pdf
         self.vehicle_pdf_col = vehicle_pdf_col
         start = timer()

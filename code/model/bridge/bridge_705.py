@@ -217,8 +217,8 @@ def bridge_705_3d(
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_nodes_x: int = 100,
-    base_mesh_deck_nodes_z: int = 40,
+    base_mesh_deck_nodes_x: int = 104,
+    base_mesh_deck_nodes_z: int = 34,
     base_mesh_pier_nodes_y: int = 17,
     base_mesh_pier_nodes_z: int = 17,
     **kwargs,
@@ -274,8 +274,8 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
             accuracy="low",
             base_mesh_deck_nodes_x=50,
             base_mesh_deck_nodes_z=20,
-            base_mesh_pier_nodes_y=5,
-            base_mesh_pier_nodes_z=5,
+            base_mesh_pier_nodes_y=17,
+            base_mesh_pier_nodes_z=17,
         )
     )
 

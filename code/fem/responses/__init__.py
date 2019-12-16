@@ -268,9 +268,8 @@ class FEMResponses(Responses):
     def at_deck(self, point: Point, interp: bool = False):
         """Response at the deck (y = 0) with optional interpolation."""
         assert point.y == 0
-        # print(point.x, point.z)
         if not interp:
-            raise ValueError("hello")
+            raise ValueError("We are always interpolating the deck")
             return self._at_deck_no_interp(x=point.x, z=point.z)
         return self._at_deck_interp(x=point.x, z=point.z)
 

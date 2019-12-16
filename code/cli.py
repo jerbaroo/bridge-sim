@@ -1,9 +1,10 @@
 """Command line interface to bridge-sim."""
 import click
 
+from classify.vehicle import wagen1, wagen1_x_pos
 from config import Config
 from make.data import simulations
-from make.plot import contour, verification
+from make.plot import contour, vehicle, verification
 from make.plot import classification as classification_
 from make.plot import geometry as geometry_
 from model.bridge.bridge_705 import (
@@ -73,9 +74,9 @@ def cli(dimensions, mesh, two_materials, parallel):
         c = lambda: c_func(bridge_705_2d)
 
 
-#######################
-##### Util & Info #####
-#######################
+################
+##### Util #####
+################
 
 
 @cli.command()
@@ -83,10 +84,51 @@ def clean():
     clean_generated(c())
 
 
-@cli.command()
+################
+##### Util #####
+################
+
+
+@cli.group()
+def info():
+    pass
+
+
+@info.command(help="Print a summary of this bridge.")
 @click.option("--piers", is_flag=True)
 def bridge_info(piers):
     c.bridge.print_info(pier_fix_info=piers)
+
+
+@info.command(help="Z positions of the wheel tracks, in meters.")
+def wheel_tracks():
+    config = c()
+    print_i(f"Wheel tracks: {config.bridge.wheel_tracks(config)}")
+
+
+@info.command(help="Plot and information on Truck 1.")
+def truck_1():
+    vehicle.wagen1_plot(c())
+    print_i(f"Truck 1 x positions: {wagen1_x_pos()}")
+
+
+@info.command(help="Load position and intensity per wheel of Truck 1.")
+@click.option(
+    "--x",
+    type=float,
+    required=True,
+    help="X position of front axle of Truck 1, in meters.",
+)
+def truck_1_loads(x):
+    config = c()
+    time = wagen1.time_at(x=x, bridge=config.bridge)
+    print_i(f"Time = {time:.4f}s")
+    axle_loads = wagen1.to_point_loads(time=time, bridge=config.bridge)
+    for i in range(len(axle_loads)):
+        print_i(
+            f"Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), "
+            f" ({axle_loads[i][1].repr(config.bridge)})"
+        )
 
 
 ####################
@@ -94,13 +136,18 @@ def bridge_info(piers):
 ####################
 
 
-@cli.group(help="Plots of the geometry of the bridge")
+@cli.group(help="Plots of the geometry of the bridge.")
 def geometry():
     pass
 
 
-@geometry.command(help="Nodes coloured by material properties")
-def node_cloud():
+@geometry.command(help="Shells coloured by material properties.")
+def shells():
+    geometry_.make_shell_plots(c())
+
+
+@geometry.command(help="Nodes coloured by material properties.")
+def nodes():
     geometry_.make_cloud_of_node_plots(c())
 
 
@@ -121,7 +168,7 @@ def unit_load_simulations():
 
 @simulation.command()
 def convergence_data(help="Record simulation as model size is increased."):
-    verification.make_convergence_data(c(), run=True, plot=False)
+    verification.make_convergence_data(c())
 
 
 ########################
@@ -130,21 +177,21 @@ def convergence_data(help="Record simulation as model size is increased."):
 
 
 @cli.group()
-def verify():
+def validate():
     pass
 
 
-@verify.command(help="Contour plots comparing OpenSees and Diana.")
+@validate.command(help="Contour plots comparing OpenSees and Diana.")
 def diana_comp():
     contour.comparison_plots_705(c())
 
 
-@verify.command(help="Regression plots against bridge 705 measurements.")
+@validate.command(help="Regression plots against bridge 705 measurements.")
 def r2():
     verification.r2_plots(c())
 
 
-@verify.command(help="Plot of model convergence as model size increases.")
+@validate.command(help="Plot of model convergence as model size increases.")
 def convergence():
     verification.plot_convergence(c())
 
@@ -200,8 +247,8 @@ def oneclass():
 
 
 @classify.command()
-def joint_clustering_bridge():
-    classification_.joint_clustering_bridge(c())
+def pairwise_sensors():
+    classification_.pairwise_sensors(c())
 
 
 if __name__ == "__main__":

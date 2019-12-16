@@ -542,6 +542,9 @@ class Bridge:
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
+        if len(self.sections) == 1:
+            return self.sections[0]
+
         for section in self.sections:
             if section.contains(bridge=self, x=x, z=z):
                 return section
@@ -591,11 +594,7 @@ class Bridge:
         return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}{type_str}")
 
     def wheel_tracks(self, c: "Config"):
-        """Z positions of wheel track on the bridge.
-
-        TODO: Deprecate in favour of self.wheel_track_zs
-
-        """
+        """Z positions of wheel track on the bridge."""
         half_axle = c.axle_width / 2
         return list(
             chain.from_iterable(
@@ -603,9 +602,6 @@ class Bridge:
                 for lane in self.lanes
             )
         )
-
-    def wheel_track_zs(self, c: "Config"):
-        return self.wheel_track(c)
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

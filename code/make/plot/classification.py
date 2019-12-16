@@ -1,7 +1,7 @@
 import itertools
 
 import numpy as np
-from scipy.stats import ks_2samp
+from scipy import stats
 from sklearn.svm import OneClassSVM
 
 from config import Config
@@ -14,7 +14,7 @@ from classify.scenarios import each_pier_scenarios
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
-from plot.geom import top_view_bridge
+from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import print_i
 
@@ -62,15 +62,34 @@ def oneclass(c: Config):
             print(len(prediction[prediction > 0]))
 
 
-def joint_clustering_bridge(c: Config):
+def ks_no_outliers(d0, d1):
+    """D statistic of ks_2samp with outliers removed."""
+    # print(len(d0))
+    # d0 = d0[~np.isnan(d0)]
+    # print(len(d0))
+    # d1 = d1[~np.isnan(d1)]
+    if np.sum(d0) > 0:
+        z0 = np.abs(stats.zscore(d0))
+        # print(f"d0 shape = {d0.shape}")
+        # d0 = np.where(z0 <= 4, d0, np.zeros(z0.shape)).nonzero()[0]
+        # print(f"d0 shape = {d0.shape}")
+    if np.sum(d1) > 0:
+        z1 = np.abs(stats.zscore(d1))
+        # print(f"d1 shape = {d1.shape}")
+        # d1 = np.where(z1 <= 4, d1, np.zeros(z1.shape)).nonzero()[0]
+        # print(f"d1 shape = {d1.shape}")
+    return stats.ks_2samp(d0, d1)[0]
+
+
+def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
     """Compare distribution of pairs of sensors under HealthyScenario."""
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, 20),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, 2),
+            np.linspace(c.bridge.x_min, c.bridge.x_max, 50),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, 4),
         )
     ]
 
@@ -81,7 +100,7 @@ def joint_clustering_bridge(c: Config):
         response_type=response_type,
         bridge_scenario=bridge_scenario,
         points=points,
-        fem_runner=OSRunner(c),
+        sim_runner=OSRunner,
     ).T
     assert len(responses) == len(points)
 
@@ -90,8 +109,8 @@ def joint_clustering_bridge(c: Config):
         print_i(f"Point {p0 + 1} / {len(points)}")
         ks_values_healthy.append([])
         for p1, point1 in enumerate(points):
-            ks = ks_2samp(responses[p0], responses[p1])
-            ks_values_healthy[-1].append(ks[0])
+            ks = dist_measure(responses[p0], responses[p1])
+            ks_values_healthy[-1].append(ks)
 
     plt.landscape()
     plt.imshow(ks_values_healthy)
@@ -105,7 +124,7 @@ def joint_clustering_bridge(c: Config):
         response_type=response_type,
         bridge_scenario=bridge_scenario,
         points=points,
-        fem_runner=OSRunner(c),
+        sim_runner=OSRunner,
     ).T
     assert len(responses) == len(points)
 
@@ -114,8 +133,8 @@ def joint_clustering_bridge(c: Config):
         print_i(f"Point {p0 + 1} / {len(points)}")
         ks_values_damage.append([])
         for p1, point1 in enumerate(points):
-            ks = ks_2samp(responses[p0], responses[p1])
-            ks_values_damage[-1].append(ks[0])
+            ks = dist_measure(responses[p0], responses[p1])
+            ks_values_damage[-1].append(ks)
 
     plt.imshow(ks_values_damage)
     plt.savefig(c.get_image_path("joint-clustering", "damage-bridge"))

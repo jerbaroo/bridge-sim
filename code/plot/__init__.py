@@ -66,11 +66,10 @@ plt.savefig = _savefig
 plt.show = _show
 plt.portrait = _portrait
 plt.landscape = _landspace
-plt.portrait()
 
-SMALL_SIZE = 14
-MEDIUM_SIZE = 18
-BIGGER_SIZE = 22
+SMALL_SIZE = 18
+MEDIUM_SIZE = 22
+BIGGER_SIZE = 26
 
 plt.rc("font", size=SMALL_SIZE)  # Default text sizes.
 plt.rc("axes", titlesize=BIGGER_SIZE)  # Axes titles.

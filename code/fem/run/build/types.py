@@ -148,6 +148,32 @@ class ShellElement:
             else:
                 node.deck_section = self.section
 
+    def node_ids(self):
+        """IDs of this element's nodes."""
+        return [self.ni_id, self.nj_id, self.nk_id, self.nl_id]
+
+    def nodes(self):
+        """This element's nodes."""
+        return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
+
+    def area(self):
+        """Assumes a tetrahedron shape."""
+        ni = self.nodes_by_id[self.ni_id]
+        nj = self.nodes_by_id[self.nj_id]
+        nk = self.nodes_by_id[self.nk_id]
+        nl = self.nodes_by_id[self.nl_id]
+
+        from fem.run.build.elements.util import poly_area
+
+        return poly_area(
+            [
+                (ni.x, ni.y, ni.z),
+                (nj.x, nj.y, nj.z),
+                (nk.x, nk.y, nk.z),
+                (nl.x, nl.y, nl.z),
+            ]
+        )
+
     def center(self) -> Point:
         """Point at the center of the element."""
         if not hasattr(self, "_center"):
