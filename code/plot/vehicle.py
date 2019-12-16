@@ -21,12 +21,6 @@ def topview_vehicle(
         half_wheel_length = wheel_print[0] / 2
         print(half_wheel_width, half_wheel_length)
 
-    if xlim is not None:
-        plt.xlim(xlim)
-    if ylim is not None:
-        plt.ylim(ylim)
-    plt.axis("equal")
-
     axle_y = 0
     wheel_index = 0
     kn_per_wheel = list(chain.from_iterable(vehicle.kn_per_wheel()))
@@ -42,7 +36,7 @@ def topview_vehicle(
         # Annotate one wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
-        plt.annotate(wheel_kn, (0, y), (0, y + 0.2))
+        plt.annotate(wheel_kn, (0, y), (0, y + 0.25))
         if wheel_print is not None:
             plt.gca().add_patch(Rectangle(
                 (0 - half_wheel_width, y - half_wheel_length),
@@ -56,7 +50,7 @@ def topview_vehicle(
         # Annotate the other wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
-        plt.annotate(wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 1, y + 0.2))
+        plt.annotate(wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 1, y + 0.25))
         if wheel_print is not None:
             plt.gca().add_patch(Rectangle(
                 (vehicle.axle_width - half_wheel_width, y - half_wheel_length),
@@ -66,4 +60,9 @@ def topview_vehicle(
                 edgecolor="black",
             ))
 
+    plt.axis("equal")
+    if xlim is not None:
+        plt.xlim(xlim)
+    if ylim is not None:
+        plt.ylim(ylim)
     return plt.xlim(), plt.ylim()
