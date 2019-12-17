@@ -133,9 +133,9 @@ def plot_contour_deck(
 
     # Plot min and max responses.
     for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin:.4f} mm", "orange", 1),
-        ((amax_x, amax_z), f"max = {amax:.4f} mm", "green", 1),
-        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} mm", "red", 0),
+        ((amin_x, amin_z), f"min = {amin:.4f} {unit_str}", "orange", 1),
+        ((amax_x, amax_z), f"max = {amax:.4f} {unit_str}", "green", 1),
+        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} {unit_str}", "red", 0),
     ]:
         plt.scatter(
             [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
@@ -145,5 +145,5 @@ def plot_contour_deck(
     plt.legend()
     if title:
         plt.title(title)
-    plt.xlabel("x position (m)")
-    plt.ylabel("z position (m)")
+    plt.xlabel("X position (m)")
+    plt.ylabel("Z position (m)")

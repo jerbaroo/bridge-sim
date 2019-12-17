@@ -1453,11 +1453,10 @@ for including that position.
 #+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for
 the comparison of the FEM of bridge 705 generated for OpenSees and the
 previously validated Diana model. Each point is given in meters along the
-longitudinal (x) and transverse (z) directions of the bridge. Each point is
-assigned a unique label so it can be referred to, and a reason why the loading
-position was chosen. The exact loading position chosen is the position of the
-node in the Diana model which fulfils the reason in the "Reason" column as
-closely as possible.
+longitudinal (x) and transverse (z) directions of the bridge. Each loading
+position is assigned a unique label so it can be referred to, and a reason why
+that position was chosen. The exact position chosen is the position of a node in
+the Diana model which fulfils the reason in the "Reason" column.
 |   X (m) |  Z (m) | Label | Reason                                             |
 |---------+--------+-------+----------------------------------------------------|
 |  34.955 | 29.226 | A     | On a wheel track, between piers                    |
@@ -1593,6 +1592,9 @@ built is discussed.
 ** Simulation
 ** Anomally Detection
 * Appendix
+:PROPERTIES:
+:APPENDIX: t
+:END:
 
 #+NAME: tbl:diana-nodes
 #+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana

@@ -327,7 +327,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                 continue
             title = (
                 f"{response_type.name()} from a {loads[0].kn} kN point load"
-                + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
+                + f"\nat x = {load_x:.3f}m, z = {load_z:.3f}m"
             )
             save = lambda prefix: c.get_image_path(
                 "contour",
@@ -340,7 +340,7 @@ def comparison_plots_705(c: Config, run_only: bool):
             plot_contour_deck(
                 c=c, responses=fem_responses, ploads=loads, title=title,
             )
-            plt.savefig(save(""))
+            plt.savefig(save(f"{label}-"))
             plt.close()
 
             # Plot again with colormaps centered to 0.
@@ -352,7 +352,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                 center_norm=True,
                 title=title,
             )
-            plt.savefig(save("center_norm-"))
+            plt.savefig(save(f"{label}-center_norm-"))
             plt.close()
 
             # Finally create label/title the Diana plot.
@@ -360,9 +360,9 @@ def comparison_plots_705(c: Config, run_only: bool):
                 di_img = mpimg.imread(f"data/verification/diana-{label}.png")
                 plt.imshow(di_img)
                 plt.title(title)
-                plt.xlabel("x position (mm)")
-                plt.ylabel("z position (mm)")
-                plt.savefig(save("diana-"))
+                plt.xlabel("X position (mm)")
+                plt.ylabel("Z position (mm)")
+                plt.savefig(save(f"{label}-diana-"))
                 plt.close()
 
 
