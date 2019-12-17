@@ -558,12 +558,14 @@ class Bridge:
             fix_info: print information on pier's fixed nodes.
 
         """
-        print_s(
-            f"Bridge dimensions:"
-            + f"\n  x = ({self.x_min}, {self.x_max})"
-            + f"\n  y = ({self.y_min}, {self.y_max})"
-            + f"\n  z = ({self.z_min}, {self.z_max})"
-        )
+        print_s(f"Bridge dimensions:")
+        print_s(f"  x = ({self.x_min}, {self.x_max})")
+        print_s(f"  y = ({self.y_min}, {self.y_max})")
+        print_s(f"  z = ({self.z_min}, {self.z_max})")
+        print_s(f"Bridge lanes:")
+        for l, lane in enumerate(self.lanes):
+            print_s(f"Lane {l}: {lane.z_min} <= z <= {lane.z_max}")
+            print_s(f"Lane {l}: center = {lane.z_center}")
         if self.single_sections:
             print_s(
                 f"Single section per deck and pier:"
