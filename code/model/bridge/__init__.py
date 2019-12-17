@@ -562,6 +562,7 @@ class Bridge:
         print_s(f"  x = ({self.x_min}, {self.x_max})")
         print_s(f"  y = ({self.y_min}, {self.y_max})")
         print_s(f"  z = ({self.z_min}, {self.z_max})")
+
         print_s(f"Bridge lanes:")
         wheel_tracks = self.wheel_tracks(c)
         for l, lane in enumerate(self.lanes):
@@ -570,12 +571,14 @@ class Bridge:
             track_0 = wheel_tracks[l * 2]
             track_1 = wheel_tracks[l * 2 + 1]
             print_s(f"  lane {l}: wheel tracks at z = {track_0}, {track_1}")
+
         if self.single_sections:
             print_s(
                 f"Single section per deck and pier:"
                 + f"\ndeck = {self.sections[0]}"
                 + f"\npier = {self.supports[0].sections[0]}"
             )
+
         if pier_fix_info:
             for p, pier in enumerate(self.supports):
                 print_s(
