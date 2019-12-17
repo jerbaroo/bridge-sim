@@ -25,7 +25,7 @@ from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
-from plot import plt
+from plot import parula_cmap, plt
 from plot.contour import contour_plot_3d
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
@@ -59,7 +59,27 @@ def cover_photo(c: Config, x: float):
             ))
         )
     )
-    contour_plot_3d(c=c, sim_responses=sim_responses)
+    shells = contour_plot_3d(c=c, sim_responses=sim_responses)
+    plt.close()
+    for deformation_amp in [3, 0]:
+        for cmap in [cm.get_cmap("jet"), cm.get_cmap("coolwarm"), parula_cmap]:
+            for center_norm in [True, False]:
+
+                def cb():
+                    plt.savefig(c.get_image_path(
+                        "cover-photo",
+                        f"cover-photo-deform-{deformation_amp}-cmap-{cmap.name}-center-norm-{center_norm}.pdf"))
+                    plt.close()
+
+                contour_plot_3d(
+                    c=c,
+                    sim_responses=sim_responses,
+                    deformation_amp=deformation_amp,
+                    shells=shells,
+                    cmap=cmap,
+                    center_norm=center_norm,
+                    cb=cb
+                )
 
 
 def mean_traffic_response_plots(c: Config):

@@ -16,17 +16,25 @@ from plot.geometry.angles import angles_3d
 
 
 def contour_plot_3d(
-        c: Config, sim_responses: FEMResponses, max_translate: float = 3,
-        shells: Optional[List[ShellElement]] = None
+        c: Config,
+        sim_responses: FEMResponses,
+        shells: Optional[List[ShellElement]] = None,
+        deformation_amp: float = 0,
+        cmap: matplotlib.colors.Colormap = matplotlib.cm.get_cmap("jet"),
+        center_norm: bool = False,
+        cb=None
 ):
     """3D contour plot of given responses.
 
     Args:
         c: Config, global configuration object.
         sim_responses: FEMResponses, simulation responses to plot.
-        max_translate: float, the maximum amount of translation, in meters.
         shells: Optional[List[ShellElement]], shells of the FEM used to generate
             the responses. If not given they will be generated.
+        deformation_amp: float, the amplitude of deformation, in meters.
+        cmap: a matplotlib colormap.
+        center_norm: bool, whether to center the color normalization at 0.
+        cb: callback to call after plotting.
 
     """
     # For now we only support displacement.
@@ -47,7 +55,7 @@ def contour_plot_3d(
     max_r, min_r = max(sim_responses.values()), min(sim_responses.values())
     # Coordinates for rotating the plot perspective.
     xs, ys, zs = [], [], []
-    # Maximum response per shell, for colour calculation.
+    # Maximum response per shell, for colour normalization.
     max_r_per_shell = []
     # Vertices of nodes for each shell.
     verts = []
@@ -57,8 +65,8 @@ def contour_plot_3d(
         for node in shell.nodes():
             x = node.x
             y_response = sim_responses._at(x=node.x, y=node.y, z=node.z)
-            y_translate = np.interp(y_response, [min_r, max_r], [0, 1]) * max_translate
-            y = node.y + y_translate
+            y_deformation = np.interp(y_response, [min_r, max_r], [0, 1]) * deformation_amp
+            y = node.y + y_deformation
             z = node.z
             xs.append(node.x)
             ys.append(node.y)
@@ -66,10 +74,12 @@ def contour_plot_3d(
             verts[-1].append([x, z, y])
             if y_response > max_r_per_shell[-1]:
                 max_r_per_shell[-1] = y_response
-    xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
 
-    norm = matplotlib.colors.Normalize(vmin=min(max_r_per_shell), vmax=max(max_r_per_shell))
-    cmap = matplotlib.cm.get_cmap("coolwarm")
+    # Colors are normalized based on the maximum response per shell.
+    vmin, vmax = min(max_r_per_shell), max(max_r_per_shell)
+    if center_norm:
+        vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 
     def plot_shells(fig, ax, append):
         """Plot the cloud of points with optional additional operation."""
@@ -84,8 +94,10 @@ def contour_plot_3d(
             collection.set_edgecolor("none")
             collection.set_facecolor(cmap(facenorm))
             ax.add_collection3d(collection)
-        plt.savefig(c.get_image_path("cover-photo", "cover-photo.pdf"))
-        plt.close()
+        if cb is not None:
+            cb()
 
     for fig, ax, angle in angles_3d(xs=xs, ys=zs, zs=ys):
         plot_shells(fig, ax, angle)
+
+    return shells

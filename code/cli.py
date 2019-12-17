@@ -122,7 +122,7 @@ def wheel_tracks():
     print_i(f"Wheel tracks: {config.bridge.wheel_tracks(config)}")
 
 
-@info.command(help="Plot and information on Truck 1.")
+@info.command(help="Print and plot information on Truck 1.")
 def truck_1():
     vehicle.wagen1_plot(c())
     print_i(f"Truck 1 x positions: {wagen1_x_pos()}")

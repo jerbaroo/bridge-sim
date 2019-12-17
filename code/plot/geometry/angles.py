@@ -21,6 +21,8 @@ def angles_3d(
         elev: Optional[float], elevation used if 'angles' is given.
 
     """
+    xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
+
     # Determine values for scaling axes.
     max_range = (
         np.array([xs.max() - xs.min(), ys.max() - ys.min(), zs.max() - zs.min()]).max()
