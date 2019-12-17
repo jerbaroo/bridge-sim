@@ -295,11 +295,15 @@ def gradient_pier_displacement_plot(
 def comparison_plots_705(c: Config):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
-        (35, 25 - 16.6, None),
-        (34.95459, 29.22606 - 16.6, "a"),
-        (51.25051, 16.6 - 16.6, "b"),
-        (92.40638, 12.405 - 16.6, "c"),
-        (101.7649, 3.973938 - 16.6, "d"),
+        # (35, 25 - 16.6, None),
+        (34.95459, 26.24579, "a"),
+        (51.25051,     16.6, "b"),
+        (89.98269, 9.445789, "c"),
+        (102.5037, 6.954211, "d"),
+        # (34.95459, 29.22606 - 16.6, "a"),
+        # (51.25051, 16.6 - 16.6, "b"),
+        # (92.40638, 12.405 - 16.6, "c"),
+        # (101.7649, 3.973938 - 16.6, "d"),
     ]
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # For each response type and loading position first create contour plots for

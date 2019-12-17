@@ -1440,8 +1440,8 @@ Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function o
 model size. The Figure shows that for the $n = 4$ chosen loading positions that
 $\epsilon$ decreases as the model size increases. Four loading positions were
 chosen to cover various points of interest on the bridge deck. Each of the $n =
-4$ loading positions is defined in Table [[tbl:loading-positions]], including the
-reason for including that position.
+4$ loading positions is defined in Table [[tbl:loading-positions]] with the reason
+for including that position.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1450,13 +1450,20 @@ reason for including that position.
 [[./images/response-convergence.png]]
 
 #+NAME: tbl:loading-positions
-#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the loading position was chosen.
-|   x (m) |  z (m) | Name | Reason            |
-|---------+--------+------+-------------------|
-|  34.955 | 29.226 | A    | Between two piers |
-|  51.251 |   16.6 | B    | Center of bridge  |
-|  92.406 | 12.405 | C    | Close to pier     |
-| 101.765 |  3.974 | D    | Close to abutment |
+#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for
+the comparison of the FEM of bridge 705 generated for OpenSees and the
+previously validated Diana model. Each point is given in meters along the
+longitudinal (x) and transverse (z) directions of the bridge. Each point is
+assigned a unique label so it can be referred to, and a reason why the loading
+position was chosen. The exact loading position chosen is the position of the
+node in the Diana model which fulfils the reason in the "Reason" column as
+closely as possible.
+|   X (m) |  Z (m) | Label | Reason                                             |
+|---------+--------+-------+----------------------------------------------------|
+|  34.955 | 29.226 | A     | On a wheel track, between piers                    |
+|  51.251 |   16.6 | B     | At center of bridge, symmetry expected in response |
+|  92.406 | 12.405 | C     | On a wheel track, close to pier                    |
+| 101.765 |  3.974 | D     | On a wheel track, close to abutment                |
 
 #+NAME: tbl:max-displacement
 #+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:loading-positions]].
@@ -1485,7 +1492,7 @@ for truck 1 were available from TNO in a simple format.
 
 # Truck 1.
 The specification of truck 1 is shown in Figure [[fig:truck-1]] on the left. The
-plot on the left shows the size of the wheels however in simulation the force
+plot on the left shows the size of the wheels, however in simulation the force
 from each wheel is represented by a point load as shown on the right in the same
 Figure.
 
@@ -1594,12 +1601,12 @@ bridge 705 model. Each node corresponds to a loading position in Table
 from the Diana model to be reproduced, for anyone with a licence for the Diana
 software. The Diana model can either be requested from the thesis author, or
 found in the =traffic-sim= repository.
-| Label | Node identifier |
-|-------+-----------------|
-| A     |                 |
-| B     |           87125 |
-| C     |                 |
-| D     |                 |
+| Label | Node identifier |        X |        Z |
+|-------+-----------------+----------+----------|
+| A     | 126'679         | 34.95459 | 26.24579 |
+| B     | 87'125          | 51.25051 |     16.6 |
+| C     | 53'166          | 89.98269 | 9.445789 |
+| D     | 54'603          | 102.5037 | 6.954211 |
 
 #+NAME: tbl:sensor-pos
 #+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
