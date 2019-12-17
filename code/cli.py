@@ -52,7 +52,7 @@ def bridge_705_3d_overload(*args, **kwargs):
     "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
 )
 @click.option(
-    "--save", is_flag=True, default=False, help="Save data to designated save folder.",
+    "--save", is_flag=True, default=False, help="Save/load data from a special folder.",
 )
 def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: bool):
     if dimensions == 2 and two_materials:
@@ -77,7 +77,7 @@ def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: b
 
         def c_func_save(*args, **kwargs):
             result_c = og_c_func(*args, **kwargs)
-            result_c.root_generated_data_dir += "-save"
+            result_c.root_generated_data_dir = "saved-" + result_c.root_generated_data_dir
             return result_c
 
         c_func = c_func_save
