@@ -186,7 +186,7 @@ def validate():
 
 @validate.command(help="Contour plots comparing OpenSees and Diana.")
 def diana_comp():
-    contour.comparison_plots_705(c())
+    contour_.comparison_plots_705(c())
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")

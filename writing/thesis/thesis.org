@@ -1598,7 +1598,7 @@ built is discussed.
 #+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana
 bridge 705 model. Each node corresponds to a loading position in Table
 [[tbl:loading-positions]]. Providing this information allows for the contour plots
-from the Diana model to be reproduced, for anyone with a licence for the Diana
+from the Diana model to be reproduced, by anyone with a licence for the Diana
 software. The Diana model can either be requested from the thesis author, or
 found in the =traffic-sim= repository.
 | Label | Node identifier |        X |        Z |
