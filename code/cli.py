@@ -99,7 +99,8 @@ def info():
 @info.command(help="Print a summary of this bridge.")
 @click.option("--piers", is_flag=True)
 def bridge(piers):
-    c().bridge.print_info(pier_fix_info=piers)
+    config = c()
+    config.bridge.print_info(c=config, pier_fix_info=piers)
 
 
 @info.command(help="Z positions of the wheel tracks, in meters.")

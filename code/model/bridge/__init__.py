@@ -551,7 +551,7 @@ class Bridge:
 
         raise ValueError("No section for x, z = {x}, {z}")
 
-    def print_info(self, pier_fix_info: bool = False):
+    def print_info(self, c: "Config", pier_fix_info: bool = False):
         """Print summary information about this bridge.
 
         Args:
@@ -563,9 +563,13 @@ class Bridge:
         print_s(f"  y = ({self.y_min}, {self.y_max})")
         print_s(f"  z = ({self.z_min}, {self.z_max})")
         print_s(f"Bridge lanes:")
+        wheel_tracks = self.wheel_tracks(c)
         for l, lane in enumerate(self.lanes):
             print_s(f"Lane {l}: {lane.z_min} <= z <= {lane.z_max}")
-            print_s(f"Lane {l}: center = {lane.z_center}")
+            print_s(f"Lane {l}: center at z = {lane.z_center}")
+            track_0 = wheel_tracks[l * 2]
+            track_1 = wheel_tracks[l * 2 + 1]
+            print_s(f"Lane {l}: wheel tracks at z = {track_0}, {track_1}")
         if self.single_sections:
             print_s(
                 f"Single section per deck and pier:"
