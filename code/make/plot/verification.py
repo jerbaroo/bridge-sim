@@ -335,6 +335,7 @@ def r2_plots(c: Config):
         )
 
     # Subplot: Diana against measurements.
+    plt.portrait()
     plt.subplot(3, 1, 1)
     x = list(map(lambda x: x[2], displa_meas))
     y = [

@@ -285,8 +285,9 @@ CLOSED: [2019-12-05 Thu 15:49]
 - Temperature load implemented (go over today)
 - Ask Arthur how to?
   - Diana strain contour plots
-  - Increase Diana mesh density
   - Check fixed degree's of freedom
+  - Get response at a point
+  - Increase Diana mesh density
 *** TODO Check Axis distributed load vs. point load
 *** TODO Go over temperature load
 * Week's work
