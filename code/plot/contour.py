@@ -78,6 +78,7 @@ def contour_plot_3d(
                 Poly3DCollection(
                     [verts_],
                     facecolors=cmap(norm(max_r_per_shell[i])),
+                    alpha=1,
                 )
             )
         plt.savefig(c.get_image_path("cover-photo", "cover-photo.pdf"))
