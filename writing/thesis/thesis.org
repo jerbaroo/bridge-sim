@@ -277,8 +277,7 @@ system cite:brownjohn2006structural.
 # Vibration: assumptions made.
 A significant amount of the research into damage identification of civil
 infrastructure is based on vibration data, with methods based on changes in
-natural frequency cite:stubbs2000global or changes in mode shape
-cite:pandey1991damage.
+natural frequency cite:stubbs2000global or mode shape cite:pandey1991damage.
 
 # Vibration: assumptions made.
 The location of damage on a computer model of a reinforced concrete bridge is
@@ -342,20 +341,20 @@ future temporal correlations.
 ** Simulation
 
 # Traffic simulations for damage detection on bridges.
-Data for damage detection on bridges can be collected in simulation. In doing
-so, some traffic on the bridge must be simulated in order to collect a response
-from the structure. Damage detection on bridges using neural networks was based
-on simulated vibration data in cite:yeung2005damage, in this case the "traffic"
-was simply a single truck simulated with two point loads, one per axle, and
-moving at different speeds in different simulations.
+Data for damage detection on bridges can be collected by simulating loads
+(vehicles) moving across the bridge deck. Damage detection on bridges using
+neural networks was based on simulated vibration data in cite:yeung2005damage,
+in this case the "traffic" was simply a single truck simulated with two point
+loads, one per axle. The load traveled at a different constant speed in each
+simulation.
 
 ** Environmental Factors
 
 # Feature extraction.
 To avoid incorrect detection of anomalies due to environmental factors such as
-temperature, the feature extraction of data is very important in SHM. Feature
-extraction is arguably the most important and difficult step in ML-based health
-monitoring cite:worden2006application.
+changes in temperature or a passing tram, the feature extraction of data is
+crucial in SHM. Feature extraction is arguably the most important and difficult
+step in ML-based health monitoring cite:worden2006application.
 
 # Separations form environment.
 The temperature across a bridge deck was measured during a 24 hour cycle and
