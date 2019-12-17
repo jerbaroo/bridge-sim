@@ -185,8 +185,9 @@ def validate():
 
 
 @validate.command(help="Contour plots comparing OpenSees and Diana.")
-def diana_comp():
-    contour_.comparison_plots_705(c())
+@click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
+def diana_comp(run_only: float):
+    contour_.comparison_plots_705(c=c(), run_only=run_only)
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")

@@ -292,7 +292,7 @@ def gradient_pier_displacement_plot(
     plt.close()
 
 
-def comparison_plots_705(c: Config):
+def comparison_plots_705(c: Config, run_only: bool):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
         # (35, 25 - 16.6, None),
@@ -323,6 +323,8 @@ def comparison_plots_705(c: Config):
                 sim_runner=OSRunner(c),
                 sim_params=SimParams(ploads=loads, response_types=response_types),
             )
+            if run_only:
+                continue
             title = (
                 f"{response_type.name()} from a {loads[0].kn} kN point load"
                 + f" at x = {load_x:.3f}m, z = {load_z:.3f}m"
