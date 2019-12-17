@@ -1081,24 +1081,42 @@ https://www.researchgate.net/publication/303809875_Emission_factors_for_alternat
 A model of the normal traffic on bridge 705 is based on two datasets. A dataset
 was provided by TNO of vehicles recorded using Weight-in-motion (WIM) technology
 on the A16 highway in The Netherlands. This dataset will be referred to as the
-A16 dataset. Additionaly data was used from the National Data Warehouse for
-Traffic Information (NDW). NDW provides a database of real-time and historic
-traffic data in The Netherlands. The dataset used from the NDW will be referred
-to as the NDW dataset.
-
-# A16 dataset filtered.
-The A16 these vehicles are all above 3500kg in weight and 7m in length.
+A16 dataset. Data was also used from the National Data Warehouse for Traffic
+Information (NDW). NDW provides a database of real-time and historic traffic
+data in The Netherlands. The dataset used from the NDW will be referred to as
+the NDW dataset.
 
 # A16 dataset structure.
 The A16 dataset contains a number of columns, including time and date, lane the
 vehicle was travelling on, the vehicle type, vehicle speed, distance between
-axles and load per axle. Only the distance between axles and the load per axle
-are considered, all other columns are ignored. All vehicles in the implemented
-traffic simulation travel at equal speed thus the vehicle column is ignored.
+axles and load per axle.
 
-The A16 dataset was filtered so that the total weight and the the total
-length of vehicles
+# A16 filtering.
+In the A16 data all vehicles are above 3500kg in weight and 7m in length. The
+A16 dataset was filtered so that neither the total weight nor the total length
+would exceed a z-score of 3 for that column respectively. The filtered data is
+shown in \textcolor{red}{TODO filtered data}.
 
+# Speed and axle width are constant, most columns ignored.
+In the A16 dataset only the distance between axles and the load per axle are
+considered, all other columns are ignored. All vehicles in the implemented
+traffic simulation travel at an equal speed of 40kmph thus the speed column is
+ignored. All vehicles are set to have an axle width of 2.5m, this is the axle
+width of Truck 1 from the experimental campaign. Setting the same axle width for
+all vehicles allows for the same set of unit load simulations to be used to
+calculate responses for any vehicle travelling across the bridge, because they
+can then all travel along the same wheel tracks.
+
+# Wheel tracks.
+The wheel tracks that exist on a bridge are half an axle width (1.25m) either
+side of the center of each lane. The lanes on bridge 705 are both 8.4m wide and
+4.2m from the center of the bridge in the transverse direction. Thus the lanes
+are separated from each other by 8.4m and the center of the lanes are at ~z =
++-8.4m~. The wheel tracks are located at ~z = += 7.15~ and ~z = += 9.65~. The
+lanes and wheel tracks on bridge 705 are depicted in Figure
+\textcolor{red}{TODO: lanes and wheel tracks figure}.
+
+# Data collection system parameterized.
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
@@ -1114,12 +1132,11 @@ contains descriptions of vehicles. This =.csv= file will be loaded as a Pandas
 | 225.55 | [79.44, 101, 45.11] | .79      | [6.02, 1.32]   |
 | ...    | ...                 | ...      | ...            |
 
-
-For example, a Pandas =DataFrame= will be loaded from
-=vehicle_data_path=, then vehicles will be sampled from this =DataFrame= based
-on the PDF. A vehicle that is sampled from this =DataFrame= will have a speed of
-40kmph, and an axle-width of 2m, the inter-axle distances and the axle weights
-are taken from the =DataFrame=.
+For example, a Pandas =DataFrame= will be loaded from =vehicle_data_path=, then
+vehicles will be sampled from this =DataFrame= based on the PDF. A vehicle that
+is sampled from this =DataFrame= will have a speed of 40kmph, and an axle-width
+of 2m, the inter-axle distances and the axle weights are taken from the
+=DataFrame=.
 
 **** Traffic
 To train a classifier to distinguish between normal and abnormal traffic
@@ -1434,12 +1451,12 @@ reason for including that position.
 
 #+NAME: tbl:loading-positions
 #+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the loading position was chosen.
-|   x (m) |  z (m) | Name | Reason |
-|---------+--------+------+--------|
-|  34.955 | 29.226 | A    |        |
-|  51.251 |   16.6 | B    |        |
-|  92.406 | 12.405 | C    |        |
-| 101.765 |  3.974 | D    |        |
+|   x (m) |  z (m) | Name | Reason            |
+|---------+--------+------+-------------------|
+|  34.955 | 29.226 | A    | Between two piers |
+|  51.251 |   16.6 | B    | Center of bridge  |
+|  92.406 | 12.405 | C    | Close to pier     |
+| 101.765 |  3.974 | D    | Close to abutment |
 
 #+NAME: tbl:max-displacement
 #+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:loading-positions]].
@@ -1569,6 +1586,20 @@ built is discussed.
 ** Simulation
 ** Anomally Detection
 * Appendix
+
+#+NAME: tbl:diana-nodes
+#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana
+bridge 705 model. Each node corresponds to a loading position in Table
+[[tbl:loading-positions]]. Providing this information allows for the contour plots
+from the Diana model to be reproduced, for anyone with a licence for the Diana
+software. The Diana model can either be requested from the thesis author, or
+found in the =traffic-sim= repository.
+| Label | Node identifier |
+|-------+-----------------|
+| A     |                 |
+| B     |           87125 |
+| C     |                 |
+| D     |                 |
 
 #+NAME: tbl:sensor-pos
 #+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
