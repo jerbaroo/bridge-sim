@@ -1473,8 +1473,8 @@ the Diana model which fulfils the reason in the "Reason" column.
 | C     |     0.0116 |        0.0121 |     0.0005 |         0.041 |
 | D     |     0.0058 |        0.0066 |     0.0008 |         0.121 |
 |-------+------------+---------------+------------+---------------|
-|       |            |          Mean |    0.00205 |         0.074 |
-#+TBLFM: @5$2=vmean(@2$2..@4$2)
+|       |            |          Mean |    2.05e-3 |       0.07425 |
+#+TBLFM: @6$4=vmean(@2$4..@5$4)::@6$5=vmean(@2$5..@5$5)
 
 #+NAME: tbl:min-displacement
 #+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
