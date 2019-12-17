@@ -74,13 +74,16 @@ def contour_plot_3d(
     def plot_shells(fig, ax, append):
         """Plot the cloud of points with optional additional operation."""
         for i, verts_ in enumerate(verts):
-            ax.add_collection3d(
-                Poly3DCollection(
-                    [verts_],
-                    facecolors=cmap(norm(max_r_per_shell[i])),
-                    alpha=1,
-                )
+            collection = Poly3DCollection(
+                [verts_],
+                alpha=1,
+                linewidths=0.001,
             )
+            facenorm = norm(max_r_per_shell[i])
+            facecolor = cmap(facenorm)
+            collection.set_edgecolor("none")
+            collection.set_facecolor(cmap(facenorm))
+            ax.add_collection3d(collection)
         plt.savefig(c.get_image_path("cover-photo", "cover-photo.pdf"))
         plt.close()
 
