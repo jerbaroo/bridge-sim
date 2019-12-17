@@ -115,7 +115,7 @@ class Config:
         self.root_generated_data_dir = _get_dir(generated_data)
         if self.root_generated_data_dir[-1] in "/\\":
             raise ValueError("generated_data must not end in path separator")
-        self.root_generated_images_dir = _get_dir(
+        self.root_generated_images_dir = lambda: _get_dir(
             os.path.join(self.root_generated_data_dir + "-images")
         )
 
@@ -128,7 +128,7 @@ class Config:
 
     def generated_images_dir(self):
         return _get_dir(
-            os.path.join(self.root_generated_images_dir, self.bridge.id_str())
+            os.path.join(self.root_generated_images_dir(), self.bridge.id_str())
         )
 
     # Bridge-specific but accuracy-independent directories.
@@ -140,7 +140,7 @@ class Config:
 
     def generated_images_dir_no_acc(self):
         return _get_dir(
-            os.path.join(self.root_generated_images_dir, self.bridge.id_str(acc=False))
+            os.path.join(self.root_generated_images_dir(), self.bridge.id_str(acc=False))
         )
 
     def get_path_in(self, in_: str, dirname: str, filename: str):
@@ -170,7 +170,7 @@ class Config:
         """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_data_dir()
         if not bridge:
-            dir_path = self.root_generated_images_dir
+            dir_path = self.root_generated_images_dir()
         elif not acc:
             dir_path = self.generated_data_dir_no_acc()
         return self.get_path_in(dir_path, dirname, filename)
@@ -181,7 +181,7 @@ class Config:
         """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_images_dir()
         if not bridge:
-            dir_path = self.root_generated_images_dir
+            dir_path = self.root_generated_images_dir()
         elif not acc:
             dir_path = self.generated_images_dir_no_acc()
         return self.get_path_in(dir_path, dirname, filename)

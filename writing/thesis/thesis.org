@@ -1468,24 +1468,25 @@ the Diana model which fulfils the reason in the "Reason" column.
 #+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
 | Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
 |-------+------------+---------------+------------+---------------|
-| A     |     0.1015 |        0.1082 |     0.0067 |         0.072 |
-| B     |     0.0030 |        0.0032 |     0.0002 |         0.063 |
-| C     |     0.0116 |        0.0121 |     0.0005 |         0.041 |
-| D     |     0.0058 |        0.0066 |     0.0008 |         0.121 |
+| A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
+| B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
+| C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
+| D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
 |-------+------------+---------------+------------+---------------|
-|       |            |          Mean |    2.05e-3 |       0.07425 |
-#+TBLFM: @6$4=vmean(@2$4..@5$4)::@6$5=vmean(@2$5..@5$5)
+|       |            |          Mean |     0.0021 |        0.0784 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 #+NAME: tbl:min-displacement
 #+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
-| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) |
-|-------+------------+---------------+------------|
-| A     |    -0.2810 |       -0.3221 |     0.0411 |
-| B     |    -0.1375 |       -0.1431 |     0.0056 |
-| C     |    -0.0464 |       -0.0673 |     0.0209 |
-| D     |    -0.0210 |       -0.0258 |     0.0048 |
-|-------+------------+---------------+------------|
-|       |            |          Mean |    0.00205 |
+| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+|-------+------------+---------------+------------+---------------|
+| A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
+| B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
+| C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
+| D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
+|-------+------------+---------------+------------+---------------|
+|       |            |          Mean |     0.0181 |        0.2165 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 \textcolor{red}{Verify the model is deterministic $\epsilon$}
 

@@ -51,7 +51,10 @@ def bridge_705_3d_overload(*args, **kwargs):
 @click.option(
     "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
 )
-def cli(dimensions, mesh, two_materials, parallel):
+@click.option(
+    "--save", is_flag=True, default=False, help="Save data to designated save folder.",
+)
+def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: bool):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
     global c
@@ -69,10 +72,20 @@ def cli(dimensions, mesh, two_materials, parallel):
         c_func = bridge_705_test_config
     elif mesh == "full":
         c_func = bridge_705_config
+    if save:
+        og_c_func = c_func
+
+        def c_func_save(*args, **kwargs):
+            result_c = og_c_func(*args, **kwargs)
+            result_c.root_generated_data_dir += "-save"
+            return result_c
+
+        c_func = c_func_save
     if dimensions == "3":
         c = lambda: c_func(bridge_705_3d_overload)
     elif dimensions == "2":
         c = lambda: c_func(bridge_705_2d)
+
 
 
 ################
