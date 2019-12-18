@@ -46,7 +46,7 @@ def unit_thermal_deck_load(c: Config):
             sim_runner=OSRunner(c),
             response_type=response_type,
             sim_params=SimParams(
-                response_types=[response_type],
+                response_types=response_types,
                 delta_temp=c.unit_delta_temp_c
             )
         )
