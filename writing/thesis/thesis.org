@@ -4,6 +4,7 @@
 
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{commath}
+#+LATEX_HEADER: \usepackage{siunitx}
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
@@ -205,6 +206,7 @@ of installing a decision support system for bridge maintenance.
 * Preliminaries
 ** Abbreviations
 | ANN      | Artificial neural network                                     |
+| CTE      | Coefficient of thermal expansion                              |
 | DSS      | Decision support software                                     |
 | FEM      | Finite element model                                          |
 | NDE      | Non-disruptive evaluation                                     |
@@ -404,7 +406,7 @@ same literature as Table [[tbl:lit-review-1]].
 \textcolor{red}{Comment on reproducability}
 
 #+LATEX: \newpage
-* Motivation
+* Background and Motivation
 The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however focuses on the question
 of /why/. Why should sensors be installed on concrete slab bridges for the
@@ -515,7 +517,7 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Damage Scenarios
+** Damage Types
 Damage scenarios can be classified as short-term or long-term. Short-term damage
 scenarios are defined as a change of the properties of structural materials and
 elements, and of the behaviour of the whole structure, due to effects that occur
@@ -1061,42 +1063,93 @@ bridge705 = Bridge {
   points.
 
   # \textcolor{red, TODO: shell boundaries at requested variation points}
-*** Damage Types
+*** Damage Model
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
-The goal of the damage identification model is to identify that damage in a
-number of selected damage scenarios.
+The goal of the damage identification model is to detect or classify different
+damage scenarios as set up in an experiment. This Subsection describes how
+different damage types, as outlined in Subsection [[Damage Types]], are simulated.
 
- Of the damage scenarios listed in Tables [[table:short-term-events]] and
- [[table:long-term-events]], four scenarios are selected for identification by the
- DIM in addition to one unlisted damage scenario. These scenarios are chosen due
- to the practicality of simulating them in a FEM of bridge 705.
+Of the damage scenarios listed in Tables [[table:short-term-events]] and
+table:long-term-events]], four scenarios are selected for identification by the
+DIM in addition to one unlisted damage scenario. These scenarios are chosen due
+to the practicality of simulating them in a FEM of bridge 705.
 
- /Pier settlement/ can be simulated by displacing a pier by a fixed amount, this
- is achieved in practice by applying an increasing vertical force known as a
- /displacement load/ to the deck until the desired displacement is achieved.
+/Pier settlement/ can be simulated by displacing a pier by a fixed amount, this
+is achieved in practice by applying an increasing vertical force known as a
+/displacement load/ to the deck until the desired displacement is achieved.
 
- /Abnormal loading conditions/ can be simulated relatively easily by applying
- the heavy loads in the FE simulation. Care must be taken regarding the axle
- configuration because extreme heavy loads typically have a different axle
- configuration than less heavy vehicles.
+/Abnormal loading conditions/ can be simulated relatively easily by applying the
+heavy loads in the FE simulation. Care must be taken regarding the axle
+configuration because extreme heavy loads typically have a different axle
+configuration than less heavy vehicles.
 
- /Cracked concrete/ can be simulated by reducing the value of Young's modulus
- for the cracked concrete section. In practice, Young's modulus is often reduced
- to $\frac{1}{3}$ of its original value (cite:li2010predicting). Simulating a
- crack zone in this manner makes sense because damage reduced the stiffness of
- a structure cite:yeung2005damage.
+/Cracked concrete/ can be simulated by reducing the value of Young's modulus for
+the cracked concrete section. In practice, Young's modulus is often reduced to
+$\frac{1}{3}$ of its original value (cite:li2010predicting). Simulating a crack
+zone in this manner makes sense because damage reduced the stiffness of a
+structure cite:yeung2005damage.
 
- /Corrosion/ of the reinforment bars can be simulated by increasing the size of
- the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
- it is not the bridge that is damaged but rather a sensor is malfunctioning.
+/Corrosion/ of the reinforment bars can be simulated by increasing the size of
+the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
+it is not the bridge that is damaged but rather a sensor is malfunctioning.
 
- A /malfunctioning sensor/ can be simulated by adding a significant amount of
- noise to the simulated sensor responses or adding a constant offset to the
- responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
- malfunctioning sensors is useful to accomplish.
+A /malfunctioning sensor/ can be simulated by adding a significant amount of
+noise to the simulated sensor responses or adding a constant offset to the
+responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
+malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
+*** Noise Model
+# What is noise?
+Noise in a signal is considered to be the response from unwanted or unknown
+sources. In the case of bridges the following can be considered as noise:
+fluctuations in response caused by vehicles on another lane, random fluctuations
+caused by the sensor instrument itself, the effect of a change in temperature or
+indeed any other environmental effect.
+
+# Robust to noise.
+A model is considered robust if its outputs are consistently accurate when input
+variables, whether foreseen or not, are changed. A damage identification model
+must be robust to noise in order for it to be considered usable in a real-life
+setting. In the damage identification experiments, that are laid out later in
+Subsection [[Experiments]], the ability to identify damage in the presence of noise
+is considered.
+
+# Two forms of noise.
+Two forms of noise are modeled which we will refer to as background noise and
+thermal noise. Background noise is a catch-all term for short-term fluctuations
+and is modeled with a white noise process. For each sensor type a mean value and
+standard deviation of background noise is set. Thermal noise is modeled as a
+load that is applied in FE simulation. Thermal noise is considered sufficient to
+investigate the robustness of the damage identification model to long-term
+variations in response, whether these have daily or annual periods.
+
+# How temperature is modeled.
+OpenSees does not directly support the application of a thermal load based on a
+user-input change in temperature (e.g. \SI{30}{\celsius}), thus the thermal load
+is calculated based on the theory of linear thermal expansion. Under the
+assumption of linear thermal expansion, the strain caused by a change in
+temperature ($\delta{T}$) is linearly proportional to $\delta{T}$.
+
+# Calculating the thermal load.
+The combination of a change in temperature and a known coefficient of thermal
+expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
+load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
+strain $\varepsilon$ due to thermal expansion is calculated as the product of
+$\alpha$ and $\delta{T}$, then in combination with Young's modulus $E$ the
+equivalent stress $\sigma$ is obtained. The thermal load to be applied to the
+cross section of an element in simulation is then determined as the product of
+the cross sectional area $A$ and the stress.
+
+#+NAME: eqn:thermal
+\begin{equation}
+  \varepsilon = \alpha \delta{T}
+  \sigma = E \varepsilon
+  F = \sigma A
+\end{equation}
+
+\textcolor{red}{TODO: Paper: Noise in sensors}
 *** Traffic Model
 
 \textcolor{red}{Distribution of passenger vehicles}
@@ -1612,7 +1665,7 @@ load.
   on real data in addition to the simulated data with varying levels of noise
   and (B) verifying the simulated noise is comparable to the noise from
   measurements collected in real life as shown in \textcolor{red}{noise}.
-** Anomally Detection
+** Damage Identification
 # Section overview.
 In this section the process of building the damage identification model is
 described. First there is an introduction to the damage scenarios that it is
@@ -1621,12 +1674,10 @@ testing iterations of the model. After this an analysis is presented of the
 sensor responses with respect to the useful information in different sensor
 types for each damage scenario. Finally the damage identification model that is
 built is discussed.
+*** Experiments
 *** Feature extraction
-*** Test setup
-*** Data analysis
-*** Damage identification model
+*** Damage Identification
 *** Sensor Placement
-*** Noise
 *** Other Bridges
 #+LATEX: \clearpage
 * Results
