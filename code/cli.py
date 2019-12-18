@@ -6,9 +6,8 @@ from config import Config
 from make.data import simulations
 from make.plot import classification as classification_
 from make.plot import contour as contour_
-from make.plot import debug as debug_
 from make.plot import geometry as geometry_
-from make.plot import vehicle, verification
+from make.plot import material, vehicle, verification
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -147,9 +146,10 @@ def truck_1_loads(x: float):
             f" ({axle_loads[i][1].repr(config.bridge)})"
         )
 
-@info.command(help="Print and plot debug information.")
-def debug():
-    debug_.material_property_plots(c())
+
+@info.command(help="Plot the material properties of this bridge.")
+def materials():
+    material.material_property_plots(c())
 
 
 ####################

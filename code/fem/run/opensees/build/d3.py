@@ -467,6 +467,8 @@ def build_model_3d(
 ):
     """Build OpenSees 3D model files.
 
+    TODO: ExptParams -> SimParams.
+
     Args:
         c: Config, global configuration object.
         simple_mesh: bool, whether meshes for deck and for piers are based on

@@ -16,16 +16,16 @@ from plot import plt
 from plot.geometry.angles import angles_3d
 
 
-def contour_plot_3d(
+def contour_responses_3d(
         c: Config,
         sim_responses: FEMResponses,
         shells: Optional[List[ShellElement]] = None,
         deformation_amp: float = 0,
         cmap: matplotlib.colors.Colormap = matplotlib.cm.get_cmap("jet"),
         center_norm: bool = False,
-        new_ax: bool = True
+        new_fig: bool = True
 ):
-    """3D contour plot of given responses and shell elements.
+    """3D contour plot of simulation responses over deformed shell elements.
 
     Args:
         c: Config, global configuration object.
@@ -35,7 +35,7 @@ def contour_plot_3d(
         deformation_amp: float, the amplitude of deformation, in meters.
         cmap: matplotlib.colors.Colormap, the colormap to plot with.
         center_norm: bool, whether to center the color normalization at 0.
-        new_ax: bool, whether to plot on a new figure and axis.
+        new_fig: bool, whether to plot on a new figure and axis.
 
     """
     # For now we only support displacement.
@@ -83,7 +83,7 @@ def contour_plot_3d(
     norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 
     # Setup a new 3D landscape figure.
-    if new_ax:
+    if new_fig:
         _fig, ax, _ = next(angles_3d(xs, zs, ys))
     else:
         ax = plt.gca()

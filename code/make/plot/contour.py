@@ -3,10 +3,10 @@ import itertools
 from itertools import chain
 from typing import List
 
-import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.image as mpimg
 import numpy as np
+from matplotlib.cm import get_cmap
 
 from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import (
@@ -26,7 +26,7 @@ from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from plot import parula_cmap, plt
-from plot.contour import contour_plot_3d
+from plot.contour import contour_responses_3d
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
 from util import print_d, print_i, safe_str
@@ -59,10 +59,10 @@ def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: 
             ))
         )
     )
-    shells = contour_plot_3d(c=c, sim_responses=sim_responses)
-    for cmap in [parula_cmap, cm.get_cmap("jet"), cm.get_cmap("coolwarm"), cm.get_cmap("viridis")]:
+    shells = contour_responses_3d(c=c, sim_responses=sim_responses)
+    for cmap in [parula_cmap, get_cmap("jet"), get_cmap("coolwarm"), get_cmap("viridis")]:
 
-            contour_plot_3d(
+            contour_responses_3d(
                 c=c,
                 sim_responses=sim_responses,
                 deformation_amp=deformation_amp,
@@ -409,6 +409,6 @@ def plot_of_unit_loads(c: Config):
             Z[-1].append(z)
             R[-1].append(fem_responses._at(x=x, y=0, z=z))
 
-    cmap = cm.get_cmap("bwr")
+    cmap = get_cmap("bwr")
     plt.contourf(X, Z, R, levels=50, cmap=cmap)
     plt.show()

@@ -7,7 +7,7 @@ from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_3d
 from plot import plt
 from plot.geometry import plot_cloud_of_nodes
-from plot.geometry.shell import shell_plots_3d
+from plot.geometry.shell import shell_properties_3d
 
 
 def make_shell_plots(c: Config):
