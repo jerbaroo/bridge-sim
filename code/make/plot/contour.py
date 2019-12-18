@@ -36,6 +36,34 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
+
+def unit_thermal_deck_load(c: Config):
+    """Response to unit thermal deck loading."""
+    response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
+    for response_type in response_types:
+        sim_responses = load_fem_responses(
+            c=c,
+            sim_runner=OSRunner(c),
+            response_type=response_type,
+            sim_params=SimParams(
+                response_types=[response_type],
+                delta_temp=c.unit_delta_temp_c
+            )
+        )
+        top_view_bridge(c.bridge, abutments=True, piers=True)
+        plot_contour_deck(
+            c=c,
+            responses=sim_responses,
+            levels=100,
+        )
+        plt.title(f"{response_type.name()} to {c.unit_delta_temp_c}C thermal loading of the deck")
+        plt.savefig(
+            c.get_image_path("contour", f"thermal-deck-unit-load-{response_type.name()}.pdf")
+        )
+        plt.close()
+
+
+
 def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: float):
     """
 

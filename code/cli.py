@@ -277,6 +277,11 @@ def each_pier_displaced():
     contour_.each_pier_displacement_plots(c())
 
 
+@contour.command(help="Response to unit thermal deck loading.")
+def thermal_deck():
+    contour_.unit_thermal_deck_load(c())
+
+
 ########################
 ##### Distribution #####
 ########################

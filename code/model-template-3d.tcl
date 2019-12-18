@@ -26,6 +26,7 @@ timeSeries Linear 1
 
 pattern Plain 1 1 {
 <<LOAD>>
+<<THERMAL_LOAD_DECK>>
 }
 
 <<FORCES>>

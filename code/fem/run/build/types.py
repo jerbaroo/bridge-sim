@@ -61,8 +61,12 @@ class Node:
         )
 
     def distance(self, x: float, y: float, z: float):
-        """Distance form this node to the given coordinates."""
+        """Distance from this node to the given coordinates."""
         return distance.euclidean((self.x, self.y, self.z), (x, y, z))
+
+    def distance_n(self, node):
+        """Distance from this node to another node."""
+        return self.distance(x=node.x, y=node.y, z=node.z)
 
 
 # The nodes that make up a bridge deck. Represented as a matrix of Node ordered
