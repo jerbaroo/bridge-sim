@@ -23,8 +23,9 @@ def contour_plot_3d(
         deformation_amp: float = 0,
         cmap: matplotlib.colors.Colormap = matplotlib.cm.get_cmap("jet"),
         center_norm: bool = False,
+        new_ax: bool = True
 ):
-    """3D contour plot of given responses on a new landscape figure.
+    """3D contour plot of given responses and shell elements.
 
     Args:
         c: Config, global configuration object.
@@ -32,8 +33,9 @@ def contour_plot_3d(
         shells: Optional[List[ShellElement]], shells of the FEM used to generate
             the responses. If not given they will be generated.
         deformation_amp: float, the amplitude of deformation, in meters.
-        cmap: a matplotlib colormap.
+        cmap: matplotlib.colors.Colormap, the colormap to plot with.
         center_norm: bool, whether to center the color normalization at 0.
+        new_ax: bool, whether to plot on a new figure and axis.
 
     """
     # For now we only support displacement.
@@ -81,7 +83,10 @@ def contour_plot_3d(
     norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 
     # Setup a new 3D landscape figure.
-    _fig, ax, _ = next(angles_3d(xs, zs, ys))
+    if new_ax:
+        _fig, ax, _ = next(angles_3d(xs, zs, ys))
+    else:
+        ax = plt.gca()
 
     for i, verts_ in enumerate(verts):
         collection = Poly3DCollection(
