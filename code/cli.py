@@ -230,8 +230,26 @@ def contour():
     required=True,
     help="X position of front axle of Truck 1, in meters.",
 )
-def cover_photo(x: float):
-    contour_.cover_photo(c=c(), x=x)
+@click.option(
+    "--deform",
+    type=float,
+    required=True,
+    help="Deformation amplitude, in meters."
+)
+@click.option(
+    "--elev",
+    type=float,
+    required=True,
+    help="Plot elevation angle."
+)
+@click.option(
+    "--azim",
+    type=float,
+    required=True,
+    help="Plot azimuth angle."
+)
+def cover_photo(x: float, deform: float, elev: float, azim: float):
+    contour_.cover_photo(c=c(), x=x, deformation_amp=deform, elev=elev, azim=azim)
 
 
 @contour.command(help="Mean response to traffic per scenario.")

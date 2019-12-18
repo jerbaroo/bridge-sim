@@ -2,6 +2,7 @@ from typing import List, Optional
 
 import matplotlib
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from config import Config
@@ -22,9 +23,8 @@ def contour_plot_3d(
         deformation_amp: float = 0,
         cmap: matplotlib.colors.Colormap = matplotlib.cm.get_cmap("jet"),
         center_norm: bool = False,
-        cb=None
 ):
-    """3D contour plot of given responses.
+    """3D contour plot of given responses on a new landscape figure.
 
     Args:
         c: Config, global configuration object.
@@ -34,7 +34,6 @@ def contour_plot_3d(
         deformation_amp: float, the amplitude of deformation, in meters.
         cmap: a matplotlib colormap.
         center_norm: bool, whether to center the color normalization at 0.
-        cb: callback to call after plotting.
 
     """
     # For now we only support displacement.
@@ -81,23 +80,19 @@ def contour_plot_3d(
         vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
     norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
 
-    def plot_shells(fig, ax, append):
-        """Plot the cloud of points with optional additional operation."""
-        for i, verts_ in enumerate(verts):
-            collection = Poly3DCollection(
-                [verts_],
-                alpha=1,
-                linewidths=0.001,
-            )
-            facenorm = norm(max_r_per_shell[i])
-            facecolor = cmap(facenorm)
-            collection.set_edgecolor("none")
-            collection.set_facecolor(cmap(facenorm))
-            ax.add_collection3d(collection)
-        if cb is not None:
-            cb()
+    # Setup a new 3D landscape figure.
+    _fig, ax, _ = next(angles_3d(xs, zs, ys))
 
-    for fig, ax, angle in angles_3d(xs=xs, ys=zs, zs=ys):
-        plot_shells(fig, ax, angle)
+    for i, verts_ in enumerate(verts):
+        collection = Poly3DCollection(
+            [verts_],
+            alpha=1,
+            linewidths=0.001,
+        )
+        facenorm = norm(max_r_per_shell[i])
+        facecolor = cmap(facenorm)
+        collection.set_edgecolor("none")
+        collection.set_facecolor(cmap(facenorm))
+        ax.add_collection3d(collection)
 
     return shells

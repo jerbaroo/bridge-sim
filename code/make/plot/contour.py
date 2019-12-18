@@ -36,7 +36,7 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
-def cover_photo(c: Config, x: float):
+def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: float):
     """
 
     TODO: SimParams takes any loads iterable, to be flattened.
@@ -44,9 +44,6 @@ def cover_photo(c: Config, x: float):
     TODO: Ignore response type in SimParams (fill in by load_sim_responses).
 
     """
-    truck = wagen1
-    truck.kn *= 10
-
     response_type=ResponseType.YTranslation
     sim_responses = load_fem_responses(
         c=c,
@@ -55,7 +52,7 @@ def cover_photo(c: Config, x: float):
         sim_params=SimParams(
             response_types=[response_type],
             ploads=list(chain.from_iterable(
-                truck.to_point_loads(
+                wagen1.to_point_loads(
                     bridge=c.bridge,
                     time=wagen1.time_at(x=x, bridge=c.bridge),
                 )
@@ -63,26 +60,24 @@ def cover_photo(c: Config, x: float):
         )
     )
     shells = contour_plot_3d(c=c, sim_responses=sim_responses)
-    plt.close()
-    for deformation_amp in [3, 0]:
-        for cmap in [parula_cmap, cm.get_cmap("jet"), cm.get_cmap("coolwarm"), cm.get_cmap("viridis")]:
+    for cmap in [parula_cmap, cm.get_cmap("jet"), cm.get_cmap("coolwarm"), cm.get_cmap("viridis")]:
 
-                def cb():
-                    plt.axis("off")
-                    plt.grid(False)
-                    plt.savefig(c.get_image_path(
-                        "cover-photo",
-                        f"cover-photo-deform-{deformation_amp}-cmap-{cmap.name}.pdf"))
-                    plt.close()
+            contour_plot_3d(
+                c=c,
+                sim_responses=sim_responses,
+                deformation_amp=deformation_amp,
+                shells=shells,
+                cmap=cmap,
+            )
 
-                contour_plot_3d(
-                    c=c,
-                    sim_responses=sim_responses,
-                    deformation_amp=deformation_amp,
-                    shells=shells,
-                    cmap=cmap,
-                    cb=cb
-                )
+            plt.gca().view_init(elev=elev, azim=azim)
+            plt.axis("off")
+            plt.grid(False)
+            plt.savefig(c.get_image_path(
+                "cover-photo",
+                f"cover-photo-deform-{deformation_amp}-elev-{elev}-azim-{azim}"
+                f"-cmap-{cmap.name}.pdf"))
+            plt.close()
 
 
 def mean_traffic_response_plots(c: Config):
