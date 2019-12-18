@@ -77,6 +77,7 @@ def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: 
                 "cover-photo",
                 f"cover-photo-deform-{deformation_amp}-elev-{elev}-azim-{azim}"
                 f"-cmap-{cmap.name}.pdf"))
+            plt.show()
             plt.close()
 
 
