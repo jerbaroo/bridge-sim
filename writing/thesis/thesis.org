@@ -274,7 +274,7 @@ system should be capable of a minimal amount of condition assessment (CA) the
 more likely scenario is an additional investigation for CA is triggered by the
 system cite:brownjohn2006structural.
 
-# Vibration: assumptions made.
+# Vibration: bulk of the research.
 A significant amount of the research into damage identification of civil
 infrastructure is based on vibration data, with methods based on changes in
 natural frequency cite:stubbs2000global or mode shape cite:pandey1991damage.
@@ -377,6 +377,31 @@ model of a long-span bridge.
 
 # Sensor installations for SHM.
 
+** Summary
+
+Tables [[tbl:lit-review-1]] and [[tbl:lit-review-2]] summarize the literature which is
+most relevant to this thesis. The tables break down the literature into a number
+of criteria, in order to give a high-level view of the contributions of the
+literature. Table [[tbl:lit-review-1]] breaks down the literature into bridge type,
+damage type, how traffic was simulated and if the FEM was validated. Table
+[[tbl:lit-review-2]] gives an overview of the damage identification methods for the
+same literature as Table [[tbl:lit-review-1]].
+
+#+ATTR_LATEX: :float sideways
+#+NAME: tbl:lit-review-1
+| Paper                | Bridge type     | Damage type         | Traffic simulation      | Validation of FEM      |
+|----------------------+-----------------+---------------------+-------------------------+------------------------|
+| cite:yeung2005damage | 214m Suspension | Corrosion and       | One vehicle represented | "Reasonable agreement" |
+|                      |                 | loosening of joints | as two points loads     | with measurements      |
+
+#+ATTR_LATEX: :float sideways
+#+NAME: tbl:lit-review-2
+| Paper                | Measurement | Feature           | Analysis | Noise      | Accuracy |
+|----------------------+-------------+-------------------+----------+------------+----------|
+| cite:yeung2005damage | Vibration   | Frequency spectra | ANN      | "Moderate" |      70% |
+|                      |             |                   |          |            |          |
+
+\textcolor{red}{Comment on reproducability}
 
 #+LATEX: \newpage
 * Motivation
@@ -1058,7 +1083,9 @@ number of selected damage scenarios.
 
  /Cracked concrete/ can be simulated by reducing the value of Young's modulus
  for the cracked concrete section. In practice, Young's modulus is often reduced
- to $\frac{1}{3}$ of its original value (cite:li2010predicting).
+ to $\frac{1}{3}$ of its original value (cite:li2010predicting). Simulating a
+ crack zone in this manner makes sense because damage reduced the stiffness of
+ a structure cite:yeung2005damage.
 
  /Corrosion/ of the reinforment bars can be simulated by increasing the size of
  the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
