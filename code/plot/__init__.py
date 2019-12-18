@@ -124,7 +124,9 @@ parula_cmap = colors.LinearSegmentedColormap.from_list("parula", [[0.2081, 0.166
  [0.9588714286, 0.8949, 0.1132428571], [0.9598238095, 0.9218333333,
   0.0948380952], [0.9661, 0.9514428571, 0.0755333333],
  [0.9763, 0.9831, 0.0538]])
-default_cmap = parula_cmap
+
+default_cmap = matplotlib.cm.get_cmap("viridis")
+
 
 class Color:
     bridge = "limegreen"

@@ -7,7 +7,7 @@ from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import build_model_3d
 from plot.geometry.shell import shell_properties_3d
-from plot import plt
+from plot import default_cmap, plt
 
 
 def material_property_plots(c: Config):
@@ -27,12 +27,7 @@ def material_property_plots(c: Config):
                 ("Poisson's", "m/m", lambda s: s.poissons),
                 ("Density", "kg/m", lambda s: s.poissons),
         ]:
-            shell_properties_3d(
-                shells=shells_,
-                prop_units=units,
-                prop_f=prop_f,
-                cmap=get_cmap("viridis"))
-
+            shell_properties_3d(shells=shells_, prop_units=units, prop_f=prop_f)
             plt.title(f"{material} of {c.bridge.name}")
             plt.savefig(c.get_image_path("info", f"{material}-{shells_name}.pdf"))
             plt.close()

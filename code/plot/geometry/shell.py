@@ -6,7 +6,7 @@ from scipy.interpolate import interp2d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from fem.run.build.elements import ShellElement
-from plot import plt
+from plot import default_cmap, plt
 from plot.geometry.angles import angles_3d
 
 
@@ -14,7 +14,7 @@ def shell_properties_3d(
         shells: List[ShellElement],
         prop_units: str,
         prop_f,
-        cmap = matplotlib.cm.get_cmap("viridis"),
+        cmap = default_cmap,
         outline: bool = True,
         new_fig: bool = True,
 ):
