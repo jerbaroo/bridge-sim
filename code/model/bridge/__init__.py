@@ -362,6 +362,7 @@ class Section3D:
         start_z_frac: float,
         end_x_frac: float,
         end_z_frac: float,
+        cte: float = 9 * 10E-6,
     ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
