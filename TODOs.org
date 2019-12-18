@@ -290,6 +290,8 @@ CLOSED: [2019-12-05 Thu 15:49]
   - Increase Diana mesh density
 *** TODO Check Axis distributed load vs. point load
 *** TODO Go over temperature load
+** Next meeting
+Why do we consider temperature difference from the top and bottom of an element?
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
