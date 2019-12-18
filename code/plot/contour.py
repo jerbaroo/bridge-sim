@@ -12,7 +12,7 @@ from fem.run.build.elements import ShellElement, shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import build_model_3d
 from model.response import ResponseType
-from plot import plt
+from plot import default_cmap, plt
 from plot.geometry.angles import angles_3d
 
 
@@ -21,7 +21,7 @@ def contour_responses_3d(
         sim_responses: FEMResponses,
         shells: Optional[List[ShellElement]] = None,
         deformation_amp: float = 0,
-        cmap: matplotlib.colors.Colormap = matplotlib.cm.get_cmap("jet"),
+        cmap: matplotlib.colors.Colormap = default_cmap,
         center_norm: bool = False,
         new_fig: bool = True
 ):
