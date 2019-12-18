@@ -1127,8 +1127,8 @@ variations in response, whether these have daily or annual periods.
 
 # How temperature is modeled.
 OpenSees does not directly support the application of a thermal load based on a
-user-input change in temperature (e.g. \SI{30}{\celsius}), thus the thermal load
-is calculated based on the theory of linear thermal expansion. Under the
+user-input change in temperature (e.g. $+\SI{2}{\celsius}$), thus the thermal
+load is calculated based on the theory of linear thermal expansion. Under the
 assumption of linear thermal expansion, the strain caused by a change in
 temperature ($\delta{T}$) is linearly proportional to $\delta{T}$.
 
@@ -1144,9 +1144,11 @@ the cross sectional area $A$ and the stress.
 
 #+NAME: eqn:thermal
 \begin{equation}
-  \varepsilon = \alpha \delta{T}
-  \sigma = E \varepsilon
-  F = \sigma A
+\begin{split}
+  \varepsilon &= \alpha \cdot \delta{T} \\
+  \sigma &= E \cdot \varepsilon \\
+  F &= \sigma \cdot A \\
+\end{split}
 \end{equation}
 
 \textcolor{red}{TODO: Paper: Noise in sensors}
