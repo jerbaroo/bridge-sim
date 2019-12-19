@@ -1107,6 +1107,7 @@ sources. In the case of bridges the following can be considered as noise:
 fluctuations in response caused by vehicles on another lane, random fluctuations
 caused by the sensor instrument itself, the effect of a change in temperature or
 indeed any other environmental effect.
+\textcolor{red}{TODO: RED: Noise in sensors}
 
 # Robust to noise.
 A model is considered robust if its outputs are consistently accurate when input
@@ -1130,28 +1131,33 @@ OpenSees does not directly support the application of a thermal load based on a
 user-input change in temperature (e.g. $+\SI{2}{\celsius}$), thus the thermal
 load is calculated based on the theory of linear thermal expansion. Under the
 assumption of linear thermal expansion, the strain caused by a change in
-temperature ($\delta{T}$) is linearly proportional to $\delta{T}$.
+temperature ($\varepsilon_thermal$) is linearly proportional to the change in
+temperature, $\varepsilon_thermal \propto \delta{T}$.
+
+# Axial and bending moment load.
+The equivalent force applied to a beam can be decomposed into an axial force and
+a bending moment as is shown in Figure
+\textcolor{red}{TODO fig:thermal-loading}.
 
 # Calculating the thermal load.
 The combination of a change in temperature and a known coefficient of thermal
 expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
 load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
-strain $\varepsilon$ due to thermal expansion is calculated as the product of
-$\alpha$ and $\delta{T}$, then in combination with Young's modulus $E$ the
-equivalent stress $\sigma$ is obtained. The thermal load to be applied to the
-cross section of an element in simulation is then determined as the product of
-the cross sectional area $A$ and the stress.
+strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
+product of $\alpha$ and $\delta{T}$, then in combination with Young's modulus
+$E$ the equivalent stress $\sigma$ is obtained. The thermal load to be applied
+to the cross section of an element in simulation is then determined as the
+product of the cross sectional area $A$ and the stress.
 
 #+NAME: eqn:thermal
 \begin{equation}
 \begin{split}
-  \varepsilon &= \alpha \cdot \delta{T} \\
-  \sigma &= E \cdot \varepsilon \\
+  \varepsilon_thermal &= \alpha \cdot \delta{T} \\
+  \sigma &= E \cdot \varepsilon_thermal \\
   F &= \sigma \cdot A \\
 \end{split}
 \end{equation}
 
-\textcolor{red}{TODO: Paper: Noise in sensors}
 *** Traffic Model
 
 \textcolor{red}{Distribution of passenger vehicles}
