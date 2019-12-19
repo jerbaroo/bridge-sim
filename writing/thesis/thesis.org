@@ -1145,16 +1145,19 @@ expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
 load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
 strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
 product of $\alpha$ and $\delta{T}$, then in combination with Young's modulus
-$E$ the equivalent stress $\sigma$ is obtained. The thermal load to be applied
-to the cross section of an element in simulation is then determined as the
-product of the cross sectional area $A$ and the stress.
+$E$ the equivalent stress $\sigma_thermal$ is obtained. The thermal load
+$F_thermal$ to be applied to the cross section of an element in simulation is
+then determined as the product of the cross sectional area $A$ and the stress.
+Note that the force applied to each of the shell element's nodes is $F_thermal /
+2$ as there are two nodes sharing each of the four cross sections of the
+element, as shown in Figure. \textcolor{red}{force per thermal load}
 
 #+NAME: eqn:thermal
 \begin{equation}
 \begin{split}
   \varepsilon_thermal &= \alpha \cdot \delta{T} \\
-  \sigma &= E \cdot \varepsilon_thermal \\
-  F &= \sigma \cdot A \\
+  \sigma_thermal_ &= E \cdot \varepsilon_thermal \\
+  F_thermal &= \sigma_thermal \cdot A
 \end{split}
 \end{equation}
 

@@ -506,8 +506,7 @@ def r2_plots(c: Config):
 
 def make_convergence_data(c: Config):
     """Make convergence data file, increasing mesh density per simulation."""
-    response_type = ResponseType.YTranslation
-    load_point = Point(x=35, y=0, z=9.4)
+    load_point = Point(x=35, y=0, z=9.65)
     bridge = bridge_705_3d()
     fem_params = SimParams(
         ploads=[
@@ -517,7 +516,7 @@ def make_convergence_data(c: Config):
                 kn=100,
             )
         ],
-        response_types=[response_type],
+        response_types=[ResponseType.YTranslation, ResponseType.Strain],
     )
     deck_x, deck_z, pier_y, pier_z = 2, 2, 3, 3
 
@@ -547,13 +546,11 @@ def make_convergence_data(c: Config):
 
     # Write the header information to the results file.
     c = bridge_705_config(bridge_overload)
-    path = os.path.join(
-        c.root_generated_images_dir, "convergence", "convergence_results"
-    )
+    path = c.get_data_path("convergence", "convergence_results", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
             "xload,zload,xnodes,znodes,ypierz,zpier,decknodes,piernodes,time"
-            + ",min,max,mean,shell-size,deck-size,pier-size"
+            + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
         )
 
     # Here we create an increaseing list of the number of nodes for the
@@ -579,11 +576,10 @@ def make_convergence_data(c: Config):
         # Start by cleaning old results, and determining deck nodes.
         clean_generated(c)
         deck_x, deck_z = int(xs[deck_index]), int(zs[deck_index])
-        print_i(
-            "Running model with:"
-            f"\n  deck_x, deck_z = {deck_x}, {deck_z}"
-            f"\n  pier_y, pier_z = {pier_y}, {pier_z}"
-        )
+        print_i("Running model with:")
+        print_i(f"  deck_x, deck_z = {deck_x}, {deck_z}")
+        print_i(f"  pier_y, pier_z = {pier_y}, {pier_z}")
+
         with open(path + ".txt", "a") as f:
             f.write(
                 f"\n{load_point.x}, {load_point.z}, {deck_x}, {deck_z}"
@@ -594,10 +590,10 @@ def make_convergence_data(c: Config):
         try:
             # Start timing and run the simulation.
             start = timer()
-            responses = load_fem_responses(
+            displacements = load_fem_responses(
                 c=c,
                 sim_params=fem_params,
-                response_type=response_type,
+                response_type=ResponseType.YTranslation,
                 sim_runner=OSRunner(c),
             )
             end = timer()
@@ -609,11 +605,11 @@ def make_convergence_data(c: Config):
             avg_shell_size = np.mean([s.area() for s in shells])
 
             # TODO: Remove to deck interpolation test.
-            for x in responses.xs:
-                if 0 in responses.zs[x]:
-                    for z in responses.zs[x][0]:
-                        og = responses.responses[0][x][0][z].value
-                        ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
+            for x in displacements.xs:
+                if 0 in displacements.zs[x]:
+                    for z in displacements.zs[x][0]:
+                        og = displacements.responses[0][x][0][z].value
+                        ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
 
             # Determine number of deck and pier nodes.
@@ -623,24 +619,38 @@ def make_convergence_data(c: Config):
             )
             assert deck_nodes + pier_nodes == len(nodes_by_id)
 
-            # Determine min, max and mean responses.
-            all_values = list(responses.values())
-            min_ = np.min(all_values)
-            max_ = np.max(all_values)
-            mean_ = np.mean(
-                list(responses.at_deck(point, interp=True) for point in grid)
+            # Determine min, max and mean displacements.
+            all_displacements = list(displacements.values())
+            min_d = np.min(all_displacements)
+            max_d = np.max(all_displacements)
+            mean_d = np.mean(
+                list(displacements.at_deck(point, interp=True) for point in grid)
             )
             # NOTE: if this assertion fails it may be because the
             # simulations have reached a size where they are failing.
-            assert len(mean_) == 1
-            mean_ = mean_[0]
+            assert len(mean_d) == 1
+            mean_d = mean_d[0]
+
+            strains = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=ResponseType.Strain,
+                sim_runner=OSRunner(c),
+            )
+            all_strains = strains.values()
+            min_s = np.min(all_strains)
+            max_s = np.max(all_strains)
+            mean_s = np.mean(
+                list(strains.at_deck(point, interp=True) for point in grid)
+            )
 
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
                 f.write(
                     f", {deck_nodes}, {pier_nodes}, {end - start}"
-                    f", {min_}, {max_}, {mean_}, {avg_shell_size}"
-                    f", {avg_deck_size}, {avg_pier_size}"
+                    f", {min_d}, {max_d}, {mean_d}"
+                    f", {min_s}, {max_s}, {mean_s}"
+                    f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
                 )
 
             # Either update the deck index, or number of pier nodes.
@@ -648,7 +658,6 @@ def make_convergence_data(c: Config):
                 deck_index += 1
             else:
                 pier_y += 1
-                pier_z += 1
 
         except ValueError as e:
             if "No responses found" in str(e):

@@ -187,8 +187,8 @@ def uls():
     simulations.run_uls(c())
 
 
-@simulate.command()
-def convergence(help="Record simulation info as model size is increased."):
+@simulate.command(help="Record information for convergence plots.")
+def convergence():
     verification.make_convergence_data(c())
 
 
@@ -277,7 +277,7 @@ def each_pier_displaced():
     contour_.each_pier_displacement_plots(c())
 
 
-@contour.command(help="Response to unit thermal deck loading.")
+@contour.command(help="Response to unit thermal loading of the deck.")
 def thermal_deck():
     contour_.unit_thermal_deck_load(c())
 

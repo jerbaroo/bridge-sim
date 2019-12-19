@@ -338,6 +338,7 @@ Record screen.
 **** TODO Change size of distributed load
 **** TODO Add displacement load
 **** TODO Difference in rigid link and line support?
+**** TODO Check and modify material property
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
