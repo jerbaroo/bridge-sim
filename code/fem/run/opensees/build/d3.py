@@ -398,7 +398,7 @@ def opensees_thermal_loads_deck(
             if not np.isclose(self.x, 0):
                 load_str += f"\nload {n_id} {self.x} 0 0 0 0 0"
             if not np.isclose(self.z, 0):
-                load_str += f"\nload {n_id} 0 {self.z} 0 0 0 0"
+                load_str += f"\nload {n_id} 0 0 {self.z} 0 0 0"
             return load_str
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
