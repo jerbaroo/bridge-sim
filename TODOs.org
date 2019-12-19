@@ -290,9 +290,54 @@ CLOSED: [2019-12-05 Thu 15:49]
   - Increase Diana mesh density
 *** TODO Check Axis distributed load vs. point load
 *** TODO Go over temperature load
-** Next meeting
-Why do we consider temperature difference from the top and bottom of an element?
-Why is strain = CTE * deltaT? Check the units.
+** Meeting 19th Dec
+*** TODO Walk through units of thermal expansion coefficient.
+cte = 9e-05
+d_temp = 1
+thermal strain = 9e-05
+shell youngs SI = 38400000000.0
+thermal stress = 3456000.0
+node ids = 3876, 3877
+node distance = 0.36659999999999116
+cross section area = 0.2712839999999935
+cross section thermal force = 937557.5039999775
+Before applying force: node_0 = -767232.0000000019, -468778.7519999887
+Before applying force: node_1 = 0.0, -575679.743999994
+After applying force: node_0 = -767232.0000000019, 5.820766091346741e-11
+After applying force: node_1 = 0.0, -106900.99200000527
+node ids = 3877, 3977
+node distance = 0.6000000000000014
+cross section area = 0.44400000000000106
+cross section thermal force = 1534464.0000000037
+Before applying force: node_0 = 0.0, -106900.99200000527
+Before applying force: node_1 = 0, 0
+After applying force: node_0 = -767232.0000000019, -106900.99200000527
+After applying force: node_1 = -767232.0000000019, 0
+node ids = 3977, 3976
+node distance = 0.36659999999999116
+cross section area = 0.2712839999999935
+cross section thermal force = 937557.5039999775
+Before applying force: node_0 = -767232.0000000019, 0
+Before applying force: node_1 = -767232.0000000019, -468778.75200000685
+After applying force: node_0 = -767232.0000000019, -468778.75199998874
+After applying force: node_1 = -767232.0000000019, -937557.5039999955
+node ids = 3976, 3876
+node distance = 0.6000000000000014
+cross section area = 0.44400000000000106
+cross section thermal force = 1534464.0000000037
+Before applying force: node_0 = -767232.0000000019, -937557.5039999955
+Before applying force: node_1 = -767232.0000000019, 5.820766091346741e-11
+After applying force: node_0 = 0.0, -937557.5039999955
+After applying force: node_1 = 0.0, 5.820766091346741e-11
+**** TODO Why is strain = CTE * deltaT? Check the units.
+*** TODO Why consider temperature difference from the top and bottom?
+How does that correspond to a change in January to July?
+*** TODO AxisVM questions.
+Record screen.
+**** TODO Which type of distributed load
+**** TODO Change size of distributed load
+**** TODO Add displacement load
+**** TODO Difference in rigid link and line support?
 * Week's work
 ** 7th October
 *** DONE [#A] Collect translation responses from support nodes
