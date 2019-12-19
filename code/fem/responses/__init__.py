@@ -242,15 +242,19 @@ class FEMResponses(Responses):
         xs = [x_lo, x_lo, x_hi, x_hi]
         zs = [z_lo, z_hi, z_lo, z_hi]
         vs = [self.responses[0][xs[i]][0][zs[i]].value for i in range(len(xs))]
+        # In the case of strain collection in the 3D OpenSees simulation the
+        # values collected are not at the nodes but at the integration points.
+        # Thus at the perimeter of the bridge no values will be collected and
+        # extrapolation is necessary.
         if x_lo == x_hi:
             if z_lo == z_hi:
                 # print("interp1d, x == x, z == z")
                 return vs[0]
             # print("interp1d, x == x")
-            return interp1d([z_lo, z_hi], [vs[0], vs[1]])(z)
+            return interp1d([z_lo, z_hi], [vs[0], vs[1]], fill_value="extrapolate")(z)
         if z_lo == z_hi:
             # print("interp1d, z == z")
-            return interp1d([x_lo, x_hi], [vs[0], vs[2]])(x)
+            return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value="extrapolate")(x)
         # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
         # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
         # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
