@@ -975,7 +975,7 @@ def axis_comparison(c: Config):
         raise ValueError("Bridge deck has more than one section")
     for pier in c.bridge.supports:
         if len(pier.sections) > 1:
-            raise ValueError("Bridge pier has more than one section")
+            raise ValueError(f"Bridge pier {pier} has more than one section")
 
     ###############################
     ###### Point load plots #######

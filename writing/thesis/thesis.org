@@ -1063,6 +1063,19 @@ bridge705 = Bridge {
   points.
 
   # \textcolor{red, TODO: shell boundaries at requested variation points}
+**** Bridge 705
+The nodes of the generated FEM which have degree's of freedom fixed are: the
+nodes which make up the abutments at the east and west ends of the bridge, and
+the nodes along the bottom of each the piers. All of these nodes are fixed in
+translation along the y (vertical) and the z (transverse) axes. In addition
+piers 8 - 15 are fixed in translation along the x (longitudinal) axis. Figure
+
+\textcolor{red}{TODO: Figure of fixed and numbered nodes.}
+
+\textcolor{red}{TODO: Why is rotation fixed.}
+
+\textcolor{red}{TODO: Talk about rollers and different types of fixed pier.}
+
 *** Damage Model
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
