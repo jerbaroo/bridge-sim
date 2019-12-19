@@ -546,7 +546,7 @@ def make_convergence_data(c: Config):
 
     # Write the header information to the results file.
     c = bridge_705_config(bridge_overload)
-    path = c.get_data_path("convergence", "convergence_results", bridge=False)
+    path = c.get_image_path("convergence", "convergence_results", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
             "xload,zload,xnodes,znodes,ypier,zpier,decknodes,piernodes,time"
@@ -670,7 +670,8 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.join(c.root_generated_images_dir, "convergence")
+    convergence_dir = os.path.dirname(
+        c.get_image_path("convergence", "convergence_results", bridge=False))
 
     # Get all simulations results from each machine.
     machines = dict()
@@ -817,7 +818,7 @@ def plot_convergence(c: Config):
     # ax2.set_ylabel("Displacement (mm)")
     # ax2.legend()
 
-    plt.savefig(c.get_image_path("validation", "min-max", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "min-max", bridge=False))
     plt.close()
 
     #########################
@@ -854,7 +855,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Mean element area (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
-    plt.savefig(c.get_image_path("validation", "model-size", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "model-size", bridge=False))
     plt.close()
 
     #####################################
@@ -886,7 +887,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Mean element area (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
-    plt.savefig(c.get_image_path("validation", "run-time", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "run-time", bridge=False))
     plt.close()
 
     #########################################
@@ -919,7 +920,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Maximum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"max-response-{machine_name}", bridge=False
+                    "convergence", f"max-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -931,7 +932,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Minimum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"min-response-{machine_name}", bridge=False
+                    "convergence", f"min-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -943,7 +944,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Mean response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"mean-response-{machine_name}", bridge=False
+                    "convergence", f"mean-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -962,7 +963,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Maximum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"mean-element-size-{machine_name}", bridge=False
+                    "convergence", f"mean-element-size-{machine_name}", bridge=False
                 )
             )
             plt.close()
