@@ -549,15 +549,14 @@ def make_convergence_data(c: Config):
     path = c.get_data_path("convergence", "convergence_results", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
-            "xload,zload,xnodes,znodes,ypierz,zpier,decknodes,piernodes,time"
+            "xload,zload,xnodes,znodes,ypier,zpier,decknodes,piernodes,time"
             + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
         )
 
-    # Here we create an increaseing list of the number of nodes for the
-    # deck, one list for the number of x nodes and one for the number of z
-    # nodes. These lists are such that at each position the number of nodes
-    # for z will be scaled to the number of nodes for x, based on the ratio
-    # of width/length of the bridge.
+    # We create an increasing list of the number of nodes for the deck, one list
+    # for the number of x nodes and one for the z nodes. These lists are such
+    # that at each position the number of nodes for z will be scaled to the
+    # number of nodes for x, based on the ratio of width/length of the bridge.
     min_shell_len = 0.2
     max_x = math.ceil(c.bridge.length / min_shell_len) + 1
     max_z = math.ceil(c.bridge.width / min_shell_len) + 1
@@ -625,11 +624,8 @@ def make_convergence_data(c: Config):
             max_d = np.max(all_displacements)
             mean_d = np.mean(
                 list(displacements.at_deck(point, interp=True) for point in grid)
-            )
-            # NOTE: if this assertion fails it may be because the
-            # simulations have reached a size where they are failing.
-            assert len(mean_d) == 1
-            mean_d = mean_d[0]
+            )[0]
+            assert isinstance(mean_d, np.float64)
 
             strains = load_fem_responses(
                 c=c,
@@ -637,7 +633,7 @@ def make_convergence_data(c: Config):
                 response_type=ResponseType.Strain,
                 sim_runner=OSRunner(c),
             )
-            all_strains = strains.values()
+            all_strains = list(strains.values())
             min_s = np.min(all_strains)
             max_s = np.max(all_strains)
             mean_s = np.mean(
@@ -699,9 +695,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -720,13 +719,19 @@ def plot_convergence(c: Config):
                 [],
                 [],
                 [],
+                [],
+                [],
+                [],
             )
             for row in rows:
                 basex.append(row["xnodes"])
                 basez.append(row["znodes"])
-                mins.append(row["min"])
-                maxes.append(row["max"])
-                means.append(row["mean"])
+                mins_d.append(row["min_d"])
+                maxes_d.append(row["max_d"])
+                means_d.append(row["mean_d"])
+                mins_s.append(row["min_s"])
+                maxes_s.append(row["max_s"])
+                means_s.append(row["mean_s"])
                 time.append(row["time"])
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
@@ -739,9 +744,12 @@ def plot_convergence(c: Config):
                     [
                         basex,
                         basez,
-                        mins,
-                        maxes,
-                        means,
+                        mins_d,
+                        maxes_d,
+                        means_d,
+                        mins_s,
+                        maxes_s,
+                        means_s,
                         time,
                         ndeck,
                         npier,
@@ -763,9 +771,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -773,16 +784,19 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            final_mean = np.mean(means[-5:])
-            final_max = np.mean(maxes[-5:])
-            final_min = np.mean(mins[-5:])
-            ax1.plot(shell_size, mins / final_min, color="red", label="Min. response")
+
+            # Displacement
+            
+            final_mean_d = np.mean(means_d[-5:])
+            final_max_d = np.mean(maxes_d[-5:])
+            final_min_d = np.mean(mins_d[-5:])
+            ax1.plot(shell_size, mins_d / final_min_d, color="red", label="Min. response")
             ax1.plot(
-                shell_size, maxes / final_max, color="orange", label="Max. response",
+                shell_size, maxes_d / final_max_d, color="orange", label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                shell_size, means / final_mean, color="green", label="Mean response",
+                shell_size, means_d / final_mean_d, color="green", label="Mean response",
             )
 
             # Zoomed in part.
@@ -816,9 +830,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -849,9 +866,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -878,9 +898,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -889,7 +912,7 @@ def plot_convergence(c: Config):
                 pier_shell_size,
             ) = lines
 
-            plt.plot(shell_size, maxes)
+            plt.plot(shell_size, maxes_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Maximum response as a function of shell area")
             plt.xlabel("Mean element area (m²)")
@@ -901,7 +924,7 @@ def plot_convergence(c: Config):
             )
             plt.close()
 
-            plt.plot(shell_size, mins)
+            plt.plot(shell_size, mins_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Minimum response as a function of shell area")
             plt.xlabel("Mean element area (m²)")
@@ -913,7 +936,7 @@ def plot_convergence(c: Config):
             )
             plt.close()
 
-            plt.plot(shell_size, means)
+            plt.plot(shell_size, means_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Mean response as a function of shell area")
             plt.xlabel("Mean element area (m²)")

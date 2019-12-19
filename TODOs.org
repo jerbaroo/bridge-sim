@@ -292,7 +292,7 @@ CLOSED: [2019-12-05 Thu 15:49]
 *** TODO Go over temperature load
 ** Meeting 19th Dec
 *** TODO Walk through units of thermal expansion coefficient.
-cte = 9e-05
+cte = 9e-05   1.2 E-5
 d_temp = 1
 thermal strain = 9e-05
 shell youngs SI = 38400000000.0
@@ -332,6 +332,7 @@ After applying force: node_1 = 0.0, 5.820766091346741e-11
 **** TODO Why is strain = CTE * deltaT? Check the units.
 *** TODO Why consider temperature difference from the top and bottom?
 How does that correspond to a change in January to July?
+- Due to the sun heating from the top.
 *** TODO AxisVM questions.
 Record screen.
 **** TODO Which type of distributed load
