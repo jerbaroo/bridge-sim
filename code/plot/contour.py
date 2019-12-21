@@ -80,7 +80,11 @@ def contour_responses_3d(
     vmin, vmax = min(max_r_per_shell), max(max_r_per_shell)
     if center_norm:
         vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
-    norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
+    print(vmin)
+    print(vmax)
+    linthresh = min(abs(vmin), abs(vmax)) * 0.03
+    print(linthresh)
+    norm = matplotlib.colors.SymLogNorm(vmin=vmin, vmax=vmax, linthresh=linthresh)
 
     # Setup a new 3D landscape figure.
     if new_fig:
@@ -96,8 +100,8 @@ def contour_responses_3d(
         )
         facenorm = norm(max_r_per_shell[i])
         facecolor = cmap(facenorm)
-        collection.set_edgecolor("none")
-        collection.set_facecolor(cmap(facenorm))
+        # collection.set_edgecolor("none")
+        collection.set_facecolor(facecolor)
         ax.add_collection3d(collection)
 
     return shells

@@ -133,9 +133,9 @@ class FixNode:
 
     """
 
-    def __init__(self, node: Node, free_y: bool = False, comment: Optional[str] = None):
+    def __init__(self, node: Node, free_y_trans: bool = False, comment: Optional[str] = None):
         self.node = node
-        self.free_y = free_y
+        self.free_y_trans = free_y_trans
         self.comment = comment
 
     def command_3d(self):
@@ -148,7 +148,7 @@ class FixNode:
             # print(f"******************")
             # print(f"Fixed support node")
             y_trans_fix = self.node.support.fix_y_translation
-            if self.free_y:
+            if self.free_y_trans:
                 y_trans_fix = False
             return (
                 f"fix {self.node.n_id}"
@@ -188,9 +188,9 @@ def opensees_fixed_pier_nodes(
     for p, p_nodes in enumerate(all_support_nodes):
         # If pier displacement for this pier then select the bottom central node
         # for the integrator command, and attach it to the pier.
-        free_y = False
+        free_y_trans = False
         if (pier_disp is not None) and (p == pier_disp.pier):
-            free_y = True
+            free_y_trans = True
             pier = c.bridge.supports[pier_disp.pier]
             pier.disp_node = p_nodes[0][len(p_nodes[0]) // 2][-1]
             if len(p_nodes[0]) % 2 == 0:
@@ -203,7 +203,7 @@ def opensees_fixed_pier_nodes(
             # We will fix the bottom node.
             fixed_nodes.append(
                 FixNode(
-                    node=y_nodes[-1], free_y=free_y, comment=f"support {p+1} y {y+1}",
+                    node=y_nodes[-1], free_y_trans=free_y_trans, comment=f"support {p+1} y {y+1}",
                 )
             )
     return comment(
@@ -441,7 +441,6 @@ def opensees_thermal_loads_deck(
 
     thermal_load_str = "".join([load.to_tcl(n_id) for n_id, load in thermal_loads_by_nid.items()])
     return comment("thermal loads", thermal_load_str, units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
-
 
 
 ##### End loads #####

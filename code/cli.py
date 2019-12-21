@@ -253,8 +253,13 @@ def contour():
     required=True,
     help="Plot azimuth angle."
 )
-def cover_photo(x: float, deform: float, elev: float, azim: float):
-    contour_.cover_photo(c=c(), x=x, deformation_amp=deform, elev=elev, azim=azim)
+@click.option("--x0", type=float, required=True, help="Lower x limit.")
+@click.option("--x1", type=float, required=True, help="Upper x limit.")
+# @click.option("--y0", type=float, required=True, help="Lower y limit.")
+# @click.option("--y1", type=float, required=True, help="Upper y limit.")
+def cover_photo(x: float, deform: float, elev: float, azim: float, x0: float, x1: float):
+    contour_.cover_photo(
+        c=c(), x=x, deformation_amp=deform, elev=elev, azim=azim, xlim=(x0, x1))
 
 
 @contour.command(help="Mean response to traffic per scenario.")

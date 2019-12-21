@@ -33,7 +33,7 @@ class SimParams:
         self._assert()
 
     def _assert(self):
-        """Only a single type should be applied (due to linear assumption)."""
+        """Maximum 1 load type should be applied (due to linear assumption)."""
         load_types = []
         if self.displacement_ctrl is not None:
             load_types.append(1)
@@ -41,13 +41,11 @@ class SimParams:
             load_types.append(1)
         if len(self.ploads) > 0:
             load_types.append(1)
-        assert len(load_types) == 1
+        assert len(load_types) <= 1
 
     def id_str(self):
         """String representing the simulation parameters."""
-
         responses_str = "".join(r.name() for r in self.response_types)
-
         if self.displacement_ctrl is not None:
             load_str = self.displacement_ctrl.id_str()
         elif self.delta_temp is not None:
@@ -55,7 +53,8 @@ class SimParams:
         elif len(self.ploads) > 0:
             load_str = ",".join(pl.id_str() for pl in self.ploads)
             load_str = f"[{load_str}]"
-
+        else:
+            return ""
         return safe_str(f"{responses_str}-{load_str}")
 
 
