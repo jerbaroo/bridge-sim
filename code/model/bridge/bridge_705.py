@@ -201,10 +201,12 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 width_bottom=1.8,
                 sections=pier_section_f,
                 # sections=bridge_705_pier_sections,
+                fix_x_translation=(x_index in [2, 3]),
+                fix_y_translation=True,
+                fix_z_translation=True,
                 fix_x_rotation=True,
                 fix_y_rotation=True,
                 fix_z_rotation=False,
-                fix_x_translation=(x_index in [2, 3]),
             )
         )
 

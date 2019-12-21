@@ -203,7 +203,9 @@ def opensees_fixed_pier_nodes(
             # We will fix the bottom node.
             fixed_nodes.append(
                 FixNode(
-                    node=y_nodes[-1], free_y_trans=free_y_trans, comment=f"support {p+1} y {y+1}",
+                    node=y_nodes[-1],
+                    free_y_trans=free_y_trans,
+                    comment=f"support {p+1} y {y+1}",
                 )
             )
     return comment(

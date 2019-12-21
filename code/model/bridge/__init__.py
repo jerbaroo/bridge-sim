@@ -121,12 +121,12 @@ class Support3D:
         width_top: float,
         width_bottom: float,
         sections: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
-        fix_x_translation: bool = True,
-        fix_y_translation: bool = True,
-        fix_z_translation: bool = True,
-        fix_x_rotation: bool = False,
-        fix_y_rotation: bool = False,
-        fix_z_rotation: bool = False,
+        fix_x_translation: bool,
+        fix_y_translation: bool,
+        fix_z_translation: bool,
+        fix_x_rotation: bool,
+        fix_y_rotation: bool,
+        fix_z_rotation: bool,
     ):
         self.x = x
         self.z = z
