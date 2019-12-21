@@ -67,7 +67,7 @@ class Config:
         self.il_unit_load_kn: float = 1000
         self.pd_unit_disp: float = 1.0
         self.pd_unit_load_kn: int = 10
-        self.unit_delta_temp_c: int = 1
+        self.unit_axial_delta_temp_c: int = 1
 
         # Responses & events.
         self.sensor_hz: float = 1 / 250  # Record at 250 Hz.

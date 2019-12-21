@@ -24,12 +24,12 @@ class SimParams:
         response_types: List[ResponseType],
         ploads: List[PointLoad] = [],
         displacement_ctrl: Optional[DisplacementCtrl] = None,
-        delta_temp: Optional[float] = None,
+        axial_delta_temp: Optional[float] = None,
     ):
         self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
-        self.delta_temp = delta_temp
+        self.axial_delta_temp = axial_delta_temp
         self._assert()
 
     def _assert(self):
@@ -37,7 +37,7 @@ class SimParams:
         load_types = []
         if self.displacement_ctrl is not None:
             load_types.append(1)
-        if self.delta_temp is not None:
+        if self.axial_delta_temp is not None:
             load_types.append(1)
         if len(self.ploads) > 0:
             load_types.append(1)
@@ -48,8 +48,8 @@ class SimParams:
         responses_str = "".join(r.name() for r in self.response_types)
         if self.displacement_ctrl is not None:
             load_str = self.displacement_ctrl.id_str()
-        elif self.delta_temp is not None:
-            load_str = f"temp-{self.delta_temp}"
+        elif self.axial_delta_temp is not None:
+            load_str = f"temp-{self.axial_delta_temp}"
         elif len(self.ploads) > 0:
             load_str = ",".join(pl.id_str() for pl in self.ploads)
             load_str = f"[{load_str}]"

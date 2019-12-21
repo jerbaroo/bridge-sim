@@ -342,7 +342,7 @@ def opensees_loads(
     return comment("loads", load_str, units="load nodeTag N_x N_y N_z N_rx N_ry N_rz")
 
 
-def opensees_thermal_loads_deck(
+def opensees_thermal_axial_deck_loads(
         c: Config,
         sim_params: SimParams,
         deck_elements: DeckElements,
@@ -354,7 +354,7 @@ def opensees_thermal_loads_deck(
         e.g. load 5 1000; load 5 500
 
     """
-    if sim_params.delta_temp is None:
+    if sim_params.axial_delta_temp is None:
         return ""
 
     class LoadDirection(Enum):
@@ -407,8 +407,8 @@ def opensees_thermal_loads_deck(
         print(np.array(deck_elements).shape)
         print()
         print(f"cte = {shell.section.cte}")
-        print(f"d_temp = {sim_params.delta_temp}")
-        shell_thermal_strain = shell.section.cte * sim_params.delta_temp
+        print(f"d_temp = {sim_params.axial_delta_temp}")
+        shell_thermal_strain = shell.section.cte * sim_params.axial_delta_temp
         print(f"thermal strain = {shell_thermal_strain}")
         shell_youngs_si = shell.section.youngs * 1E6
         shell_thermal_stress = shell_youngs_si * shell_thermal_strain
@@ -653,7 +653,7 @@ def build_model_3d(
             )
             .replace(
                 "<<THERMAL_LOAD_DECK>>",
-                opensees_thermal_loads_deck(
+                opensees_thermal_axial_deck_loads(
                     c=c,
                     sim_params=fem_params,
                     deck_elements=fem_params.deck_elements,
