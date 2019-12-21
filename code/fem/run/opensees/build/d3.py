@@ -133,42 +133,61 @@ class FixNode:
 
     """
 
-    def __init__(self, node: Node, free_y_trans: bool = False, comment: Optional[str] = None):
+    def __init__(
+            self,
+            node: Node,
+            fix_x_translation: bool,
+            fix_y_translation: bool,
+            fix_z_translation: bool,
+            fix_x_rotation: bool,
+            fix_y_rotation: bool,
+            fix_z_rotation: bool,
+            comment: Optional[str] = None
+    ):
         self.node = node
-        self.free_y_trans = free_y_trans
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
         self.comment = comment
 
     def command_3d(self):
         """The command in string format for a TCL file."""
         # TODO: Update comment to include support ID.
         comment_ = "" if self.comment is None else f"; # {self.comment}"
-        if self.node.support is None:
-            return f"fix {self.node.n_id} 1 1 1 0 0 0{comment_}"
-        else:
-            # print(f"******************")
-            # print(f"Fixed support node")
-            y_trans_fix = self.node.support.fix_y_translation
-            if self.free_y_trans:
-                y_trans_fix = False
-            return (
-                f"fix {self.node.n_id}"
-                + f" {int(self.node.support.fix_x_translation)}"
-                + f" {int(y_trans_fix)}"
-                + f" {int(self.node.support.fix_z_translation)}"
-                + f" {int(self.node.support.fix_x_rotation)}"
-                + f" {int(self.node.support.fix_y_rotation)}"
-                + f" {int(self.node.support.fix_z_rotation)}"
-                + f"{comment_}"
-            )
+        return (
+            f"fix {self.node.n_id}"
+            + f" {int(self.fix_x_translation)}"
+            + f" {int(self.fix_y_translation)}"
+            + f" {int(self.fix_z_translation)}"
+            + f" {int(self.fix_x_rotation)}"
+            + f" {int(self.fix_y_rotation)}"
+            + f" {int(self.fix_z_rotation)}"
+            + f"{comment_}"
+        )
 
 
-def opensees_fixed_deck_nodes(c: Config, deck_nodes: DeckNodes) -> str:
-    """OpenSees fix commands for fixed deck nodes."""
+def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
+    """OpenSees fix commands for fixed nodes on the abument.
+
+    Fixed for translation but not for rotation.
+
+    """
     fixed_nodes: List[FixNode] = []
     for x_nodes in deck_nodes:
         assert len(x_nodes) >= 2
-        fixed_nodes.append(FixNode(x_nodes[0]))
-        fixed_nodes.append(FixNode(x_nodes[-1]))
+        for node in [x_nodes[0], x_nodes[-1]]:
+            fixed_nodes.append(FixNode(
+                node=node,
+                fix_x_translation=True,
+                fix_y_translation=True,
+                fix_z_translation=True,
+                fix_x_rotation=False,
+                fix_y_rotation=False,
+                fix_z_rotation=False,
+            ))
     return comment(
         "fixed deck nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
@@ -201,10 +220,16 @@ def opensees_fixed_pier_nodes(
         # For each ~vertical line of nodes for a z position at top of wall.
         for y, y_nodes in enumerate(p_nodes[0]):
             # We will fix the bottom node.
+            node = y_nodes[-1]
             fixed_nodes.append(
                 FixNode(
-                    node=y_nodes[-1],
-                    free_y_trans=free_y_trans,
+                    node=node,
+                    fix_x_translation=node.support.fix_x_translation,
+                    fix_y_translation=False if free_y_trans else node.support.fix_y_translation,
+                    fix_z_translation=node.support.fix_z_translation,
+                    fix_x_rotation=node.support.fix_x_rotation,
+                    fix_y_rotation=node.support.fix_y_rotation,
+                    fix_z_rotation=node.support.fix_z_rotation,
                     comment=f"support {p+1} y {y+1}",
                 )
             )
@@ -633,7 +658,7 @@ def build_model_3d(
             )
             .replace(
                 "<<FIX_DECK>>",
-                opensees_fixed_deck_nodes(c=c, deck_nodes=fem_params.deck_nodes),
+                opensees_fixed_abutment_nodes(c=c, deck_nodes=fem_params.deck_nodes),
             )
             .replace(
                 "<<FIX_SUPPORTS>>",
