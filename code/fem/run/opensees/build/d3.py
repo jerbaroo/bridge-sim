@@ -176,14 +176,14 @@ def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
 
     """
     fixed_nodes: List[FixNode] = []
-    for x_nodes in deck_nodes:
+    for i_x, x_nodes in enumerate(deck_nodes):
         assert len(x_nodes) >= 2
         for node in [x_nodes[0], x_nodes[-1]]:
             fixed_nodes.append(FixNode(
                 node=node,
                 fix_x_translation=True,
                 fix_y_translation=True,
-                fix_z_translation=True,
+                fix_z_translation=True if i_x == (len(deck_nodes) // 2) else False,
                 fix_x_rotation=False,
                 fix_y_rotation=False,
                 fix_z_rotation=False,
