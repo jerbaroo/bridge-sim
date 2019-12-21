@@ -36,8 +36,7 @@ D: str = "make.plots.contour"
 # D: bool = False
 
 
-
-def unit_thermal_deck_load(c: Config):
+def unit_axial_thermal_deck_load(c: Config):
     """Response to unit thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
     for response_type in response_types:
