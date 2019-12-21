@@ -183,6 +183,7 @@ def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
                 node=node,
                 fix_x_translation=True,
                 fix_y_translation=True,
+                # fix_z_translation=True if i_x == 0 else False,
                 fix_z_translation=True if i_x == (len(deck_nodes) // 2) else False,
                 fix_x_rotation=False,
                 fix_y_rotation=False,

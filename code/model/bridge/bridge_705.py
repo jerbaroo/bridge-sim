@@ -190,7 +190,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
     # Only indices 2 and 3 (middle 2 rows) have x translation fixed.
     # print(f"*******************")
     # print(f"x_index = {x_index}")
-    for _support_z in bridge_705_supports_z:
+    for z_index, _support_z in enumerate(bridge_705_supports_z):
         bridge_705_supports_3d.append(
             Support3D(
                 x=_support_x,
@@ -203,7 +203,8 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 # sections=bridge_705_pier_sections,
                 fix_x_translation=(x_index in [2, 3]),
                 fix_y_translation=True,
-                fix_z_translation=True,
+                # fix_z_translation=z_index == 0,
+                fix_z_translation=z_index == (len(bridge_705_supports_z) // 2),
                 fix_x_rotation=False,
                 fix_y_rotation=False,
                 fix_z_rotation=False,
