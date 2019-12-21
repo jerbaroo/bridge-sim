@@ -169,12 +169,14 @@ class FixNode:
         )
 
 
-def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
+def opensees_fixed_abutment_nodes(
+        c: Config, sim_params: SimParams, deck_nodes: DeckNodes) -> str:
     """OpenSees fix commands for fixed nodes on the abument.
 
     Fixed for translation but not for rotation.
 
     """
+    thermal = sim_params.axial_delta_temp is not None
     fixed_nodes: List[FixNode] = []
     for i_x, x_nodes in enumerate(deck_nodes):
         assert len(x_nodes) >= 2
@@ -183,9 +185,7 @@ def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
                 node=node,
                 fix_x_translation=False,
                 fix_y_translation=True,
-                fix_z_translation=True,
-                # fix_z_translation=True if i_x == 0 else False,
-                # fix_z_translation=True if i_x == (len(deck_nodes) // 2) else False,
+                fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
                 fix_x_rotation=False,
                 fix_y_rotation=False,
                 fix_z_rotation=False,
@@ -199,10 +199,31 @@ def opensees_fixed_abutment_nodes(c: Config, deck_nodes: DeckNodes) -> str:
 
 def opensees_fixed_pier_nodes(
     c: Config,
+    sim_params: SimParams,
     all_support_nodes: AllSupportNodes,
     pier_disp: Optional[DisplacementCtrl] = None,
 ) -> str:
     """OpenSees fix commands for fixed support nodes."""
+    # First, for thermal loading, we determine the piers at each longitudinal
+    # (x) position, so for each x position we can then determine which piers
+    # will be fixed in transverse (z) translation.
+    pier_positions = defaultdict(set)
+    for p_i, _ in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
+        pier_positions[round_m(pier.x)].add(round_m(pier.z))
+    pier_positions = {
+        pier_x : sorted(pier_zs)
+        for pier_x, pier_zs in pier_positions.items()
+    }
+
+    def fix_pier_z_translation(pier):
+        # If thermal loading.
+        if sim_params.axial_delta_temp is not None:
+            pier_zs = pier_positions[round_m(pier.x)]
+            return pier_zs[len(pier_zs) // 2] == round_m(pier.z)
+        # Else use default for the pier.
+        return pier.fix_z_translation
+
     fixed_nodes: List[FixNode] = []
     # Iterate through each pier. Note that p_nodes is a tuple of nodes for each
     # pier wall. And each wall is a 2-d array of nodes.
@@ -228,7 +249,7 @@ def opensees_fixed_pier_nodes(
                     node=node,
                     fix_x_translation=node.support.fix_x_translation,
                     fix_y_translation=False if free_y_trans else node.support.fix_y_translation,
-                    fix_z_translation=node.support.fix_z_translation,
+                    fix_z_translation=fix_pier_z_translation(node.support),
                     fix_x_rotation=node.support.fix_x_rotation,
                     fix_y_rotation=node.support.fix_y_rotation,
                     fix_z_rotation=node.support.fix_z_rotation,
@@ -660,12 +681,17 @@ def build_model_3d(
             )
             .replace(
                 "<<FIX_DECK>>",
-                opensees_fixed_abutment_nodes(c=c, deck_nodes=fem_params.deck_nodes),
+                opensees_fixed_abutment_nodes(
+                    c=c,
+                    sim_params=fem_params,
+                    deck_nodes=fem_params.deck_nodes
+                ),
             )
             .replace(
                 "<<FIX_SUPPORTS>>",
                 opensees_fixed_pier_nodes(
                     c=c,
+                    sim_params=fem_params,
                     all_support_nodes=fem_params.all_support_nodes,
                     pier_disp=fem_params.displacement_ctrl,
                 ),

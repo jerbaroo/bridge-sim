@@ -3759,104 +3759,104 @@ node 42300 90.4 -1.75 13.9665; # support 24th wall 2nd z 7 y 2nd
 
 # fix nodeTag x y z rx ry rz
 # Begin fixed deck nodes
-fix 100 1 1 0 0 0 0
-fix 180 1 1 0 0 0 0
-fix 200 1 1 0 0 0 0
-fix 280 1 1 0 0 0 0
-fix 300 1 1 0 0 0 0
-fix 380 1 1 0 0 0 0
-fix 400 1 1 0 0 0 0
-fix 480 1 1 0 0 0 0
-fix 500 1 1 0 0 0 0
-fix 580 1 1 0 0 0 0
-fix 600 1 1 0 0 0 0
-fix 680 1 1 0 0 0 0
-fix 700 1 1 0 0 0 0
-fix 780 1 1 0 0 0 0
-fix 800 1 1 0 0 0 0
-fix 880 1 1 0 0 0 0
-fix 900 1 1 0 0 0 0
-fix 980 1 1 0 0 0 0
-fix 1000 1 1 0 0 0 0
-fix 1080 1 1 0 0 0 0
-fix 1100 1 1 0 0 0 0
-fix 1180 1 1 0 0 0 0
-fix 1200 1 1 0 0 0 0
-fix 1280 1 1 0 0 0 0
-fix 1300 1 1 0 0 0 0
-fix 1380 1 1 0 0 0 0
-fix 1400 1 1 0 0 0 0
-fix 1480 1 1 0 0 0 0
-fix 1500 1 1 0 0 0 0
-fix 1580 1 1 0 0 0 0
-fix 1600 1 1 0 0 0 0
-fix 1680 1 1 0 0 0 0
-fix 1700 1 1 0 0 0 0
-fix 1780 1 1 0 0 0 0
-fix 1800 1 1 0 0 0 0
-fix 1880 1 1 0 0 0 0
-fix 1900 1 1 0 0 0 0
-fix 1980 1 1 0 0 0 0
-fix 2000 1 1 1 0 0 0
-fix 2080 1 1 1 0 0 0
-fix 2100 1 1 0 0 0 0
-fix 2180 1 1 0 0 0 0
-fix 2200 1 1 0 0 0 0
-fix 2280 1 1 0 0 0 0
-fix 2300 1 1 0 0 0 0
-fix 2380 1 1 0 0 0 0
-fix 2400 1 1 0 0 0 0
-fix 2480 1 1 0 0 0 0
-fix 2500 1 1 0 0 0 0
-fix 2580 1 1 0 0 0 0
-fix 2600 1 1 0 0 0 0
-fix 2680 1 1 0 0 0 0
-fix 2700 1 1 0 0 0 0
-fix 2780 1 1 0 0 0 0
-fix 2800 1 1 0 0 0 0
-fix 2880 1 1 0 0 0 0
-fix 2900 1 1 0 0 0 0
-fix 2980 1 1 0 0 0 0
-fix 3000 1 1 0 0 0 0
-fix 3080 1 1 0 0 0 0
-fix 3100 1 1 0 0 0 0
-fix 3180 1 1 0 0 0 0
-fix 3200 1 1 0 0 0 0
-fix 3280 1 1 0 0 0 0
-fix 3300 1 1 0 0 0 0
-fix 3380 1 1 0 0 0 0
-fix 3400 1 1 0 0 0 0
-fix 3480 1 1 0 0 0 0
-fix 3500 1 1 0 0 0 0
-fix 3580 1 1 0 0 0 0
-fix 3600 1 1 0 0 0 0
-fix 3680 1 1 0 0 0 0
-fix 3700 1 1 0 0 0 0
-fix 3780 1 1 0 0 0 0
-fix 3800 1 1 0 0 0 0
-fix 3880 1 1 0 0 0 0
-fix 3900 1 1 0 0 0 0
-fix 3980 1 1 0 0 0 0
+fix 100 0 1 0 0 0 0
+fix 180 0 1 0 0 0 0
+fix 200 0 1 0 0 0 0
+fix 280 0 1 0 0 0 0
+fix 300 0 1 0 0 0 0
+fix 380 0 1 0 0 0 0
+fix 400 0 1 0 0 0 0
+fix 480 0 1 0 0 0 0
+fix 500 0 1 0 0 0 0
+fix 580 0 1 0 0 0 0
+fix 600 0 1 0 0 0 0
+fix 680 0 1 0 0 0 0
+fix 700 0 1 0 0 0 0
+fix 780 0 1 0 0 0 0
+fix 800 0 1 0 0 0 0
+fix 880 0 1 0 0 0 0
+fix 900 0 1 0 0 0 0
+fix 980 0 1 0 0 0 0
+fix 1000 0 1 0 0 0 0
+fix 1080 0 1 0 0 0 0
+fix 1100 0 1 0 0 0 0
+fix 1180 0 1 0 0 0 0
+fix 1200 0 1 0 0 0 0
+fix 1280 0 1 0 0 0 0
+fix 1300 0 1 0 0 0 0
+fix 1380 0 1 0 0 0 0
+fix 1400 0 1 0 0 0 0
+fix 1480 0 1 0 0 0 0
+fix 1500 0 1 0 0 0 0
+fix 1580 0 1 0 0 0 0
+fix 1600 0 1 0 0 0 0
+fix 1680 0 1 0 0 0 0
+fix 1700 0 1 0 0 0 0
+fix 1780 0 1 0 0 0 0
+fix 1800 0 1 0 0 0 0
+fix 1880 0 1 0 0 0 0
+fix 1900 0 1 0 0 0 0
+fix 1980 0 1 0 0 0 0
+fix 2000 0 1 1 0 0 0
+fix 2080 0 1 1 0 0 0
+fix 2100 0 1 0 0 0 0
+fix 2180 0 1 0 0 0 0
+fix 2200 0 1 0 0 0 0
+fix 2280 0 1 0 0 0 0
+fix 2300 0 1 0 0 0 0
+fix 2380 0 1 0 0 0 0
+fix 2400 0 1 0 0 0 0
+fix 2480 0 1 0 0 0 0
+fix 2500 0 1 0 0 0 0
+fix 2580 0 1 0 0 0 0
+fix 2600 0 1 0 0 0 0
+fix 2680 0 1 0 0 0 0
+fix 2700 0 1 0 0 0 0
+fix 2780 0 1 0 0 0 0
+fix 2800 0 1 0 0 0 0
+fix 2880 0 1 0 0 0 0
+fix 2900 0 1 0 0 0 0
+fix 2980 0 1 0 0 0 0
+fix 3000 0 1 0 0 0 0
+fix 3080 0 1 0 0 0 0
+fix 3100 0 1 0 0 0 0
+fix 3180 0 1 0 0 0 0
+fix 3200 0 1 0 0 0 0
+fix 3280 0 1 0 0 0 0
+fix 3300 0 1 0 0 0 0
+fix 3380 0 1 0 0 0 0
+fix 3400 0 1 0 0 0 0
+fix 3480 0 1 0 0 0 0
+fix 3500 0 1 0 0 0 0
+fix 3580 0 1 0 0 0 0
+fix 3600 0 1 0 0 0 0
+fix 3680 0 1 0 0 0 0
+fix 3700 0 1 0 0 0 0
+fix 3780 0 1 0 0 0 0
+fix 3800 0 1 0 0 0 0
+fix 3880 0 1 0 0 0 0
+fix 3900 0 1 0 0 0 0
+fix 3980 0 1 0 0 0 0
 # End fixed deck nodes
 
 # fix nodeTag x y z rx ry rz
 # Begin fixed support nodes
-fix 4001 0 1 1 0 0 0; # support 1 y 1
-fix 4101 0 1 1 0 0 0; # support 1 y 2
-fix 4201 0 1 1 0 0 0; # support 1 y 3
-fix 4301 0 1 1 0 0 0; # support 1 y 4
-fix 4401 0 1 1 0 0 0; # support 1 y 5
-fix 4501 0 1 1 0 0 0; # support 1 y 6
-fix 4601 0 1 1 0 0 0; # support 1 y 7
-fix 5401 0 1 1 0 0 0; # support 2 y 1
-fix 5501 0 1 1 0 0 0; # support 2 y 2
-fix 5601 0 1 1 0 0 0; # support 2 y 3
-fix 5701 0 1 1 0 0 0; # support 2 y 4
-fix 5801 0 1 1 0 0 0; # support 2 y 5
-fix 5901 0 1 1 0 0 0; # support 2 y 6
-fix 6001 0 1 1 0 0 0; # support 2 y 7
-fix 6101 0 1 1 0 0 0; # support 2 y 8
-fix 6201 0 1 1 0 0 0; # support 2 y 9
+fix 4001 0 1 0 0 0 0; # support 1 y 1
+fix 4101 0 1 0 0 0 0; # support 1 y 2
+fix 4201 0 1 0 0 0 0; # support 1 y 3
+fix 4301 0 1 0 0 0 0; # support 1 y 4
+fix 4401 0 1 0 0 0 0; # support 1 y 5
+fix 4501 0 1 0 0 0 0; # support 1 y 6
+fix 4601 0 1 0 0 0 0; # support 1 y 7
+fix 5401 0 1 0 0 0 0; # support 2 y 1
+fix 5501 0 1 0 0 0 0; # support 2 y 2
+fix 5601 0 1 0 0 0 0; # support 2 y 3
+fix 5701 0 1 0 0 0 0; # support 2 y 4
+fix 5801 0 1 0 0 0 0; # support 2 y 5
+fix 5901 0 1 0 0 0 0; # support 2 y 6
+fix 6001 0 1 0 0 0 0; # support 2 y 7
+fix 6101 0 1 0 0 0 0; # support 2 y 8
+fix 6201 0 1 0 0 0 0; # support 2 y 9
 fix 7201 0 1 1 0 0 0; # support 3 y 1
 fix 7301 0 1 1 0 0 0; # support 3 y 2
 fix 7401 0 1 1 0 0 0; # support 3 y 3
@@ -3866,29 +3866,29 @@ fix 7701 0 1 1 0 0 0; # support 3 y 6
 fix 7801 0 1 1 0 0 0; # support 3 y 7
 fix 7901 0 1 1 0 0 0; # support 3 y 8
 fix 8001 0 1 1 0 0 0; # support 3 y 9
-fix 9001 0 1 1 0 0 0; # support 4 y 1
-fix 9101 0 1 1 0 0 0; # support 4 y 2
-fix 9201 0 1 1 0 0 0; # support 4 y 3
-fix 9301 0 1 1 0 0 0; # support 4 y 4
-fix 9401 0 1 1 0 0 0; # support 4 y 5
-fix 9501 0 1 1 0 0 0; # support 4 y 6
-fix 9601 0 1 1 0 0 0; # support 4 y 7
-fix 10401 0 1 1 0 0 0; # support 5 y 1
-fix 10501 0 1 1 0 0 0; # support 5 y 2
-fix 10601 0 1 1 0 0 0; # support 5 y 3
-fix 10701 0 1 1 0 0 0; # support 5 y 4
-fix 10801 0 1 1 0 0 0; # support 5 y 5
-fix 10901 0 1 1 0 0 0; # support 5 y 6
-fix 11001 0 1 1 0 0 0; # support 5 y 7
-fix 11801 0 1 1 0 0 0; # support 6 y 1
-fix 11901 0 1 1 0 0 0; # support 6 y 2
-fix 12001 0 1 1 0 0 0; # support 6 y 3
-fix 12101 0 1 1 0 0 0; # support 6 y 4
-fix 12201 0 1 1 0 0 0; # support 6 y 5
-fix 12301 0 1 1 0 0 0; # support 6 y 6
-fix 12401 0 1 1 0 0 0; # support 6 y 7
-fix 12501 0 1 1 0 0 0; # support 6 y 8
-fix 12601 0 1 1 0 0 0; # support 6 y 9
+fix 9001 0 1 0 0 0 0; # support 4 y 1
+fix 9101 0 1 0 0 0 0; # support 4 y 2
+fix 9201 0 1 0 0 0 0; # support 4 y 3
+fix 9301 0 1 0 0 0 0; # support 4 y 4
+fix 9401 0 1 0 0 0 0; # support 4 y 5
+fix 9501 0 1 0 0 0 0; # support 4 y 6
+fix 9601 0 1 0 0 0 0; # support 4 y 7
+fix 10401 0 1 0 0 0 0; # support 5 y 1
+fix 10501 0 1 0 0 0 0; # support 5 y 2
+fix 10601 0 1 0 0 0 0; # support 5 y 3
+fix 10701 0 1 0 0 0 0; # support 5 y 4
+fix 10801 0 1 0 0 0 0; # support 5 y 5
+fix 10901 0 1 0 0 0 0; # support 5 y 6
+fix 11001 0 1 0 0 0 0; # support 5 y 7
+fix 11801 0 1 0 0 0 0; # support 6 y 1
+fix 11901 0 1 0 0 0 0; # support 6 y 2
+fix 12001 0 1 0 0 0 0; # support 6 y 3
+fix 12101 0 1 0 0 0 0; # support 6 y 4
+fix 12201 0 1 0 0 0 0; # support 6 y 5
+fix 12301 0 1 0 0 0 0; # support 6 y 6
+fix 12401 0 1 0 0 0 0; # support 6 y 7
+fix 12501 0 1 0 0 0 0; # support 6 y 8
+fix 12601 0 1 0 0 0 0; # support 6 y 9
 fix 13601 0 1 1 0 0 0; # support 7 y 1
 fix 13701 0 1 1 0 0 0; # support 7 y 2
 fix 13801 0 1 1 0 0 0; # support 7 y 3
@@ -3898,29 +3898,29 @@ fix 14101 0 1 1 0 0 0; # support 7 y 6
 fix 14201 0 1 1 0 0 0; # support 7 y 7
 fix 14301 0 1 1 0 0 0; # support 7 y 8
 fix 14401 0 1 1 0 0 0; # support 7 y 9
-fix 15401 0 1 1 0 0 0; # support 8 y 1
-fix 15501 0 1 1 0 0 0; # support 8 y 2
-fix 15601 0 1 1 0 0 0; # support 8 y 3
-fix 15701 0 1 1 0 0 0; # support 8 y 4
-fix 15801 0 1 1 0 0 0; # support 8 y 5
-fix 15901 0 1 1 0 0 0; # support 8 y 6
-fix 16001 0 1 1 0 0 0; # support 8 y 7
-fix 16801 1 1 1 0 0 0; # support 9 y 1
-fix 16901 1 1 1 0 0 0; # support 9 y 2
-fix 17001 1 1 1 0 0 0; # support 9 y 3
-fix 17101 1 1 1 0 0 0; # support 9 y 4
-fix 17201 1 1 1 0 0 0; # support 9 y 5
-fix 17301 1 1 1 0 0 0; # support 9 y 6
-fix 17401 1 1 1 0 0 0; # support 9 y 7
-fix 18201 1 1 1 0 0 0; # support 10 y 1
-fix 18301 1 1 1 0 0 0; # support 10 y 2
-fix 18401 1 1 1 0 0 0; # support 10 y 3
-fix 18501 1 1 1 0 0 0; # support 10 y 4
-fix 18601 1 1 1 0 0 0; # support 10 y 5
-fix 18701 1 1 1 0 0 0; # support 10 y 6
-fix 18801 1 1 1 0 0 0; # support 10 y 7
-fix 18901 1 1 1 0 0 0; # support 10 y 8
-fix 19001 1 1 1 0 0 0; # support 10 y 9
+fix 15401 0 1 0 0 0 0; # support 8 y 1
+fix 15501 0 1 0 0 0 0; # support 8 y 2
+fix 15601 0 1 0 0 0 0; # support 8 y 3
+fix 15701 0 1 0 0 0 0; # support 8 y 4
+fix 15801 0 1 0 0 0 0; # support 8 y 5
+fix 15901 0 1 0 0 0 0; # support 8 y 6
+fix 16001 0 1 0 0 0 0; # support 8 y 7
+fix 16801 1 1 0 0 0 0; # support 9 y 1
+fix 16901 1 1 0 0 0 0; # support 9 y 2
+fix 17001 1 1 0 0 0 0; # support 9 y 3
+fix 17101 1 1 0 0 0 0; # support 9 y 4
+fix 17201 1 1 0 0 0 0; # support 9 y 5
+fix 17301 1 1 0 0 0 0; # support 9 y 6
+fix 17401 1 1 0 0 0 0; # support 9 y 7
+fix 18201 1 1 0 0 0 0; # support 10 y 1
+fix 18301 1 1 0 0 0 0; # support 10 y 2
+fix 18401 1 1 0 0 0 0; # support 10 y 3
+fix 18501 1 1 0 0 0 0; # support 10 y 4
+fix 18601 1 1 0 0 0 0; # support 10 y 5
+fix 18701 1 1 0 0 0 0; # support 10 y 6
+fix 18801 1 1 0 0 0 0; # support 10 y 7
+fix 18901 1 1 0 0 0 0; # support 10 y 8
+fix 19001 1 1 0 0 0 0; # support 10 y 9
 fix 20001 1 1 1 0 0 0; # support 11 y 1
 fix 20101 1 1 1 0 0 0; # support 11 y 2
 fix 20201 1 1 1 0 0 0; # support 11 y 3
@@ -3930,29 +3930,29 @@ fix 20501 1 1 1 0 0 0; # support 11 y 6
 fix 20601 1 1 1 0 0 0; # support 11 y 7
 fix 20701 1 1 1 0 0 0; # support 11 y 8
 fix 20801 1 1 1 0 0 0; # support 11 y 9
-fix 21801 1 1 1 0 0 0; # support 12 y 1
-fix 21901 1 1 1 0 0 0; # support 12 y 2
-fix 22001 1 1 1 0 0 0; # support 12 y 3
-fix 22101 1 1 1 0 0 0; # support 12 y 4
-fix 22201 1 1 1 0 0 0; # support 12 y 5
-fix 22301 1 1 1 0 0 0; # support 12 y 6
-fix 22401 1 1 1 0 0 0; # support 12 y 7
-fix 23201 1 1 1 0 0 0; # support 13 y 1
-fix 23301 1 1 1 0 0 0; # support 13 y 2
-fix 23401 1 1 1 0 0 0; # support 13 y 3
-fix 23501 1 1 1 0 0 0; # support 13 y 4
-fix 23601 1 1 1 0 0 0; # support 13 y 5
-fix 23701 1 1 1 0 0 0; # support 13 y 6
-fix 23801 1 1 1 0 0 0; # support 13 y 7
-fix 24601 1 1 1 0 0 0; # support 14 y 1
-fix 24701 1 1 1 0 0 0; # support 14 y 2
-fix 24801 1 1 1 0 0 0; # support 14 y 3
-fix 24901 1 1 1 0 0 0; # support 14 y 4
-fix 25001 1 1 1 0 0 0; # support 14 y 5
-fix 25101 1 1 1 0 0 0; # support 14 y 6
-fix 25201 1 1 1 0 0 0; # support 14 y 7
-fix 25301 1 1 1 0 0 0; # support 14 y 8
-fix 25401 1 1 1 0 0 0; # support 14 y 9
+fix 21801 1 1 0 0 0 0; # support 12 y 1
+fix 21901 1 1 0 0 0 0; # support 12 y 2
+fix 22001 1 1 0 0 0 0; # support 12 y 3
+fix 22101 1 1 0 0 0 0; # support 12 y 4
+fix 22201 1 1 0 0 0 0; # support 12 y 5
+fix 22301 1 1 0 0 0 0; # support 12 y 6
+fix 22401 1 1 0 0 0 0; # support 12 y 7
+fix 23201 1 1 0 0 0 0; # support 13 y 1
+fix 23301 1 1 0 0 0 0; # support 13 y 2
+fix 23401 1 1 0 0 0 0; # support 13 y 3
+fix 23501 1 1 0 0 0 0; # support 13 y 4
+fix 23601 1 1 0 0 0 0; # support 13 y 5
+fix 23701 1 1 0 0 0 0; # support 13 y 6
+fix 23801 1 1 0 0 0 0; # support 13 y 7
+fix 24601 1 1 0 0 0 0; # support 14 y 1
+fix 24701 1 1 0 0 0 0; # support 14 y 2
+fix 24801 1 1 0 0 0 0; # support 14 y 3
+fix 24901 1 1 0 0 0 0; # support 14 y 4
+fix 25001 1 1 0 0 0 0; # support 14 y 5
+fix 25101 1 1 0 0 0 0; # support 14 y 6
+fix 25201 1 1 0 0 0 0; # support 14 y 7
+fix 25301 1 1 0 0 0 0; # support 14 y 8
+fix 25401 1 1 0 0 0 0; # support 14 y 9
 fix 26401 1 1 1 0 0 0; # support 15 y 1
 fix 26501 1 1 1 0 0 0; # support 15 y 2
 fix 26601 1 1 1 0 0 0; # support 15 y 3
@@ -3962,29 +3962,29 @@ fix 26901 1 1 1 0 0 0; # support 15 y 6
 fix 27001 1 1 1 0 0 0; # support 15 y 7
 fix 27101 1 1 1 0 0 0; # support 15 y 8
 fix 27201 1 1 1 0 0 0; # support 15 y 9
-fix 28201 1 1 1 0 0 0; # support 16 y 1
-fix 28301 1 1 1 0 0 0; # support 16 y 2
-fix 28401 1 1 1 0 0 0; # support 16 y 3
-fix 28501 1 1 1 0 0 0; # support 16 y 4
-fix 28601 1 1 1 0 0 0; # support 16 y 5
-fix 28701 1 1 1 0 0 0; # support 16 y 6
-fix 28801 1 1 1 0 0 0; # support 16 y 7
-fix 29601 0 1 1 0 0 0; # support 17 y 1
-fix 29701 0 1 1 0 0 0; # support 17 y 2
-fix 29801 0 1 1 0 0 0; # support 17 y 3
-fix 29901 0 1 1 0 0 0; # support 17 y 4
-fix 30001 0 1 1 0 0 0; # support 17 y 5
-fix 30101 0 1 1 0 0 0; # support 17 y 6
-fix 30201 0 1 1 0 0 0; # support 17 y 7
-fix 31001 0 1 1 0 0 0; # support 18 y 1
-fix 31101 0 1 1 0 0 0; # support 18 y 2
-fix 31201 0 1 1 0 0 0; # support 18 y 3
-fix 31301 0 1 1 0 0 0; # support 18 y 4
-fix 31401 0 1 1 0 0 0; # support 18 y 5
-fix 31501 0 1 1 0 0 0; # support 18 y 6
-fix 31601 0 1 1 0 0 0; # support 18 y 7
-fix 31701 0 1 1 0 0 0; # support 18 y 8
-fix 31801 0 1 1 0 0 0; # support 18 y 9
+fix 28201 1 1 0 0 0 0; # support 16 y 1
+fix 28301 1 1 0 0 0 0; # support 16 y 2
+fix 28401 1 1 0 0 0 0; # support 16 y 3
+fix 28501 1 1 0 0 0 0; # support 16 y 4
+fix 28601 1 1 0 0 0 0; # support 16 y 5
+fix 28701 1 1 0 0 0 0; # support 16 y 6
+fix 28801 1 1 0 0 0 0; # support 16 y 7
+fix 29601 0 1 0 0 0 0; # support 17 y 1
+fix 29701 0 1 0 0 0 0; # support 17 y 2
+fix 29801 0 1 0 0 0 0; # support 17 y 3
+fix 29901 0 1 0 0 0 0; # support 17 y 4
+fix 30001 0 1 0 0 0 0; # support 17 y 5
+fix 30101 0 1 0 0 0 0; # support 17 y 6
+fix 30201 0 1 0 0 0 0; # support 17 y 7
+fix 31001 0 1 0 0 0 0; # support 18 y 1
+fix 31101 0 1 0 0 0 0; # support 18 y 2
+fix 31201 0 1 0 0 0 0; # support 18 y 3
+fix 31301 0 1 0 0 0 0; # support 18 y 4
+fix 31401 0 1 0 0 0 0; # support 18 y 5
+fix 31501 0 1 0 0 0 0; # support 18 y 6
+fix 31601 0 1 0 0 0 0; # support 18 y 7
+fix 31701 0 1 0 0 0 0; # support 18 y 8
+fix 31801 0 1 0 0 0 0; # support 18 y 9
 fix 32801 0 1 1 0 0 0; # support 19 y 1
 fix 32901 0 1 1 0 0 0; # support 19 y 2
 fix 33001 0 1 1 0 0 0; # support 19 y 3
@@ -3994,29 +3994,29 @@ fix 33301 0 1 1 0 0 0; # support 19 y 6
 fix 33401 0 1 1 0 0 0; # support 19 y 7
 fix 33501 0 1 1 0 0 0; # support 19 y 8
 fix 33601 0 1 1 0 0 0; # support 19 y 9
-fix 34601 0 1 1 0 0 0; # support 20 y 1
-fix 34701 0 1 1 0 0 0; # support 20 y 2
-fix 34801 0 1 1 0 0 0; # support 20 y 3
-fix 34901 0 1 1 0 0 0; # support 20 y 4
-fix 35001 0 1 1 0 0 0; # support 20 y 5
-fix 35101 0 1 1 0 0 0; # support 20 y 6
-fix 35201 0 1 1 0 0 0; # support 20 y 7
-fix 36001 0 1 1 0 0 0; # support 21 y 1
-fix 36101 0 1 1 0 0 0; # support 21 y 2
-fix 36201 0 1 1 0 0 0; # support 21 y 3
-fix 36301 0 1 1 0 0 0; # support 21 y 4
-fix 36401 0 1 1 0 0 0; # support 21 y 5
-fix 36501 0 1 1 0 0 0; # support 21 y 6
-fix 36601 0 1 1 0 0 0; # support 21 y 7
-fix 37401 0 1 1 0 0 0; # support 22 y 1
-fix 37501 0 1 1 0 0 0; # support 22 y 2
-fix 37601 0 1 1 0 0 0; # support 22 y 3
-fix 37701 0 1 1 0 0 0; # support 22 y 4
-fix 37801 0 1 1 0 0 0; # support 22 y 5
-fix 37901 0 1 1 0 0 0; # support 22 y 6
-fix 38001 0 1 1 0 0 0; # support 22 y 7
-fix 38101 0 1 1 0 0 0; # support 22 y 8
-fix 38201 0 1 1 0 0 0; # support 22 y 9
+fix 34601 0 1 0 0 0 0; # support 20 y 1
+fix 34701 0 1 0 0 0 0; # support 20 y 2
+fix 34801 0 1 0 0 0 0; # support 20 y 3
+fix 34901 0 1 0 0 0 0; # support 20 y 4
+fix 35001 0 1 0 0 0 0; # support 20 y 5
+fix 35101 0 1 0 0 0 0; # support 20 y 6
+fix 35201 0 1 0 0 0 0; # support 20 y 7
+fix 36001 0 1 0 0 0 0; # support 21 y 1
+fix 36101 0 1 0 0 0 0; # support 21 y 2
+fix 36201 0 1 0 0 0 0; # support 21 y 3
+fix 36301 0 1 0 0 0 0; # support 21 y 4
+fix 36401 0 1 0 0 0 0; # support 21 y 5
+fix 36501 0 1 0 0 0 0; # support 21 y 6
+fix 36601 0 1 0 0 0 0; # support 21 y 7
+fix 37401 0 1 0 0 0 0; # support 22 y 1
+fix 37501 0 1 0 0 0 0; # support 22 y 2
+fix 37601 0 1 0 0 0 0; # support 22 y 3
+fix 37701 0 1 0 0 0 0; # support 22 y 4
+fix 37801 0 1 0 0 0 0; # support 22 y 5
+fix 37901 0 1 0 0 0 0; # support 22 y 6
+fix 38001 0 1 0 0 0 0; # support 22 y 7
+fix 38101 0 1 0 0 0 0; # support 22 y 8
+fix 38201 0 1 0 0 0 0; # support 22 y 9
 fix 39201 0 1 1 0 0 0; # support 23 y 1
 fix 39301 0 1 1 0 0 0; # support 23 y 2
 fix 39401 0 1 1 0 0 0; # support 23 y 3
@@ -4026,13 +4026,13 @@ fix 39701 0 1 1 0 0 0; # support 23 y 6
 fix 39801 0 1 1 0 0 0; # support 23 y 7
 fix 39901 0 1 1 0 0 0; # support 23 y 8
 fix 40001 0 1 1 0 0 0; # support 23 y 9
-fix 41001 0 1 1 0 0 0; # support 24 y 1
-fix 41101 0 1 1 0 0 0; # support 24 y 2
-fix 41201 0 1 1 0 0 0; # support 24 y 3
-fix 41301 0 1 1 0 0 0; # support 24 y 4
-fix 41401 0 1 1 0 0 0; # support 24 y 5
-fix 41501 0 1 1 0 0 0; # support 24 y 6
-fix 41601 0 1 1 0 0 0; # support 24 y 7
+fix 41001 0 1 0 0 0 0; # support 24 y 1
+fix 41101 0 1 0 0 0 0; # support 24 y 2
+fix 41201 0 1 0 0 0 0; # support 24 y 3
+fix 41301 0 1 0 0 0 0; # support 24 y 4
+fix 41401 0 1 0 0 0 0; # support 24 y 5
+fix 41501 0 1 0 0 0 0; # support 24 y 6
+fix 41601 0 1 0 0 0 0; # support 24 y 7
 # End fixed support nodes
 
 # section ElasticMembranePlateSection secTag youngs_modulus poisson_ratio depth mass_density
@@ -4066,8 +4066,8 @@ section ElasticMembranePlateSection 25 38400000000.0 0.2 0.75 0.0027240000000000
 
 # section ElasticMembranePlateSection secTag youngs_modulus poisson_ratio depth mass_density
 # Begin pier sections
-section ElasticMembranePlateSection 46 38400000000.0 0.2 1.266 0.0027240000000000003
 section ElasticMembranePlateSection 47 38400000000.0 0.2 0.362 0.0027240000000000003
+section ElasticMembranePlateSection 46 38400000000.0 0.2 1.266 0.0027240000000000003
 # End pier sections
 
 # element ShellMITC4 eleTag iNode jNode kNode lNode secTag
