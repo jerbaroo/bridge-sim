@@ -638,7 +638,7 @@ def make_convergence_data(c: Config):
             max_s = np.max(all_strains)
             mean_s = np.mean(
                 list(strains.at_deck(point, interp=True) for point in grid)
-            )
+            )[0]
 
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
