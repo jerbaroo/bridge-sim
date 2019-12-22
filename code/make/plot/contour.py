@@ -55,7 +55,7 @@ def unit_axial_thermal_deck_load(c: Config):
             responses=sim_responses,
             levels=100,
         )
-        plt.title(f"{response_type.name()} to {c.unit_axial_delta_temp_c}C thermal loading of the deck")
+        plt.title(f"{response_type.name()} to {c.unit_axial_delta_temp_c}C axial thermal loading of the deck")
         plt.savefig(
             c.get_image_path("contour", f"thermal-deck-unit-axial_load-{response_type.name()}.pdf")
         )
@@ -81,9 +81,9 @@ def unit_moment_thermal_deck_load(c: Config):
             responses=sim_responses,
             levels=100,
         )
-        plt.title(f"{response_type.name()} to {c.unit_moment_delta_temp_c}C thermal loading of the deck")
+        plt.title(f"{response_type.name()} to {c.unit_moment_delta_temp_c}C moment thermal loading of the deck")
         plt.savefig(
-            c.get_image_path("contour", f"thermal-deck-moment-axial_load-{response_type.name()}.pdf")
+            c.get_image_path("contour", f"thermal-deck-unit-moment-load-{response_type.name()}.pdf")
         )
         plt.close()
 

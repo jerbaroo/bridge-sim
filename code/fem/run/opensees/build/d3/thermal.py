@@ -141,13 +141,13 @@ def opensees_thermal_moment_deck_loads(
         def add_load(self, magnitude: float, direction: LoadDirection):
             """Add a load in a given direction."""
             if direction == LoadDirection.XPOS:
-                self.x -= magnitude
-            elif direction == LoadDirection.XNEG:
                 self.x += magnitude
+            elif direction == LoadDirection.XNEG:
+                self.x -= magnitude
             elif direction == LoadDirection.ZPOS:
-                self.z -= magnitude
-            elif direction == LoadDirection.ZNEG:
                 self.z += magnitude
+            elif direction == LoadDirection.ZNEG:
+                self.z -= magnitude
             else:
                 raise ValueError(f"Unknown thermal load direction {direction}")
 
@@ -155,9 +155,9 @@ def opensees_thermal_moment_deck_loads(
             """Return a string with 0, 1, or 2 OpenSees load commands."""
             load_str = ""
             if not np.isclose(self.x, 0):
-                load_str += f"\nload {n_id} 0 0 0 {self.x} 0 0"
+                load_str += f"\nload {n_id} 0 0 0 {-self.z} 0 0"
             if not np.isclose(self.z, 0):
-                load_str += f"\nload {n_id} 0 0 0 0 0 {self.z}"
+                load_str += f"\nload {n_id} 0 0 0 0 0 {-self.x}"
             return load_str
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
@@ -189,13 +189,16 @@ def opensees_thermal_moment_deck_loads(
             force_top_n = (
                 shell_stress_top * (shell.section.thickness / 2) *
                 (1 / 2) * node_distance)
-            moment_top_m = force_top_n * (2 / 3) * (shell.section.thickness / 2)
+            moment_top_nm = force_top_n * (2 / 3) * (shell.section.thickness / 2)
             print(f"force top n = {force_top_n}")
-            print(f"moment n = {moment_top_m}")
+            print(f"moment nm = {moment_top_nm}")
             print(f"Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}")
             print(f"Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}")
+            # The moment per node is moment_top_nm / 2. But since we also want
+            # to include moment_bottom_nm / 2 which is equal to moment_top_nm,
+            # then we just use moment_top_nm.
             for n_id in [n_id_0, n_id_1]:
-                thermal_loads_by_nid[n_id].add_load(magnitude=moment_top_m, direction=load_direction)
+                thermal_loads_by_nid[n_id].add_load(magnitude=moment_top_nm, direction=load_direction)
             print(f"After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}")
             print(f"After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}")
 
