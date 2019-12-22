@@ -89,7 +89,7 @@ def unit_moment_thermal_deck_load(c: Config):
 
 
 
-def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: float, xlim: Tuple[float, float]):
+def cover_photo(c: Config, x: float, deformation_amp: float):
     """
 
     TODO: SimParams takes any loads iterable, to be flattened.
@@ -113,7 +113,7 @@ def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: 
         )
     )
     shells = contour_responses_3d(c=c, sim_responses=sim_responses)
-    for cmap in [parula_cmap, get_cmap("jet"), get_cmap("coolwarm"), get_cmap("viridis")][3:]:
+    for cmap in [parula_cmap, get_cmap("jet"), get_cmap("coolwarm"), get_cmap("viridis")]:
 
             contour_responses_3d(
                 c=c,
@@ -123,19 +123,12 @@ def cover_photo(c: Config, x: float, deformation_amp: float, elev: float, azim: 
                 cmap=cmap,
             )
 
-            plt.gca().view_init(elev=elev, azim=azim)
-            import pickle
-            with open("outfile.mplax", "wb") as f:
-                pickle.dump(plt.gca(), f)
             plt.axis("off")
             plt.grid(False)
-            plt.xlim(xlim)
-            # plt.ylim(ylim)
             plt.savefig(c.get_image_path(
                 "cover-photo",
-                f"cover-photo-deform-{deformation_amp}-elev-{elev}-azim-{azim}"
+                f"cover-photo-deform-{deformation_amp}"
                 f"-cmap-{cmap.name}.pdf"))
-            # plt.show()
             plt.close()
 
 
