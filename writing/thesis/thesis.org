@@ -8,6 +8,8 @@
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
+[[./images/cover-photo.png]]
+
 #+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}
 #+LATEX: \thispagestyle{empty}

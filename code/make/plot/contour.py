@@ -88,7 +88,6 @@ def unit_moment_thermal_deck_load(c: Config):
         plt.close()
 
 
-
 def cover_photo(c: Config, x: float, deformation_amp: float):
     """
 

@@ -1,0 +1,115 @@
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usemintedstyle{emacs}
+
+* Plan
+** Today
+- Fix thermal bending moment loading
+- Code to compose responses from thermal loads (easy peasy)
+- Validate temperature against Axis
+** Mon - Wed
+- Mesh refinement & material property verification (straightforward work)
+  - >= 1 discrepancy in material properties to fix
+  - mesh refinement around load
+  - reduce amount of nodes in unecessary places
+** Thurs - 31st
+- Run /some/ classification experiments on Lisa cluster
+  - Python code on Lisa is straightforward to execute
+  - setting up OpenSees on Lisa seemed awkward
+    - will try again some evening, not crucial
+    - found a "singularity container" for OpenSees
+* Comment
+| Load/Response     | Status                                     |
+|-------------------+--------------------------------------------|
+| Displacement      | Validated                                  |
+| Strain            | Good regression line                       |
+|                   | Mean and min converging (figure below)     |
+|                   | Max: will try more nodes & mesh refinement |
+| Temperature       | Try validation today                       |
+| Pier displacement |                                            |
+
+/Hopefully/ the work Mon-Wed will bring things into better agreement.
+
+* Thermal Bending Moment
+
+The explanation was really good, it makes a lot of sense to me after I went over
+it again. I still have some questions though.
+
+- I guess this implementation makes the assumption that strain (bending moment
+  component) due to a difference in temperatre is distributed linearly along the
+  height of the element?
+- Sanity check, the moments in Newton meters are appled in loading positions Rx, Rz?
+- Do you have any inclination to how the nodes should be fixed, in all the
+  previous simulations the axes of rotation have been free, but perhaps not
+  in this case?
+- The "back of the envelope" calculation of strain to verify the axial loading
+  makes sense because the change in length/width/height from the axial loading
+  is the same response collected from simulation. However I dont' expect the
+  same calculation to work for rotation. Is there something similar?
+- Can you confirm the magnitude and direction of moments added in the diagram
+  below?
+
+
+#+BEGIN_SRC python
+     N
+ |-------|
+W|       |E
+ |       |
+ |-------|
+     S
+
+For moment calculated along S face: + Rz
+For moment calculated along N face: - Rz
+For moment calculated along W face: + Rx
+For moment calculated along E face: - Rx
+
+#+END_SRC
+
+** Implementation
+
+- Added ~unit_moment_thermal_load = 1~ to ~Config~
+- Run simulation with the unit load, applying code below
+
+#+BEGIN_SRC python
+x_moment_per_node = ...
+z_moment_per_node = ...
+for shell in deck:
+    strain_top = CTE * moment_unit_load
+    stress_top = strain_top * E
+    for node0, node1 in shell: # Each pair of nodes per face.
+        n = node0.distance_to(node1)
+        # Integrate stress over the area. Or if the stress is considered a plane
+        # of the wedge, then multiply by height of the wedge (thickness / 2),
+        # the width (n), and half because the wedge is half a cuboid.
+        force_top =  stress_top * (thickness / 2) * n * (1 / 2)
+        # Force * 2/3rds the height.
+        moment_top = force_top * (2 / 3) * thickness / 2
+        for node in [node0, node1]:
+            node_moment = moment_top / 2
+            # Depending on face direction +- moment to x/z_moment_per_node.
+#+END_SRC
+
+#+BEGIN_SRC python
+cte = 1.2e-05
+delta_temp = 1
+strain_top = 1.2e-05
+youngs = 38400000000
+stress = 460800.0
+node distance = 0.3666
+section thickness = 0.74
+force top n = 31251.91
+moment n = 7708.80
+nodal moment n = 3854.4
+#+END_SRC
+
+* Strain Convergence
+Quick and dirty convergence plots.
+
+[[./min-strain.pdf]]
+[[./mean-strain.pdf]]
+[[./max-strain.pdf]]
+
+* Thermal Moment Results
+
+[[./thermal-deck-moment-axial_load-Displacement.pdf]]
+[[./thermal-deck-moment-axial_load-X translation.pdf]]
+[[./thermal-deck-moment-axial_load-Z translation.pdf]]
