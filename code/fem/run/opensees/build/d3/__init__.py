@@ -168,7 +168,7 @@ def opensees_fixed_abutment_nodes(
     Fixed for translation but not for rotation.
 
     """
-    thermal = sim_params.axial_delta_temp is not None
+    thermal = (sim_params.axial_delta_temp is not None) or (sim_params.moment_delta_temp is not None)
     fixed_nodes: List[FixNode] = []
     for i_x, x_nodes in enumerate(deck_nodes):
         assert len(x_nodes) >= 2
@@ -210,7 +210,7 @@ def opensees_fixed_pier_nodes(
 
     def fix_pier_z_translation(pier):
         # If thermal loading.
-        if sim_params.axial_delta_temp is not None:
+        if (sim_params.axial_delta_temp is not None) or (sim_params.moment_delta_temp is not None):
             pier_zs = pier_positions[round_m(pier.x)]
             return pier_zs[len(pier_zs) // 2] == round_m(pier.z)
         # Else use default for the pier.
