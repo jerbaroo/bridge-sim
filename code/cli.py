@@ -262,12 +262,14 @@ def each_pier_displaced():
 
 @contour.command(help="Response to unit axial thermal loading of the deck.")
 def thermal_deck_axial():
-    contour_.unit_axial_thermal_deck_load(c())
+    from make.plot.contour.thermal import unit_axial_thermal_deck_load
+    unit_axial_thermal_deck_load(c())
 
 
 @contour.command(help="Response to unit moment thermal loading of the deck.")
 def thermal_deck_moment():
-    contour_.unit_moment_thermal_deck_load(c())
+    from make.plot.contour.thermal import unit_moment_thermal_deck_load
+    unit_moment_thermal_deck_load(c())
 
 
 ########################

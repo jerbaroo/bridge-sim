@@ -1,5 +1,6 @@
 """Simulation configuration object."""
 import os
+from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 
@@ -50,7 +51,6 @@ class Config:
         vehicle_pdf_col: str,
         generated_data: str = "generated-data",
     ):
-
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
         self.bridge = bridge()

@@ -52,6 +52,9 @@ def load_fem_responses(
         run:
         index: Optional[int], simulation progress (n/m) printed if given.
 
+    NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
+    'fem' section of the code should be separate from that abstraction.
+
     """
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
