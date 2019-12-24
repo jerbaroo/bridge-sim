@@ -13,7 +13,6 @@ from util import print_i
 
 class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
-
     def __init__(self, name: str):
         self.name = name
 

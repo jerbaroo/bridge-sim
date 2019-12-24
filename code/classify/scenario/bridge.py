@@ -142,3 +142,11 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
             displacement += step
         pier_disps.append(DisplacementCtrl(displacement=displacement, pier=p))
     return PierDispBridge(pier_disps=pier_disps, name_prefix="longitudinal")
+
+
+class ThermalBridge(BridgeScenario):
+    def __init__(self, axial_delta_temp: float, moment_delta_temp: float):
+        self.axial_delta_temp = 1
+        self.moment_delta_temp = 1
+        super().__init__(
+            name=f"thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}")

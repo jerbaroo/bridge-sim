@@ -19,14 +19,13 @@ def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float)
 def load_traffic_array(
     c: Config, traffic_scenario: TrafficScenario, max_time: float,
 ):
-    """Load a 'TrafficArray' from disk, is is generated if necessary."""
+    """Load a 'TrafficArray' from disk, it is generated if necessary."""
     path = (
         c.get_traffic_path(
             _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time)
         )
         + ".npy"
     )
-    print(path)
 
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path):

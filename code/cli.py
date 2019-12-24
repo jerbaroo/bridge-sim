@@ -242,23 +242,17 @@ def contour():
     help="Deformation amplitude, in meters."
 )
 def cover_photo(x: float, deform: float):
-    contour_.cover_photo(
-        c=c(), x=x, deformation_amp=deform)
+    contour_.cover_photo(c=c(), x=x, deformation_amp=deform)
 
 
-@contour.command(help="Mean response to traffic per scenario.")
-def traffic():
-    contour_.mean_traffic_response_plots(c())
+@contour.command(help="Response to traffic at multiple timesteps, per scenario.")
+def scenarios_traffic():
+    contour_.traffic_response_plots(c())
 
 
 @contour.command(help="Response to point loads per scenario.")
-def point_load():
+def scenarios_point_load():
     contour_.point_load_response_plots(c())
-
-
-@contour.command(help="Response to traffic with cracked concrete.")
-def cracked():
-    contour_.cracked_concrete_plots(c())
 
 
 @contour.command(help="Response to each pier being displaced in turn.")

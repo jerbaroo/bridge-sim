@@ -1,5 +1,5 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Damage detection of concrete slab bridges
+#+TITLE: Damage Detection of Concrete Slab Bridges
 #+OPTIONS: toc:nil
 
 #+LATEX_HEADER: \usemintedstyle{emacs}

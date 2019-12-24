@@ -22,7 +22,7 @@ from fem.run import FEMRunner
 from model.bridge import Bridge, Dimensions, Point, Section
 from model.load import MvVehicle
 from model.response import ResponseType
-from util import print_d, print_w, kde_sampler
+from util import print_d, print_i, print_w, kde_sampler
 
 # Print debug information for this file.
 D: bool = False
@@ -42,9 +42,10 @@ _og_savefig = _plt.savefig
 _og_show = _plt.show
 
 
-def _savefig(*args, **kwargs):
+def _savefig(s):
+    print_i(f"Saving image to {s}")
     plt.tight_layout()
-    _og_savefig(*args, **kwargs)
+    _og_savefig(s)
 
 
 def _show(*args, **kwargs):
