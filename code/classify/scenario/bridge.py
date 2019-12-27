@@ -12,7 +12,7 @@ from util import round_m
 
 class HealthyBridge(BridgeScenario):
     def __init__(self):
-        super().__init__(name="normal", mod_bridge=id, mod_sim_params=id)
+        super().__init__(name="normal")
 
 
 CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
@@ -31,7 +31,7 @@ class CrackedBridge(BridgeScenario):
             self._crack_deck(bridge)
             return bridge
 
-        super().__init__(name=name, mod_bridge=mod_bridge, mod_sim_params=id)
+        super().__init__(name=name, mod_bridge=mod_bridge)
         self.crack_area = crack_area
 
     def _crack_deck(self, bridge: Bridge):
@@ -156,5 +156,4 @@ class ThermalBridge(BridgeScenario):
 
         super().__init__(
             name=f"thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}",
-            mod_bridge=lambda b:b,
             mod_sim_params=mod_sim_params)

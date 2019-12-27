@@ -12,42 +12,40 @@ from plot.geometry.shell import shell_properties_3d
 
 def make_shell_plots(c: Config):
     """Make plots of the shells, coloured by material property."""
+    original_c = c
+    # For each damage scenario build the model and extract the shells.
+    for damage_scenario in healthy_and_cracked_scenarios:
+        c, sim_params = damage_scenario.use(original_c, SimParams([]))
+        build_model_3d(
+            c=c, expt_params=ExptParams([sim_params]), os_runner=OSRunner(c)
+        )
+        all_shells = shells_by_id.values()
+        deck_shells = [s for s in all_shells if not s.pier]
+        pier_shells = [s for s in all_shells if s.pier]
+        all_shells = pier_shells + deck_shells
 
-    # First build the model and extract the deck and pier shells.
-    build_model_3d(
-        c=c, expt_params=ExptParams([SimParams([], [])]), os_runner=OSRunner(c)
-    )
-    all_shells = shells_by_id.values()
-    deck_shells = [s for s in all_shells if not s.pier]
-    pier_shells = [s for s in all_shells if s.pier]
-    all_shells = pier_shells + deck_shells
-
-    # For each combination of parameters plot the shells.
-    for shells_name, shells in [
-        ("all", all_shells),
-        ("deck", deck_shells),
-        ("pier", pier_shells),
-    ]:
-        for outline in [True, False]:
-            for prop_name, prop_f in [("Young's modulus", lambda s: s.section.youngs)]:
-
-                def cb(angle):
+        # For each combination of parameters plot the shells.
+        for shells_name, shells in [
+            ("all", all_shells),
+            ("deck", deck_shells),
+            ("pier", pier_shells),
+        ]:
+            for outline in [True, False]:
+                for prop_name, prop_f in [("Young's modulus", lambda s: s.youngs)]:
+                    shell_properties_3d(
+                        shells=shells,
+                        prop_units="MPa",
+                        prop_f=prop_f,
+                        outline=outline,
+                    )
                     plt.title(f"{prop_name} of {c.bridge.name}")
                     plt.savefig(
                         c.get_image_path(
                             "geometry",
-                            f"shells-{shells_name}-{prop_name}-outline-{outline}-{angle}.pdf",
+                            f"shells-{shells_name}-{prop_name}-outline-{outline}-.pdf",
                         )
                     )
                     plt.close()
-
-                shell_plots_3d(
-                    shells=shells,
-                    prop_units="MPa",
-                    prop_f=prop_f,
-                    outline=outline,
-                    cb=cb,
-                )
 
 
 def make_cloud_of_node_plots(c: Config):

@@ -278,6 +278,11 @@ def thermal_deck():
     unit_thermal_deck_load(c())
 
 
+@contour.command(help="Response to cracked concrete under normal traffic.")
+def traffic_concrete():
+    pass
+
+
 ########################
 ##### Distribution #####
 ########################
