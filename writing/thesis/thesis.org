@@ -318,7 +318,10 @@ states "the existence of noise in the data processing should be addressed".
 Compared to natural frequency, mode shapes have the advantage of capturing
 global information of the structure and thus allow for damage localization. In
 cite:pandey1991damage introduced the use of the curvature of mode shapes which
-is obtained by differentiating the displacement mode shape twice.
+is obtained by differentiating the displacement mode shape twice. Changes in the
+curvature of the mode shape are localized to the damage and furthermore the
+absolute difference of the curvature mode shapes of the damaged and undamaged
+structures increase with increase in damage severity cite:dawari2013structural.
 
 # Dogna: modal curvature, not robust to noise.
 The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
@@ -327,20 +330,32 @@ carried out where six damage configurations were applied to the bridge in the
 form of notches cut with a hydraulic saw. In cite:dilena2011dynamic changes in
 modal curvature were succesfully used to identify the location of the damage.
 However the dynamic tests were all carried out under similar environmental
-conditions, thus no evidence of the robustness to noise is presented.
+conditions, thus the robustness to noise was not investigated.
 
 A damping ratio is a dimensionless property that describes how the oscillations
 in a system decay after a disturbance.
 
-# Additional methods of damage identification.
-based on model updating cite:doebling1996damage attempts to minimize the
-difference between the measured and model responses by an optimization technique
-that modifies model parameters, such as the stiffness matrix. A problem with
-this method is that the optimization it not unique and the initial parameters
-are possible inaccurate. A Bayesian probabilistic approach was applied to a
+# Model-updating methods.
+Model updating approaches compare measurement data with responses from an
+analytical model. A model updating algorithm is then used to minimize the
+difference between analytical model's output and the measured response, which
+will be achieved by modifying some parameter of the model, such as the stiffness
+matrix in cite:doebling1996damage. A problem with model updating approaches is
+that optimization algorithms may reach one of many local optimums. The local
+optimum that is found will depend on the initial parameters, which may be
+innacurate. In cite:teughels2004structural a model-updating approach is applied
+which minimizes the difference in mode shapes. This approach was validated on
+the Z24 highway bridge in Switzerland, which is a 58m pre-stressed concrete
+bridge. The damage scenario considered is the lowering of one of the supporting
+piers (at 44m) by 95mm. \textcolor{red}{TODO: Were potential false positive
+scenarios considered?}
+
+A Bayesian probabilistic approach was applied to a
 reinforced-concrete bridge column cite:sohn2000bayesian, this method compared
 the relative damage probabilites of different damage events based on data from
-vibration tests. Methods based on ANNs cite:yeung2005damage are based on labeled
+vibration tests.
+
+Methods based on ANNs cite:yeung2005damage are based on labeled
 training data for different damage types, these methods depend largely on the
 quality of training data.
 
