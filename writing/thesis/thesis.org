@@ -269,34 +269,70 @@ health monitoring.
 
 ** Damage Identification
 
-# Damage localization and assessment (levels 2 and 3): have limitations.
-The most basic form of damage identification is determining whether damage has
-occured or not (detection). SHM methods that attempt to determine the location
-(localization) or extent (assessment) of the damage require either severe damage
-or make assumptions about the type of damage cite:peter2003review. While an SHM
-system should be capable of a minimal amount of condition assessment (CA) the
-more likely scenario is an additional investigation for CA is triggered by the
-system cite:brownjohn2006structural.
+# Overview of methods.
+Methods of damage identification by monitoring changes of civil infrastructure
+include methods based on modal properties, methods based on a model-updating
+procedure, probabilistic approaches e.g. using Bayes theorem, and pattern
+recognition approaches such as artificial neural networks.
 
-# Vibration: bulk of the research.
+# Natural frequencies and mode shapes: bulk of the research.
 A significant amount of the research into damage identification of civil
-infrastructure is based on vibration data, with methods based on changes in
-natural frequency cite:stubbs2000global or mode shape cite:pandey1991damage.
+infrastructure is based on modal properties, in particular with focus on changes
+in natural frequencies and mode shapes.
 
-# Vibration: assumptions made.
-The location of damage on a computer model of a reinforced concrete bridge is
-identified based on a combination of modal properties in cite:dilena2011dynamic.
-In each of these cases the research is based on a controlled lab experiment and
-the assumption is made that the type of damage is limited to the type being
-identified. Damage was applied to a girder bridge and the mode shapes used to
-detect the location of damage, however the location was only detectable once the
-damage increased to a point that the bridge would have collapsed under a live
-load cite:doebling1998statistical.
+# I-40: no change until final damage case, same change in undamaged data.
+Damage was applied to the I-40 bridge, a 130m girder bridge over the RIO Grande
+river, before it's demolition and data recorded form ambient vibration tests. In
+cite:farrar1994dynamic it is noted that no change in dynamic properties were
+observed except in the fourth and most severe damage case. Furthermore, changes
+of similar magnitude were observed from ambient vibration tests on the undamaged
+structure at different times, indicating the methods are not robust to
+environmental noise.
+
+# I-40: could only localize damage when bridge would have collapsed.
+In cite:doebling1998statistical, four years later, the mode shapes from the same
+vibration tests on the I-40 were used to detect and localize the damage. The
+modal properties were shown to be statistically different from the state without
+additional damage imposed, for all damage cases. However the location of damage
+was only identifiable once the damage increased to a point that the bridge would
+have collapsed under a live load. \textcolor{red}{TODO: which modal properties}
+
+# Natural frequency and mode shapes: not robust to noise.
+In cite:stubbs2000global changes in natural frequency and mode shapes from
+numerical simulations are used to determine the location and the extent of
+damage on a rigid frame and then to assess the safety of the structure. However
+this paper highlights two issues common in the literature. Modal parameters
+corresponding to a baseline or "healthy" state are required, and robustness to
+noise is not addressed in the work. The requirement of "baseline" data is not a
+fatal flaw and could be addressed in a number of ways: 1) the baseline state
+comes from sensor measurements taken for newly built structures, 2) existing
+structures could be monitored for /any/ changes after sensor installation, not
+knowing whether the structure was already damaged or not, 3) a FEM is used to
+generate an approximation of the baseline state. The robustness to noise is a
+more crucial problem because civil structure will be subjected to environmental
+factors such as temperature changes, the work cite:stubbs2000global simply
+states "the existence of noise in the data processing should be addressed".
+\textcolor{red}{TODO: More examples not addressing noise.}
+
+# Mode shapes have an advantage, curvature even better.
+Compared to natural frequency, mode shapes have the advantage of capturing
+global information of the structure and thus allow for damage localization. In
+cite:pandey1991damage introduced the use of the curvature of mode shapes which
+is obtained by differentiating the displacement mode shape twice.
+
+# Dogna: modal curvature, not robust to noise.
+The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
+strong flood in 2003. In 2008, prior to demolition, an experimental campaign was
+carried out where six damage configurations were applied to the bridge in the
+form of notches cut with a hydraulic saw. In cite:dilena2011dynamic changes in
+modal curvature were succesfully used to identify the location of the damage.
+However the dynamic tests were all carried out under similar environmental
+conditions, thus no evidence of the robustness to noise is presented.
+
+A damping ratio is a dimensionless property that describes how the oscillations
+in a system decay after a disturbance.
 
 # Additional methods of damage identification.
-Additional methods of damage identification of civil infrastructure include
-model-updating methods, a probabilistic approach e.g. Bayes theorem, and pattern
-recognition approaches such as artificial neural networks. Damage identification
 based on model updating cite:doebling1996damage attempts to minimize the
 difference between the measured and model responses by an optimization technique
 that modifies model parameters, such as the stiffness matrix. A problem with
@@ -307,6 +343,15 @@ the relative damage probabilites of different damage events based on data from
 vibration tests. Methods based on ANNs cite:yeung2005damage are based on labeled
 training data for different damage types, these methods depend largely on the
 quality of training data.
+
+# Damage localization and assessment (levels 2 and 3): have limitations.
+The most basic form of damage identification is determining whether damage has
+occured or not (detection). More sophisticated SHM methods attempt to determine
+the location (localization) or extent (assessment) of the damage. require either
+severe damage or make assumptions about the type of damage cite:peter2003review.
+While an SHM system should be capable of a minimal amount of condition
+assessment (CA) the more likely scenario is an additional investigation for CA
+is triggered by the system cite:brownjohn2006structural.
 
 ** Machine Learning
 
