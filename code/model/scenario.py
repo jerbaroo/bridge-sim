@@ -17,10 +17,12 @@ class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
     def __init__(self, name: str, mod_bridge, mod_sim_params):
         self.name = name
+        self.mod_bridge = mod_bridge
+        self.mod_sim_params = mod_sim_params
 
-    def use(self, config: Config, sim_params: SimParams):
+    def use(self, c: Config, sim_params: SimParams):
         """Copies of the given arguments modified for this damage scenario."""
-        config_copy = deepcopy(config)
+        config_copy = deepcopy(c)
         config_copy.bridge = self.mod_bridge(config_copy.bridge)
         sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
         return config_copy, sim_params_copy

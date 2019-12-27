@@ -156,5 +156,5 @@ class ThermalBridge(BridgeScenario):
 
         super().__init__(
             name=f"thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}",
-            mod_bridge=id,
+            mod_bridge=lambda b:b,
             mod_sim_params=mod_sim_params)
