@@ -145,9 +145,9 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
 
 class ThermalBridge(BridgeScenario):
     """Thermal expansion, with axial and bending moment components."""
-    def __init__(self, axial_delta_temp: float, moment_delta_temp: float):
-        self.axial_delta_temp = 1
-        self.moment_delta_temp = 1
+    def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
 
         def mod_sim_params(sim_params: SimParams):
             sim_params.axial_delta_temp = self.axial_delta_temp

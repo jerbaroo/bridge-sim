@@ -1,70 +1,55 @@
 from classify.scenario.bridge import ThermalBridge
 from config import Config
-from fem.params import SimParams
-from fem.responses import load_fem_responses
-from fem.run.opensees import OSRunner
+from make.plot.contour.common import damage_scenario_contour_plot
 from model.response import ResponseType
-from plot import plt
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
+from util import safe_str
 
 
 def unit_axial_thermal_deck_load(c: Config):
     """Response to unit axial thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
-    # print(type(c.bridge))
-    # c, sim_params = ThermalBridge(axial_delta_temp=1, moment_delta_temp=0).use(
-    #     c=c, sim_params=SimParams(response_types=response_types))
-    for response_type in response_types:
-        sim_responses = load_fem_responses(
-            c=c,
-            sim_runner=OSRunner(c),
-            response_type=response_type,
-            # sim_params=sim_params,
-            sim_params=SimParams(
-                response_types=response_types,
-                axial_delta_temp=c.unit_axial_delta_temp_c
-            )
-        )
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(
-            c=c,
-            responses=sim_responses,
-            levels=100,
-        )
-        plt.title(f"{response_type.name()} to {c.unit_axial_delta_temp_c}C axial thermal loading of the deck")
-        plt.savefig(
-            c.get_image_path(
-                "contour",
-                f"thermal-deck-unit-axial_load-{response_type.name()}.pdf"
-            )
-        )
-        plt.close()
+    damage_scenario_contour_plot(
+        c=c,
+        response_types=response_types,
+        damage_scenario=ThermalBridge(axial_delta_temp=c.unit_axial_delta_temp_c),
+        titles=[f"{rt.name()} to {c.unit_axial_delta_temp_c}C axial thermal loading of the deck" for rt in response_types],
+        saves=[
+            c.get_image_path("contour", safe_str(f"thermal-deck-unit-axial_load-{rt.name()})") + ".pdf")
+            for rt in response_types
+        ]
+
+    )
 
 
 def unit_moment_thermal_deck_load(c: Config):
     """Response to unit moment thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
-    for response_type in response_types:
-        sim_responses = load_fem_responses(
-            c=c,
-            sim_runner=OSRunner(c),
-            response_type=response_type,
-            sim_params=SimParams(
-                response_types=response_types,
-                moment_delta_temp=c.unit_moment_delta_temp_c
-            )
-        )
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(
-            c=c,
-            responses=sim_responses,
-            levels=100,
-        )
-        plt.title(f"{response_type.name()} to {c.unit_moment_delta_temp_c}C moment thermal loading of the deck")
-        plt.savefig(
-            c.get_image_path(
-                "contour",
-                f"thermal-deck-unit-moment-load-{response_type.name()}.pdf")
-        )
-        plt.close()
+    damage_scenario_contour_plot(
+        c=c,
+        response_types=response_types,
+        damage_scenario=ThermalBridge(moment_delta_temp=c.unit_moment_delta_temp_c),
+        titles=[f"{rt.name()} to {c.unit_moment_delta_temp_c}C moment thermal loading of the deck" for rt in response_types],
+        saves=[
+            c.get_image_path("contour", safe_str(f"thermal-deck-unit-moment_load-{rt.name()})") + ".pdf")
+            for rt in response_types
+        ]
+
+    )
+
+
+def unit_thermal_deck_load(c: Config):
+    """Response to unit thermal deck loading."""
+    response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
+    damage_scenario_contour_plot(
+        c=c,
+        response_types=response_types,
+        damage_scenario=ThermalBridge(
+            axial_delta_temp=c.unit_axial_delta_temp_c,
+            moment_delta_temp=c.unit_moment_delta_temp_c
+        ),
+        titles=[f"{rt.name()} to {c.unit_axial_delta_temp_c}C axial and \n {c.unit_moment_delta_temp_c}C moment thermal loading of the deck" for rt in response_types],
+        saves=[
+            c.get_image_path("contour", safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf")
+            for rt in response_types
+        ]
+    )
