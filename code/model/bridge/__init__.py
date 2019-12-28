@@ -540,6 +540,9 @@ class Bridge:
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
+        if callable(self.sections):
+            raise NotImplementedError()
+
         if len(self.sections) == 1:
             return self.sections[0]
 

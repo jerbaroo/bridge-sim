@@ -16,6 +16,10 @@ init()
 DEBUG = True
 
 
+def assert_sorted(l):
+    assert all(l[i] <= l[i + 1] for i in range(len(l) - 1))
+
+
 # The letters that come after a number e.g. in 1st, 2nd, 3rd.
 st = lambda n: "%s" % (
     "tsnrhtdd"[(np.floor(n / 10) % 10 != 1) * (n % 10 < 4) * n % 10 :: 4]
