@@ -221,10 +221,9 @@ def bridge_705_3d(
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_nodes_x: int = 200,
-    base_mesh_deck_nodes_z: int = 34,
-    base_mesh_pier_nodes_y: int = 6,
-    base_mesh_pier_nodes_z: int = 6,
+    base_mesh_deck_max_x: int = 0.5,
+    base_mesh_deck_max_z: int = 0.5,
+    base_mesh_pier_max_y: int = 0.5,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
@@ -243,43 +242,40 @@ def bridge_705_3d(
         supports=supports,
         sections=sections,
         dimensions=Dimensions.D3,
-        base_mesh_deck_nodes_x=base_mesh_deck_nodes_x,
-        base_mesh_deck_nodes_z=base_mesh_deck_nodes_z,
-        base_mesh_pier_nodes_y=base_mesh_pier_nodes_y,
-        base_mesh_pier_nodes_z=base_mesh_pier_nodes_z,
+        base_mesh_deck_max_x=base_mesh_deck_max_x,
+        base_mesh_deck_max_z=base_mesh_deck_max_z,
+        base_mesh_pier_max_y=base_mesh_pier_max_y,
         **kwargs,
     )
 
 
-# Configs (normal and testing) for bridge 705.
+# Configs for bridge 705.
 
 
-def bridge_705_debug_config(bridge: Callable[..., Bridge]) -> Config:
-    """A low-as-possible accuracy 'Config' for bridge 705 in Amsterdam."""
+def bridge_705_low_config(bridge: Callable[..., Bridge]) -> Config:
+    """A low accuracy 'Config' for bridge 705 in Amsterdam."""
     c = bridge_705_config(
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="debug",
-            base_mesh_deck_nodes_x=3,
-            base_mesh_deck_nodes_z=3,
-            base_mesh_pier_nodes_y=3,
-            base_mesh_pier_nodes_z=3,
+            base_mesh_deck_max_x=1,
+            base_mesh_deck_max_z=1,
+            base_mesh_pier_max_y=1,
         )
     )
     c.sensor_hz = 1 / 100
     return c
 
 
-def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
+def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
     """A less accurate 'Config' for bridge 705 in Amsterdam."""
     return bridge_705_config(
         bridge=lambda: bridge(
             name="Bridge 705",
-            accuracy="low",
-            base_mesh_deck_nodes_x=100,
-            base_mesh_deck_nodes_z=10,
-            base_mesh_pier_nodes_y=6,
-            base_mesh_pier_nodes_z=6,
+            accuracy="med",
+            base_mesh_deck_max_x=0.7,
+            base_mesh_deck_max_z=0.7,
+            base_mesh_pier_max_y=0.7,
         )
     )
 

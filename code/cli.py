@@ -12,8 +12,8 @@ from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
     bridge_705_config,
-    bridge_705_debug_config,
-    bridge_705_test_config,
+    bridge_705_low_config,
+    bridge_705_med_config,
     bridge_705_single_sections,
 )
 from util import clean_generated, print_i
@@ -39,8 +39,8 @@ def bridge_705_3d_overload(*args, **kwargs):
 )
 @click.option(
     "--mesh",
-    type=click.Choice(["debug", "low", "full"]),
-    default="debug",
+    type=click.Choice(["low", "med", "full"]),
+    default="low",
     help="Mesh density of the bridge.",
 )
 @click.option(
@@ -66,10 +66,10 @@ def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: b
     click.echo(f"Parallel: {parallel}")
     two_materials_ = two_materials
     parallel_ = parallel
-    if mesh == "debug":
-        c_func = bridge_705_debug_config
-    elif mesh == "low":
-        c_func = bridge_705_test_config
+    if mesh == "low":
+        c_func = bridge_705_low_config
+    elif mesh == "med":
+        c_func = bridge_705_med_config
     elif mesh == "full":
         c_func = bridge_705_config
     if save:

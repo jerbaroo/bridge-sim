@@ -487,8 +487,8 @@ class Bridge:
         sections: List[Section],
         lanes: List[Lane],
         dimensions: Dimensions,
-        base_mesh_max_z: int,
         base_mesh_deck_max_x: int,
+        base_mesh_deck_max_z: int,
         base_mesh_pier_max_y: int,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
@@ -505,8 +505,8 @@ class Bridge:
         self.dimensions = dimensions
 
         # Mesh.
-        self.base_mesh_max_z = base_mesh_max_z
         self.base_mesh_deck_max_x = base_mesh_deck_max_x
+        self.base_mesh_deck_max_z = base_mesh_deck_max_z
         self.base_mesh_pier_max_y = base_mesh_pier_max_y
 
         # Attach single section option for asserts and printing info.
@@ -707,11 +707,12 @@ class Bridge:
         assert self.width == self.z_max - self.z_min
 
         # Base mesh must be of a minimum size.
-        assert self.base_mesh_deck_nodes_x >= 2
+        assert self.base_mesh_deck_max_x <= self.length
         if self.dimensions == Dimensions.D3:
-            assert self.base_mesh_deck_nodes_z >= 2
-            assert self.base_mesh_pier_nodes_y >= 2
-            assert self.base_mesh_pier_nodes_z >= 2
+            assert self.base_mesh_deck_max_z <= self.width
+            for pier in self.supports:
+                # TODO: Improve this assert, piers are not vertical.
+                assert self.base_mesh_pier_max_y <= pier.height
 
         # Delegate to 2D/3D specific checks.
         if self.dimensions == Dimensions.D2:
