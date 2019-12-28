@@ -124,26 +124,34 @@ class Config:
     # Bridge-specific directories for generated data.
 
     def generated_data_dir(self):
-        return _get_dir(
-            os.path.join(self.root_generated_data_dir, self.bridge.id_str())
-        )
+        return _get_dir(os.path.join(
+            self.root_generated_data_dir,
+            self.bridge.id_str(),
+            self.bridge.type if self.bridge.type is not None else "healthy",
+        ))
 
     def generated_images_dir(self):
-        return _get_dir(
-            os.path.join(self.root_generated_images_dir(), self.bridge.id_str())
-        )
+        return _get_dir(os.path.join(
+            self.root_generated_images_dir(),
+            self.bridge.id_str(),
+            self.bridge.type if self.bridge.type is not None else "healthy",
+        ))
 
     # Bridge-specific but accuracy-independent directories.
 
     def generated_data_dir_no_acc(self):
-        return _get_dir(
-            os.path.join(self.root_generated_data_dir, self.bridge.id_str(acc=False))
-        )
+        return _get_dir(os.path.join(
+            self.root_generated_data_dir,
+            self.bridge.id_str(acc=False),
+            self.bridge.type if self.bridge.type is not None else "healthy",
+        ))
 
     def generated_images_dir_no_acc(self):
-        return _get_dir(
-            os.path.join(self.root_generated_images_dir(), self.bridge.id_str(acc=False))
-        )
+        return _get_dir(os.path.join(
+            self.root_generated_images_dir(),
+            self.bridge.id_str(acc=False),
+            self.bridge.type if self.bridge.type is not None else "healthy",
+        ))
 
     def get_path_in(self, in_: str, dirname: str, filename: str):
         """Filepath in a directory in a directory (created if necessary).
@@ -155,16 +163,6 @@ class Config:
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
         return os.path.join(dirpath, filename)
-
-    def get_traffic_path(self, filename: str):
-        """Get a bridge-specific traffic path in a named directory.
-
-        NOTE: The bridge accuracy is ignored here, as only geometry matters.
-
-        TODO: Replace usage with get_data_path. Raise an Error.
-
-        """
-        return self.get_path_in(self.generated_data_dir_no_acc(), "traffic", filename)
 
     def get_data_path(
         self, dirname: str, filename: str, bridge: bool = True, acc: bool = True

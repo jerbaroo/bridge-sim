@@ -264,7 +264,6 @@ the subject area of this thesis. This Section thus outlines the existing work on
 damage identification of civil infrastructure, traffic and bridge simulations,
 and real-life installations of sensors on bridges for the purpose of structural
 health monitoring.
-
 ** Damage Identification
 
 # Overview of methods.
@@ -344,7 +343,7 @@ optimum that is found will depend on the initial parameters, which may be
 innacurate. In cite:teughels2004structural a model-updating approach is applied
 which minimizes the difference in mode shapes. This approach was validated on
 the Z24 highway bridge in Switzerland, which is a 58m pre-stressed concrete
-bridge. The damage scenario considered is the lowering of one of the supporting
+bridge. The damage scenario considered was the lowering of one of the supporting
 piers (at 44m) by 95mm. \textcolor{red}{TODO: Were potential false positive
 scenarios considered?}
 

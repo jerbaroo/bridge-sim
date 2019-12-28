@@ -42,7 +42,7 @@ def make_shell_plots(c: Config):
                     plt.savefig(
                         c.get_image_path(
                             "geometry",
-                            f"shells-{shells_name}-{prop_name}-outline-{outline}-.pdf",
+                            f"shells-{shells_name}-{prop_name}-outline-{outline}.pdf",
                         )
                     )
                     plt.close()

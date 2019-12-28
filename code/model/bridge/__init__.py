@@ -602,8 +602,7 @@ class Bridge:
 
         """
         acc_str = f"-{self.accuracy}" if acc else ""
-        type_str = f"-{self.type}" if self.type is not None else ""
-        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}{type_str}")
+        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""

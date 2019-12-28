@@ -19,7 +19,6 @@ def shell_properties_3d(
         new_fig: bool = True,
 ):
     """3D plot of shell elements coloured by material property."""
-
     # Coordinates for rotating the plot perspective.
     xs, ys, zs = [], [], []
     # Vertices of nodes for each shell.
