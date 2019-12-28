@@ -16,9 +16,7 @@ def make_shell_plots(c: Config):
     # For each damage scenario build the model and extract the shells.
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
-        build_model_3d(
-            c=c, expt_params=ExptParams([sim_params]), os_runner=OSRunner(c)
-        )
+        build_model_3d(c=c, expt_params=ExptParams([sim_params]), os_runner=OSRunner(c))
         all_shells = shells_by_id.values()
         deck_shells = [s for s in all_shells if not s.pier]
         pier_shells = [s for s in all_shells if s.pier]
@@ -26,15 +24,14 @@ def make_shell_plots(c: Config):
 
         # For each combination of parameters plot the shells.
         for shells_name, shells in [
-            ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells)
+            ("all", all_shells),
+            ("deck", deck_shells),
+            ("pier", pier_shells),
         ]:
             for outline in [True, False]:
                 for prop_name, prop_f in [("Young's modulus", lambda s: s.youngs)]:
                     shell_properties_3d(
-                        shells=shells,
-                        prop_units="MPa",
-                        prop_f=prop_f,
-                        outline=outline,
+                        shells=shells, prop_units="MPa", prop_f=prop_f, outline=outline,
                     )
                     plt.title(f"{prop_name} of {c.bridge.name}")
                     plt.savefig(

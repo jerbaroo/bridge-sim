@@ -18,7 +18,10 @@ from fem.run.build.types import (
     ShellElement,
     bridge_3d_nodes,
 )
-from fem.run.opensees.build.d3.thermal import opensees_thermal_axial_deck_loads, opensees_thermal_moment_deck_loads
+from fem.run.opensees.build.d3.thermal import (
+    opensees_thermal_axial_deck_loads,
+    opensees_thermal_moment_deck_loads,
+)
 from fem.run.opensees.build.d3.util import comment
 from model.bridge import Section3D, Support3D
 from model.load import DisplacementCtrl, PointLoad
@@ -126,15 +129,15 @@ class FixNode:
     """
 
     def __init__(
-            self,
-            node: Node,
-            fix_x_translation: bool,
-            fix_y_translation: bool,
-            fix_z_translation: bool,
-            fix_x_rotation: bool,
-            fix_y_rotation: bool,
-            fix_z_rotation: bool,
-            comment: Optional[str] = None
+        self,
+        node: Node,
+        fix_x_translation: bool,
+        fix_y_translation: bool,
+        fix_z_translation: bool,
+        fix_x_rotation: bool,
+        fix_y_rotation: bool,
+        fix_z_rotation: bool,
+        comment: Optional[str] = None,
     ):
         self.node = node
         self.fix_x_translation = fix_x_translation
@@ -162,26 +165,31 @@ class FixNode:
 
 
 def opensees_fixed_abutment_nodes(
-        c: Config, sim_params: SimParams, deck_nodes: DeckNodes) -> str:
+    c: Config, sim_params: SimParams, deck_nodes: DeckNodes
+) -> str:
     """OpenSees fix commands for fixed nodes on the abument.
 
     Fixed for translation but not for rotation.
 
     """
-    thermal = (sim_params.axial_delta_temp is not None) or (sim_params.moment_delta_temp is not None)
+    thermal = (sim_params.axial_delta_temp is not None) or (
+        sim_params.moment_delta_temp is not None
+    )
     fixed_nodes: List[FixNode] = []
     for i_x, x_nodes in enumerate(deck_nodes):
         assert len(x_nodes) >= 2
         for node in [x_nodes[0], x_nodes[-1]]:
-            fixed_nodes.append(FixNode(
-                node=node,
-                fix_x_translation=False,
-                fix_y_translation=True,
-                fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
-                fix_x_rotation=False,
-                fix_y_rotation=False,
-                fix_z_rotation=False,
-            ))
+            fixed_nodes.append(
+                FixNode(
+                    node=node,
+                    fix_x_translation=False,
+                    fix_y_translation=True,
+                    fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
+                    fix_x_rotation=False,
+                    fix_y_rotation=False,
+                    fix_z_rotation=False,
+                )
+            )
     return comment(
         "fixed deck nodes",
         "\n".join(map(lambda f: f.command_3d(), fixed_nodes)),
@@ -204,13 +212,14 @@ def opensees_fixed_pier_nodes(
         pier = c.bridge.supports[p_i]
         pier_positions[round_m(pier.x)].add(round_m(pier.z))
     pier_positions = {
-        pier_x : sorted(pier_zs)
-        for pier_x, pier_zs in pier_positions.items()
+        pier_x: sorted(pier_zs) for pier_x, pier_zs in pier_positions.items()
     }
 
     def fix_pier_z_translation(pier):
         # If thermal loading.
-        if (sim_params.axial_delta_temp is not None) or (sim_params.moment_delta_temp is not None):
+        if (sim_params.axial_delta_temp is not None) or (
+            sim_params.moment_delta_temp is not None
+        ):
             pier_zs = pier_positions[round_m(pier.x)]
             return pier_zs[len(pier_zs) // 2] == round_m(pier.z)
         # Else use default for the pier.
@@ -240,7 +249,9 @@ def opensees_fixed_pier_nodes(
                 FixNode(
                     node=node,
                     fix_x_translation=node.support.fix_x_translation,
-                    fix_y_translation=False if free_y_trans else node.support.fix_y_translation,
+                    fix_y_translation=False
+                    if free_y_trans
+                    else node.support.fix_y_translation,
                     fix_z_translation=fix_pier_z_translation(node.support),
                     fix_x_rotation=node.support.fix_x_rotation,
                     fix_y_rotation=node.support.fix_y_rotation,
@@ -573,9 +584,7 @@ def build_model_3d(
             .replace(
                 "<<FIX_DECK>>",
                 opensees_fixed_abutment_nodes(
-                    c=c,
-                    sim_params=fem_params,
-                    deck_nodes=fem_params.deck_nodes
+                    c=c, sim_params=fem_params, deck_nodes=fem_params.deck_nodes
                 ),
             )
             .replace(
@@ -604,7 +613,7 @@ def build_model_3d(
                     sim_params=fem_params,
                     deck_elements=fem_params.deck_elements,
                     nodes_by_id=nodes_by_id,
-                )
+                ),
             )
             .replace(
                 "<<THERMAL_MOMENT_LOAD_DECK>>",
@@ -613,7 +622,7 @@ def build_model_3d(
                     sim_params=fem_params,
                     deck_elements=fem_params.deck_elements,
                     nodes_by_id=nodes_by_id,
-                )
+                ),
             )
             .replace("<<SUPPORTS>>", "")
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))

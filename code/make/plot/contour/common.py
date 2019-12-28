@@ -25,7 +25,9 @@ def damage_scenario_plot(
     saves: List[str],
 ):
     """Save a contour plot of a damage scenario under direct simulation."""
-    c, sim_params = damage_scenario.use(c=c, sim_params=SimParams(response_types=response_types))
+    c, sim_params = damage_scenario.use(
+        c=c, sim_params=SimParams(response_types=response_types)
+    )
     for response_type, title, save in zip(response_types, titles, saves):
         sim_responses = load_fem_responses(
             c=c,
@@ -57,10 +59,14 @@ def damage_scenario_traffic_plot(
             np.linspace(c.bridge.z_min, c.bridge.z_max, 4),
         )
     ]
-    c, sim_params = damage_scenario.use(c=c, sim_params=SimParams(response_types=response_types))
+    c, sim_params = damage_scenario.use(
+        c=c, sim_params=SimParams(response_types=response_types)
+    )
 
     # Generate a plot for each response type.
-    for t, response_type, title, save in zip(range(times), response_types, titles, saves):
+    for t, response_type, title, save in zip(
+        range(times), response_types, titles, saves
+    ):
         time_index = -1 + abs(t)
         response_array = responses_to_traffic_array(
             c=c,
@@ -77,7 +83,10 @@ def damage_scenario_traffic_plot(
         top_view_bridge(c.bridge, abutments=True, piers=True)
         responses = Responses.from_responses(
             response_type=response_type,
-            responses=[(response_array[time_index][p], point) for p, point in enumerate(grid_points)],
+            responses=[
+                (response_array[time_index][p], point)
+                for p, point in enumerate(grid_points)
+            ],
         )
         plot_contour_deck(c=c, responses=responses, center_norm=True, levels=100)
         plt.title(title)

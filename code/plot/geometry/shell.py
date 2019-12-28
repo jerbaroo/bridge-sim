@@ -11,12 +11,12 @@ from plot.geometry.angles import angles_3d
 
 
 def shell_properties_3d(
-        shells: List[ShellElement],
-        prop_units: str,
-        prop_f,
-        cmap = default_cmap,
-        outline: bool = True,
-        new_fig: bool = True,
+    shells: List[ShellElement],
+    prop_units: str,
+    prop_f,
+    cmap=default_cmap,
+    outline: bool = True,
+    new_fig: bool = True,
 ):
     """3D plot of shell elements coloured by material property."""
     # Coordinates for rotating the plot perspective.

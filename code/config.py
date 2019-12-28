@@ -124,34 +124,42 @@ class Config:
     # Bridge-specific directories for generated data.
 
     def generated_data_dir(self):
-        return _get_dir(os.path.join(
-            self.root_generated_data_dir,
-            self.bridge.id_str(),
-            self.bridge.type if self.bridge.type is not None else "healthy",
-        ))
+        return _get_dir(
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
+        )
 
     def generated_images_dir(self):
-        return _get_dir(os.path.join(
-            self.root_generated_images_dir(),
-            self.bridge.id_str(),
-            self.bridge.type if self.bridge.type is not None else "healthy",
-        ))
+        return _get_dir(
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
+        )
 
     # Bridge-specific but accuracy-independent directories.
 
     def generated_data_dir_no_acc(self):
-        return _get_dir(os.path.join(
-            self.root_generated_data_dir,
-            self.bridge.id_str(acc=False),
-            self.bridge.type if self.bridge.type is not None else "healthy",
-        ))
+        return _get_dir(
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(acc=False),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
+        )
 
     def generated_images_dir_no_acc(self):
-        return _get_dir(os.path.join(
-            self.root_generated_images_dir(),
-            self.bridge.id_str(acc=False),
-            self.bridge.type if self.bridge.type is not None else "healthy",
-        ))
+        return _get_dir(
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(acc=False),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
+        )
 
     def get_path_in(self, in_: str, dirname: str, filename: str):
         """Filepath in a directory in a directory (created if necessary).

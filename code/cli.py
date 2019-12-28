@@ -77,7 +77,9 @@ def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: b
 
         def c_func_save(*args, **kwargs):
             result_c = og_c_func(*args, **kwargs)
-            result_c.root_generated_data_dir = "saved-" + result_c.root_generated_data_dir
+            result_c.root_generated_data_dir = (
+                "saved-" + result_c.root_generated_data_dir
+            )
             return result_c
 
         c_func = c_func_save
@@ -85,7 +87,6 @@ def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: b
         c = lambda: c_func(bridge_705_3d_overload)
     elif dimensions == "2":
         c = lambda: c_func(bridge_705_2d)
-
 
 
 ################
@@ -236,10 +237,7 @@ def contour():
     help="X position of front axle of Truck 1, in meters.",
 )
 @click.option(
-    "--deform",
-    type=float,
-    required=True,
-    help="Deformation amplitude, in meters."
+    "--deform", type=float, required=True, help="Deformation amplitude, in meters."
 )
 def cover_photo(x: float, deform: float):
     contour_.cover_photo(c=c(), x=x, deformation_amp=deform)
@@ -263,18 +261,21 @@ def each_pier_displaced():
 @contour.command(help="Unit axial thermal deck load.")
 def thermal_deck_axial():
     from make.plot.contour.thermal import unit_axial_thermal_deck_load
+
     unit_axial_thermal_deck_load(c())
 
 
 @contour.command(help="Unit moment thermal deck load.")
 def thermal_deck_moment():
     from make.plot.contour.thermal import unit_moment_thermal_deck_load
+
     unit_moment_thermal_deck_load(c())
 
 
 @contour.command(help="Unit axial and moment thermal deck load.")
 def thermal_deck():
     from make.plot.contour.thermal import unit_thermal_deck_load
+
     unit_thermal_deck_load(c())
 
 
@@ -288,6 +289,7 @@ def traffic_concrete():
 @click.option("--moment", type=float, required=True)
 def traffic_thermal(axial, moment):
     from make.plot.contour.traffic_thermal import thermal_deck_load
+
     thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 

@@ -17,13 +17,13 @@ from plot.geometry.angles import angles_3d
 
 
 def contour_responses_3d(
-        c: Config,
-        sim_responses: FEMResponses,
-        shells: Optional[List[ShellElement]] = None,
-        deformation_amp: float = 0,
-        cmap: matplotlib.colors.Colormap = default_cmap,
-        center_norm: bool = False,
-        new_fig: bool = True
+    c: Config,
+    sim_responses: FEMResponses,
+    shells: Optional[List[ShellElement]] = None,
+    deformation_amp: float = 0,
+    cmap: matplotlib.colors.Colormap = default_cmap,
+    center_norm: bool = False,
+    new_fig: bool = True,
 ):
     """3D contour plot of simulation responses over deformed shell elements.
 
@@ -45,8 +45,7 @@ def contour_responses_3d(
     # TODO: Add default expt_params to build_model_3d.
     if shells is None:
         build_model_3d(
-            c=c, expt_params=ExptParams([SimParams([], [])]),
-            os_runner=OSRunner(c)
+            c=c, expt_params=ExptParams([SimParams([], [])]), os_runner=OSRunner(c)
         )
         shells = shells_by_id.values()
         deck_shells = [s for s in shells if not s.pier]
@@ -66,7 +65,9 @@ def contour_responses_3d(
         for node in shell.nodes():
             x = node.x
             y_response = sim_responses._at(x=node.x, y=node.y, z=node.z)
-            y_deformation = np.interp(y_response, [min_r, max_r], [0, 1]) * deformation_amp
+            y_deformation = (
+                np.interp(y_response, [min_r, max_r], [0, 1]) * deformation_amp
+            )
             y = node.y + y_deformation
             z = node.z
             xs.append(node.x)
@@ -93,11 +94,7 @@ def contour_responses_3d(
         ax = plt.gca()
 
     for i, verts_ in enumerate(verts):
-        collection = Poly3DCollection(
-            [verts_],
-            alpha=1,
-            linewidths=0.001,
-        )
+        collection = Poly3DCollection([verts_], alpha=1, linewidths=0.001,)
         facenorm = norm(max_r_per_shell[i])
         facecolor = cmap(facenorm)
         # collection.set_edgecolor("none")

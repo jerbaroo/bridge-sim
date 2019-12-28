@@ -20,12 +20,10 @@ CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 class CrackedBridge(BridgeScenario):
     """A cracked bridge, defined by an area of a bridge's deck to crack."""
-    def __init__(
-        self,
-        name: str,
-        crack_area: Callable[[Bridge], CrackArea],
-    ):
 
+    def __init__(
+        self, name: str, crack_area: Callable[[Bridge], CrackArea],
+    ):
         def mod_bridge(bridge: Bridge):
             bridge.type = self.name
             self._crack_deck(bridge)
@@ -145,6 +143,7 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
 
 class ThermalBridge(BridgeScenario):
     """Thermal expansion, with axial and bending moment components."""
+
     def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
@@ -156,4 +155,5 @@ class ThermalBridge(BridgeScenario):
 
         super().__init__(
             name=f"thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}",
-            mod_sim_params=mod_sim_params)
+            mod_sim_params=mod_sim_params,
+        )

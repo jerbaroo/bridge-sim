@@ -45,39 +45,47 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
     TODO: Ignore response type in SimParams (fill in by load_sim_responses).
 
     """
-    response_type=ResponseType.YTranslation
+    response_type = ResponseType.YTranslation
     sim_responses = load_fem_responses(
         c=c,
         sim_runner=OSRunner(c),
         response_type=response_type,
         sim_params=SimParams(
             response_types=[response_type],
-            ploads=list(chain.from_iterable(
-                wagen1.to_point_loads(
-                    bridge=c.bridge,
-                    time=wagen1.time_at(x=x, bridge=c.bridge),
+            ploads=list(
+                chain.from_iterable(
+                    wagen1.to_point_loads(
+                        bridge=c.bridge, time=wagen1.time_at(x=x, bridge=c.bridge),
+                    )
                 )
-            ))
-        )
+            ),
+        ),
     )
     shells = contour_responses_3d(c=c, sim_responses=sim_responses)
-    for cmap in [parula_cmap, get_cmap("jet"), get_cmap("coolwarm"), get_cmap("viridis")]:
+    for cmap in [
+        parula_cmap,
+        get_cmap("jet"),
+        get_cmap("coolwarm"),
+        get_cmap("viridis"),
+    ]:
 
-            contour_responses_3d(
-                c=c,
-                sim_responses=sim_responses,
-                deformation_amp=deformation_amp,
-                shells=shells,
-                cmap=cmap,
-            )
+        contour_responses_3d(
+            c=c,
+            sim_responses=sim_responses,
+            deformation_amp=deformation_amp,
+            shells=shells,
+            cmap=cmap,
+        )
 
-            plt.axis("off")
-            plt.grid(False)
-            plt.savefig(c.get_image_path(
+        plt.axis("off")
+        plt.grid(False)
+        plt.savefig(
+            c.get_image_path(
                 "cover-photo",
-                f"cover-photo-deform-{deformation_amp}"
-                f"-cmap-{cmap.name}.pdf"))
-            plt.close()
+                f"cover-photo-deform-{deformation_amp}" f"-cmap-{cmap.name}.pdf",
+            )
+        )
+        plt.close()
 
 
 def traffic_response_plots(c: Config, times: int = 3):
@@ -111,19 +119,25 @@ def traffic_response_plots(c: Config, times: int = 3):
             top_view_bridge(c.bridge, abutments=True, piers=True)
             responses = Responses.from_responses(
                 response_type=response_type,
-                responses=[(response_array[time_index][p], point) for p, point in enumerate(points)],
+                responses=[
+                    (response_array[time_index][p], point)
+                    for p, point in enumerate(points)
+                ],
             )
             plot_contour_deck(c=c, responses=responses, center_norm=True, levels=100)
             plt.title(damage_scenario.name)
             plt.savefig(
                 c.get_image_path(
                     "contour-traffic-response",
-                    f"{damage_scenario.name}-time={time_index}")
+                    f"{damage_scenario.name}-time={time_index}",
+                )
             )
             plt.close()
 
 
-def point_load_response_plots(c: Config, x: float=51.375, z: float=0, kn: int=1000):
+def point_load_response_plots(
+    c: Config, x: float = 51.375, z: float = 0, kn: int = 1000
+):
     """Response to a point load per damage scenario."""
     response_type = ResponseType.YTranslation
     # scenarios = all_scenarios(c)
@@ -141,10 +155,9 @@ def point_load_response_plots(c: Config, x: float=51.375, z: float=0, kn: int=10
     for damage_scenario in damage_scenarios:
         sim_params = SimParams(
             response_types=[response_type],
-            ploads=[PointLoad(
-                x_frac=c.bridge.x_frac(x),
-                z_frac=c.bridge.z_frac(z),
-                kn=kn)],
+            ploads=[
+                PointLoad(x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=kn)
+            ],
         )
         use_c = (
             damage_scenario.crack_config(c)
@@ -179,7 +192,7 @@ def point_load_response_plots(c: Config, x: float=51.375, z: float=0, kn: int=10
         plt.savefig(
             c.get_image_path(
                 "contour-point-load-response",
-                safe_str(f"{damage_scenario.name}-x-{x:.2f}-z-{z:.2f}-kn-{kn}")
+                safe_str(f"{damage_scenario.name}-x-{x:.2f}-z-{z:.2f}-kn-{kn}"),
             )
         )
         plt.close()
@@ -328,7 +341,7 @@ def comparison_plots_705(c: Config, run_only: bool):
     positions = [
         # (35, 25 - 16.6, None),
         (34.95459, 26.24579 - 16.6, "a"),
-        (51.25051,     16.6 - 16.6, "b"),
+        (51.25051, 16.6 - 16.6, "b"),
         (89.98269, 9.445789 - 16.6, "c"),
         (102.5037, 6.954211 - 16.6, "d"),
         # (34.95459, 29.22606 - 16.6, "a"),

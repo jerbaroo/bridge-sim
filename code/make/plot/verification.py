@@ -671,7 +671,8 @@ def plot_convergence(c: Config):
 
     """
     convergence_dir = os.path.dirname(
-        c.get_image_path("convergence", "convergence_results", bridge=False))
+        c.get_image_path("convergence", "convergence_results", bridge=False)
+    )
 
     # Get all simulations results from each machine.
     machines = dict()
@@ -787,17 +788,25 @@ def plot_convergence(c: Config):
             ) = lines
 
             # Displacement
-            
+
             final_mean_d = np.mean(means_d[-5:])
             final_max_d = np.mean(maxes_d[-5:])
             final_min_d = np.mean(mins_d[-5:])
-            ax1.plot(shell_size, mins_d / final_min_d, color="red", label="Min. response")
             ax1.plot(
-                shell_size, maxes_d / final_max_d, color="orange", label="Max. response",
+                shell_size, mins_d / final_min_d, color="red", label="Min. response"
+            )
+            ax1.plot(
+                shell_size,
+                maxes_d / final_max_d,
+                color="orange",
+                label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                shell_size, means_d / final_mean_d, color="green", label="Mean response",
+                shell_size,
+                means_d / final_mean_d,
+                color="green",
+                label="Mean response",
             )
 
             # Zoomed in part.

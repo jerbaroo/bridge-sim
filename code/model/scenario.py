@@ -15,6 +15,7 @@ from util import print_i
 
 class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
+
     def __init__(self, name: str, mod_bridge=lambda b: b, mod_sim_params=lambda s: s):
         self.name = name
         self.mod_bridge = mod_bridge
