@@ -26,9 +26,7 @@ def make_shell_plots(c: Config):
 
         # For each combination of parameters plot the shells.
         for shells_name, shells in [
-            ("all", all_shells),
-            ("deck", deck_shells),
-            ("pier", pier_shells),
+            ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells)
         ]:
             for outline in [True, False]:
                 for prop_name, prop_f in [("Young's modulus", lambda s: s.youngs)]:

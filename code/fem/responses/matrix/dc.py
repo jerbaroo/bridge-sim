@@ -27,10 +27,7 @@ class DCMatrix(ResponsesMatrix):
             save_all: bool, save all response types when running a simulation.
 
         """
-
-        id_str = f"dc-{response_type}-{fem_runner.name}"
-        print_w("TODO: Change save_all back to True!!!")
-        save_all = False
+        id_str = f"dc-{response_type.name()}-{fem_runner.name}"
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams(
