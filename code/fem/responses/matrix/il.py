@@ -82,7 +82,6 @@ class ILMatrix(ResponsesMatrix):
             f"il-{response_type.name()}-{fem_runner.name}-{c.il_unit_load_kn}"
             + f"-{c.il_num_loads}-z={round_m(c.bridge.z(load_z_frac))}"
         )
-        print(id_str)
 
         # Determine experiment simulation parameters.
         _expt_params = ExptParams(
