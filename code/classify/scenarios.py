@@ -3,6 +3,7 @@ import itertools
 from classify.scenario.bridge import (
     HealthyBridge,
     PierDispBridge,
+    ThermalBridge,
     center_lane_crack,
     equal_pier_disp,
     longitudinal_pier_disp,
@@ -31,12 +32,15 @@ gradient_pier_scenarios = lambda c: [
     for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05])
 ]
 
-healthy_and_cracked_scenarios = lambda c: (
+healthy_and_cracked_scenarios = (
     [healthy_scenario] + [cracked_scenario] + [cracked_scenario2]
 )
 
+unit_temp_scenario = ThermalBridge(axial_delta_temp=1, moment_delta_temp=1)
+
 all_scenarios = lambda c: (
-    healthy_and_cracked_scenarios(c)
+    healthy_and_cracked_scenarios
+    + [unit_temp_scenario]
     + each_pier_scenarios(c)
     + equal_pier_scenarios(c)
     + gradient_pier_scenarios(c)

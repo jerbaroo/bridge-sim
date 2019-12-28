@@ -121,12 +121,12 @@ class Support3D:
         width_top: float,
         width_bottom: float,
         sections: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
-        fix_x_translation: bool = True,
-        fix_y_translation: bool = True,
-        fix_z_translation: bool = True,
-        fix_x_rotation: bool = False,
-        fix_y_rotation: bool = False,
-        fix_z_rotation: bool = False,
+        fix_x_translation: bool,
+        fix_y_translation: bool,
+        fix_z_translation: bool,
+        fix_x_rotation: bool,
+        fix_y_rotation: bool,
+        fix_z_rotation: bool,
     ):
         self.x = x
         self.z = z
@@ -347,6 +347,7 @@ class Section3D:
         start_z_frac: float, start of the section as a fraction of z position.
         end_x_frac: float, end of the section as a fraction of x position.
         end_z_frac: float, end of the section as a fraction of z position.
+        cte: float, coefficient of thermal expansion, in meters per celcius.
 
     """
 
@@ -362,6 +363,7 @@ class Section3D:
         start_z_frac: float,
         end_x_frac: float,
         end_z_frac: float,
+        cte: float = 12e-6,
     ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
@@ -373,6 +375,7 @@ class Section3D:
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
+        self.cte = cte
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
         """Whether this section contains the given point."""
@@ -551,25 +554,34 @@ class Bridge:
 
         raise ValueError("No section for x, z = {x}, {z}")
 
-    def print_info(self, pier_fix_info: bool = False):
+    def print_info(self, c: "Config", pier_fix_info: bool = False):
         """Print summary information about this bridge.
 
         Args:
             fix_info: print information on pier's fixed nodes.
 
         """
-        print_s(
-            f"Bridge dimensions:"
-            + f"\n  x = ({self.x_min}, {self.x_max})"
-            + f"\n  y = ({self.y_min}, {self.y_max})"
-            + f"\n  z = ({self.z_min}, {self.z_max})"
-        )
+        print_s(f"Bridge dimensions:")
+        print_s(f"  x = ({self.x_min}, {self.x_max})")
+        print_s(f"  y = ({self.y_min}, {self.y_max})")
+        print_s(f"  z = ({self.z_min}, {self.z_max})")
+
+        print_s(f"Bridge lanes:")
+        wheel_tracks = self.wheel_tracks(c)
+        for l, lane in enumerate(self.lanes):
+            print_s(f"  lane {l}: {lane.z_min} <= z <= {lane.z_max}")
+            print_s(f"  lane {l}: center at z = {lane.z_center}")
+            track_0 = wheel_tracks[l * 2]
+            track_1 = wheel_tracks[l * 2 + 1]
+            print_s(f"  lane {l}: wheel tracks at z = {track_0}, {track_1}")
+
         if self.single_sections:
             print_s(
                 f"Single section per deck and pier:"
                 + f"\ndeck = {self.sections[0]}"
                 + f"\npier = {self.supports[0].sections[0]}"
             )
+
         if pier_fix_info:
             for p, pier in enumerate(self.supports):
                 print_s(
@@ -590,8 +602,7 @@ class Bridge:
 
         """
         acc_str = f"-{self.accuracy}" if acc else ""
-        type_str = f"-{self.type}" if self.type is not None else ""
-        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}{type_str}")
+        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""

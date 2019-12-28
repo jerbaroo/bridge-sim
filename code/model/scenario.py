@@ -1,11 +1,13 @@
 """Scenarios for the traffic and bridge."""
 from collections import deque
+from copy import deepcopy
 from typing import Callable, List, NewType, Tuple
 
 import numpy as np
 from scipy.interpolate import interp1d
 
 from config import Config
+from fem.params import SimParams
 from model.bridge import Bridge
 from model.load import MvVehicle
 from util import print_i
@@ -14,8 +16,17 @@ from util import print_i
 class BridgeScenario:
     """Base class for bridge scenarios. Do not construct directly."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, mod_bridge=lambda b: b, mod_sim_params=lambda s: s):
         self.name = name
+        self.mod_bridge = mod_bridge
+        self.mod_sim_params = mod_sim_params
+
+    def use(self, c: Config, sim_params: SimParams):
+        """Copies of the given arguments modified for this damage scenario."""
+        config_copy = deepcopy(c)
+        config_copy.bridge = self.mod_bridge(config_copy.bridge)
+        sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
+        return config_copy, sim_params_copy
 
 
 # A list of vehicle, time they enter/leave the bridge, and a boolean if they are

@@ -3,6 +3,7 @@ from copy import deepcopy
 from typing import Callable, NewType, Tuple
 
 from config import Config
+from fem.params import SimParams
 from model.bridge import Bridge
 from model.load import DisplacementCtrl
 from model.scenario import BridgeScenario
@@ -18,10 +19,17 @@ CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 
 class CrackedBridge(BridgeScenario):
+    """A cracked bridge, defined by an area of a bridge's deck to crack."""
+
     def __init__(
         self, name: str, crack_area: Callable[[Bridge], CrackArea],
     ):
-        super().__init__(name=name)
+        def mod_bridge(bridge: Bridge):
+            bridge.type = self.name
+            self._crack_deck(bridge)
+            return bridge
+
+        super().__init__(name=name, mod_bridge=mod_bridge)
         self.crack_area = crack_area
 
     def _crack_deck(self, bridge: Bridge):
@@ -71,17 +79,6 @@ class CrackedBridge(BridgeScenario):
             cracked_sections.append(cracked_section)
 
         bridge.sections = cracked_sections + bridge.sections
-
-    def crack(self, bridge: Bridge) -> Bridge:
-        cracked_bridge = deepcopy(bridge)
-        cracked_bridge.type = self.name
-        self._crack_deck(cracked_bridge)
-        return cracked_bridge
-
-    def crack_config(self, config: Config) -> Config:
-        config_copy = deepcopy(config)
-        config_copy.bridge = self.crack(config_copy.bridge)
-        return config_copy
 
 
 def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
@@ -142,3 +139,21 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
             displacement += step
         pier_disps.append(DisplacementCtrl(displacement=displacement, pier=p))
     return PierDispBridge(pier_disps=pier_disps, name_prefix="longitudinal")
+
+
+class ThermalBridge(BridgeScenario):
+    """Thermal expansion, with axial and bending moment components."""
+
+    def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
+
+        def mod_sim_params(sim_params: SimParams):
+            sim_params.axial_delta_temp = self.axial_delta_temp
+            sim_params.moment_delta_temp = self.moment_delta_temp
+            return sim_params
+
+        super().__init__(
+            name=f"thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}",
+            mod_sim_params=mod_sim_params,
+        )

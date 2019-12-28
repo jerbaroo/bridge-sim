@@ -4,9 +4,10 @@ import click
 from classify.vehicle import wagen1, wagen1_x_pos
 from config import Config
 from make.data import simulations
-from make.plot import contour, vehicle, verification
 from make.plot import classification as classification_
+from make.plot import contour as contour_
 from make.plot import geometry as geometry_
+from make.plot import material, vehicle, verification
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -45,12 +46,15 @@ def bridge_705_3d_overload(*args, **kwargs):
 @click.option(
     "--two-materials",
     is_flag=True,
-    help="One material for the deck and one for the piers.",
+    help="One material for the deck and one for piers.",
 )
 @click.option(
     "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
 )
-def cli(dimensions, mesh, two_materials, parallel):
+@click.option(
+    "--save", is_flag=True, default=False, help="Save/load data from a special folder.",
+)
+def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save: bool):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
     global c
@@ -68,6 +72,17 @@ def cli(dimensions, mesh, two_materials, parallel):
         c_func = bridge_705_test_config
     elif mesh == "full":
         c_func = bridge_705_config
+    if save:
+        og_c_func = c_func
+
+        def c_func_save(*args, **kwargs):
+            result_c = og_c_func(*args, **kwargs)
+            result_c.root_generated_data_dir = (
+                "saved-" + result_c.root_generated_data_dir
+            )
+            return result_c
+
+        c_func = c_func_save
     if dimensions == "3":
         c = lambda: c_func(bridge_705_3d_overload)
     elif dimensions == "2":
@@ -79,8 +94,9 @@ def cli(dimensions, mesh, two_materials, parallel):
 ################
 
 
-@cli.command()
+@cli.command(help="Remove simulation data for the selected bridge.")
 def clean():
+    """TODO: Require confirmation."""
     clean_generated(c())
 
 
@@ -89,15 +105,16 @@ def clean():
 ################
 
 
-@cli.group()
+@cli.group(help="Print and plot useful information.")
 def info():
     pass
 
 
 @info.command(help="Print a summary of this bridge.")
 @click.option("--piers", is_flag=True)
-def bridge_info(piers):
-    c.bridge.print_info(pier_fix_info=piers)
+def bridge(piers):
+    config = c()
+    config.bridge.print_info(c=config, pier_fix_info=piers)
 
 
 @info.command(help="Z positions of the wheel tracks, in meters.")
@@ -106,7 +123,7 @@ def wheel_tracks():
     print_i(f"Wheel tracks: {config.bridge.wheel_tracks(config)}")
 
 
-@info.command(help="Plot and information on Truck 1.")
+@info.command(help="Print and plot information on Truck 1.")
 def truck_1():
     vehicle.wagen1_plot(c())
     print_i(f"Truck 1 x positions: {wagen1_x_pos()}")
@@ -119,7 +136,7 @@ def truck_1():
     required=True,
     help="X position of front axle of Truck 1, in meters.",
 )
-def truck_1_loads(x):
+def truck_1_loads(x: float):
     config = c()
     time = wagen1.time_at(x=x, bridge=config.bridge)
     print_i(f"Time = {time:.4f}s")
@@ -129,6 +146,11 @@ def truck_1_loads(x):
             f"Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), "
             f" ({axle_loads[i][1].repr(config.bridge)})"
         )
+
+
+@info.command(help="Plot the material properties of this bridge.")
+def materials():
+    material.material_property_plots(c())
 
 
 ####################
@@ -156,34 +178,35 @@ def nodes():
 ######################
 
 
-@cli.group()
-def simulation():
+@cli.group(help="Run simulations and generate data.")
+def simulate():
     pass
 
 
-@simulation.command()
-def unit_load_simulations():
+@simulate.command(help="Run all unit load simulations.")
+def uls():
     simulations.run_uls(c())
 
 
-@simulation.command()
-def convergence_data(help="Record simulation as model size is increased."):
+@simulate.command(help="Record information for convergence plots.")
+def convergence():
     verification.make_convergence_data(c())
 
 
-########################
-##### Verification #####
-########################
+######################
+##### Validation #####
+######################
 
 
-@cli.group()
+@cli.group(help="Validate the generated FEM of bridge 705.")
 def validate():
     pass
 
 
 @validate.command(help="Contour plots comparing OpenSees and Diana.")
-def diana_comp():
-    contour.comparison_plots_705(c())
+@click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
+def diana_comp(run_only: float):
+    contour_.comparison_plots_705(c=c(), run_only=run_only)
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")
@@ -197,33 +220,77 @@ def convergence():
 
 
 ####################
-##### Scenario #####
+##### Contour #####
 ####################
 
 
-@cli.group(help="Plots for damage scenarios.")
-def scenario():
+@cli.group(help="Contour plots for loading & damage scenarios.")
+def contour():
     pass
 
 
-@scenario.command(help="Mean response to traffic per scenario.")
-def contour_traffic():
-    contour.mean_traffic_response_plots(c())
+@contour.command(help="3D angled contour plot of bridge 705.")
+@click.option(
+    "--x",
+    type=float,
+    required=True,
+    help="X position of front axle of Truck 1, in meters.",
+)
+@click.option(
+    "--deform", type=float, required=True, help="Deformation amplitude, in meters."
+)
+def cover_photo(x: float, deform: float):
+    contour_.cover_photo(c=c(), x=x, deformation_amp=deform)
 
 
-@scenario.command(help="Response to point loads per scenario.")
-def contour_point_load():
-    contour.point_load_response_plots(c())
+@contour.command(help="Response to traffic at multiple timesteps, per scenario.")
+def scenarios_traffic():
+    contour_.traffic_response_plots(c())
 
 
-@scenario.command()
-def contour_cracked_concrete():
-    contour.cracked_concrete_plots(c())
+@contour.command(help="Response to point loads per scenario.")
+def scenarios_point_load():
+    contour_.point_load_response_plots(c())
 
 
-@scenario.command()
-def contour_each_pier_displaced():
-    contour.each_pier_displacement_plots(c())
+@contour.command(help="Response to each pier being displaced in turn.")
+def each_pier_displaced():
+    contour_.each_pier_displacement_plots(c())
+
+
+@contour.command(help="Unit axial thermal deck load.")
+def thermal_deck_axial():
+    from make.plot.contour.thermal import unit_axial_thermal_deck_load
+
+    unit_axial_thermal_deck_load(c())
+
+
+@contour.command(help="Unit moment thermal deck load.")
+def thermal_deck_moment():
+    from make.plot.contour.thermal import unit_moment_thermal_deck_load
+
+    unit_moment_thermal_deck_load(c())
+
+
+@contour.command(help="Unit axial and moment thermal deck load.")
+def thermal_deck():
+    from make.plot.contour.thermal import unit_thermal_deck_load
+
+    unit_thermal_deck_load(c())
+
+
+@contour.command(help="Cracked concrete under normal traffic.")
+def traffic_concrete():
+    pass
+
+
+@contour.command(help="Unit thermal deck load under normal traffic.")
+@click.option("--axial", type=float, required=True)
+@click.option("--moment", type=float, required=True)
+def traffic_thermal(axial, moment):
+    from make.plot.contour.traffic_thermal import thermal_deck_load
+
+    thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
 ########################
@@ -236,7 +303,7 @@ def contour_each_pier_displaced():
 ##########################
 
 
-@cli.group()
+@cli.group(help="Run classification experiments.")
 def classify():
     pass
 

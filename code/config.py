@@ -1,5 +1,6 @@
 """Simulation configuration object."""
 import os
+from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 
@@ -50,7 +51,6 @@ class Config:
         vehicle_pdf_col: str,
         generated_data: str = "generated-data",
     ):
-
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
         self.bridge = bridge()
@@ -67,6 +67,8 @@ class Config:
         self.il_unit_load_kn: float = 1000
         self.pd_unit_disp: float = 1.0
         self.pd_unit_load_kn: int = 10
+        self.unit_axial_delta_temp_c: int = 1
+        self.unit_moment_delta_temp_c: int = 1
 
         # Responses & events.
         self.sensor_hz: float = 1 / 250  # Record at 250 Hz.
@@ -115,7 +117,7 @@ class Config:
         self.root_generated_data_dir = _get_dir(generated_data)
         if self.root_generated_data_dir[-1] in "/\\":
             raise ValueError("generated_data must not end in path separator")
-        self.root_generated_images_dir = _get_dir(
+        self.root_generated_images_dir = lambda: _get_dir(
             os.path.join(self.root_generated_data_dir + "-images")
         )
 
@@ -123,24 +125,40 @@ class Config:
 
     def generated_data_dir(self):
         return _get_dir(
-            os.path.join(self.root_generated_data_dir, self.bridge.id_str())
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
         )
 
     def generated_images_dir(self):
         return _get_dir(
-            os.path.join(self.root_generated_images_dir, self.bridge.id_str())
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
         )
 
     # Bridge-specific but accuracy-independent directories.
 
     def generated_data_dir_no_acc(self):
         return _get_dir(
-            os.path.join(self.root_generated_data_dir, self.bridge.id_str(acc=False))
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(acc=False),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
         )
 
     def generated_images_dir_no_acc(self):
         return _get_dir(
-            os.path.join(self.root_generated_images_dir, self.bridge.id_str(acc=False))
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(acc=False),
+                self.bridge.type if self.bridge.type is not None else "healthy",
+            )
         )
 
     def get_path_in(self, in_: str, dirname: str, filename: str):
@@ -154,23 +172,13 @@ class Config:
             os.makedirs(dirpath)
         return os.path.join(dirpath, filename)
 
-    def get_traffic_path(self, filename: str):
-        """Get a bridge-specific traffic path in a named directory.
-
-        NOTE: The bridge accuracy is ignored here, as only geometry matters.
-
-        TODO: Replace usage with get_data_path. Raise an Error.
-
-        """
-        return self.get_path_in(self.generated_data_dir_no_acc(), "traffic", filename)
-
     def get_data_path(
         self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
     ):
         """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_data_dir()
         if not bridge:
-            dir_path = self.root_generated_images_dir
+            dir_path = self.root_generated_images_dir()
         elif not acc:
             dir_path = self.generated_data_dir_no_acc()
         return self.get_path_in(dir_path, dirname, filename)
@@ -181,7 +189,7 @@ class Config:
         """Get a bridge-specific image path in a named directory."""
         dir_path = self.generated_images_dir()
         if not bridge:
-            dir_path = self.root_generated_images_dir
+            dir_path = self.root_generated_images_dir()
         elif not acc:
             dir_path = self.generated_images_dir_no_acc()
         return self.get_path_in(dir_path, dirname, filename)

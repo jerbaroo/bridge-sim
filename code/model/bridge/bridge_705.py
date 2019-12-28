@@ -190,7 +190,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
     # Only indices 2 and 3 (middle 2 rows) have x translation fixed.
     # print(f"*******************")
     # print(f"x_index = {x_index}")
-    for _support_z in bridge_705_supports_z:
+    for z_index, _support_z in enumerate(bridge_705_supports_z):
         bridge_705_supports_3d.append(
             Support3D(
                 x=_support_x,
@@ -201,10 +201,14 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 width_bottom=1.8,
                 sections=pier_section_f,
                 # sections=bridge_705_pier_sections,
-                fix_x_rotation=True,
-                fix_y_rotation=True,
-                fix_z_rotation=False,
                 fix_x_translation=(x_index in [2, 3]),
+                fix_y_translation=True,
+                fix_z_translation=True,
+                # fix_z_translation=z_index == 0,
+                # fix_z_translation=z_index == (len(bridge_705_supports_z) // 2),
+                fix_x_rotation=False,
+                fix_y_rotation=False,
+                fix_z_rotation=False,
             )
         )
 
@@ -217,10 +221,10 @@ def bridge_705_3d(
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_nodes_x: int = 104,
+    base_mesh_deck_nodes_x: int = 200,
     base_mesh_deck_nodes_z: int = 34,
-    base_mesh_pier_nodes_y: int = 17,
-    base_mesh_pier_nodes_z: int = 17,
+    base_mesh_pier_nodes_y: int = 6,
+    base_mesh_pier_nodes_z: int = 6,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
@@ -272,10 +276,10 @@ def bridge_705_test_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="low",
-            base_mesh_deck_nodes_x=50,
-            base_mesh_deck_nodes_z=20,
-            base_mesh_pier_nodes_y=17,
-            base_mesh_pier_nodes_z=17,
+            base_mesh_deck_nodes_x=100,
+            base_mesh_deck_nodes_z=10,
+            base_mesh_pier_nodes_y=6,
+            base_mesh_pier_nodes_z=6,
         )
     )
 

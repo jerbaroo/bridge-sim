@@ -89,10 +89,10 @@ def convert_strain_responses(
                 )
             i_point_x_offset, i_point_z_offset = element.i_point_offset
             i_point_x_offset, i_point_z_offset = 0, 0
-            print()
-            print(element.center())
-            print(element.length(), element.width())
-            print(element.i_point_offset)
+            # print()
+            # print(element.center())
+            # print(element.length(), element.width())
+            # print(element.i_point_offset)
 
             # ..then determine the position of each integration point.
             response_point = deepcopy(element.center())
@@ -116,8 +116,8 @@ def convert_strain_responses(
                 el_responses
             )
             half_height = element.section.thickness / 2
-            print(response_point.x, response_point.y, response_point.z)
-            print(eps11)
+            # print(response_point.x, response_point.y, response_point.z)
+            # print(eps11)
             result.append(
                 Response(
                     value=(eps11 - (theta11 * half_height)) * -1e6,

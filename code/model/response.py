@@ -46,7 +46,7 @@ class ResponseType(Enum):
             ResponseType.YTranslation: ("meters", "m"),
             ResponseType.ZTranslation: ("meters", "m"),
             ResponseType.Stress: ("kilo Newton", "kN"),
-            ResponseType.Strain: ("kilo Newton", "kN"),
+            ResponseType.Strain: ("kilo Newton", "m/m"),
         }[self][int(short)]
 
 

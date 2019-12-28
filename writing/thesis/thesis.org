@@ -1,15 +1,16 @@
 #+AUTHOR: Jeremy Barisch-Rooney
-#+TITLE: Damage detection of concrete slab bridges
+#+TITLE: Damage Detection of Concrete Slab Bridges
 #+OPTIONS: toc:nil
-
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{commath}
+#+LATEX_HEADER: \usepackage{siunitx}
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
+[[./images/cover-photo.png]]
+
 #+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}
-#+LATEX: \thispagestyle{empty}
 I would like to thank...
 
 \textcolor{red}{TODO: Acknowledgements}
@@ -205,6 +206,7 @@ of installing a decision support system for bridge maintenance.
 * Preliminaries
 ** Abbreviations
 | ANN      | Artificial neural network                                     |
+| CTE      | Coefficient of thermal expansion                              |
 | DSS      | Decision support software                                     |
 | FEM      | Finite element model                                          |
 | NDE      | Non-disruptive evaluation                                     |
@@ -262,48 +264,106 @@ the subject area of this thesis. This Section thus outlines the existing work on
 damage identification of civil infrastructure, traffic and bridge simulations,
 and real-life installations of sensors on bridges for the purpose of structural
 health monitoring.
-
 ** Damage Identification
+
+# Overview of methods.
+Methods of damage identification by monitoring changes of civil infrastructure
+include methods based on modal properties, methods based on a model-updating
+procedure, probabilistic approaches e.g. using Bayes theorem, and pattern
+recognition approaches such as artificial neural networks.
+
+# Natural frequencies and mode shapes: bulk of the research.
+A significant amount of the research into damage identification of civil
+infrastructure is based on modal properties, in particular with focus on changes
+in natural frequencies and mode shapes.
+
+# I-40: no change until final damage case, same change in undamaged data.
+Damage was applied to the I-40 bridge, a 130m girder bridge over the RIO Grande
+river, before it's demolition and data recorded form ambient vibration tests. In
+cite:farrar1994dynamic it is noted that no change in dynamic properties were
+observed except in the fourth and most severe damage case. Furthermore, changes
+of similar magnitude were observed from ambient vibration tests on the undamaged
+structure at different times, indicating the methods are not robust to
+environmental noise.
+
+# I-40: could only localize damage when bridge would have collapsed.
+In cite:doebling1998statistical, four years later, the mode shapes from the same
+vibration tests on the I-40 were used to detect and localize the damage. The
+modal properties were shown to be statistically different from the state without
+additional damage imposed, for all damage cases. However the location of damage
+was only identifiable once the damage increased to a point that the bridge would
+have collapsed under a live load. \textcolor{red}{TODO: which modal properties}
+
+# Natural frequency and mode shapes: not robust to noise.
+In cite:stubbs2000global changes in natural frequency and mode shapes from
+numerical simulations are used to determine the location and the extent of
+damage on a rigid frame and then to assess the safety of the structure. However
+this paper highlights two issues common in the literature. Modal parameters
+corresponding to a baseline or "healthy" state are required, and robustness to
+noise is not addressed in the work. The requirement of "baseline" data is not a
+fatal flaw and could be addressed in a number of ways: 1) the baseline state
+comes from sensor measurements taken for newly built structures, 2) existing
+structures could be monitored for /any/ changes after sensor installation, not
+knowing whether the structure was already damaged or not, 3) a FEM is used to
+generate an approximation of the baseline state. The robustness to noise is a
+more crucial problem because civil structure will be subjected to environmental
+factors such as temperature changes, the work cite:stubbs2000global simply
+states "the existence of noise in the data processing should be addressed".
+\textcolor{red}{TODO: More examples not addressing noise.}
+
+# Mode shapes have an advantage, curvature even better.
+Compared to natural frequency, mode shapes have the advantage of capturing
+global information of the structure and thus allow for damage localization. In
+cite:pandey1991damage introduced the use of the curvature of mode shapes which
+is obtained by differentiating the displacement mode shape twice. Changes in the
+curvature of the mode shape are localized to the damage and furthermore the
+absolute difference of the curvature mode shapes of the damaged and undamaged
+structures increase with increase in damage severity cite:dawari2013structural.
+
+# Dogna: modal curvature, not robust to noise.
+The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
+strong flood in 2003. In 2008, prior to demolition, an experimental campaign was
+carried out where six damage configurations were applied to the bridge in the
+form of notches cut with a hydraulic saw. In cite:dilena2011dynamic changes in
+modal curvature were succesfully used to identify the location of the damage.
+However the dynamic tests were all carried out under similar environmental
+conditions, thus the robustness to noise was not investigated.
+
+A damping ratio is a dimensionless property that describes how the oscillations
+in a system decay after a disturbance.
+
+# Model-updating methods.
+Model updating approaches compare measurement data with responses from an
+analytical model. A model updating algorithm is then used to minimize the
+difference between analytical model's output and the measured response, which
+will be achieved by modifying some parameter of the model, such as the stiffness
+matrix in cite:doebling1996damage. A problem with model updating approaches is
+that optimization algorithms may reach one of many local optimums. The local
+optimum that is found will depend on the initial parameters, which may be
+innacurate. In cite:teughels2004structural a model-updating approach is applied
+which minimizes the difference in mode shapes. This approach was validated on
+the Z24 highway bridge in Switzerland, which is a 58m pre-stressed concrete
+bridge. The damage scenario considered was the lowering of one of the supporting
+piers (at 44m) by 95mm. \textcolor{red}{TODO: Were potential false positive
+scenarios considered?}
+
+A Bayesian probabilistic approach was applied to a
+reinforced-concrete bridge column cite:sohn2000bayesian, this method compared
+the relative damage probabilites of different damage events based on data from
+vibration tests.
+
+Methods based on ANNs cite:yeung2005damage are based on labeled
+training data for different damage types, these methods depend largely on the
+quality of training data.
 
 # Damage localization and assessment (levels 2 and 3): have limitations.
 The most basic form of damage identification is determining whether damage has
-occured or not (detection). SHM methods that attempt to determine the location
-(localization) or extent (assessment) of the damage require either severe damage
-or make assumptions about the type of damage cite:peter2003review. While an SHM
-system should be capable of a minimal amount of condition assessment (CA) the
-more likely scenario is an additional investigation for CA is triggered by the
-system cite:brownjohn2006structural.
-
-# Vibration: assumptions made.
-A significant amount of the research into damage identification of civil
-infrastructure is based on vibration data, with methods based on changes in
-natural frequency cite:stubbs2000global or changes in mode shape
-cite:pandey1991damage.
-
-# Vibration: assumptions made.
-The location of damage on a computer model of a reinforced concrete bridge is
-identified based on a combination of modal properties in cite:dilena2011dynamic.
-In each of these cases the research is based on a controlled lab experiment and
-the assumption is made that the type of damage is limited to the type being
-identified. Damage was applied to a girder bridge and the mode shapes used to
-detect the location of damage, however the location was only detectable once the
-damage increased to a point that the bridge would have collapsed under a live
-load cite:doebling1998statistical.
-
-# Additional methods of damage identification.
-Additional methods of damage identification of civil infrastructure include
-model-updating methods, a probabilistic approach e.g. Bayes theorem, and pattern
-recognition approaches such as artificial neural networks. Damage identification
-based on model updating cite:doebling1996damage attempts to minimize the
-difference between the measured and model responses by an optimization technique
-that modifies model parameters, such as the stiffness matrix. A problem with
-this method is that the optimization it not unique and the initial parameters
-are possible inaccurate. A Bayesian probabilistic approach was applied to a
-reinforced-concrete bridge column cite:sohn2000bayesian, this method compared
-the relative damage probabilites of different damage events based on data from
-vibration tests. Methods based on ANNs cite:yeung2005damage are based on labeled
-training data for different damage types, these methods depend largely on the
-quality of training data.
+occured or not (detection). More sophisticated SHM methods attempt to determine
+the location (localization) or extent (assessment) of the damage. require either
+severe damage or make assumptions about the type of damage cite:peter2003review.
+While an SHM system should be capable of a minimal amount of condition
+assessment (CA) the more likely scenario is an additional investigation for CA
+is triggered by the system cite:brownjohn2006structural.
 
 ** Machine Learning
 
@@ -342,20 +402,20 @@ future temporal correlations.
 ** Simulation
 
 # Traffic simulations for damage detection on bridges.
-Data for damage detection on bridges can be collected in simulation. In doing
-so, some traffic on the bridge must be simulated in order to collect a response
-from the structure. Damage detection on bridges using neural networks was based
-on simulated vibration data in cite:yeung2005damage, in this case the "traffic"
-was simply a single truck simulated with two point loads, one per axle, and
-moving at different speeds in different simulations.
+Data for damage detection on bridges can be collected by simulating loads
+(vehicles) moving across the bridge deck. Damage detection on bridges using
+neural networks was based on simulated vibration data in cite:yeung2005damage,
+in this case the "traffic" was simply a single truck simulated with two point
+loads, one per axle. The load traveled at a different constant speed in each
+simulation.
 
 ** Environmental Factors
 
 # Feature extraction.
 To avoid incorrect detection of anomalies due to environmental factors such as
-temperature, the feature extraction of data is very important in SHM. Feature
-extraction is arguably the most important and difficult step in ML-based health
-monitoring cite:worden2006application.
+changes in temperature or a passing tram, the feature extraction of data is
+crucial in SHM. Feature extraction is arguably the most important and difficult
+step in ML-based health monitoring cite:worden2006application.
 
 # Separations form environment.
 The temperature across a bridge deck was measured during a 24 hour cycle and
@@ -378,9 +438,34 @@ model of a long-span bridge.
 
 # Sensor installations for SHM.
 
+** Summary
+
+Tables [[tbl:lit-review-1]] and [[tbl:lit-review-2]] summarize the literature which is
+most relevant to this thesis. The tables break down the literature into a number
+of criteria, in order to give a high-level view of the contributions of the
+literature. Table [[tbl:lit-review-1]] breaks down the literature into bridge type,
+damage type, how traffic was simulated and if the FEM was validated. Table
+[[tbl:lit-review-2]] gives an overview of the damage identification methods for the
+same literature as Table [[tbl:lit-review-1]].
+
+#+ATTR_LATEX: :float sideways
+#+NAME: tbl:lit-review-1
+| Paper                | Bridge type     | Damage type         | Traffic simulation      | Validation of FEM      |
+|----------------------+-----------------+---------------------+-------------------------+------------------------|
+| cite:yeung2005damage | 214m Suspension | Corrosion and       | One vehicle represented | "Reasonable agreement" |
+|                      |                 | loosening of joints | as two points loads     | with measurements      |
+
+#+ATTR_LATEX: :float sideways
+#+NAME: tbl:lit-review-2
+| Paper                | Measurement | Feature           | Analysis | Noise      | Accuracy |
+|----------------------+-------------+-------------------+----------+------------+----------|
+| cite:yeung2005damage | Vibration   | Frequency spectra | ANN      | "Moderate" |      70% |
+|                      |             |                   |          |            |          |
+
+\textcolor{red}{Comment on reproducability}
 
 #+LATEX: \newpage
-* Motivation
+* Background and Motivation
 The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however focuses on the question
 of /why/. Why should sensors be installed on concrete slab bridges for the
@@ -491,7 +576,7 @@ at 37€ million.
 #+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
-** Damage Scenarios
+** Damage Types
 Damage scenarios can be classified as short-term or long-term. Short-term damage
 scenarios are defined as a change of the properties of structural materials and
 elements, and of the behaviour of the whole structure, due to effects that occur
@@ -1037,40 +1122,117 @@ bridge705 = Bridge {
   points.
 
   # \textcolor{red, TODO: shell boundaries at requested variation points}
-*** Damage Types
+**** Bridge 705
+The nodes of the generated FEM which have degree's of freedom fixed are: the
+nodes which make up the abutments at the east and west ends of the bridge, and
+the nodes along the bottom of each the piers. All of these nodes are fixed in
+translation along the y (vertical) and the z (transverse) axes. In addition
+piers 8 - 15 are fixed in translation along the x (longitudinal) axis. Figure
+
+\textcolor{red}{TODO: Figure of fixed and numbered nodes.}
+
+\textcolor{red}{TODO: Why is rotation fixed.}
+
+\textcolor{red}{TODO: Talk about rollers and different types of fixed pier.}
+
+*** Damage Model
 # TODO: verify content when Leziria bridge document is published.
 # Outline of short-term and long-term events.
-The goal of the damage identification model is to identify that damage in a
-number of selected damage scenarios.
+The goal of the damage identification model is to detect or classify different
+damage scenarios as set up in an experiment. This Subsection describes how
+different damage types, as outlined in Subsection [[Damage Types]], are simulated.
 
- Of the damage scenarios listed in Tables [[table:short-term-events]] and
- [[table:long-term-events]], four scenarios are selected for identification by the
- DIM in addition to one unlisted damage scenario. These scenarios are chosen due
- to the practicality of simulating them in a FEM of bridge 705.
+Of the damage scenarios listed in Tables [[table:short-term-events]] and
+table:long-term-events]], four scenarios are selected for identification by the
+DIM in addition to one unlisted damage scenario. These scenarios are chosen due
+to the practicality of simulating them in a FEM of bridge 705.
 
- /Pier settlement/ can be simulated by displacing a pier by a fixed amount, this
- is achieved in practice by applying an increasing vertical force known as a
- /displacement load/ to the deck until the desired displacement is achieved.
+/Pier settlement/ can be simulated by displacing a pier by a fixed amount, this
+is achieved in practice by applying an increasing vertical force known as a
+/displacement load/ to the deck until the desired displacement is achieved.
 
- /Abnormal loading conditions/ can be simulated relatively easily by applying
- the heavy loads in the FE simulation. Care must be taken regarding the axle
- configuration because extreme heavy loads typically have a different axle
- configuration than less heavy vehicles.
+/Abnormal loading conditions/ can be simulated relatively easily by applying the
+heavy loads in the FE simulation. Care must be taken regarding the axle
+configuration because extreme heavy loads typically have a different axle
+configuration than less heavy vehicles.
 
- /Cracked concrete/ can be simulated by reducing the value of Young's modulus
- for the cracked concrete section. In practice, Young's modulus is often reduced
- to $\frac{1}{3}$ of its original value (cite:li2010predicting).
+/Cracked concrete/ can be simulated by reducing the value of Young's modulus for
+the cracked concrete section. In practice, Young's modulus is often reduced to
+$\frac{1}{3}$ of its original value (cite:li2010predicting). Simulating a crack
+zone in this manner makes sense because damage reduced the stiffness of a
+structure cite:yeung2005damage.
 
- /Corrosion/ of the reinforment bars can be simulated by increasing the size of
- the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
- it is not the bridge that is damaged but rather a sensor is malfunctioning.
+/Corrosion/ of the reinforment bars can be simulated by increasing the size of
+the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
+it is not the bridge that is damaged but rather a sensor is malfunctioning.
 
- A /malfunctioning sensor/ can be simulated by adding a significant amount of
- noise to the simulated sensor responses or adding a constant offset to the
- responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
- malfunctioning sensors is useful to accomplish.
+A /malfunctioning sensor/ can be simulated by adding a significant amount of
+noise to the simulated sensor responses or adding a constant offset to the
+responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
+malfunctioning sensors is useful to accomplish.
 
  # How to test/score the models.
+*** Noise Model
+# What is noise?
+Noise in a signal is considered to be the response from unwanted or unknown
+sources. In the case of bridges the following can be considered as noise:
+fluctuations in response caused by vehicles on another lane, random fluctuations
+caused by the sensor instrument itself, the effect of a change in temperature or
+indeed any other environmental effect.
+\textcolor{red}{TODO: RED: Noise in sensors}
+
+# Robust to noise.
+A model is considered robust if its outputs are consistently accurate when input
+variables, whether foreseen or not, are changed. A damage identification model
+must be robust to noise in order for it to be considered usable in a real-life
+setting. In the damage identification experiments, that are laid out later in
+Subsection [[Experiments]], the ability to identify damage in the presence of noise
+is considered.
+
+# Two forms of noise.
+Two forms of noise are modeled which we will refer to as background noise and
+thermal noise. Background noise is a catch-all term for short-term fluctuations
+and is modeled with a white noise process. For each sensor type a mean value and
+standard deviation of background noise is set. Thermal noise is modeled as a
+load that is applied in FE simulation. Thermal noise is considered sufficient to
+investigate the robustness of the damage identification model to long-term
+variations in response, whether these have daily or annual periods.
+
+# How temperature is modeled.
+OpenSees does not directly support the application of a thermal load based on a
+user-input change in temperature (e.g. $+\SI{2}{\celsius}$), thus the thermal
+load is calculated based on the theory of linear thermal expansion. Under the
+assumption of linear thermal expansion, the strain caused by a change in
+temperature ($\varepsilon_thermal$) is linearly proportional to the change in
+temperature, $\varepsilon_thermal \propto \delta{T}$.
+
+# Axial and bending moment load.
+The equivalent force applied to a beam can be decomposed into an axial force and
+a bending moment as is shown in Figure
+\textcolor{red}{TODO fig:thermal-loading}.
+
+# Calculating the thermal load.
+The combination of a change in temperature and a known coefficient of thermal
+expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
+load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
+strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
+product of $\alpha$ and $\delta{T}$, then in combination with Young's modulus
+$E$ the equivalent stress $\sigma_thermal$ is obtained. The thermal load
+$F_thermal$ to be applied to the cross section of an element in simulation is
+then determined as the product of the cross sectional area $A$ and the stress.
+Note that the force applied to each of the shell element's nodes is $F_thermal /
+2$ as there are two nodes sharing each of the four cross sections of the
+element, as shown in Figure. \textcolor{red}{force per thermal load}
+
+#+NAME: eqn:thermal
+\begin{equation}
+\begin{split}
+  \varepsilon_thermal &= \alpha \cdot \delta{T} \\
+  \sigma_thermal_ &= E \cdot \varepsilon_thermal \\
+  F_thermal &= \sigma_thermal \cdot A
+\end{split}
+\end{equation}
+
 *** Traffic Model
 
 \textcolor{red}{Distribution of passenger vehicles}
@@ -1081,24 +1243,42 @@ https://www.researchgate.net/publication/303809875_Emission_factors_for_alternat
 A model of the normal traffic on bridge 705 is based on two datasets. A dataset
 was provided by TNO of vehicles recorded using Weight-in-motion (WIM) technology
 on the A16 highway in The Netherlands. This dataset will be referred to as the
-A16 dataset. Additionaly data was used from the National Data Warehouse for
-Traffic Information (NDW). NDW provides a database of real-time and historic
-traffic data in The Netherlands. The dataset used from the NDW will be referred
-to as the NDW dataset.
-
-# A16 dataset filtered.
-The A16 these vehicles are all above 3500kg in weight and 7m in length.
+A16 dataset. Data was also used from the National Data Warehouse for Traffic
+Information (NDW). NDW provides a database of real-time and historic traffic
+data in The Netherlands. The dataset used from the NDW will be referred to as
+the NDW dataset.
 
 # A16 dataset structure.
 The A16 dataset contains a number of columns, including time and date, lane the
 vehicle was travelling on, the vehicle type, vehicle speed, distance between
-axles and load per axle. Only the distance between axles and the load per axle
-are considered, all other columns are ignored. All vehicles in the implemented
-traffic simulation travel at equal speed thus the vehicle column is ignored.
+axles and load per axle.
 
-The A16 dataset was filtered so that the total weight and the the total
-length of vehicles
+# A16 filtering.
+In the A16 data all vehicles are above 3500kg in weight and 7m in length. The
+A16 dataset was filtered so that neither the total weight nor the total length
+would exceed a z-score of 3 for that column respectively. The filtered data is
+shown in \textcolor{red}{TODO filtered data}.
 
+# Speed and axle width are constant, most columns ignored.
+In the A16 dataset only the distance between axles and the load per axle are
+considered, all other columns are ignored. All vehicles in the implemented
+traffic simulation travel at an equal speed of 40kmph thus the speed column is
+ignored. All vehicles are set to have an axle width of 2.5m, this is the axle
+width of Truck 1 from the experimental campaign. Setting the same axle width for
+all vehicles allows for the same set of unit load simulations to be used to
+calculate responses for any vehicle travelling across the bridge, because they
+can then all travel along the same wheel tracks.
+
+# Wheel tracks.
+The wheel tracks that exist on a bridge are half an axle width (1.25m) either
+side of the center of each lane. The lanes on bridge 705 are both 8.4m wide and
+4.2m from the center of the bridge in the transverse direction. Thus the lanes
+are separated from each other by 8.4m and the center of the lanes are at ~z =
++-8.4m~. The wheel tracks are located at ~z = += 7.15~ and ~z = += 9.65~. The
+lanes and wheel tracks on bridge 705 are depicted in Figure
+\textcolor{red}{TODO: lanes and wheel tracks figure}.
+
+# Data collection system parameterized.
 The data collection system is parameterized by the distribution of the vehicles
 that drive over it. The system has as parameter a filepath =vehicle_data_path=,
 a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
@@ -1114,12 +1294,11 @@ contains descriptions of vehicles. This =.csv= file will be loaded as a Pandas
 | 225.55 | [79.44, 101, 45.11] | .79      | [6.02, 1.32]   |
 | ...    | ...                 | ...      | ...            |
 
-
-For example, a Pandas =DataFrame= will be loaded from
-=vehicle_data_path=, then vehicles will be sampled from this =DataFrame= based
-on the PDF. A vehicle that is sampled from this =DataFrame= will have a speed of
-40kmph, and an axle-width of 2m, the inter-axle distances and the axle weights
-are taken from the =DataFrame=.
+For example, a Pandas =DataFrame= will be loaded from =vehicle_data_path=, then
+vehicles will be sampled from this =DataFrame= based on the PDF. A vehicle that
+is sampled from this =DataFrame= will have a speed of 40kmph, and an axle-width
+of 2m, the inter-axle distances and the axle weights are taken from the
+=DataFrame=.
 
 **** Traffic
 To train a classifier to distinguish between normal and abnormal traffic
@@ -1423,8 +1602,8 @@ Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function o
 model size. The Figure shows that for the $n = 4$ chosen loading positions that
 $\epsilon$ decreases as the model size increases. Four loading positions were
 chosen to cover various points of interest on the bridge deck. Each of the $n =
-4$ loading positions is defined in Table [[tbl:loading-positions]], including the
-reason for including that position.
+4$ loading positions is defined in Table [[tbl:loading-positions]] with the reason
+for including that position.
 
 \textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
 
@@ -1433,22 +1612,43 @@ reason for including that position.
 [[./images/response-convergence.png]]
 
 #+NAME: tbl:loading-positions
-#+CAPTION[Loading positions chosen for comparison]: Loading positions chosen for the comparison of the FEM generated for OpenSees and the previously verified Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each point is assigned a unique name so it can be referred to, and a reason why the loading position was chosen.
-|   x (m) |  z (m) | Name | Reason |
-|---------+--------+------+--------|
-|  34.955 | 29.226 | A    |        |
-|  51.251 |   16.6 | B    |        |
-|  92.406 | 12.405 | C    |        |
-| 101.765 |  3.974 | D    |        |
+#+CAPTION[Loading positions comparison with Diana]: Loading positions chosen for
+the comparison of the FEM of bridge 705 generated for OpenSees and the
+previously validated Diana model. Each point is given in meters along the
+longitudinal (x) and transverse (z) directions of the bridge. Each loading
+position is assigned a unique label so it can be referred to, and a reason why
+that position was chosen. The exact position chosen is the position of a node in
+the Diana model which fulfils the reason in the "Reason" column.
+|   X (m) |  Z (m) | Label | Reason                                             |
+|---------+--------+-------+----------------------------------------------------|
+|  34.955 | 29.226 | A     | On a wheel track, between piers                    |
+|  51.251 |   16.6 | B     | At center of bridge, symmetry expected in response |
+|  92.406 | 12.405 | C     | On a wheel track, close to pier                    |
+| 101.765 |  3.974 | D     | On a wheel track, close to abutment                |
 
 #+NAME: tbl:max-displacement
-#+CAPTION[Maximum displacement in OpenSees and Diana]: Comparison of maximum displacement between simulations of bridge 705 with the verified Diana model and a high-density OpenSees model. The first and second columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively. The third column defines the position of the 100kN point load applied in the simulation, by referring to a position in Table [[tbl:loading-positions]].
-| Diana | OpenSees | Point |
-|-------+----------+-------|
-|  0.49 |    0.465 | A     |
-|  0.14 |    0.130 | B     |
-| 0.162 |    0.180 | C     |
-|  0.13 |    0.128 | D     |
+#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+|-------+------------+---------------+------------+---------------|
+| A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
+| B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
+| C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
+| D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
+|-------+------------+---------------+------------+---------------|
+|       |            |          Mean |     0.0021 |        0.0784 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
+
+#+NAME: tbl:min-displacement
+#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+|-------+------------+---------------+------------+---------------|
+| A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
+| B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
+| C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
+| D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
+|-------+------------+---------------+------------+---------------|
+|       |            |          Mean |     0.0181 |        0.2165 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 \textcolor{red}{Verify the model is deterministic $\epsilon$}
 
@@ -1468,7 +1668,7 @@ for truck 1 were available from TNO in a simple format.
 
 # Truck 1.
 The specification of truck 1 is shown in Figure [[fig:truck-1]] on the left. The
-plot on the left shows the size of the wheels however in simulation the force
+plot on the left shows the size of the wheels, however in simulation the force
 from each wheel is represented by a point load as shown on the right in the same
 Figure.
 
@@ -1548,7 +1748,7 @@ load.
   on real data in addition to the simulated data with varying levels of noise
   and (B) verifying the simulated noise is comparable to the noise from
   measurements collected in real life as shown in \textcolor{red}{noise}.
-** Anomally Detection
+** Damage Identification
 # Section overview.
 In this section the process of building the damage identification model is
 described. First there is an introduction to the damage scenarios that it is
@@ -1557,18 +1757,33 @@ testing iterations of the model. After this an analysis is presented of the
 sensor responses with respect to the useful information in different sensor
 types for each damage scenario. Finally the damage identification model that is
 built is discussed.
+*** Experiments
 *** Feature extraction
-*** Test setup
-*** Data analysis
-*** Damage identification model
+*** Damage Identification
 *** Sensor Placement
-*** Noise
 *** Other Bridges
 #+LATEX: \clearpage
 * Results
 ** Simulation
 ** Anomally Detection
 * Appendix
+:PROPERTIES:
+:APPENDIX: t
+:END:
+
+#+NAME: tbl:diana-nodes
+#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana
+bridge 705 model. Each node corresponds to a loading position in Table
+[[tbl:loading-positions]]. Providing this information allows for the contour plots
+from the Diana model to be reproduced, by anyone with a licence for the Diana
+software. The Diana model can either be requested from the thesis author, or
+found in the =traffic-sim= repository.
+| Label | Node identifier |        X |        Z |
+|-------+-----------------+----------+----------|
+| A     | 126'679         | 34.95459 | 26.24579 |
+| B     | 87'125          | 51.25051 |     16.6 |
+| C     | 53'166          | 89.98269 | 9.445789 |
+| D     | 54'603          | 102.5037 | 6.954211 |
 
 #+NAME: tbl:sensor-pos
 #+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.

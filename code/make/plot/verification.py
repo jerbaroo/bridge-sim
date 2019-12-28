@@ -335,6 +335,7 @@ def r2_plots(c: Config):
         )
 
     # Subplot: Diana against measurements.
+    plt.portrait()
     plt.subplot(3, 1, 1)
     x = list(map(lambda x: x[2], displa_meas))
     y = [
@@ -505,8 +506,7 @@ def r2_plots(c: Config):
 
 def make_convergence_data(c: Config):
     """Make convergence data file, increasing mesh density per simulation."""
-    response_type = ResponseType.YTranslation
-    load_point = Point(x=35, y=0, z=9.4)
+    load_point = Point(x=35, y=0, z=9.65)
     bridge = bridge_705_3d()
     fem_params = SimParams(
         ploads=[
@@ -516,7 +516,7 @@ def make_convergence_data(c: Config):
                 kn=100,
             )
         ],
-        response_types=[response_type],
+        response_types=[ResponseType.YTranslation, ResponseType.Strain],
     )
     deck_x, deck_z, pier_y, pier_z = 2, 2, 3, 3
 
@@ -546,20 +546,17 @@ def make_convergence_data(c: Config):
 
     # Write the header information to the results file.
     c = bridge_705_config(bridge_overload)
-    path = os.path.join(
-        c.root_generated_images_dir, "convergence", "convergence_results"
-    )
+    path = c.get_image_path("convergence", "convergence_results", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
-            "xload,zload,xnodes,znodes,ypierz,zpier,decknodes,piernodes,time"
-            + ",min,max,mean,shell-size,deck-size,pier-size"
+            "xload,zload,xnodes,znodes,ypier,zpier,decknodes,piernodes,time"
+            + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
         )
 
-    # Here we create an increaseing list of the number of nodes for the
-    # deck, one list for the number of x nodes and one for the number of z
-    # nodes. These lists are such that at each position the number of nodes
-    # for z will be scaled to the number of nodes for x, based on the ratio
-    # of width/length of the bridge.
+    # We create an increasing list of the number of nodes for the deck, one list
+    # for the number of x nodes and one for the z nodes. These lists are such
+    # that at each position the number of nodes for z will be scaled to the
+    # number of nodes for x, based on the ratio of width/length of the bridge.
     min_shell_len = 0.2
     max_x = math.ceil(c.bridge.length / min_shell_len) + 1
     max_z = math.ceil(c.bridge.width / min_shell_len) + 1
@@ -578,11 +575,10 @@ def make_convergence_data(c: Config):
         # Start by cleaning old results, and determining deck nodes.
         clean_generated(c)
         deck_x, deck_z = int(xs[deck_index]), int(zs[deck_index])
-        print_i(
-            "Running model with:"
-            f"\n  deck_x, deck_z = {deck_x}, {deck_z}"
-            f"\n  pier_y, pier_z = {pier_y}, {pier_z}"
-        )
+        print_i("Running model with:")
+        print_i(f"  deck_x, deck_z = {deck_x}, {deck_z}")
+        print_i(f"  pier_y, pier_z = {pier_y}, {pier_z}")
+
         with open(path + ".txt", "a") as f:
             f.write(
                 f"\n{load_point.x}, {load_point.z}, {deck_x}, {deck_z}"
@@ -593,10 +589,10 @@ def make_convergence_data(c: Config):
         try:
             # Start timing and run the simulation.
             start = timer()
-            responses = load_fem_responses(
+            displacements = load_fem_responses(
                 c=c,
                 sim_params=fem_params,
-                response_type=response_type,
+                response_type=ResponseType.YTranslation,
                 sim_runner=OSRunner(c),
             )
             end = timer()
@@ -608,11 +604,11 @@ def make_convergence_data(c: Config):
             avg_shell_size = np.mean([s.area() for s in shells])
 
             # TODO: Remove to deck interpolation test.
-            for x in responses.xs:
-                if 0 in responses.zs[x]:
-                    for z in responses.zs[x][0]:
-                        og = responses.responses[0][x][0][z].value
-                        ip = responses.at_deck(Point(x=x, y=0, z=z), interp=True)
+            for x in displacements.xs:
+                if 0 in displacements.zs[x]:
+                    for z in displacements.zs[x][0]:
+                        og = displacements.responses[0][x][0][z].value
+                        ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
 
             # Determine number of deck and pier nodes.
@@ -622,24 +618,35 @@ def make_convergence_data(c: Config):
             )
             assert deck_nodes + pier_nodes == len(nodes_by_id)
 
-            # Determine min, max and mean responses.
-            all_values = list(responses.values())
-            min_ = np.min(all_values)
-            max_ = np.max(all_values)
-            mean_ = np.mean(
-                list(responses.at_deck(point, interp=True) for point in grid)
+            # Determine min, max and mean displacements.
+            all_displacements = list(displacements.values())
+            min_d = np.min(all_displacements)
+            max_d = np.max(all_displacements)
+            mean_d = np.mean(
+                list(displacements.at_deck(point, interp=True) for point in grid)
+            )[0]
+            assert isinstance(mean_d, np.float64)
+
+            strains = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=ResponseType.Strain,
+                sim_runner=OSRunner(c),
             )
-            # NOTE: if this assertion fails it may be because the
-            # simulations have reached a size where they are failing.
-            assert len(mean_) == 1
-            mean_ = mean_[0]
+            all_strains = list(strains.values())
+            min_s = np.min(all_strains)
+            max_s = np.max(all_strains)
+            mean_s = np.mean(
+                list(strains.at_deck(point, interp=True) for point in grid)
+            )[0]
 
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
                 f.write(
                     f", {deck_nodes}, {pier_nodes}, {end - start}"
-                    f", {min_}, {max_}, {mean_}, {avg_shell_size}"
-                    f", {avg_deck_size}, {avg_pier_size}"
+                    f", {min_d}, {max_d}, {mean_d}"
+                    f", {min_s}, {max_s}, {mean_s}"
+                    f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
                 )
 
             # Either update the deck index, or number of pier nodes.
@@ -647,7 +654,6 @@ def make_convergence_data(c: Config):
                 deck_index += 1
             else:
                 pier_y += 1
-                pier_z += 1
 
         except ValueError as e:
             if "No responses found" in str(e):
@@ -664,7 +670,9 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.join(c.root_generated_images_dir, "convergence")
+    convergence_dir = os.path.dirname(
+        c.get_image_path("convergence", "convergence_results", bridge=False)
+    )
 
     # Get all simulations results from each machine.
     machines = dict()
@@ -689,9 +697,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -710,13 +721,19 @@ def plot_convergence(c: Config):
                 [],
                 [],
                 [],
+                [],
+                [],
+                [],
             )
             for row in rows:
                 basex.append(row["xnodes"])
                 basez.append(row["znodes"])
-                mins.append(row["min"])
-                maxes.append(row["max"])
-                means.append(row["mean"])
+                mins_d.append(row["min_d"])
+                maxes_d.append(row["max_d"])
+                means_d.append(row["mean_d"])
+                mins_s.append(row["min_s"])
+                maxes_s.append(row["max_s"])
+                means_s.append(row["mean_s"])
                 time.append(row["time"])
                 ndeck.append(row["decknodes"])
                 npier.append(row["piernodes"])
@@ -729,9 +746,12 @@ def plot_convergence(c: Config):
                     [
                         basex,
                         basez,
-                        mins,
-                        maxes,
-                        means,
+                        mins_d,
+                        maxes_d,
+                        means_d,
+                        mins_s,
+                        maxes_s,
+                        means_s,
                         time,
                         ndeck,
                         npier,
@@ -753,9 +773,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -763,16 +786,27 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            final_mean = np.mean(means[-5:])
-            final_max = np.mean(maxes[-5:])
-            final_min = np.mean(mins[-5:])
-            ax1.plot(shell_size, mins / final_min, color="red", label="Min. response")
+
+            # Displacement
+
+            final_mean_d = np.mean(means_d[-5:])
+            final_max_d = np.mean(maxes_d[-5:])
+            final_min_d = np.mean(mins_d[-5:])
             ax1.plot(
-                shell_size, maxes / final_max, color="orange", label="Max. response",
+                shell_size, mins_d / final_min_d, color="red", label="Min. response"
+            )
+            ax1.plot(
+                shell_size,
+                maxes_d / final_max_d,
+                color="orange",
+                label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                shell_size, means / final_mean, color="green", label="Mean response",
+                shell_size,
+                means_d / final_mean_d,
+                color="green",
+                label="Mean response",
             )
 
             # Zoomed in part.
@@ -793,7 +827,7 @@ def plot_convergence(c: Config):
     # ax2.set_ylabel("Displacement (mm)")
     # ax2.legend()
 
-    plt.savefig(c.get_image_path("validation", "min-max", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "min-max", bridge=False))
     plt.close()
 
     #########################
@@ -806,9 +840,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -827,7 +864,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Mean element area (m²)")
     plt.ylabel("Number of nodes")
     plt.legend()
-    plt.savefig(c.get_image_path("validation", "model-size", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "model-size", bridge=False))
     plt.close()
 
     #####################################
@@ -839,9 +876,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -856,7 +896,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Mean element area (m²)")
     plt.ylabel("Run-time (s)")
     plt.legend()
-    plt.savefig(c.get_image_path("validation", "run-time", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "run-time", bridge=False))
     plt.close()
 
     #########################################
@@ -868,9 +908,12 @@ def plot_convergence(c: Config):
             (
                 basex,
                 basez,
-                mins,
-                maxes,
-                means,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
                 time,
                 ndeck,
                 npier,
@@ -879,38 +922,38 @@ def plot_convergence(c: Config):
                 pier_shell_size,
             ) = lines
 
-            plt.plot(shell_size, maxes)
+            plt.plot(shell_size, maxes_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Maximum response as a function of shell area")
             plt.xlabel("Mean element area (m²)")
             plt.ylabel("Maximum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"max-response-{machine_name}", bridge=False
+                    "convergence", f"max-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
 
-            plt.plot(shell_size, mins)
+            plt.plot(shell_size, mins_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Minimum response as a function of shell area")
             plt.xlabel("Mean element area (m²)")
             plt.ylabel("Minimum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"min-response-{machine_name}", bridge=False
+                    "convergence", f"min-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
 
-            plt.plot(shell_size, means)
+            plt.plot(shell_size, means_d)
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.title("Mean response as a function of shell area")
             plt.xlabel("Mean element area (m²)")
             plt.ylabel("Mean response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"mean-response-{machine_name}", bridge=False
+                    "convergence", f"mean-response-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -929,7 +972,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Maximum response (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "validation", f"mean-element-size-{machine_name}", bridge=False
+                    "convergence", f"mean-element-size-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -941,7 +984,7 @@ def axis_comparison(c: Config):
         raise ValueError("Bridge deck has more than one section")
     for pier in c.bridge.supports:
         if len(pier.sections) > 1:
-            raise ValueError("Bridge pier has more than one section")
+            raise ValueError(f"Bridge pier {pier} has more than one section")
 
     ###############################
     ###### Point load plots #######
