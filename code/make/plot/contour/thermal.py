@@ -1,6 +1,6 @@
 from classify.scenario.bridge import ThermalBridge
 from config import Config
-from make.plot.contour.common import damage_scenario_contour_plot
+from make.plot.contour.common import damage_scenario_plot
 from model.response import ResponseType
 from util import safe_str
 
@@ -8,7 +8,7 @@ from util import safe_str
 def unit_axial_thermal_deck_load(c: Config):
     """Response to unit axial thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
-    damage_scenario_contour_plot(
+    damage_scenario_plot(
         c=c,
         response_types=response_types,
         damage_scenario=ThermalBridge(axial_delta_temp=c.unit_axial_delta_temp_c),
@@ -24,7 +24,7 @@ def unit_axial_thermal_deck_load(c: Config):
 def unit_moment_thermal_deck_load(c: Config):
     """Response to unit moment thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
-    damage_scenario_contour_plot(
+    damage_scenario_plot(
         c=c,
         response_types=response_types,
         damage_scenario=ThermalBridge(moment_delta_temp=c.unit_moment_delta_temp_c),
@@ -40,7 +40,7 @@ def unit_moment_thermal_deck_load(c: Config):
 def unit_thermal_deck_load(c: Config):
     """Response to unit thermal deck loading."""
     response_types = [ResponseType.XTranslation, ResponseType.YTranslation, ResponseType.ZTranslation]
-    damage_scenario_contour_plot(
+    damage_scenario_plot(
         c=c,
         response_types=response_types,
         damage_scenario=ThermalBridge(

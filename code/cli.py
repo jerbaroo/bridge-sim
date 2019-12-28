@@ -260,27 +260,35 @@ def each_pier_displaced():
     contour_.each_pier_displacement_plots(c())
 
 
-@contour.command(help="Response to unit axial thermal deck load.")
+@contour.command(help="Unit axial thermal deck load.")
 def thermal_deck_axial():
     from make.plot.contour.thermal import unit_axial_thermal_deck_load
     unit_axial_thermal_deck_load(c())
 
 
-@contour.command(help="Response to unit moment thermal deck load.")
+@contour.command(help="Unit moment thermal deck load.")
 def thermal_deck_moment():
     from make.plot.contour.thermal import unit_moment_thermal_deck_load
     unit_moment_thermal_deck_load(c())
 
 
-@contour.command(help="Response to unit axial and moment thermal deck load.")
+@contour.command(help="Unit axial and moment thermal deck load.")
 def thermal_deck():
     from make.plot.contour.thermal import unit_thermal_deck_load
     unit_thermal_deck_load(c())
 
 
-@contour.command(help="Response to cracked concrete under normal traffic.")
+@contour.command(help="Cracked concrete under normal traffic.")
 def traffic_concrete():
     pass
+
+
+@contour.command(help="Unit thermal deck load under normal traffic.")
+@click.option("--axial", type=float, required=True)
+@click.option("--moment", type=float, required=True)
+def traffic_thermal(axial, moment):
+    from make.plot.contour.traffic_thermal import thermal_deck_load
+    thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
 ########################

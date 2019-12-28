@@ -1,7 +1,6 @@
 #+AUTHOR: Jeremy Barisch-Rooney
 #+TITLE: Damage Detection of Concrete Slab Bridges
 #+OPTIONS: toc:nil
-
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage{commath}
 #+LATEX_HEADER: \usepackage{siunitx}
@@ -12,7 +11,6 @@
 
 #+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}
-#+LATEX: \thispagestyle{empty}
 I would like to thank...
 
 \textcolor{red}{TODO: Acknowledgements}
