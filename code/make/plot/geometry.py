@@ -6,11 +6,12 @@ from classify.scenario.bridge import CrackedBridge, center_lane_crack
 from classify.scenarios import healthy_and_cracked_scenarios
 from config import Config
 from fem.build import get_bridge_shells
-from fem.model import Shell
+from fem.model import BuildContext, Shell
 from fem.params import ExptParams, SimParams
 from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_3d
+from model.bridge import Point
 from plot import default_cmap, plt
 from plot.geometry import plot_cloud_of_nodes
 from plot.geometry.shell import shell_properties_3d
@@ -23,42 +24,50 @@ def make_shell_plots(c: Config):
     # For each damage scenario build the model and extract the shells.
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
-        bridge_shells = get_bridge_shells(c.bridge)
-        deck_shells = flatten(bridge_shells[0], Shell)
-        pier_shells = flatten(bridge_shells[1], Shell)
-        all_shells = flatten(bridge_shells, Shell)
-
-        # For each combination of parameters plot the shells.
-        for shells_name, shells in [
-            ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells),
+        for ctx, ctx_name in [
+            (BuildContext(add_loads=[Point(x=85, y=0, z=-9.65)]), "-refined"),
+            (None, ""),
         ]:
-            for outline in [True, False]:
-                for prop_name, prop_units, prop_f in [
-                        ("Thickness", "m", lambda s: s.thickness),
-                        ("Density", "kg/m", lambda s: s.density),
-                        ("Poisson's ratio", "m/m", lambda s: s.poissons),
-                        ("Young's modulus", "MPa", lambda s: s.youngs),
-                ]:
-                    for cmap in [default_cmap, get_cmap("tab10")]:
+            bridge_shells = get_bridge_shells(bridge=c.bridge, ctx=ctx)
+            deck_shells = flatten(bridge_shells[0], Shell)
+            pier_shells = flatten(bridge_shells[1], Shell)
+            all_shells = flatten(bridge_shells, Shell)
 
-                        def cb(view):
-                            plt.title(f"{prop_name} of {c.bridge.name}")
-                            plt.savefig(
-                                c.get_image_path(
-                                    "geometry",
-                                    safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}-{view}-view") + ".pdf",
+            # For each combination of parameters plot the shells.
+            for shells_name, shells in [
+                ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells),
+            ]:
+                for outline in [True, False]:
+                    for prop_name, prop_units, prop_f in [
+                            ("Thickness", "m", lambda s: s.thickness),
+                            ("Density", "kg/m", lambda s: s.density),
+                            ("Poisson's ratio", "m/m", lambda s: s.poissons),
+                            ("Young's modulus", "MPa", lambda s: s.youngs),
+                    ]:
+                        for cmap in [default_cmap, get_cmap("tab10")]:
+
+                            def cb(ax, view):
+                                if ctx is not None:
+                                    for point in ctx.add_loads:
+                                        ax.scatter([point.x], [point.z], [point.y + 0.1], color="red", label="Refined point", s=16)
+                                    ax.legend()
+                                plt.title(f"{prop_name} of {c.bridge.name}")
+                                plt.savefig(
+                                    c.get_image_path(
+                                        "geometry",
+                                        safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}-{view}-view{ctx_name}") + ".pdf",
+                                    )
                                 )
-                            )
 
-                        shell_properties_3d(
-                            shells=shells,
-                            prop_units=prop_units,
-                            prop_f=prop_f,
-                            cb=cb,
-                            cmap=cmap,
-                            outline=outline,
-                        )
-                        plt.close()
+                            shell_properties_3d(
+                                shells=shells,
+                                prop_units=prop_units,
+                                prop_f=prop_f,
+                                cb=cb,
+                                cmap=cmap,
+                                outline=outline,
+                            )
+                            plt.close()
 
 
 def make_cloud_of_node_plots(c: Config):

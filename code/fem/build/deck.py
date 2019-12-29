@@ -99,29 +99,28 @@ def get_deck_grid(bridge: Bridge, ctx: BuildContext) -> DeckGrid:
 def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckNodes:
     deck_grid = get_deck_grid(bridge=bridge, ctx=ctx)
     nodes = []
-    for x in deck_grid[0]:
+    for z in deck_grid[1]:
         nodes.append([])
-        for z in deck_grid[1]:
+        for x in deck_grid[0]:
             nodes[-1].append(ctx.get_node(x=x, y=0, z=z, deck=True))
     return nodes
 
 
 def get_deck_shells(bridge: Bridge, deck_nodes: DeckNodes, ctx: BuildContext) -> DeckShells:
     # A quick check that the deck nodes are 'somewhat' sorted.
-    xs = [nodes[0].x for nodes in deck_nodes]
+    xs = [node.x for node in deck_nodes[0]]
     assert_sorted(xs)
-    zs = [node.z for node in deck_nodes[0]]
-    print(zs)
+    zs = [nodes[0].z for nodes in deck_nodes]
     assert_sorted(zs)
 
     shells = []
-    for x_i in range(len(xs) - 1):
+    for z_i in range(len(zs) - 1):
         shells.append([])
-        for z_i in range(len(zs) - 1):
-            node_i = deck_nodes[x_i][z_i]
-            node_j = deck_nodes[x_i + 1][z_i]
-            node_k = deck_nodes[x_i + 1][z_i + 1]
-            node_l = deck_nodes[x_i][z_i + 1]
+        for x_i in range(len(xs) - 1):
+            node_i = deck_nodes[z_i][x_i]
+            node_j = deck_nodes[z_i][x_i + 1]
+            node_k = deck_nodes[z_i + 1][x_i + 1]
+            node_l = deck_nodes[z_i + 1][x_i]
             delta_x = node_j.x - node_i.x
             delta_z = node_l.z - node_i.z
             center_x = node_i.x + delta_x
@@ -133,5 +132,6 @@ def get_deck_shells(bridge: Bridge, deck_nodes: DeckNodes, ctx: BuildContext) ->
                 nk_id=node_k.n_id,
                 nl_id=node_l.n_id,
                 pier=False,
-                section=section))
+                section=section
+            ))
     return shells

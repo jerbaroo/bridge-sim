@@ -222,7 +222,7 @@ class BuildContext:
         refine_loads: List[float], radii for sweeps to refine around loads.
 
     """
-    def __init__(self, add_loads: List[Point], refine_loads: bool = False):
+    def __init__(self, add_loads: List[Point], refine_loads: bool = True):
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
         self.nodes_by_pos = dict()
@@ -236,6 +236,7 @@ class BuildContext:
         self.add_loads = add_loads
         for point in self.add_loads:
             assert point.y == 0
+        self.refine_loads = refine_loads
 
     def new_n_id(self):
         self.next_n_id += 1
