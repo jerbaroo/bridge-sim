@@ -65,5 +65,5 @@ def shell_properties_3d(
     clb.ax.set_title(prop_units)
 
     cb("Default")
-    for _, view in zip(top_side_front(ax), ["Top view", "Side", "Front"]):
-        cb(view)
+    # for _, view in zip(top_side_front(ax), ["Top view", "Side", "Front"]):
+    #     cb(view)

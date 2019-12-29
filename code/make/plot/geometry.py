@@ -30,9 +30,7 @@ def make_shell_plots(c: Config):
 
         # For each combination of parameters plot the shells.
         for shells_name, shells in [
-            ("deck", deck_shells),
-            ("pier", pier_shells),
-            ("all", all_shells),
+            ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells),
         ]:
             for outline in [True, False]:
                 for prop_name, prop_units, prop_f in [
