@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 import matplotlib
 import numpy as np
@@ -7,13 +7,14 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from fem.run.build.elements import ShellElement
 from plot import default_cmap, plt
-from plot.geometry.angles import angles_3d
+from plot.geometry.angles import angles_3d, ax_3d, top_side_front
 
 
 def shell_properties_3d(
     shells: List[ShellElement],
     prop_units: str,
     prop_f,
+    cb: Callable[[str], None],
     cmap=default_cmap,
     outline: bool = True,
     new_fig: bool = True,
@@ -43,7 +44,7 @@ def shell_properties_3d(
 
     # Setup a new 3D landscape figure.
     if new_fig:
-        fig, ax, _ = next(angles_3d(xs, zs, ys))
+        fig, ax = ax_3d(xs=xs, ys=zs, zs=ys)
     else:
         fig = plt.gcf()
         ax = plt.gca()
@@ -62,3 +63,7 @@ def shell_properties_3d(
     mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
     clb = fig.colorbar(mappable, shrink=0.7)
     clb.ax.set_title(prop_units)
+
+    cb("Default")
+    for _, view in zip(top_side_front(ax), ["Top view", "Side", "Front"]):
+        cb(view)

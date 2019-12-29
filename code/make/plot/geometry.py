@@ -24,12 +24,9 @@ def make_shell_plots(c: Config):
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
         bridge_shells = get_bridge_shells(c.bridge)
-        # build_model_3d(c=c, expt_params=ExptParams([sim_params]), os_runner=OSRunner(c))
-        # all_shells = shells_by_id.values()
         deck_shells = flatten(bridge_shells[0], Shell)
         pier_shells = flatten(bridge_shells[1], Shell)
         all_shells = flatten(bridge_shells, Shell)
-        # all_shells = pier_shells + deck_shells
 
         # For each combination of parameters plot the shells.
         for shells_name, shells in [
@@ -38,26 +35,30 @@ def make_shell_plots(c: Config):
             ("all", all_shells),
         ]:
             for outline in [True, False]:
-                for prop_name, prop_f in [
-                        ("Thickness", lambda s: s.thickness),
-                        ("Density", lambda s: s.density),
-                        ("Poisson's ratio", lambda s: s.poissons),
-                        ("Young's modulus", lambda s: s.youngs),
+                for prop_name, prop_units, prop_f in [
+                        ("Thickness", "m", lambda s: s.thickness),
+                        ("Density", "kg/m", lambda s: s.density),
+                        ("Poisson's ratio", "m/m", lambda s: s.poissons),
+                        ("Young's modulus", "MPa", lambda s: s.youngs),
                 ]:
                     for cmap in [default_cmap, get_cmap("tab10")]:
+
+                        def cb(view):
+                            plt.title(f"{prop_name} of {c.bridge.name}")
+                            plt.savefig(
+                                c.get_image_path(
+                                    "geometry",
+                                    safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}-{view}-view") + ".pdf",
+                                )
+                            )
+
                         shell_properties_3d(
                             shells=shells,
-                            prop_units="MPa",
+                            prop_units=prop_units,
                             prop_f=prop_f,
+                            cb=cb,
                             cmap=cmap,
                             outline=outline,
-                        )
-                        plt.title(f"{prop_name} of {c.bridge.name}")
-                        plt.savefig(
-                            c.get_image_path(
-                                "geometry",
-                                safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}") + ".pdf",
-                            )
                         )
                         plt.close()
 
