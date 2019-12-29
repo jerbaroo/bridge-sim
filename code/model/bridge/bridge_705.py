@@ -221,9 +221,9 @@ def bridge_705_3d(
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_max_x: int = 0.5,
-    base_mesh_deck_max_z: int = 0.5,
-    base_mesh_pier_max_y: int = 0.5,
+    base_mesh_deck_max_x: int = 0.25,
+    base_mesh_deck_max_z: int = 0.25,
+    base_mesh_pier_max_long: int = 0.25,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.
@@ -244,7 +244,7 @@ def bridge_705_3d(
         dimensions=Dimensions.D3,
         base_mesh_deck_max_x=base_mesh_deck_max_x,
         base_mesh_deck_max_z=base_mesh_deck_max_z,
-        base_mesh_pier_max_y=base_mesh_pier_max_y,
+        base_mesh_pier_max_long=base_mesh_pier_max_long,
         **kwargs,
     )
 
@@ -257,10 +257,10 @@ def bridge_705_low_config(bridge: Callable[..., Bridge]) -> Config:
     c = bridge_705_config(
         bridge=lambda: bridge(
             name="Bridge 705",
-            accuracy="debug",
+            accuracy="low",
             base_mesh_deck_max_x=1,
             base_mesh_deck_max_z=1,
-            base_mesh_pier_max_y=1,
+            base_mesh_pier_max_long=1,
         )
     )
     c.sensor_hz = 1 / 100
@@ -273,9 +273,9 @@ def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="med",
-            base_mesh_deck_max_x=0.7,
-            base_mesh_deck_max_z=0.7,
-            base_mesh_pier_max_y=0.7,
+            base_mesh_deck_max_x=0.5,
+            base_mesh_deck_max_z=0.5,
+            base_mesh_pier_max_long=0.5,
         )
     )
 

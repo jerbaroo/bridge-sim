@@ -1,4 +1,7 @@
+from collections import defaultdict
 from typing import Callable, Dict, List, NewType, Optional, Tuple
+
+from scipy.spatial import distance
 
 from model.bridge import Point, Section3D, Support3D
 from util import round_m
@@ -61,14 +64,14 @@ NodesById = NewType("NodesById", Dict[int, Node])
 
 # Nodes for a bridge deck.
 DeckNodes = NewType("DeckNodes", List[List[Node]])
-# Nodes for one wall of a pier.
+# Nodes for one wall of a pier. Indexed first by z then by x index.
 WallNodes = NewType("WallNodes", List[List[Node]])
-# Nodes for both walls of a pier.
-PierNodes = NewType("PierNodes", Tuple[WallNodes, WallNodes])
+# Nodes for both walls of a single pier.
+APierNodes = NewType("APierNodes", Tuple[WallNodes, WallNodes])
 # Nodes for every pier.
-AllPierNodes = NewType("AllPierNodes", List[PierNodes])
+PierNodes = NewType("PierNodes", List[APierNodes])
 # Deck and pier nodes.
-BridgeNodes = NewType("BridgeNodes", Tuple[DeckNodes, AllPierNodes])
+BridgeNodes = NewType("BridgeNodes", Tuple[DeckNodes, PierNodes])
 
 
 class Shell:
@@ -201,14 +204,14 @@ ShellsById = NewType("ShellsById", Dict[int, Shell])
 
 # Shells for a bridge deck.
 DeckShells = NewType("DeckShells", List[List[Shell]])
-# Shells for one wall of a pier.
+# Shells for one wall of a pier. Indexed first by z then by x index.
 WallShells = NewType("WallShells", List[List[Shell]])
 # Shells for both walls of a pier.
-PierShells = NewType("PierShells", Tuple[WallShells, WallShells])
+APierShells = NewType("APierShells", Tuple[WallShells, WallShells])
 # Shells for every pier.
-AllPierShells = NewType("AllPierShells", List[PierShells])
+PierShells = NewType("PierShells", List[APierShells])
 # Deck and pier shells.
-BridgeShells = NewType("BridgeShells", Tuple[DeckShells, AllPierShells])
+BridgeShells = NewType("BridgeShells", Tuple[DeckShells, PierShells])
 
 
 class BuildContext:
@@ -223,6 +226,8 @@ class BuildContext:
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
         self.nodes_by_pos = dict()
+        # A dict of x to dict of y to dict of z to Node.
+        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(dict))
 
         self.next_s_id = 1
         self.shells_by_id: ShellsById = dict()
@@ -241,12 +246,14 @@ class BuildContext:
         return self.next_s_id - 1
 
     def get_node(self, x: float, y: float, z: float, deck: bool) -> Node:
+        x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
         if pos not in self.nodes_by_pos:
             n_id = self.new_n_id()
             node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck)
-            self.nodes_by_pos[pos] = node
             self.nodes_by_id[n_id] = node
+            self.nodes_by_pos[pos] = node
+            self.nodes_by_pos_dict[x][y][z] = node
         return self.nodes_by_pos[pos]
 
     def get_shell(self, ni_id: int, nj_id: int, nk_id: int, nl_id: int, pier: bool, section: Section3D) -> Shell:
@@ -257,3 +264,7 @@ class BuildContext:
             self.shells_by_n_ids[n_ids] = shell
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]
+
+    def get_nodes_at_xy(self, x: float, y: float):
+        x, y = round_m(x), round_m(y)
+        return self.nodes_by_pos_dict[x][y].values()

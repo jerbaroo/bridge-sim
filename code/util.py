@@ -26,6 +26,19 @@ st = lambda n: "%s" % (
 )
 
 
+def flatten(container, t):
+
+    def _flatten(container, t):
+        for i in container:
+            if not isinstance(i, t):
+                for j in _flatten(i, t):
+                    yield j
+            else:
+                yield i
+
+    return list(_flatten(container, t))
+
+
 def round_m(x):
     """Round meters to an accuracy that avoids machine error."""
     return np.round(x, decimals=6)

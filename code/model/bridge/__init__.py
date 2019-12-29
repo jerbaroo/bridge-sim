@@ -162,6 +162,11 @@ class Support3D:
         half_top = self.width_top / 2
         return self.z - half_top, self.z + half_top
 
+    def z_min_max_bottom(self) -> Tuple[float, float]:
+        """The min and max z positions for the bottom of this pier."""
+        half_bottom = self.width_bottom / 2
+        return self.z - half_bottom, self.z + half_bottom
+
 
 # Supports are either 2D or 3D supports.
 Support = Union[Fix, Support3D]
@@ -489,7 +494,7 @@ class Bridge:
         dimensions: Dimensions,
         base_mesh_deck_max_x: int,
         base_mesh_deck_max_z: int,
-        base_mesh_pier_max_y: int,
+        base_mesh_pier_max_long: int,
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
         self.type = None
@@ -507,7 +512,7 @@ class Bridge:
         # Mesh.
         self.base_mesh_deck_max_x = base_mesh_deck_max_x
         self.base_mesh_deck_max_z = base_mesh_deck_max_z
-        self.base_mesh_pier_max_y = base_mesh_pier_max_y
+        self.base_mesh_pier_max_long = base_mesh_pier_max_long
 
         # Attach single section option for asserts and printing info.
         self.single_sections = single_sections
@@ -715,7 +720,7 @@ class Bridge:
             assert self.base_mesh_deck_max_z <= self.width
             for pier in self.supports:
                 # TODO: Improve this assert, piers are not vertical.
-                assert self.base_mesh_pier_max_y <= pier.height
+                assert self.base_mesh_pier_max_long <= pier.height
 
         # Delegate to 2D/3D specific checks.
         if self.dimensions == Dimensions.D2:

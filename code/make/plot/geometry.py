@@ -1,16 +1,20 @@
 import numpy as np
 
+from matplotlib.cm import get_cmap
+
 from classify.scenario.bridge import CrackedBridge, center_lane_crack
 from classify.scenarios import healthy_and_cracked_scenarios
 from config import Config
 from fem.build import get_bridge_shells
+from fem.model import Shell
 from fem.params import ExptParams, SimParams
 from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_3d
-from plot import plt
+from plot import default_cmap, plt
 from plot.geometry import plot_cloud_of_nodes
 from plot.geometry.shell import shell_properties_3d
+from util import flatten, safe_str
 
 
 def make_shell_plots(c: Config):
@@ -22,9 +26,9 @@ def make_shell_plots(c: Config):
         bridge_shells = get_bridge_shells(c.bridge)
         # build_model_3d(c=c, expt_params=ExptParams([sim_params]), os_runner=OSRunner(c))
         # all_shells = shells_by_id.values()
-        deck_shells = np.array(bridge_shells[0]).flatten()
-        pier_shells = []
-        all_shells = []
+        deck_shells = flatten(bridge_shells[0], Shell)
+        pier_shells = flatten(bridge_shells[1], Shell)
+        all_shells = flatten(bridge_shells, Shell)
         # all_shells = pier_shells + deck_shells
 
         # For each combination of parameters plot the shells.
@@ -34,18 +38,28 @@ def make_shell_plots(c: Config):
             ("all", all_shells),
         ]:
             for outline in [True, False]:
-                for prop_name, prop_f in [("Young's modulus", lambda s: s.youngs)]:
-                    shell_properties_3d(
-                        shells=shells, prop_units="MPa", prop_f=prop_f, outline=outline,
-                    )
-                    plt.title(f"{prop_name} of {c.bridge.name}")
-                    plt.savefig(
-                        c.get_image_path(
-                            "geometry",
-                            f"shells-{shells_name}-{prop_name}-outline-{outline}.pdf",
+                for prop_name, prop_f in [
+                        ("Thickness", lambda s: s.thickness),
+                        ("Density", lambda s: s.density),
+                        ("Poisson's ratio", lambda s: s.poissons),
+                        ("Young's modulus", lambda s: s.youngs),
+                ]:
+                    for cmap in [default_cmap, get_cmap("tab10")]:
+                        shell_properties_3d(
+                            shells=shells,
+                            prop_units="MPa",
+                            prop_f=prop_f,
+                            cmap=cmap,
+                            outline=outline,
                         )
-                    )
-                    plt.close()
+                        plt.title(f"{prop_name} of {c.bridge.name}")
+                        plt.savefig(
+                            c.get_image_path(
+                                "geometry",
+                                safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}") + ".pdf",
+                            )
+                        )
+                        plt.close()
 
 
 def make_cloud_of_node_plots(c: Config):
