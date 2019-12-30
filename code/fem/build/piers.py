@@ -32,6 +32,20 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         xy_nodes_left = ctx.get_nodes_at_xy(x=pier.x_min_max()[0], y=0)
         top_nodes_left = sorted([n for n in xy_nodes_left if z_min <= n.z <= z_max], key=lambda n: n.z)
 
+        # Right wall: top nodes.
+        xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max()[1], y=0)
+        top_nodes_right = sorted([n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z)
+
+        # Only consider top nodes at z-positions that exist on the left and
+        # right. It may be the case, because of refinement, that some additional
+        # nodes will exist on one side.
+        if len(top_nodes_left) > len(top_nodes_right):
+            zs_top_right = set([tn_r.z for tn_r in top_nodes_right])
+            top_nodes_left = [tn_l for tn_l in top_nodes_left if tn_l.z in zs_top_right]
+        if len(top_nodes_right) > len(top_nodes_left):
+            zs_top_left = set([tn_l.z for tn_l in top_nodes_left])
+            top_nodes_right = [tn_r for tn_r in top_nodes_right if tn_r.z in zs_top_left]
+
         # Shared bottom nodes of pier.
         bottom_z_interp = interp1d(
             [top_nodes_left[0].z, top_nodes_left[-1].z],
@@ -59,10 +73,6 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
                     ctx.get_node(x=left_x_interp(x_i), y=left_y_interp(x_i), z=left_z_interp(x_i), deck=False)
                 )
             wall_nodes_left[z_i].append(bottom_nodes[z_i])
-
-        # Right wall: top nodes.
-        xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max()[1], y=0)
-        top_nodes_right = sorted([n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z)
 
         # Right wall.
         wall_nodes_right = [[top_node] for top_node in top_nodes_right]
