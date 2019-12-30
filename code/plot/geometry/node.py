@@ -8,7 +8,6 @@ from plot.geometry.angles import ax_3d
 
 
 def node_scatter_3d(nodes: List[Node], new_fig: bool = True):
-    print(len(nodes))
     # Split into separate arrays of x, y and z position, and colors.
     xs = np.array([n.x for n in nodes])
     ys = np.array([n.y for n in nodes])

@@ -59,7 +59,7 @@ def make_shell_plots(c: Config):
                             plt.close()
 
 
-def make_node_scatter_plots_3d(original_c: Config):
+def make_node_plots(original_c: Config):
     """Make all variations of 3d scatter plots of nodes."""
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))

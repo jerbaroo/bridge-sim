@@ -164,7 +164,7 @@ def shells():
 
 @geometry.command(help="3D scatter plot of FEM nodes.")
 def nodes():
-    geometry_.make_node_scatter_plots_3d(c())
+    geometry_.make_node_plots(c())
 
 
 ######################
