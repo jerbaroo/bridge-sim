@@ -14,7 +14,6 @@ def shell_properties_3d(
     shells: List[ShellElement],
     prop_units: str,
     prop_f,
-    cb: Callable[[str], None],
     cmap=default_cmap,
     outline: bool = True,
     new_fig: bool = True,
@@ -63,7 +62,3 @@ def shell_properties_3d(
     mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
     clb = fig.colorbar(mappable, shrink=0.7)
     clb.ax.set_title(prop_units)
-
-    cb(ax, "Default")
-    # for _, view in zip(top_side_front(ax), ["Top view", "Side", "Front"]):
-    #     cb(view)

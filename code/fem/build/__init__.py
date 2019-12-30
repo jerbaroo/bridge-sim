@@ -17,6 +17,6 @@ def get_bridge_shells(bridge: Bridge, ctx: Optional[BuildContext] = None) -> Bri
         ctx = BuildContext([])
     bridge_nodes = get_bridge_nodes(bridge=bridge, ctx=ctx)
     return (
-        get_deck_shells(bridge=bridge, deck_nodes=bridge_nodes[0], ctx=ctx),
+        get_deck_shells(bridge=bridge, deck_shell_nodes=bridge_nodes[0], ctx=ctx),
         get_pier_shells(bridge=bridge, pier_nodes=bridge_nodes[1], ctx=ctx),
     )

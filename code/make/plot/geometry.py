@@ -46,26 +46,19 @@ def make_shell_plots(c: Config):
                     ]:
                         for cmap in [default_cmap, get_cmap("tab10")]:
 
-                            def cb(ax, view):
-                                if ctx is not None:
-                                    for point in ctx.add_loads:
-                                        ax.scatter([point.x], [point.z], [point.y + 0.1], color="red", label="Refined point", s=16)
-                                    ax.legend()
-                                plt.title(f"{prop_name} of {c.bridge.name}")
-                                plt.savefig(
-                                    c.get_image_path(
-                                        "geometry",
-                                        safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}-{view}-view{ctx_name}") + ".pdf",
-                                    )
-                                )
-
                             shell_properties_3d(
                                 shells=shells,
                                 prop_units=prop_units,
                                 prop_f=prop_f,
-                                cb=cb,
                                 cmap=cmap,
                                 outline=outline,
+                            )
+                            plt.title(f"{prop_name} of {c.bridge.name}")
+                            plt.savefig(
+                                c.get_image_path(
+                                    "geometry",
+                                    safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}{ctx_name}") + ".pdf",
+                                )
                             )
                             plt.close()
 

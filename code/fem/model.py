@@ -52,11 +52,11 @@ class Node:
         )
 
     def distance(self, x: float, y: float, z: float):
-        """Distance from this node to the given coordinates."""
+        """Distance (with direction) from this node to coordinates."""
         return distance.euclidean((self.x, self.y, self.z), (x, y, z))
 
     def distance_n(self, node):
-        """Distance from this node to another node."""
+        """Distance (with direction) from this node to another node."""
         return self.distance(x=node.x, y=node.y, z=node.z)
 
 
@@ -64,6 +64,8 @@ NodesById = NewType("NodesById", Dict[int, Node])
 
 # Nodes for a bridge deck.
 DeckNodes = NewType("DeckNodes", List[List[Node]])
+# A list of nodes for each shell.
+DeckShellNodes = NewType("DeckShellNodes", List[Tuple[Node, Node, Node, Node]])
 # Nodes for one wall of a pier. Indexed first by z then by x index.
 WallNodes = NewType("WallNodes", List[List[Node]])
 # Nodes for both walls of a single pier.
@@ -71,7 +73,7 @@ APierNodes = NewType("APierNodes", Tuple[WallNodes, WallNodes])
 # Nodes for every pier.
 PierNodes = NewType("PierNodes", List[APierNodes])
 # Deck and pier nodes.
-BridgeNodes = NewType("BridgeNodes", Tuple[DeckNodes, PierNodes])
+BridgeNodes = NewType("BridgeNodes", Tuple[DeckShellNodes, PierNodes])
 
 
 class Shell:
@@ -219,10 +221,16 @@ class BuildContext:
 
     Args:
         add_loads: List[Point], additional grid lines where to add nodes.
-        refine_loads: List[float], radii for sweeps to refine around loads.
+        refine_loads: bool, whether to apply the refinement around loads.
+        refinement_radii: List[float], radii for sweeps to refine around loads.
 
     """
-    def __init__(self, add_loads: List[Point], refine_loads: bool = True):
+    def __init__(
+            self,
+            add_loads: List[Point],
+            refine_loads: bool = True,
+            refinement_radii: List[float] = [2, 1, 0.5, 0.2],
+    ):
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
         self.nodes_by_pos = dict()
@@ -237,6 +245,7 @@ class BuildContext:
         for point in self.add_loads:
             assert point.y == 0
         self.refine_loads = refine_loads
+        self.refinement_radii = refinement_radii
 
     def new_n_id(self):
         self.next_n_id += 1
