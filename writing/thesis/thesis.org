@@ -1721,9 +1721,15 @@ material properties of the built model are not important, it is only important
 that they are the same in both the generated FEM and in the AxisVM FEM. The
 material properties of the generated FEM are given in Table [[tbl:single-section]].
 
-# ./cli.sh --two-materials info materials
+# ./cli.sh --two-materials info bridge
 #+CAPTION: Material properties for AxisVM comparison
 #+NAME: tbl:single-section
+| Material property | Deck value | Pier value |
+|-------------------+------------+------------|
+| Density           | 2.907 kg/m | 2.724 kg/m |
+| Thickness         | 0.65 m     | 0.814 m    |
+| Young's modulus   | 47277 MPa  | 38400 MPa  |
+| Poisson's ratio   | 0.2        | 0.2        |
 
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases

@@ -18,6 +18,7 @@ from model.bridge import (
     Section3DPier,
     Support3D,
 )
+from util import round_m
 
 
 #################################
@@ -138,24 +139,16 @@ bridge_705_sections_3d = load_bridge_705_deck_sections()
 
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 
+# Function to generate material properties from fraction of pier length.
 pier_section_f = lambda start_frac_len: Section3DPier(
     density=2.724,
-    thickness=np.interp(
-        start_frac_len, [0, 1], [pier_thickness_top, pier_thickness_bottom]
+    thickness=round_m(np.interp(
+        start_frac_len, [0, 1], [pier_thickness_top, pier_thickness_bottom])
     ),
     youngs=38400,
     poissons=0.2,
     start_frac_len=start_frac_len,
 )
-
-num_pier_sections = 20
-bridge_705_pier_sections = [
-    pier_section_f(start_frac_len)
-    for start_frac_len in np.linspace(0, 1, num_pier_sections)
-]
-
-assert np.isclose(bridge_705_pier_sections[0].thickness, pier_thickness_top)
-assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
 
 ##################################
@@ -165,7 +158,7 @@ assert np.isclose(bridge_705_pier_sections[-1].thickness, pier_thickness_bottom)
 
 bridge_705_single_sections = (
     deepcopy(bridge_705_sections_3d[len(bridge_705_sections_3d) // 2]),
-    deepcopy(bridge_705_pier_sections[len(bridge_705_pier_sections) // 2]),
+    deepcopy(pier_section_f(0.5)),
 )
 for section in bridge_705_single_sections:
     section.start_x_frac = 0
