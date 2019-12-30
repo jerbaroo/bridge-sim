@@ -1703,6 +1703,28 @@ ago, it is more likely that some imperfections now exist in the structure. Both
 the generated FEM and the FEM for Diana are based on the assumption of perfect
 health and thus the measured responses are not expected to exactly match.
 
+**** AxisVM
+Pier settlement and thermal loading are validated against a FEM for the program
+AxisVM. The AxisVM model was built using a graphical user interface (GUI) rather
+than programmatically. Building a model in this manner allows for verification
+of the model by visual inspection of the dimensions and material properties in
+the GUI.
+
+The model built in AxisVM has the same dimensions as bridge 705 however the
+material properties do not vary throughout the deck, and a single material
+property is used by all piers. Keeping the AxisVM model simple provides more
+confidence that the model was built as intended, without error. Furthermore, we
+are only interested in comparing the response due to pier settlement and due to
+thermal loading, in order to validate that the generated FEM is calculating the
+response due to these variable loads correctly. Thus the exact dimensions and
+material properties of the built model are not important, it is only important
+that they are the same in both the generated FEM and in the AxisVM FEM. The
+material properties of the generated FEM are given in Table [[tbl:single-section]].
+
+# ./cli.sh --two-materials info materials
+#+CAPTION: Material properties for AxisVM comparison
+#+NAME: tbl:single-section
+
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time

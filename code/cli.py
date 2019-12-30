@@ -110,7 +110,7 @@ def info():
     pass
 
 
-@info.command(help="Print a summary of this bridge.")
+@info.command(help="Print information about this bridge.")
 @click.option("--piers", is_flag=True)
 def bridge(piers):
     config = c()

@@ -579,23 +579,19 @@ class Bridge:
             print_s(f"  lane {l}: wheel tracks at z = {track_0}, {track_1}")
 
         if self.single_sections:
-            print_s(
-                f"Single section per deck and pier:"
-                + f"\ndeck = {self.sections[0]}"
-                + f"\npier = {self.supports[0].sections[0]}"
-            )
+            print_s(f"Single section per deck and pier:")
+            print_s(f"  deck = {self.sections[0]}")
+            print_s(f"  pier = {self.supports[0].sections[0]}")
 
         if pier_fix_info:
             for p, pier in enumerate(self.supports):
-                print_s(
-                    f"Pier {p} fixed:"
-                    f"\n  x-trans {pier.fix_x_translation}"
-                    f"\n  y-trans {pier.fix_y_translation}"
-                    f"\n  z-trans {pier.fix_z_translation}"
-                    f"\n  x-rot   {pier.fix_x_rotation}"
-                    f"\n  y-rot   {pier.fix_y_rotation}"
-                    f"\n  z-rot   {pier.fix_z_rotation}"
-                )
+                print_s(f"Pier {p} fixed:")
+                print_s(f"  x-trans {pier.fix_x_translation}")
+                print_s(f"  y-trans {pier.fix_y_translation}")
+                print_s(f"  z-trans {pier.fix_z_translation}")
+                print_s(f"  x-rot   {pier.fix_x_rotation}")
+                print_s(f"  y-rot   {pier.fix_y_rotation}")
+                print_s(f"  z-rot   {pier.fix_z_rotation}")
 
     def id_str(self, acc: bool = True):
         """Name with dimensions attached.

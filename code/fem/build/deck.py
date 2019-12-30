@@ -116,7 +116,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
     assert_sorted([node.x for node in deck_nodes[0]])
     print_i(f"Nodes before refinement = {len(flatten(deck_nodes, Node))}")
 
-    # Convert to 'DeckShellNodes'.
+    # Convert to 'DeckShellNodes' (+ refinement information).
     deck_shell_nodes = []
     for z_i in range(len(deck_nodes) - 1):
         for x_i in range(len(deck_nodes[0]) - 1):
@@ -124,11 +124,11 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
             node_j = deck_nodes[z_i][x_i + 1]
             node_k = deck_nodes[z_i + 1][x_i + 1]
             node_l = deck_nodes[z_i + 1][x_i]
-            deck_shell_nodes.append((node_i, node_j, node_k, node_l))
+            deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
 
     # If  not refining, return the 'DeckShellNodes'.
     if not ctx.refine_loads:
-        return deck_shell_nodes
+        return list(map(lambda ns: ns[:-1], deck_shell_nodes))
 
     def refine_shell(nodes: List[Node], max_dist: float):
         """Should the shell be refined?"""
@@ -139,13 +139,16 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
         return False
 
     # For each refinement pass..
-    for max_dist in ctx.refinement_radii:
+    for refinement_iter, max_dist in enumerate(ctx.refinement_radii):
         # Construct a new 'DeckShellNodes' and iterate over the previous one.
         new_deck_shell_nodes = []
-        for node_i, node_j, node_k, node_l in deck_shell_nodes:
+        for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
             # If not refining, keep the existing shell.
-            if not refine_shell([node_i, node_j, node_k, node_l], max_dist):
-                new_deck_shell_nodes.append((node_i, node_j, node_k, node_l))
+            if (
+                    (not refine_shell([node_i, node_j, node_k, node_l], max_dist))
+                    or (num_refined > refinement_iter)
+            ):
+                new_deck_shell_nodes.append((node_i, node_j, node_k, node_l, num_refined))
             # Else if refining, construct 5 new nodes, and 4 new shells.
             else:
                 center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
@@ -169,11 +172,11 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
                         (left_node, center_node, top_node, node_l),  # Top left.
                         (center_node, right_node, node_k, top_node),  # Top right.
                 ]:
-                    new_deck_shell_nodes.append(shell_nodes)
+                    new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
         deck_shell_nodes = new_deck_shell_nodes
 
+    deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
     print_i(f"Nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}")
-
     return deck_shell_nodes
 
 
