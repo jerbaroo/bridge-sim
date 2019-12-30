@@ -1,5 +1,6 @@
-import numpy as np
+import itertools
 
+import numpy as np
 from matplotlib.cm import get_cmap
 
 from classify.scenario.bridge import CrackedBridge, center_lane_crack
@@ -25,8 +26,8 @@ def make_shell_plots(c: Config):
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
         for ctx, ctx_name in [
-            (BuildContext(add_loads=[Point(x=85, y=0, z=-9.65)]), "-refined"),
-            (None, ""),
+            (BuildContext(add_loads=[Point(x=85, y=0, z=0)]), "refined"),
+            (None, "not-refined"),
         ]:
             bridge_shells = get_bridge_shells(bridge=c.bridge, ctx=ctx)
             deck_shells = flatten(bridge_shells[0], Shell)
@@ -37,7 +38,7 @@ def make_shell_plots(c: Config):
             for shells_name, shells in [
                 ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells),
             ]:
-                for outline in [True, False]:
+                for outline, label in itertools.product([True, False], [True, False]):
                     for prop_name, prop_units, prop_f in [
                             ("Thickness", "m", lambda s: s.thickness),
                             ("Density", "kg/m", lambda s: s.density),
@@ -52,12 +53,14 @@ def make_shell_plots(c: Config):
                                 prop_f=prop_f,
                                 cmap=cmap,
                                 outline=outline,
+                                label=label,
+                                colorbar=not label,
                             )
                             plt.title(f"{prop_name} of {c.bridge.name}")
                             plt.savefig(
                                 c.get_image_path(
-                                    "geometry",
-                                    safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}{ctx_name}") + ".pdf",
+                                    f"geometry/{ctx_name}",
+                                    safe_str(f"shells-{shells_name}-{prop_name}-outline-{outline}-{cmap.name}") + ".pdf",
                                 )
                             )
                             plt.close()

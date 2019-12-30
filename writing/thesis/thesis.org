@@ -1704,11 +1704,11 @@ the generated FEM and the FEM for Diana are based on the assumption of perfect
 health and thus the measured responses are not expected to exactly match.
 
 **** AxisVM
-Pier settlement and thermal loading are validated against a FEM for the program
-AxisVM. The AxisVM model was built using a graphical user interface (GUI) rather
-than programmatically. Building a model in this manner allows for verification
-of the model by visual inspection of the dimensions and material properties in
-the GUI.
+Pier settlement and thermal loading are validated against a FEM built for the
+program AxisVM. The AxisVM model was built using a graphical user interface
+(GUI) rather than programmatically. Building a model in this manner allows for
+verification of the model by visual inspection of the dimensions and material
+properties in the GUI.
 
 The model built in AxisVM has the same dimensions as bridge 705 however the
 material properties do not vary throughout the deck, and a single material
@@ -1722,7 +1722,7 @@ that they are the same in both the generated FEM and in the AxisVM FEM. The
 material properties of the generated FEM are given in Table [[tbl:single-section]].
 
 # ./cli.sh --two-materials info bridge
-#+CAPTION: Material properties for AxisVM comparison
+#+CAPTION[Material properties for AxisVM comparison]: Material properties for comparison of the generated FEM against a model built using the AxisVM GUI. The first column gives the name of each material property. The second and third columns give the values of the material properties for the deck and the piers respectively.
 #+NAME: tbl:single-section
 | Material property | Deck value | Pier value |
 |-------------------+------------+------------|
@@ -1730,7 +1730,6 @@ material properties of the generated FEM are given in Table [[tbl:single-section
 | Thickness         | 0.65 m     | 0.814 m    |
 | Young's modulus   | 47277 MPa  | 38400 MPa  |
 | Poisson's ratio   | 0.2        | 0.2        |
-
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time

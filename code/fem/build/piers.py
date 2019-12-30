@@ -11,6 +11,8 @@ def get_pier_section(pier: Support3D, frac_long: float) -> Section3D:
     """The section of a pier at given fraction of longitudinal direction."""
     if callable(pier.sections):
         return pier.sections(frac_long)
+    elif len(pier.sections) == 1:
+        return pier.sections[0]
     else:
         raise ValueError("Please use a material property function")
 
