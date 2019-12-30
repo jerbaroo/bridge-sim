@@ -83,21 +83,24 @@ def plot_contour_deck(
         # There is a chance that no sensors exist at given y position for every
         # x position, thus we must check.
         if y in responses.zs[x]:
-            X.append([])
-            Z.append([])
-            H.append([])
             for z in responses.zs[x][y]:
-                X[-1].append(x)
-                Z[-1].append(z)
-                H[-1].append(responses.responses[0][x][y][z])
-                if isinstance(H[-1][-1], Response):
-                    H[-1][-1] = H[-1][-1].value
-                if H[-1][-1] > amax:
-                    amax = H[-1][-1]
-                    amax_x, amax_z = X[-1][-1], Z[-1][-1]
-                if H[-1][-1] < amin:
-                    amin = H[-1][-1]
-                    amin_x, amin_z = X[-1][-1], Z[-1][-1]
+                X.append(x)
+                Z.append(z)
+                H.append(responses.responses[0][x][y][z])
+                if isinstance(H[-1], Response):
+                    H[-1] = H[-1].value
+                if H[-1] > amax:
+                    amax = H[-1]
+                    amax_x, amax_z = X[-1], Z[-1]
+                if H[-1] < amin:
+                    amin = H[-1]
+                    amin_x, amin_z = X[-1], Z[-1]
+    # print(X)
+    # X, Z, H = np.array(X), np.array(Z), np.array(H)
+    # print(X)
+    # print(X.shape)
+    # print(Z.shape)
+    # print(H.shape)
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
@@ -118,7 +121,8 @@ def plot_contour_deck(
             vmin = min(amin, -amax)
             vmax = max(amax, -amin)
         norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    cs = plt.contourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+    cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+    # cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
 
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)

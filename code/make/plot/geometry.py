@@ -30,7 +30,7 @@ def make_shell_plots(c: Config):
             all_shells = flatten(bridge_shells, Shell)
             # For each combination of parameters plot the shells.
             for shells_name, shells in [
-                ("all", all_shells), ("deck", deck_shells), ("pier", pier_shells),
+                    ("pier", pier_shells), ("all", all_shells), ("deck", deck_shells),
             ]:
                 for outline, label in itertools.product([True, False], [True, False]):
                     for prop_name, prop_units, prop_f in [

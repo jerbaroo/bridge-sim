@@ -27,7 +27,6 @@ from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import nodes_by_id
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
 from model.load import DisplacementCtrl, MvVehicle, PointLoad
@@ -610,13 +609,6 @@ def make_convergence_data(c: Config):
                         og = displacements.responses[0][x][0][z].value
                         ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
-
-            # Determine number of deck and pier nodes.
-            deck_nodes = len([n for n in nodes_by_id.values() if n.deck])
-            pier_nodes = len(
-                [n for n in nodes_by_id.values() if n.pier is not None and not n.deck]
-            )
-            assert deck_nodes + pier_nodes == len(nodes_by_id)
 
             # Determine min, max and mean displacements.
             all_displacements = list(displacements.values())

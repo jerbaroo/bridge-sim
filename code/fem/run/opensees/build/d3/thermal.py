@@ -5,13 +5,15 @@ from itertools import chain
 import numpy as np
 
 from config import Config
+from fem.build import det_shells
+from fem.model import BuildContext, DeckShells
 from fem.params import SimParams
 from fem.run.build.types import DeckElements, Node
 from fem.run.opensees.build.d3.util import comment
 
 
 def opensees_thermal_axial_deck_loads(
-    c: Config, sim_params: SimParams, deck_elements: DeckElements, nodes_by_id
+    sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
 ):
     """Thermal axial loads for deck shells, if in the simulation parameters."""
     if sim_params.axial_delta_temp is None:
@@ -64,7 +66,7 @@ def opensees_thermal_axial_deck_loads(
             return load_str
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
-    for shell in chain.from_iterable(deck_elements):
+    for shell in det_shells(deck_elements):
         print(shell)
         print(np.array(deck_elements).shape)
         print()
@@ -84,7 +86,7 @@ def opensees_thermal_axial_deck_loads(
             (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
         ]:
             print(f"node ids = {n_id_0}, {n_id_1}")
-            node_0, node_1 = nodes_by_id[n_id_0], nodes_by_id[n_id_1]
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
             assert_load_direction(
                 node_0=node_0, node_1=node_1, direction=load_direction
             )
@@ -124,7 +126,7 @@ def opensees_thermal_axial_deck_loads(
 
 
 def opensees_thermal_moment_deck_loads(
-    c: Config, sim_params: SimParams, deck_elements: DeckElements, nodes_by_id
+        sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
 ):
     """Thermal moment loads for deck shells, if in the simulation parameters."""
     if sim_params.moment_delta_temp is None:
@@ -197,7 +199,7 @@ def opensees_thermal_moment_deck_loads(
             (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
         ]:
             print(f"node ids = {n_id_0}, {n_id_1}")
-            node_0, node_1 = nodes_by_id[n_id_0], nodes_by_id[n_id_1]
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
             assert_load_direction(
                 node_0=node_0, node_1=node_1, direction=load_direction
             )

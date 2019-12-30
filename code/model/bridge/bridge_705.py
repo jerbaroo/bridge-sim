@@ -251,9 +251,9 @@ def bridge_705_low_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="low",
-            base_mesh_deck_max_x=1,
-            base_mesh_deck_max_z=1,
-            base_mesh_pier_max_long=1,
+            base_mesh_deck_max_x=10,
+            base_mesh_deck_max_z=10,
+            base_mesh_pier_max_long=3,
         )
     )
     c.sensor_hz = 1 / 100
@@ -266,8 +266,8 @@ def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="med",
-            base_mesh_deck_max_x=0.5,
-            base_mesh_deck_max_z=0.5,
+            base_mesh_deck_max_x=2,
+            base_mesh_deck_max_z=2,
             base_mesh_pier_max_long=0.5,
         )
     )

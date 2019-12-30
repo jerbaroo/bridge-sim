@@ -6,9 +6,10 @@ from typing import Dict, List
 import numpy as np
 
 from config import Config
+from fem.build import det_nodes, det_shells
+from fem.model import Node, Shell
 from fem.params import SimParams, ExptParams
 from fem.run import Parsed
-from fem.run.build.types import Node, ShellElement, bridge_3d_nodes
 from model import Response, Point
 from model.response import ResponseType
 from util import print_d, print_w
@@ -57,7 +58,7 @@ def convert_sim_translation_responses(
 
 
 def convert_strain_responses(
-    elements: List[ShellElement],
+    elements: List[Shell],
     sim_ind: int,
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
     converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
@@ -138,16 +139,9 @@ def convert_responses_3d(
     # A dictionary of simulation index to ResponseType to [Response].
     converted_expt_responses = defaultdict(dict)
     for sim_ind, parsed_sim_responses in parsed_expt_responses.items():
-        # TODO: Factor into bridge_3d_nodes.
         sim_params = expt_params.sim_params[sim_ind]
-        nodes = bridge_3d_nodes(
-            deck_nodes=sim_params.deck_nodes,
-            all_support_nodes=sim_params.all_support_nodes,
-        )
-        # TODO: Improve deterministic element calculation.
-        from fem.run.build.elements import shells_by_id
-
-        elements = shells_by_id.values()
+        nodes = det_nodes(sim_params.bridge_nodes)
+        elements = det_shells(sim_params.bridge_shells)
         # Parse x, y, and z translation responses if necessary.
         for response_type in [
             ResponseType.XTranslation,

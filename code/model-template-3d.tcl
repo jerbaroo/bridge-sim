@@ -1,4 +1,13 @@
-<<INTRO>>
+# Programatically generated file.
+#
+# Units:
+# - dimension: metre
+# - force: newton
+#
+# Dimension order is
+# - x: longitudinal
+# - y: vertical
+# - z: transverse
 
 wipe
 

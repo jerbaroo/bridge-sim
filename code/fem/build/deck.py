@@ -173,6 +173,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
                         (center_node, right_node, node_k, top_node),  # Top right.
                 ]:
                     new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
+                    assert len(new_deck_shell_nodes[-1]) == 5
         deck_shell_nodes = new_deck_shell_nodes
 
     deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))

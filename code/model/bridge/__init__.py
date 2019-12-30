@@ -151,21 +151,21 @@ class Support3D:
     def x_min_max(self) -> Tuple[float, float]:
         """The min and max x positions for this pier."""
         half_length = self.length / 2
-        return self.x - half_length, self.x + half_length
+        return round_m(self.x - half_length), round_m(self.x + half_length)
 
     def y_min_max(self) -> Tuple[float, float]:
         """The min and max y positions for this pier."""
-        return -self.height, 0
+        return round_m(-self.height), 0
 
     def z_min_max_top(self) -> Tuple[float, float]:
         """The min and max z positions for the top of this pier."""
         half_top = self.width_top / 2
-        return self.z - half_top, self.z + half_top
+        return round_m(self.z - half_top), round_m(self.z + half_top)
 
     def z_min_max_bottom(self) -> Tuple[float, float]:
         """The min and max z positions for the bottom of this pier."""
         half_bottom = self.width_bottom / 2
-        return self.z - half_bottom, self.z + half_bottom
+        return round_m(self.z - half_bottom), round_m(self.z + half_bottom)
 
 
 # Supports are either 2D or 3D supports.

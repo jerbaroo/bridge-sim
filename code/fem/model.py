@@ -229,7 +229,8 @@ class BuildContext:
             self,
             add_loads: List[Point],
             refine_loads: bool = True,
-            refinement_radii: List[float] = [3.2, 1.6, 0.8, 0.4, 0.2],
+            refinement_radii: List[float] = [],
+            # refinement_radii: List[float] = [2, 1, 0.5],
     ):
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
