@@ -1,21 +1,9 @@
 """Plot geometry of a bridge."""
 import os
-from typing import Callable, List, Optional
 
 import matplotlib
-import numpy as np
-from scipy.interpolate import interp2d
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-
-from config import Config
-from fem.params import ExptParams, SimParams
-from fem.run.opensees import OSRunner
-from fem.run.opensees.build import build_model_3d
-from fem.run.build import nodes_by_id
-from model.bridge import Bridge, Section3D
-from plot import Color, plt
+from model.bridge import Bridge
+from plot import plt
 
 # Print debug information for this file.
 D: str = "plot.geometry"
@@ -80,79 +68,3 @@ def top_view_bridge(
         plt.sca(ax)  # Return control to the original axis.
     plt.xlabel("x position (m)")
     plt.ylabel("z position (m)")
-
-
-def plot_cloud_of_nodes(
-    c: Config,
-    equal_axis: bool,
-    title: str,
-    units: str,
-    save: str,
-    node_prop: Optional[Callable[[Section3D], float]] = None,
-    deck: bool = True,
-    piers: bool = True,
-):
-    """A scatter plot of the nodes of a 3D FEM."""
-    # TODO: Create method for these three lines in d3/__init__.py
-    build_model_3d(
-        c=c, expt_params=ExptParams([SimParams([], [])]), os_runner=OSRunner(c)
-    )
-    nodes = list(nodes_by_id.values())
-
-    # This is a sanity check (or a test in the wrong place) that all nodes that
-    # belong to a pier also belong to a shell element on the pier. And that all
-    # nodes that belong only to the deck also belong to a shell element on the
-    # deck. Any node that belongs to a shell element will have a section
-    # assigned, either as deck_dection or pier_section.
-    for node in nodes:
-        if node.pier is not None:
-            assert hasattr(node, "pier_section")
-        else:
-            assert hasattr(node, "deck_section")
-
-    nodes = [n for n in nodes if (deck and n.deck) or (piers and (n.pier is not None))]
-    nodes = sorted(nodes, key=lambda n: (n.deck, not n.pier))
-
-    # Split into separate arrays of x, y and z position, and colors.
-    xs = np.array([n.x for n in nodes])
-    ys = np.array([n.y for n in nodes])
-    zs = np.array([n.z for n in nodes])
-    cs = None
-    if node_prop is not None:
-        cs = []
-        for node in nodes:
-            if deck and piers:
-                # If both deck and pier Nodes are requested, and a Node belongs
-                # to both then we prioritize the deck section.
-                cs.append(
-                    node.deck_section
-                    if hasattr(node, "deck_section")
-                    else node.pier_section
-                )
-            else:
-                cs.append(node.deck_section if deck else node.pier_section)
-        cs = np.array([node_prop(section) for section in cs])
-
-    def plot_and_save(fig, ax, append: str = ""):
-        """Plot the cloud of points with optional additional operation."""
-        plt.title(title)
-        plt.landscape()
-        plt.set_cmap("coolwarm")
-        p = ax.scatter(xs, zs, ys, c=cs, s=1)
-        if cs is not None:
-            clb = fig.colorbar(p)
-            clb.ax.set_title(units)
-        deck_str = "-deck" if deck else ""
-        piers_str = "-piers" if piers else ""
-        plt.savefig(f"{save}{deck_str}{piers_str}{append}")
-        plt.close()
-
-    equal_axis_str = "-equalaxis" if equal_axis else "-fullaxis"
-
-    for fig, ax, angle in angles_3d(equal_axis=equal_axis, xs=xs, ys=ys, zs=zs):
-        plot_and_save(fig, ax, append=equal_axis_str + f"-no-rotate")
-
-    for fig, ax, angle in angles_3d(
-        angles=range(0, 360, 90), equal_axis=equal_axis, elev=0, xs=xs, ys=ys, zs=zs,
-    ):
-        plot_and_save(fig, ax, append=equal_axis_str + f"-{angle}")

@@ -1,20 +1,19 @@
-from typing import Callable, List
+from typing import List
 
 import matplotlib
 import numpy as np
-from scipy.interpolate import interp2d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from fem.run.build.elements import ShellElement
 from plot import default_cmap, plt
-from plot.geometry.angles import angles_3d, ax_3d, top_side_front
+from plot.geometry.angles import ax_3d
 
 
 def shell_properties_3d(
     shells: List[ShellElement],
     prop_units: str,
     prop_f,
-    cmap=default_cmap,
+    cmap: matplotlib.colors.Colormap=default_cmap,
     outline: bool = True,
     label: bool = False,
     colorbar: bool = False,

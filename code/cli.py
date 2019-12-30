@@ -2,7 +2,6 @@
 import click
 
 from classify.vehicle import wagen1, wagen1_x_pos
-from config import Config
 from make.data import simulations
 from make.plot import classification as classification_
 from make.plot import contour as contour_
@@ -163,9 +162,9 @@ def shells():
     geometry_.make_shell_plots(c())
 
 
-@geometry.command(help="Nodes coloured by material properties.")
+@geometry.command(help="3D scatter plot of FEM nodes.")
 def nodes():
-    geometry_.make_cloud_of_node_plots(c())
+    geometry_.make_node_scatter_plots_3d(c())
 
 
 ######################
