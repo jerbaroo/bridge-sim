@@ -580,9 +580,9 @@ class Bridge:
 
         if self.single_sections:
             print_s("One section for the deck, one for piers:")
-            print_s(f"  Deck:")
+            print_s(f"Deck:")
             list(map(print_s, str(self.sections[0]).split("\n")))
-            print_s(f"  Piers:")
+            print_s(f"Piers:")
             list(map(print_s, str(self.supports[0].sections[0]).split("\n")))
 
         if pier_fix_info:
