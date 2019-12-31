@@ -906,17 +906,48 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            plt.plot(max_mesh, max_mesh, label="Max. shell area parameter")
-            plt.plot(max_mesh, shell_size, label="Mean shell area")
+            # plt.plot(max_mesh, max_mesh, label="Max. shell length parameter")
+            plt.plot(max_mesh, shell_size)
         break
 
     plt.xlim(plt.xlim()[1], plt.xlim()[0])
     plt.ylim(plt.ylim()[1], plt.ylim()[0])
-    plt.title("Shell area as a function of max. shell area parameter")
-    plt.xlabel("Shell area (m²)")
+    plt.title("Mean shell area as a function of max. shell length parameter")
+    plt.xlabel("Max. shell length parameter (m)")
     plt.ylabel("Shell area (m²)")
-    plt.legend()
+    # plt.legend()
     plt.savefig(c.get_image_path("convergence", "model-size-param", bridge=False))
+    plt.close()
+
+    # This should be the same for each machine, so skip the rest.
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            (
+                max_mesh,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+            num_nodes = ndeck + npier
+            plt.plot(num_nodes, max_mesh)
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, max_mesh, units="Shell length (m)")
+        break
+
+    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    plt.title("Max. shell length parameter as a function of number of nodes")
+    plt.xlabel("Number of nodes")
+    plt.ylabel("Shell area (m)")
+    plt.legend()
+    plt.savefig(c.get_image_path("convergence", "chosen-param", bridge=False))
     plt.close()
 
     ###################################
