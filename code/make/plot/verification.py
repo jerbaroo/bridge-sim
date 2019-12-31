@@ -36,7 +36,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import clean_generated, flatten, print_i, read_csv, round_m, safe_str
+from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -647,9 +647,7 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.dirname(
-        c.get_image_path("convergence", "convergence_results", bridge=False)
-    )
+    convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
 
     # Get all simulations results from each machine.
     machines = dict()
@@ -672,8 +670,7 @@ def plot_convergence(c: Config):
     for machine_name, loading_pos_dict in machine_results.items():
         for (x_load, z_load), rows in loading_pos_dict.items():
             (
-                basex,
-                basez,
+                max_mesh,
                 mins_d,
                 maxes_d,
                 means_d,
@@ -700,11 +697,9 @@ def plot_convergence(c: Config):
                 [],
                 [],
                 [],
-                [],
             )
             for row in rows:
-                basex.append(row["xnodes"])
-                basez.append(row["znodes"])
+                max_mesh.append(row["max_mesh"])
                 mins_d.append(row["min_d"])
                 maxes_d.append(row["max_d"])
                 means_d.append(row["mean_d"])
@@ -721,8 +716,7 @@ def plot_convergence(c: Config):
                 map(
                     np.array,
                     [
-                        basex,
-                        basez,
+                        max_mesh,
                         mins_d,
                         maxes_d,
                         means_d,
@@ -743,13 +737,13 @@ def plot_convergence(c: Config):
     ###### Min. and max. per machine #######
     ########################################
 
+    # Displacement
     plt.landscape()
     fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
-                basex,
-                basez,
+                max_mesh,
                 mins_d,
                 maxes_d,
                 means_d,
@@ -764,47 +758,87 @@ def plot_convergence(c: Config):
                 pier_shell_size,
             ) = lines
 
-            # Displacement
-
+            num_nodes = ndeck + npier
             final_mean_d = np.mean(means_d[-5:])
             final_max_d = np.mean(maxes_d[-5:])
             final_min_d = np.mean(mins_d[-5:])
             ax1.plot(
-                shell_size, mins_d / final_min_d, color="red", label="Min. response"
+                num_nodes, mins_d / final_min_d, color="red", label="Min. response"
             )
             ax1.plot(
-                shell_size,
+                num_nodes,
                 maxes_d / final_max_d,
                 color="orange",
                 label="Max. response",
             )
             # ax2 = plt.gca().twinx()
             ax1.plot(
-                shell_size,
+                num_nodes,
                 means_d / final_mean_d,
                 color="green",
                 label="Mean response",
             )
 
-            # Zoomed in part.
-            # from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-            # axins = zoomed_inset_axes(ax1, 2.5, loc=4)
-            # half_len = int(len(shell_size) / 2)
-            # axins.plot(shell_size[half_len:], mins[half_len:] / final_min, color="red")
-            # axins.plot(shell_size[half_len:], maxes[half_len:] / final_max, color="orange")
-            # axins.plot(shell_size[half_len:], means[half_len:] / final_mean, color="green")
+            plt.sca(ax1)
+
+    # plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Normalized displacement as a function of number of nodes")
+    ax1.set_xlabel("Number of nodes")
+    ax1.set_ylabel("Normalized displacement")
+    ax1.legend()
+    plt.savefig(c.get_image_path("convergence", "min-max-displacement", bridge=False))
+    plt.close()
+
+    # Strain
+    plt.landscape()
+    fig, ax1 = plt.subplots()
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            (
+                max_mesh,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+
+            num_nodes = ndeck + npier
+            final_mean_s = np.mean(means_s[-5:])
+            final_max_s = np.mean(maxes_s[-5:])
+            final_min_s = np.mean(mins_s[-5:])
+            ax1.plot(
+                num_nodes, mins_s / final_min_s, color="red", label="Min. response"
+            )
+            ax1.plot(
+                num_nodes,
+                maxes_s / final_max_s,
+                color="orange",
+                label="Max. response",
+            )
+            # ax2 = plt.gca().twinx()
+            ax1.plot(
+                num_nodes,
+                means_s / final_mean_s,
+                color="green",
+                label="Mean response",
+            )
 
             plt.sca(ax1)
 
-    plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Displacement as a function of element area")
-    ax1.set_xlabel("Mean element area (m²)")
-    ax1.set_ylabel("Displacement (mm)")
+    # plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Normalized strain as a function of number of nodes")
+    ax1.set_xlabel("Number of nodes")
+    ax1.set_ylabel("Normalized strain")
     ax1.legend()
-    # ax2.set_ylabel("Displacement (mm)")
-    # ax2.legend()
-
-    plt.savefig(c.get_image_path("convergence", "min-max", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "min-max-strain", bridge=False))
     plt.close()
 
     #########################
@@ -815,8 +849,7 @@ def plot_convergence(c: Config):
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
-                basex,
-                basez,
+                max_mesh,
                 mins_d,
                 maxes_d,
                 means_d,
@@ -830,29 +863,56 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            plt.plot(shell_size, basex * basez, label="base mesh deck nodes")
-            plt.plot(shell_size, ndeck, label="deck nodes")
-            plt.plot(shell_size, npier, label="pier nodes")
-            plt.plot(shell_size, ndeck + npier, label="total nodes")
+            plt.plot(ndeck + npier, shell_size, label="Mean shell area")
         break
 
-    plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Number of nodes as a function of element area")
-    plt.xlabel("Mean element area (m²)")
-    plt.ylabel("Number of nodes")
-    plt.legend()
+    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    plt.title("Mean shell area as a function of number of nodes")
+    plt.xlabel("Number of nodes")
+    plt.ylabel("Shell area (m²)")
+    # plt.legend()
     plt.savefig(c.get_image_path("convergence", "model-size", bridge=False))
     plt.close()
 
-    #####################################
-    ###### Model size per machine #######
-    #####################################
+    # This should be the same for each machine, so skip the rest.
+    for machine_name, loading_pos_dict in results.items():
+        for (x_load, z_load), lines in loading_pos_dict.items():
+            (
+                max_mesh,
+                mins_d,
+                maxes_d,
+                means_d,
+                mins_s,
+                maxes_s,
+                means_s,
+                time,
+                ndeck,
+                npier,
+                shell_size,
+                deck_shell_size,
+                pier_shell_size,
+            ) = lines
+            plt.plot(max_mesh, max_mesh, label="Max. shell area parameter")
+            plt.plot(max_mesh, shell_size, label="Mean shell area")
+        break
+
+    plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    plt.title("Shell area as a function of max. shell area parameter")
+    plt.xlabel("Shell area (m²)")
+    plt.ylabel("Shell area (m²)")
+    plt.legend()
+    plt.savefig(c.get_image_path("convergence", "model-size-param", bridge=False))
+    plt.close()
+
+    ###################################
+    ###### Run time per machine #######
+    ###################################
 
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
-                basex,
-                basez,
+                max_mesh,
                 mins_d,
                 maxes_d,
                 means_d,
@@ -866,13 +926,14 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            plt.plot(shell_size, time, label=machine_name)
+            plt.plot((ndeck + npier)[:-1], time[:-1])
+            print_w("Removed one outlier!")
+        break
 
-    plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.title("Run-time as a function of element area")
-    plt.xlabel("Mean element area (m²)")
+    # plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    plt.title("Run-time as a function of number of nodes")
+    plt.xlabel("Number of nodes")
     plt.ylabel("Run-time (s)")
-    plt.legend()
     plt.savefig(c.get_image_path("convergence", "run-time", bridge=False))
     plt.close()
 
@@ -883,8 +944,7 @@ def plot_convergence(c: Config):
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
-                basex,
-                basez,
+                max_mesh,
                 mins_d,
                 maxes_d,
                 means_d,
@@ -899,38 +959,35 @@ def plot_convergence(c: Config):
                 pier_shell_size,
             ) = lines
 
-            plt.plot(shell_size, maxes_d)
-            plt.xlim(plt.xlim()[1], plt.xlim()[0])
-            plt.title("Maximum response as a function of shell area")
-            plt.xlabel("Mean element area (m²)")
-            plt.ylabel("Maximum response (mm)")
+            plt.plot(ndeck + npier, maxes_d)
+            plt.title("Maximum displacement as a function of number of nodes")
+            plt.xlabel("Number of nodes")
+            plt.ylabel("Maximum displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"max-response-{machine_name}", bridge=False
+                    "convergence", f"displacement-max-{machine_name}", bridge=False
                 )
             )
             plt.close()
 
-            plt.plot(shell_size, mins_d)
-            plt.xlim(plt.xlim()[1], plt.xlim()[0])
-            plt.title("Minimum response as a function of shell area")
-            plt.xlabel("Mean element area (m²)")
-            plt.ylabel("Minimum response (mm)")
+            plt.plot(ndeck + npier, mins_d)
+            plt.title("Minimum displacement as a function of number of nodes")
+            plt.xlabel("Number of nodes")
+            plt.ylabel("Minimum displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"min-response-{machine_name}", bridge=False
+                    "convergence", f"displacement-min-{machine_name}", bridge=False
                 )
             )
             plt.close()
 
-            plt.plot(shell_size, means_d)
-            plt.xlim(plt.xlim()[1], plt.xlim()[0])
-            plt.title("Mean response as a function of shell area")
-            plt.xlabel("Mean element area (m²)")
-            plt.ylabel("Mean response (mm)")
+            plt.plot(ndeck + npier, means_d)
+            plt.title("Mean displacement as a function of number of nodes")
+            plt.xlabel("Number of nodes")
+            plt.ylabel("Mean displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"mean-response-{machine_name}", bridge=False
+                    "convergence", f"displacment-mean-{machine_name}", bridge=False
                 )
             )
             plt.close()
@@ -939,14 +996,15 @@ def plot_convergence(c: Config):
             ###### Individual: Mean element size #######
             ############################################
 
-            plt.plot(shell_size, shell_size, label="Mean element area")
-            plt.plot(shell_size, deck_shell_size, label="Mean deck element area")
-            plt.plot(shell_size, pier_shell_size, label="Mean pier element area")
+            plt.plot(shell_size, shell_size, label="Mean shell area")
+            plt.plot(shell_size, deck_shell_size, label="Mean deck shell area")
+            plt.plot(shell_size, pier_shell_size, label="Mean pier shell area")
             plt.xlim(plt.xlim()[1], plt.xlim()[0])
             plt.ylim(plt.ylim()[1], plt.ylim()[0])
+            plt.legend()
             plt.title("Mean element area")
-            plt.xlabel("Mean element area (m²)")
-            plt.ylabel("Maximum response (mm)")
+            plt.xlabel("Mean shell area (m²)")
+            plt.ylabel("Shell area (m²)")
             plt.savefig(
                 c.get_image_path(
                     "convergence", f"mean-element-size-{machine_name}", bridge=False
