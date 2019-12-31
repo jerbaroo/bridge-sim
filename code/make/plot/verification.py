@@ -733,13 +733,25 @@ def plot_convergence(c: Config):
                 )
             )
 
+    def plot_intersection(x, xs, ys, of=None, units=None):
+        y = np.interp(x, xs, ys)
+        y_frac = y / ys[-1]
+        y_percent = y_frac * 100
+        label = None
+        if of is not None:
+            label = f"{y_percent:.2f}% of {of}"
+        if units is not None:
+            label = f"{units} = {y:.2f}"
+        plt.axvline(x, label=label, color="black")
+
+    CHOSEN_NUM_NODES = 25000
+
     ########################################
     ###### Min. and max. per machine #######
     ########################################
 
     # Displacement
     plt.landscape()
-    fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
@@ -762,36 +774,36 @@ def plot_convergence(c: Config):
             final_mean_d = np.mean(means_d[-5:])
             final_max_d = np.mean(maxes_d[-5:])
             final_min_d = np.mean(mins_d[-5:])
-            ax1.plot(
+            plt.plot(
                 num_nodes, mins_d / final_min_d, color="red", label="Min. response"
             )
-            ax1.plot(
+            plt.plot(
                 num_nodes,
                 maxes_d / final_max_d,
                 color="orange",
                 label="Max. response",
             )
-            # ax2 = plt.gca().twinx()
-            ax1.plot(
+            plt.plot(
                 num_nodes,
                 means_d / final_mean_d,
                 color="green",
                 label="Mean response",
             )
-
-            plt.sca(ax1)
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, mins_d / final_min_d, "min")
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, maxes_d / final_max_d, "max")
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, means_d / final_mean_d, "mean")
+        break
 
     # plt.xlim(plt.xlim()[1], plt.xlim()[0])
     plt.title("Normalized displacement as a function of number of nodes")
-    ax1.set_xlabel("Number of nodes")
-    ax1.set_ylabel("Normalized displacement")
-    ax1.legend()
+    plt.xlabel("Number of nodes")
+    plt.ylabel("Normalized displacement")
+    plt.legend()
     plt.savefig(c.get_image_path("convergence", "min-max-displacement", bridge=False))
     plt.close()
 
     # Strain
     plt.landscape()
-    fig, ax1 = plt.subplots()
     for machine_name, loading_pos_dict in results.items():
         for (x_load, z_load), lines in loading_pos_dict.items():
             (
@@ -814,30 +826,30 @@ def plot_convergence(c: Config):
             final_mean_s = np.mean(means_s[-5:])
             final_max_s = np.mean(maxes_s[-5:])
             final_min_s = np.mean(mins_s[-5:])
-            ax1.plot(
+            plt.plot(
                 num_nodes, mins_s / final_min_s, color="red", label="Min. response"
             )
-            ax1.plot(
+            plt.plot(
                 num_nodes,
                 maxes_s / final_max_s,
                 color="orange",
                 label="Max. response",
             )
-            # ax2 = plt.gca().twinx()
-            ax1.plot(
+            plt.plot(
                 num_nodes,
                 means_s / final_mean_s,
                 color="green",
                 label="Mean response",
             )
-
-            plt.sca(ax1)
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, mins_s / final_min_s, "min")
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, maxes_s / final_max_s, "max")
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, means_s / final_mean_s, "mean")
 
     # plt.xlim(plt.xlim()[1], plt.xlim()[0])
     plt.title("Normalized strain as a function of number of nodes")
-    ax1.set_xlabel("Number of nodes")
-    ax1.set_ylabel("Normalized strain")
-    ax1.legend()
+    plt.xlabel("Number of nodes")
+    plt.ylabel("Normalized strain")
+    plt.legend()
     plt.savefig(c.get_image_path("convergence", "min-max-strain", bridge=False))
     plt.close()
 
@@ -863,14 +875,16 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            plt.plot(ndeck + npier, shell_size, label="Mean shell area")
+            num_nodes = ndeck + npier
+            plt.plot(num_nodes, shell_size, label="Mean shell area")
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, shell_size, units="Shell area (m²)")
         break
 
     plt.ylim(plt.ylim()[1], plt.ylim()[0])
     plt.title("Mean shell area as a function of number of nodes")
     plt.xlabel("Number of nodes")
     plt.ylabel("Shell area (m²)")
-    # plt.legend()
+    plt.legend()
     plt.savefig(c.get_image_path("convergence", "model-size", bridge=False))
     plt.close()
 
@@ -926,7 +940,10 @@ def plot_convergence(c: Config):
                 deck_shell_size,
                 pier_shell_size,
             ) = lines
-            plt.plot((ndeck + npier)[:-1], time[:-1])
+            num_nodes = (ndeck + npier)[:-1]
+            times = time[:-1]
+            plt.plot(num_nodes, times)
+            plot_intersection(CHOSEN_NUM_NODES, num_nodes, times, units="Run time (s)")
             print_w("Removed one outlier!")
         break
 
@@ -934,6 +951,7 @@ def plot_convergence(c: Config):
     plt.title("Run-time as a function of number of nodes")
     plt.xlabel("Number of nodes")
     plt.ylabel("Run-time (s)")
+    plt.legend()
     plt.savefig(c.get_image_path("convergence", "run-time", bridge=False))
     plt.close()
 
