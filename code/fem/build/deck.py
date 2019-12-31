@@ -114,7 +114,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
     assert_sorted([nodes[0].z for nodes in deck_nodes])
     assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
     assert_sorted([node.x for node in deck_nodes[0]])
-    print_i(f"Nodes before refinement = {len(flatten(deck_nodes, Node))}")
+    print_i(f"Deck nodes before refinement = {len(flatten(deck_nodes, Node))}")
 
     # Convert to 'DeckShellNodes' (+ refinement information).
     deck_shell_nodes = []
@@ -177,7 +177,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
         deck_shell_nodes = new_deck_shell_nodes
 
     deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
-    print_i(f"Nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}")
+    print_i(f"Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}")
     return deck_shell_nodes
 
 
