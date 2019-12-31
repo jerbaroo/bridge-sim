@@ -54,7 +54,7 @@ def det_nodes(iterable) -> List[Node]:
 
 def det_nodes_id_str(ctx: BuildContext) -> str:
     nodes = det_nodes(ctx.nodes_by_id.values())
-    return " ".join(map(lambda n: n.n_id, nodes))
+    return " ".join(map(lambda n: str(n.n_id), nodes))
 
 
 def det_shells(iterable) -> List[Shell]:
@@ -65,4 +65,4 @@ def det_shells(iterable) -> List[Shell]:
 
 def det_shells_id_str(ctx: BuildContext) -> str:
     shells = det_shells(ctx.shells_by_id.values())
-    return " ".join(map(lambda s: s.e_id, shells))
+    return " ".join(map(lambda s: str(s.e_id), shells))

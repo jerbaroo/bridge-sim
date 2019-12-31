@@ -23,6 +23,8 @@ from classify.data.responses import (
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.vehicle import wagen1
 from config import Config
+from fem.build import det_nodes, det_shells
+from fem.model import Shell
 from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.build.elements import shells_by_id
@@ -34,7 +36,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import clean_generated, print_i, read_csv, safe_str
+from util import clean_generated, flatten, print_i, read_csv, round_m, safe_str
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -517,24 +519,22 @@ def make_convergence_data(c: Config):
         ],
         response_types=[ResponseType.YTranslation, ResponseType.Strain],
     )
-    deck_x, deck_z, pier_y, pier_z = 2, 2, 3, 3
+    max_shell_len = 10
 
     def bridge_overload(**kwargs):
-        print(deck_x, deck_z, pier_y, pier_z)
         return bridge_705_3d(
             name=f"Bridge 705",
             accuracy="convergence",
-            base_mesh_deck_nodes_x=deck_x,
-            base_mesh_deck_nodes_z=deck_z,
-            base_mesh_pier_nodes_y=pier_y,
-            base_mesh_pier_nodes_z=pier_z,
+            base_mesh_deck_max_x=max_shell_len,
+            base_mesh_deck_max_z=max_shell_len,
+            base_mesh_pier_max_long=max_shell_len,
             **kwargs,
         )
 
     # A grid of points over which to calculate the mean response. The reason for
     # this is because if the number of nodes increases, as model size increases,
     # then there will be an increase in nodes where responses are large, thus
-    # model size will influence the mean calculation.
+    # model size will influence the mean/min calculation.
     grid = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -548,41 +548,21 @@ def make_convergence_data(c: Config):
     path = c.get_image_path("convergence", "convergence_results", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
-            "xload,zload,xnodes,znodes,ypier,zpier,decknodes,piernodes,time"
+            "xload,zload,max_mesh,decknodes,piernodes,time"
             + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
         )
 
-    # We create an increasing list of the number of nodes for the deck, one list
-    # for the number of x nodes and one for the z nodes. These lists are such
-    # that at each position the number of nodes for z will be scaled to the
-    # number of nodes for x, based on the ratio of width/length of the bridge.
-    min_shell_len = 0.2
-    max_x = math.ceil(c.bridge.length / min_shell_len) + 1
-    max_z = math.ceil(c.bridge.width / min_shell_len) + 1
-    print_i(f"max_x, max_z = {max_x}, {max_z}")
-    # The '-1' is because we are starting from '2'.
-    deck_max = max(max_x, max_z)
-    xs = np.linspace(2, max_x, deck_max - 1)
-    zs = np.linspace(2, max_z, deck_max - 1)
+    max_shell_lens = list(np.arange(10, 2 - 0.00001, -1))
+    max_shell_lens += list(np.arange(1.9, 1 - 0.00001, -0.1))
+    max_shell_lens += list(np.arange(0.9, 0.1 - 0.00001, -0.01))
+    max_shell_lens = list(map(round_m, max_shell_lens))
 
-    # After each run of the model, the average element size of the deck
-    # elements and the pier elements is checked. Whichever is lower will be
-    # incremented.
-    deck_index = 0
-    while deck_index < len(xs):
+    for max_shell_len in max_shell_lens:
 
-        # Start by cleaning old results, and determining deck nodes.
-        clean_generated(c)
-        deck_x, deck_z = int(xs[deck_index]), int(zs[deck_index])
-        print_i("Running model with:")
-        print_i(f"  deck_x, deck_z = {deck_x}, {deck_z}")
-        print_i(f"  pier_y, pier_z = {pier_y}, {pier_z}")
+        print(f"max shell len = {max_shell_len}")
 
         with open(path + ".txt", "a") as f:
-            f.write(
-                f"\n{load_point.x}, {load_point.z}, {deck_x}, {deck_z}"
-                f", {pier_y}, {pier_z}"
-            )
+            f.write(f"\n{load_point.x}, {load_point.z}, {max_shell_len}")
 
         c = bridge_705_config(bridge_overload)
         try:
@@ -593,11 +573,17 @@ def make_convergence_data(c: Config):
                 sim_params=fem_params,
                 response_type=ResponseType.YTranslation,
                 sim_runner=OSRunner(c),
+                run=True,
             )
             end = timer()
 
+            # Determine amount of nodes.
+            nodes = det_nodes(fem_params.bridge_nodes)
+            deck_nodes = len([n for n in nodes if n.deck])
+            pier_nodes = len([n for n in nodes if not n.deck])
+
             # Determine shell sizes for the deck, pier and whole bridge.
-            shells = shells_by_id.values()
+            shells = det_shells(fem_params.bridge_shells)
             avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
             avg_pier_size = np.mean([s.area() for s in shells if s.pier])
             avg_shell_size = np.mean([s.area() for s in shells])
@@ -612,12 +598,12 @@ def make_convergence_data(c: Config):
 
             # Determine min, max and mean displacements.
             all_displacements = list(displacements.values())
-            min_d = np.min(all_displacements)
+            grid_displacements = np.array([displacements.at_deck(point, interp=True) for point in grid])
+            min_d = np.min(grid_displacements)
             max_d = np.max(all_displacements)
-            mean_d = np.mean(
-                list(displacements.at_deck(point, interp=True) for point in grid)
-            )[0]
-            assert isinstance(mean_d, np.float64)
+            mean_d = np.mean(grid_displacements)
+            assert len(min_d) == 1; assert len(mean_d) == 1
+            min_d = min_d[0]; mean_d = mean_d[0]
 
             strains = load_fem_responses(
                 c=c,
@@ -626,11 +612,16 @@ def make_convergence_data(c: Config):
                 sim_runner=OSRunner(c),
             )
             all_strains = list(strains.values())
-            min_s = np.min(all_strains)
+            grid_strains = np.array([strains.at_deck(point, interp=True) for point in grid])
+            min_s = np.min(grid_strains)
             max_s = np.max(all_strains)
-            mean_s = np.mean(
-                list(strains.at_deck(point, interp=True) for point in grid)
-            )[0]
+            mean_s = np.mean(grid_strains)
+            try:
+                min_s = min_s[0]
+            except:
+                pass
+            assert len(mean_s) == 1
+            mean_s = mean_s[0]
 
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
@@ -640,12 +631,6 @@ def make_convergence_data(c: Config):
                     f", {min_s}, {max_s}, {mean_s}"
                     f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
                 )
-
-            # Either update the deck index, or number of pier nodes.
-            if avg_deck_size > avg_pier_size:
-                deck_index += 1
-            else:
-                pier_y += 1
 
         except ValueError as e:
             if "No responses found" in str(e):

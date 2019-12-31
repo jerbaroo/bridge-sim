@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Callable, Dict, List, NewType, Optional, Tuple
 
+import numpy as np
 from scipy.spatial import distance
 
 from model.bridge import Point, Section3D, Support3D

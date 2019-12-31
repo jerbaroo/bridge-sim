@@ -214,9 +214,9 @@ def bridge_705_3d(
     lanes: List[Lane] = bridge_705_lanes,
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
-    base_mesh_deck_max_x: int = 0.25,
-    base_mesh_deck_max_z: int = 0.25,
-    base_mesh_pier_max_long: int = 0.25,
+    base_mesh_deck_max_x: int = 0.5,
+    base_mesh_deck_max_z: int = 0.5,
+    base_mesh_pier_max_long: int = 0.5,
     **kwargs,
 ) -> Bridge:
     """A constructor for a 3D model of bridge 705 in Amsterdam.

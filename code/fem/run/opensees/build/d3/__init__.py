@@ -561,7 +561,7 @@ def build_model_3d(
                 opensees_thermal_axial_deck_loads(
                     sim_params=sim_params,
                     deck_elements=deck_shells,
-                    ctx=ctx,
+                    ctx=sim_ctx,
                 ),
             )
             .replace(
@@ -569,7 +569,7 @@ def build_model_3d(
                 opensees_thermal_moment_deck_loads(
                     sim_params=sim_params,
                     deck_elements=deck_shells,
-                    ctx=ctx,
+                    ctx=sim_ctx,
                 ),
             )
             .replace("<<SUPPORTS>>", "")
@@ -577,12 +577,12 @@ def build_model_3d(
             .replace(
                 "<<TRANS_RECORDERS>>",
                 opensees_translation_recorders(
-                    c=c, fem_params=sim_params, os_runner=os_runner, ctx=ctx
+                    c=c, fem_params=sim_params, os_runner=os_runner, ctx=sim_ctx
                 ),
             )
             .replace(
                 "<<FORCES>>",
-                opensees_forces(sim_params=sim_params, os_runner=os_runner, ctx=ctx),
+                opensees_forces(sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx),
             )
             .replace(
                 "<<DECK_ELEMENTS>>",
@@ -609,14 +609,14 @@ def build_model_3d(
         )
 
         elem_ids, forces_out_file = opensees_stress_variables(
-            c=c, sim_params=sim_params, os_runner=os_runner, ctx=ctx
+            c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
         )
         out_tcl = out_tcl.replace("<<ELEM_IDS>>", elem_ids).replace(
             "<<FORCES_OUT_FILE>>", forces_out_file
         )
         out_tcl = out_tcl.replace(
             "<<STRAIN_RECORDERS>>",
-            opensees_strain_recorders(c=c, sim_params=sim_params, os_runner=os_runner, ctx=ctx),
+            opensees_strain_recorders(c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx),
         )
 
         # Write the generated model file.
