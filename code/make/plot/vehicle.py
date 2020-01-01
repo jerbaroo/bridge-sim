@@ -13,7 +13,10 @@ def wagen1_plot(c: Config):
 
     wheel_print = (0.31, 0.25)
     plt.subplot(1, 2, 1)
-    xlim, ylim = topview_vehicle(wagen1, wheel_print=(0.31, 0.25))
+    xlim, ylim = topview_vehicle(
+        wagen1,
+        wheel_prints=[wheel_print for _ in wagen1.axle_distances + [1]]
+    )
     plt.title("Truck 1 specification")
     plt.xlabel("Width (m)")
     plt.ylabel("Length (m)")

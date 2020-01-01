@@ -386,7 +386,7 @@ def r2_plots(c: Config):
     plt.xlabel("Displacement in Diana (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
 
-    plt.savefig(c.get_image_path("validation", "regression-displa.pdf"))
+    plt.savefig(c.get_image_path("validation/regression", "regression-displa.pdf"))
     plt.close()
 
     ####################
@@ -498,7 +498,7 @@ def r2_plots(c: Config):
     plt.xlabel("Strain in Diana (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
 
-    plt.savefig(c.get_image_path("validation", "regression-strain.pdf"))
+    plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))
 
 
 def make_convergence_data(c: Config):
