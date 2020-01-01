@@ -11,6 +11,7 @@ def wagen1_plot(c: Config):
     """Plot of wagen1 compared to given specification."""
     plt.landscape()
 
+    wheel_print = (0.31, 0.25)
     plt.subplot(1, 2, 1)
     xlim, ylim = topview_vehicle(wagen1, wheel_print=(0.31, 0.25))
     plt.title("Truck 1 specification")

@@ -941,7 +941,7 @@ def plot_convergence(c: Config):
     # plt.ylim(plt.ylim()[1], plt.ylim()[0])
     plt.title("Max. shell length parameter as a function of number of nodes")
     plt.xlabel("Number of nodes")
-    plt.ylabel("Shell area (m)")
+    plt.ylabel("Max. shell length parameter (m)")
     plt.legend()
     plt.savefig(c.get_image_path("convergence", "chosen-param.pdf", bridge=False))
     plt.close()
