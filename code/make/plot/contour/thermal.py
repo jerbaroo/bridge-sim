@@ -22,7 +22,7 @@ def unit_axial_thermal_deck_load(c: Config):
         ],
         saves=[
             c.get_image_path(
-                "contour",
+                "validation/thermal",
                 safe_str(f"thermal-deck-unit-axial_load-{rt.name()})") + ".pdf",
             )
             for rt in response_types
@@ -47,7 +47,7 @@ def unit_moment_thermal_deck_load(c: Config):
         ],
         saves=[
             c.get_image_path(
-                "contour",
+                "validation/thermal",
                 safe_str(f"thermal-deck-unit-moment_load-{rt.name()})") + ".pdf",
             )
             for rt in response_types
@@ -75,7 +75,8 @@ def unit_thermal_deck_load(c: Config):
         ],
         saves=[
             c.get_image_path(
-                "contour", safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf"
+                "validation/thermal",
+                safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf"
             )
             for rt in response_types
         ],

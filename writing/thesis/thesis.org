@@ -1804,7 +1804,7 @@ bridge 705 model. Each node corresponds to a loading position in Table
 [[tbl:loading-positions]]. Providing this information allows for the contour plots
 from the Diana model to be reproduced, by anyone with a licence for the Diana
 software. The Diana model can either be requested from the thesis author, or
-may be found in the =traffic-sim= GitHub repository.
+can be found in the =traffic-sim= GitHub repository.
 | Label | Node identifier |        X |        Z |
 |-------+-----------------+----------+----------|
 | A     | 126'679         | 34.95459 | 26.24579 |

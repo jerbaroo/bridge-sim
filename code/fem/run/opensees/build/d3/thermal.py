@@ -179,7 +179,7 @@ def opensees_thermal_moment_deck_loads(
             return load_str
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
-    for shell in chain.from_iterable(deck_elements):
+    for shell in det_shells(deck_elements):
         print(shell)
         print(np.array(deck_elements).shape)
         print()

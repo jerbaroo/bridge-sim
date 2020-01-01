@@ -213,6 +213,16 @@ def convergence():
     verification.plot_convergence(c())
 
 
+@validate.command(help="Plots of unit thermal deck loading.")
+def thermal():
+    from make.plot.contour.thermal import unit_axial_thermal_deck_load
+    from make.plot.contour.thermal import unit_moment_thermal_deck_load
+    from make.plot.contour.thermal import unit_thermal_deck_load
+    unit_axial_thermal_deck_load(c())
+    unit_moment_thermal_deck_load(c())
+    unit_thermal_deck_load(c())
+
+
 ####################
 ##### Contour #####
 ####################
@@ -250,27 +260,6 @@ def scenarios_point_load():
 @contour.command(help="Response to each pier being displaced in turn.")
 def each_pier_displaced():
     contour_.each_pier_displacement_plots(c())
-
-
-@contour.command(help="Unit axial thermal deck load.")
-def thermal_deck_axial():
-    from make.plot.contour.thermal import unit_axial_thermal_deck_load
-
-    unit_axial_thermal_deck_load(c())
-
-
-@contour.command(help="Unit moment thermal deck load.")
-def thermal_deck_moment():
-    from make.plot.contour.thermal import unit_moment_thermal_deck_load
-
-    unit_moment_thermal_deck_load(c())
-
-
-@contour.command(help="Unit axial and moment thermal deck load.")
-def thermal_deck():
-    from make.plot.contour.thermal import unit_thermal_deck_load
-
-    unit_thermal_deck_load(c())
 
 
 @contour.command(help="Cracked concrete under normal traffic.")
