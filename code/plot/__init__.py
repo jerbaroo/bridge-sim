@@ -157,6 +157,21 @@ parula_cmap = colors.LinearSegmentedColormap.from_list(
 default_cmap = matplotlib.cm.get_cmap("viridis")
 
 
+# Add the colorbar from Diana.
+diana_colors = [
+    np.array([252, 13, 27]) / 255,
+    np.array([253, 144, 38]) / 255,
+    np.array([219, 253, 53]) / 255,
+    np.array([82, 253, 47]) / 255,
+    np.array([42, 253, 85]) / 255,
+    np.array([44, 254, 218]) / 255,
+    np.array([25, 148, 252]) / 255,
+    np.array([11, 36, 251]) / 255,
+]  # R -> G -> B
+diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("diana", diana_colors, N=len(diana_colors))
+diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("diana_r", diana_colors[::-1], N=len(diana_colors))
+
+
 class Color:
     bridge = "limegreen"
     lane = "gold"

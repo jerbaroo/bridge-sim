@@ -16,7 +16,7 @@ from fem.run import FEMRunner
 from model import Response
 from model.load import PointLoad
 from model.response import ResponseArray, ResponseType, resize_units
-from plot import plt
+from plot import default_cmap, plt
 from util import print_w
 
 
@@ -69,9 +69,8 @@ def plot_contour_deck(
     y: float = 0,
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
-    color: str = None,
-    norm=None,
-    center_norm: bool = False,
+    cmap = default_cmap,
+    norm = None,
     levels: int = 25,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -110,20 +109,7 @@ def plot_contour_deck(
     amax, unit_str = resize_units(amax, responses.response_type)
 
     # Plot contour and colorbar.
-    if color is None:
-        color = "jet"
-    cmap = cm.get_cmap(color)
-    if norm is None:
-        vmin, vmax = amin, amax
-        if center_norm:
-            print(f"vmin = {vmin}")
-            print(f"vmax = {vmax}")
-            vmin = min(amin, -amax)
-            vmax = max(amax, -amin)
-        norm = colors.Normalize(vmin=vmin, vmax=vmax)
     cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
-    # cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
-
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)
 

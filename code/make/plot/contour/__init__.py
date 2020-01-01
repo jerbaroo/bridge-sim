@@ -6,6 +6,7 @@ from typing import List, Tuple
 import matplotlib.colors as colors
 import matplotlib.image as mpimg
 import numpy as np
+import pandas as pd
 from matplotlib.cm import get_cmap
 
 from classify.data.responses import responses_to_traffic_array
@@ -26,7 +27,7 @@ from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
-from plot import parula_cmap, plt
+from plot import diana_cmap, diana_r_cmap, parula_cmap, plt
 from plot.contour import contour_responses_3d
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
@@ -349,10 +350,12 @@ def comparison_plots_705(c: Config, run_only: bool):
         # (92.40638, 12.405 - 16.6, "c"),
         # (101.7649, 3.973938 - 16.6, "d"),
     ]
+    diana_values = pd.read_csv("validation/diana-screenshots/min-max.csv")
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # For each response type and loading position first create contour plots for
     # OpenSees. Then finally create subplots comparing to Diana.
     for response_type in response_types:
+        cmap = diana_cmap if response_type == ResponseType.Strain else diana_r_cmap
         for load_x, load_z, label in positions:
             loads = [
                 PointLoad(
@@ -374,35 +377,52 @@ def comparison_plots_705(c: Config, run_only: bool):
                 + f"\nat x = {load_x:.3f}m, z = {load_z:.3f}m"
             )
             save = lambda prefix: c.get_image_path(
-                "contour",
-                safe_str(
-                    f"{prefix}{response_type.name()}-loadx={load_x:.3f}-loadz={load_z:.3f}"
-                ),
+                "validation/diana-comp",
+                safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
-            # Plot once without colormaps centered to 0.
             top_view_bridge(c.bridge, piers=True, abutments=True)
             plot_contour_deck(
-                c=c, responses=fem_responses, ploads=loads, title=title,
+                c=c, responses=fem_responses, ploads=loads, title=title, cmap=cmap
             )
             plt.savefig(save(f"{label}-"))
             plt.close()
 
-            # Plot again with colormaps centered to 0.
-            top_view_bridge(c.bridge, piers=True, abutments=True)
-            plot_contour_deck(
-                c=c,
-                responses=fem_responses,
-                ploads=loads,
-                center_norm=True,
-                title=title,
-            )
-            plt.savefig(save(f"{label}-center_norm-"))
-            plt.close()
-
             # Finally create label/title the Diana plot.
             if label is not None:
-                di_img = mpimg.imread(f"data/verification/diana-{label}.png")
-                plt.imshow(di_img)
+                if response_type == ResponseType.YTranslation:
+                    rt_str = "displa"
+                    unit_str = "mm"
+                elif response_type == ResponseType.Strain:
+                    rt_str = "strain"
+                    unit_str = "m/m"
+                else:
+                    raise ValueError("Unsupported response type")
+                di_img = mpimg.imread(f"validation/diana-screenshots/{label}-{rt_str}.png")
+                top_view_bridge(c.bridge, piers=True, abutments=True)
+                plt.imshow(di_img, extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max))
+
+                # Plot the load and min, max values.
+                row = diana_values[diana_values["name"] == f"{label}-{rt_str}"]
+                amin, amax = float(row["min"]), float(row["max"])
+                if response_type == ResponseType.Strain:
+                    amax, amin = -amin * 1e6, -amax * 1e6
+                    # amax, amin = amax * 1e6, amin * 1e6
+                for point, leg_label, color, alpha in [
+                    ((load_x, load_z), f"{loads[0].kn} kN load", "r", 1),
+                    ((0, 0), f"min = {amin:.2f} {unit_str}", "r", 0),
+                    ((0, 0), f"max = {amax:.2f} {unit_str}", "r", 0),
+                    ((0, 0), f"|min-max| = {abs(amax - amin):.2f} {unit_str}", "r", 0),
+                ]:
+                    plt.scatter(
+                        [point[0]], [point[1]], label=leg_label, marker="o", color=color, alpha=alpha,
+                    )
+                plt.legend()
+
+                # Add the Diana colorbar.
+                plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
+                clb = plt.colorbar()
+                clb.ax.set_title(unit_str)
+
                 plt.title(title)
                 plt.xlabel("X position (mm)")
                 plt.ylabel("Z position (mm)")
