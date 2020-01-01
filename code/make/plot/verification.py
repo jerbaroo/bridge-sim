@@ -84,11 +84,7 @@ def per_sensor_plots(
     cols: int = 2,
     individual_sensors: List[str] = ["T4", "U3"],
 ):
-    """Compare the bridge 705 measurement campaign to Diana and OpenSees.
-
-    TODO: Move to plot.verification.705
-
-    """
+    """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
     size = 25  # Size of scatter plot points.
 
     ####################
@@ -390,7 +386,7 @@ def r2_plots(c: Config):
     plt.xlabel("Displacement in Diana (mm)")
     plt.ylabel("Displacement in OpenSees (mm)")
 
-    plt.savefig(c.get_image_path("validation", "regression-displa"))
+    plt.savefig(c.get_image_path("validation", "regression-displa.pdf"))
     plt.close()
 
     ####################
@@ -502,7 +498,7 @@ def r2_plots(c: Config):
     plt.xlabel("Strain in Diana (m/m)")
     plt.ylabel("Strain in OpenSees (m/m)")
 
-    plt.savefig(c.get_image_path("validation", "regression-strain"))
+    plt.savefig(c.get_image_path("validation", "regression-strain.pdf"))
 
 
 def make_convergence_data(c: Config):
@@ -799,7 +795,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Number of nodes")
     plt.ylabel("Normalized displacement")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "min-max-displacement", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "min-max-displacement.pdf", bridge=False))
     plt.close()
 
     # Strain
@@ -850,7 +846,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Number of nodes")
     plt.ylabel("Normalized strain")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "min-max-strain", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "min-max-strain.pdf", bridge=False))
     plt.close()
 
     #########################
@@ -880,12 +876,12 @@ def plot_convergence(c: Config):
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, shell_size, units="Shell area (m²)")
         break
 
-    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    # plt.ylim(plt.ylim()[1], plt.ylim()[0])
     plt.title("Mean shell area as a function of number of nodes")
     plt.xlabel("Number of nodes")
     plt.ylabel("Shell area (m²)")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "model-size", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "model-size.pdf", bridge=False))
     plt.close()
 
     # This should be the same for each machine, so skip the rest.
@@ -910,13 +906,13 @@ def plot_convergence(c: Config):
             plt.plot(max_mesh, shell_size)
         break
 
-    plt.xlim(plt.xlim()[1], plt.xlim()[0])
-    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    # plt.xlim(plt.xlim()[1], plt.xlim()[0])
+    # plt.ylim(plt.ylim()[1], plt.ylim()[0])
     plt.title("Mean shell area as a function of max. shell length parameter")
     plt.xlabel("Max. shell length parameter (m)")
     plt.ylabel("Shell area (m²)")
     # plt.legend()
-    plt.savefig(c.get_image_path("convergence", "model-size-param", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "model-size-param.pdf", bridge=False))
     plt.close()
 
     # This should be the same for each machine, so skip the rest.
@@ -942,12 +938,12 @@ def plot_convergence(c: Config):
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, max_mesh, units="Shell length (m)")
         break
 
-    plt.ylim(plt.ylim()[1], plt.ylim()[0])
+    # plt.ylim(plt.ylim()[1], plt.ylim()[0])
     plt.title("Max. shell length parameter as a function of number of nodes")
     plt.xlabel("Number of nodes")
     plt.ylabel("Shell area (m)")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "chosen-param", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "chosen-param.pdf", bridge=False))
     plt.close()
 
     ###################################
@@ -983,7 +979,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Number of nodes")
     plt.ylabel("Run-time (s)")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "run-time", bridge=False))
+    plt.savefig(c.get_image_path("convergence", "run-time.pdf", bridge=False))
     plt.close()
 
     #########################################
@@ -1014,7 +1010,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Maximum displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"displacement-max-{machine_name}", bridge=False
+                    "convergence", f"displacement-max-{machine_name}.pdf", bridge=False
                 )
             )
             plt.close()
@@ -1025,7 +1021,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Minimum displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"displacement-min-{machine_name}", bridge=False
+                    "convergence", f"displacement-min-{machine_name}.pdf", bridge=False
                 )
             )
             plt.close()
@@ -1036,7 +1032,7 @@ def plot_convergence(c: Config):
             plt.ylabel("Mean displacement (mm)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"displacment-mean-{machine_name}", bridge=False
+                    "convergence", f"displacment-mean-{machine_name}.pdf", bridge=False
                 )
             )
             plt.close()
@@ -1048,15 +1044,15 @@ def plot_convergence(c: Config):
             plt.plot(shell_size, shell_size, label="Mean shell area")
             plt.plot(shell_size, deck_shell_size, label="Mean deck shell area")
             plt.plot(shell_size, pier_shell_size, label="Mean pier shell area")
-            plt.xlim(plt.xlim()[1], plt.xlim()[0])
-            plt.ylim(plt.ylim()[1], plt.ylim()[0])
+            # plt.xlim(plt.xlim()[1], plt.xlim()[0])
+            # plt.ylim(plt.ylim()[1], plt.ylim()[0])
             plt.legend()
             plt.title("Mean element area")
             plt.xlabel("Mean shell area (m²)")
             plt.ylabel("Shell area (m²)")
             plt.savefig(
                 c.get_image_path(
-                    "convergence", f"mean-element-size-{machine_name}", bridge=False
+                    "convergence", f"mean-element-size-{machine_name}.pdf", bridge=False
                 )
             )
             plt.close()
