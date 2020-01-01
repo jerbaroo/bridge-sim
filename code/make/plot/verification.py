@@ -1047,9 +1047,9 @@ def plot_convergence(c: Config):
             # plt.xlim(plt.xlim()[1], plt.xlim()[0])
             # plt.ylim(plt.ylim()[1], plt.ylim()[0])
             plt.legend()
-            plt.title("Mean element area")
+            plt.title("Mean shell area")
             plt.xlabel("Mean shell area (m²)")
-            plt.ylabel("Shell area (m²)")
+            plt.ylabel("Mean shell area (m²)")
             plt.savefig(
                 c.get_image_path(
                     "convergence", f"mean-element-size-{machine_name}.pdf", bridge=False

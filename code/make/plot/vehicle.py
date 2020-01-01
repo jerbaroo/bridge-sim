@@ -12,11 +12,15 @@ def wagen1_plot(c: Config):
     plt.landscape()
 
     wheel_print = (0.31, 0.25)
+    wheel_prints = []
+    for w_i in range(len(wagen1.axle_distances) + 1):
+        if w_i in [1, 2]:
+            wheel_prints.append([wheel_print, wheel_print])
+        else:
+            wheel_prints.append([wheel_print])
+
     plt.subplot(1, 2, 1)
-    xlim, ylim = topview_vehicle(
-        wagen1,
-        wheel_prints=[wheel_print for _ in wagen1.axle_distances + [1]]
-    )
+    xlim, ylim = topview_vehicle(wagen1, wheel_prints=wheel_prints)
     plt.title("Truck 1 specification")
     plt.xlabel("Width (m)")
     plt.ylabel("Length (m)")

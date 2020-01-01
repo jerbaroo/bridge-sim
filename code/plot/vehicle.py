@@ -14,7 +14,7 @@ WheelPrint = Tuple[float, float]
 
 def topview_vehicle(
     vehicle: Vehicle,
-    wheel_prints: Optional[List[WheelPrint]] = None,
+    wheel_prints: Optional[List[List[WheelPrint]]] = None,
     xlim: Tuple[float, float] = None,
     ylim: Tuple[float, float] = None,
 ):
@@ -25,9 +25,12 @@ def topview_vehicle(
     for a_i, axle_delta in enumerate([0] + vehicle.axle_distances):
         # Determine wheel print dimensions for the current axle.
         if wheel_prints is not None:
-            half_wheel_length = wheel_prints[a_i][0] / 2
-            half_wheel_width = wheel_prints[a_i][1] / 2
-            print(half_wheel_width, half_wheel_length)
+            wheel_lengths = list(map(lambda wp: wp[0], wheel_prints[a_i]))
+            wheel_widths = list(map(lambda wp: wp[1], wheel_prints[a_i]))
+            wheels_length = sum(wheel_lengths)
+            wheels_width = sum(wheel_widths)
+            half_wheels_length = wheels_length / 2
+            half_wheels_width = wheels_width / 2
 
         # Plot the current axle.
         axle_y -= axle_delta
@@ -36,42 +39,50 @@ def topview_vehicle(
             plt.plot([0, vehicle.axle_width], [y, y], marker="o", color="black")
         else:
             plt.plot(
-                [0 + half_wheel_width, vehicle.axle_width - half_wheel_width],
+                [0 + half_wheels_width, vehicle.axle_width - half_wheels_width],
                 [y, y],
                 color="black",
             )
 
-        # Annotate one wheel with load intensity.
+        # Annotate left-axle wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
         plt.annotate(wheel_kn, (0, y), (0, y + 0.25))
         if wheel_prints is not None:
-            plt.gca().add_patch(
-                Rectangle(
-                    (0 - half_wheel_width, y - half_wheel_length),
-                    wheel_prints[a_i][1],
-                    wheel_prints[a_i][0],
-                    facecolor="none",
-                    edgecolor="black",
+            left = 0 + half_wheels_width
+            for wheel_print in wheel_prints[a_i]:
+                left -= wheel_print[1]
+                bottom = y - (wheel_print[0] / 2)
+                plt.gca().add_patch(
+                    Rectangle(
+                        (left, bottom),
+                        wheel_print[1],
+                        wheel_print[0],
+                        facecolor="none",
+                        edgecolor="black",
+                    )
                 )
-            )
 
-        # Annotate the other wheel with load intensity.
+        # Annotate right-axle wheel with load intensity.
         wheel_kn = f"{int(kn_per_wheel[wheel_index] * kn_to_kg)} kN"
         wheel_index += 1
         plt.annotate(
             wheel_kn, (vehicle.axle_width, y), (vehicle.axle_width - 1, y + 0.25)
         )
         if wheel_prints is not None:
-            plt.gca().add_patch(
-                Rectangle(
-                    (vehicle.axle_width - half_wheel_width, y - half_wheel_length),
-                    wheel_prints[a_i][1],
-                    wheel_prints[a_i][0],
-                    facecolor="none",
-                    edgecolor="black",
+            left = vehicle.axle_width - half_wheels_width
+            for wheel_print in wheel_prints[a_i]:
+                bottom = y - (wheel_print[0] / 2)
+                plt.gca().add_patch(
+                    Rectangle(
+                        (left, bottom),
+                        wheel_print[1],
+                        wheel_print[0],
+                        facecolor="none",
+                        edgecolor="black",
+                    )
                 )
-            )
+                left += wheel_print[1]
 
     plt.axis("equal")
     if xlim is not None:
