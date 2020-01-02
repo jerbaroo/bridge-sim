@@ -1,22 +1,23 @@
-from typing import List
+from typing import Callable, List, Optional
 
 import matplotlib
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from fem.run.build.elements import ShellElement
+from fem.model import Shell
+from model.bridge import Section3D
 from plot import default_cmap, plt
 from plot.geometry.angles import ax_3d
 
 
 def shell_properties_3d(
-    shells: List[ShellElement],
+    shells: List[Shell],
+    prop_f: Callable[[Section3D], float],
     prop_units: str,
-    prop_f,
     cmap: matplotlib.colors.Colormap=default_cmap,
-    outline: bool = True,
-    label: bool = False,
     colorbar: bool = False,
+    label: bool = False,
+    outline: bool = True,
     new_fig: bool = True,
 ):
     """3D plot of shell elements coloured by material property."""
@@ -79,3 +80,59 @@ def shell_properties_3d(
         mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
         clb = fig.colorbar(mappable, shrink=0.7)
         clb.ax.set_title(prop_units)
+
+
+def shell_properties_top_view(
+    shells: List[Shell],
+    prop_f: Optional[Callable[[Section3D], float]] = None,
+    prop_units: Optional[str] = None,
+    cmap: matplotlib.colors.Colormap=default_cmap,
+    colorbar: bool = False,
+    label: bool = False,
+    outline: bool = True,
+):
+    """Top view of shell elements optionally coloured by material property."""
+    # Vertices of nodes for each shell.
+    verts = []
+    # Min and max values for colour normalization.
+    prop_min, prop_max = np.inf, -np.inf
+    for shell in shells:
+        verts.append([])
+        for node in shell.nodes():
+            verts[-1].append([node.x, node.z])
+        shell_prop = prop_f(shell.section) if prop_f is not None else 0
+        if shell_prop < prop_min:
+            prop_min = shell_prop
+        if shell_prop > prop_max:
+            prop_max = shell_prop
+    if prop_f is not None:
+        norm = matplotlib.colors.Normalize(vmin=prop_min, vmax=prop_max)
+
+    # Keep track of all values used for colours.
+    # This is so we don't add duplicate labels.
+    values = set()
+
+    ax = plt.gca()
+    for shell, shell_verts in zip(shells, verts):
+        colour, label_str = "none", None
+        if prop_f is not None:
+            value = prop_f(shell.section)
+            colour = cmap(norm(value))
+            if label and value not in values:
+                values.add(value)
+                label_str = f"{value} {prop_units}"
+        ax.add_collection(matplotlib.collections.PolyCollection(
+            [shell_verts],
+            facecolors=colour,
+            edgecolors="black" if outline else "none",
+            linewidths=0.01 if outline else 0,
+            label=label_str,
+        ))
+
+    if prop_f is not None:
+        if label:
+            plt.legend()
+        if colorbar:
+            mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
+            clb = plt.gcf().colorbar(mappable, shrink=0.7)
+            clb.ax.set_title(prop_units)

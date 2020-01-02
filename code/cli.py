@@ -157,9 +157,14 @@ def geometry():
     pass
 
 
-@geometry.command(help="Shells coloured by material properties.")
-def shells():
-    geometry_.make_shell_plots(c())
+@geometry.command(help="Shells in 3D coloured by material properties.")
+def shells_3d():
+    geometry_.make_shell_properties_3d(c())
+
+
+@geometry.command(help="Top view of shells coloured by material properties.")
+def shells_top():
+    geometry_.make_shell_properties_top_view(c())
 
 
 @geometry.command(help="3D scatter plot of FEM nodes.")
