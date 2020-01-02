@@ -80,26 +80,48 @@ def diana_response(sensor_label: str, truck_x: float):
 
 def per_sensor_plots(
     c: Config,
-    rows: int = 5,
-    cols: int = 2,
+    rows: int = 3,
+    strain_sensors_startwith: str = "T",
+    strain_sensors_ignore: List[str] = ["T0"],
     individual_sensors: List[str] = ["T4", "U3"],
 ):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
+    plt.portrait()
     size = 25  # Size of scatter plot points.
 
     ####################
     ###### Strain ######
     ####################
 
-    # All strain measurements from TNO sensors (label start with "T"), except
-    # ignore sensor T0 since no diana predictions are available.
-    tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith("T")]
-    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"] != "T0"]
+    print_i("All strain sensors = ")
+    print_i(f"  {sorted(set(meas['sensorlabel']))}")
+    # All strain measurements for a given sensor set (strain_sensors_startwith),
+    # except ignore sensors in ignore set (strain_sensors_ignore).
+    tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith(strain_sensors_startwith)]
+    labels_before_ignore = set(tno_strain_meas["sensorlabel"])
+    tno_strain_meas = tno_strain_meas.loc[~tno_strain_meas["sensorlabel"].isin(strain_sensors_ignore)]
+    labels_after_ignore = set(tno_strain_meas["sensorlabel"])
+    labels_ignored = sorted(l for l in labels_before_ignore if l not in labels_after_ignore)
+    print_i(f"Strain sensors ignored = {labels_ignored}")
+
+    # Ignore sensors with missing positions.
+    positions_available = set(strain_sensors["label"])
+    labels_before_ignore = set(tno_strain_meas["sensorlabel"])
+    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"].isin(positions_available)]
+    labels_after_ignore = set(tno_strain_meas["sensorlabel"])
+    labels_ignored = sorted(l for l in labels_before_ignore if l not in labels_after_ignore)
+    print_i(f"Strain sensors with missing positions = {labels_ignored}")
 
     # Sort by sensor number and setup groupby sensor label.
-    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    str_digits = lambda string: "".join(map(str, [int(s) for s in string if s.isdigit()]))
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(str_digits)
+    print_i(f"Filtered strain sensors starting with {strain_sensors_startwith} =")
+    print_i(f"  {sorted(set(map(int, tno_strain_meas['sort'])))}")
+
     tno_strain_meas = tno_strain_meas.sort_values(by=["sort"])
     strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
+    strain_sensor_labels = [sensor_label for sensor_label, _ in strain_groupby]
+    strain_sensor_xzs = list(map(strain_sensor_xz, strain_sensor_labels))
 
     # Find the min and max responses.
     amin, amax = np.inf, -np.inf
@@ -113,6 +135,23 @@ def per_sensor_plots(
     amin *= 1.1
     amax *= 1.1
 
+    # Calculate displacement with OpenSees via direct simulation.
+    os_strain = (
+        responses_to_vehicles_(
+            c=c,
+            mv_vehicles=[wagen1],
+            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+            response_type=ResponseType.Strain,
+            points=[
+                Point(x=sensor_x, y=0, z=sensor_z)
+                for sensor_x, sensor_z in strain_sensor_xzs
+            ],
+            sim_runner=OSRunner(c),
+        ).T
+    )
+    amin = min(amin, np.amin(os_strain))
+    amax = max(amax, np.amax(os_strain))
+
     def plot(sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
@@ -124,6 +163,9 @@ def per_sensor_plots(
             label="Diana",
         )
 
+        # Plot values from OpenSees.
+        plt.scatter(truck_front_x, os_strain[i], s=size, label="OpenSees")
+
         # Plot measured values against truck position.
         plt.scatter(
             meas_group["xpostruck"],
@@ -134,7 +176,11 @@ def per_sensor_plots(
         )
 
         plt.legend()
-        plt.title(f"Strain at {sensor_label}")
+        sensor_x, sensor_z = strain_sensor_xzs[i]
+        plt.title(
+            f"Strain at sensor {sensor_label}"
+            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+        )
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("strain (m/m)")
         plt.ylim((amin, amax))
@@ -142,42 +188,40 @@ def per_sensor_plots(
     # Create a subplot for each strain sensor.
     plot_i, subplot_i = 0, 0
     for i, (sensor_label, meas_group) in enumerate(strain_groupby):
-        plt.subplot(rows, cols, subplot_i + 1)
+        plt.subplot(rows, 1, subplot_i + 1)
         plot(sensor_label, meas_group)
-        if subplot_i + 1 == rows * cols or i == len(strain_groupby) - 1:
+        if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
             plt.savefig(
                 c.get_image_path(
-                    dirname="validation", filename=f"strain-{plot_i}", acc=False,
+                    "validation/sensors",
+                    f"strain-{strain_sensors_startwith}-{plot_i}.pdf"
                 )
             )
             plt.close()
-            plot_i += 1
             subplot_i = 0
+            plot_i += 1
         else:
             subplot_i += 1
 
     # Create any plots for individual sensors.
     for sensor_label, meas_group in strain_groupby:
         if sensor_label in individual_sensors:
+            plt.landscape()
             plot(sensor_label, meas_group)
             plt.savefig(
-                c.get_image_path(
-                    dirname="validation",
-                    filename=f"strain-sensor-{sensor_label}",
-                    acc=False,
-                )
+                c.get_image_path("validation/sensors", f"strain-sensor-{sensor_label}.pdf")
             )
             plt.close()
+            plt.portrait()
 
     ##########################
     ###### Displacement ######
     ##########################
 
     # All displacement measurements.
-    displa_meas = meas.loc[meas["sensortype"] == "displacements"]
+    displa_meas = pd.DataFrame(meas.loc[meas["sensortype"] == "displacements"])
 
-    # Sort by sensor number and setup groupby sensor label. Also silence a
-    # Pandas warning.
+    # Sort by sensor number and setup groupby sensor label.
     displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     displa_meas = displa_meas.sort_values(by=["sort"])
     displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
@@ -203,7 +247,6 @@ def per_sensor_plots(
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
             response_type=ResponseType.YTranslation,
-            bridge_scenario=HealthyBridge(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z)
                 for sensor_x, sensor_z in displa_sensor_xzs
@@ -236,7 +279,8 @@ def per_sensor_plots(
         plt.legend()
         sensor_x, sensor_z = displa_sensor_xzs[i]
         plt.title(
-            f"Displacement at sensor {sensor_label}, x = {sensor_x:.3f}, z = {sensor_z:.3f}"
+            f"Displacement at sensor {sensor_label}"
+            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
         )
         plt.xlabel("x position of truck front axle (m)")
         plt.ylabel("displacement (mm)")
@@ -245,29 +289,26 @@ def per_sensor_plots(
     # Create a subplot for each displacement sensor.
     plot_i, subplot_i = 0, 0
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
-        plt.subplot(rows, cols, subplot_i + 1)
+        plt.subplot(rows, 1, subplot_i + 1)
         plot(i, sensor_label, meas_group)
-        if subplot_i + 1 == rows * cols or i == len(displa_groupby) - 1:
+        if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
             plt.savefig(
-                c.get_image_path(
-                    dirname="validation", filename=f"displa-{plot_i}", acc=False,
-                )
+                c.get_image_path("validation/sensors", f"displa-{plot_i}")
             )
             plt.close()
-            plot_i += 1
             subplot_i = 0
+            plot_i += 1
         else:
             subplot_i += 1
 
     # Create any plots for individual sensors.
+    plt.landscape()
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         if sensor_label in individual_sensors:
             plot(i, sensor_label, meas_group)
             plt.savefig(
                 c.get_image_path(
-                    dirname="validation",
-                    filename=f"displa-sensor-{sensor_label}",
-                    acc=False,
+                    "validation/sensors", f"displa-sensor-{sensor_label}",
                 )
             )
             plt.close()

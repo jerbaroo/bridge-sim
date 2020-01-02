@@ -305,9 +305,9 @@ def responses_to_vehicles_(
     mv_vehicles: List[MvVehicle],
     times: List[float],
     response_type: ResponseType,
-    bridge_scenario: BridgeScenario,
     points: List[Point],
     sim_runner: FEMRunner,
+    bridge_scenario: BridgeScenario = HealthyBridge(),
 ):
     """Responses to vehicles via direct simulation."""
     print_w("TODO: converting vehicle to point loads")

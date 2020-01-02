@@ -213,12 +213,12 @@ def r2():
     verification.r2_plots(c())
 
 
-@validate.command(help="Plot of model convergence as model size increases.")
+@validate.command(help="Plot convergence as model size increases.")
 def convergence():
     verification.plot_convergence(c())
 
 
-@validate.command(help="Plots of unit thermal deck loading.")
+@validate.command(help="Contour plots of unit thermal deck loading.")
 def thermal():
     from make.plot.contour.thermal import unit_axial_thermal_deck_load
     from make.plot.contour.thermal import unit_moment_thermal_deck_load
@@ -226,6 +226,12 @@ def thermal():
     unit_axial_thermal_deck_load(c())
     unit_moment_thermal_deck_load(c())
     unit_thermal_deck_load(c())
+
+
+@validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")
+def sensors():
+    verification.per_sensor_plots(c=c(), strain_sensors_startwith="O")
+    verification.per_sensor_plots(c=c(), strain_sensors_startwith="T")
 
 
 ####################
