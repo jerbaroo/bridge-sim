@@ -69,7 +69,6 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
         get_cmap("coolwarm"),
         get_cmap("viridis"),
     ]:
-
         contour_responses_3d(
             c=c,
             sim_responses=sim_responses,
@@ -77,7 +76,6 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
             shells=shells,
             cmap=cmap,
         )
-
         plt.axis("off")
         plt.grid(False)
         plt.savefig(

@@ -152,7 +152,7 @@ def truck_1_loads(x: float):
 ####################
 
 
-@cli.group(help="Plots of the geometry of the bridge.")
+@cli.group(help="Informative plots of a bridge's geometry.")
 def geometry():
     pass
 

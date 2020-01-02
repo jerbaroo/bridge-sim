@@ -7,7 +7,8 @@
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
 
-[[./images/cover-photo.png]]
+# ./cli.sh --save --mesh full contour cover-photo --x 85 --deform 3.5
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/cover-photo/cover-photo-cropped.pdf]]
 
 #+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}

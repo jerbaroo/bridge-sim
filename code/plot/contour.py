@@ -2,15 +2,12 @@ from typing import List, Optional
 
 import matplotlib
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from config import Config
-from fem.params import ExptParams, SimParams
+from fem.build import det_shells, get_bridge_shells
+from fem.model import Shell
 from fem.responses import FEMResponses
-from fem.run.build.elements import ShellElement, shells_by_id
-from fem.run.opensees import OSRunner
-from fem.run.opensees.build.d3 import build_model_3d
 from model.response import ResponseType
 from plot import default_cmap, plt
 from plot.geometry.angles import angles_3d
@@ -19,10 +16,9 @@ from plot.geometry.angles import angles_3d
 def contour_responses_3d(
     c: Config,
     sim_responses: FEMResponses,
-    shells: Optional[List[ShellElement]] = None,
+    shells: Optional[List[Shell]] = None,
     deformation_amp: float = 0,
     cmap: matplotlib.colors.Colormap = default_cmap,
-    center_norm: bool = False,
     new_fig: bool = True,
 ):
     """3D contour plot of simulation responses over deformed shell elements.
@@ -34,7 +30,6 @@ def contour_responses_3d(
             the responses. If not given they will be generated.
         deformation_amp: float, the amplitude of deformation, in meters.
         cmap: matplotlib.colors.Colormap, the colormap to plot with.
-        center_norm: bool, whether to center the color normalization at 0.
         new_fig: bool, whether to plot on a new figure and axis.
 
     """
@@ -42,14 +37,10 @@ def contour_responses_3d(
     assert sim_responses.response_type == ResponseType.YTranslation
 
     # Calculate the shells if necessary.
-    # TODO: Add default expt_params to build_model_3d.
     if shells is None:
-        build_model_3d(
-            c=c, expt_params=ExptParams([SimParams([], [])]), os_runner=OSRunner(c)
-        )
-        shells = shells_by_id.values()
-        deck_shells = [s for s in shells if not s.pier]
-        pier_shells = [s for s in shells if s.pier]
+        all_shells = det_shells(get_bridge_shells(c.bridge))
+        deck_shells = [s for s in all_shells if not s.pier]
+        pier_shells = [s for s in all_shells if s.pier]
         shells = pier_shells + deck_shells
 
     max_r, min_r = max(sim_responses.values()), min(sim_responses.values())
@@ -79,12 +70,7 @@ def contour_responses_3d(
 
     # Colors are normalized based on the maximum response per shell.
     vmin, vmax = min(max_r_per_shell), max(max_r_per_shell)
-    if center_norm:
-        vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
-    print(vmin)
-    print(vmax)
     linthresh = min(abs(vmin), abs(vmax)) * 0.03
-    print(linthresh)
     norm = matplotlib.colors.SymLogNorm(vmin=vmin, vmax=vmax, linthresh=linthresh)
 
     # Setup a new 3D landscape figure.
