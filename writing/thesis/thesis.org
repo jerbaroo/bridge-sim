@@ -1658,49 +1658,6 @@ OpenSees validated against the previously validated FEM of bridge 705 for Diana.
 In addition the generated FEM is validated directly against the measurements
 from the experimental campaign.
 
-**** Convergence
-
-# Convergence figure.
-The density of the generated FEM's mesh is controlled by a parameter
-$max\_shell\_len$ or ~MSL~ as discussed in Subsection [[Meshing]]. As ~MSL~ is
-decreased, the length and area of all shells in the FEM in question are reduced,
-heading steadily toward 0. Figure [[fig:converge-displa]] shows the minimum, maximum
-and mean displacement from a simulation where a point load is placed at point A
-from Table [[tbl:loading-positions]], which is at $x = 34.955$ and $z = 29.226$
-meters. In Figure [[fig:converge-strain]] a similar plot is shown but for strain
-instead of displacement. The Figures show that displacement converges and that
-the minimum and mean strain converges, however TODO
-
-# Computation on a grid: 1.
-The positions of nodes will change as ~MSL~ is varied. Consider the transverse
-direction of the bridge, 33.2 meters in width. If ~MSL~ is set to $33.2 / 3 =
-16.6$ then the number of nodes in that direction will, ignoring additional nodes
-from piers or mesh refinement, be set to 3. When ~MSL~ is decreased to a value
-less than 16.6 the number of nodes will jump to 4. The nodes are equidistantly
-placed and thus do not line up with the original 3 nodes. Displacement from a
-simulation is given at the positions of nodes, and strain is given at positions
-$\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height from a shell
-element's center, as discussed in Subsection [[Collected data]].
-
-# Computation on a grid: 1.
-The positions of nodes vary as ~MSL~ is increased, thus the maximum and mean
-displacement and minimum and mean strain are calculated from responses on a
-pre-determined grid of positions. To caculate the response at one of these grid
-positions, the responses from the closest positions from the simulation are
-interpolated. The minimum displacement value and the maximum strain values are
-not calculated from a grid, as they is likely to come from the node that the
-load is applied on. Furthermore, due to refinement of the mesh around the load,
-the mesh should be dense enough if the response is not exactly at the load.
-# TODO: Rerun convergence test.
-
-#+NAME: fig:converge-displa
-#+CAPTION[Convergence of displacement]: Minimum, maximum and mean displacement, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the displacement normalized to the mean of the final 5 values of that plotted response line. The minimum and mean displacement are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. Maximum, minimum and mean displacement are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the maximum, minimum and mean have reached at least 99.5% of the value being normalized to.
-[[../../saved-generated-data-images/convergence/min-max-displacement.pdf]]
-
-#+NAME: fig:converge-strain
-#+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The minimum and mean strain are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the TODO, minimum and mean are within 0.58% of the value being normalized to.
-[[../../saved-generated-data-images/convergence/min-max-strain.pdf]]
-
 **** Comparison with Diana
 
 Four point-load simulations were run using the generated FEM of bridge 705 for
@@ -1761,60 +1718,111 @@ superposition of responses from simulations with a single point load each.
 |       |            |          Mean |     0.0181 |        0.2165 |
 #+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
-\textcolor{red}{Verify the model is deterministic $\epsilon$}
+**** Experimental Measurements
+
+# TODO: Verify the model is deterministic
 
 # Introduction to experimental campaign.
 An experimental campaign was carried out by TNO where two trucks were driven on
-bridge 705 in Amsterdam and sensor responses measured. Sensors were installed by
-TNO aswell as by other companies. The sensors measured strain, displacement and
-acceleration. The measured responses allowed the FEM of bridge 705 for Diana to
-be verified by comparing the responses in simulation with Diana against the
-measured responses.
+bridge 705 in Amsterdam and sensor responses measured. Both static and dynamic
+load tests were executed. Sensors were installed by TNO as-well as by other
+companies. The sensors measured strain, displacement and acceleration. The
+measured responses allowed the FEM of bridge 705 for Diana to be validated by
+comparing the responses in simulation with Diana against the measured responses.
 
-# Only truck 1 is considered.
-For the verification of the generated FEM against both the FEM of bridge 705 for
-Diana, and against the measured responses, only one of the trucks (truck 1) is
-considered. This is because the measured responses and the responses from Diana
-for truck 1 were available from TNO in a simple format.
+# Only truck 1 staic load tests is considered.
+All responses for classification in this thesis are calculated from a
+superposition of static load simulations, thus only measurements from the static
+load tests are required for validation of the generated FEM of bridge 705 for
+OpenSees. Only measurements from the load tests of truck 1 are considered. This
+is because the measured responses, and the responses from Diana for Truck 1 were
+available from TNO in a ready-to-consume format. The 13 loading positions of
+truck 1 are certainly sufficient.
 
-# Truck 1.
-The specification of truck 1 is shown in Figure [[fig:truck-1]] on the left. The
-plot on the left shows the size of the wheels, however in simulation the force
-from each wheel is represented by a point load as shown on the right in the same
-Figure.
+# Truck 1 and the static load test.
+The specification of Truck 1 is shown in the plot on the left of Figure
+[[fig:truck-1]]. The plot shows the size of each of the truck's wheel prints
+($\SI{0.31}{m} \cdot \SI{0.25}{m}$), in simulation however the force from each
+wheel is represented by a point load as shown in the plot on the right of the
+same Figure. A wheel print is TODO the dimensions of the wheel which are in
+contact with the ground.
 
 #+NAME: fig:truck-1
-#+CAPTION[Truck 1]: Specification of truck 1 from the experimental campaign. The plot on the left shows the distance between each axle in meters, the axle width in meters, the weight per wheel in kilogram, the total weight per axle in kilogram and the total weight of the truck in kilogram. The plot on the right is generated by the model of truck used in simulation, here the force from each wheel is represented by a point load.
+#+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each side of an axle is annotated with the load intensity of the wheel at that side of the axle. The plot on the right depicts the model of truck used in simulation, here the force from each wheel is represented by a point load.
 #+ATTR_LATEX: :float sideways
-[[./images/wagen-1.pdf]]
+[[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
 
 # Truck 1 positions.
 In the experimental campaign, truck 1 was parked at 13 positions on the bridge
-deck and the responses from a number of sensors measured. The positions of the
-truck are shown in Figure [[fig:truck-pos]]. Each of the sensors are listed in Table
-[[tbl:sensor-pos]], furthermore the positions of the sensors across the bridge deck
-is shown in Figure \textcolor{red}{TODO REF}
+deck and the responses from a number of sensors measured in what is called a
+static load test. The positions of the truck are shown in Figure [[fig:truck-pos]].
+and the sensors considered in this thesis are listed in Table [[tbl:sensor-pos]]
+along with the company who installed them and their positions.
 
-\textcolor{red}{Use all strain sensors for verification}
+# TODO: Sensor positions table linked above.
 
 #+NAME: fig:truck-pos
 #+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 #+ATTR_LATEX: :float sideways
 [[./images/truck-pos.png]]
 
-\textcolor{red}{Figure of sensor positions}
-
-\textcolor{red}{When bridge 705 was built}
-
 # FEMs make perfect health assumption.
-Amn important point is that the FEM of bridge 705 for Diana and the generated
-FEM are based on a blueprint of the bridge and make the assumption that bridge
-705 is in perfect healthy condition. However since bridge 705 was built N years
-ago, it is more likely that some imperfections now exist in the structure. Both
-the generated FEM and the FEM for Diana are based on the assumption of perfect
-health and thus the measured responses are not expected to exactly match.
+An important point is that the FEM of bridge 705 for Diana and the generated FEM
+are based on a blueprint of the bridge and make the assumption that bridge 705
+is in perfect healthy condition. However since bridge 705 was built in 1962, it
+is more likely that some imperfections now exist in the structure. Both the
+generated FEM and the FEM for Diana are based on the assumption of perfect
+health and thus the measured responses are not expected to match exactly.
+
+For each of the 13 static load tests
+
+**** Convergence
+
+# Convergence figure.
+The density of the generated FEM's mesh is controlled by a parameter
+$max\_shell\_len$ or ~MSL~ as discussed in Subsection [[Meshing]]. As ~MSL~ is
+decreased, the length and area of all shells in the FEM in question are reduced,
+heading steadily toward 0. Figure [[fig:converge-displa]] shows the minimum, maximum
+and mean displacement from a simulation where a point load is placed at point A
+from Table [[tbl:loading-positions]], which is at $x = 34.955$ and $z = 29.226$
+meters. In Figure [[fig:converge-strain]] a similar plot is shown but for strain
+instead of displacement. The Figures show that displacement converges and that
+the minimum and mean strain converges, however TODO
+
+# Computation on a grid: 1.
+The positions of nodes will change as ~MSL~ is varied. Consider the transverse
+direction of the bridge, 33.2 meters in width. If ~MSL~ is set to $33.2 / 3 =
+16.6$ then the number of nodes in that direction will, ignoring additional nodes
+from piers or mesh refinement, be set to 3. When ~MSL~ is decreased to a value
+less than 16.6 the number of nodes will jump to 4. The nodes are equidistantly
+placed and thus do not line up with the original 3 nodes. Displacement from a
+simulation is given at the positions of nodes, and strain is given at positions
+$\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height from a shell
+element's center, as discussed in Subsection [[Collected data]].
+
+# Computation on a grid: 1.
+The positions of nodes vary as ~MSL~ is increased, thus the maximum and mean
+displacement and minimum and mean strain are calculated from responses on a
+pre-determined grid of positions. To caculate the response at one of these grid
+positions, the responses from the closest positions from the simulation are
+interpolated. The minimum displacement value and the maximum strain values are
+not calculated from a grid, as they is likely to come from the node that the
+load is applied on. Furthermore, due to refinement of the mesh around the load,
+the mesh should be dense enough if the response is not exactly at the load.
+# TODO: Rerun convergence test.
+
+#+NAME: fig:converge-displa
+#+CAPTION[Convergence of displacement]: Minimum, maximum and mean displacement, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the displacement normalized to the mean of the final 5 values of that plotted response line. The minimum and mean displacement are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. Maximum, minimum and mean displacement are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the maximum, minimum and mean have reached at least 99.5% of the value being normalized to.
+[[../../saved-generated-data-images/convergence/min-max-displacement.pdf]]
+# TODO: Update values when re-run.
+
+#+NAME: fig:converge-strain
+#+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The minimum and mean strain are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the TODO, minimum and mean are within 0.58% of the value being normalized to.
+[[../../saved-generated-data-images/convergence/min-max-strain.pdf]]
+# TODO: Update values when re-run.
 
 **** AxisVM
+
 Pier settlement and thermal loading are validated against a FEM built for the
 program AxisVM. The AxisVM model was built using a graphical user interface
 (GUI) rather than programmatically. Building a model in this manner allows for
