@@ -1,0 +1,20 @@
+#+TITLE: January Meeting
+
+* December
+- Enjoyed the work
+- Started with rebuilding 3D model
+  - previous model: crap convergence
+  - important groundwork for progress
+- Milestone: draft by end of this month
+- Quit work
+- Made progress, will fly through plots
+* Plots
+* Milestone: 31st January
+- Thermal loading validated (difficult)
+- Pier settlement validated (difficult)
+- ML-based classifier (difficult)
+- Draft (medium)
+- Light vehicle data (1 day)
+- Compare time series to real data
+  - had meeting planned before xmas
+- Compare time series from 3D & 2D model
