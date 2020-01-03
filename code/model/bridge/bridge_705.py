@@ -266,8 +266,8 @@ def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=lambda: bridge(
             name="Bridge 705",
             accuracy="med",
-            base_mesh_deck_max_x=2,
-            base_mesh_deck_max_z=2,
+            base_mesh_deck_max_x=1.5,
+            base_mesh_deck_max_z=1.5,
             base_mesh_pier_max_long=0.5,
         )
     )

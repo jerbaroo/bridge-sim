@@ -1785,7 +1785,7 @@ Somewhat surprisingly the responses from the OpenSees model are in better
 agreement with the measurements than the responses from the Diana model.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
+#+CAPTION[Truck 1]: Each plot shows the line  Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 #+ATTR_LATEX: :float sideways
 [[./images/truck-pos.png]]
 
@@ -1818,10 +1818,11 @@ The positions of nodes vary as ~MSL~ is increased, thus the maximum and mean
 displacement and minimum and mean strain are calculated from responses on a
 pre-determined grid of positions. To caculate the response at one of these grid
 positions, the responses from the closest positions from the simulation are
-interpolated. The minimum displacement value and the maximum strain values are
-not calculated from a grid, as they is likely to come from the node that the
-load is applied on. Furthermore, due to refinement of the mesh around the load,
-the mesh should be dense enough if the response is not exactly at the load.
+interpolated. The minimum displacement values and the maximum strain values are
+not calculated from a grid, as they are likely to come from the node that the
+load is applied on. Furthermore, due to the heavy refinement of the mesh around
+the load, the mesh should be dense enough if the response is not exactly at the
+load.
 # TODO: Rerun convergence test.
 
 #+NAME: fig:converge-displa
