@@ -1180,7 +1180,7 @@ more digestable format in Table [[tbl:bridge-705-props]] in the Appendix.
 
 #+CAPTION: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-thickness
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/thickness-parula-outline-true-lanes-true.pdf]]
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/thickness-parula-outline-false-lanes-true.pdf]]
 
 Density and Young's modulus are set to a constant value throughout all piers of
 bridge 705. Thickness however varies linearly according the specification from
@@ -1941,11 +1941,11 @@ built is discussed.
 
 #+CAPTION: Density of the deck of the generated FEM of bridge 705 in kilogram per meter. The bridge deck under the tram lane, in the center of the bridge (light green), is the most dense (2.9 kg/m). The deck under the traffic lanes (teal green) is slightly less dense at (2.845 kg/mg) and the purple areas in-between are the least dense at approximately 2.6 kg/m. The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-density
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-true-lanes-true.pdf]]
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-false-lanes-true.pdf]]
 
 #+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-youngs
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-false-lanes-true.pdf]]
 
 #+NAME: tbl:bridge-705-props
 #+CAPTION[Material properties of bridge 705]: Material properties of the deck of the generated FEM of bridge 705. The first column determines the position where a material property begins, in meters from the southern edge of the bridge. The second column gives the material density in kilogram per meter, the second column gives the thickness in meters, and the third column gives Young's modulus in mega Pascal.
