@@ -544,7 +544,7 @@ def r2_plots(c: Config):
 
 def make_convergence_data(c: Config):
     """Make convergence data file, increasing mesh density per simulation."""
-    load_point = Point(x=35, y=0, z=9.65)
+    load_point = Point(x=34.955, y=0, z=29.226 - 16.6)
     bridge = bridge_705_3d()
     fem_params = SimParams(
         ploads=[
@@ -636,8 +636,8 @@ def make_convergence_data(c: Config):
             # Determine min, max and mean displacements.
             all_displacements = list(displacements.values())
             grid_displacements = np.array([displacements.at_deck(point, interp=True) for point in grid])
-            min_d = np.min(grid_displacements)
-            max_d = np.max(all_displacements)
+            min_d = np.min(all_displacements)
+            max_d = np.max(grid_displacements)
             mean_d = np.mean(grid_displacements)
             assert len(min_d) == 1; assert len(mean_d) == 1
             min_d = min_d[0]; mean_d = mean_d[0]

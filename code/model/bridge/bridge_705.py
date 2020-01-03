@@ -143,7 +143,7 @@ pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 pier_section_f = lambda start_frac_len: Section3DPier(
     density=2.724,
     thickness=round_m(np.interp(
-        start_frac_len, [0, 1], [pier_thickness_top, pier_thickness_bottom])
+        start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top])
     ),
     youngs=38400,
     poissons=0.2,

@@ -65,6 +65,8 @@ def make_shell_properties_top_view(original_c: Config):
     # For each damage scenario build the model and extract the shells.
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
+        # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
+        bridge_name = c.bridge.name
         for ctx, ctx_name in [
             (BuildContext(
                 add_loads=[Point(x=85, y=0, z=0)],
@@ -77,18 +79,26 @@ def make_shell_properties_top_view(original_c: Config):
             pier_shells = flatten(bridge_shells[1], Shell)
             all_shells = pier_shells + deck_shells
             for shells_name, shells in [
-                ("deck", deck_shells), ("piers", pier_shells)
+                ("piers", pier_shells), ("deck", deck_shells),
             ]:
                 for prop_name, prop_units, prop_f in [
                         ("Mesh", "", None),
-                        ("Thickness", "m", lambda s: s.thickness),
+                        ("Thickness", "m", lambda s: np.around(s.thickness, 3)),
                         ("Density", "kg/m", lambda s: np.around(s.density, 3)),
                         ("Poisson's ratio", "m/m", lambda s: s.poissons),
-                        ("Young's modulus", "MPa", lambda s: s.youngs),
+                        ("Young's modulus", "MPa", lambda s: np.around(s.youngs, 1)),
                 ]:
                     for cmap in [parula_cmap, default_cmap, get_cmap("tab10")]:
-                        for outline in [True, False]:
-                            top_view_bridge(bridge=c.bridge, abutments=True, piers=True, compass=prop_f is not None)
+                        for outline, lanes in itertools.product([True, False], [False, True]):
+                            def top_view():
+                                top_view_bridge(
+                                    bridge=c.bridge,
+                                    abutments=True,
+                                    piers=True,
+                                    lanes=lanes,
+                                    compass=prop_f is not None
+                                )
+                            top_view()
                             shell_properties_top_view(
                                 shells=shells,
                                 prop_f=prop_f,
@@ -98,11 +108,12 @@ def make_shell_properties_top_view(original_c: Config):
                                 label=prop_f is not None,
                                 outline=outline,
                             )
-                            plt.title(f"{prop_name} of {c.bridge.name}'s {shells_name} ({ctx_name})")
+                            top_view()
+                            plt.title(f"{prop_name} of {bridge_name}'s {shells_name} ({ctx_name})")
                             plt.savefig(
                                 c.get_image_path(
                                     f"geometry/{shells_name}-shells-{ctx_name}-top-view",
-                                    safe_str(f"{prop_name}-outline-{outline}-{cmap.name}") + ".pdf",
+                                    safe_str(f"{prop_name}-{cmap.name}-outline-{outline}-lanes-{lanes}") + ".pdf",
                                 )
                             )
                             plt.close()

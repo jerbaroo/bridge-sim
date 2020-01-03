@@ -1155,9 +1155,47 @@ bridge705 = Bridge {
 - Material properties may vary according to a continuous function on a real
   bridge while material properties in the FEM change at given discretization
   points.
-
-  # \textcolor{red, TODO: shell boundaries at requested variation points}
 **** Bridge 705
+Bridge 705 is a no-prestress no-posttension concrete slab bridge in the east of
+Amsterdam, close to Lelylaan station. The bridge has two lanes of traffic,
+traveling in opposite directions and two tram lines in the center. The bridge
+has 24 supporting piers each of a height of 3.5 meters. Figure
+[[fig:bridge-705-real]] shows a photo of bridge 705.
+
+#+CAPTION: Bridge 705 at Cornelis Lelylaan, Amsterdam. The bridge has two traffic lanes, and two tram lanes in-between them. This photo is courtesy of TNO.
+#+NAME: fig:bridge-705-real
+[[../../bridge705/bridge-705.png]]
+
+The same material properties that were used in the Diana model of bridge 705
+were used in the generated FEM of bridge 705 for OpenSees. These material
+properties originally came from blueprints that were used for the construction
+of the bridge. The material properties are specified in terms of density in
+kilogram per meter, thickness in meters and Young's modulus in mega Pascal.
+Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705.
+Similar figures for density and Young's modulus are available in the Appendix as
+Figures [[fig:bridge-705-density]], [[fig:bridge-705-youngs]]. Note that for all these
+plots the material properties are symmetric across the longitudinal center of
+the bridge. The material properties of bridge 705's deck are also available in a
+more digestable format in Table [[tbl:bridge-705-props]] in the Appendix.
+
+#+CAPTION: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.
+#+NAME: fig:bridge-705-thickness
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/thickness-outline-true-parula.pdf]]
+
+Density and Young's modulus are set to a constant value throughout all piers of
+bridge 705. Thickness however varies linearly according the specification from
+the Diana model, increasing from a thickness of 0.362 meters at the top of each
+pier to 1.266 meters at the top. The photograph of bridge presented in Figure
+[[fig:bridge-705-real]] shows the increasing thickness of the piers. When generating
+a model of bridge 705 for simulation, the piers are discretized into a number of
+shell elements based on the $max_shell_len$ parameter as described in Subsection
+[[Meshing]], each shell is assigned a value linearly in the range $[1.266, 0.362]$.
+
+Poisson's ratio is constant for the entirety of the bridge deck and for the
+piers, set to a value of 0.2. This will not have an affect on the simulation
+because ...
+TODO: Why is Poisson's ratio not going to have an effect.
+
 The nodes of the generated FEM which have degree's of freedom fixed are: the
 nodes which make up the abutments at the east and west ends of the bridge, and
 the nodes along the bottom of each the piers. All of these nodes are fixed in
@@ -1620,40 +1658,78 @@ OpenSees validated against the previously validated FEM of bridge 705 for Diana.
 In addition the generated FEM is validated directly against the measurements
 from the experimental campaign.
 
-# Error decreases as mesh density increases.
-The density of the generated FEM's mesh is controlled by a number of parameters,
-as outlined in Subsection [[Bridge Model]]. As the number of nodes in the FEM
-increases, the expectation is that the error $\epsilon$ of responses from the
-OpenSees simulation will decrease to zero. $\epsilon$ is calculated for the FEM
-of bridge 705 as the mean difference of the maximum response recorded with
-OpenSees to the maximum recorded with Diana, for a number of loading positions.
-$\epsilon = \sum_{p=1}^{n} \abs{r_{op} - r_{dp}} \frac{1}{n}$, where $r_{op}$ is
-the maximum response recorded with OpenSees under a 100kN concentrated load at
-position $p$ and $r_{dp}$ is the maximum response recorded using the verified
-Diana model with the same load applied.
+**** Convergence
 
-# Figure of decreasing convergence.
-Figure [[fig:response-convergence]] shows $\epsilon$ for $n = 4$ as a function of
-model size. The Figure shows that for the $n = 4$ chosen loading positions that
-$\epsilon$ decreases as the model size increases. Four loading positions were
-chosen to cover various points of interest on the bridge deck. Each of the $n =
-4$ loading positions is defined in Table [[tbl:loading-positions]] with the reason
-for including that position.
+# Convergence figure.
+The density of the generated FEM's mesh is controlled by a parameter
+$max\_shell\_len$ or ~MSL~ as discussed in Subsection [[Meshing]]. As ~MSL~ is
+decreased, the length and area of all shells in the FEM in question are reduced,
+heading steadily toward 0. Figure [[fig:converge-displa]] shows the minimum, maximum
+and mean displacement from a simulation where a point load is placed at point A
+from Table [[tbl:loading-positions]], which is at $x = 34.955$ and $z = 29.226$
+meters. In Figure [[fig:converge-strain]] a similar plot is shown but for strain
+instead of displacement. The Figures show that displacement converges and that
+the minimum and mean strain converges, however TODO
 
-\textcolor{red}{Get accurate values from Diana for $\epsilon$ calculation}
+# Computation on a grid: 1.
+The positions of nodes will change as ~MSL~ is varied. Consider the transverse
+direction of the bridge, 33.2 meters in width. If ~MSL~ is set to $33.2 / 3 =
+16.6$ then the number of nodes in that direction will, ignoring additional nodes
+from piers or mesh refinement, be set to 3. When ~MSL~ is decreased to a value
+less than 16.6 the number of nodes will jump to 4. The nodes are equidistantly
+placed and thus do not line up with the original 3 nodes. Displacement from a
+simulation is given at the positions of nodes, and strain is given at positions
+$\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height from a shell
+element's center, as discussed in Subsection [[Collected data]].
 
-#+NAME: fig:response-convergence
-#+CAPTION[Error as a function of model size]: TODO:CAPTION
-[[./images/response-convergence.png]]
+# Computation on a grid: 1.
+The positions of nodes vary as ~MSL~ is increased, thus the maximum and mean
+displacement and minimum and mean strain are calculated from responses on a
+pre-determined grid of positions. To caculate the response at one of these grid
+positions, the responses from the closest positions from the simulation are
+interpolated. The minimum displacement value and the maximum strain values are
+not calculated from a grid, as they is likely to come from the node that the
+load is applied on. Furthermore, due to refinement of the mesh around the load,
+the mesh should be dense enough if the response is not exactly at the load.
+# TODO: Rerun convergence test.
+
+#+NAME: fig:converge-displa
+#+CAPTION[Convergence of displacement]: Minimum, maximum and mean displacement, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the displacement normalized to the mean of the final 5 values of that plotted response line. The minimum and mean displacement are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. Maximum, minimum and mean displacement are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the maximum, minimum and mean have reached at least 99.5% of the value being normalized to.
+[[../../saved-generated-data-images/convergence/min-max-displacement.pdf]]
+
+#+NAME: fig:converge-strain
+#+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The minimum and mean strain are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the TODO, minimum and mean are within 0.58% of the value being normalized to.
+[[../../saved-generated-data-images/convergence/min-max-strain.pdf]]
+
+**** Comparison with Diana
+
+Four point-load simulations were run using the generated FEM of bridge 705 for
+OpenSees, and simulation with the same loading parameters were run on the model
+of bridge 705 for Diana. The positions which were chosen for each point-load are
+given in Table [[loading-positions]]. A comparison of the maximum and minimum
+displacement from these simulations is given in Tables [[tbl:max-displacement]] and
+[[tbl:min-displacement]]. The mean difference of the maximum displacements between
+simulations is $0.0784 mm$ and the mean difference of the minimum displacements
+is $0.2165 mm$. Contour plots of displacement from these simulations are given
+in Figures [[fig:comp-diana-a]] - [[fig:comp-os-a]] for point A. The remaining Figures
+[[fig:comp-diana-b]] - [[fig:comp-os-d]] for points B - D are given in the [[Appendix]]. It
+makes sense to compare simulations with only a single point load applied because
+the traffic responses used for classification are generated based on a
+superposition of responses from simulations with a single point load each.
+
+# TODO: Update the Appendix reference above.
+# TODO: After refinement update values above.
+
+#+NAME: fig:comp-diana-a
+#+CAPTION[Displacement in Diana from point load A]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a]] from simulation with OpenSees.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/a-diana-displacement.pdf]]
+
+#+NAME: fig:comp-os-a
+#+CAPTION[Displacement in OpenSees from point load A]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a]] from simulation with Diana.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/a-displacement.pdf]]
 
 #+NAME: tbl:loading-positions
-#+CAPTION[Loading positions comparison with Diana]: Loading positions chosen for
-the comparison of the FEM of bridge 705 generated for OpenSees and the
-previously validated Diana model. Each point is given in meters along the
-longitudinal (x) and transverse (z) directions of the bridge. Each loading
-position is assigned a unique label so it can be referred to, and a reason why
-that position was chosen. The exact position chosen is the position of a node in
-the Diana model which fulfils the reason in the "Reason" column.
+#+CAPTION[Loading positions comparison with Diana]: Loading positions chosen for the comparison of the FEM of bridge 705 generated for OpenSees and the previously validated Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each loading position is assigned a unique label so it can be referred to, and a reason why that position was chosen. The exact position chosen is the position of a node in the Diana model which fulfils the reason in the "Reason" column.
 |   X (m) |  Z (m) | Label | Reason                                             |
 |---------+--------+-------+----------------------------------------------------|
 |  34.955 | 29.226 | A     | On a wheel track, between piers                    |
@@ -1833,6 +1909,46 @@ built is discussed.
 :APPENDIX: t
 :END:
 
+** Bridge 705 Material Properties
+
+#+CAPTION: Density of the deck of the generated FEM of bridge 705 in kilogram per meter. The bridge deck under the tram lane, in the center of the bridge (light green), is the most dense (2.9 kg/m). The deck under the traffic lanes (teal green) is slightly less dense at (2.845 kg/mg) and the purple areas in-between are the least dense at approximately 2.6 kg/m. The material properties are symmetric across the longitudinal center of the bridge.
+#+NAME: fig:bridge-705-density
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-outline-true-parula.pdf]]
+
+#+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the longitudinal center of the bridge.
+#+NAME: fig:bridge-705-thickness
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/young's-modulus-outline-true-parula.pdf]]
+
+#+NAME: tbl:bridge-705-props
+#+CAPTION[Material properties of bridge 705]: Material properties of the deck of the generated FEM of bridge 705. The first column determines the position where a material property begins, in meters from the southern edge of the bridge. The second column gives the material density in kilogram per meter, the second column gives the thickness in meters, and the third column gives Young's modulus in mega Pascal.
+| position |   density | thickness | youngs |
+|----------+-----------+-----------+--------|
+|        0 | 2.724E-06 |       750 |  38400 |
+|      600 | 2.724E-06 |       740 |  38400 |
+|      601 | 2.637E-06 |       655 |  38400 |
+|     3650 | 2.664E-06 |       589 |  38400 |
+|     3651 | 3.143E-06 |       500 |  38400 |
+|     3850 | 3.124E-06 |       500 |  38400 |
+|     3851 | 2.845E-06 |       500 |  41291 |
+|    11100 | 2.765E-06 |       650 |  41291 |
+|    11101 | 2.980E-06 |       650 |  38400 |
+|    11300 | 2.995E-06 |       650 |  38400 |
+|    11301 | 2.631E-06 |       739 |  38400 |
+|    13710 | 2.617E-06 |       787 |  38400 |
+|    13711 | 2.907E-06 |       650 |  47277 |
+|    19489 | 2.617E-06 |       787 |  38400 |
+|    19490 | 2.631E-06 |       739 |  38400 |
+|    21899 | 2.995E-06 |       650 |  38400 |
+|    21900 | 2.980E-06 |       650 |  38400 |
+|    22099 | 2.765E-06 |       650 |  41291 |
+|    22100 | 2.845E-06 |       500 |  41291 |
+|    29349 | 3.124E-06 |       500 |  38400 |
+|    29350 | 3.143E-06 |       500 |  38400 |
+|    29549 | 2.664E-06 |       589 |  38400 |
+|    29550 | 2.637E-06 |       655 |  38400 |
+|    32599 | 2.724E-06 |       740 |  38400 |
+|    32600 | 2.724E-06 |       750 |  38400 |
+
 #+NAME: tbl:diana-nodes
 #+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana
 bridge 705 model. Each node corresponds to a loading position in Table
@@ -1855,6 +1971,30 @@ can be found in the =traffic-sim= GitHub repository.
 |  0.14 | 0.130 | B |      |         |
 | 0.162 | 0.180 | C |      |         |
 |  0.13 | 0.128 | D |      |         |
+
+#+NAME: fig:comp-diana-b
+#+CAPTION[Displacement in Diana from point load B]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b]] from simulation with OpenSees.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/b-diana-displacement.pdf]]
+
+#+NAME: fig:comp-os-b
+#+CAPTION[Displacement in OpenSees from point load B]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 52.521$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-b]] from simulation with Diana.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/b-displacement.pdf]]
+
+#+NAME: fig:comp-diana-c
+#+CAPTION[Displacement in Diana from point load C]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-c]] from simulation with OpenSees.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-diana-displacement.pdf]]
+
+#+NAME: fig:comp-os-c
+#+CAPTION[Displacement in OpenSees from point load C]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-c]] from simulation with Diana.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-displacement.pdf]]
+
+#+NAME: fig:comp-diana-d
+#+CAPTION[Displacement in Diana from point load D]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d]] from simulation with OpenSees.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-diana-displacement.pdf]]
+
+#+NAME: fig:comp-os-d
+#+CAPTION[Displacement in OpenSees from point load C]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d]] from simulation with Diana.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/d-displacement.pdf]]
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr

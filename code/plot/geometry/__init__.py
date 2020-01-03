@@ -53,6 +53,7 @@ def top_view_bridge(
                     bridge.length,
                     lane.z_max - lane.z_min,
                     facecolor="black" if lane_fill else "none",
+                    edgecolor="black",
                 )
             )
     if compass:
