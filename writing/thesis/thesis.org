@@ -1721,11 +1721,11 @@ superposition of responses from simulations with a single point load each.
 # TODO: After refinement update values above.
 
 #+NAME: fig:comp-diana-a
-#+CAPTION[Displacement in Diana from point load A]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (A)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a]] from simulation with OpenSees.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/a-diana-displacement.pdf]]
 
 #+NAME: fig:comp-os-a
-#+CAPTION[Displacement in OpenSees from point load A]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from point load (A)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a]] from simulation with Diana.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/a-displacement.pdf]]
 
 #+NAME: tbl:loading-positions
@@ -1973,27 +1973,27 @@ can be found in the =traffic-sim= GitHub repository.
 |  0.13 | 0.128 | D |      |         |
 
 #+NAME: fig:comp-diana-b
-#+CAPTION[Displacement in Diana from point load B]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b]] from simulation with OpenSees.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/b-diana-displacement.pdf]]
 
 #+NAME: fig:comp-os-b
-#+CAPTION[Displacement in OpenSees from point load B]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 52.521$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-b]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from a point load (B)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 52.521$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-b]] from simulation with Diana.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/b-displacement.pdf]]
 
 #+NAME: fig:comp-diana-c
-#+CAPTION[Displacement in Diana from point load C]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-c]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (C)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-c]] from simulation with OpenSees.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-diana-displacement.pdf]]
 
 #+NAME: fig:comp-os-c
-#+CAPTION[Displacement in OpenSees from point load C]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-c]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from a point load (C)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-c]] from simulation with Diana.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-displacement.pdf]]
 
 #+NAME: fig:comp-diana-d
-#+CAPTION[Displacement in Diana from point load D]: Displacement from a simulation of the Diana model of bridge 705, with a point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (D)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d]] from simulation with OpenSees.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/c-diana-displacement.pdf]]
 
 #+NAME: fig:comp-os-d
-#+CAPTION[Displacement in OpenSees from point load C]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from point load (D)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d]] from simulation with Diana.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/d-displacement.pdf]]
 
 #+LATEX: \clearpage
