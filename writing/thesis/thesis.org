@@ -1774,7 +1774,20 @@ is more likely that some imperfections now exist in the structure. Both the
 generated FEM and the FEM for Diana are based on the assumption of perfect
 health and thus the measured responses are not expected to match exactly.
 
-For each of the 13 static load tests
+# Regression plots.
+For each of the 13 static load tests the measurements from the displacement and
+strain sensors listed in Table [[tbl:sensor-pos]] are compared to the responses from
+the Diana model of bridge 705 and to the generated FEM for OpenSees, furthermore
+the responses from the Diana model are compared to the OpenSees model. This
+comparison takes the form of a number of regression plots shown in Figure
+[[fig:regress-displa]] for displacement and Figure [[fig:regress-os]] for strain.
+Somewhat surprisingly the responses from the OpenSees model are in better
+agreement with the measurements than the responses from the Diana model.
+
+#+NAME: fig:regress-displa
+#+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
+#+ATTR_LATEX: :float sideways
+[[./images/truck-pos.png]]
 
 **** Convergence
 
