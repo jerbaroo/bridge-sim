@@ -215,7 +215,7 @@ def bridge_705_3d(
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
     base_mesh_deck_max_x: int = 0.5,
-    base_mesh_deck_max_z: int = 0.49,
+    base_mesh_deck_max_z: int = 0.5,
     base_mesh_pier_max_long: int = 0.5,
     **kwargs,
 ) -> Bridge:

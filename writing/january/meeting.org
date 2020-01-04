@@ -12,9 +12,9 @@
 * Milestone: 31st January
 - Thermal loading validated (difficult)
 - Pier settlement validated (difficult)
-- ML-based classifier (difficult)
+- Classifier++ (difficult)
 - Draft (medium)
 - Light vehicle data (1 day)
-- Compare time series to real data
+- Compare time series to dynamic test
   - had meeting planned before xmas
 - Compare time series from 3D & 2D model
