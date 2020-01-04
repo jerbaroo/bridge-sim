@@ -1870,6 +1870,25 @@ material properties of the generated FEM are given in Table [[tbl:single-section
 | Young's modulus   | 47277 MPa  | 38400 MPa  |
 | Poisson's ratio   | 0.2        | 0.2        |
 
+Simulations were run where a displacement load was applied to the central node
+at the bottom of each pier of bridge 705 in turn. The response patterns are very
+similar for each of the piers closest to the northern and southern edges of the
+bridge, and also very similar for each of the remaining piers. One of the piers
+closest to the southern edge of the bridge, and one pier closer to the center of
+the bridge in transverse direction, are chosen for comparison. Each of these
+piers is displaced by $\SI{1}{\meter}$ in AxisVM and again in OpenSees and a
+contour plot of the displacements and strain recorded. Figures [[fig:pd-5-axis]] -
+[[fig:pd-5-os]] show the displacement ...
+# TODO Validate piers and write about remaining images.
+
+#+NAME: fig:pd-5-axis
+#+CAPTION[Pier displacement with AxisVM (1)]: Displacement recorded in AxisVm when a pier of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced by, dark blue is the maximum displacement and dark red the minimum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-single-sections-low-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+
+#+NAME: fig:pd-5-os
+#+CAPTION[Pier displacement with OpenSees (1)]: Displacement recorded with OpenSees when a pier of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced by, dark blue is the maximum displacement and dark red the minimum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-single-sections-low-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time

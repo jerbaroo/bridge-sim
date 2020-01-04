@@ -273,7 +273,7 @@ def piers_displaced(c: Config, pier_indices: List[int]):
             plt.savefig(
                 c.get_image_path(
                     "validation/pier-displacement",
-                    safe_str(f"pier-{p}-{response_type.name()}"),
+                    safe_str(f"pier-{p}-{response_type.name()}") + ".pdf",
                 )
             )
             plt.close()
