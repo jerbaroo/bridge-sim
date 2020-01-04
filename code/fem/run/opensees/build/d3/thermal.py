@@ -126,7 +126,7 @@ def opensees_thermal_axial_deck_loads(
 
 
 def opensees_thermal_moment_deck_loads(
-        sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
+    sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
 ):
     """Thermal moment loads for deck shells, if in the simulation parameters."""
     if sim_params.moment_delta_temp is None:

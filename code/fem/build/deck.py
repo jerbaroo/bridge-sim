@@ -144,11 +144,12 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
         new_deck_shell_nodes = []
         for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
             # If not refining, keep the existing shell.
-            if (
-                    (not refine_shell([node_i, node_j, node_k, node_l], max_dist))
-                    or (num_refined > refinement_iter)
+            if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
+                num_refined > refinement_iter
             ):
-                new_deck_shell_nodes.append((node_i, node_j, node_k, node_l, num_refined))
+                new_deck_shell_nodes.append(
+                    (node_i, node_j, node_k, node_l, num_refined)
+                )
             # Else if refining, construct 5 new nodes, and 4 new shells.
             else:
                 center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
@@ -156,43 +157,48 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
                 # Construct the 5 new nodes.
                 center_node, bottom_node, top_node, left_node, right_node = [
                     ctx.get_node(x=x, y=0, z=z, deck=True)
-                    for z, x in
-                    [
-                        (center_z, center_x), # Center node.
-                        (node_i.z, center_x), # Bottom node.
-                        (node_l.z, center_x), # Top node.
-                        (center_z, node_i.x), # Left node.
-                        (center_z, node_j.x), # Right node.
+                    for z, x in [
+                        (center_z, center_x),  # Center node.
+                        (node_i.z, center_x),  # Bottom node.
+                        (node_l.z, center_x),  # Top node.
+                        (center_z, node_i.x),  # Left node.
+                        (center_z, node_j.x),  # Right node.
                     ]
                 ]
                 # Construct the 4 new shells.
                 for shell_nodes in [
-                        (node_i, bottom_node, center_node, left_node),  # Bottom left.
-                        (bottom_node, node_j, right_node, center_node),  # Bottom right.
-                        (left_node, center_node, top_node, node_l),  # Top left.
-                        (center_node, right_node, node_k, top_node),  # Top right.
+                    (node_i, bottom_node, center_node, left_node),  # Bottom left.
+                    (bottom_node, node_j, right_node, center_node),  # Bottom right.
+                    (left_node, center_node, top_node, node_l),  # Top left.
+                    (center_node, right_node, node_k, top_node),  # Top right.
                 ]:
                     new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
                     assert len(new_deck_shell_nodes[-1]) == 5
         deck_shell_nodes = new_deck_shell_nodes
 
     deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
-    print_i(f"Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}")
+    print_i(
+        f"Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}"
+    )
     return deck_shell_nodes
 
 
-def get_deck_shells(bridge: Bridge, deck_shell_nodes: DeckShellNodes, ctx: BuildContext) -> DeckShells:
+def get_deck_shells(
+    bridge: Bridge, deck_shell_nodes: DeckShellNodes, ctx: BuildContext
+) -> DeckShells:
     shells = []
     for node_i, node_j, node_k, node_l in deck_shell_nodes:
         center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
         center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
         section = bridge.deck_section_at(x=center_x, z=center_z)
-        shells.append(ctx.get_shell(
-            ni_id=node_i.n_id,
-            nj_id=node_j.n_id,
-            nk_id=node_k.n_id,
-            nl_id=node_l.n_id,
-            pier=False,
-            section=section
-        ))
+        shells.append(
+            ctx.get_shell(
+                ni_id=node_i.n_id,
+                nj_id=node_j.n_id,
+                nk_id=node_k.n_id,
+                nl_id=node_l.n_id,
+                pier=False,
+                section=section,
+            )
+        )
     return shells

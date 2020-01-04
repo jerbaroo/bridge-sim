@@ -14,7 +14,7 @@ def shell_properties_3d(
     shells: List[Shell],
     prop_f: Callable[[Section3D], float],
     prop_units: str,
-    cmap: matplotlib.colors.Colormap=default_cmap,
+    cmap: matplotlib.colors.Colormap = default_cmap,
     colorbar: bool = False,
     label: bool = False,
     outline: bool = True,
@@ -68,8 +68,8 @@ def shell_properties_3d(
             linewidths=0.01 if outline else 0,
             label=label_str,
         )
-        poly._facecolors2d=poly._facecolors3d
-        poly._edgecolors2d=poly._edgecolors3d
+        poly._facecolors2d = poly._facecolors3d
+        poly._edgecolors2d = poly._edgecolors3d
         ax.add_collection3d(poly)
 
     if label:
@@ -86,7 +86,7 @@ def shell_properties_top_view(
     shells: List[Shell],
     prop_f: Optional[Callable[[Section3D], float]] = None,
     prop_units: Optional[str] = None,
-    cmap: matplotlib.colors.Colormap=default_cmap,
+    cmap: matplotlib.colors.Colormap = default_cmap,
     colorbar: bool = False,
     label: bool = False,
     outline: bool = True,
@@ -121,13 +121,15 @@ def shell_properties_top_view(
             if label and value not in values:
                 values.add(value)
                 label_str = f"{value} {prop_units}"
-        ax.add_collection(matplotlib.collections.PolyCollection(
-            [shell_verts],
-            facecolors=colour,
-            edgecolors="black" if outline else "none",
-            linewidths=0.01 if outline else 0,
-            label=label_str,
-        ))
+        ax.add_collection(
+            matplotlib.collections.PolyCollection(
+                [shell_verts],
+                facecolors=colour,
+                edgecolors="black" if outline else "none",
+                linewidths=0.01 if outline else 0,
+                label=label_str,
+            )
+        )
 
     if prop_f is not None:
         if label:

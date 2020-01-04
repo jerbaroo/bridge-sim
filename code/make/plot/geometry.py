@@ -31,14 +31,16 @@ def make_shell_properties_3d(original_c: Config):
             all_shells = flatten(bridge_shells, Shell)
             # For each combination of parameters plot the shells.
             for shells_name, shells in [
-                    ("pier", pier_shells), ("all", all_shells), ("deck", deck_shells),
+                ("pier", pier_shells),
+                ("all", all_shells),
+                ("deck", deck_shells),
             ]:
                 for outline, label in itertools.product([True, False], [True, False]):
                     for prop_name, prop_units, prop_f in [
-                            ("Thickness", "m", lambda s: s.thickness),
-                            ("Density", "kg/m", lambda s: s.density),
-                            ("Poisson's ratio", "m/m", lambda s: s.poissons),
-                            ("Young's modulus", "MPa", lambda s: s.youngs),
+                        ("Thickness", "m", lambda s: s.thickness),
+                        ("Density", "kg/m", lambda s: s.density),
+                        ("Poisson's ratio", "m/m", lambda s: s.poissons),
+                        ("Young's modulus", "MPa", lambda s: s.youngs),
                     ]:
                         for cmap in [default_cmap, get_cmap("tab10")]:
                             shell_properties_3d(
@@ -54,7 +56,10 @@ def make_shell_properties_3d(original_c: Config):
                             plt.savefig(
                                 c.get_image_path(
                                     f"geometry/shells-{ctx_name}-3d",
-                                    safe_str(f"{shells_name}-{prop_name}-outline-{outline}-{cmap.name}") + ".pdf",
+                                    safe_str(
+                                        f"{shells_name}-{prop_name}-outline-{outline}-{cmap.name}"
+                                    )
+                                    + ".pdf",
                                 )
                             )
                             plt.close()
@@ -68,10 +73,12 @@ def make_shell_properties_top_view(original_c: Config):
         # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
         bridge_name = c.bridge.name
         for ctx, ctx_name in [
-            (BuildContext(
-                add_loads=[Point(x=85, y=0, z=0)],
-                refinement_radii=[2, 1, 0.5],
-            ), "refined"),
+            (
+                BuildContext(
+                    add_loads=[Point(x=85, y=0, z=0)], refinement_radii=[2, 1, 0.5],
+                ),
+                "refined",
+            ),
             (None, "unrefined"),
         ]:
             bridge_shells = get_bridge_shells(bridge=c.bridge, ctx=ctx)
@@ -79,25 +86,30 @@ def make_shell_properties_top_view(original_c: Config):
             pier_shells = flatten(bridge_shells[1], Shell)
             all_shells = pier_shells + deck_shells
             for shells_name, shells in [
-                ("piers", pier_shells), ("deck", deck_shells),
+                ("piers", pier_shells),
+                ("deck", deck_shells),
             ]:
                 for prop_name, prop_units, prop_f in [
-                        ("Mesh", "", None),
-                        ("Thickness", "m", lambda s: np.around(s.thickness, 3)),
-                        ("Density", "kg/m", lambda s: np.around(s.density, 3)),
-                        ("Poisson's ratio", "m/m", lambda s: s.poissons),
-                        ("Young's modulus", "MPa", lambda s: np.around(s.youngs, 1)),
+                    ("Mesh", "", None),
+                    ("Thickness", "m", lambda s: np.around(s.thickness, 3)),
+                    ("Density", "kg/m", lambda s: np.around(s.density, 3)),
+                    ("Poisson's ratio", "m/m", lambda s: s.poissons),
+                    ("Young's modulus", "MPa", lambda s: np.around(s.youngs, 1)),
                 ]:
                     for cmap in [parula_cmap, default_cmap, get_cmap("tab10")]:
-                        for outline, lanes in itertools.product([True, False], [False, True]):
+                        for outline, lanes in itertools.product(
+                            [True, False], [False, True]
+                        ):
+
                             def top_view():
                                 top_view_bridge(
                                     bridge=c.bridge,
                                     abutments=True,
                                     piers=True,
                                     lanes=lanes,
-                                    compass=prop_f is not None
+                                    compass=prop_f is not None,
                                 )
+
                             top_view()
                             shell_properties_top_view(
                                 shells=shells,
@@ -109,11 +121,16 @@ def make_shell_properties_top_view(original_c: Config):
                                 outline=outline,
                             )
                             top_view()
-                            plt.title(f"{prop_name} of {bridge_name}'s {shells_name} ({ctx_name})")
+                            plt.title(
+                                f"{prop_name} of {bridge_name}'s {shells_name} ({ctx_name})"
+                            )
                             plt.savefig(
                                 c.get_image_path(
                                     f"geometry/{shells_name}-shells-{ctx_name}-top-view",
-                                    safe_str(f"{prop_name}-{cmap.name}-outline-{outline}-lanes-{lanes}") + ".pdf",
+                                    safe_str(
+                                        f"{prop_name}-{cmap.name}-outline-{outline}-lanes-{lanes}"
+                                    )
+                                    + ".pdf",
                                 )
                             )
                             plt.close()
@@ -137,7 +154,9 @@ def make_node_plots(original_c: Config):
             all_nodes = set(flatten(bridge_nodes, Node))
             # For each combination of parameters plot the nodes.
             for nodes_name, nodes in [
-                ("all", all_nodes), ("deck", deck_nodes), ("pier", pier_nodes),
+                ("all", all_nodes),
+                ("deck", deck_nodes),
+                ("pier", pier_nodes),
             ]:
                 node_scatter_3d(nodes=nodes)
                 plt.title(f"Nodes of {c.bridge.name}")

@@ -7,9 +7,7 @@ from plot import plt
 
 
 def ax_3d(
-    xs: List[float],
-    ys: List[float],
-    zs: List[float],
+    xs: List[float], ys: List[float], zs: List[float],
 ):
     """Return a new figure and 3D axis scaled to given data."""
     xs, ys, zs = np.array(xs), np.array(ys), np.array(zs)
@@ -32,9 +30,9 @@ def ax_3d(
 def top_side_front(ax):
     """Rotate the current axis into top, side and front view, yielding name."""
     for azim, elev, view in [
-            (-90, 90, "Top"),
-            (-90, 0, "Side"),
-            (0, 0, "Front"),
+        (-90, 90, "Top"),
+        (-90, 0, "Side"),
+        (0, 0, "Front"),
     ]:
         ax.view_init(azim=azim, elev=elev)
         yield view

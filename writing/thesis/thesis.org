@@ -1848,6 +1848,7 @@ program AxisVM. The AxisVM model was built using a graphical user interface
 verification of the model by visual inspection of the dimensions and material
 properties in the GUI.
 
+# Simple AxisVm model.
 The model built in AxisVM has the same dimensions as bridge 705 however the
 material properties do not vary throughout the deck, and a single material
 property is used by all piers. Keeping the AxisVM model simple provides more
@@ -1868,6 +1869,7 @@ material properties of the generated FEM are given in Table [[tbl:single-section
 | Thickness         | 0.65 m     | 0.814 m    |
 | Young's modulus   | 47277 MPa  | 38400 MPa  |
 | Poisson's ratio   | 0.2        | 0.2        |
+
 
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases

@@ -142,8 +142,8 @@ pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 # Function to generate material properties from fraction of pier length.
 pier_section_f = lambda start_frac_len: Section3DPier(
     density=2.724,
-    thickness=round_m(np.interp(
-        start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top])
+    thickness=round_m(
+        np.interp(start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top])
     ),
     youngs=38400,
     poissons=0.2,
@@ -215,7 +215,7 @@ def bridge_705_3d(
     sections: Optional[List[Section3D]] = bridge_705_sections_3d,
     supports: List[Support3D] = bridge_705_supports_3d,
     base_mesh_deck_max_x: int = 0.5,
-    base_mesh_deck_max_z: int = 0.5,
+    base_mesh_deck_max_z: int = 0.49,
     base_mesh_pier_max_long: int = 0.5,
     **kwargs,
 ) -> Bridge:

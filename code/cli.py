@@ -223,6 +223,7 @@ def thermal():
     from make.plot.contour.thermal import unit_axial_thermal_deck_load
     from make.plot.contour.thermal import unit_moment_thermal_deck_load
     from make.plot.contour.thermal import unit_thermal_deck_load
+
     unit_axial_thermal_deck_load(c())
     unit_moment_thermal_deck_load(c())
     unit_thermal_deck_load(c())

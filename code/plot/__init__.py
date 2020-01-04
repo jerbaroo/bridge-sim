@@ -168,8 +168,12 @@ diana_colors = [
     np.array([25, 148, 252]) / 255,
     np.array([11, 36, 251]) / 255,
 ]  # R -> G -> B
-diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("diana", diana_colors, N=len(diana_colors))
-diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("diana_r", diana_colors[::-1], N=len(diana_colors))
+diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+    "diana", diana_colors, N=len(diana_colors)
+)
+diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+    "diana_r", diana_colors[::-1], N=len(diana_colors)
+)
 
 
 class Color:

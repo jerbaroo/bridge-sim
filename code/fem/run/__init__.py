@@ -79,9 +79,7 @@ class FEMRunner:
 
         # Building.
         start = timer()
-        expt_params = self._build(
-            c=self.c, expt_params=expt_params, fem_runner=self,
-        )
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
         print_i(
             f"FEMRunner: built {self.name} model file(s) in"
             + f" {timer() - start:.2f}s"

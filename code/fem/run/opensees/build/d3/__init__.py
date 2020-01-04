@@ -8,7 +8,14 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from config import Config
 from fem.params import ExptParams, SimParams
-from fem.build import det_nodes_id_str, det_nodes, det_shells_id_str, det_shells, get_bridge_shells_and_nodes, to_deck_nodes
+from fem.build import (
+    det_nodes_id_str,
+    det_nodes,
+    det_shells_id_str,
+    det_shells,
+    get_bridge_shells_and_nodes,
+    to_deck_nodes,
+)
 from fem.model import BuildContext, DeckNodes, DeckShells, Node, PierNodes, PierShells
 from fem.run.opensees.build.d3.thermal import (
     opensees_thermal_axial_deck_loads,
@@ -29,9 +36,7 @@ D: str = "fem.run.opensees.build.d3"
 
 
 def opensees_support_nodes(
-    c: Config,
-    deck_nodes: DeckNodes,
-    all_support_nodes: PierNodes,
+    c: Config, deck_nodes: DeckNodes, all_support_nodes: PierNodes,
 ) -> str:
     """Opensees node commands for the supports (ignoring deck).
 
@@ -221,9 +226,7 @@ def opensees_fixed_pier_nodes(
                 FixNode(
                     node=node,
                     fix_x_translation=pier.fix_x_translation,
-                    fix_y_translation=False
-                    if free_y_trans
-                    else pier.fix_y_translation,
+                    fix_y_translation=False if free_y_trans else pier.fix_y_translation,
                     fix_z_translation=fix_pier_z_translation(pier),
                     fix_x_rotation=pier.fix_x_rotation,
                     fix_y_rotation=pier.fix_y_rotation,
@@ -353,12 +356,7 @@ def opensees_loads(
     # Otherwise find the deck nodes which best suit given point loads.
     else:
         load_str = "\n".join(
-            opensees_load(
-                c=c,
-                pload=pload,
-                deck_nodes=deck_nodes,
-                pier_disp=pier_disp,
-            )
+            opensees_load(c=c, pload=pload, deck_nodes=deck_nodes, pier_disp=pier_disp,)
             for pload in ploads
         )
 
@@ -370,7 +368,7 @@ def opensees_loads(
 
 
 def opensees_translation_recorders(
-        c: Config, fem_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
+    c: Config, fem_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
 ) -> str:
     """OpenSees recorder commands for translation."""
     # A list of tuples of ResponseType and OpenSees direction index, for
@@ -405,7 +403,9 @@ def opensees_translation_recorders(
     )
 
 
-def opensees_strain_recorders(c: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext):
+def opensees_strain_recorders(
+    c: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
+):
     """OpenSees recorder commands for translation."""
     if not ResponseType.Strain in sim_params.response_types:
         return ""
@@ -426,7 +426,7 @@ def opensees_forces(sim_params: SimParams, os_runner: "OSRunner", ctx: BuildCont
 
 
 def opensees_stress_variables(
-        c: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
+    c: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
 ) -> Tuple[str, str]:
     """OpenSees stress recorder variables.
 
@@ -495,9 +495,9 @@ def build_model_3d(
         sim_ctx = deepcopy(ctx)
         sim_params.ctx = sim_ctx
         for load in sim_params.ploads:
-            sim_ctx.add_loads.append(Point(
-                x=c.bridge.x(load.x_frac), y=0, z=c.bridge.z(load.z_frac)
-            ))
+            sim_ctx.add_loads.append(
+                Point(x=c.bridge.x(load.x_frac), y=0, z=c.bridge.z(load.z_frac))
+            )
         if not sim_ctx.refine_loads:
             print_i("Not refining loads")
         else:
@@ -521,15 +521,12 @@ def build_model_3d(
         # Build the 3D model file by replacements in the template model file.
         out_tcl = (
             in_tcl.replace(
-                "<<DECK_NODES>>",
-                opensees_deck_nodes(c=c, deck_nodes=deck_nodes),
+                "<<DECK_NODES>>", opensees_deck_nodes(c=c, deck_nodes=deck_nodes),
             )
             .replace(
                 "<<SUPPORT_NODES>>",
                 opensees_support_nodes(
-                    c=c,
-                    deck_nodes=deck_nodes,
-                    all_support_nodes=pier_nodes,
+                    c=c, deck_nodes=deck_nodes, all_support_nodes=pier_nodes,
                 ),
             )
             .replace(
@@ -559,17 +556,13 @@ def build_model_3d(
             .replace(
                 "<<THERMAL_AXIAL_LOAD_DECK>>",
                 opensees_thermal_axial_deck_loads(
-                    sim_params=sim_params,
-                    deck_elements=deck_shells,
-                    ctx=sim_ctx,
+                    sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
             .replace(
                 "<<THERMAL_MOMENT_LOAD_DECK>>",
                 opensees_thermal_moment_deck_loads(
-                    sim_params=sim_params,
-                    deck_elements=deck_shells,
-                    ctx=sim_ctx,
+                    sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
             .replace("<<SUPPORTS>>", "")
@@ -582,7 +575,9 @@ def build_model_3d(
             )
             .replace(
                 "<<FORCES>>",
-                opensees_forces(sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx),
+                opensees_forces(
+                    sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                ),
             )
             .replace(
                 "<<DECK_ELEMENTS>>",
@@ -590,15 +585,11 @@ def build_model_3d(
             )
             .replace(
                 "<<PIER_ELEMENTS>>",
-                opensees_pier_elements(
-                    c=c, all_pier_elements=pier_shells
-                ),
+                opensees_pier_elements(c=c, all_pier_elements=pier_shells),
             )
             .replace(
                 "<<PIER_SECTIONS>>",
-                opensees_pier_sections(
-                    c=c, all_pier_elements=pier_shells
-                ),
+                opensees_pier_sections(c=c, all_pier_elements=pier_shells),
             )
             .replace(
                 "<<INTEGRATOR>>",
@@ -616,7 +607,9 @@ def build_model_3d(
         )
         out_tcl = out_tcl.replace(
             "<<STRAIN_RECORDERS>>",
-            opensees_strain_recorders(c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx),
+            opensees_strain_recorders(
+                c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+            ),
         )
 
         # Write the generated model file.

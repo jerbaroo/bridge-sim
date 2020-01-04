@@ -717,8 +717,8 @@ class Bridge:
         if self.dimensions == Dimensions.D3:
             assert self.base_mesh_deck_max_z <= self.width
             # for pier in self.supports:
-                # TODO: Improve this assert, piers are not vertical.
-                # assert self.base_mesh_pier_max_long <= pier.height
+            # TODO: Improve this assert, piers are not vertical.
+            # assert self.base_mesh_pier_max_long <= pier.height
 
         # Delegate to 2D/3D specific checks.
         if self.dimensions == Dimensions.D2:

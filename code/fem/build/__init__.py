@@ -3,7 +3,15 @@ from typing import List, Optional, Tuple
 
 from fem.build.deck import get_deck_nodes, get_deck_shells
 from fem.build.piers import get_pier_nodes, get_pier_shells
-from fem.model import BridgeNodes, BridgeShells, BuildContext, DeckNodes, DeckShellNodes, Node, Shell
+from fem.model import (
+    BridgeNodes,
+    BridgeShells,
+    BuildContext,
+    DeckNodes,
+    DeckShellNodes,
+    Node,
+    Shell,
+)
 from model.bridge import Bridge
 from util import flatten
 
@@ -11,10 +19,15 @@ from util import flatten
 def get_bridge_nodes(bridge: Bridge, ctx: Optional[BuildContext] = None) -> BridgeNodes:
     if ctx is None:
         ctx = BuildContext([])
-    return get_deck_nodes(bridge=bridge, ctx=ctx), get_pier_nodes(bridge=bridge, ctx=ctx)
+    return (
+        get_deck_nodes(bridge=bridge, ctx=ctx),
+        get_pier_nodes(bridge=bridge, ctx=ctx),
+    )
 
 
-def get_bridge_shells(bridge: Bridge, ctx: Optional[BuildContext] = None, ret_nodes: bool = False) -> BridgeShells:
+def get_bridge_shells(
+    bridge: Bridge, ctx: Optional[BuildContext] = None, ret_nodes: bool = False
+) -> BridgeShells:
     if ctx is None:
         ctx = BuildContext([])
     bridge_nodes = get_bridge_nodes(bridge=bridge, ctx=ctx)
@@ -27,7 +40,9 @@ def get_bridge_shells(bridge: Bridge, ctx: Optional[BuildContext] = None, ret_no
     return bridge_shells
 
 
-def get_bridge_shells_and_nodes(bridge: Bridge, ctx: Optional[BuildContext] = None) -> Tuple[BridgeNodes, BridgeShells]:
+def get_bridge_shells_and_nodes(
+    bridge: Bridge, ctx: Optional[BuildContext] = None
+) -> Tuple[BridgeNodes, BridgeShells]:
     return get_bridge_shells(bridge=bridge, ctx=ctx, ret_nodes=True)
 
 
@@ -49,7 +64,7 @@ def to_deck_nodes(deck_shell_nodes: DeckShellNodes) -> DeckNodes:
 def det_nodes(iterable) -> List[Node]:
     """Nodes in a deterministic ordering."""
     nodes = set(flatten(iterable, Node))
-    return sorted(nodes, key=lambda n:n.n_id)
+    return sorted(nodes, key=lambda n: n.n_id)
 
 
 def det_nodes_id_str(ctx: BuildContext) -> str:

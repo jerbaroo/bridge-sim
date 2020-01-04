@@ -76,7 +76,7 @@ def unit_thermal_deck_load(c: Config):
         saves=[
             c.get_image_path(
                 "validation/thermal",
-                safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf"
+                safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf",
             )
             for rt in response_types
         ],

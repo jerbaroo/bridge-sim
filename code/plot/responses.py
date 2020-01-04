@@ -69,8 +69,8 @@ def plot_contour_deck(
     y: float = 0,
     ploads: List[PointLoad] = [],
     title: Optional[str] = None,
-    cmap = default_cmap,
-    norm = None,
+    cmap=default_cmap,
+    norm=None,
     levels: int = 25,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""

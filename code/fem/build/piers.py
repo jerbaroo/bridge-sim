@@ -30,13 +30,17 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
 
         # Left wall: top nodes.
         xy_nodes_left = ctx.get_nodes_at_xy(x=pier.x_min_max()[0], y=0)
-        top_nodes_left = sorted([n for n in xy_nodes_left if z_min <= n.z <= z_max], key=lambda n: n.z)
+        top_nodes_left = sorted(
+            [n for n in xy_nodes_left if z_min <= n.z <= z_max], key=lambda n: n.z
+        )
         assert any(tn.z == z_min for tn in top_nodes_left)
         assert any(tn.z == z_max for tn in top_nodes_left)
 
         # Right wall: top nodes.
         xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max()[1], y=0)
-        top_nodes_right = sorted([n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z)
+        top_nodes_right = sorted(
+            [n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z
+        )
         assert any(tn.z == z_min for tn in top_nodes_right)
         assert any(tn.z == z_max for tn in top_nodes_right)
 
@@ -48,15 +52,18 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
             top_nodes_left = [tn_l for tn_l in top_nodes_left if tn_l.z in zs_top_right]
         elif len(top_nodes_right) > len(top_nodes_left):
             zs_top_left = set([tn_l.z for tn_l in top_nodes_left])
-            top_nodes_right = [tn_r for tn_r in top_nodes_right if tn_r.z in zs_top_left]
+            top_nodes_right = [
+                tn_r for tn_r in top_nodes_right if tn_r.z in zs_top_left
+            ]
 
         # Shared bottom nodes of pier.
         bottom_z_interp = interp1d(
-            [top_nodes_left[0].z, top_nodes_left[-1].z],
-            pier.z_min_max_bottom(),
+            [top_nodes_left[0].z, top_nodes_left[-1].z], pier.z_min_max_bottom(),
         )
         bottom_nodes = [
-            ctx.get_node(x=pier.x, y=-pier.height, z=bottom_z_interp(top_node.z), deck=False)
+            ctx.get_node(
+                x=pier.x, y=-pier.height, z=bottom_z_interp(top_node.z), deck=False
+            )
             for top_node in top_nodes_left
         ]
 
@@ -69,12 +76,23 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         # For each z index..
         for z_i in range(len(top_nodes_left)):
             # ..then for each position below the top node.
-            left_x_interp = interp1d([0, num_long_nodes - 1], [top_nodes_left[z_i].x, bottom_nodes[z_i].x])
-            left_y_interp = interp1d([0, num_long_nodes - 1], [top_nodes_left[z_i].y, bottom_nodes[z_i].y])
-            left_z_interp = interp1d([0, num_long_nodes - 1], [top_nodes_left[z_i].z, bottom_nodes[z_i].z])
+            left_x_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_left[z_i].x, bottom_nodes[z_i].x]
+            )
+            left_y_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_left[z_i].y, bottom_nodes[z_i].y]
+            )
+            left_z_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_left[z_i].z, bottom_nodes[z_i].z]
+            )
             for x_i in range(1, num_long_nodes - 1):
                 wall_nodes_left[z_i].append(
-                    ctx.get_node(x=left_x_interp(x_i), y=left_y_interp(x_i), z=left_z_interp(x_i), deck=False)
+                    ctx.get_node(
+                        x=left_x_interp(x_i),
+                        y=left_y_interp(x_i),
+                        z=left_z_interp(x_i),
+                        deck=False,
+                    )
                 )
             wall_nodes_left[z_i].append(bottom_nodes[z_i])
 
@@ -83,12 +101,23 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         # For each z index..
         for z_i in range(len(top_nodes_right)):
             # ..then for each position below the top node.
-            right_x_interp = interp1d([0, num_long_nodes - 1], [top_nodes_right[z_i].x, bottom_nodes[z_i].x])
-            right_y_interp = interp1d([0, num_long_nodes - 1], [top_nodes_right[z_i].y, bottom_nodes[z_i].y])
-            right_z_interp = interp1d([0, num_long_nodes - 1], [top_nodes_right[z_i].z, bottom_nodes[z_i].z])
+            right_x_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_right[z_i].x, bottom_nodes[z_i].x]
+            )
+            right_y_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_right[z_i].y, bottom_nodes[z_i].y]
+            )
+            right_z_interp = interp1d(
+                [0, num_long_nodes - 1], [top_nodes_right[z_i].z, bottom_nodes[z_i].z]
+            )
             for x_i in range(1, num_long_nodes - 1):
                 wall_nodes_right[z_i].append(
-                    ctx.get_node(x=right_x_interp(x_i), y=right_y_interp(x_i), z=right_z_interp(x_i), deck=False)
+                    ctx.get_node(
+                        x=right_x_interp(x_i),
+                        y=right_y_interp(x_i),
+                        z=right_z_interp(x_i),
+                        deck=False,
+                    )
                 )
             wall_nodes_right[z_i].append(bottom_nodes[z_i])
         pier_nodes.append((wall_nodes_left, wall_nodes_right))
@@ -113,7 +142,11 @@ def get_pier_shells(bridge: Bridge, pier_nodes: PierNodes, ctx: BuildContext):
                             "Need at least 2 nodes in pier wall's longitudinal "
                             f" direction, was {len(wall_nodes[0])}"
                         )
-                    frac_long = 0 if len(wall_nodes[0]) == 2 else (x_i / (len(wall_nodes[0]) - 2))
+                    frac_long = (
+                        0
+                        if len(wall_nodes[0]) == 2
+                        else (x_i / (len(wall_nodes[0]) - 2))
+                    )
                     print(f"section_frac = {frac_long}")
                     wall_shells.append(
                         ctx.get_shell(
@@ -122,7 +155,9 @@ def get_pier_shells(bridge: Bridge, pier_nodes: PierNodes, ctx: BuildContext):
                             nk_id=node_k.n_id,
                             nl_id=node_l.n_id,
                             pier=True,
-                            section=get_pier_section(pier=bridge.supports[p_i], frac_long=frac_long),
+                            section=get_pier_section(
+                                pier=bridge.supports[p_i], frac_long=frac_long
+                            ),
                         )
                     )
             a_pier_shells.append(wall_shells)

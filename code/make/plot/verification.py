@@ -97,23 +97,35 @@ def per_sensor_plots(
     print_i(f"  {sorted(set(meas['sensorlabel']))}")
     # All strain measurements for a given sensor set (strain_sensors_startwith),
     # except ignore sensors in ignore set (strain_sensors_ignore).
-    tno_strain_meas = meas.loc[meas["sensorlabel"].str.startswith(strain_sensors_startwith)]
+    tno_strain_meas = meas.loc[
+        meas["sensorlabel"].str.startswith(strain_sensors_startwith)
+    ]
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
-    tno_strain_meas = tno_strain_meas.loc[~tno_strain_meas["sensorlabel"].isin(strain_sensors_ignore)]
+    tno_strain_meas = tno_strain_meas.loc[
+        ~tno_strain_meas["sensorlabel"].isin(strain_sensors_ignore)
+    ]
     labels_after_ignore = set(tno_strain_meas["sensorlabel"])
-    labels_ignored = sorted(l for l in labels_before_ignore if l not in labels_after_ignore)
+    labels_ignored = sorted(
+        l for l in labels_before_ignore if l not in labels_after_ignore
+    )
     print_i(f"Strain sensors ignored = {labels_ignored}")
 
     # Ignore sensors with missing positions.
     positions_available = set(strain_sensors["label"])
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
-    tno_strain_meas = tno_strain_meas.loc[tno_strain_meas["sensorlabel"].isin(positions_available)]
+    tno_strain_meas = tno_strain_meas.loc[
+        tno_strain_meas["sensorlabel"].isin(positions_available)
+    ]
     labels_after_ignore = set(tno_strain_meas["sensorlabel"])
-    labels_ignored = sorted(l for l in labels_before_ignore if l not in labels_after_ignore)
+    labels_ignored = sorted(
+        l for l in labels_before_ignore if l not in labels_after_ignore
+    )
     print_i(f"Strain sensors with missing positions = {labels_ignored}")
 
     # Sort by sensor number and setup groupby sensor label.
-    str_digits = lambda string: "".join(map(str, [int(s) for s in string if s.isdigit()]))
+    str_digits = lambda string: "".join(
+        map(str, [int(s) for s in string if s.isdigit()])
+    )
     tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(str_digits)
     print_i(f"Filtered strain sensors starting with {strain_sensors_startwith} =")
     print_i(f"  {sorted(set(map(int, tno_strain_meas['sort'])))}")
@@ -136,19 +148,17 @@ def per_sensor_plots(
     amax *= 1.1
 
     # Calculate displacement with OpenSees via direct simulation.
-    os_strain = (
-        responses_to_vehicles_(
-            c=c,
-            mv_vehicles=[wagen1],
-            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
-            response_type=ResponseType.Strain,
-            points=[
-                Point(x=sensor_x, y=0, z=sensor_z)
-                for sensor_x, sensor_z in strain_sensor_xzs
-            ],
-            sim_runner=OSRunner(c),
-        ).T
-    )
+    os_strain = responses_to_vehicles_(
+        c=c,
+        mv_vehicles=[wagen1],
+        times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+        response_type=ResponseType.Strain,
+        points=[
+            Point(x=sensor_x, y=0, z=sensor_z)
+            for sensor_x, sensor_z in strain_sensor_xzs
+        ],
+        sim_runner=OSRunner(c),
+    ).T
     amin = min(amin, np.amin(os_strain))
     amax = max(amax, np.amax(os_strain))
 
@@ -194,7 +204,7 @@ def per_sensor_plots(
             plt.savefig(
                 c.get_image_path(
                     "validation/sensors",
-                    f"strain-{strain_sensors_startwith}-{plot_i}.pdf"
+                    f"strain-{strain_sensors_startwith}-{plot_i}.pdf",
                 )
             )
             plt.close()
@@ -209,7 +219,9 @@ def per_sensor_plots(
             plt.landscape()
             plot(sensor_label, meas_group)
             plt.savefig(
-                c.get_image_path("validation/sensors", f"strain-sensor-{sensor_label}.pdf")
+                c.get_image_path(
+                    "validation/sensors", f"strain-sensor-{sensor_label}.pdf"
+                )
             )
             plt.close()
             plt.portrait()
@@ -292,9 +304,7 @@ def per_sensor_plots(
         plt.subplot(rows, 1, subplot_i + 1)
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
-            plt.savefig(
-                c.get_image_path("validation/sensors", f"displa-{plot_i}")
-            )
+            plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}"))
             plt.close()
             subplot_i = 0
             plot_i += 1
@@ -307,9 +317,7 @@ def per_sensor_plots(
         if sensor_label in individual_sensors:
             plot(i, sensor_label, meas_group)
             plt.savefig(
-                c.get_image_path(
-                    "validation/sensors", f"displa-sensor-{sensor_label}",
-                )
+                c.get_image_path("validation/sensors", f"displa-sensor-{sensor_label}",)
             )
             plt.close()
 
@@ -635,12 +643,16 @@ def make_convergence_data(c: Config):
 
             # Determine min, max and mean displacements.
             all_displacements = list(displacements.values())
-            grid_displacements = np.array([displacements.at_deck(point, interp=True) for point in grid])
+            grid_displacements = np.array(
+                [displacements.at_deck(point, interp=True) for point in grid]
+            )
             min_d = np.min(all_displacements)
             max_d = np.max(grid_displacements)
             mean_d = np.mean(grid_displacements)
-            assert len(min_d) == 1; assert len(mean_d) == 1
-            min_d = min_d[0]; mean_d = mean_d[0]
+            assert len(min_d) == 1
+            assert len(mean_d) == 1
+            min_d = min_d[0]
+            mean_d = mean_d[0]
 
             strains = load_fem_responses(
                 c=c,
@@ -649,7 +661,9 @@ def make_convergence_data(c: Config):
                 sim_runner=OSRunner(c),
             )
             all_strains = list(strains.values())
-            grid_strains = np.array([strains.at_deck(point, interp=True) for point in grid])
+            grid_strains = np.array(
+                [strains.at_deck(point, interp=True) for point in grid]
+            )
             min_s = np.min(grid_strains)
             max_s = np.max(all_strains)
             mean_s = np.mean(grid_strains)
@@ -684,7 +698,9 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
+    convergence_dir = os.path.dirname(
+        c.get_image_path("convergence", "_", bridge=False)
+    )
 
     # Get all simulations results from each machine.
     machines = dict()
@@ -815,20 +831,16 @@ def plot_convergence(c: Config):
                 num_nodes, mins_d / final_min_d, color="red", label="Min. response"
             )
             plt.plot(
-                num_nodes,
-                maxes_d / final_max_d,
-                color="orange",
-                label="Max. response",
+                num_nodes, maxes_d / final_max_d, color="orange", label="Max. response",
             )
             plt.plot(
-                num_nodes,
-                means_d / final_mean_d,
-                color="green",
-                label="Mean response",
+                num_nodes, means_d / final_mean_d, color="green", label="Mean response",
             )
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, mins_d / final_min_d, "min")
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, maxes_d / final_max_d, "max")
-            plot_intersection(CHOSEN_NUM_NODES, num_nodes, means_d / final_mean_d, "mean")
+            plot_intersection(
+                CHOSEN_NUM_NODES, num_nodes, means_d / final_mean_d, "mean"
+            )
         break
 
     # plt.xlim(plt.xlim()[1], plt.xlim()[0])
@@ -836,7 +848,9 @@ def plot_convergence(c: Config):
     plt.xlabel("Number of nodes")
     plt.ylabel("Normalized displacement")
     plt.legend()
-    plt.savefig(c.get_image_path("convergence", "min-max-displacement.pdf", bridge=False))
+    plt.savefig(
+        c.get_image_path("convergence", "min-max-displacement.pdf", bridge=False)
+    )
     plt.close()
 
     # Strain
@@ -867,20 +881,16 @@ def plot_convergence(c: Config):
                 num_nodes, mins_s / final_min_s, color="red", label="Min. response"
             )
             plt.plot(
-                num_nodes,
-                maxes_s / final_max_s,
-                color="orange",
-                label="Max. response",
+                num_nodes, maxes_s / final_max_s, color="orange", label="Max. response",
             )
             plt.plot(
-                num_nodes,
-                means_s / final_mean_s,
-                color="green",
-                label="Mean response",
+                num_nodes, means_s / final_mean_s, color="green", label="Mean response",
             )
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, mins_s / final_min_s, "min")
             plot_intersection(CHOSEN_NUM_NODES, num_nodes, maxes_s / final_max_s, "max")
-            plot_intersection(CHOSEN_NUM_NODES, num_nodes, means_s / final_mean_s, "mean")
+            plot_intersection(
+                CHOSEN_NUM_NODES, num_nodes, means_s / final_mean_s, "mean"
+            )
 
     # plt.xlim(plt.xlim()[1], plt.xlim()[0])
     plt.title("Normalized strain as a function of number of nodes")
@@ -914,7 +924,9 @@ def plot_convergence(c: Config):
             ) = lines
             num_nodes = ndeck + npier
             plt.plot(num_nodes, shell_size, label="Mean shell area")
-            plot_intersection(CHOSEN_NUM_NODES, num_nodes, shell_size, units="Shell area (m²)")
+            plot_intersection(
+                CHOSEN_NUM_NODES, num_nodes, shell_size, units="Shell area (m²)"
+            )
         break
 
     # plt.ylim(plt.ylim()[1], plt.ylim()[0])
@@ -976,7 +988,9 @@ def plot_convergence(c: Config):
             ) = lines
             num_nodes = ndeck + npier
             plt.plot(num_nodes, max_mesh)
-            plot_intersection(CHOSEN_NUM_NODES, num_nodes, max_mesh, units="Shell length (m)")
+            plot_intersection(
+                CHOSEN_NUM_NODES, num_nodes, max_mesh, units="Shell length (m)"
+            )
         break
 
     # plt.ylim(plt.ylim()[1], plt.ylim()[0])

@@ -226,12 +226,13 @@ class BuildContext:
         refinement_radii: List[float], radii for sweeps to refine around loads.
 
     """
+
     def __init__(
-            self,
-            add_loads: List[Point],
-            refine_loads: bool = True,
-            refinement_radii: List[float] = [],
-            # refinement_radii: List[float] = [2, 1, 0.5],
+        self,
+        add_loads: List[Point],
+        refine_loads: bool = True,
+        refinement_radii: List[float] = [],
+        # refinement_radii: List[float] = [2, 1, 0.5],
     ):
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
@@ -268,11 +269,28 @@ class BuildContext:
             self.nodes_by_pos_dict[x][y][z] = node
         return self.nodes_by_pos[pos]
 
-    def get_shell(self, ni_id: int, nj_id: int, nk_id: int, nl_id: int, pier: bool, section: Section3D) -> Shell:
+    def get_shell(
+        self,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        pier: bool,
+        section: Section3D,
+    ) -> Shell:
         n_ids = (ni_id, nj_id, nk_id, nl_id)
         if n_ids not in self.shells_by_n_ids:
             s_id = self.new_s_id()
-            shell = Shell(e_id=s_id, ni_id=ni_id, nj_id=nj_id, nk_id=nk_id, nl_id=nl_id, pier=pier, section=section, nodes_by_id=self.nodes_by_id)
+            shell = Shell(
+                e_id=s_id,
+                ni_id=ni_id,
+                nj_id=nj_id,
+                nk_id=nk_id,
+                nl_id=nl_id,
+                pier=pier,
+                section=section,
+                nodes_by_id=self.nodes_by_id,
+            )
             self.shells_by_n_ids[n_ids] = shell
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]

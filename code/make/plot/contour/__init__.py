@@ -395,9 +395,19 @@ def comparison_plots_705(c: Config, run_only: bool):
                     unit_str = "m/m"
                 else:
                     raise ValueError("Unsupported response type")
-                di_img = mpimg.imread(f"validation/diana-screenshots/{label}-{rt_str}.png")
+                di_img = mpimg.imread(
+                    f"validation/diana-screenshots/{label}-{rt_str}.png"
+                )
                 top_view_bridge(c.bridge, piers=True, abutments=True)
-                plt.imshow(di_img, extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max))
+                plt.imshow(
+                    di_img,
+                    extent=(
+                        c.bridge.x_min,
+                        c.bridge.x_max,
+                        c.bridge.z_min,
+                        c.bridge.z_max,
+                    ),
+                )
 
                 # Plot the load and min, max values.
                 row = diana_values[diana_values["name"] == f"{label}-{rt_str}"]
@@ -412,7 +422,12 @@ def comparison_plots_705(c: Config, run_only: bool):
                     ((0, 0), f"|min-max| = {abs(amax - amin):.2f} {unit_str}", "r", 0),
                 ]:
                     plt.scatter(
-                        [point[0]], [point[1]], label=leg_label, marker="o", color=color, alpha=alpha,
+                        [point[0]],
+                        [point[1]],
+                        label=leg_label,
+                        marker="o",
+                        color=color,
+                        alpha=alpha,
                     )
                 plt.legend()
 
