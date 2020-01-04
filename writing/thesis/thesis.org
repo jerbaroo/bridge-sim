@@ -1209,40 +1209,42 @@ piers 8 - 15 are fixed in translation along the x (longitudinal) axis. Figure
 \textcolor{red}{TODO: Talk about rollers and different types of fixed pier.}
 
 *** Damage Model
+
 # TODO: verify content when Leziria bridge document is published.
-# Outline of short-term and long-term events.
-The goal of the damage identification model is to detect or classify different
-damage scenarios as set up in an experiment. This Subsection describes how
-different damage types, as outlined in Subsection [[Damage Types]], are simulated.
 
-Of the damage scenarios listed in Tables [[table:short-term-events]] and
-table:long-term-events]], four scenarios are selected for identification by the
-DIM in addition to one unlisted damage scenario. These scenarios are chosen due
-to the practicality of simulating them in a FEM of bridge 705.
+The goal of the damage identification model is to identify different damage
+scenarios from simulations of the operation of a bridge. This Subsection
+discusses how different damage scenarios, as dicussed in Subsection [[Damage
+Types]], can be simulated.
 
-/Pier settlement/ can be simulated by displacing a pier by a fixed amount, this
-is achieved in practice by applying an increasing vertical force known as a
-/displacement load/ to the deck until the desired displacement is achieved.
+/Pier settlement/ can be simulated by displacing a pier by a fixed amount. This
+is achieved in a simulation by applying a /displacement load/ at the bottom of a
+supporting pier. The simulation runs, increasing the value of the load until the
+desired displacement is achieved.
 
-/Abnormal loading conditions/ can be simulated relatively easily by applying the
-heavy loads in the FE simulation. Care must be taken regarding the axle
-configuration because extreme heavy loads typically have a different axle
-configuration than less heavy vehicles.
+/Abnormal loading conditions/ such as an extremely heavy vehicle can be
+simulated relatively easily by applying heavy loads in the FE simulation. Care
+must be taken regarding the axle configuration because extreme heavy loads
+typically have a different axle configuration than less heavy vehicles.
 
 /Cracked concrete/ can be simulated by reducing the value of Young's modulus for
 the cracked concrete section. In practice, Young's modulus is often reduced to
-$\frac{1}{3}$ of its original value (cite:li2010predicting). Simulating a crack
-zone in this manner makes sense because damage reduced the stiffness of a
-structure cite:yeung2005damage.
+$\frac{1}{3}$ of its original value cite:li2010predicting. Simulating a crack
+zone in this manner makes sense because damage reduces the stiffness of a
+structure cite:yeung2005damage. Cracks typically occur in groups rather than
+individually. We will refer to an area where cracking has occured as a crack
+zone.
 
-/Corrosion/ of the reinforment bars can be simulated by increasing the size of
-the reinforcement bars TODO:WHY. Finally, a damage scenario is considered where
-it is not the bridge that is damaged but rather a sensor is malfunctioning.
+/Corrosion/ of the steel reinforment bars can be simulated by increasing the
+size of the reinforcement bars.
 
-A /malfunctioning sensor/ can be simulated by adding a significant amount of
-noise to the simulated sensor responses or adding a constant offset to the
-responses TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting
-malfunctioning sensors is useful to accomplish.
+# TODO:WHY can corrosion be simulated in this manner.
+
+A /malfunctioning sensor/ can be simulated by adding white noise to the
+simulated sensor's responses or by adding a constant offset to the responses.
+
+# TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting malfunctioning
+# sensors is useful to accomplish.
 
  # How to test/score the models.
 *** Noise Model
@@ -1259,8 +1261,8 @@ A model is considered robust if its outputs are consistently accurate when input
 variables, whether foreseen or not, are changed. A damage identification model
 must be robust to noise in order for it to be considered usable in a real-life
 setting. In the damage identification experiments, that are laid out later in
-Subsection [[Experiments]], the ability to identify damage in the presence of noise
-is considered.
+Subsection [[sec:methods:di]], the ability to identify damage in the presence of
+noise is considered.
 
 # Two forms of noise.
 Two forms of noise are modeled which we will refer to as background noise and
@@ -1626,7 +1628,7 @@ in Figure [[fig:705-mesh]].
 #+CAPTION[Refined mesh of bridge 705]:
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-refined-top-view/mesh-outline-true-parula.pdf]]
 
-*** System Interface
+*** Reusable System
 # Emphasis on reproduceable research.
 In recent years there is an increased emphasis on reproducable research within
 the scientific community. Reproducable research can be more easily verified by
@@ -1792,11 +1794,12 @@ contact with the ground.
 [[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
 
 # Truck 1 positions.
-In the experimental campaign, truck 1 was parked at 13 positions on the bridge
-deck and the responses from a number of sensors measured in what is called a
-static load test. The positions of the truck are shown in Figure [[fig:truck-pos]].
-and the sensors considered in this thesis are listed in Table [[tbl:sensor-pos]]
-along with the company who installed them and their positions.
+In the experimental campaign measurements were taken in a static load. Truck 1
+was parked at 13 positions on the deck of bridge 705 and the responses from a
+number of sensors measured. The positions of the truck are shown in Figure
+[[fig:truck-pos]] and the sensors considered for validation are listed in Table
+[[tbl:sensor-pos]], along with the company who installed them and their positions on
+bridge 705.
 
 # TODO: Sensor positions table linked above.
 
@@ -1829,12 +1832,26 @@ responses from the Diana model are.
 # TODO: Check after re-running.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
-#+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
+
+# Sensor plots.
+For each displacement and strain sensor that was considered for validation
+(listed in Table [[tbl:sensor-pos]]), the responses from that sensor measured in the
+experimental campaign are compared to responses in simulation with OpenSees and
+Diana. One of the plots which is considered representative of the results for a
+displacement sensor is shown in Figure [[fig:sensor-strain]], and in Figure
+[[fig:sensor-strain]] for a representative result of the strain sensors.
+
+#+NAME: fig:sensor-strain
+#+CAPTION[Responses of sensor O9 to Truck 1]: Responses of sensor O9 to Truck 1. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
+
+# TODO: Update sensor plots and references.
 
 **** Convergence
 
@@ -1934,10 +1951,24 @@ Figures [[fig:pd-5-axis]] - [[fig:pd-5-os]] show the displacement ...
 In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
-each FE software, one simulation of axial thermal loading and one simulation of
-moment thermal loading. Figures []
+each FE software package, one simulation of unit axial thermal loading and one
+simulation of unit moment thermal loading. Figures [[fig:thermal-axial-z-axis]] -
+[[fig:thermal-axial-z-os]] show displacement from unit axial thermal loading applied
+to FEMs of bridge 705, one in AxisVM and one in OpenSees.
+
+# TODO: Move to full mesh thermal images.
+# TODO: Include other thermal images.
+
+#+NAME: fig:thermal-axial-z-axis
+#+CAPTION[Z translation from axial thermal loading with AxisVM]: Z translation from axial thermal loading with AxisVM. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in AxisVM.
+[[../../saved-generated-data-images/bridge-705-med-3d/healthy/validation/thermal/axis-z-axial-displa.pdf]]
+
+#+NAME: fig:thermal-axial-z-os
+#+CAPTION[Z translation from axial thermal loading with OpenSees]: Z translation from axial thermal loading with OpenSees. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in OpenSees.
+[[../../saved-generated-data-images/bridge-705-med-3d/healthy/validation/thermal/thermal-deck-unit-axial_load-z-translation.pdf]]
 
 *** Parameter Selection
+
 Increasing mesh density increases the accuracy of responses but also increases
 run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time
 of a FE simulation of bridge 705 as a function of the FEM size. Based on these
@@ -1952,6 +1983,7 @@ load.
 [[./images/simulation-time.png]]
 
 *** Model Assumptions
+
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
 - All vehicles have the same axle-width.
@@ -1982,24 +2014,38 @@ load.
   on real data in addition to the simulated data with varying levels of noise
   and (B) verifying the simulated noise is comparable to the noise from
   measurements collected in real life as shown in \textcolor{red}{noise}.
+
 ** Damage Identification
-# Section overview.
-In this section the process of building the damage identification model is
-described. First there is an introduction to the damage scenarios that it is
-desirable for the model to identify, followed by a description of the setup for
-testing iterations of the model. After this an analysis is presented of the
-sensor responses with respect to the useful information in different sensor
-types for each damage scenario. Finally the damage identification model that is
-built is discussed.
-*** Experiments
-*** Feature extraction
-*** Damage Identification
-*** Sensor Placement
-*** Other Bridges
-#+LATEX: \clearpage
+<<sec:methods:di>>
+
+Damage detection is based on the collected data as discussed very thoroughly in
+Subsection [[Simulation]]. Two types of damage to the bridge are considered. A crack
+zone is simulated by reducing Young's modulus in an area of the bridge deck, and
+a pier is displaced through a superposition of the pier displacement simulations
+that have been discussed in Subsection [[System Details]].
+
+*** Damage Scenarios
+
+Two cracked concrete damage scenarios are considered. In both cases the crack
+zone is $\SI{20.55}{meters}$ long, or $20%$ of the length of bridge 705, and the
+crack zone occurs along the southern lane of the bridge and is the full width of
+the lane. The deck of bridge 705 in the cracked concrete damage scenarios are
+shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
+
+#+NAME: fig:crack-1
+#+CAPTION[Cracked concrete damage scenario 1]: One of the cracked concrete damage scenarios. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{3}$ of its original value.
+[[../../saved-generated-data-images/bridge-705-full-3d/crack-lane-0-center-20/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
+
+#+NAME: fig:crack-2
+#+CAPTION[Cracked concrete damage scenario 1]: One of the cracked concrete damage scenarios. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{3}$ of its original value.
+[[../../saved-generated-data-images/bridge-705-full-3d/crack-lane-0-center-20/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
+
 * Results
+
 ** Simulation
-** Anomally Detection
+
+** Damage Identification
+
 * Appendix
 :PROPERTIES:
 :APPENDIX: t
