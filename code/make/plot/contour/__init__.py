@@ -235,8 +235,10 @@ def piers_displaced(c: Config, pier_indices: List[int]):
     """Contour plots of pier displacement for the given pier indices."""
     y = 0
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
+    axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
     for response_type in response_types:
         for p in pier_indices:
+            # Run the simulation and collect responses.
             pier = c.bridge.supports[p]
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
@@ -247,14 +249,15 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 sim_params=sim_params,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                run=True,
             )
+
+            # Plot and save the image.
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
+                y=y,
                 cmap=get_cmap("jet"),
                 responses=sim_responses,
-                y=y,
                 title=f"Pier displacement of {pier_disp.displacement} m",
                 ploads=[
                     PointLoad(
@@ -270,6 +273,58 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                     safe_str(f"pier-{p}-{response_type.name()}"),
                 )
             )
+            plt.close()
+
+            # Save the axis plots.
+            if response_type == ResponseType.YTranslation:
+                rt_str = "displa"
+                unit_str = "mm"
+            elif response_type == ResponseType.Strain:
+                rt_str = "strain"
+                unit_str = "m/m"
+            else:
+                raise ValueError("Unsupported response type")
+            axis_img = mpimg.imread(
+                f"validation/axis-screenshots/{p}-{rt_str}.png"
+            )
+            top_view_bridge(c.bridge, piers=True, abutments=True)
+            plt.imshow(
+                axis_img,
+                extent=(
+                    c.bridge.x_min,
+                    c.bridge.x_max,
+                    c.bridge.z_min,
+                    c.bridge.z_max,
+                ),
+            )
+            # Plot the load and min, max values.
+            row = axis_values[axi_values["name"] == f"{p}-{rt_str}"]
+            amin, amax = float(row["min"]), float(row["max"])
+            if response_type == ResponseType.Strain:
+                amax, amin = -amin * 1e6, -amax * 1e6
+            for point, leg_label, color in [
+                ((0, 0), f"min = {amin:.2f} {unit_str}", "r"),
+                ((0, 0), f"max = {amax:.2f} {unit_str}", "r"),
+                ((0, 0), f"|min-max| = {abs(amax - amin):.2f} {unit_str}", "r"),
+            ]:
+                plt.scatter(
+                    [point[0]],
+                    [point[1]],
+                    label=leg_label,
+                    marker="o",
+                    color=color,
+                    alpha=0,
+                )
+            plt.legend()
+            # Add the Axis colorbar.
+            plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
+            clb = plt.colorbar()
+            clb.ax.set_title(unit_str)
+            # Title and save.
+            plt.title(title)
+            plt.xlabel("X position (mm)")
+            plt.ylabel("Z position (mm)")
+            plt.savefig(save(f"{p}-axis-{rt_str}"))
             plt.close()
 
 
@@ -339,7 +394,6 @@ def gradient_pier_displacement_plot(
 def comparison_plots_705(c: Config, run_only: bool):
     """Make contour plots for all verification points on bridge 705."""
     positions = [
-        # (35, 25 - 16.6, None),
         (34.95459, 26.24579 - 16.6, "a"),
         (51.25051, 16.6 - 16.6, "b"),
         (89.98269, 9.445789 - 16.6, "c"),

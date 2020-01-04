@@ -233,7 +233,7 @@ def sensors():
 
 
 @validate.command(help="Contour plots of unit pier displacement.")
-@click.option("--piers", type=str, default="4,5", help="Indices of piers to displace.")
+@click.option("--piers", type=str, default="5,4", help="Indices of piers to displace.")
 def pier_disp(piers):
     pier_indices = [int(p.strip()) for p in piers.split(",")]
     print_i(f"Pier indices = {pier_indices}")
