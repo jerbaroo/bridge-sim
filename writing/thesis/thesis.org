@@ -1587,6 +1587,44 @@ for vehicle in traffic:
         response += ru * (wi / ul)
 #+END_SRC
 **** Meshing
+The mesh of the generated FEM is controlled by a parameter $max\_shell_\len$ or
+~MSL~. This parameter determines the maximum permitted length of a shell element
+in the generated FEM. The meshing process is split into two parts. Construction
+of the base mesh, followed by refinement.
+
+# Points of interest in one direction of the bridge deck.
+The base mesh is constructed by first considering a number of positions of
+interest in one direction of the bridge deck. For example, in the transverse
+direction of the bridge, positions of interest include where the material
+properties change and where the tops of the piers begin and end. For each pair
+of positions of interest $P_0, P_1$ that are next to each other, a number of
+equidistant positions $PS_{0,1}$ are selected between $P_0$ and $P_1$, such that
+the distance between any pair of positions in $PS_{0,1}$ is as close to ~MSL~ as
+possible but no greater. $PS_{0,1}$ are added to a set of positions $PS_x$.
+
+# Cartesian product.
+We now have a number of positions $PS_x$ where nodes should be placed in the
+transverse direction of the bridge deck. The same process is repeated in the
+longitudinal direction to acquire $PS_z$ and then the cartesian product of
+$PS_x$ and $PS_z$ is calculated. The result is a point for each node in the base
+mesh of the bridge deck. A similar process is applied to the bridge piers.
+
+# Refinement.
+Refinement of the base mesh occurs around a specified loading position $L$ based
+on a set of refinement radii $R$. Each set of four neighbouring nodes which form
+a rectangle are considered as a shell element. For each radius $R_i$ in $R$, the
+shells which contain a node $R_i$ meters or less from $L$ are refined. Refining
+these shells takes the simple process of splitting each shell into four smaller
+shells, thus introducing five additional nodes per shell that is refined. For a
+point-load simulation... A refined mesh of bridge 705, with a parameter of ~MSL
+= 0.5~ for the base mesh, $R = [2, 1, 0.5]$ and $L_x, L_z = (85, 16.6)$ is shown
+in Figure [[fig:705-mesh]].
+# TODO: Specify exact refinement positions.
+
+#+NAME: fig:705-mesh
+#+CAPTION[Refined mesh of bridge 705]:
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-refined-top-view/mesh-outline-true-parula.pdf]]
+
 *** System Interface
 # Emphasis on reproduceable research.
 In recent years there is an increased emphasis on reproducable research within
