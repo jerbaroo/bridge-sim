@@ -1599,8 +1599,9 @@ direction of the bridge, positions of interest include where the material
 properties change and where the tops of the piers begin and end. For each pair
 of positions of interest $P_0, P_1$ that are next to each other, a number of
 equidistant positions $PS_{0,1}$ are selected between $P_0$ and $P_1$, such that
-the distance between any pair of positions in $PS_{0,1}$ is as close to ~MSL~ as
-possible but no greater. $PS_{0,1}$ are added to a set of positions $PS_x$.
+the distance between any neighbourly pair of positions in $PS_{0,1}$ is as close
+to ~MSL~ as possible but no greater. $PS_{0,1}$ are added to a set of positions
+$PS_x$.
 
 # Cartesian product.
 We now have a number of positions $PS_x$ where nodes should be placed in the
