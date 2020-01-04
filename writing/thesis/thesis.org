@@ -1935,7 +1935,7 @@ In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
 each FE software, one simulation of axial thermal loading and one simulation of
-moment thermal loading. Figures [j]
+moment thermal loading. Figures []
 
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
