@@ -132,7 +132,8 @@ def get_pier_shells(bridge: Bridge, pier_nodes: PierNodes, ctx: BuildContext):
         for wall_nodes in a_pier_nodes:
             wall_shells = []
             for z_i in range(len(wall_nodes) - 1):
-                for x_i in range(len(wall_nodes[0]) - 1):
+                x_is = range(len(wall_nodes[0]) - 1)
+                for x_i in x_is:
                     node_i = wall_nodes[z_i][x_i]
                     node_j = wall_nodes[z_i][x_i + 1]
                     node_k = wall_nodes[z_i + 1][x_i + 1]
@@ -147,7 +148,12 @@ def get_pier_shells(bridge: Bridge, pier_nodes: PierNodes, ctx: BuildContext):
                         if len(wall_nodes[0]) == 2
                         else (x_i / (len(wall_nodes[0]) - 2))
                     )
-                    print(f"section_frac = {frac_long}")
+                    # Sanity check that the top shell is assigned value 0 and
+                    # the bottom is assigned value 1.
+                    if x_i == x_is[0]:
+                        assert frac_long == 0
+                    elif x_i == x_is[-1]:
+                        assert frac_long == 1
                     wall_shells.append(
                         ctx.get_shell(
                             ni_id=node_i.n_id,

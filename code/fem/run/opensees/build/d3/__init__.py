@@ -204,22 +204,20 @@ def opensees_fixed_pier_nodes(
     fixed_nodes: List[FixNode] = []
     # Iterate through each pier. Note that p_nodes is a tuple of nodes for each
     # pier wall. And each wall is a 2-d array of nodes.
-    for p, p_nodes in enumerate(all_support_nodes):
-        pier = c.bridge.supports[p]
+    for p_i, p_nodes in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
         # If pier displacement for this pier then select the bottom central node
         # for the integrator command, and attach it to the pier.
         free_y_trans = False
-        if (pier_disp is not None) and (p == pier_disp.pier):
+        if (pier_disp is not None) and (p_i == pier_disp.pier):
             free_y_trans = True
             pier = c.bridge.supports[pier_disp.pier]
             pier.disp_node = p_nodes[0][len(p_nodes[0]) // 2][-1]
             if len(p_nodes[0]) % 2 == 0:
-                raise ValueError(
-                    "Pier displacement requires odd number of nodes along pier"
-                    " in the transverse direction"
-                )
+                print_w("Pier displacement:")
+                print_w("  no central node (even number of nodes)")
         # For each ~vertical line of nodes for a z position at top of wall.
-        for y, y_nodes in enumerate(p_nodes[0]):
+        for y_i, y_nodes in enumerate(p_nodes[0]):
             # We will fix the bottom node.
             node = y_nodes[-1]
             fixed_nodes.append(
@@ -231,7 +229,7 @@ def opensees_fixed_pier_nodes(
                     fix_x_rotation=pier.fix_x_rotation,
                     fix_y_rotation=pier.fix_y_rotation,
                     fix_z_rotation=pier.fix_z_rotation,
-                    comment=f"support {p+1} y {y+1}",
+                    comment=f"pier {p_i} y {y_i}",
                 )
             )
     return comment(

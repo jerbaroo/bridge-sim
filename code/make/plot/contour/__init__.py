@@ -231,13 +231,13 @@ def cracked_concrete_plots(c: Config):
         plt.close()
 
 
-def each_pier_displacement_plots(c: Config):
-    """Contour plots of pier displacement of each pier."""
+def piers_displaced(c: Config, pier_indices: List[int]):
+    """Contour plots of pier displacement for the given pier indices."""
     y = 0
-    response_types = [ResponseType.YTranslation]
-
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
     for response_type in response_types:
-        for p, pier in list(enumerate(c.bridge.supports)):
+        for p in pier_indices:
+            pier = c.bridge.supports[p]
             pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
                 response_types=response_types, displacement_ctrl=pier_disp,
@@ -252,6 +252,7 @@ def each_pier_displacement_plots(c: Config):
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
+                cmap=get_cmap("jet"),
                 responses=sim_responses,
                 y=y,
                 title=f"Pier displacement of {pier_disp.displacement} m",
@@ -265,8 +266,8 @@ def each_pier_displacement_plots(c: Config):
             )
             plt.savefig(
                 c.get_image_path(
-                    "contour-pier-displacement",
-                    safe_str(f"{response_type.name()}-pier-{p}"),
+                    "validation/pier-displacement",
+                    safe_str(f"pier-{p}-{response_type.name()}"),
                 )
             )
             plt.close()

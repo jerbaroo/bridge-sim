@@ -89,11 +89,6 @@ def get_deck_zs(bridge: Bridge, ctx: BuildContext) -> List[float]:
         z0, z1 = all_zs[i], all_zs[i + 1]
         num = math.ceil((z1 - z0) / bridge.base_mesh_deck_max_z) + 1
         print(f"z0, z1, num = {z0}, {z1}, {num}")
-        # If 'z0' and 'z1' belong to piers, then ensure the number of nodes for
-        # the pier is odd (such that there exists a central node for pier
-        # settlement simulation).
-        if num % 2 == 0 and z0 in all_zs and z1 in all_zs:
-            num += 1
         for z in np.linspace(z0, z1, num=num):
             deck_zs.add(round_m(z))
     return sorted(deck_zs)

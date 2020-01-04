@@ -220,19 +220,24 @@ def convergence():
 
 @validate.command(help="Contour plots of unit thermal deck loading.")
 def thermal():
-    from make.plot.contour.thermal import unit_axial_thermal_deck_load
-    from make.plot.contour.thermal import unit_moment_thermal_deck_load
-    from make.plot.contour.thermal import unit_thermal_deck_load
-
-    unit_axial_thermal_deck_load(c())
-    unit_moment_thermal_deck_load(c())
-    unit_thermal_deck_load(c())
+    from make.plot.contour import thermal
+    thermal.unit_axial_thermal_deck_load(c())
+    thermal.unit_moment_thermal_deck_load(c())
+    thermal.unit_thermal_deck_load(c())
 
 
 @validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")
 def sensors():
     verification.per_sensor_plots(c=c(), strain_sensors_startwith="O")
     verification.per_sensor_plots(c=c(), strain_sensors_startwith="T")
+
+
+@validate.command(help="Contour plots of unit pier displacement.")
+@click.option("--piers", type=str, default="4,5", help="Indices of piers to displace.")
+def pier_disp(piers):
+    pier_indices = [int(p.strip()) for p in piers.split(",")]
+    print_i(f"Pier indices = {pier_indices}")
+    contour_.piers_displaced(c=c(), pier_indices=pier_indices)
 
 
 ####################
@@ -267,11 +272,6 @@ def scenarios_traffic():
 @contour.command(help="Response to point loads per scenario.")
 def scenarios_point_load():
     contour_.point_load_response_plots(c())
-
-
-@contour.command(help="Response to each pier being displaced in turn.")
-def each_pier_displaced():
-    contour_.each_pier_displacement_plots(c())
 
 
 @contour.command(help="Cracked concrete under normal traffic.")
