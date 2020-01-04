@@ -1800,6 +1800,8 @@ along with the company who installed them and their positions.
 
 # TODO: Sensor positions table linked above.
 
+# TODO: Is the 375mm also to the right.
+
 #+NAME: fig:truck-pos
 #+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 #+ATTR_LATEX: :float sideways
@@ -1823,14 +1825,15 @@ comparison takes the form of a number of regression plots shown in Figure
 strain. Somewhat surprisingly the responses from the OpenSees model are in
 better agreement with the measurements from the experimental campaign than the
 responses from the Diana model are.
+
 # TODO: Check after re-running.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:regress-displa]].
+#+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
-#+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:regress-displa]].
+#+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
 
 **** Convergence
@@ -1910,14 +1913,14 @@ material properties of the generated FEM are given in Table [[tbl:single-section
 | Poisson's ratio   | 0.2        | 0.2        |
 
 Simulations were run where a displacement load was applied to the central node
-at the bottom of each pier of bridge 705 in turn. The response patterns are very
-similar for each of the piers closest to the northern and southern edges of the
-bridge, and also very similar for each of the remaining piers. One of the piers
-closest to the southern edge of the bridge, and one pier closer to the center of
-the bridge in transverse direction, are chosen for comparison. Each of these
-piers is displaced by $\SI{1}{\meter}$ in AxisVM and again in OpenSees and a
-contour plot of the displacements and strain recorded. Figures [[fig:pd-5-axis]] -
-[[fig:pd-5-os]] show the displacement ...
+at the bottom of each pier of bridge 705, one simulation per pier. The response
+patterns are quite similar for the piers that are closest to the northern and
+southern edges of the bridge, and also quite similar for each of the remaining
+piers. Thus one of the piers closest to the southern edge of the bridge, and one
+pier closer to the center of the bridge in transverse direction, are chosen for
+comparison. Each of these piers is displaced by $\SI{1}{\meter}$ in AxisVM and
+again in OpenSees and a contour plot of the displacements and strain generated.
+Figures [[fig:pd-5-axis]] - [[fig:pd-5-os]] show the displacement ...
 # TODO Validate piers and write about remaining images.
 
 #+NAME: fig:pd-5-axis
@@ -1927,6 +1930,12 @@ contour plot of the displacements and strain recorded. Figures [[fig:pd-5-axis]]
 #+NAME: fig:pd-5-os
 #+CAPTION[Pier displacement with OpenSees (1)]: Displacement recorded with OpenSees when a pier of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced by, dark blue is the maximum displacement and dark red the minimum. The pier that is displaced can be identified by the blue area surrounding it.
 [[../../saved-generated-data-images/bridge-705-single-sections-low-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+
+In order to validate the implementation of thermal loading, as discussed in
+Subsection [[Noise Model]], simulations of unit thermal loading were run using the
+FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
+each FE software, one simulation of axial thermal loading and one simulation of
+moment thermal loading. Figures [j]
 
 *** Parameter Selection
 Increasing mesh density increases the accuracy of responses but also increases
