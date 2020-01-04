@@ -249,6 +249,9 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 sim_params=sim_params,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
+                # 'Run = True' is required such that the 'disp_node' is attached
+                # to a pier.
+                run=True,
             )
 
             # Plot and save the image.
@@ -298,7 +301,8 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 ),
             )
             # Plot the load and min, max values.
-            row = axis_values[axi_values["name"] == f"{p}-{rt_str}"]
+            row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
+            print(row)
             amin, amax = float(row["min"]), float(row["max"])
             if response_type == ResponseType.Strain:
                 amax, amin = -amin * 1e6, -amax * 1e6
@@ -317,14 +321,17 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 )
             plt.legend()
             # Add the Axis colorbar.
-            plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
+            plt.imshow(np.array([[amin, amax]]), cmap=get_cmap("jet"), extent=(0, 0, 0, 0))
             clb = plt.colorbar()
             clb.ax.set_title(unit_str)
             # Title and save.
-            plt.title(title)
+            plt.title(f"Pier displacement of 1 m")
             plt.xlabel("X position (mm)")
             plt.ylabel("Z position (mm)")
-            plt.savefig(save(f"{p}-axis-{rt_str}"))
+            plt.savefig(c.get_image_path(
+                "validation/pier-displacement",
+                f"{p}-axis-{rt_str}",
+            ))
             plt.close()
 
 
