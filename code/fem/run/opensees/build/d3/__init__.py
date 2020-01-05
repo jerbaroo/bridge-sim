@@ -467,16 +467,10 @@ def build_model_3d(
     c: Config,
     expt_params: ExptParams,
     os_runner: "OSRunner",
-    ctx: Optional[BuildContext] = None,
 ):
     """Build OpenSees 3D model files.
 
     TODO: ExptParams -> SimParams.
-
-    Args:
-        c: Config, global configuration object.
-        ctx: Optional[BuildContext], use this build context, refinement
-            positions will be added based on the simulation parameters given.
 
     """
     # Read in the template model file.
@@ -487,16 +481,14 @@ def build_model_3d(
     for sim_params in expt_params.sim_params:
 
         # Setup the 'BuildContext' for this simulation.
-        if ctx is None:
-            ctx = BuildContext([])
-        # Copy the 'BuildContext', to add the load positions for refinement.
-        sim_ctx = deepcopy(ctx)
+        sim_ctx = sim_params.build_ctx(c.bridge)
+        print(sim_ctx)
         sim_params.ctx = sim_ctx
         for load in sim_params.ploads:
             sim_ctx.add_loads.append(
                 Point(x=c.bridge.x(load.x_frac), y=0, z=c.bridge.z(load.z_frac))
             )
-        if not sim_ctx.refine_loads:
+        if len(sim_ctx.refinement_radii) == 0:
             print_i("Not refining loads")
         else:
             print_i("Refining {len(sim_ctx.add_loads)} loads")

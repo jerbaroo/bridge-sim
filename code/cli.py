@@ -285,13 +285,25 @@ def traffic_concrete():
 @click.option("--moment", type=float, required=True)
 def traffic_thermal(axial, moment):
     from make.plot.contour.traffic_thermal import thermal_deck_load
-
     thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
-########################
-##### Distribution #####
-########################
+#################
+##### Debug #####
+#################
+
+
+@cli.group(help="Debug this system.")
+def debug():
+    pass
+
+
+@debug.command(help="TCL files & contour plots for mesh refinement.")
+@click.option("--build", type=bool, default=True)
+@click.option("--plot", type=bool, default=True)
+def refinement_tcls(build: bool, plot: bool):
+    from make import debug
+    debug.mesh_refinement(c=c(), build=build, plot=plot)
 
 
 ##########################

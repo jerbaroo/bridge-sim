@@ -165,6 +165,8 @@ class FEMRunner:
         param_str = sim_params.id_str()
         append = append if len(append) == 0 else f"-{append}"
         filename = f"{self.c.bridge.id_str()}-params={param_str}{append}"
+        if len(sim_params.refinement_radii) > 0:
+            filename += "-refined"
         if dirname is None:
             dirname = self.name
         dirname = safe_str(dirname)

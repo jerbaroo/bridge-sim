@@ -140,11 +140,11 @@ class Support3D:
         self.fix_x_rotation = fix_x_rotation
         self.fix_y_rotation = fix_y_rotation
         self.fix_z_rotation = fix_z_rotation
-        self.sections = sections
+        self._sections = sections
         # Must be callable or a list.
-        if not callable(self.sections):
-            assert isinstance(self.sections, list)
-            assert all(isinstance(s, Section3DPier) for s in self.sections)
+        if not callable(self._sections):
+            assert isinstance(self._sections, list)
+            assert all(isinstance(s, Section3DPier) for s in self._sections)
         if self.width_top < self.width_bottom:
             raise ValueError("Support3D: top width must be >= bottom width")
 
@@ -396,16 +396,19 @@ class Section3D:
         """The min and max values in y for this section."""
         return -self.thickness, 0
 
-    def __repr__(self):
-        """Readable representation."""
+    def prop_str(self):
+        """Textual representation of material properties."""
         return (
             "Section3D"
             + f"\n  starts at (x_frac, z_frac) ="
             + f" ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})"
+            + f"\n  ends at (x_frac, z_frac) ="
+            + f" ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})"
             + f"\n  density = {self.density} kg/m"
             + f"\n  thickness = {self.thickness} m"
             + f"\n  youngs = {self.youngs} MPa"
             + f"\n  poissons = {self.poissons}"
+            + f"\n  cte = {self.cte}"
         )
 
 
@@ -441,8 +444,8 @@ class Section3DPier(Section3D):
         )
         self.start_frac_len = start_frac_len
 
-    def __repr__(self):
-        """Readable representation."""
+    def prop_str(self):
+        """Textual representation of material properties."""
         return (
             "Section3D"
             + f"\n  starts at {round_m(self.start_frac_len)}"
@@ -498,7 +501,6 @@ class Bridge:
         single_sections: Optional[Tuple[Section, Section]] = None,
     ):
         self.type = None
-
         # Given arguments.
         self.name = name
         self.accuracy = accuracy
@@ -508,12 +510,10 @@ class Bridge:
         self.sections = sections
         self.lanes = lanes
         self.dimensions = dimensions
-
         # Mesh.
         self.base_mesh_deck_max_x = base_mesh_deck_max_x
         self.base_mesh_deck_max_z = base_mesh_deck_max_z
         self.base_mesh_pier_max_long = base_mesh_pier_max_long
-
         # Attach single section option for asserts and printing info.
         self.single_sections = single_sections
         if self.single_sections is not None:
@@ -521,7 +521,6 @@ class Bridge:
             self.sections = [self.single_sections[0]]  # Set deck section.
             for pier in self.supports:  # Set pier sections.
                 pier.sections = [self.single_sections[1]]
-
         # Derived attributes.
         #
         # NOTE: The functions y_min_max and z_min_max calculate the min and max
@@ -538,24 +537,39 @@ class Bridge:
         self.y_center = (self.y_min + self.y_max) / 2
         self.z_center = (self.z_min + self.z_max) / 2
         self.height = self.y_max - self.y_min
-
+        # All sections belonging to this bridge.
+        self._sections_dict = dict()
         # Assert the bridge is fine and print info.
-        # TODO Move to another file.
         self._assert_bridge()
+
+    def _get_section(self, section: Section3D) -> Section3D:
+         """An equivalent section if exists, else the given one."""
+         section_prop_str = section.prop_str()
+         if section_prop_str in self._sections_dict:
+             return self._sections_dict[section_prop_str]
+         self._sections_dict[section_prop_str] = section
+         return self._sections_dict[section_prop_str]
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
         if callable(self.sections):
             raise NotImplementedError()
-
         if len(self.sections) == 1:
-            return self.sections[0]
-
+            return self._get_section(self.sections[0])
         for section in self.sections:
             if section.contains(bridge=self, x=x, z=z):
-                return section
-
+                return self._get_section(section)
         raise ValueError("No section for x, z = {x}, {z}")
+
+    def pier_section_at_len(self, p_i: int, section_frac_len: float) -> Section3D:
+        """Return the section at a fraction of a pier's length"""
+        assert 0 <= section_frac_len <= 1
+        pier = self.supports[p_i]
+        if callable(pier._sections):
+            return self._get_section(pier._sections(section_frac_len))
+        if len(pier._sections) == 1:
+            return self._get_section(pier._sections[0])
+        raise ValueError(f"Pier {p_i} sections are not a function")
 
     def print_info(self, c: "Config", pier_fix_info: bool = False):
         """Print summary information about this bridge.

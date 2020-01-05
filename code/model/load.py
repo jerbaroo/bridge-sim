@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
-from model.bridge import Bridge
+from model.bridge import Bridge, Point
 from util import round_m, safe_str
 
 # Comment/uncomment to print debug statements for this file.
@@ -54,6 +54,10 @@ class PointLoad:
         x = round_m(bridge.x(self.x_frac))
         z = round_m(bridge.z(self.z_frac))
         return f"x={x}, z={z}, kN={self.kn}"
+
+    def point(self, bridge: Bridge) -> Point:
+        """A 'Point' on the deck from this 'PointLoad'."""
+        return Point(x=bridge.x(self.x_frac), y=0, z=bridge.z(self.z_frac))
 
 
 class Vehicle:

@@ -71,6 +71,7 @@ def plot_contour_deck(
     title: Optional[str] = None,
     cmap=default_cmap,
     norm=None,
+    scatter: bool = False,
     levels: int = 25,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -108,8 +109,22 @@ def plot_contour_deck(
     amin, _ = resize_units(amin, responses.response_type)
     amax, unit_str = resize_units(amax, responses.response_type)
 
-    # Plot contour and colorbar.
-    cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+
+    # Plot responses and colorbar.
+    if scatter:
+        cs = plt.scatter(
+            x=np.array(X).flatten(),
+            y=np.array(Z).flatten(),
+            c=np.array(H).flatten(),
+            cmap=cmap,
+            norm=norm,
+            s=1,
+        )
+        print("Scattering")
+    else:
+        print("Not scattering")
+        cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+        import sys; sys.exit()
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)
 

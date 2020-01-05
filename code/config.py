@@ -1,6 +1,5 @@
 """Simulation configuration object."""
 import os
-from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, List, Tuple
 

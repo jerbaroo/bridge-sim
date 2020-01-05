@@ -222,7 +222,6 @@ class BuildContext:
 
     Args:
         add_loads: List[Point], additional grid lines where to add nodes.
-        refine_loads: bool, whether to apply the refinement around loads.
         refinement_radii: List[float], radii for sweeps to refine around loads.
 
     """
@@ -230,7 +229,6 @@ class BuildContext:
     def __init__(
         self,
         add_loads: List[Point],
-        refine_loads: bool = True,
         refinement_radii: List[float] = [],
         # refinement_radii: List[float] = [2, 1, 0.5],
     ):
@@ -247,7 +245,6 @@ class BuildContext:
         self.add_loads = add_loads
         for point in self.add_loads:
             assert point.y == 0
-        self.refine_loads = refine_loads
         self.refinement_radii = refinement_radii
 
     def new_n_id(self):
@@ -258,12 +255,12 @@ class BuildContext:
         self.next_s_id += 1
         return self.next_s_id - 1
 
-    def get_node(self, x: float, y: float, z: float, deck: bool) -> Node:
+    def get_node(self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None) -> Node:
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
         if pos not in self.nodes_by_pos:
             n_id = self.new_n_id()
-            node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck)
+            node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
             self.nodes_by_id[n_id] = node
             self.nodes_by_pos[pos] = node
             self.nodes_by_pos_dict[x][y][z] = node

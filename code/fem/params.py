@@ -1,6 +1,8 @@
 """Parameters for FEM simulations."""
 from typing import List, Optional
 
+from fem.model import BuildContext
+from model.bridge import Bridge
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
 from util import safe_str
@@ -16,6 +18,10 @@ class SimParams:
         ploads: List[PointLoad], point loads to apply in the simulation.
         displacement_ctrl: DisplacementCtrl, apply a load until the given
             displacement in meters is reached.
+        axial_delta_temp: Optional[float], axial thermal loading in celcius.
+        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+        refinement_radii: List[float], a list of mesh refinement radii as
+            defined in 'BuildContext'.
 
     """
 
@@ -26,13 +32,21 @@ class SimParams:
         displacement_ctrl: Optional[DisplacementCtrl] = None,
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
+        refinement_radii: List[float] = [],
     ):
         self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
+        self.refinement_radii = refinement_radii
         self._assert()
+
+    def build_ctx(self, bridge: Bridge) -> BuildContext:
+         return BuildContext(
+             add_loads=[pload.point(bridge) for pload in self.ploads],
+             refinement_radii=self.refinement_radii
+         )
 
     def _assert(self):
         """Maximum 1 load type should be applied (due to linear assumption)."""

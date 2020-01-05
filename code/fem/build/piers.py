@@ -7,16 +7,6 @@ from fem.model import BuildContext, PierNodes
 from model.bridge import Bridge, Section3D, Support3D
 
 
-def get_pier_section(pier: Support3D, frac_long: float) -> Section3D:
-    """The section of a pier at given fraction of longitudinal direction."""
-    if callable(pier.sections):
-        return pier.sections(frac_long)
-    elif len(pier.sections) == 1:
-        return pier.sections[0]
-    else:
-        raise ValueError("Please use a material property function")
-
-
 def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
     """Nodes for all a bridge's piers.
 
@@ -161,8 +151,8 @@ def get_pier_shells(bridge: Bridge, pier_nodes: PierNodes, ctx: BuildContext):
                             nk_id=node_k.n_id,
                             nl_id=node_l.n_id,
                             pier=True,
-                            section=get_pier_section(
-                                pier=bridge.supports[p_i], frac_long=frac_long
+                            section=bridge.pier_section_at_len(
+                                p_i=p_i, section_frac_len=frac_long
                             ),
                         )
                     )

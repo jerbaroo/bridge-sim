@@ -54,7 +54,7 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -> List[float]:
     for i in range(len(all_xs) - 1):
         x0, x1 = all_xs[i], all_xs[i + 1]
         num = math.ceil((x1 - x0) / bridge.base_mesh_deck_max_x) + 1
-        print(f"x0, x1, num = {x0}, {x1}, {num}")
+        # print(f"x0, x1, num = {x0}, {x1}, {num}")
         for x in np.linspace(x0, x1, num=num):
             deck_xs.add(round_m(x))
     return sorted(deck_xs)
@@ -88,7 +88,7 @@ def get_deck_zs(bridge: Bridge, ctx: BuildContext) -> List[float]:
     for i in range(len(all_zs) - 1):
         z0, z1 = all_zs[i], all_zs[i + 1]
         num = math.ceil((z1 - z0) / bridge.base_mesh_deck_max_z) + 1
-        print(f"z0, z1, num = {z0}, {z1}, {num}")
+        # print(f"z0, z1, num = {z0}, {z1}, {num}")
         for z in np.linspace(z0, z1, num=num):
             deck_zs.add(round_m(z))
     return sorted(deck_zs)
@@ -115,6 +115,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
     assert_sorted([nodes[0].z for nodes in deck_nodes])
     assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
     assert_sorted([node.x for node in deck_nodes[0]])
+
     print_i(f"Deck nodes before refinement = {len(flatten(deck_nodes, Node))}")
 
     # Convert to 'DeckShellNodes' (+ refinement information).
@@ -128,7 +129,8 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
             deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
 
     # If  not refining, return the 'DeckShellNodes'.
-    if not ctx.refine_loads:
+    if len(ctx.refinement_radii) == 0:
+        print_i(f"Deck nodes after refinement = {len(flatten(deck_nodes, Node))}")
         return list(map(lambda ns: ns[:-1], deck_shell_nodes))
 
     def refine_shell(nodes: List[Node], max_dist: float):
@@ -144,6 +146,10 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
         # Construct a new 'DeckShellNodes' and iterate over the previous one.
         new_deck_shell_nodes = []
         for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
+            assert node_i.x < node_j.x
+            assert node_j.z < node_k.z
+            assert node_k.x > node_l.x
+            assert node_l.z > node_i.z
             # If not refining, keep the existing shell.
             if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
                 num_refined > refinement_iter
@@ -155,9 +161,12 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
             else:
                 center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
                 center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
+                assert node_i.x <= center_x <= node_j.x
+                assert node_i.z <= center_z <= node_l.z
                 # Construct the 5 new nodes.
+                before = len(set(flatten(ctx.nodes_by_id.values(), Node)))
                 center_node, bottom_node, top_node, left_node, right_node = [
-                    ctx.get_node(x=x, y=0, z=z, deck=True)
+                    ctx.get_node(x=x, y=0, z=z, deck=True, comment="refined")
                     for z, x in [
                         (center_z, center_x),  # Center node.
                         (node_i.z, center_x),  # Bottom node.
@@ -166,6 +175,10 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
                         (center_z, node_j.x),  # Right node.
                     ]
                 ]
+                after = len(set(flatten(ctx.nodes_by_id.values(), Node)))
+                print(f"Before = {before}")
+                print(f"After = {after}")
+                # assert after == before + 5
                 # Construct the 4 new shells.
                 for shell_nodes in [
                     (node_i, bottom_node, center_node, left_node),  # Bottom left.
@@ -173,6 +186,8 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -> DeckShellNodes:
                     (left_node, center_node, top_node, node_l),  # Top left.
                     (center_node, right_node, node_k, top_node),  # Top right.
                 ]:
+                    if shell_nodes[0].n_id == 526:
+                        print("yay")
                     new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
                     assert len(new_deck_shell_nodes[-1]) == 5
         deck_shell_nodes = new_deck_shell_nodes
