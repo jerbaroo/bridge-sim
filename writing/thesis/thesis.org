@@ -208,16 +208,18 @@ of installing a decision support system for bridge maintenance.
 
 ** Abbreviations
 
-| ANN      | Artificial neural network                                     |
-| CTE      | Coefficient of thermal expansion                              |
-| DSS      | Decision support software                                     |
-| FEM      | Finite element model                                          |
-| NDE      | Non-disruptive evaluation                                     |
-| NDW      | (Netherlands) National Data Warehouse for Traffic Information |
-| OCSVM    | One-class Support Vector Machine                             |
-| OpenSees | Open System for Earthquake Engineering Simulation             |
-| RNN      | Recurrent Neural Network                                      |
-| PyPI     | Python Package Index                                          |
+| ANN      | Artificial neural network                               |
+| CTE      | Coefficient of thermal expansion                        |
+| DSS      | Decision support software                               |
+| FEM      | Finite element model                                    |
+| NDE      | Non-disruptive evaluation                               |
+| NDW      | National Data Warehouse for Traffic Information (Dutch) |
+| OCSVM    | One-class Support Vector Machine                        |
+| OpenSees | Open System for Earthquake Engineering Simulation       |
+| RNN      | Recurrent Neural Network                                |
+| SHB      | Sydney Harbour Bridge                                   |
+| SVM      | Support Vector Machine                                  |
+| PyPI     | Python Package Index                                    |
 
 #+LATEX: \newpage
 ** Definitions
@@ -401,6 +403,7 @@ damage localization and assessment to be possible with machine learning methods
 however the experiments were in a controlled laboratory setting without any
 environmental factors present. In the same paper it is argued that "damage
 prediction cannot be addressed by machine learning methods in general".
+
 # TODO: Why in general?
 
 # Clifton suspension bridge.
@@ -414,29 +417,56 @@ axle. Features were extracted from simulated vibration data and given as input
 to two unsupervised neural networks. The better-performing of the two was DIGNET
 cite:thomopoulos1995dignet with a damage detection rate of 70%.
 
-The one-class support vector machine (OCSVM) seems to be a popular approach for
-damage detection of civil infrastructure in recent years.
+An ANN is used to detect damage from dynamic responses from a FEM of a railway
+bridge in cite:neves2017structural. To accomplish this an ANN is trained on past
+acceleration responses from the healthy bridge and then used to predict future
+values, the difference between predicted and measured data are used as a damage
+indicator. While prediction of subsequent acceleration data was possible, the
+only loading applied was one moving vehicle, a train, no additional vehicles or
+second lane of traffic. Furthermore the authors suggest further work regarding
+the effect of environmental and operational effects.
+
+The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built in
+1932. The SHB consists of 800 jack arches in longitudinal direction. In an
+experimental campaign each jack arch was fitted with 3 accelerometers. Passing
+vehicles triggered the recording of data for $\SI{1.5}{second}$ from each of the
+3 accelerometers. Two very interesting papers applied damage detection to
+acceleration data collected from sensors on the SHB. Both of these papers,
+unlike any of the works discussed so far, make use of structural information of
+the struture.
+
+cite:khoa2014robust uses the idea that if an arch on the SHB is healthy then
+accelerometers would move together, if there is a crack then they would move
+differently. Furthermore, it was known that one of the arches was cracked. An
+SVM was trained using labeled data from features combining data from sets of 3
+accelerometers on an arch. A one-class SVM (OCSVM) which is an unsupervised
+variant of the SVM that is trained only on the healthy data, was also tested.
+The supervised variant achieved an accuracy of approximately 0.97 and the
+unsupervised approximately 0.71.
 
 # Unsupervised learning for damage detection.
-A clustering approach was applied to detect damaged joints on the Syndey Harbour
-Bridge (SHB) cite:diez2016clustering. This method attempts to group joints with
-similar behaviour and then detect damage when a sensor's responses are different
-from those in its group. This method succesfully detected a damaged joint and a
-joint with a damaged sensor.
+A clustering approach is applied to detect damaged joints on the SHB in
+cite:diez2016clustering. This method attempts to group joints with similar
+behaviour and then detect damage when a sensor's responses are different from
+those in its group. This method succesfully detected a damaged joint and a joint
+with an unknown damaged sensor.
 
-# ** Damage Types
+** Practical Considerations
 
-# ** Traffic Simulation
-# (vehicles) moving across the bridge deck. Damage detection on bridges using
-# neural networks was based on simulated vibration data in cite:yeung2005damage,
-# in this case the "traffic" was simply a single truck simulated with two point
-# loads, one per axle. The load traveled at a different constant speed in each
-# simulation.
+# TODO: Temperature in concrete. For example, concrete absorbs considerable
+# moisture during damp weather, which considerable increases the mass of the
+# bridge. Temperature changes the stiffness properties of the road surface,
+# known as the 'black-top', significantly. On a hot summer's day in the UK, the
+# road surface will provide little stiffness, but on a cold winter's day the
+# stiffness contribution is considerable. The difficulty is trying to predict
+# the effects of temperature and moisture absorption from readily available
+# measurements. There are further difficulties with highway bridges because they
+# are highly damped with low natural frequencies
 
-** Noise
-
-# TODO: Temperature in concrete.
-# For example, concrete absorbs considerable moisture during damp weather, which considerable increases the mass of the bridge. Temperature changes the stiffness properties of the road surface, known as the 'black-top', significantly. On a hot summer's day in the UK, the road surface will provide little stiffness, but on a cold winter's day the stiffness contribution is considerable. The difficulty is trying to predict the effects of temperature and moisture absorption from readily available measurements. There are further difficulties with highway bridges because they are highly damped with low natural frequencies
+Any SHM system that is deployed on a real-life bridge must consider that
+environmental and operational effects that will affect the responses of the
+bridge. Temperature changes the stiffness properties of a bridge deck, and noise
+from traffic on another lane will make damage identification more difficult.
 
 # Separations form environment.
 The temperature across a bridge deck was measured during a 24 hour cycle and
@@ -467,18 +497,17 @@ model of a long-span bridge.
 # future temporal correlations.
 # Sensitivity to noise.
 
-** Health Monitoring Installations
-# ###############
-# Installations #
-# ###############
-
-# Sensor installations for SHM.
 
 ** Summary
 
-Feature extraction is arguably the most important and difficult step in ML-based
-health monitoring according to cite:worden2006application. Some features that
-are useful in a simulated noise-free setting
+Early work on damage identification of civil infrastructure was largely focused
+on the analysis of modal properties such as mode shapes while recent work tends
+to focus on machine learning techniques. Feature extraction is arguably the most
+important and difficult step in ML-based health monitoring according to
+cite:worden2006application. Some extracted features or detection techniques that
+seem promising in a simulated or laboratory setting may yield poor results in
+reality due to unforeseen considerations, thus any technique must be robust to
+noise.
 
 ** Tables
 
@@ -507,14 +536,16 @@ reproducability}
 
 #+LATEX: \newpage
 * Background and Motivation
+
 The Literature Review provided information on /what/ has already been achieved
-in the subject area of this thesis. This Section however focuses on the question
-of /why/. Why should sensors be installed on concrete slab bridges for the
-purpose of damage detection? This Section will provide background information to
-the reader, answering this question and motivating this thesis. In doing so this
-Section will examine the different types of Bridges, types of damage that occur,
-how health monitoring takes place, and why an extensible system for researching
-damage detection on bridges is desirable.
+in the subject area of this thesis. This Section however provides background
+information in an attempt to motivate this thesis, thus the focus is now on the
+question of /why/. Why should sensors be installed on concrete slab bridges for
+the purpose of damage detection? In doing so this Section will examine the
+different types of Bridges, types of damage that occur, how health monitoring
+takes place, and why an extensible system for researching damage detection on
+bridges is desirable.
+
 ** Existing Bridges
 # Dutch road network overview.
 The Dutch national main road network consists of 3,200km of road. Assets in the
@@ -1417,7 +1448,9 @@ including structural and geotechnical, and engineering related to tunnelling,
 earthquake, and oil and gas.
 
 \textcolor{red}{TODO: Image of the 705 Diana model.}
-*** System Details
+
+*** Superposition
+
 The goal of the data collection system is to translate a =Bridge=, along with a
 =TrafficScenario= and =BridgeScenario=, into a time series of responses. This
 subsection details how that translation takes place.

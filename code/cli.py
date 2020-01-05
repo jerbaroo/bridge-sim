@@ -241,6 +241,12 @@ def pier_disp(piers):
     contour_.piers_displaced(c=c(), pier_indices=pier_indices)
 
 
+@validate.command(help="Confirm that density has no effect on simulation.")
+def density():
+    from make import validate
+    validate.density_no_effect(c())
+
+
 ####################
 ##### Contour #####
 ####################

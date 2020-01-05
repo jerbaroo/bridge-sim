@@ -61,5 +61,5 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
                 ))
                 plt.close()
 
-    build_with_refinement([0])
     build_with_refinement([])
+    build_with_refinement([10])

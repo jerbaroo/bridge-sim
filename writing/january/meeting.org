@@ -16,3 +16,12 @@
 - Compare time series from 3D & 2D model (easy)
 - Compare time series to dynamic test (???)
   - had meeting planned before xmas
+* Questions
+- Why is strain = curvature mode shape?
+- Why does density have no effect on simulation?
+- Comparison of strain and displacment/acceleration mode shapes
+    Recently, many researchers have demonstrated the feasibility and usefulness of
+    measuring strain mode shape with the help of strain gauges instead of measuring
+    acceleration or displacement mode shape [ 10-121.
+    https://s3.amazonaws.com/academia.edu.documents/50973289/0022-460x_2891_2990595-b20161219-7048-c6pecp.pdf?response-content-disposition=inline%3B%20filename%3DDamage_detection_from_changes_in_curvatu.pdf&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWOWYYGZ2Y53UL3A%2F20191227%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20191227T162415Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d7ea95e70b745afe0f4e71f0ce5136cf9e54550c8aa951e961b071e70e32b0e7
+- Debug piers and temperature?
