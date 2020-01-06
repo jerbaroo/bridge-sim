@@ -426,30 +426,33 @@ only loading applied was one moving vehicle, a train, no additional vehicles or
 second lane of traffic. Furthermore the authors suggest further work regarding
 the effect of environmental and operational effects.
 
-The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built in
-1932. The SHB consists of 800 jack arches in longitudinal direction. In an
-experimental campaign each jack arch was fitted with 3 accelerometers. Passing
-vehicles triggered the recording of data for $\SI{1.5}{second}$ from each of the
-3 accelerometers. Two very interesting papers applied damage detection to
-acceleration data collected from sensors on the SHB. Both of these papers,
-unlike any of the works discussed so far, make use of structural information of
-the struture.
+The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built
+in 1932. The SHB consists of 800 jack arches in longitudinal direction. In an
+experimental campaign each jack arch was fitted with 3 accelerometers. It was
+known that one of the arches was cracked. Two very interesting papers applied
+damage detection to acceleration data collected from the sensors on the SHB.
+Both of these papers, unlike any of the works discussed so far, make use of
+structural information of the bridge.
 
 cite:khoa2014robust uses the idea that if an arch on the SHB is healthy then
 accelerometers would move together, if there is a crack then they would move
-differently. Furthermore, it was known that one of the arches was cracked. An
-SVM was trained using labeled data from features combining data from sets of 3
-accelerometers on an arch. A one-class SVM (OCSVM) which is an unsupervised
-variant of the SVM that is trained only on the healthy data, was also tested.
-The supervised variant achieved an accuracy of approximately 0.97 and the
-unsupervised approximately 0.71.
+differently. An SVM was trained using labeled data from features combining data
+from sets of 3 accelerometers on an arch. A one-class SVM (OCSVM) which is an
+unsupervised variant of the SVM that is trained only on the healthy data, was
+also tested. The supervised variant achieved an accuracy of approximately 0.97
+and the unsupervised approximately 0.71.
 
-# Unsupervised learning for damage detection.
-A clustering approach is applied to detect damaged joints on the SHB in
-cite:diez2016clustering. This method attempts to group joints with similar
-behaviour and then detect damage when a sensor's responses are different from
-those in its group. This method succesfully detected a damaged joint and a joint
-with an unknown damaged sensor.
+Two methods were applied in cite:diez2016clustering using the idea that similar
+substructures should behave similarly. k-means clustering was applied to the
+features collected from each joint. With k-means k=2 and only considering 6
+joints, including one known damaged joint, a cluster was formed containing
+primarily features from the damaged joint. This method did not perform well when
+the amount of joints considered was increased to 71. The other method applied in
+cite:diez2016clustering considered a "joint representative", a feature that is
+the mean of the features from one joint. Then a pairwise map was created using
+the euclidean distance between each pair of joint representatives. This method
+detected the known damaged joint, another joint with a known faulty sensor and a
+third joint with unknown damaged state.
 
 ** Practical Considerations
 
@@ -463,23 +466,33 @@ with an unknown damaged sensor.
 # measurements. There are further difficulties with highway bridges because they
 # are highly damped with low natural frequencies
 
-Any SHM system that is deployed on a real-life bridge must consider that
+Any SHM system that is deployed on a real-life structure must consider the
 environmental and operational effects that will affect the responses of the
-bridge. Temperature changes the stiffness properties of a bridge deck, and noise
-from traffic on another lane will make damage identification more difficult.
+bridge. Temperature changes the stiffness properties of a bridge deck resulting
+in different responses throught a day or year, and noise from traffic on another
+lane will also make damage identification more difficult.
 
-# Separations form environment.
-The temperature across a bridge deck was measured during a 24 hour cycle and
-correlated with the bridge's natural frequencies in cite:doebling1997using. A
-machine learning algorithm based on PCA is presented in cite:ye2018integrated
-for separating the individual components of the deflection signal. An
-auto-associative neural network is employed for separating the effect of damage
-in extracted features from responses caused by environmental variations of the
-system cite:sohn2002statistical.
+# Good reading: https://royalsocietypublishing.org/doi/full/10.1098/rsta.2006.1935#bib42
+
+A regression analysis was applied to acceleration data from the Alamosa Canyon
+Bridge in New Mexico in cite:sohn1998adaptive. The natural frequency varied
+approximately 5% during the 24 hour interval when measurements were taken and
+the frequency was well correlated with temperature. Measured temperatures
+exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
+showed a large temperature gradient, because the bridge is oriented north to
+south.
+
+A machine learning algorithm based on PCA
+is presented in cite:ye2018integrated for separating the individual components
+of the deflection signal. An auto-associative neural network is employed for
+separating the effect of damage in extracted features from responses caused by
+environmental variations of the system cite:sohn2002statistical.
 
 When the noise level was under 10%, each individual component (temperature, live
 load, structural damage) was succesfully separated based on data from a computer
 model of a long-span bridge.
+
+In a long-term installation a faulty sensor cannot be considered as
 
 # # Detecting faulty sensors.
 # Damaged sensors can be considered a special class of damage that is very
@@ -502,12 +515,12 @@ model of a long-span bridge.
 
 Early work on damage identification of civil infrastructure was largely focused
 on the analysis of modal properties such as mode shapes while recent work tends
-to focus on machine learning techniques. Feature extraction is arguably the most
-important and difficult step in ML-based health monitoring according to
-cite:worden2006application. Some extracted features or detection techniques that
-seem promising in a simulated or laboratory setting may yield poor results in
-reality due to unforeseen considerations, thus any technique must be robust to
-noise.
+to employ machine learning, with particular use of unsupervised methods such as
+the OCSVM. Feature extraction is arguably the most important and difficult step
+in ML-based health monitoring according to cite:worden2006application. Extracted
+features or detection techniques that may seem promising in a simulated or
+laboratory setting may yield poor results in reality due to unforeseen
+considerations, thus any technique must be robust to noise.
 
 ** Tables
 
@@ -1136,7 +1149,7 @@ of superposition, responses collected from the previous simulations can be
 summed together (one for each vehicle's wheel) to calculate a response at a
 requested point. A number of additional simulations must be run for the bridge
 in damaged state. This will all be explained more thoroughly in Subsection
-[[System Details]] but it is useful to present a brief overview in advance.
+[[Superposition]] but it is useful to present a brief overview in advance.
 
 *** Bridge Model
 
@@ -2055,7 +2068,7 @@ Damage detection is based on the collected data as discussed very thoroughly in
 Subsection [[Simulation]]. Two types of damage to the bridge are considered. A crack
 zone is simulated by reducing Young's modulus in an area of the bridge deck, and
 a pier is displaced through a superposition of the pier displacement simulations
-that have been discussed in Subsection [[System Details]].
+that have been discussed in Subsection [[Superposition]].
 
 *** Damage Scenarios
 
