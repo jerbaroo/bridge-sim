@@ -480,7 +480,9 @@ approximately 5% during the 24 hour interval when measurements were taken and
 the frequency was well correlated with temperature. Measured temperatures
 exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
-south.
+south. In cite:peeters2000system a linear relationship is shown between the
+1st and 2nd eigenfrequencies and temperature above $\SI{0}{celcius}$, and a
+separate linear relationship below $\SI{0}{celcius}$
 
 A machine learning algorithm based on PCA
 is presented in cite:ye2018integrated for separating the individual components
