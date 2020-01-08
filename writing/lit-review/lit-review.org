@@ -1,0 +1,267 @@
+#+OPTIONS: date:nil toc:nil
+#+LATEX_HEADER: \usepackage{siunitx}
+
+Dear reader, this is part of the literature review from my thesis, the course
+was cancelled in my year but my supervisor was kind enough to sign me up for the
+literature review part of the course as I write my thesis. If you feel like only
+reviewing ~1500 words which I believe is the limit, then you can stop at Section
+[[Practical Considerations]].
+
+* Damage Identification
+
+# Overview of methods.
+Methods of damage identification that monitor changes in civil infrastructure
+include methods based on modal properties, methods based on a model-updating
+procedure, probabilistic approaches e.g. using Bayes theorem, and pattern
+recognition approaches such as artificial neural networks.
+
+# Natural frequencies and mode shapes: bulk of the research.
+A significant amount of the early research into damage identification of civil
+infrastructure is based on modal properties, attempting to detect damage by
+classifying changes in natural frequency or mode shape.
+
+# I-40: no change until final damage case, same change in undamaged data.
+Damage was applied to the I-40 bridge, a 130m girder bridge over the RIO Grande
+river, before it's demolition, and data recorded from ambient vibration tests.
+The damage was intended to simulate fatigue cracking and was inflicted with
+torch cuts in a girder. In the fourth and most severe damage state the web of
+the girder contained a 6 foot cut and the flange was completely cut through. In
+cite:farrar1994dynamic it is noted that changes in dynamic properties were only
+observed in the fourth damage state. Furthermore, changes of similar magnitude
+were observed from repeated ambient vibration tests on the undamaged structure.
+
+# Curvature mode shapes.
+In cite:pandey1991damage introduced the use of the curvature of mode shapes
+which is obtained by differentiating the displacement mode shape twice. Changes
+in the curvature of the mode shape are localized to the damage and furthermore
+the absolute difference of the curvature mode shapes of the damaged and
+undamaged structures increase with damage severity cite:dawari2013structural.
+However the cite:pandey1991damage study was on a computer model of a beam, and
+did not consider robustness to noise.
+
+# I-40: could only localize damage when bridge would have collapsed.
+In cite:doebling1998statistical changes in mode shapes, from the same I-40
+experimental data, were shown to be statistically different from the undamaged
+state for all damage states, however the analysis could not discriminate whether
+the source of the change was structural damage. The damage in the fourth damage
+state was localized, however at this point the bridge was sagging by 2cm at the
+damage location, and according cite:yeung2005damage the bridge would have
+collapsed under a live load.
+
+# Natural frequency and mode shapes: not robust to noise.
+In cite:stubbs2000global changes in natural frequency and mode shapes from
+numerical simulations are used to determine the location and the extent of
+damage on a rigid frame and then to assess the safety of the structure. However
+this paper highlights two issues common in the literature. Modal parameters
+corresponding to a baseline or "healthy" state are required, and robustness to
+noise is not addressed in the work. The requirement of "baseline" data is not a
+fatal flaw and could be addressed in a number of ways: 1) the baseline state
+comes from sensor measurements taken for newly built structures, 2) existing
+structures could be monitored for /any/ changes after sensor installation, not
+knowing whether the structure was already damaged or not, 3) a FEM is used to
+generate an approximation of the baseline state. The robustness to noise is a
+more crucial problem because civil structures will be subjected to environmental
+factors such as temperature changes. The work cite:stubbs2000global simply
+states "the existence of noise in the data processing should be addressed".
+
+# Dogna: modal curvature, not robust to noise.
+The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
+strong flood in 2003. In 2008, prior to demolition, an experimental campaign was
+carried out where six damage configurations were applied to the bridge in the
+form of notches cut with a hydraulic saw. In cite:dilena2011dynamic changes in
+modal curvature were succesfully used to identify the location of the damage.
+However the dynamic tests were all carried out under similar environmental
+conditions, thus the robustness to noise was not investigated.
+
+# Problem of vibration.
+In concrete structures with reinforcing steel bars, the bar are tensioned such
+that the concrete remains in compression. Once the steel bars have corroded and
+failed the concrete bridge is liable to collapse. However the stiffness of the
+bridge is mostly contributed by the concrete, the corrosion of the steel has
+little influence on the dynamics, until the steel bars and bridge have failed
+cite:friswell1997damage.
+
+# Z24 bridge in Switzerland.
+In cite:teughels2004structural a model-updating approach is applied which
+minimizes the difference in mode shapes. This approach was validated on the Z24
+highway bridge in Switzerland, which is a 58m pre-stressed concrete bridge. The
+damage scenario considered was the lowering of one of the supporting piers
+(originally at a height of 44m) by 95mm. In this study only a single damage
+scenario was considered and environmental effects such as temperature which
+could represent a false positive damage scenario were not considered.
+
+# Model-updating methods.
+Model-updating approaches compare measurement data with responses from an
+analytical model and attempt to minimize the difference by updating model
+parameters. One problem with optimization algorithms used to update model
+parameters is that they may find a local rather than a global optimum.
+Evolutionary algorithms are good candidates for such problems and in
+cite:qin2018dynamic the particle swarm optimization algorithm is used as a
+model-updating approach using vibration data. The approach was experimentally
+verified against data from a 129m railway viaduct.
+
+# Analytical model: hard to acquire inaccurate.
+Health monitoring based on an analytical model imposes a challenge because an
+analytical model is required and the necessary data for building an analytical
+model is not always available. This is because civil infrastucture is not always
+built precisely to the original design, due to changes in orders or due to
+on-site construction constraints. Moreover, in the case of concrete, uniform
+material properties are not guaranteed.
+
+# Bayesian probabilistic approach.
+A Bayesian probabilistic approach was applied in a laboratory test to a
+reinforced-concrete bridge column cite:sohn2000bayesian, this method compared
+the relative damage probabilites of different damage events based on data from
+vibration tests. The method has the potential advantage of not requiring an
+accurate analytical model, yet the study was only on a single column of a bridge
+and it was a laboratory experiment that did not account for environmental noise.
+
+* Machine Learning
+
+# Introduction to ML.
+Machine learning based approaches map inputs to outputs based on previously
+given input-output pairs, known as training data. Supervised learning methods
+require the existence of data corresponding to damage states, which is unlikely
+in the case of civil infrastructure. Unsupervised learning methods classify data
+into clusters without pre-existing labels. One-class classification is a form of
+outlier detection that can be considered a special case of supervised-learning,
+where only one class of training data is present in the training data.
+
+# ML for SHM: prediction (level 4) not possible.
+In cite:worden2006application a number of damage identification experiments were
+applied that attempted to identify damage on an aircraft wing. The study showed
+damage localization and assessment to be possible with machine learning methods
+however the experiments were in a controlled laboratory setting without any
+environmental factors present. In the same paper it is argued that "damage
+prediction cannot be addressed by machine learning methods in general".
+
+# TODO: Why in general?
+
+# Clifton suspension bridge.
+In cite:yeung2005damage a FEM of the 214m Clifton suspension bridge in Bristol,
+England is used to generate data corresponding to healthy and damaged states,
+namely damage to the girders. Environmental factors were considered by heating
+one side of the model by $\SI{+30}{\celsius}$. In order to generalize the
+classification problem, data was generated by simulating a vehicle moving at 3
+different speeds. The vehicle was simulated using 2 concentrated loads, one per
+axle. Features were extracted from simulated vibration data and given as input
+to two unsupervised neural networks. The better-performing of the two was DIGNET
+cite:thomopoulos1995dignet with a damage detection rate of 70%.
+
+An ANN is used to detect damage from dynamic responses from a FEM of a railway
+bridge in cite:neves2017structural. To accomplish this an ANN is trained on past
+acceleration responses from the healthy bridge and then used to predict future
+values, the difference between predicted and measured data are used as a damage
+indicator. While prediction of subsequent acceleration data was possible, the
+only loading applied was one moving vehicle, a train, no additional vehicles or
+second lane of traffic. Furthermore the authors suggest further work regarding
+the effect of environmental and operational effects.
+
+The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built
+in 1932. The SHB consists of 800 jack arches in longitudinal direction. In an
+experimental campaign each jack arch was fitted with 3 accelerometers. It was
+known that one of the arches was cracked. Two very interesting papers applied
+damage detection to acceleration data collected from the sensors on the SHB.
+Both of these papers, unlike any of the works discussed so far, make use of
+structural information of the bridge.
+
+cite:khoa2014robust uses the idea that if an arch on the SHB is healthy then
+accelerometers would move together, if there is a crack then they would move
+differently. An SVM was trained using labeled data from features combining data
+from sets of 3 accelerometers on an arch. A one-class SVM (OCSVM) which is an
+unsupervised variant of the SVM that is trained only on the healthy data, was
+also tested. The supervised variant achieved an accuracy of approximately 0.97
+and the unsupervised approximately 0.71.
+
+Two methods were applied in cite:diez2016clustering using the idea that similar
+substructures should behave similarly. k-means clustering was applied to the
+features collected from each joint. With k-means k=2 and only considering 6
+joints, including one known damaged joint, a cluster was formed containing
+primarily features from the damaged joint. This method did not perform well when
+the amount of joints considered was increased to 71. The other method applied in
+cite:diez2016clustering considered a "joint representative", a feature that is
+the mean of the features from one joint. Then a pairwise map was created using
+the euclidean distance between each pair of joint representatives. This method
+detected the known damaged joint, another joint with a known faulty sensor and a
+third joint with unknown damaged state.
+
+* Practical Considerations
+
+# TODO: Temperature in concrete. For example, concrete absorbs considerable
+# moisture during damp weather, which considerable increases the mass of the
+# bridge. Temperature changes the stiffness properties of the road surface,
+# known as the 'black-top', significantly. On a hot summer's day in the UK, the
+# road surface will provide little stiffness, but on a cold winter's day the
+# stiffness contribution is considerable. The difficulty is trying to predict
+# the effects of temperature and moisture absorption from readily available
+# measurements. There are further difficulties with highway bridges because they
+# are highly damped with low natural frequencies
+
+Any SHM system that is deployed on a real-life structure must consider the
+environmental and operational effects that will affect the responses of the
+bridge. Temperature changes the stiffness properties of a bridge deck resulting
+in different responses throught a day or year, and noise from traffic on another
+lane will also make damage identification more difficult.
+
+# Good reading: https://royalsocietypublishing.org/doi/full/10.1098/rsta.2006.1935#bib42
+
+A regression analysis was applied to acceleration data from the Alamosa Canyon
+Bridge in New Mexico in cite:sohn1998adaptive. The natural frequency varied
+approximately 5% during the 24 hour interval when measurements were taken and
+the frequency was well correlated with temperature. Measured temperatures
+exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
+showed a large temperature gradient, because the bridge is oriented north to
+south. In cite:peeters2000system a linear relationship is shown between the 1st
+and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
+$\SI{0}{celcius}$, and a separate linear relationship below temperature below
+$\SI{0}{celcius}$. The linear relationship was related to the presence of the
+asphalt on the bridge.
+
+An integrated machine learning algorithm, combining techniques including PCA, is
+presented in cite:ye2018integrated for separating the individual components of
+the deflection signal into componenets with separate frequencies. When the noise
+level was under 10%, each component (temperature, live load, structural damage)
+was succesfully separated based on data from a computer model of a long-span
+bridge. A linear relationship between temperature and deflection was assumed.
+Temperature was decomposed into two sinusoidal components, daily and annual. An
+auto-associative neural network is employed for separating the effect of damage
+in extracted features from responses caused by environmental variations of the
+system cite:sohn2002statistical. However the experiment was on a numerical
+simulation of a hard drive, and a laboratory test on a spring-mass system. The
+authors admit that several issues are to be addressed before the approach can be
+used on real structures.
+
+In a real-life installation the possibility that a sensor has developed a fault
+and that the received signal is incorrect must be considered, in the work on the
+SHB cite:diez2016clustering one of the sensors was faulty, which was detected as
+damage. Damaged sensors can be detected via sensor data reconstruction. In this
+approach sensor data is reconstructed based on spatial and temporal correlations
+among the sensor network. If there are discrepancies between the measurement
+data and reconstructed data then the sensor may be faulty. Spatial correlations
+are used to reconstruct sensor data via PCA cite:kerschen2004sensor, minimum
+mean square error estimation cite:kullaa2010sensor, and support vector
+regression cite:law2017data. A recurrent neural network (RNN) was used that
+includes both spatial and past temporal data cite:moustapha2008wireless. More
+recently in 2019 a bidirectional RNN includes more information by considering
+spatial and both past and future temporal correlations cite:jeong2019sensor.
+This method outperformed a number of existing methods on their test set, however
+the test data was from numerical simulation of an unvalidated model.
+
+* Conclusion
+
+Early work on damage identification of civil infrastructure was largely focused
+on the analysis of modal properties such as mode shapes while recent work tends
+to employ machine learning, with particular use of unsupervised methods such as
+the OCSVM. Feature extraction is arguably the most important and difficult step
+in ML-based health monitoring cite:worden2006application. Much of the existing
+research suggests promising results in a simulated or laboratory setting, and
+does not consider the difficulties that environmental or operational effects
+provide. Two works that succesfully detected aprioi known damage on the SHB
+combined machine learning techniques with knowledge about the behaviour of the
+structure.
+
+{TODO: more on: anomaly detection. SHM installations in real life, and anomaly
+detection of non-bridge structures e.g. levees. and conclusion.}
+
+bibliographystyle:ieeetr
+bibliography:../thesis/myrefs.bib
