@@ -480,38 +480,41 @@ approximately 5% during the 24 hour interval when measurements were taken and
 the frequency was well correlated with temperature. Measured temperatures
 exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
-south. In cite:peeters2000system a linear relationship is shown between the
-1st and 2nd eigenfrequencies and temperature above $\SI{0}{celcius}$, and a
-separate linear relationship below $\SI{0}{celcius}$
+south. In cite:peeters2000system a linear relationship is shown between the 1st
+and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
+$\SI{0}{celcius}$, and a separate linear relationship below temperature below
+$\SI{0}{celcius}$. The linear relationship was related to the presence of the
+asphalt on the bridge.
 
-A machine learning algorithm based on PCA
-is presented in cite:ye2018integrated for separating the individual components
-of the deflection signal. An auto-associative neural network is employed for
-separating the effect of damage in extracted features from responses caused by
-environmental variations of the system cite:sohn2002statistical.
+An integrated machine learning algorithm, combining techniques including PCA, is
+presented in cite:ye2018integrated for separating the individual components of
+the deflection signal into componenets with separate frequencies. When the noise
+level was under 10%, each component (temperature, live load, structural damage)
+was succesfully separated based on data from a computer model of a long-span
+bridge. A linear relationship between temperature and deflection was assumed.
+Temperature was decomposed into two sinusoidal components, daily and annual. An
+auto-associative neural network is employed for separating the effect of damage
+in extracted features from responses caused by environmental variations of the
+system cite:sohn2002statistical. However the experiment was on a numerical
+simulation of a hard drive, and a laboratory test on a spring-mass system. The
+authors admit that several issues are to be addressed before the approach can be
+used on real structures.
 
-When the noise level was under 10%, each individual component (temperature, live
-load, structural damage) was succesfully separated based on data from a computer
-model of a long-span bridge.
-
-In a long-term installation a faulty sensor cannot be considered as
-
-# # Detecting faulty sensors.
-# Damaged sensors can be considered a special class of damage that is very
-# important to identify because faulty data can interfere with damage detection of
-# a structure. Damaged sensors can be detected via sensor data reconstruction. In
-# this approach the sensor data is reconstructed based on spatial and temporal
-# correlations among the sensor network. If there are discrepancies between the
-# measurement data and the reconstructed data then the sensor may be faulty.
-# Spatial correlations are used to reconstruct sensor data via principal component
-# analysis cite:kerschen2004sensor, minimum mean square error estimation
-# cite:kullaa2010sensor, support vector regression cite:law2017data and ANNs
-# cite:mattern1998using,xu1999sensor. cite:moustapha2008wireless use a recurrent
-# neural network (RNN) that takes into account spatial and past temporal data. In
-# citep:jeong2019sensor a bidirectional RNN considers spatial and both past and
-# future temporal correlations.
-# Sensitivity to noise.
-
+In a real-life installation the possibility that a sensor has developed a fault
+and that the received signal is incorrect must be considered, in the work on the
+SHB cite:diez2016clustering one of the sensors was faulty, which was detected as
+damage. Damaged sensors can be detected via sensor data reconstruction. In this
+approach sensor data is reconstructed based on spatial and temporal correlations
+among the sensor network. If there are discrepancies between the measurement
+data and reconstructed data then the sensor may be faulty. Spatial correlations
+are used to reconstruct sensor data via PCA cite:kerschen2004sensor, minimum
+mean square error estimation cite:kullaa2010sensor, and support vector
+regression cite:law2017data. A recurrent neural network (RNN) was used that
+includes both spatial and past temporal data cite:moustapha2008wireless. More
+recently in 2019 a bidirectional RNN includes more information by considering
+spatial and both past and future temporal correlations citep:jeong2019sensor.
+This method outperformed a number of existing methods on their test set, however
+the test data was from numerical simulation of an unvalidated model.
 
 ** Summary
 
@@ -519,10 +522,13 @@ Early work on damage identification of civil infrastructure was largely focused
 on the analysis of modal properties such as mode shapes while recent work tends
 to employ machine learning, with particular use of unsupervised methods such as
 the OCSVM. Feature extraction is arguably the most important and difficult step
-in ML-based health monitoring according to cite:worden2006application. Extracted
-features or detection techniques that may seem promising in a simulated or
-laboratory setting may yield poor results in reality due to unforeseen
-considerations, thus any technique must be robust to noise.
+in ML-based health monitoring cite:worden2006application. Much of the existing
+research suggests promising results in a simulated or laboratory setting, and
+does not consider the difficulties that environmental or operational effects
+provide. Two works that succesfully detected aprioi known damage on the SHB
+combined machine learning techniques with knowledge about the behaviour of the
+structure. \textcolor{red}{TODO: more on: anomaly detection. SHM installations
+in real life, and anomaly detection of non-bridge structures e.g. levees.}
 
 ** Tables
 
