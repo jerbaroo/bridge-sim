@@ -1989,18 +1989,44 @@ patterns are quite similar for the piers that are closest to the northern and
 southern edges of the bridge, and also quite similar for each of the remaining
 piers. Thus one of the piers closest to the southern edge of the bridge, and one
 pier closer to the center of the bridge in transverse direction, are chosen for
-comparison. Each of these piers is displaced by $\SI{1}{\meter}$ in AxisVM and
-again in OpenSees and a contour plot of the displacements and strain generated.
-Figures [[fig:pd-5-axis]] - [[fig:pd-5-os]] show the displacement ...
+comparison, these are piers 4 and 5 in Figure TODO. Each of these piers is
+displaced by $\SI{1}{\meter}$ in AxisVM and again in OpenSees and a contour plot
+of the displacements and strain generated. Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]]
+show the displacement and strain for the settlement of pier 4 and Figures
+[[fig:pd-5d-axis]] - [[fig:pd-5s-os]] for pier 5.
 # TODO Validate piers and write about remaining images.
 
-#+NAME: fig:pd-5-axis
-#+CAPTION[Pier displacement with AxisVM (1)]: Displacement recorded in AxisVm when a pier of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced by, dark blue is the maximum displacement and dark red the minimum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-low-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+#+NAME: fig:pd-4d-axis
+#+CAPTION[Displacement from pier (4) settlement with AxisVM]: Displacement recorded in AxisVm when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/4-axis-displa.png]]
 
-#+NAME: fig:pd-5-os
-#+CAPTION[Pier displacement with OpenSees (1)]: Displacement recorded with OpenSees when a pier of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced by, dark blue is the maximum displacement and dark red the minimum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-low-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+#+NAME: fig:pd-4d-os
+#+CAPTION[Displacement from pier (4) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-4-displacement.pdf]]
+
+#+NAME: fig:pd-4s-axis
+#+CAPTION[Strain from pier (4) settlement with AxisVM]: Strain recorded in AxisVm when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/4-axis-strain.png]]
+
+#+NAME: fig:pd-4s-os
+#+CAPTION[Strain from pier (4) settlement with OpenSees]: Strain recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-4-strain.pdf]]
+
+#+NAME: fig:pd-5d-axis
+#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVm when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+
+#+NAME: fig:pd-5d-os
+#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+
+#+NAME: fig:pd-5s-axis
+#+CAPTION[Strain from pier (5) settlement with AxisVM]: Strain recorded in AxisVm when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
+
+#+NAME: fig:pd-5s-os
+#+CAPTION[Strain from pier (5) settlement with OpenSees]: Strain recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
 
 In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the

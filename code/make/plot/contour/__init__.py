@@ -269,6 +269,7 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                         kn=c.pd_unit_load_kn,
                     )
                 ],
+                levels=14,
             )
             plt.savefig(
                 c.get_image_path(
@@ -302,10 +303,7 @@ def piers_displaced(c: Config, pier_indices: List[int]):
             )
             # Plot the load and min, max values.
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
-            print(row)
             amin, amax = float(row["min"]), float(row["max"])
-            if response_type == ResponseType.Strain:
-                amax, amin = -amin * 1e6, -amax * 1e6
             for point, leg_label, color in [
                 ((0, 0), f"min = {amin:.2f} {unit_str}", "r"),
                 ((0, 0), f"max = {amax:.2f} {unit_str}", "r"),

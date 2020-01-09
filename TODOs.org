@@ -32,11 +32,12 @@ CLOSED: [2020-01-09 Thu 12:37]
 ** DONE Early literature review submitted
 CLOSED: [2020-01-09 Thu 12:34]
 * Todos
-** TODO <2020-01-09 Thu> [0/3]
+** TODO <2020-01-09 Thu> [0/5]
 *** TODO 250 words
 *** TODO Arpi meeting
-- Create GitHub issue from phone
-*** TODO Mesh refinement?
+*** TODO Pier validation plots
+*** TODO Collect strain at multiple radii
+*** TODO Start thermal correlation plot
 ** DONE [#A] Contour plot in 3D
 CLOSED: [2019-11-05 Tue 17:13]
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
