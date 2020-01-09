@@ -21,8 +21,10 @@ def load_traffic_array(
 ):
     """Load a 'TrafficArray' from disk, it is generated if necessary."""
     path = (
-        c.get_traffic_path(
-            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time)
+        c.get_data_path(
+            "traffic",
+            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time),
+            acc=False,
         )
         + ".npy"
     )

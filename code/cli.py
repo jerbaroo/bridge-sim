@@ -147,6 +147,11 @@ def truck_1_loads(x: float):
         )
 
 
+@info.command(help="Correlation of temperature and response.")
+def thermal_correlation():
+    pass
+
+
 ####################
 ##### Geometry #####
 ####################
@@ -325,6 +330,12 @@ def classify():
 @classify.command()
 def oneclass():
     classification_.oneclass(c())
+
+
+@classify.command()
+@click.option("--load", type=bool, default=False, help="Load calculated features from disk.")
+def pairwise_cluster_2(load):
+    classification_.pairwise_cluster(c=c(), load=load)
 
 
 @classify.command()

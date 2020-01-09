@@ -7,6 +7,7 @@ from sklearn.svm import OneClassSVM
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import HealthyBridge
+from classify.scenarios import healthy_and_cracked_scenarios
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
@@ -79,6 +80,59 @@ def ks_no_outliers(d0, d1):
         # d1 = np.where(z1 <= 4, d1, np.zeros(z1.shape)).nonzero()[0]
         # print(f"d1 shape = {d1.shape}")
     return stats.ks_2samp(d0, d1)[0]
+
+
+def pairwise_cluster(c: Config, load: bool):
+    """Cluster pairwise maps from healthy and damaged scenarios."""
+    features_path = c.get_data_path("features", "pairwise-cluster", bridge=False)
+    if not load:
+        normal_traffic_array, _ = load_normal_traffic_array(c=c, mins=24)
+        normal_traffic_array = normal_traffic_array[int(len(normal_traffic_array) / 24):]
+        response_type = ResponseType.YTranslation
+        grid_points = [
+            Point(x=x, y=0, z=-9.65)
+            for x, _ in itertools.product(
+                np.linspace(c.bridge.x_min, c.bridge.x_max, 50),
+                # np.linspace(c.bridge.x_min, c.bridge.x_max, 4),
+                [1],
+            )
+        ]
+
+        # Collect a list of features per damage scenario.
+        features = []
+        for damage_scenario in healthy_and_cracked_scenarios[1:]:
+            damage_c = damage_scenario.use(c)
+            responses = responses_to_traffic_array(
+                c=damage_c,
+                traffic_array=normal_traffic_array,
+                response_type=response_type,
+                bridge_scenario=damage_scenario,
+                points=grid_points,
+                sim_runner=OSRunner,
+            ).T
+            ks_values = []
+            for p0_i, point0 in enumerate(grid_points):
+                print_i(f"Point {p0_i + 1} / {len(grid_points)}", end="\r")
+                ks_values.append([])
+                for p1_i, point1 in enumerate(grid_points):
+                    ks = ks_no_outliers(responses[p0_i], responses[p1_i])
+                    ks_values[-1].append(ks)
+            features.append((ks_values, damage_scenario.name))
+
+        # Save features to disk.
+        features = np.array(features)
+        np.save(features_path, features)
+
+    features = np.load(features_path)
+    # Reduce each pairwise map to a sum per sensor.
+    for f_i, (feature, feature_name) in enumerate(features):
+        features[f_i] = ([sum(sensor) for sensor in feature], feature_name)
+        features[f_i] = ([sum(sensor) for sensor in features[f_i]], feature_name)
+
+    # Cluster each pairwise map.
+    from sklearn.cluster import KMeans
+    kmeans = KMeans(n_clusters=2)
+    kmeans.fit(features)
 
 
 def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):

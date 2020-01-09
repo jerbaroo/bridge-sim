@@ -70,23 +70,9 @@ class Config:
         self.unit_moment_delta_temp_c: int = 1
 
         # Responses & events.
-        self.sensor_hz: float = 1 / 250  # Record at 250 Hz.
+        self.sensor_hz: float = 1 / 400
         self.time_end: float = 2  # Seconds.
         self.time_overlap: float = self.time_end * 0.1  # Seconds.
-
-        # Noise
-        self.noise_mean = lambda rt: {
-            ResponseType.Strain: 0,
-            ResponseType.Stress: 0,
-            ResponseType.XTranslation: 0,
-            ResponseType.YTranslation: 0,
-        }[rt]
-        self.noise_stddev = lambda rt: {
-            ResponseType.Strain: 1e-5,
-            ResponseType.Stress: 1e6,
-            ResponseType.XTranslation: 5e-8,
-            ResponseType.YTranslation: 1e-5,
-        }[rt]
 
         # Vehicles.
         self.perturb_stddev: float = 0.1

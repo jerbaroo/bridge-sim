@@ -444,15 +444,15 @@ and the unsupervised approximately 0.71.
 
 Two methods were applied in cite:diez2016clustering using the idea that similar
 substructures should behave similarly. k-means clustering was applied to the
-features collected from each joint. With k-means k=2 and only considering 6
-joints, including one known damaged joint, a cluster was formed containing
-primarily features from the damaged joint. This method did not perform well when
-the amount of joints considered was increased to 71. The other method applied in
-cite:diez2016clustering considered a "joint representative", a feature that is
-the mean of the features from one joint. Then a pairwise map was created using
-the euclidean distance between each pair of joint representatives. This method
-detected the known damaged joint, another joint with a known faulty sensor and a
-third joint with unknown damaged state.
+features collected from each arch. k-means clustering with k=2 and only
+considering 6 arches, including one known damaged arch, a cluster was formed
+containing primarily features from the damaged joint. This method did not
+perform well when the amount of arches considered was increased to 71. The other
+method applied in cite:diez2016clustering considered a "joint representative", a
+feature that is the mean of the features from one arch. Then a pairwise map was
+created using the euclidean distance between each pair of joint representatives.
+This method detected the known damaged arch, another arch with a known faulty
+sensor and a third arch with unknown damaged state.
 
 ** Practical Considerations
 
@@ -1354,9 +1354,9 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 #+NAME: eqn:thermal
 \begin{equation}
 \begin{split}
-  \varepsilon_thermal &= \alpha \cdot \delta{T} \\
-  \sigma_thermal_ &= E \cdot \varepsilon_thermal \\
-  F_thermal &= \sigma_thermal \cdot A
+  \varepsilon_{thermal} &= \alpha \cdot \delta{T} \\
+  \sigma_{thermal} &= E \cdot \varepsilon_{thermal} \\
+  F_{thermal} &= \sigma_{thermal} \cdot A
 \end{split}
 \end{equation}
 

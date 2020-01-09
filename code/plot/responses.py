@@ -122,9 +122,7 @@ def plot_contour_deck(
         )
         print("Scattering")
     else:
-        print("Not scattering")
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
-        import sys; sys.exit()
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(unit_str)
 

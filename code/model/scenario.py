@@ -1,7 +1,7 @@
 """Scenarios for the traffic and bridge."""
 from collections import deque
 from copy import deepcopy
-from typing import Callable, List, NewType, Tuple
+from typing import Callable, List, NewType, Optional, Tuple, Union
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -21,10 +21,12 @@ class BridgeScenario:
         self.mod_bridge = mod_bridge
         self.mod_sim_params = mod_sim_params
 
-    def use(self, c: Config, sim_params: SimParams):
+    def use(self, c: Config, sim_params: Optional[SimParams] = None) -> Union[Config, Tuple[Config, SimParams]]:
         """Copies of the given arguments modified for this damage scenario."""
         config_copy = deepcopy(c)
         config_copy.bridge = self.mod_bridge(config_copy.bridge)
+        if sim_params is None:
+            return config_copy
         sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
         return config_copy, sim_params_copy
 
@@ -154,6 +156,7 @@ class TrafficScenario:
             if min_time > max_time:
                 break
             time = min_time
+            print_i(f"Generating 'TrafficSequence', time = {time} s", end="\r")
 
             # Add the enter/leave event to the sequence.
             result.append((vehicle, min_time, enter))
@@ -167,6 +170,7 @@ class TrafficScenario:
             else:
                 time_leave.popleft()
 
+        print_i(f"Generated {time} s of 'TrafficSequence'")
         return result, warmed_up_at
 
 
@@ -261,8 +265,11 @@ def to_traffic_array(
         for l, _ in enumerate(current)
     ]
 
+    last_print_time = -np.inf
     while time <= max_time:
-        print_i(f"time = {time}, max_time = {max_time}")
+        if time - last_print_time > 1:
+            print_i(f"Generating 'Traffic', time = {time} s", end="\r")
+            last_print_time = time
 
         # While events have occurred update current traffic.
         while time >= next_event_time:
@@ -299,5 +306,6 @@ def to_traffic_array(
         time += time_step
         t += 1
 
+    print_i(f"Generated 'Traffic', time = {time} s")
     # We divide by 2 because the load per axle is shared by 2 wheels.
     return result / 2

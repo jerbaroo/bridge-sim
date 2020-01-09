@@ -148,11 +148,6 @@ def responses_to_traffic_array(
     TODO: Find references ot 'j' and remove.
 
     """
-    # The unit load simulations that are loaded depend on whether the bridge is
-    # healthy or cracked. TODO
-    if isinstance(bridge_scenario, CrackedBridge):
-        c = bridge_scenario.crack_config(c)
-
     wheel_zs = c.bridge.wheel_tracks(c)
     ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 

@@ -1,7 +1,42 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
+* Safe List [2/21]
+** TODO Rigid links experiment :axis:local:
+** TODO Distributed load experiment :axis:local:
+** TODO Publish on Pypi :software:local:
+- Write about the interface
+** TODO Validated strain :validation:
+- Check strain at radii
+** TODO Validated pier displacement :validation:
+** TODO Literature review submitted :writing:
+** TODO First classifier :classifier:
+** TODO Write about density :writing:
+- Density should have no affect.
+- Write about affect of density for Monday.
+** TODO Comparison with real time series :validation:
+** TODO Comparison of 2D and 3D data :software:
+** TODO Validated thermal load :validation:
+** TODO Noise :parameters:local:
+- reference value from bridge 705
+- method of scaling noise per sensor
+** TODO Light vehicles :parameters:local:
+** TODO ULS experiment :parameters:local:
+** TODO Correlation with temperature :temperature:
+** TODO Sensor positions with PSO :classifier:local:
+** TODO Sensor positions on second bridge :classifier:local:
+** TODO Plot of each loading type :validation:
+** WAIT Mesh refinement
+** DONE Validated Displacement
+CLOSED: [2020-01-09 Thu 12:37]
+** DONE Early literature review submitted
+CLOSED: [2020-01-09 Thu 12:34]
 * Todos
-** ABORT [#A] Contour plot in 3D, can be achieved by extending plot_contour_deck
+** TODO <2020-01-09 Thu> [0/3]
+*** TODO 250 words
+*** TODO Arpi meeting
+- Create GitHub issue from phone
+*** TODO Mesh refinement?
+** DONE [#A] Contour plot in 3D
 CLOSED: [2019-11-05 Tue 17:13]
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
 ** TODO [#A] Verification: plot of OpenSees/Diana/Measurements
@@ -55,99 +90,100 @@ Moved to bash mesh.
 ** DONE [#C] Use num_deck_nodes instead of manual calculation
 CLOSED: [2019-10-22 Tue 19:33]
 No longer using step size to it's easy to do directly.
-* Meetings
+* Deprecated
+** Meetings
 - Item marked as DONE when it is covered in a meeting.
 - Can create additional item in week's work or general TODOs.
-** 7th October
-*** DONE I'll go over some things quick, looking for short responses, then open floor
+*** 7th October
+**** DONE I'll go over some things quick, looking for short responses, then open floor
     CLOSED: [2019-10-07 Mon 11:45]
-*** DONE Quickly show contour plot, has updated sections, check pier values (later TODO)
+**** DONE Quickly show contour plot, has updated sections, check pier values (later TODO)
 CLOSED: [2019-10-07 Mon 11:45]
-*** DONE Deck and pier sections are given as lists, can use function to create the list
+**** DONE Deck and pier sections are given as lists, can use function to create the list
     CLOSED: [2019-10-07 Mon 11:45]
-*** DONE Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
+**** DONE Sent Valeria big update on Friday, will follup with sections/subsections, was a good work week
     CLOSED: [2019-10-07 Mon 11:45]
-*** DONE Show some key points
+**** DONE Show some key points
     CLOSED: [2019-10-07 Mon 11:46]
-*** DONE Will update thesis document with sections/subsections/plots/assumptions
+**** DONE Will update thesis document with sections/subsections/plots/assumptions
     CLOSED: [2019-10-07 Mon 11:52]
-*** DONE Second milestone finished this week (KISS), but 3D model won't have high node density
+**** DONE Second milestone finished this week (KISS), but 3D model won't have high node density
 CLOSED: [2019-10-07 Mon 11:52]
-*** DONE Show cloud of nodes plot
+**** DONE Show cloud of nodes plot
     CLOSED: [2019-10-07 Mon 11:52]
-*** DONE Biggest modeling assumptions are vehicles move on tracks and at constant speed
+**** DONE Biggest modeling assumptions are vehicles move on tracks and at constant speed
     CLOSED: [2019-10-07 Mon 11:53]
-*** DONE Added max_shell_area argument
+**** DONE Added max_shell_area argument
     CLOSED: [2019-10-07 Mon 11:53]
-*** DONE Reason convergence plot doesn't work is load doesn't line up with nodes
+**** DONE Reason convergence plot doesn't work is load doesn't line up with nodes
     CLOSED: [2019-10-07 Mon 12:34]
     Added tasks for refined mesh around load
-*** DONE NOTE: Once basic writing is added should start writing on bridges/costs
+**** DONE NOTE: Once basic writing is added should start writing on bridges/costs
     CLOSED: [2019-10-07 Mon 12:39]
-*** DONE Will be away a bit this week but will still get it done
+**** DONE Will be away a bit this week but will still get it done
     CLOSED: [2019-10-07 Mon 12:39]
-*** DONE When are TNO open over winter break/when is the break?
+**** DONE When are TNO open over winter break/when is the break?
     CLOSED: [2019-10-07 Mon 12:39]
     TNO are only closed on national holidays.
-*** DONE Haskell-like syntax to describe Python model/pseudocode?
+**** DONE Haskell-like syntax to describe Python model/pseudocode?
     CLOSED: [2019-10-07 Mon 12:39]
-*** DONE Remove interpolation code
+**** DONE Remove interpolation code
     CLOSED: [2019-10-07 Mon 12:40]
-*** DONE Who would know about amount of npnp concrete slab bridges?
+**** DONE Who would know about amount of npnp concrete slab bridges?
     CLOSED: [2019-10-07 Mon 12:40]
-*** DONE Keep Diana code
+**** DONE Keep Diana code
     CLOSED: [2019-10-07 Mon 12:41]
-*** DONE Check pier values
+**** DONE Check pier values
     CLOSED: [2019-10-07 Mon 12:41]
-*** DONE Go over units in OpenSees file and Python classes
+**** DONE Go over units in OpenSees file and Python classes
     CLOSED: [2019-10-07 Mon 12:41]
-*** DONE Go over fixed nodes in OpenSees
+**** DONE Go over fixed nodes in OpenSees
     CLOSED: [2019-10-07 Mon 12:41]
-*** DONE Go over Axis modeling
+**** DONE Go over Axis modeling
     CLOSED: [2019-10-07 Mon 12:42]
-*** DONE Comments in 3D .tcl file
+**** DONE Comments in 3D .tcl file
     CLOSED: [2019-10-07 Mon 12:42]
-** 16th October
-*** DONE Each element consists of only one section, that is fine?
+*** 16th October
+**** DONE Each element consists of only one section, that is fine?
 CLOSED: [2019-10-16 Wed 14:46]
 Turns out that is the only way.
-*** DONE Large refactor of vehicles and loads
+**** DONE Large refactor of vehicles and loads
 CLOSED: [2019-10-16 Wed 14:46]
-*** DONE Contour plots in 3D of all translation types, multiple loading positions
+**** DONE Contour plots in 3D of all translation types, multiple loading positions
 CLOSED: [2019-10-16 Wed 14:46]
-*** DONE ILMatrix per position in transverse direction e.g. per wheel track
+**** DONE ILMatrix per position in transverse direction e.g. per wheel track
 CLOSED: [2019-10-16 Wed 14:46]
-*** DONE Key issues finished for Monday
+**** DONE Key issues finished for Monday
 CLOSED: [2019-10-16 Wed 14:46]
-*** DONE The mesh needs additional work, but I would delay that until later?
+**** DONE The mesh needs additional work, but I would delay that until later?
 CLOSED: [2019-10-16 Wed 14:46]
-** 21st October
-*** DONE Mesh update
+*** 21st October
+**** DONE Mesh update
 CLOSED: [2019-10-22 Tue 11:37]
 - Base mesh arguments
 - Grid and pier connected together
 - Additional mesh position from load
 - Removes a point of unconfidence in the model
-*** DONE Plot's of nodes sections and deck/pier only
+**** DONE Plot's of nodes sections and deck/pier only
 CLOSED: [2019-10-22 Tue 11:39]
 - Allows for debugging the model
 - Pier colors are unchanging
 - Transverse direction the deck seems to not be mirrored along the middle
-*** DONE The 3D OS FEM has a single section option, printed at runtime.
+**** DONE The 3D OS FEM has a single section option, printed at runtime.
 CLOSED: [2019-10-22 Tue 11:40]
-*** DONE I chose the plotting points for verification
+**** DONE I chose the plotting points for verification
 CLOSED: [2019-10-22 Tue 11:40]
 - There are 4, let's have a look
 - 3 are chosen to be on traffic lanes
 - Should be adjusted to be on points in Diana model
   TODO: Add plot per wheel track
-*** DONE Two meetings organized with Valeria
+**** DONE Two meetings organized with Valeria
 CLOSED: [2019-10-22 Tue 11:40]
 - First one (end of November) is about thesis direction. Goal is to have model
   (A) first half mostly done and written about and (B) classification started.
 - Second one end of the year, my goal is to have (A) finished first half, more
   work necessary on inputs e.g. noise and (B) pre-release draft of the thesis.
-*** DONE I want to work towards the meeting.
+**** DONE I want to work towards the meeting.
 CLOSED: [2019-10-22 Tue 11:40]
 - The getting events from 3D model is almost done
 - You saw the load/vehicle refactor last week
@@ -159,22 +195,22 @@ CLOSED: [2019-10-22 Tue 11:40]
 - TODO: set up traffic scenario where total load on the bridge for dense traffic
   is greater than the load with an abnormal heavy wehnicle on the bridge (sparse
   traffic)
-*** DONE Can we have another meeting later this week
+**** DONE Can we have another meeting later this week
 CLOSED: [2019-10-22 Tue 11:40]
-*** DONE I want to go over Diana and Axis now
+**** DONE I want to go over Diana and Axis now
 CLOSED: [2019-10-22 Tue 11:40]
-** Presentation
-*** DONE Talk about how a team can perform inspection after detection
+*** Presentation
+**** DONE Talk about how a team can perform inspection after detection
 CLOSED: [2019-12-02 Mon 07:40]
-*** DONE Validation is super important to Valeria
+**** DONE Validation is super important to Valeria
 CLOSED: [2019-12-02 Mon 07:40]
-** 4rd November
-*** DONE Sleeping
+*** 4rd November
+**** DONE Sleeping
 CLOSED: [2019-11-10 Sun 20:21]
 - Between 4-6 since Thursday morning
 - House agreed on sleeping hours 9 - 5
 - Started exercising, good for stress
-*** DONE Go over 2 months plan
+**** DONE Go over 2 months plan
 CLOSED: [2019-11-10 Sun 20:21]
 - At a high level
   - Some classification work, earlier in the 2 months
@@ -182,97 +218,97 @@ CLOSED: [2019-11-10 Sun 20:21]
   - Finish model inputs and collecting outputs
     - inputs: pier displacement, temperature, soil creep, noise, light vehicles
     - outputs: strain
-*** DONE Go over weeks plan
+**** DONE Go over weeks plan
 CLOSED: [2019-11-10 Sun 20:21]
-*** DONE OpenSees temperature load
+**** DONE OpenSees temperature load
 CLOSED: [2019-11-10 Sun 20:21]
 - [[https://github.com/barischrooneyj/bridge-dss/issues/93]]
 - [[http://openseesforfire.github.io/Subpages/ThermalActionCmds.html]]
-** 11th November
-*** TODO Pier displacement
-**** TODO Running simulation for each pier under unit displacement
-**** TODO Need to calculate response due to varied pier displacement
-**** TODO Pier displacment against Axis
+*** 11th November
+**** TODO Pier displacement
+***** TODO Running simulation for each pier under unit displacement
+***** TODO Need to calculate response due to varied pier displacement
+***** TODO Pier displacment against Axis
 Will be useful to see the edge piers.
-*** TODO Responses via matrix multiplication
-**** DONE TrafficSequence (low memory)
+**** TODO Responses via matrix multiplication
+***** DONE TrafficSequence (low memory)
 CLOSED: [2019-12-02 Mon 07:41]
-**** DONE Traffic (natural semantics)
+***** DONE Traffic (natural semantics)
 CLOSED: [2019-12-02 Mon 07:41]
-**** DONE TrafficArray (numpy array)
+***** DONE TrafficArray (numpy array)
 CLOSED: [2019-12-02 Mon 07:41]
-**** TODO Creation of traffic array not so fast (consider Hz)
+***** TODO Creation of traffic array not so fast (consider Hz)
 Part of this loop is independent, so can factor it out
-**** TODO Calculation of responses very fast
-*** TODO Collect responses under different scenarios at different points
+***** TODO Calculation of responses very fast
+**** TODO Collect responses under different scenarios at different points
 - Look at change in distribution along x axis (unit load plot)
 - Look at change in distribution moving away from damage site
-*** TODO Quantify change in responses/distribution
-*** TODO Unit load plot
+**** TODO Quantify change in responses/distribution
+**** TODO Unit load plot
 - Plot of response due to unit load across bridge
 - Note this is the low quality model (less variation in material properties)
-*** TODO Convergence plot
+**** TODO Convergence plot
 - Mesh refinement should clear up variance
 - Need to add nodes where material properties change
 - Try without change in material properties to see if it's due to material
   property alignment
 - Try repeat run to see if numerical noise is cause fo variance
-*** TODO What to store in terms of traffic & responses
+**** TODO What to store in terms of traffic & responses
 - 24 hours of normal traffic, varying intensity
 - @ 250Hz, 1 minute is 60 * 250 * 4 * 100 * 8 ~= 48 MB
 - 1 hour is approx 2.9 GB
 - 1 day is approx 72 GB
-*** TODO How to argue value of 2D model
-*** TODO Look at numba
-** Next meeting
-*** DONE Goals on paper
+**** TODO How to argue value of 2D model
+**** TODO Look at numba
+*** Next meeting
+**** DONE Goals on paper
 CLOSED: [2019-12-05 Thu 15:26]
 - 12th Dec: presentation
 - 13th Dec: submit literature review
 - Two weeks working at home
   - Focus on writing
-*** DONE Stress/Strain TCL file
+**** DONE Stress/Strain TCL file
 CLOSED: [2019-12-05 Thu 15:26]
-*** TODO Ask about VPN login
-**** TODO Talk to tech guy
-*** TODO AxisVM pier displacement
+**** TODO Ask about VPN login
+***** TODO Talk to tech guy
+**** TODO AxisVM pier displacement
 - Axis converges faster due to second order shape function
 - Check mesh has converged in Axis
 - Plot deflection in one longitudinal line to see the < 1m part
 - Refine deck mesh between piers
-*** TODO Temperature load
+**** TODO Temperature load
 - Let's have a look on Monday
 - Thickness -> Young's -> Thermal expansion coefficient ?
 - Two components:
   axial component
   bending moment component
-*** DONE Mean in convergence plot
+**** DONE Mean in convergence plot
 CLOSED: [2019-12-05 Thu 15:45]
 - Calculating over a grid makes sense
 - Because additional nodes near the point load will influence the mean
-*** DONE OpenSees in parallel
+**** DONE OpenSees in parallel
 CLOSED: [2019-12-05 Thu 15:45]
-*** DONE Axis: Look at pier displacement I messed up
+**** DONE Axis: Look at pier displacement I messed up
 CLOSED: [2019-12-05 Thu 15:46]
-*** DONE Go over fixed nodes in TCL & in Axis
+**** DONE Go over fixed nodes in TCL & in Axis
 CLOSED: [2019-12-05 Thu 15:49]
-**** TODO: Check fixed values of abutments, usually rollers
-*** TODO Go over Valeria's notes
-*** TODO Check linear function of peirs for thickness
-** Next meeting
-*** TODO +- 1/srtq(3) = 0.57?
-*** TODO If responses are at midpoints than displacements recorded there?
-** Next meeting
-*** TODO Are you in the office next Monday?
-*** TODO Who's Pim?
-*** TODO Temperature load effect
+***** TODO: Check fixed values of abutments, usually rollers
+**** TODO Go over Valeria's notes
+**** TODO Check linear function of peirs for thickness
+*** Next meeting
+**** TODO +- 1/srtq(3) = 0.57?
+**** TODO If responses are at midpoints than displacements recorded there?
+*** Next meeting
+**** TODO Are you in the office next Monday?
+**** TODO Who's Pim?
+**** TODO Temperature load effect
 - Wim mentioned correlation with temperature
-*** TODO Home on the 23rd
+**** TODO Home on the 23rd
 - Most important thing before then
   - temperature load implemented
 - At home
   - mostly writing
-*** TODO This week's plan
+**** TODO This week's plan
 - Try ML-based localization
   - input: 1 feature per damage scenario
   - output: position on deck
@@ -288,10 +324,10 @@ CLOSED: [2019-12-05 Thu 15:49]
   - Check fixed degree's of freedom
   - Get response at a point
   - Increase Diana mesh density
-*** TODO Check Axis distributed load vs. point load
-*** TODO Go over temperature load
-** Meeting 19th Dec
-*** TODO Walk through units of thermal expansion coefficient.
+**** TODO Check Axis distributed load vs. point load
+**** TODO Go over temperature load
+*** Meeting 19th Dec
+**** TODO Walk through units of thermal expansion coefficient.
 cte = 9e-05   1.2 E-5
 d_temp = 1
 thermal strain = 9e-05
@@ -329,184 +365,171 @@ Before applying force: node_0 = -767232.0000000019, -937557.5039999955
 Before applying force: node_1 = -767232.0000000019, 5.820766091346741e-11
 After applying force: node_0 = 0.0, -937557.5039999955
 After applying force: node_1 = 0.0, 5.820766091346741e-11
-**** TODO Why is strain = CTE * deltaT? Check the units.
-*** TODO Why consider temperature difference from the top and bottom?
+***** TODO Why is strain = CTE * deltaT? Check the units.
+**** TODO Why consider temperature difference from the top and bottom?
 How does that correspond to a change in January to July?
 - Due to the sun heating from the top.
-*** TODO AxisVM questions.
+**** TODO AxisVM questions.
 Record screen.
-**** TODO Which type of distributed load
-**** TODO Change size of distributed load
-**** TODO Add displacement load
-**** TODO Difference in rigid link and line support?
-**** TODO Check and modify material property
-** Meeting early January
-*** TODO print and show draft
+***** TODO Which type of distributed load
+***** TODO Change size of distributed load
+***** TODO Add displacement load
+***** TODO Difference in rigid link and line support?
+***** TODO Check and modify material property
+*** Meeting early January
+**** TODO print and show draft
 Key things:
 - validate piers
 - validate temperature
 - comparison to dynamic 705 time series
 - use viaduct data
 - iterate on classification experiments
-*** TODO go over experiments
-* Week's work
-** 7th October
-*** DONE [#A] Collect translation responses from support nodes
+**** TODO go over experiments
+** Week's work
+*** 7th October
+**** DONE [#A] Collect translation responses from support nodes
 CLOSED: [2019-10-14 Mon 13:12]
-*** TODO [#A] Collect stress, strain responses from all elements
+**** TODO [#A] Collect stress, strain responses from all elements
 This is setup, and ready for implementation.
-*** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
-*** TODO [#A] Send updated document with sections/subsections to Valeria
-*** TODO [#A] Collect influence lines from traffic lanes
-*** TODO [#A] Additional load case for verification: load closer to abutment
-*** TODO [#A] Check fixed nodes in OpenSees (piers in particular)
-*** TODO [#A] Single section option for OpenSees, compared with Axis
-*** TODO [#A] Fix comments in TCL file
-*** TODO [#A] Fix units in TCL file
-*** TODO [#B] Ask Arthur if he has a contact for Rijkswaterstraat on amount of npnp concrete slab bridges
-*** TODO [#B] Base mesh and refinement around positions, will speed up massively
-*** TODO [#C] Additional load case for verification: pier settlement
-*** TODO [#C] Mesh: explicit node position for load
-*** TODO [#C] Timing plot of OpenSees
-*** DONE [#A] Find out why simulation is not saving all
+**** TODO [#A] Update thesis document with sections/subsections/plots/assumptions
+**** TODO [#A] Send updated document with sections/subsections to Valeria
+**** TODO [#A] Collect influence lines from traffic lanes
+**** TODO [#A] Additional load case for verification: load closer to abutment
+**** TODO [#A] Check fixed nodes in OpenSees (piers in particular)
+**** TODO [#A] Single section option for OpenSees, compared with Axis
+**** TODO [#A] Fix comments in TCL file
+**** TODO [#A] Fix units in TCL file
+**** TODO [#B] Ask Arthur if he has a contact for Rijkswaterstraat on amount of npnp concrete slab bridges
+**** TODO [#B] Base mesh and refinement around positions, will speed up massively
+**** TODO [#C] Additional load case for verification: pier settlement
+**** TODO [#C] Mesh: explicit node position for load
+**** TODO [#C] Timing plot of OpenSees
+**** DONE [#A] Find out why simulation is not saving all
 CLOSED: [2019-10-14 Mon 13:11]
 It was because z-translation responses were not being converted.
-*** DONE [#A] Find out why simulation is not saving z-translation
+**** DONE [#A] Find out why simulation is not saving z-translation
 CLOSED: [2019-10-14 Mon 13:11]
 It was because z-translation responses were not being converted.
-*** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
+**** DONE [#A] Finish varying thickness piers in OpenSees 3D FEM
 CLOSED: [2019-10-07 Mon 17:33]
-*** DONE [#A] Ask Arpi about comments in TCL file
+**** DONE [#A] Ask Arpi about comments in TCL file
 CLOSED: [2019-10-09 Wed 13:12]
-*** DONE [#A] List and ask Arpi about units in OpenSees and Python model
+**** DONE [#A] List and ask Arpi about units in OpenSees and Python model
 CLOSED: [2019-10-09 Wed 15:10]
-*** DONE [#C] Remove perspective in cloud of points plot
+**** DONE [#C] Remove perspective in cloud of points plot
 CLOSED: [2019-10-09 Wed 16:55]
-** 16th October
-*** DONE [#A] Mesh improvements
+*** 16th October
+**** DONE [#A] Mesh improvements
 CLOSED: [2019-10-20 Sun 13:44] DEADLINE: <2019-10-18 Fri>
 - Base mesh for bridge deck and bridge piers.
 - Ensure pier nodes are part of deck and vice versa.
 - Ensure load position had a perfectly placed node.
-*** DONE [#B] Model assumptions
+**** DONE [#B] Model assumptions
 CLOSED: [2019-10-21 Mon 09:28]
-*** BLOCKED [#A] Collect stresses and strains
+**** BLOCKED [#A] Collect stresses and strains
 - Waiting on Arpi to respond with method.
-*** TODO [#B] Check OpenSees 3D IL plots
+**** TODO [#B] Check OpenSees 3D IL plots
 - Contour plots look correct so it is hopefully a small bug.
 - Before collecting results improve mesh.
 - Need to verify against the contour plots.
 - Increase model density and see when it breaks.
-*** INPROGRESS [#C] 3D Events from ILs
+**** INPROGRESS [#C] 3D Events from ILs
 - Plotting the events from 3D FEM
 - Traffic scenarios updated for multi-lane traffic
-*** DONE [#C] OpenSees single section deck and piers
+**** DONE [#C] OpenSees single section deck and piers
 CLOSED: [2019-10-20 Sun 19:27]
-*** TODO [#C] Additional contour plots from Axis
+**** TODO [#C] Additional contour plots from Axis
 - Need to go over the model and ensure it's correct.
 - Positions chosen, then need to collect the results.
-*** TODO [#C] Additional contour plots from Diana
+**** TODO [#C] Additional contour plots from Diana
 - Positions chosen, now need to collect the results.
-** 21st October
-*** DONE Add updated traffic model                                :traffic:
+*** 21st October
+**** DONE Add updated traffic model :traffic:
 CLOSED: [2019-10-22 Tue 11:46]
-*** DONE Vehicle coloring                                         :traffic:
+**** DONE Vehicle coloring :traffic:
 CLOSED: [2019-10-22 Tue 14:06]
 - Currently this is specific to the plotting function
 - Should be relative to a list of given vehicles
-*** DONE Poisson process of vehicles                              :traffic:
+**** DONE Poisson process of vehicles :traffic:
 CLOSED: [2019-10-22 Tue 13:33]
-*** DONE Faster vehicle sampling                                  :traffic:
+**** DONE Faster vehicle sampling :traffic:
 CLOSED: [2019-10-22 Tue 17:00]
-*** DONE Animate traffic simulation                               :traffic:
+**** DONE Animate traffic simulation :traffic:
 CLOSED: [2019-10-22 Tue 11:46]
-*** DONE Heavy traffic model                                      :traffic:
+**** DONE Heavy traffic model :traffic:
 CLOSED: [2019-10-27 Sun 23:09]
-*** DONE Contour plot of traffic in animation                     :traffic:
+**** DONE Contour plot of traffic in animation :traffic:
 CLOSED: [2019-10-27 Sun 23:10]
-*** DONE Traffic scenario needs to warm up                        :traffic:
+**** DONE Traffic scenario needs to warm up :traffic:
 CLOSED: [2019-10-22 Tue 19:22]
-*** TODO Refinement of mesh                                       :fem_tcl:
-*** TODO Neat comments in TCL file                                :fem_tcl:
-*** DONE Verify node_prop is from the correct section          :fem_verify:
+**** TODO Refinement of mesh :fem_tcl:
+**** TODO Neat comments in TCL file :fem_tcl:
+**** DONE Verify node_prop is from the correct section :fem_verify:
 CLOSED: [2019-11-01 Fri 10:11]
 Perhaps attach deck_section and/or pier_section
-*** DONE Verify section values by colour                       :fem_verify:
+**** DONE Verify section values by colour :fem_verify:
 CLOSED: [2019-11-01 Fri 10:11]
 - The pier sections look fine
 - The deck sections don't make sense
-*** DONE Choose verification points PS in Diana                :fem_verify:
+**** DONE Choose verification points PS in Diana :fem_verify:
 CLOSED: [2019-11-01 Fri 10:11]
-*** DONE Plots of PS from Diana                                :fem_verify:
+**** DONE Plots of PS from Diana :fem_verify:
 CLOSED: [2019-11-01 Fri 10:11]
-*** DONE Plots of PS from OpenSees                             :fem_verify:
+**** DONE Plots of PS from OpenSees :fem_verify:
 CLOSED: [2019-11-01 Fri 10:11]
-*** TODO Plots of PS from Axis                                 :fem_verify:
-*** TODO Check influence line matrix against contour plot      :fem_verify:
-*** DONE Get events from traffic under 3D FEM                        :data:
+**** TODO Plots of PS from Axis :fem_verify:
+**** TODO Check influence line matrix against contour plot :fem_verify:
+**** DONE Get events from traffic under 3D FEM :data:
 CLOSED: [2019-10-27 Sun 23:10]
-** 28th October
-*** DONE Choose verification points in Diana
+*** 28th October
+**** DONE Choose verification points in Diana
 CLOSED: [2019-10-28 Mon 12:23]
-*** DONE Verify deck sections
+**** DONE Verify deck sections
 CLOSED: [2019-11-01 Fri 10:12]
-*** DONE Print correct section in cloud of Nodes plot
+**** DONE Print correct section in cloud of Nodes plot
 CLOSED: [2019-11-01 Fri 10:12]
-*** DONE Plots of PS from Diana
+**** DONE Plots of PS from Diana
 CLOSED: [2019-11-01 Fri 10:12]
-*** DONE Plots of PS from OpenSees
+**** DONE Plots of PS from OpenSees
 CLOSED: [2019-11-01 Fri 10:12]
-*** TODO Pier displacement control
-*** TODO Distribution of responses
-** 4rd November
-*** Pier displacement [1/2]
-**** DONE Contour plot of responses under pier displacement
+**** TODO Pier displacement control
+**** TODO Distribution of responses
+*** 4rd November
+**** Pier displacement [1/2]
+***** DONE Contour plot of responses under pier displacement
 CLOSED: [2019-11-07 Thu 10:45]
-**** TODO Pre-calculation of responses using DCMatrix
-*** Faster generation of responses to traffic [3/4]
-**** TODO Contour plots of verification points on workhorse
-**** DONE Traffic as numpy array
+***** TODO Pre-calculation of responses using DCMatrix
+**** Faster generation of responses to traffic [3/4]
+***** TODO Contour plots of verification points on workhorse
+***** DONE Traffic as numpy array
 CLOSED: [2019-11-10 Sun 23:35]
-**** DONE Influence line responses as numpy array
+***** DONE Influence line responses as numpy array
 CLOSED: [2019-11-10 Sun 23:36]
-**** DONE Linear algebra
+***** DONE Linear algebra
 CLOSED: [2019-11-10 Sun 23:36]
-*** Motivation writing [0/5]
-**** TODO SHM
-**** TODO DSS
-**** TODO Types of bridges
-**** TODO Amount of npnp concrete slab bridges
-**** TODO Damage caused to bridges by heavy vehicles
-*** Data collection writing [1/3]
-**** TODO Bridge model
-**** DONE Influence lines
+**** Motivation writing [0/5]
+***** TODO SHM
+***** TODO DSS
+***** TODO Types of bridges
+***** TODO Amount of npnp concrete slab bridges
+***** TODO Damage caused to bridges by heavy vehicles
+**** Data collection writing [1/3]
+***** TODO Bridge model
+***** DONE Influence lines
 CLOSED: [2019-11-07 Thu 10:46]
-**** TODO Pier displacement
-*** Methods writing [0/1]
-**** TODO Setup experiments
-** 11th November
-*** TODO Fix plot of distribution of responses
-*** TODO Train classifier on normal traffic
+***** TODO Pier displacement
+**** Methods writing [0/1]
+***** TODO Setup experiments
+*** 11th November
+**** TODO Fix plot of distribution of responses
+**** TODO Train classifier on normal traffic
 - Test against heavy traffic
 - Test against pier displacement
-*** TODO Research & writing
-** 18th November
-*** TODO Collect strain
-*** TODO Verification: sensor plot
+**** TODO Research & writing
+*** 18th November
+**** TODO Collect strain
+**** TODO Verification: sensor plot
 - Position and load intensity of truck wheels
-** 25th November
-*** TODO Collect strain
-*** TODO Verification: regression plot
-*
-* Paper's to write about:
-- https://iopscience.iop.org/article/10.1088/1757-899X/271/1/012091/pdf
-  Damage index and curvature mode shape.
-- https://pdfs.semanticscholar.org/3f33/288b160076fed23acca1ad17126431c36db5.pdf
-  Curvature mode shape
-- https://onlinelibrary.wiley.com/doi/full/10.1002/stc.1829
-  Output‐only damage detection using vehicle‐induced displacement response and
-  mode shape curvature index
-- https://onlinelibrary.wiley.com/doi/full/10.1002/stc.1838
-  Mode shape‐based damage detection in plate structure without baseline data
-- https://www.frontiersin.org/articles/10.3389/fbuil.2017.00004/full#B46
-  Bridge Damage Detection Based on Vibration Data: Past and New Developments
+*** 25th November
+**** TODO Collect strain
+**** TODO Verification: regression plot
