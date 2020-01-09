@@ -1,0 +1,50 @@
+* Pairwise map
+- The same vehicles drive over all sensors on one lane of a bridge.
+- In other words: all sensors on one lane are subjected to equal vehicle loading.
+- Use this knowledge to compare sensors on one lane for detecting damage.
+- Only one lane because traffic on lanes may differ, e.g. in/outbound.
+- Assumption: vehicle's speed will not change much over a short bridge.
+- Assumption: traffic configuration will not change much over the bridge.
+- Limiting to one lane: will not detect damage that affects half of a bridge.
+** Pairwise maps: over time
+- Relative change of sensors to other sensors over time.
+- The pairwise map compares sensors to each other, thus if damage were to affect
+  the entire bridge equally then there would be no change in the pairwise map
+  after the damage. However damage affecting the entire bridge equally seems
+  unlikely, furthermore it is a false negative rather than a false positive.
+- Temperature may affect the entire bridge, but temperature is not damage, and
+  not something to be detected.
+- Temperature may affect parts of a bridge more than others due to orientation
+  of the bridge and position of the sun in the sky. To combat environmental
+  factors that affect the bridge unequally, the pairwise map should be compared
+  at time intervals that are short enough not to be significantly affected by
+  such environmental factors.
+- If the time interval for comparing pairwise maps was very short e.g. 5s then
+  the vehicles passing one sensor in one time interval would be different to
+  the vehicles passing another sensor in the same time interval.
+- In order to combat noise, the sensor data should have outliers removed before
+  calculation of the pairwise map.
+- In order to facilitate the comparison of pairwise maps, each pairwise map
+  should be normalized to the same interval. This is because the traffic
+  intensity and load may be different at different times.
+*** TODO: Combine pairwise maps with machine learning.
+*** TODO: Consider feature used for quantifying difference between sensors.
+** Pairwise maps: at a point in time
+- Compare sensors at equal positions in a substructure at a point in time.
+- The previous technique requires damage to occur during recording of sensor
+  data but cannot detect existing damage. On the SHB: existing damage was
+  accurately detected by creating a pairwise map from sensors that were located
+  on similar substructures.
+- Makes the assumption unequal environmental affects will not be too noisy.
+- Technique will work better with a larger amount of similar substructures.
+- Manual selection of the similar substructures on one lane.
+- Compare data per substructure to every other substructure, if one is
+  significantly different to the rest then damage is likely.
+** TODO: Use a damage sensitive feature, perhaps mean event acceleration?
+* Detecting cracks
+- Consider an uncracked bridge.
+- Collect difference between neighbouring pairs of responses.
+- Feature could be the difference in acceleration.
+* OCSVM trained on healthy data.
+- Show comparison to SVM trained on labeled data.
+* PSO for sensor positioning.
