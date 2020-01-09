@@ -1,6 +1,6 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
-* Safe List [2/21]
+* Safe List [2/22]
 ** TODO Rigid links experiment :axis:local:
 ** TODO Distributed load experiment :axis:local:
 ** TODO Publish on Pypi :software:local:
@@ -21,10 +21,11 @@
 - method of scaling noise per sensor
 ** TODO Light vehicles :parameters:local:
 ** TODO ULS experiment :parameters:local:
-** TODO Correlation with temperature :temperature:
+** TODO Correlation with temperature :plot:temperature:
 ** TODO Sensor positions with PSO :classifier:local:
 ** TODO Sensor positions on second bridge :classifier:local:
-** TODO Plot of each loading type :validation:
+** TODO Plot of each loading type :plot:validation:
+** TODO Plot of a pier :plot:local:
 ** WAIT Mesh refinement
 ** DONE Validated Displacement
 CLOSED: [2020-01-09 Thu 12:37]
