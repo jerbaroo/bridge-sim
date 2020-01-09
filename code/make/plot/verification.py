@@ -596,6 +596,11 @@ def make_convergence_data(c: Config):
             "xload,zload,max_mesh,decknodes,piernodes,time"
             + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
         )
+    # Header information for a second file, recording strain close to the load.
+    strain_path = c.get_image_path("convergence", "strain-inf.txt", bridge=False)
+    with open(strain_path, "w") as f:
+        # Simulation parameters, direction recording, and recordings.
+        f.write("max_mesh,decknodes,piernodes,dir,recs")
 
     max_shell_lens = list(np.arange(10, 2 - 0.00001, -1))
     max_shell_lens += list(np.arange(1.9, 1 - 0.00001, -0.1))
@@ -642,17 +647,23 @@ def make_convergence_data(c: Config):
                         assert np.isclose(og, ip)
 
             # Determine min, max and mean displacements.
-            all_displacements = list(displacements.values())
+            all_displacements = np.array(list(displacements.values()))
             grid_displacements = np.array(
                 [displacements.at_deck(point, interp=True) for point in grid]
             )
-            min_d = np.min(all_displacements)
-            max_d = np.max(grid_displacements)
-            mean_d = np.mean(grid_displacements)
-            assert len(min_d) == 1
-            assert len(mean_d) == 1
-            min_d = min_d[0]
-            mean_d = mean_d[0]
+
+            def scalar(input):
+                try:
+                    if len(input) == 1:
+                        return input[0]
+                    raise ValueError(f"Not a scalar: {input}")
+                except:
+                    return input
+
+            # Minimum displacement is under the load.
+            min_d = scalar(np.min(all_displacements))
+            max_d = scalar(np.max(grid_displacements))
+            mean_d = scalar(np.mean(grid_displacements))
 
             strains = load_fem_responses(
                 c=c,
@@ -660,19 +671,14 @@ def make_convergence_data(c: Config):
                 response_type=ResponseType.Strain,
                 sim_runner=OSRunner(c),
             )
-            all_strains = list(strains.values())
+            all_strains = np.array(list(strains.values()))
             grid_strains = np.array(
                 [strains.at_deck(point, interp=True) for point in grid]
             )
-            min_s = np.min(grid_strains)
-            max_s = np.max(all_strains)
-            mean_s = np.mean(grid_strains)
-            try:
-                min_s = min_s[0]
-            except:
-                pass
-            assert len(mean_s) == 1
-            mean_s = mean_s[0]
+            min_s = scalar(np.min(grid_strains))
+            # Maximum strain is under the load.
+            max_s = scalar(np.max(all_strains))
+            mean_s = scalar(np.mean(grid_strains))
 
             # Write results for this simulation to disk.
             with open(path + ".txt", "a") as f:
@@ -682,6 +688,28 @@ def make_convergence_data(c: Config):
                     f", {min_s}, {max_s}, {mean_s}"
                     f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
                 )
+
+            # Also write results of strain recordings, for each direction.
+            for dir_name, x_mul, z_mul in [
+                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
+                recordings = []
+                for delta in np.arange(0, 5, 0.05):
+                    strain_point = Point(
+                        x=load_point.x + (delta * x_mul),
+                        y=load_point.y,
+                        z=load_point.z + (delta * z_mul),
+                    )
+                    if (
+                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
+                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
+                    ):
+                        break
+                    print(strain_point.x, strain_point.z)
+                    recordings.append(strains.at_deck(strain_point, interp=True))
+                with open(strain_path, "a") as f:
+                    f.write(
+                        f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
+                    )
 
         except ValueError as e:
             if "No responses found" in str(e):
