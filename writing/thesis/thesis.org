@@ -1985,15 +1985,14 @@ material properties of the generated FEM are given in Table [[tbl:single-section
 
 Simulations were run where a displacement load was applied to the central node
 at the bottom of each pier of bridge 705, one simulation per pier. The response
-patterns are quite similar for the piers that are closest to the northern and
-southern edges of the bridge, and also quite similar for each of the remaining
-piers. Thus one of the piers closest to the southern edge of the bridge, and one
-pier closer to the center of the bridge in transverse direction, are chosen for
-comparison, these are piers 4 and 5 in Figure TODO. Both of these piers are
-displaced by $\SI{1}{\meter}$ in AxisVM and again in OpenSees, and contour plots
-of the displacement and strain generated. Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]]
-show the displacement and strain for the settlement of pier 4 and Figures
-[[fig:pd-5d-axis]] - [[fig:pd-5s-os]] for pier 5.
+patterns are similar for the piers that are closest to the northern and southern
+edges of the bridge, and similar for each of the remaining piers. Thus one pier
+near the southern edge of the bridge and one near the center of the bridge in
+transverse direction are chosen for comparison, these are piers 4 and 5 in
+Figure TODO. Both of these piers are displaced by $\SI{1}{\meter}$ with AxisVM
+and also with OpenSees. Contour plots of the displacement and strain are shown
+in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for the settlement of pier 4 and in
+Figures [[fig:pd-5d-axis]] - [[fig:pd-5s-os]] for pier 5.
 
 # TODO Validate piers and write about remaining images.
 
