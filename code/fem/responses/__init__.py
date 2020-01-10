@@ -136,6 +136,16 @@ class Responses:
             x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
         }
 
+    def map(self, f):
+        """Map a function over the values of responses."""
+        for x, y_dict in self.responses[self.times[0]].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if hasattr(response, "value"):
+                        self.responses[self.times[0]][x][y][z] = f(response.value)
+                    else:
+                        self.responses[self.times[0]][x][y][z] = f(response)
+
     def values(self):
         """Yield each response value."""
         for y_dict in self.responses[self.times[0]].values():

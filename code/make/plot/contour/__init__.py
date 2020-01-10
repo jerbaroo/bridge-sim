@@ -254,6 +254,14 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 run=True,
             )
 
+            # Map simulation strains to stresses.
+            units = None
+            if response_type == ResponseType.Strain:
+                sim_responses.map(lambda v: v * c.bridge.sections[0].youngs * 1E-6)
+                if len(c.bridge.sections) > 1:
+                    raise ValueError("Expected only 1 deck section")
+                units = "MPa"
+
             # Plot and save the image.
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
@@ -270,6 +278,7 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                     )
                 ],
                 levels=14,
+                units=units,
             )
             plt.savefig(
                 c.get_image_path(

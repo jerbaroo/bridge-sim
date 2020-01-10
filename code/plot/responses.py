@@ -73,6 +73,8 @@ def plot_contour_deck(
     norm=None,
     scatter: bool = False,
     levels: int = 25,
+    resize: bool = True,
+    units: Optional[str] = None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -105,10 +107,12 @@ def plot_contour_deck(
         raise ValueError(f"No responses for contour plot")
 
     # Resize all responses.
-    H, _ = resize_units(np.array(H), responses.response_type)
-    amin, _ = resize_units(amin, responses.response_type)
-    amax, unit_str = resize_units(amax, responses.response_type)
-
+    if resize:
+        H, _ = resize_units(np.array(H), responses.response_type)
+        amin, _ = resize_units(amin, responses.response_type)
+        amax, unit_str = resize_units(amax, responses.response_type)
+    if units is not None:
+        unit_str = units
 
     # Plot responses and colorbar.
     if scatter:

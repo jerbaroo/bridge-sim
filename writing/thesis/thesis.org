@@ -482,8 +482,8 @@ exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
 south. In cite:peeters2000system a linear relationship is shown between the 1st
 and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
-$\SI{0}{celcius}$, and a separate linear relationship below temperature below
-$\SI{0}{celcius}$. The linear relationship was related to the presence of the
+$\SI{0}{celcius}$, and a separate linear relationship with temperature below
+$\SI{0}{celcius}$. The bilinear relationship was related to the presence of the
 asphalt on the bridge.
 
 An integrated machine learning algorithm, combining techniques including PCA, is
@@ -500,9 +500,9 @@ simulation of a hard drive, and a laboratory test on a spring-mass system. The
 authors admit that several issues are to be addressed before the approach can be
 used on real structures.
 
-In a real-life installation the possibility that a sensor has developed a fault
-and that the received signal is incorrect must be considered, in the work on the
-SHB cite:diez2016clustering one of the sensors was faulty, which was detected as
+In a real SHM system the possibility that a sensor has developed a fault and
+that the received signal is incorrect must be considered, in the work on the SHB
+cite:diez2016clustering one of the sensors was faulty, which was detected as
 damage. Damaged sensors can be detected via sensor data reconstruction. In this
 approach sensor data is reconstructed based on spatial and temporal correlations
 among the sensor network. If there are discrepancies between the measurement
@@ -516,6 +516,20 @@ spatial and both past and future temporal correlations citep:jeong2019sensor.
 This method outperformed a number of existing methods on their test set, however
 the test data was from numerical simulation of an unvalidated model.
 
+# TODO: Future correlations?
+
+** SHM Installations
+
+A number of bridges with sensor installations for the purpose of data collection
+have already been visited in this literature review. In the majority of these
+cases the bridge being researched was already scheduled to be demolished
+cite:farrar1994dynamic,dilena2011dynamic,teughels2004structural. This enabled
+different damages to be applied to the bridge in the period prior to demolition.
+The SHB on the other hand had sensors installed on lane 7 in 2014 and they were
+still in use in 2016 cite:diez2016clustering.
+
+
+
 ** Summary
 
 Early work on damage identification of civil infrastructure was largely focused
@@ -525,10 +539,12 @@ the OCSVM. Feature extraction is arguably the most important and difficult step
 in ML-based health monitoring cite:worden2006application. Much of the existing
 research suggests promising results in a simulated or laboratory setting, and
 does not consider the difficulties that environmental or operational effects
-provide. Two works that succesfully detected aprioi known damage on the SHB
+provide. Two works that succesfully detected apriori known damage on the SHB
 combined machine learning techniques with knowledge about the behaviour of the
-structure. \textcolor{red}{TODO: more on: anomaly detection. SHM installations
-in real life, and anomaly detection of non-bridge structures e.g. levees.}
+structure, in these works data from multiple sensors was compared.
+
+\textcolor{red}{TODO: more on: anomaly detection. SHM installations in real
+life, and anomaly detection of non-bridge structures e.g. levees.}
 
 ** Tables
 
@@ -748,7 +764,9 @@ access to a location on the bridge may be difficult or not even possible.
 
 # Expense of local health monitoring.
 In the USA the Federal Highway Administration (FHA) requires that the condition
-of bridges be evaluated every two years. Such an inspection typically takes the
+of bridges be evaluated every two years.
+
+Such an inspection typically takes the
 form of a tap test. A tap test is a test where the surface of the bridge is
 tapped in order to find variations in the sound response. However the tap test
 is limited to finding damage near the surface and in cases, significant cracks.
@@ -1971,7 +1989,7 @@ thermal loading, in order to validate that the generated FEM is calculating the
 response due to these variable loads correctly. Thus the exact dimensions and
 material properties of the built model are not important, it is only important
 that they are the same in both the generated FEM and in the AxisVM FEM. The
-material properties of the generated FEM are given in Table [[tbl:single-section]].
+material properties of both FEMs are given in Table [[tbl:single-section]].
 
 # ./cli.sh --two-materials info bridge
 #+CAPTION[Material properties for AxisVM comparison]: Material properties for comparison of the generated FEM against a model built using the AxisVM GUI. The first column gives the name of each material property. The second and third columns give the values of material properties for the deck and the piers respectively.
@@ -1998,35 +2016,35 @@ Figures [[fig:pd-5d-axis]] - [[fig:pd-5s-os]] for pier 5.
 
 #+NAME: fig:pd-4d-axis
 #+CAPTION[Displacement from pier (4) settlement with AxisVM]: Displacement recorded in AxisVM when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/4-axis-displa.png]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-displa.png]]
 
 #+NAME: fig:pd-4d-os
 #+CAPTION[Displacement from pier (4) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-4-displacement.pdf]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-displacement.pdf]]
 
 #+NAME: fig:pd-4s-axis
 #+CAPTION[Strain from pier (4) settlement with AxisVM]: Strain recorded in AxisVM when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/4-axis-strain.png]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-strain.png]]
 
 #+NAME: fig:pd-4s-os
 #+CAPTION[Strain from pier (4) settlement with OpenSees]: Strain recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-4-strain.pdf]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-strain.pdf]]
 
 #+NAME: fig:pd-5d-axis
 #+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
 
 #+NAME: fig:pd-5d-os
 #+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
 
 #+NAME: fig:pd-5s-axis
 #+CAPTION[Strain from pier (5) settlement with AxisVM]: Strain recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
 
 #+NAME: fig:pd-5s-os
 #+CAPTION[Strain from pier (5) settlement with OpenSees]: Strain recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
 
 In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
