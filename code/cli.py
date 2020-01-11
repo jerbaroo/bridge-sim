@@ -239,11 +239,8 @@ def sensors():
 
 
 @validate.command(help="Contour plots of unit pier displacement.")
-@click.option("--piers", type=str, default="5,4", help="Indices of piers to displace.")
-def pier_disp(piers):
-    pier_indices = [int(p.strip()) for p in piers.split(",")]
-    print_i(f"Pier indices = {pier_indices}")
-    contour_.piers_displaced(c=c(), pier_indices=pier_indices)
+def pier_disp():
+    contour_.piers_displaced(c())
 
 
 @validate.command(help="Confirm that density has no effect on simulation.")

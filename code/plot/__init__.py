@@ -157,7 +157,7 @@ parula_cmap = colors.LinearSegmentedColormap.from_list(
 default_cmap = matplotlib.cm.get_cmap("viridis")
 
 
-# Add the colorbar from Diana.
+# Colourbar from Diana.
 diana_colors = [
     np.array([252, 13, 27]) / 255,
     np.array([253, 144, 38]) / 255,
@@ -174,6 +174,24 @@ diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
 diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
     "diana_r", diana_colors[::-1], N=len(diana_colors)
 )
+
+# Colourbar from Axis.
+axis_colors = [
+    np.array([118, 2, 6]) / 255,
+    np.array([185, 6, 17]) / 255,
+    np.array([218, 10, 22]) / 255,
+    np.array([253, 112, 34]) / 255,
+    np.array([253, 186, 44]) / 255,
+    np.array([255, 253, 56]) / 255,
+    np.array([109, 253, 48]) / 255,
+    np.array([58, 254, 188]) / 255,
+    np.array([40, 230, 253]) / 255,
+    np.array([31, 180, 252]) / 255,
+    np.array([15, 85, 251]) / 255,
+    np.array([10, 33, 236]) / 255,
+    np.array([3, 17, 150]) / 255,
+    np.array([1, 5, 183]) / 255,
+]  # R -> G -> B
 
 
 class Color:

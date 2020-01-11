@@ -68,13 +68,13 @@ def plot_contour_deck(
     responses: Responses,
     y: float = 0,
     ploads: List[PointLoad] = [],
-    title: Optional[str] = None,
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
     levels: int = 25,
     resize: bool = True,
     units: Optional[str] = None,
+    show_legend: bool = True,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -97,12 +97,6 @@ def plot_contour_deck(
                 if H[-1] < amin:
                     amin = H[-1]
                     amin_x, amin_z = X[-1], Z[-1]
-    # print(X)
-    # X, Z, H = np.array(X), np.array(Z), np.array(H)
-    # print(X)
-    # print(X.shape)
-    # print(Z.shape)
-    # print(H.shape)
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
@@ -124,7 +118,6 @@ def plot_contour_deck(
             norm=norm,
             s=1,
         )
-        print("Scattering")
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
     clb = plt.colorbar(cs, norm=norm)
@@ -147,10 +140,8 @@ def plot_contour_deck(
         plt.scatter(
             [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
         )
+    if show_legend:
+        plt.legend()
 
-    # Titles and labels.
-    plt.legend()
-    if title:
-        plt.title(title)
     plt.xlabel("X position (m)")
     plt.ylabel("Z position (m)")

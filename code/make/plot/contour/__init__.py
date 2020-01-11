@@ -27,7 +27,7 @@ from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.load import DisplacementCtrl, PointLoad
 from model.response import ResponseType
-from plot import diana_cmap, diana_r_cmap, parula_cmap, plt
+from plot import axis_colors, diana_cmap, diana_r_cmap, parula_cmap, plt
 from plot.contour import contour_responses_3d
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, resize_units
@@ -231,8 +231,13 @@ def cracked_concrete_plots(c: Config):
         plt.close()
 
 
-def piers_displaced(c: Config, pier_indices: List[int]):
+def piers_displaced(c: Config):
     """Contour plots of pier displacement for the given pier indices."""
+    pier_indices = [4, 5]
+    color_bins = {
+        4: [1.19,.8,.7,.6,.5,.4,.3,.2,.1,0,-.1,-.2,-.3,-.4,-.61],
+        5: [1.36,1.05,.9,.75,.6,.45,.3,.15,0,-.15,-.3,-.45,-.6,-.75,-1.1],
+    }
     y = 0
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
@@ -261,7 +266,6 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                 response_type=response_type,
                 sim_runner=OSRunner(c),
                 run=r_i == 0,  # Only need to run it once.
-
             )
 
             # Map simulation strains to stresses.
@@ -279,23 +283,26 @@ def piers_displaced(c: Config, pier_indices: List[int]):
             # Plot and save the image. If plotting strains use Axis values for
             # colour normalization.
             norm = None
+            cmap = colors.LinearSegmentedColormap.from_list(
+                "axis", list(reversed(axis_colors)), N=14)
             if response_type == ResponseType.Strain:
-                norm = colors.Normalize(vmin=row["min"], vmax=row["max"])
+                bins = color_bins[p]
+                assert len(bins) == 15
+                norm = colors.BoundaryNorm(list(reversed(bins)), len(bins))
+                plt.scatter(x=[0, 0], y=[0, 0], c=[bins[0], bins[-1]], alpha=0)
                 sim_response_values = list(sim_responses.values())
-                # Assert we're not cutting off our values.
-                assert min(sim_response_values) > float(row["min"])
-                assert max(sim_response_values) < float(row["max"])
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
                 y=y,
-                cmap=get_cmap("jet"),
+                cmap=cmap,
                 norm=norm,
                 responses=sim_responses,
-                title=f"{response_type.name()} from pier settlement of 1 mm",
                 levels=14,
                 units=units,
+                show_legend=response_type == ResponseType.YTranslation,
             )
+            plt.title(f"{response_type.name()} from pier settlement of 1 mm")
             plt.savefig(
                 c.get_image_path(
                     "validation/pier-displacement",
@@ -308,7 +315,7 @@ def piers_displaced(c: Config, pier_indices: List[int]):
             axis_img = mpimg.imread(
                 f"validation/axis-screenshots/{p}-{rt_str}.png"
             )
-            top_view_bridge(c.bridge, piers=True, abutments=True)
+            top_view_bridge(c.bridge, abutments=True)
             plt.imshow(
                 axis_img,
                 extent=(
@@ -321,9 +328,9 @@ def piers_displaced(c: Config, pier_indices: List[int]):
             # Plot the load and min, max values.
             amin, amax = float(row["min"]), float(row["max"])
             for point, leg_label, color in [
-                ((0, 0), f"min = {amin:.2f} {unit_str}", "r"),
-                ((0, 0), f"max = {amax:.2f} {unit_str}", "r"),
-                ((0, 0), f"|min-max| = {abs(amax - amin):.2f} {unit_str}", "r"),
+                ((0, 0), f"min = {np.around(amin, 3)} {unit_str}", "r"),
+                ((0, 0), f"max = {np.around(amax, 3)} {unit_str}", "r"),
+                ((0, 0), f"|min-max| = {np.around(abs(amax - amin), 3)} {unit_str}", "r"),
             ]:
                 plt.scatter(
                     [point[0]],
@@ -333,9 +340,10 @@ def piers_displaced(c: Config, pier_indices: List[int]):
                     color=color,
                     alpha=0,
                 )
-            plt.legend()
+            if response_type == ResponseType.YTranslation:
+                plt.legend()
             # Add the Axis colorbar.
-            plt.imshow(np.array([[amin, amax]]), cmap=get_cmap("jet"), extent=(0, 0, 0, 0))
+            plt.imshow(np.array([[amin, amax]]), cmap=cmap, norm=norm, extent=(0, 0, 0, 0))
             clb = plt.colorbar()
             clb.ax.set_title(unit_str)
             # Title and save.
