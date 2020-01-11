@@ -385,7 +385,7 @@ vibration tests. The method has the potential advantage of not requiring an
 accurate analytical model, yet the study was only on a single column of a bridge
 and it was a laboratory experiment that did not account for environmental noise.
 
-** Machine Learning
+*** Machine Learning
 
 # Introduction to ML.
 Machine learning based approaches map inputs to outputs based on previously
@@ -466,11 +466,14 @@ sensor and a third arch with unknown damaged state.
 # measurements. There are further difficulties with highway bridges because they
 # are highly damped with low natural frequencies
 
-Any SHM system that is deployed on a real-life structure must consider the
-environmental and operational effects that will affect the responses of the
-bridge. Temperature changes the stiffness properties of a bridge deck resulting
-in different responses throught a day or year, and noise from traffic on another
-lane will also make damage identification more difficult.
+*** Noise
+
+Any structural health monitoring system that is deployed on a real-life
+structure must consider the environmental and operational effects that will
+affect the responses of the bridge. Temperature changes the stiffness properties
+of a bridge deck resulting in different responses throught a day or year, and
+noise from traffic on another lane will also make damage identification more
+difficult.
 
 # Good reading: https://royalsocietypublishing.org/doi/full/10.1098/rsta.2006.1935#bib42
 
@@ -500,9 +503,11 @@ simulation of a hard drive, and a laboratory test on a spring-mass system. The
 authors admit that several issues are to be addressed before the approach can be
 used on real structures.
 
-In a real SHM system the possibility that a sensor has developed a fault and
-that the received signal is incorrect must be considered, in the work on the SHB
-cite:diez2016clustering one of the sensors was faulty, which was detected as
+*** Faulty Sensor
+
+In any deployed SHM system the possibility that a sensor has developed a fault
+and that the received signal is incorrect must be considered, in the work on the
+SHB cite:diez2016clustering one of the sensors was faulty, which was detected as
 damage. Damaged sensors can be detected via sensor data reconstruction. In this
 approach sensor data is reconstructed based on spatial and temporal correlations
 among the sensor network. If there are discrepancies between the measurement
@@ -518,17 +523,48 @@ the test data was from numerical simulation of an unvalidated model.
 
 # TODO: Future correlations?
 
-** SHM Installations
+*** Deployments
 
-A number of bridges with sensor installations for the purpose of data collection
-have already been visited in this literature review. In the majority of these
-cases the bridge being researched was already scheduled to be demolished
-cite:farrar1994dynamic,dilena2011dynamic,teughels2004structural. This enabled
+A few bridges that had a SHM system deployed in real life have already been
+visited in this literature review. In the majority of these cases the bridge
+being researched was scheduled to be demolished
+cite:farrar1994dynamic,dilena2011dynamic,teughels2004structural, which enabled
 different damages to be applied to the bridge in the period prior to demolition.
-The SHB on the other hand had sensors installed on lane 7 in 2014 and they were
-still in use in 2016 cite:diez2016clustering.
+The SHB however had sensors installed on lane 7 in 2014 and they were still in
+use in 2016 cite:diez2016clustering.
 
+A number of SHMS systems were deployed to monitor distinct behaviours on bridges
+in Kentucky. From 2005 - 2011 a system was deployed to monitor impact damage
+from over-height vehicles to the eastbound I-64 bridge and to identify the
+vehicles cite:harik2011implementation. Vehicles were recorded by ultrasonic
+height sensors and video cameras, accelerometers and strain gauges compared
+impact to responses from sensors on a second bridge. One of the drawbacks that
+led to the system being decommissioned was the cost of replacement of the data
+acquisition system (once due to vandalism and once due to lightning strike) and
+time the system was down. Two SHM systems were deployed in Kentucky on bridges
+over the Ohio river, a barge impact detection system on the US 41 bridge and a
+crack growth monitoring system on the I-275 bridge cite:peiris2018lessons. The
+barge impact detection system (2006 - 2015) was pooly configured. Threshold
+limits were set based on cite:yuan2008multi and did not detect an impact that
+was less than 0.25 times the set threshold. Data transfer was also sporadic due
+to a change in communication protocol by the cellular provider. The crack
+detection system consisted of a vibrating wire micro crack meter transmitting
+data to a server by cell modem every 10 minutes and data is viewable via a
+website. This was a succesful low cost installation which began in 2012, and was
+still operational in 2018 and through it additional costly repairs were deemed
+unecessary.
 
+A number of SHM systems have been installed on bridges in Sweden. According to
+cite:enckell2007structural many communities are responsible for the maintenance
+of their own bridges, but new constructions are dependent on political decisions
+that delay projects, thus a SHM system is deployed to provide confidence in the
+health of an old structure and the safety of users. The 9 x 78 m span New Årsta
+Railway Bridge highlights a number of proactical issues relating to the SHM
+system installed during construction in 2003 cite:enckell2006structural. Data
+collection was interrupted due to interruption in power delivery and internet
+connectivity, water damage to the data logger due to freezing of a drainage
+hole, and damage to sensors including "violent treatment after the installation
+like hitting the sensors with heavy re-bars".
 
 ** Summary
 
