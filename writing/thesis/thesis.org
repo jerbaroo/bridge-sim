@@ -531,7 +531,8 @@ being researched was scheduled to be demolished
 cite:farrar1994dynamic,dilena2011dynamic,teughels2004structural, which enabled
 different damages to be applied to the bridge in the period prior to demolition.
 The SHB however had sensors installed on lane 7 in 2014 and they were still in
-use in 2016 cite:diez2016clustering.
+use in 2016 cite:diez2016clustering. In this Subsection we will examine a few
+SHM deployments on bridges around the world.
 
 A number of SHMS systems were deployed to monitor distinct behaviours on bridges
 in Kentucky. From 2005 - 2011 a system was deployed to monitor impact damage
@@ -564,7 +565,12 @@ system installed during construction in 2003 cite:enckell2006structural. Data
 collection was interrupted due to interruption in power delivery and internet
 connectivity, water damage to the data logger due to freezing of a drainage
 hole, and damage to sensors including "violent treatment after the installation
-like hitting the sensors with heavy re-bars".
+like hitting the sensors with heavy re-bars". In cite:enckell2011evaluation a
+distributed fiber optic based SHM system was installed on the $\SI{950}{meter}$
+steel-beam concrete-deck Götaälv bridge between Gothenburg and Hisingen. In an
+on-site crack test, the SHM system detected 4 of 7 cracks. The system is
+designed to operate for 15 years however it's effectiveness in reality remains
+to be seen.
 
 ** Summary
 
@@ -1891,10 +1897,10 @@ truck 1 are certainly sufficient.
 # Truck 1 and the static load test.
 The specification of Truck 1 is shown in the plot on the left of Figure
 [[fig:truck-1]]. The plot shows the size of each of the truck's wheel prints
-($\SI{0.31}{m} \cdot \SI{0.25}{m}$), in simulation however the force from each
-wheel is represented by a point load as shown in the plot on the right of the
-same Figure. A wheel print is TODO the dimensions of the wheel which are in
-contact with the ground.
+($\SI{0.31}{meter} \cdot \SI{0.25}{meter}$), in simulation however the force
+from each wheel is represented by a point load as shown in the plot on the right
+of the same Figure. A wheel print is TODO the dimensions of the wheel which are
+in contact with the ground.
 
 #+NAME: fig:truck-1
 #+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each side of an axle is annotated with the load intensity of the wheel at that side of the axle. The plot on the right depicts the model of truck used in simulation, here the force from each wheel is represented by a point load.
