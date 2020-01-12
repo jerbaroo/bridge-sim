@@ -193,8 +193,14 @@ def uls():
 
 
 @simulate.command(help="Record information for convergence plots.")
-def convergence():
+def converge():
     verification.make_convergence_data(c())
+
+
+@simulate.command(help="Record convergence data for pier settlement.")
+@click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
+def converge_pier(pier):
+    verification.make_pier_convergence_data(c=c(), pier_i=pier)
 
 
 ######################

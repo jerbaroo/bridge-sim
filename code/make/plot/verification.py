@@ -37,7 +37,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str
+from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str, scalar
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -551,9 +551,163 @@ def r2_plots(c: Config):
     plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))
 
 
-def make_convergence_data(c: Config):
+def make_pier_convergence_data(c: Config, pier_i: int):
+    """Make pier convergence data file, decreasing mesh size per simulation."""
+    bridge = bridge_705_3d()
+    fem_params = SimParams(
+        response_types=[ResponseType.YTranslation, ResponseType.Strain],
+        displacement_ctrl=DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_i),
+    )
+    pier = c.bridge.supports[pier_i]
+    max_shell_len = 10
+
+    def bridge_overload(**kwargs):
+        return bridge_705_3d(
+            name=f"Bridge 705",
+            accuracy="convergence-pier",
+            base_mesh_deck_max_x=max_shell_len,
+            base_mesh_deck_max_z=max_shell_len,
+            base_mesh_pier_max_long=max_shell_len,
+            **kwargs,
+        )
+
+    # A grid of points over which to calculate the mean response. The reason for
+    # this is because if the number of nodes increases, as model size increases,
+    # then there will be an increase in nodes where responses are large, thus
+    # model size will influence the mean/min calculation.
+    grid = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
+        )
+    ]
+
+    # Write the header information to the results file.
+    c = bridge_705_config(bridge_overload)
+    path = c.get_image_path("convergence-pier", "convergence_results_pier-{pier_i}", bridge=False)
+    with open(path + ".txt", "w") as f:
+        f.write(
+            "xload,zload,max_mesh,decknodes,piernodes,time"
+            + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
+        )
+    # Header information for a second file, recording strain close to the load.
+    strain_path = c.get_image_path("convergence-pier", "strain-inf.txt", bridge=False)
+    with open(strain_path, "w") as f:
+        # Simulation parameters, direction recording, and recordings.
+        f.write("max_mesh,decknodes,piernodes,compass,responses")
+
+    max_shell_lens = list(np.arange(10, 2 - 0.00001, -1))
+    max_shell_lens += list(np.arange(1.9, 1 - 0.00001, -0.1))
+    max_shell_lens += list(np.arange(0.9, 0.1 - 0.00001, -0.01))
+    max_shell_lens = list(map(round_m, max_shell_lens))
+
+    for max_shell_len in max_shell_lens:
+
+        print(f"max shell len = {max_shell_len}")
+
+        with open(path + ".txt", "a") as f:
+            f.write(f"\n{pier.x}, {pier.z}, {max_shell_len}")
+
+        c = bridge_705_config(bridge_overload)
+        try:
+            # Start timing and run the simulation.
+            start = timer()
+            displacements = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=ResponseType.YTranslation,
+                sim_runner=OSRunner(c),
+                run=True,
+            )
+            end = timer()
+
+            # Determine amount of nodes.
+            nodes = det_nodes(fem_params.bridge_nodes)
+            deck_nodes = len([n for n in nodes if n.deck])
+            pier_nodes = len([n for n in nodes if not n.deck])
+
+            # Determine shell sizes for the deck, pier and whole bridge.
+            shells = det_shells(fem_params.bridge_shells)
+            avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
+            avg_pier_size = np.mean([s.area() for s in shells if s.pier])
+            avg_shell_size = np.mean([s.area() for s in shells])
+
+            # TODO: Remove to deck interpolation test.
+            for x in displacements.xs:
+                if 0 in displacements.zs[x]:
+                    for z in displacements.zs[x][0]:
+                        og = displacements.responses[0][x][0][z].value
+                        ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
+                        assert np.isclose(og, ip)
+
+            # Determine min, max and mean displacements.
+            all_displacements = np.array(list(displacements.values()))
+            grid_displacements = np.array(
+                [displacements.at_deck(point, interp=True) for point in grid]
+            )
+
+            # Minimum displacement is under the load.
+            min_d = scalar(np.min(all_displacements))
+            max_d = scalar(np.max(grid_displacements))
+            mean_d = scalar(np.mean(grid_displacements))
+
+            strains = load_fem_responses(
+                c=c,
+                sim_params=fem_params,
+                response_type=ResponseType.Strain,
+                sim_runner=OSRunner(c),
+            )
+            all_strains = np.array(list(strains.values()))
+            grid_strains = np.array(
+                [strains.at_deck(point, interp=True) for point in grid]
+            )
+            min_s = scalar(np.min(grid_strains))
+            # Maximum strain is under the load.
+            max_s = scalar(np.max(all_strains))
+            mean_s = scalar(np.mean(grid_strains))
+
+            # Write results for this simulation to disk.
+            with open(path + ".txt", "a") as f:
+                f.write(
+                    f", {deck_nodes}, {pier_nodes}, {end - start}"
+                    f", {min_d}, {max_d}, {mean_d}"
+                    f", {min_s}, {max_s}, {mean_s}"
+                    f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
+                )
+
+            # Also write results of strain recordings, for each direction.
+            for dir_name, x_mul, z_mul in [
+                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
+                recordings = []
+                for delta in np.arange(0, 5, 0.05):
+                    strain_point = Point(
+                        x=pier.x + (delta * x_mul),
+                        y=0,
+                        z=pier.z + (delta * z_mul),
+                    )
+                    if (
+                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
+                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
+                    ):
+                        break
+                    print(strain_point.x, strain_point.z)
+                    recordings.append(strains.at_deck(strain_point, interp=True))
+                with open(strain_path, "a") as f:
+                    f.write(
+                        f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
+                    )
+
+        except ValueError as e:
+            if "No responses found" in str(e):
+                print_i("Simulation failed. Time to plot results")
+            else:
+                raise e
+
+
+def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):
     """Make convergence data file, increasing mesh density per simulation."""
-    load_point = Point(x=34.955, y=0, z=29.226 - 16.6)
+    load_point = Point(x=x, y=0, z=z)
     bridge = bridge_705_3d()
     fem_params = SimParams(
         ploads=[
@@ -652,14 +806,6 @@ def make_convergence_data(c: Config):
             grid_displacements = np.array(
                 [displacements.at_deck(point, interp=True) for point in grid]
             )
-
-            def scalar(input):
-                try:
-                    if len(input) == 1:
-                        return input[0]
-                    raise ValueError(f"Not a scalar: {input}")
-                except:
-                    return input
 
             # Minimum displacement is under the load.
             min_d = scalar(np.min(all_displacements))

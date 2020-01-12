@@ -96,6 +96,15 @@ def clean_generated(c: "Config"):
     clean_dir(c.generated_data_dir())
 
 
+def scalar(input):
+    try:
+        if len(input) == 1:
+            return input[0]
+        raise ValueError(f"Not a scalar: {input}")
+    except:
+        return input
+
+
 def kde_sampler(data, print_: bool = False):
     """A generator which returns samples from a KD estimate of the data."""
     kde = stats.gaussian_kde(data)
