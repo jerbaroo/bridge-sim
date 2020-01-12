@@ -8,6 +8,7 @@ from itertools import chain
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple
 
+import matplotlib
 import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
@@ -718,6 +719,70 @@ def make_convergence_data(c: Config):
                 raise e
 
 
+def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
+    """Plot convergence of strain at different points around a load."""
+    headers = ["max_shell_len", "decknodes", "piernodes", "compass", "responses"]
+    parsed_lines = []
+    with open(filepath) as f:
+        lines = list(map(lambda l: l.split(",", len(headers) - 1), f.readlines()[1:]))
+    for max_mesh, deck_nodes, pier_nodes, compass, responses in lines:
+        parsed_lines.append([
+            float(max_mesh),
+            float(deck_nodes),
+            float(pier_nodes),
+            compass.strip(),
+            np.array(list(map(float, responses.split(",")))),
+        ])
+    df = pd.DataFrame(parsed_lines, columns=headers)
+    # First find the maximum distance traversed.
+    delta_distance = 0.05
+    max_distance = 0
+    for compass in ["N", "S", "E", "W"]:
+        compass_df = df[df["compass"] == compass]
+        responses = compass_df.iloc[0]["responses"]
+        max_distance = max(len(responses) * delta_distance, max_distance)
+    # Overriding maximum distance.
+    max_distance = 4
+    # Create color mappable for distances.
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
+    cmap = cm.get_cmap("jet")
+    mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+    color = lambda d: mappable.to_rgba(d)
+    # For each compass point.
+    plt.square()
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    for ax, compass, compass_name, in zip(axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]):
+        # Collect data into responses per max_shell_len.
+        lines = {}
+        compass_df = df[df["compass"] == compass]
+        for df_i, row in compass_df.iterrows():
+            lines[row["max_shell_len"]] = row["responses"]
+        # Restructure data into lines for plotting.
+        max_shell_lens = []
+        sorted_lines = []
+        for max_shell_len in sorted(lines.keys()):
+            max_shell_lens.append(max_shell_len)
+            sorted_lines.append(lines[max_shell_len])
+        sorted_lines = np.array(sorted_lines).T
+        # Finally plot every nth line.
+        distance = 0
+        skip = 3
+        for responses in sorted_lines[::skip]:
+            ax.plot(max_shell_lens, responses, color=color(distance))
+            distance += skip * delta_distance
+            if distance > max_distance:
+                break
+        ax.set_xlim(2, min(max_shell_lens))
+        ax.set_title(f"Strain at multiple distances\nfrom point load at A\nin direction {compass_name}")
+        ax.set_xlabel("max_shell_len (m)")
+        ax.set_ylabel("Strain (m\m)")
+    plt.tight_layout()
+    clb = plt.colorbar(mappable, ax=axes.ravel())
+    clb.ax.set_title("Distance (m)")
+    plt.savefig(c.get_image_path("convergence", f"convergencestrain-{label}.pdf", bridge=False))
+    plt.close()
+
+
 def plot_convergence(c: Config):
     """Plot convergence as model size is increased for multiple machines.
 
@@ -726,8 +791,12 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.dirname(
-        c.get_image_path("convergence", "_", bridge=False)
+    convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
+    _plot_strain_convergence(
+        c,
+        os.path.join(convergence_dir, "strain-pl-a-convergence.txt"),
+        "Strain convergence around point load A",
+        "point-load-a",
     )
 
     # Get all simulations results from each machine.

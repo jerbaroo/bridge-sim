@@ -33,6 +33,8 @@ D: bool = False
 def _portrait():
     matplotlib.rcParams["figure.figsize"] = (10, 16)
 
+def _square():
+    matplotlib.rcParams["figure.figsize"] = (16, 16)
 
 def _landspace():
     matplotlib.rcParams["figure.figsize"] = (16, 10)
@@ -44,12 +46,10 @@ _og_show = _plt.show
 
 def _savefig(s):
     print_i(f"Saving image to {s}")
-    plt.tight_layout()
     _og_savefig(s)
 
 
 def _show(*args, **kwargs):
-    plt.tight_layout()
     _og_show(*args, **kwargs)
 
 
@@ -66,6 +66,7 @@ plt.equal_ax_lims = lambda: _equal_ax_lims(plt)
 plt.savefig = _savefig
 plt.show = _show
 plt.portrait = _portrait
+plt.square = _square
 plt.landscape = _landspace
 
 SMALL_SIZE = 18
