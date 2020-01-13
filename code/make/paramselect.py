@@ -17,6 +17,7 @@ def number_of_uls_plot(c: Config):
     response_type = ResponseType.YTranslation
     wagen1_wheel_length = 0.31  # Meters.
     num_ulss = np.arange(50, 400, 1)
+    chosen_uls = 332
 
     # Point load for each wheel of truck 1 in the experimental campaign.
     times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
@@ -129,30 +130,43 @@ def number_of_uls_plot(c: Config):
     # Create a plot for each truck position.
     plt.portrait()
     for response_funcs, truck_x_pos in zip(response_to_trucks, wagen1_x_pos()):
-        num_points = 2
+        num_points = 1
         points = [
             Point(x=x, y=0, z=c.bridge.z(wheel_load.z_frac))
             for x in np.linspace(
                     max(truck_x_pos, c.bridge.x_min),
-                    min(truck_x_pos + 5, c.bridge.x_max),
+                    min(truck_x_pos, c.bridge.x_max),
                     num_points,
             )
         ]
         for p_i, point in enumerate(points):
             plt.subplot(num_points, 1, p_i + 1)
             responses = []
-            for response_func in response_funcs:
+            min_after_chosen, max_after_chosen = np.inf, -np.inf
+            for num_uls, response_func in zip(num_ulss, response_funcs):
                 responses.append(response_func(point))
+                if num_uls >= chosen_uls:
+                    if responses[-1] < min_after_chosen:
+                        min_after_chosen = responses[-1]
+                    if responses[-1] > max_after_chosen:
+                        max_after_chosen = responses[-1]
             units_str = response_type.units()
             if response_type == ResponseType.YTranslation:
                 responses = np.array(responses) * 1000
+                min_after_chosen *= 1000
+                max_after_chosen *= 1000
                 units_str = "mm"
+            difference = np.around(max_after_chosen - min_after_chosen, 3)[0]
+            plt.axvline(chosen_uls, label=f"Max. difference after {chosen_uls} ULS = {difference} {units_str}", color="black")
+            plt.axhline(min_after_chosen, color="black")
+            plt.axhline(max_after_chosen, color="black")
+            plt.legend()
             plt.plot(num_ulss, responses)
-            plt.xlabel("Point load simulations per wheel track")
-            plt.ylabel(f"{response_type.name()} (units_str)")
+            plt.xlabel("Unit load simulations (ULS) per wheel track")
+            plt.ylabel(f"{response_type.name()} ({units_str})")
             plt.title(
                 f"{response_type.name()} at x = {np.around(point.x, 2)} m, z = {np.around(point.z, 2)} m"
-                f"\nto Truck 1, front axle at x = {np.around(truck_x_pos, 2)} m"
+                f"\ndue to Truck 1, front axle at x = {np.around(truck_x_pos, 2)} m,"
                 f"\non the south lane of Bridge 705"
             )
         plt.tight_layout()
