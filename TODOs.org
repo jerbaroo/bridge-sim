@@ -1,6 +1,6 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
-* Safe List [2/22]
+* Safe List
 ** TODO Rigid links experiment :axis:local:
 ** TODO Distributed load experiment :axis:local:
 ** TODO Publish on Pypi :software:local:
@@ -31,6 +31,23 @@
 CLOSED: [2020-01-09 Thu 12:37]
 ** DONE Early literature review submitted
 CLOSED: [2020-01-09 Thu 12:34]
+* Meetings
+** January 13
+*** TODO For Friday
+- Show Strain has converged when not considering maximum responses
+  - Under pier settlement
+  - Under point load
+- Thermal loading validated
+  - Axial
+  - Moment
+- Combine thermal loading components
+- Parameter selection: number of point load simulations per wheel track
+- Axis: Distributed load vs point load
+- Axis: rigid links
+- Light vehicles
+*** TODO Go over http://bridgedesign.org.uk/tutorial/temperature-effects.php
+*** TODO Look at plots and nodes in Axis
+*** TODO Why simplest case of displacement 0mm
 * Todos
 ** TODO <2020-01-09 Thu> [0/5]
 *** TODO 250 words

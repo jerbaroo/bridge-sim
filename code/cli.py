@@ -2,6 +2,7 @@
 import click
 
 from classify.vehicle import wagen1, wagen1_x_pos
+from make import paramselect
 from make.data import simulations
 from make.plot import classification as classification_
 from make.plot import contour as contour_
@@ -253,6 +254,16 @@ def pier_disp():
 def density():
     from make import validate
     validate.density_no_effect(c())
+
+
+#################
+##### Param #####
+#################
+
+
+@cli.command(help="Plot for parameter selection of #ULS.")
+def params_uls():
+    paramselect.number_of_uls_plot(c())
 
 
 ####################

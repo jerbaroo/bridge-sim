@@ -49,6 +49,16 @@ displa_sensors = pd.read_csv("data/verification/displasensors.txt")
 strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
 
 
+def truck_1_expt_xs():
+    truck_xs_expt = set()
+    for row in displa_sensors.itertuples():
+        sensor_label = getattr(row, "label")
+        responses = meas[meas["sensorlabel"] == sensor_label]
+        for sensor_row in responses.itertuples():
+            truck_xs_expt.add(getattr(sensor_row, "xpostruck"))
+    return sorted(truck_xs_expt)
+
+
 def displa_sensor_xz(sensor_label):
     """X and z position of a displacement sensor."""
     sensor = displa_sensors[displa_sensors["label"] == sensor_label]
