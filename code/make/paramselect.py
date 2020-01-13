@@ -128,7 +128,7 @@ def number_of_uls_plot(c: Config):
     # Response functions ordered by truck then number of ULS.
     response_to_trucks = np.array(response_to_trucks).T
     # Create a plot for each truck position.
-    plt.portrait()
+    plt.landscape()
     for response_funcs, truck_x_pos in zip(response_to_trucks, wagen1_x_pos()):
         num_points = 1
         points = [
