@@ -16,8 +16,8 @@ def number_of_uls_plot(c: Config):
     """Plot error as a function of number of unit load simulations."""
     response_type = ResponseType.YTranslation
     wagen1_wheel_length = 0.31  # Meters.
-    num_ulss = np.arange(50, 400, 1)
-    chosen_uls = 332
+    num_ulss = np.arange(50, 600, 1)
+    chosen_uls = 400
 
     # Point load for each wheel of truck 1 in the experimental campaign.
     times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
@@ -165,9 +165,8 @@ def number_of_uls_plot(c: Config):
             plt.xlabel("Unit load simulations (ULS) per wheel track")
             plt.ylabel(f"{response_type.name()} ({units_str})")
             plt.title(
-                f"{response_type.name()} at x = {np.around(point.x, 2)} m, z = {np.around(point.z, 2)} m"
-                f"\ndue to Truck 1, front axle at x = {np.around(truck_x_pos, 2)} m,"
-                f"\non the south lane of Bridge 705"
+                f"{response_type.name()} at x = {np.around(point.x, 2)} m, z = {np.around(point.z, 2)} m."
+                f"\nTruck 1's front axle at x = {np.around(truck_x_pos, 2)} m, on the south lane of Bridge 705."
             )
         plt.tight_layout()
         plt.savefig(c.get_image_path("paramselection", safe_str(f"uls-truck-x-{truck_x_pos:.2f}") + ".pdf"))

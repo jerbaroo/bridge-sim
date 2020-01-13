@@ -262,7 +262,7 @@ def density():
 
 
 @cli.command(help="Plot for parameter selection of #ULS.")
-def params_uls():
+def param_uls():
     paramselect.number_of_uls_plot(c())
 
 
