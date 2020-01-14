@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from config import Config
 from fem.build import det_shells, get_bridge_shells
 from fem.model import Shell
-from fem.responses import FEMResponses
+from fem.responses import SimResponses
 from model.response import ResponseType
 from plot import default_cmap, plt
 from plot.geometry.angles import angles_3d
@@ -15,7 +15,7 @@ from plot.geometry.angles import angles_3d
 
 def contour_responses_3d(
     c: Config,
-    sim_responses: FEMResponses,
+    sim_responses: SimResponses,
     shells: Optional[List[Shell]] = None,
     deformation_amp: float = 0,
     cmap: matplotlib.colors.Colormap = default_cmap,

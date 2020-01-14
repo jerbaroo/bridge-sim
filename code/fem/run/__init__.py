@@ -7,8 +7,7 @@ from typing import Callable, Dict, List, TypeVar, Optional
 
 from config import Config
 from fem.params import ExptParams, SimParams
-from fem.responses import FEMResponses
-from model import Response
+from fem.responses import SimResponses
 from model.bridge import Bridge
 from model.response import ResponseType
 from util import print_d, print_i, safe_str
@@ -124,19 +123,19 @@ class FEMRunner:
             for response_type, responses in converted_expt_responses[sim_ind].items():
                 print_d(D, f"response_type in converted = {response_type}")
                 print(len(responses))
-                fem_responses = FEMResponses(
+                fem_responses = SimResponses(
                     c=self.c,
-                    fem_params=expt_params.sim_params[sim_ind],
+                    sim_params=expt_params.sim_params[sim_ind],
                     sim_runner=self,
                     response_type=response_type,
                     responses=responses,
-                    skip_index=True,
+                    build=False,
                 )
 
                 start = timer()
                 fem_responses.save()
                 print_i(
-                    f"FEMRunner: saved simulation {sim_ind + 1} FEMResponses"
+                    f"FEMRunner: saved simulation {sim_ind + 1} SimResponses"
                     + f" in ([Response]) in {timer() - start:.2f}s,"
                     + f"({response_type})"
                 )

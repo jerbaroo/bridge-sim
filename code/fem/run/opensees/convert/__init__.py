@@ -5,9 +5,8 @@ from fem.params import ExptParams
 from fem.run import Parsed
 from fem.run.opensees.convert.d2 import convert_responses_2d
 from fem.run.opensees.convert.d3 import convert_responses_3d
-from model import Response
 from model.bridge import Dimensions
-from model.response import ResponseType
+from model.response import Response, ResponseType
 from util import print_d
 
 # Print debug information for this file.

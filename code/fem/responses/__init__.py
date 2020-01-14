@@ -12,9 +12,8 @@ from scipy.interpolate import interp1d, interp2d
 
 from config import Config
 from fem.params import ExptParams, SimParams
-from model import Response
 from model.bridge import Dimensions, Point
-from model.response import ResponseType
+from model.response import Response, ResponseType
 from util import nearest_index, print_d, print_i
 
 # Print debug information for this file.
@@ -99,31 +98,40 @@ def load_fem_responses(
     print_prog(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
 
     start = timer()
-    fem_responses = FEMResponses(
+    sim_responses = SimResponses(
         c=c,
-        fem_params=sim_params,
+        sim_params=sim_params,
         sim_runner=sim_runner,
         response_type=response_type,
         responses=responses,
     )
     print_prog(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
 
-    return fem_responses
-
-
-# A Response is a value at a Point. The response type should be maintained
-# separately, for space efficiency reasons as it will be the same for many
-# Response.
-Respoon = NewType("Respoon", Tuple[float, Point])
+    return sim_responses
 
 
 class Responses:
-    """Responses of one sensor type at many points."""
+    """Responses of one sensor type for one FE simulation."""
 
-    def __init__(self, response_type: ResponseType):
+    def __init__(
+        self,
+        response_type: ResponseType,
+        responses: List[Response],
+        build: bool = True,
+    ):
+        assert isinstance(responses, list)
+        if len(responses) == 0:
+            raise ValueError("No responses found")
+        assert isinstance(responses[0][1], Point)
         self.response_type = response_type
+        self.raw_responses = responses
+        self.num_sensors = len(responses)
         # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+        if build:
+            for response, p in responses:
+                self.responses[0][p.x][p.y][p.z] = response
+            self.index()
 
     def index(self):
         """Create attributes for fast indexing of times and positions."""
@@ -141,10 +149,7 @@ class Responses:
         for x, y_dict in self.responses[self.times[0]].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
-                    if hasattr(response, "value"):
-                        self.responses[self.times[0]][x][y][z] = f(response.value)
-                    else:
-                        self.responses[self.times[0]][x][y][z] = f(response)
+                    self.responses[self.times[0]][x][y][z] = f(response)
 
     def without(self, radius: float, of: Point) -> "Responses":
         responses = []
@@ -153,10 +158,7 @@ class Responses:
                 for z, response in z_dict.items():
                     p = Point(x=x, y=y, z=z)
                     if abs(p.distance(of)) > radius:
-                        if hasattr(response, "value"):
-                            responses.append((response.value, p))
-                        else:
-                            responses.append((response, p))
+                        responses.append((response, p))
         return Responses.from_responses(self.response_type, responses)
 
     def values(self):
@@ -164,10 +166,7 @@ class Responses:
         for y_dict in self.responses[self.times[0]].values():
             for z_dict in y_dict.values():
                 for response in z_dict.values():
-                    if hasattr(response, "value"):
-                        yield response.value
-                    else:
-                        yield response
+                    yield response
 
     @staticmethod
     def from_responses(response_type: ResponseType, responses: List[Respoon]):
@@ -177,97 +176,20 @@ class Responses:
         _responses.index()
         return _responses
 
-
-class FEMResponses(Responses):
-    """Responses of one sensor type for one FEM simulation.
-
-    FEMResponses.responses can be indexed as [time][x][y][z], where x, y, z are
-    axis positions in meters, while the .at method allows accessing responses
-    by fractional positions.
-
-    Args:
-        fem_params: FEMParams, the parameters of the simulation.
-        runner_name: str, the FEMRunner used to run the simulation.
-        response_type: ResponseType, the type of sensor responses to collect.
-        responses: List[Response], the raw responses from simulation.
-        skip_index: bool, reduces time if responses will only be saved.
-
-    TODO: Warn about assumption of equidistant points?
-
-    """
-
-    def __init__(
-        self,
-        c: Config,
-        fem_params: SimParams,
-        sim_runner: "FEMRunner",
-        response_type: ResponseType,
-        responses: List[Response],
-        skip_index: bool = False,
-    ):
-        super().__init__(response_type=response_type)
-        assert isinstance(responses, list)
-        if len(responses) == 0:
-            raise ValueError("No responses found")
-        assert isinstance(responses[0], Response)
-
-        # Used for de/serialization.
-        self._responses = responses
-
-        self.c = c
-        self.fem_params = fem_params
-        self.sim_runner = sim_runner
-        self.num_sensors = len(responses)
-
-        if True or not skip_index:
-            for r in responses:
-                self.responses[r.time][r.point.x][r.point.y][r.point.z] = r
-            self.index()
-
-    def save(self):
-        """Save theses simulation responses to disk."""
-        path = _responses_path(
-            sim_runner=self.sim_runner,
-            sim_params=self.fem_params,
-            response_type=self.response_type,
-        )
-        with open(path, "wb") as f:
-            pickle.dump(self._responses, f)
-
-    def _at_deck_no_interp(self, x: float, z: float):
-        x_ind = nearest_index(self.xs, x)
-        x_near = self.xs[x_ind]
-        z_ind = nearest_index(self.zs[x_near][y], z)
-        z_near = self.zs[x_near][y_near][z_ind]
-        return self.responses[0][x_near][y][z_near].value
-
-    def _lo_hi(self, a: List[float], b: float) -> Tuple[int, int]:
-        """Indices of the z positions of sensors either side of z.
-
-        TODO: Assert sorted.
-        TODO: Test this.
-        TODO: Switch to numpy.searchsorted for performance.
-
-        """
-        # print(f"b = {b}")
-        # If only one point, return that.
-        if len(a) == 1:
-            return a[0], a[0]
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(a)):
-            if np.isclose(a[i], b):
-                return a[i], a[i]
-            if a[i] > b and i > 0:
-                return a[i - 1], a[i]
-        # Else the last point.
-        return a[i], a[i]
+    def at_deck(self, point: Point, interp: bool):
+        """Response at the deck (y = 0) with optional interpolation."""
+        assert point.y == 0
+        if not interp:
+            raise ValueError("We are always interpolating the deck")
+            return self._at_deck_no_interp(x=point.x, z=point.z)
+        return self._at_deck_interp(x=point.x, z=point.z)
 
     def _at_deck_interp(self, x: float, z: float):
         x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
         z_lo, z_hi = self._lo_hi(a=self.zs[x_lo][0], b=z)
         xs = [x_lo, x_lo, x_hi, x_hi]
         zs = [z_lo, z_hi, z_lo, z_hi]
-        vs = [self.responses[0][xs[i]][0][zs[i]].value for i in range(len(xs))]
+        vs = [self.responses[0][xs[i]][0][zs[i]] for i in range(len(xs))]
         # In the case of strain collection in the 3D OpenSees simulation the
         # values collected are not at the nodes but at the integration points.
         # Thus at the perimeter of the bridge no values will be collected and
@@ -295,13 +217,35 @@ class FEMResponses(Responses):
         # print("interp2d")
         return interp2d(x=xs, y=zs, z=vs)(x, z)
 
-    def at_deck(self, point: Point, interp: bool):
-        """Response at the deck (y = 0) with optional interpolation."""
-        assert point.y == 0
-        if not interp:
-            raise ValueError("We are always interpolating the deck")
-            return self._at_deck_no_interp(x=point.x, z=point.z)
-        return self._at_deck_interp(x=point.x, z=point.z)
+    def _lo_hi(self, a: List[float], b: float) -> Tuple[int, int]:
+        """Indices of the z positions of sensors either side of z.
+
+        TODO: Assert sorted.
+        TODO: Test this.
+        TODO: Switch to numpy.searchsorted for performance.
+
+        """
+        # print(f"b = {b}")
+        # If only one point, return that.
+        if len(a) == 1:
+            return a[0], a[0]
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(a)):
+            if np.isclose(a[i], b):
+                return a[i], a[i]
+            if a[i] > b and i > 0:
+                return a[i - 1], a[i]
+        # Else the last point.
+        return a[i], a[i]
+
+    # TODO: Check these.
+
+    def _at_deck_no_interp(self, x: float, z: float):
+        x_ind = nearest_index(self.xs, x)
+        x_near = self.xs[x_ind]
+        z_ind = nearest_index(self.zs[x_near][y], z)
+        z_near = self.zs[x_near][y_near][z_ind]
+        return self.responses[0][x_near][y][z_near].value
 
     def _at(self, x: float, y: float, z: float, time_index: int = 0):
         x_ind = nearest_index(self.xs, x)
@@ -470,3 +414,32 @@ class FEMResponses(Responses):
                 return i - 1, i
         # Else the last point.
         return i, i
+
+
+class SimResponses(Responses):
+    """Responses of one sensor type for one FE simulation."""
+
+    def __init__(
+        self,
+        c: Config,
+        sim_params: SimParams,
+        sim_runner: "FEMRunner",
+        response_type: ResponseType,
+        responses: List[Response],
+        build: bool = True,
+    ):
+        self.c = c
+        self.sim_params = sim_params
+        self.sim_runner = sim_runner
+        super().__init__(
+            response_type=response_type, responses=responses, build=build)
+
+    def save(self):
+        """Save theses simulation responses to disk."""
+        path = _responses_path(
+            sim_runner=self.sim_runner,
+            sim_params=self.sim_params,
+            response_type=self.response_type,
+        )
+        with open(path, "wb") as f:
+            pickle.dump(self.raw_responses, f)

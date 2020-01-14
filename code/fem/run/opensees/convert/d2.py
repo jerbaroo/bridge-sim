@@ -3,8 +3,7 @@ from typing import Dict, List
 
 from config import Config
 from fem.run import Parsed
-from model import Response
-from model.response import ResponseType
+from model.response import Response, ResponseType
 
 
 def convert_responses_2d(

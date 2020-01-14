@@ -13,15 +13,14 @@ from scipy.stats import chisquare
 from config import Config
 from fem.responses import Responses
 from fem.run import FEMRunner
-from model import Response
 from model.load import PointLoad
-from model.response import ResponseArray, ResponseType, resize_units
+from model.response import Response, ResponseType, resize_units
 from plot import default_cmap, plt
 from util import print_w
 
 
 def plot_distributions(
-    response_array: ResponseArray,
+    response_array: List[float],
     response_type: ResponseType,
     titles: List[str],
     save: str,
@@ -89,8 +88,6 @@ def plot_contour_deck(
                 X.append(x)
                 Z.append(z)
                 H.append(responses.responses[0][x][y][z])
-                if isinstance(H[-1], Response):
-                    H[-1] = H[-1].value
                 if H[-1] > amax:
                     amax = H[-1]
                     amax_x, amax_z = X[-1], Z[-1]

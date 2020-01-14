@@ -7,10 +7,9 @@ import numpy as np
 
 from config import Config
 from fem.params import ExptParams
-from fem.responses import FEMResponses, load_fem_responses
+from fem.responses import SimResponses, load_fem_responses
 from fem.run import FEMRunner
-from model import Response
-from model.response import ResponseType
+from model.response import Response, ResponseType
 from util import print_i
 
 
@@ -23,7 +22,7 @@ class ResponsesMatrix:
         response_type: ResponseType,
         expt_params: ExptParams,
         fem_runner: FEMRunner,
-        expt_responses: List[FEMResponses],
+        expt_responses: List[SimResponses],
         save_all: bool,
     ):
         self.c = c
@@ -144,7 +143,7 @@ def load_expt_responses(
     expt_params: ExptParams,
     response_type: ResponseType,
     sim_runner: FEMRunner,
-) -> List[FEMResponses]:
+) -> List[SimResponses]:
     """Load responses of one sensor type for related simulations."""
     indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
 
