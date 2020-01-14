@@ -182,8 +182,6 @@ class Responses:
         z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
         xs = [x_lo, x_lo, x_hi, x_hi]
         zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
-        print(f"xs = {xs}")
-        print(f"zs = {zs}")
         vs = [self.responses[0][xs[i]][0][zs[i]] for i in range(len(xs))]
         # In the case of strain collection in the 3D OpenSees simulation the
         # values collected are not at the nodes but at the integration points.
