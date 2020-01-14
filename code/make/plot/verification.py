@@ -570,11 +570,7 @@ def make_pier_convergence_data(c: Config, pier_i: int):
     )
     pier = c.bridge.supports[pier_i]
     STRAIN_IGNORE_RADIUS = 1
-    PIER_LEFT_CENTER = Point(
-        x=pier.x - (pier.length / 2),
-        y=0,
-        z=pier.z,
-    )
+    PIER_LEFT_CENTER = Point(x=pier.x - (pier.length / 2), y=0, z=pier.z)
     max_shell_len = 10
 
     def bridge_overload(**kwargs):
@@ -653,7 +649,7 @@ def make_pier_convergence_data(c: Config, pier_i: int):
             for x in displacements.xs:
                 if 0 in displacements.zs[x]:
                     for z in displacements.zs[x][0]:
-                        og = displacements.responses[0][x][0][z].value
+                        og = displacements.responses[0][x][0][z]
                         ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
 
@@ -691,7 +687,7 @@ def make_pier_convergence_data(c: Config, pier_i: int):
                     ):
                         break
                     print(strain_point.x, strain_point.z)
-                    recordings.append(strains.at_deck(strain_point, interp=True))
+                    recordings.append(scalar(strains.at_deck(strain_point, interp=True)))
                 with open(strain_path, "a") as f:
                     f.write(
                         f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"

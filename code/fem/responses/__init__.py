@@ -159,7 +159,7 @@ class Responses:
                     p = Point(x=x, y=y, z=z)
                     if abs(p.distance(of)) > radius:
                         responses.append((response, p))
-        return Responses.from_responses(self.response_type, responses)
+        return Responses(response_type=self.response_type, responses=responses)
 
     def values(self):
         """Yield each response value."""
@@ -167,14 +167,6 @@ class Responses:
             for z_dict in y_dict.values():
                 for response in z_dict.values():
                     yield response
-
-    @staticmethod
-    def from_responses(response_type: ResponseType, responses: List[Respoon]):
-        _responses = Responses(response_type)
-        for value, point in responses:
-            _responses.responses[0][point.x][point.y][point.z] = value
-        _responses.index()
-        return _responses
 
     def at_deck(self, point: Point, interp: bool):
         """Response at the deck (y = 0) with optional interpolation."""
@@ -186,21 +178,24 @@ class Responses:
 
     def _at_deck_interp(self, x: float, z: float):
         x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
-        z_lo, z_hi = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
         xs = [x_lo, x_lo, x_hi, x_hi]
-        zs = [z_lo, z_hi, z_lo, z_hi]
+        zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        print(f"xs = {xs}")
+        print(f"zs = {zs}")
         vs = [self.responses[0][xs[i]][0][zs[i]] for i in range(len(xs))]
         # In the case of strain collection in the 3D OpenSees simulation the
         # values collected are not at the nodes but at the integration points.
         # Thus at the perimeter of the bridge no values will be collected and
         # extrapolation is necessary.
         if x_lo == x_hi:
-            if z_lo == z_hi:
+            if z_lo_x_lo == z_hi_x_lo:
                 # print("interp1d, x == x, z == z")
                 return vs[0]
             # print("interp1d, x == x")
-            return interp1d([z_lo, z_hi], [vs[0], vs[1]], fill_value="extrapolate")(z)
-        if z_lo == z_hi:
+            return interp1d([z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value="extrapolate")(z)
+        if z_lo_x_lo == z_hi_x_lo:
             # print("interp1d, z == z")
             return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value="extrapolate")(x)
         # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
