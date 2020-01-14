@@ -146,6 +146,19 @@ class Responses:
                     else:
                         self.responses[self.times[0]][x][y][z] = f(response)
 
+    def without(self, radius: float, of: Point) -> "Responses":
+        responses = []
+        for x, y_dict in self.responses[self.times[0]].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    p = Point(x=x, y=y, z=z)
+                    if abs(p.distance(of)) > radius:
+                        if hasattr(response, "value"):
+                            responses.append((response.value, p))
+                        else:
+                            responses.append((response, p))
+        return Responses.from_responses(self.response_type, responses)
+
     def values(self):
         """Yield each response value."""
         for y_dict in self.responses[self.times[0]].values():

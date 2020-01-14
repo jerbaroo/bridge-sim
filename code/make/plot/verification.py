@@ -569,6 +569,12 @@ def make_pier_convergence_data(c: Config, pier_i: int):
         displacement_ctrl=DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_i),
     )
     pier = c.bridge.supports[pier_i]
+    STRAIN_IGNORE_RADIUS = 1
+    PIER_LEFT_CENTER = Point(
+        x=pier.x - (pier.length / 2),
+        y=0,
+        z=pier.z,
+    )
     max_shell_len = 10
 
     def bridge_overload(**kwargs):
@@ -595,7 +601,7 @@ def make_pier_convergence_data(c: Config, pier_i: int):
 
     # Write the header information to the results file.
     c = bridge_705_config(bridge_overload)
-    path = c.get_image_path("convergence-pier", "convergence_results_pier-{pier_i}", bridge=False)
+    path = c.get_image_path("convergence-pier", f"convergence_results_pier-{pier_i}", bridge=False)
     with open(path + ".txt", "w") as f:
         f.write(
             "xload,zload,max_mesh,decknodes,piernodes,time"
@@ -668,6 +674,30 @@ def make_pier_convergence_data(c: Config, pier_i: int):
                 response_type=ResponseType.Strain,
                 sim_runner=OSRunner(c),
             )
+
+            # Also write results of strain recordings, for each direction.
+            for dir_name, x_mul, z_mul in [
+                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
+                recordings = []
+                for delta in np.arange(0, 5, 0.05):
+                    strain_point = Point(
+                        x=PIER_LEFT_CENTER.x + (delta * x_mul),
+                        y=0,
+                        z=PIER_LEFT_CENTER.z + (delta * z_mul),
+                    )
+                    if (
+                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
+                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
+                    ):
+                        break
+                    print(strain_point.x, strain_point.z)
+                    recordings.append(strains.at_deck(strain_point, interp=True))
+                with open(strain_path, "a") as f:
+                    f.write(
+                        f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
+                    )
+
+            strains = strains.without(radius=STRAIN_IGNORE_RADIUS, of=PIER_LEFT_CENTER)
             all_strains = np.array(list(strains.values()))
             grid_strains = np.array(
                 [strains.at_deck(point, interp=True) for point in grid]
@@ -685,28 +715,6 @@ def make_pier_convergence_data(c: Config, pier_i: int):
                     f", {min_s}, {max_s}, {mean_s}"
                     f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
                 )
-
-            # Also write results of strain recordings, for each direction.
-            for dir_name, x_mul, z_mul in [
-                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
-                recordings = []
-                for delta in np.arange(0, 5, 0.05):
-                    strain_point = Point(
-                        x=pier.x + (delta * x_mul),
-                        y=0,
-                        z=pier.z + (delta * z_mul),
-                    )
-                    if (
-                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
-                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
-                    ):
-                        break
-                    print(strain_point.x, strain_point.z)
-                    recordings.append(strains.at_deck(strain_point, interp=True))
-                with open(strain_path, "a") as f:
-                    f.write(
-                        f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
-                    )
 
         except ValueError as e:
             if "No responses found" in str(e):
@@ -929,7 +937,7 @@ def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
             if distance > max_distance:
                 break
         ax.set_xlim(2, min(max_shell_lens))
-        ax.set_title(f"Strain at multiple distances\nfrom point load at A\nin direction {compass_name}")
+        ax.set_title(title)
         ax.set_xlabel("max_shell_len (m)")
         ax.set_ylabel("Strain (m\m)")
     plt.tight_layout()
@@ -950,9 +958,9 @@ def plot_convergence(c: Config):
     convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
     _plot_strain_convergence(
         c,
-        os.path.join(convergence_dir, "strain-pl-a-convergence.txt"),
-        "Strain convergence around point load A",
-        "point-load-a",
+        os.path.join(convergence_dir, "strain-pier-4.txt"),
+        "Strain convergence around\npier 4 undergoing settlement",
+        "pier-settlement-4",
     )
 
     # Get all simulations results from each machine.
