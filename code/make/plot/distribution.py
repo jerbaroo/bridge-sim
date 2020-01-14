@@ -19,7 +19,7 @@ from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.load import DisplacementCtrl
-from model.response import ResponseType, resize_units
+from model.response import ResponseType, resize_and_units
 from model.scenario import BridgeScenario
 from plot import plt
 from plot.responses import plot_contour_deck, plot_distributions
@@ -97,7 +97,7 @@ def lane_distribution_plots(
             )
             if b == 0:
                 healthy_responses.append(response_arrays[-1])
-            resized, _ = resize_units(response_arrays[-1], response_type)
+            resized, _ = resize_and_units(response_arrays[-1], response_type)
             maybe_min, maybe_max = np.amin(resized), np.amax(resized)
             if maybe_min < amin:
                 amin = maybe_min
@@ -168,7 +168,7 @@ def pier_displacement_distribution_plots(
                 fem_runner=OSRunner(c),
             )
         )
-        resized, _ = resize_units(response_arrays[-1], response_type)
+        resized, _ = resize_and_units(response_arrays[-1], response_type)
         maybe_min, maybe_max = np.amin(resized), np.amax(resized)
         if maybe_min < amin:
             amin = maybe_min

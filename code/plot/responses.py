@@ -14,7 +14,7 @@ from config import Config
 from fem.responses import Responses
 from fem.run import FEMRunner
 from model.load import PointLoad
-from model.response import Response, ResponseType, resize_units
+from model.response import Response, ResponseType, resize_and_units
 from plot import default_cmap, plt
 from util import print_w
 
@@ -30,7 +30,7 @@ def plot_distributions(
 ):
     # Transpose so points are indexed first.
     response_array = response_array.T
-    response_array, unit_str = resize_units(response_array, response_type)
+    response_array, unit_str = resize_and_units(response_array, response_type)
     num_points = response_array.shape[0]
     amax, amin = np.amax(response_array), np.amin(response_array)
 
@@ -49,7 +49,7 @@ def plot_distributions(
         if expected is not None:
             if response_array.shape != expected.shape:
                 expected = expected.T
-                expected, _ = resize_units(expected, response_type)
+                expected, _ = resize_and_units(expected, response_type)
             assert response_array.shape == expected.shape
             label = chisquare(response_array[i], expected[i])
         plt.hist(response_array[i], label=label)
@@ -99,9 +99,9 @@ def plot_contour_deck(
 
     # Resize all responses.
     if resize:
-        H, _ = resize_units(np.array(H), responses.response_type)
-        amin, _ = resize_units(amin, responses.response_type)
-        amax, unit_str = resize_units(amax, responses.response_type)
+        H, _ = resize_and_units(np.array(H), responses.response_type)
+        amin, _ = resize_and_units(amin, responses.response_type)
+        amax, unit_str = resize_and_units(amax, responses.response_type)
     if units is not None:
         unit_str = units
 

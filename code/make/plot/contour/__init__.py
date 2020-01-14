@@ -30,7 +30,7 @@ from model.response import ResponseType
 from plot import axis_colors, diana_cmap, diana_r_cmap, parula_cmap, plt
 from plot.contour import contour_responses_3d
 from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck, resize_units
+from plot.responses import plot_contour_deck, resize_and_units
 from util import print_d, print_i, safe_str
 
 # Print debug information for this file.
@@ -176,7 +176,7 @@ def point_load_response_plots(
     amin, amax = np.inf, -np.inf
     for sim_responses in all_responses:
         responses = np.array(list(sim_responses.values()))
-        responses, _ = resize_units(responses, response_type)
+        responses, _ = resize_and_units(responses, response_type)
         amin = min(amin, min(responses))
         amax = max(amax, max(responses))
     for d, damage_scenario in enumerate(damage_scenarios):

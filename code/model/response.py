@@ -50,9 +50,9 @@ class ResponseType(Enum):
         }[self][int(short)]
 
 
-def resize_units(to_resize, response_type: ResponseType):
+def resize_and_units(responses, response_type: ResponseType):
     """Returns a tuple of the resized data and the units string."""
     # If in meters resize to millimeters.
     if response_type.units(short=True) == "m":
-        return to_resize * 1000, "mm"
-    return to_resize, response_type.units()
+        return responses * 1000, "mm"
+    return responses, response_type.units()
