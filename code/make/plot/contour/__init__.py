@@ -463,9 +463,9 @@ def comparison_plots_705(c: Config, run_only: bool):
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
             top_view_bridge(c.bridge, piers=True, abutments=True)
-            plot_contour_deck(
-                c=c, responses=fem_responses, ploads=loads, title=title, cmap=cmap
-            )
+            plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap)
+            plt.title(title)
+            plt.tight_layout()
             plt.savefig(save(f"{label}-"))
             plt.close()
 
@@ -521,8 +521,9 @@ def comparison_plots_705(c: Config, run_only: bool):
                 clb.ax.set_title(unit_str)
 
                 plt.title(title)
-                plt.xlabel("X position (mm)")
-                plt.ylabel("Z position (mm)")
+                plt.xlabel("X position (m)")
+                plt.ylabel("Z position (m)")
+                plt.tight_layout()
                 plt.savefig(save(f"{label}-diana-"))
                 plt.close()
 
