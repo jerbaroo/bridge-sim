@@ -102,7 +102,7 @@ abutments, forces will build up due to the thermal expansion/contraction and the
 bridge will deform. The effect of temperature and pier settlement (which is one
 of the considered damage scenarios) are validated by comparison of the responses
 generated under those conditions to the responses recorded in the FE software
-package AxisVM. AxisVm provides a graphical user interface (GUI) which allows
+package AxisVM. AxisVM provides a graphical user interface (GUI) which allows
 for the simple visual verification of the built model, and the application of
 thermal loading or pier settlement are as easy as clicking a few buttons.
 
