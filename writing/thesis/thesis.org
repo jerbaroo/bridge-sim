@@ -31,83 +31,122 @@ The probability of a bridge to fail increases over time until it is no longer
 considered safe for use. Maintenance of a bridge is typically carried out when
 something goes wrong or according to a preventative maintenance schedule based
 on expert knowledge, neither approach making the best use of limited maintenance
-resources. The Nanfang'ao bridge collapse in Taiwan on 1 October 2019 in which
-six people were killed and 12 were injured is a recent example of the importance
-of maintainence of civil infrastructure. The bridge was only twenty years old.
+resources. The Nanfang'ao bridge collapse in Taiwan on 1 October 2019 in which 6
+people were killed and 12 were injured is a recent example of the importance of
+maintainence of civil infrastructure. The bridge was only twenty years old.
 
-# Let's use sensors!
+# Thesis questions.
 Sensors can provide real-time information without the delay or cost of a manual
-maintenance check. What are the costs and benefits of installing a decision
-support system (DSS) based on real-time sensor data for the purpose of
-maintenance of a no-prestress no-postension concrete slab bridge? This question
-is the topic of this thesis, to answer it we need to answer a few sub questions.
-What analyses of sensor data do and do not provide valuable information to the
-user of a DSS? How can we collect sensor data for the purpose of analysis? And
-what are the costs and benefits of installing different types and quantites of
-sensors on a bridge?
+maintenance check. How can we detect damage on a no-prestress no-postension
+concrete slab bridge? This question is the topic of the thesis. In order to
+anser this question we must first answer the question of how can we collect
+sensor data for the purpose of damage detection? Only then can we answer the
+question of how can we detect damage in the acquired data. Related but less
+central questions include: how does the installed sensor configuration affect
+the ability to detect damage, and how could such a damage detection system be
+installed for the purpose of real-time structural health monitoring (SHM)?
+
+# is the What are the costs and benefits of installing a decision support system
+# (DSS) based on real-time sensor data for the purpose of maintenance of a
+# no-prestress no-postension concrete slab bridge? What analyses of sensor data do
+# and do not provide valuable information to the user of a DSS? And what are the
+# costs and benefits of installing different types and quantites of sensors on a
+# bridge?
+
+# Necessary to simulate sensor data with a FEM.
+In order to classify data as coming from either a damaged or healthy bridge it
+is of course necessary to have sensor data corresponding to both the damaged and
+healthy state of the bridge, otherwise we could not evaluate the accuracy of the
+classification techniques applied. Due to the fact that bridges are expensive
+structures, it is unsurprisingly not permitted in the general case to apply
+damage to a bridge. The use of finite element (FE) software allows us to create
+a simulation of a bridge to which damage can be applied. Sensor data can be
+collected from the FE simulation for the purpose of damage classification.
+
+# OpenSees FEM (sensor data) to collect data.
+OpenSees (The Open System for Earthquake Engineering Simulation) is an
+open-source FE software package that anyone with a Windows, macOS or Linux
+machine, and an internet connection, can download and install. Depending on
+open-source rather than proprietary FE software enables users to explore,
+extend, or reproduce this research without having to acquire an expensive
+proprietary licence. All sensor data that is used for damage detection in this
+thesis is generated with the open-source program OpenSees.
+
+# A FEM (sensor data) is different from reality.
+A finite element model (FEM) is a model of a structure in software. All models
+are wrong but some are useful cite:box1979robustness. The sensor data that is
+generated with FE software will be different from sensor data collected from a
+real bridge, due to environmental and operational effects. However the simulated
+sensor data should be close enough to real data to provide confidence that the
+damage detection applied can also work with real sensor data, while acknowleding
+that some additional work would likely be needed to tune the anaysis techniques
+once real sensor data is available. It is thus necessary to validate the FE
+model and simulated sensor data in order to provide confidence in the damage
+detection methods applied to the data.
+
+# Validation of point loads.
+A FEM of the no-prestress no-postension concrete slab bridge, bridge 705, in
+Amsterdam was available at TNO (Netherlands Organisation for Applied Scientific
+Research) for the proprietary FE software package Diana. This FEM was previously
+validated against measurements from an experimental campaign. The existence of a
+validated FEM for bridge 705 allows the FEM for OpenSees to be validated by
+comparing responses under the same loading conditions in the two models. Sensor
+data collected with OpenSees is also compared directly to the measurements from
+static load tests in the experimental campaign.
+
+# Validation of temperature and pier settlement.
+An important environmental effect to consider is that of temperature. When a
+structure is heated up it will expand and when it cools down it will contract.
+In a structure such as a bridge where movement is constrained at the piers and
+abutments, forces will build up due to the thermal expansion/contraction and the
+bridge will deform. The effect of temperature and pier settlement (which is one
+of the considered damage scenarios) are validated by comparison of the responses
+generated under those conditions to the responses recorded in the FE software
+package AxisVM. AxisVm provides a graphical user interface (GUI) which allows
+for the simple visual verification of the built model, and the application of
+thermal loading or pier settlement are as easy as clicking a few buttons.
+
+# Validation of time series.
+Once the FE model is validated additional steps are still necessary in order to
+go from responses generated via FE simulation under certain loading conditions,
+to a time series of responses under moving traffic. A comparison will thus be
+made between a time series of measurements from the experimental campaign where
+a truck was driven across bridge 705, to a time series of data generated from
+simulation of the same truck moving across bridge 705.
+
+# Validate of analysis techniques.
+# Bridge data corresponding to states normal and abnormal was not available,
+# however data was avilable from viaducts corresponding to two states, high and
+# low temperature. In this thesis the **analysis techniques are tested** on this
+# data to provide, an albeit limited, test that the techniques can perform a
+# classification between states on real data.
+
+# And it is necessary to **test the developed analysis techniques on real data**
+# to have confidence in the techniques, for when a DSS for bridge maintenance is
+# installed in real life.
+
+# After all, "in theory there is no difference between theory and practice, while
+# in practice there is", \textcolor{red}{TODO:REF ambiquity of who said this}.
 
 # What is a decision support system.
-A **decision support system** for bridge maintenance** is a software system that
+A **decision support system** for bridge maintenance is a software system that
 provides the user of the system with information on the current state of a
 bridge. The provided information should enable the user of the system to make a
 more informed decision about when and/or where maintenance should be carried
 out. The provided information can include real-time sensor data and an analysis
 thereof. The primary aim of the analysis techniques applied to sensor data in
-this thesis are to classify data in two states, a normal or healthy state, and
-an abnormal or damaged state.
+this thesis are to classify between data in two states, a normal or healthy
+state, and an abnormal or damaged state.
 
-# Structural health monitoring typically finds damage has occured.
-Structural health monitoring (SHM) is a term used to describe a range of system
-implemented on civil infrastructure for the purpose of assisting and informing
-about the structure's "fitness of purpose".
+# Difficulty of defining "healthy" performance.
+SHM is a term used to describe a range of systems implemented for the purpose of
+assisting and informing about the "fitness of purpose" of a structure. A major
+part of any SHM system has to be geared towards long term evaluation of what is
+the "normal" of "healthy" state of the system cite:aktan2001monitoring. This is
+because environmental effects such as temperature can affect the response of the
+structure enough to signal a departure from the structure's healthy state.
 
-# Necessary to simulate sensor data with a FEM.
-In the development of a DSS for bridge maintenance it is **necessary to have
-sensor data** corresponding to both the damaged and undamaged states of the
-bridge in question. Due to the expensive nature of a bridge it is usually and
-unsurprisingly not permitted to impose a damaged state on a bridge. The use of
-finite element (FE) software allows us to create simulated sensor data via a
-finite element model (FEM) of a bridge on which different damage states can be
-imposed.
-
-Because nearly every structure in civil infrastructure is unique a major part of
-any SHM system has to be geared towards long term evaluation of what is "normal"
-of "healthy" performance of the system cite:aktan2001monitoring.
-
-# A FEM (sensor data) is different from reality.
-A FEM is a model of a structure in software. All models are wrong
-\textcolor{red}{TODO:REF Mike Lees' referenced something in his lecture} and
-thus the simulated sensor data generated by the FEM will **differ from sensor
-data collected from sensors installed in real life**. The simulated sensor data
-should be close enough to reality to provide confidence that the anaysis
-techniques in this thesis can also work with real sensor data, while
-acknowleding that additional work would likely be needed to tune the anaysis
-techniques once real sensor data is available. After all, "in theory there is no
-difference between theory and practice, while in practice there is",
-\textcolor{red}{TODO:REF ambiquity of who said this}.
-
-# Validate the FEM (sensor data) and validate the analysis techniques.
-A finite element simulation of a bridge can produce sensor data that is
-necessarily different from data collected from real installed sensors. It is
-necessary to **verify the simulated data against some ground truth** in order to
-have confidence in the accuracy of the simulated data. And it is necessary to
-**test the developed analysis techniques on real data** to have confidence in
-the techniques, for when a DSS for bridge maintenance is installed in real life.
-
-# OpenSees FEM (sensor data).
-**OpenSees** (The Open System for Earthquake Engineering Simulation) is an
-open-source FE software package that anyone with a Windows, macOS or Linux
-machine, and an internet connection, can download and install. Depending on
-open-source rather than proprietary FE software enables users to explore or
-extend this research, thus allowing for reproducible research.
-
-# Validate OpenSees FEM (sensor data) against Diana.
-A FEM of bridge 705 in Amsterdam was available at TNO (Netherlands Organisation
-for Applied Scientific Research) for the FE software package Diana. This FEM was
-verified against measurements from an experimental campaign. The existence of a
-verified FEM for bridge 705 allows the generated FEM for OpenSees to be verified
-by comparing responses under explicit loading conditions from the OpenSees model
-of bridge 705 to responses from the verified Diana model under the same load.
+# AI assisting via DSS.
 
 # OpenSees is my open source FE program of choice.
 This thesis could have gone one of two ways. The verified FEM of bridge 705 for
@@ -131,16 +170,6 @@ investigate how a new classification technique performs on sensor data, without
 having to start from scratch. By creating an extensible system it is my hope to
 facilitate further research in this area and prevent duplication of effort.
 
-# What analysis techniques are used?
-\textcolor{red}{TODO:Paragraph on classification}
-
-# Validate analysis techniques.
-Bridge data corresponding to states normal and abnormal was not available,
-however data was avilable from viaducts corresponding to two states, high and
-low temperature. In this thesis the **analysis techniques are tested** on this
-data to provide, an albeit limited, test that the techniques can perform a
-classification between states on real data.
-
 # Structure.
 This thesis first gives an overview of existing research into machine learning
 approaches for structural health monitoring (SHM), decision support systems and
@@ -149,8 +178,8 @@ of how an extensible system is created for the collection of simulated sensor
 responses, how the inputs to this system should be structured, and what form the
 data-driven classification experiments will take. In the results section we take
 a look at the data generated by the data collection system, analyze the results
-of the classification experiments, and finally, present the costs and benefits
-of installing a decision support system for bridge maintenance.
+of the classification experiments, and finally present the conclusions to this
+work.
 
 # Thesis structure.
 # The research question that this thesis answers is: how can sensors be utilized
