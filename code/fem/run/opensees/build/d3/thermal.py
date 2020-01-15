@@ -58,12 +58,10 @@ def opensees_thermal_axial_deck_loads(
 
         def to_tcl(self, n_id: int):
             """Return a string with 0, 1, or 2 OpenSees load commands."""
-            load_str = ""
-            if not np.isclose(self.x, 0):
-                load_str += f"\nload {n_id} {self.x} 0 0 0 0 0"
-            if not np.isclose(self.z, 0):
-                load_str += f"\nload {n_id} 0 0 {self.z} 0 0 0"
-            return load_str
+            if np.isclose(self.x, 0) and np.isclose(self.z, 0):
+                return ""
+            return f"\nload {n_id} {np.around(self.x, 3)} 0 {np.around(self.z, 3)} 0 0 0"
+
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):
@@ -91,28 +89,32 @@ def opensees_thermal_axial_deck_loads(
                 node_0=node_0, node_1=node_1, direction=load_direction
             )
             node_distance = node_0.distance_n(node_1)
+            assert node_distance > 0
             print(f"node distance = {node_distance}")
             cross_section_area = shell.section.thickness * node_distance
             print(f"cross section area = {cross_section_area}")
             cross_section_thermal_force_n = shell_thermal_stress * cross_section_area
             print(f"cross section thermal force = {cross_section_thermal_force_n}")
+            # NOTE: Rounding to 0 to ensure that the sum of forces on a node can
+            # be accurately compared to 0, and there won't be a small residual
+            # force.
             nodal_thermal_force_n = cross_section_thermal_force_n / 2
-            assert np.isclose(nodal_thermal_force_n * 2, cross_section_thermal_force_n)
+            assert np.isclose(cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2)
             print(
-                f"Before applying force: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
+                f"Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
             )
             print(
-                f"Before applying force: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
+                f"Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
             )
             for n_id in [n_id_0, n_id_1]:
                 thermal_loads_by_nid[n_id].add_load(
                     magnitude=nodal_thermal_force_n, direction=load_direction
                 )
             print(
-                f"After applying force: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
+                f"After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
             )
             print(
-                f"After applying force: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
+                f"After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
             )
 
     thermal_load_str = "".join(

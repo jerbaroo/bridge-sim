@@ -34,6 +34,7 @@ def unit_axial_thermal_deck_load(c: Config):
             )
             for rt in response_types
         ],
+        run=True,
         levels=8,
     )
 

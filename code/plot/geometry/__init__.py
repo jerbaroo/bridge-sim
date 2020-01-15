@@ -43,7 +43,7 @@ def top_view_bridge(
     if piers:
         for pier in bridge.supports:
             z_min_top, z_max_top = pier.z_min_max_top()
-            x_min, x_max = pier.x_min_max()
+            x_min, x_max = pier.x_min_max_top()
             plt.vlines([x_min, x_max], z_min_top, z_max_top)
     if lanes:
         for lane in bridge.lanes:

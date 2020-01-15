@@ -23,6 +23,7 @@ def damage_scenario_plot(
     damage_scenario: BridgeScenario,
     titles: List[str],
     saves: List[str],
+    run: bool,
     levels: int = 100,
 ):
     """Save a contour plot of a damage scenario under direct simulation."""
@@ -35,6 +36,7 @@ def damage_scenario_plot(
             sim_runner=OSRunner(c),
             response_type=response_type,
             sim_params=sim_params,
+            run=run,
         )
         top_view_bridge(c.bridge, abutments=True, piers=True)
         plot_contour_deck(c=c, responses=sim_responses, levels=levels)

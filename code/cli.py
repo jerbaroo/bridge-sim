@@ -260,8 +260,8 @@ def thermal():
     from make.plot.contour import thermal
     thermal.make_axis_plots(c())
     thermal.unit_axial_thermal_deck_load(c())
-    thermal.unit_moment_thermal_deck_load(c())
-    thermal.unit_thermal_deck_load(c())
+    # thermal.unit_moment_thermal_deck_load(c())
+    # thermal.unit_thermal_deck_load(c())
 
 
 @validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")
