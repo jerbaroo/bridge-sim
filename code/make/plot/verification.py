@@ -685,7 +685,6 @@ def make_pier_convergence_data(c: Config, pier_i: int, strain_ignore_radius: flo
                         or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
                     ):
                         break
-                    print(strain_point.x, strain_point.z)
                     recordings.append(scalar(strains.at_deck(strain_point, interp=True)))
                 with open(strain_path, "a") as f:
                     f.write(
