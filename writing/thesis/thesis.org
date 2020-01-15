@@ -111,8 +111,8 @@ Once the FE model is validated additional steps are still necessary in order to
 go from responses generated via FE simulation under certain loading conditions,
 to a time series of responses under moving traffic. A comparison will thus be
 made between a time series of measurements from the experimental campaign, where
-a truck was driven across bridge 705, and a time series of data generated from
-simulation with OpenSees of the same truck moving across bridge 705.
+a truck was driven across bridge 705, and a time series of simulated sensor data
+of the same truck moving across bridge 705.
 
 # Validate of analysis techniques.
 # Bridge data corresponding to states normal and abnormal was not available,
