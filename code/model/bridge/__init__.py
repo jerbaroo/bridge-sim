@@ -148,8 +148,8 @@ class Support3D:
         if self.width_top < self.width_bottom:
             raise ValueError("Support3D: top width must be >= bottom width")
 
-    def x_min_max(self) -> Tuple[float, float]:
-        """The min and max x positions for this pier."""
+    def x_min_max_top(self) -> Tuple[float, float]:
+        """The min and max x positions for the top of this pier."""
         half_length = self.length / 2
         return round_m(self.x - half_length), round_m(self.x + half_length)
 

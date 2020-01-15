@@ -561,7 +561,7 @@ def r2_plots(c: Config):
     plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))
 
 
-def make_pier_convergence_data(c: Config, pier_i: int):
+def make_pier_convergence_data(c: Config, pier_i: int, strain_ignore_radius: float, max_distance: float):
     """Make pier convergence data file, decreasing mesh size per simulation."""
     bridge = bridge_705_3d()
     fem_params = SimParams(
@@ -569,7 +569,6 @@ def make_pier_convergence_data(c: Config, pier_i: int):
         displacement_ctrl=DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_i),
     )
     pier = c.bridge.supports[pier_i]
-    STRAIN_IGNORE_RADIUS = 1
     PIER_LEFT_CENTER = Point(x=pier.x - (pier.length / 2), y=0, z=pier.z)
     max_shell_len = 10
 
@@ -675,7 +674,7 @@ def make_pier_convergence_data(c: Config, pier_i: int):
             for dir_name, x_mul, z_mul in [
                     ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
                 recordings = []
-                for delta in np.arange(0, 5, 0.05):
+                for delta in np.arange(0, max_distance, 0.05):
                     strain_point = Point(
                         x=PIER_LEFT_CENTER.x + (delta * x_mul),
                         y=0,
@@ -693,7 +692,16 @@ def make_pier_convergence_data(c: Config, pier_i: int):
                         f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
                     )
 
-            strains = strains.without(radius=STRAIN_IGNORE_RADIUS, of=PIER_LEFT_CENTER)
+            # Remove strain around the pier lines.
+            pier_z_min, pier_z_max = pier.z_min_max_top()
+            for pier_x in pier.x_min_max_top():
+                for ignore_point in [
+                        Point(x=pier_x, y=0, z=z)
+                        for z in np.linspace(pier_z_min, pier_z_max, 10)
+                ]:
+                    print_i(f"Ignoring strain around {ignore_point}")
+                    strains = strains.without(radius=strain_ignore_radius, of=ignore_point)
+
             all_strains = np.array(list(strains.values()))
             grid_strains = np.array(
                 [strains.at_deck(point, interp=True) for point in grid]
@@ -879,7 +887,7 @@ def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):
                 raise e
 
 
-def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
+def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: str):
     """Plot convergence of strain at different points around a load."""
     headers = ["max_shell_len", "decknodes", "piernodes", "compass", "responses"]
     parsed_lines = []
@@ -891,7 +899,7 @@ def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
             float(deck_nodes),
             float(pier_nodes),
             compass.strip(),
-            np.array(list(map(float, responses.split(",")))),
+            np.array(list(map(float, responses.replace("[", "").replace("]", "").split(",")))),
         ])
     df = pd.DataFrame(parsed_lines, columns=headers)
     # First find the maximum distance traversed.
@@ -902,7 +910,7 @@ def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
         responses = compass_df.iloc[0]["responses"]
         max_distance = max(len(responses) * delta_distance, max_distance)
     # Overriding maximum distance.
-    max_distance = 4
+    # max_distance = 4
     # Create color mappable for distances.
     norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
     cmap = cm.get_cmap("jet")
@@ -933,7 +941,7 @@ def _plot_strain_convergence(c: Config, filepath: str, title: str, label: str):
             if distance > max_distance:
                 break
         ax.set_xlim(2, min(max_shell_lens))
-        ax.set_title(title)
+        ax.set_title(f"Strain at increasing distance\nin direction {compass_name} from\n{from_}")
         ax.set_xlabel("max_shell_len (m)")
         ax.set_ylabel("Strain (m\m)")
     plt.tight_layout()
@@ -952,12 +960,6 @@ def plot_convergence(c: Config):
 
     """
     convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
-    _plot_strain_convergence(
-        c,
-        os.path.join(convergence_dir, "strain-pier-4.txt"),
-        "Strain convergence around\npier 4 undergoing settlement",
-        "pier-settlement-4",
-    )
 
     # Get all simulations results from each machine.
     machines = dict()

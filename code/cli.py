@@ -1,4 +1,6 @@
 """Command line interface to bridge-sim."""
+import os
+
 import click
 
 from classify.vehicle import wagen1, wagen1_x_pos
@@ -198,10 +200,17 @@ def converge():
     verification.make_convergence_data(c())
 
 
-@simulate.command(help="Record convergence data for pier settlement.")
+@simulate.command(help="Record strain convergence for pier settlement.")
 @click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
-def converge_pier(pier):
-    verification.make_pier_convergence_data(c=c(), pier_i=pier)
+@click.option("--ignore", type=float, required=True, help="Radius around pier lines to ignore.")
+@click.option("--dist", type=float, required=True, help="Distance around point to collect.")
+def converge_pier(pier, ignore, dist):
+    verification.make_pier_convergence_data(
+        c=c(),
+        pier_i=pier,
+        strain_ignore_radius=ignore,
+        max_distance=dist,
+    )
 
 
 ######################
@@ -228,6 +237,22 @@ def r2():
 @validate.command(help="Plot convergence as model size increases.")
 def convergence():
     verification.plot_convergence(c())
+
+
+@validate.command(help="Plot convergence in compass directions from point.")
+@click.option("--filename", type=str, required=True, help="Filename of data to plot.")
+@click.option("--title", type=str, required=True, help="Title inset, describing the point.")
+@click.option("--label", type=str, required=True, help="String appended to plot filename.")
+def nesw_conv(filename: str, title: str, label: str):
+    config = c()
+    convergence_dir = os.path.dirname(
+        config.get_image_path("convergence", "_", bridge=False))
+    verification.plot_nesw_strain_convergence(
+        c=config,
+        filepath=os.path.join(convergence_dir, filename),
+        from_=title,
+        label=label,
+    )
 
 
 @validate.command(help="Contour plots of unit thermal deck loading.")

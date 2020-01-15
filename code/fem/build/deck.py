@@ -32,7 +32,7 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -> List[float]:
 
     # From piers.
     for pier in bridge.supports:
-        for x in pier.x_min_max():
+        for x in pier.x_min_max_top():
             all_xs.add(round_m(x))
     print(f"pier_xs = {all_xs}")
 

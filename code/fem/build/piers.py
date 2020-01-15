@@ -19,7 +19,7 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         z_min, z_max = pier.z_min_max_top()
 
         # Left wall: top nodes.
-        xy_nodes_left = ctx.get_nodes_at_xy(x=pier.x_min_max()[0], y=0)
+        xy_nodes_left = ctx.get_nodes_at_xy(x=pier.x_min_max_top()[0], y=0)
         top_nodes_left = sorted(
             [n for n in xy_nodes_left if z_min <= n.z <= z_max], key=lambda n: n.z
         )
@@ -27,7 +27,7 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         assert any(tn.z == z_max for tn in top_nodes_left)
 
         # Right wall: top nodes.
-        xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max()[1], y=0)
+        xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max_top()[1], y=0)
         top_nodes_right = sorted(
             [n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z
         )
