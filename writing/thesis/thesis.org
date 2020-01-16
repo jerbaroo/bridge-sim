@@ -104,16 +104,16 @@ of the considered damage scenarios) are validated by comparison of the responses
 generated under those conditions to the responses recorded in the FE software
 package AxisVM. AxisVM provides a graphical user interface (GUI) which allows
 for the simple visual verification of the built model, and the application of
-thermal loading or pier settlement are as easy as clicking a few buttons.
+thermal loading or pier settlement is as easy as clicking a few buttons.
 
 # Validation of time series.
 Once the FE model is validated additional steps are still necessary in order to
 combine responses generated via FE simulation under different loading conditions
 into a time series of responses under moving traffic. These time series are the
-data that will be used for damage deteection, thus validating their correctness
+data that will be used for damage detection, thus validating their correctness
 is paramount. To accomplish this a comparison will be made between a time series
 of measurements from the experimental campaign, where a truck was driven across
-bridge 705, and a time series of the simualted sensor data of the same truck
+bridge 705, and a time series of the simulated sensor data of the same truck
 moving across bridge 705.
 
 # Validate of analysis techniques.
@@ -130,17 +130,7 @@ moving across bridge 705.
 # After all, "in theory there is no difference between theory and practice, while
 # in practice there is", \textcolor{red}{TODO:REF ambiquity of who said this}.
 
-# What is a decision support system.
-A **decision support system** for bridge maintenance is a software system that
-provides the user of the system with information on the current state of a
-bridge. The provided information should enable the user of the system to make a
-more informed decision about when and/or where maintenance should be carried
-out. The provided information can include real-time sensor data and an analysis
-thereof. The primary aim of the analysis techniques applied to sensor data in
-this thesis are to classify between data in two states, a normal or healthy
-state, and an abnormal or damaged state.
-
-# Difficulty of defining "healthy" performance.
+# Difficulty of determining "healthy" state.
 SHM is a term used to describe a range of systems implemented for the purpose of
 assisting and informing about the "fitness of purpose" of a structure. A major
 part of any SHM system has to be geared towards long term evaluation of what is
@@ -148,18 +138,48 @@ the "normal" of "healthy" state of the system cite:aktan2001monitoring. This is
 because environmental effects such as temperature can affect the response of the
 structure enough to signal a departure from the structure's healthy state.
 
-# AI assisting via DSS.
+# Used with operator expertise.
+Evaluation of a SHM system for bridges requires that the SHM system has been
+installed prior to the occurence of damage. However for the economical decision
+of installing a long-term SHM system to be taken, someone needs to be convinced
+of the potential value of the system, somewhat of a catch 22. Thus research is
+largely based on numerical simulations of bridges, in which case environmental
+and operational effects are typically missing in the analysis, or damage is
+applied to a bridge before it is decommissioned, in which case the bridge is not
+under operational load. For these reasons any SHM system that is installed will
+likely be used in combination with operator expertise to prioritise maintenance
+or damage investigation, as the SHM system's long-term accuracy is evaluated and
+the system improved. According to cite:brownjohn2006structural, while a SHM
+system should be capable of a minimal amount of damage assessment the more
+likely scenario is that an additional investigation is triggered by the system.
+
+# Intelligence augmentation for decision making.
+A decision support system for bridge maintenance is a software system that
+provides the user of the system with information on the current state of a
+bridge. The provided information should enable the operator of the system to
+make a more informed decision about when and/or where maintenance should be
+carried out. The provided information can include real-time sensor data and an
+analysis thereof. Intelligence augmentation, where human experise is augmented
+by artifical intelligence (AI) techniques is a natural step in the development
+of fully automated AI-based systems e.g. Tesla's auto-pilot for self-driving on
+highways is a step in the direction to full self-driving cars that allows for
+the collection of huge amounts of data and the improvement of the system. While
+AI can extend human's cognition with computational processing capcity, humans
+can still offer a more holistic, intuitive approach in decision making
+cite:jarrahi2018artificial.
 
 # OpenSees is my open source FE program of choice.
-This thesis could have gone one of two ways. The verified FEM of bridge 705 for
-Diana could have been used to simulate sensor responses for analysis. However
-Diana requires a relatively expensive proprietary licence for use (you must ask
-for a quote) and the file format of FEMs in Diana is rather awkward to modify.
-\textcolor{red}{support this claim}. By using OpenSees it was easier to target a
-greater number of bridges, by generating FEMs based on a high-level bridge
-specification. More importantly however OpenSees does not require a licence for
-use and is additionaly available for macOS users thus allowing for the research
-to be reproduced or extended.
+# This thesis could have gone one of two ways. The verified FEM of bridge 705 for
+# Diana could have been used to simulate sensor responses for analysis. However
+# Diana requires a relatively expensive proprietary licence for use (you must ask
+# for a quote) and the file format of FEMs in Diana is rather awkward to modify.
+# \textcolor{red}{support this claim}. By using OpenSees it was easier to target a
+# greater number of bridges, by generating FEMs based on a high-level bridge
+# specification. More importantly however OpenSees does not require a licence for
+# use and is additionaly available for macOS users thus allowing for the research
+# to be reproduced or extended.
+
+# TODO: Talk about Diana in the FE Section.
 
 # What is extensibility and what is the benefit for this thesis?
 Extensibility is a measure of the ability to extend a software system. According
@@ -173,15 +193,15 @@ having to start from scratch. By creating an extensible system it is my hope to
 facilitate further research in this area and prevent duplication of effort.
 
 # Structure.
-This thesis first gives an overview of existing research into machine learning
-approaches for structural health monitoring (SHM), decision support systems and
-classification techniques. The methods section presents an in-depth description
-of how sensor data is generated by an extensible data collection system that
-combines data from the simulation of generated FEM files, how the inputs and
-outputs of data collection system are formulated, and a description of the
-damage detection experiments. In the results section we take a look at the data
-generated by the data collection system, analyze the results of the
-classification experiments, and finally present the conclusion to this thesis.
+This thesis first gives an overview of the existing literature on damage
+detection and structural health monitoring of civil infrastructure, with a focus
+on bridges. The methods sections describes the generation of sensor data via an
+extensible data collection system that combines data from many FE simulations,
+how the inputs and outputs of data collection system are formulated, and a
+description of the damage detection experiments. In the results section we will
+take a look at the data generated by the data collection system and analyze the
+results of the damage detection experiments. Finally a conclusion of the work
+and results is presented.
 
 # Thesis structure.
 # The research question that this thesis answers is: how can sensors be utilized
@@ -284,7 +304,7 @@ data Vehicle {
     -- Distance betwen each pair of axles.
     axleDistances :: [Float],
     -- A tuple per axle, of wheel load intensity in kilo Newton.
-    wheelLoads :: [(Float, Float)]
+    wheelLoads    :: [(Float, Float)]
   }
 #+END_SRC
 
@@ -810,7 +830,9 @@ trained on the faulty sensor data.
 # Damage localization and assessment (levels 2 and 3): have limitations.
 The most basic form of damage identification is determining whether damage has
 occured or not (detection). More sophisticated SHM methods attempt to determine
-the location (localization) or extent (assessment) of the damage. require either
+the location (localization) or extent (assessment) of the damage.
+
+require either
 severe damage or make assumptions about the type of damage cite:peter2003review.
 While an SHM system should be capable of a minimal amount of condition
 assessment (CA) the more likely scenario is an additional investigation for CA

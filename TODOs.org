@@ -1,31 +1,41 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Safe List
-** TODO Rigid links experiment :axis:local:
-** TODO Distributed load experiment :axis:local:
+** ABORT Rigid links experiment :axis:local:
+CLOSED: [2020-01-16 Thu 10:55]
+** ABORT Distributed load experiment :axis:local:
+CLOSED: [2020-01-16 Thu 10:55]
 ** TODO Publish on Pypi :software:local:
 - Write about the interface
-** TODO Validated strain :validation:
-- Check strain at radii
+** TODO Validated strain [0/3] :validation:
+*** TODO Check strain at radius of point A
+*** TODO Check strain at radius of points B - D
+*** TODO
 ** TODO Validated pier displacement :validation:
-** TODO Literature review submitted :writing:
+*** TODO Show convergence without
+** TODO Literature review submitted [0/3] :writing:
+*** TODO Address Arpi's feedback
+*** TODO Address peer feedback
+*** TODO Write about anomaly detection
 ** TODO First classifier :classifier:
+*** TODO Collect data, before strain validation
 ** TODO Write about density :writing:
 - Density should have no affect.
 - Write about affect of density for Monday.
 ** TODO Comparison with real time series :validation:
-** TODO Comparison of 2D and 3D data :software:
+*** TODO Meeting with Arthur to go over Matlab script
+** WAIT Comparison of 2D and 3D data :software:
 ** TODO Validated thermal load :validation:
 ** TODO Noise :parameters:local:
 - reference value from bridge 705
-- method of scaling noise per sensor
+*** TODO Set noise based on stddev method in paper
 ** TODO Light vehicles :parameters:local:
-** TODO ULS experiment :parameters:local:
-** TODO Correlation with temperature :plot:temperature:
-** TODO Sensor positions with PSO :classifier:local:
-** TODO Sensor positions on second bridge :classifier:local:
+*** TODO Find paper from TNO
+*** TODO Add vehicles per class
+** DONE ULS experiment :parameters:local:
+CLOSED: [2020-01-16 Thu 10:58]
+** TODO Plot annual temperature effect :plot:temperature:
 ** TODO Plot of each loading type :plot:validation:
-** TODO Plot of a pier :plot:local:
 ** WAIT Mesh refinement
 ** DONE Validated Displacement
 CLOSED: [2020-01-09 Thu 12:37]
@@ -48,6 +58,24 @@ CLOSED: [2020-01-09 Thu 12:34]
 *** TODO Go over http://bridgedesign.org.uk/tutorial/temperature-effects.php
 *** TODO Look at plots and nodes in Axis
 *** TODO Why simplest case of displacement 0mm
+** January 16
+- Submit literature review tonight
+- How to set equivalent boundary conditions on abutments in Axis
+- For next Friday:
+  - pier settlement convergence test takes a long time
+    - it seems strains are fine away from the piers
+    - preventing me from collecting data
+  - focus on
+    - writing
+    - collect data
+    - remainder of plots
+      - thermal loading validation
+      - annual effect of temperature
+      - traffic: light vehicles
+      - traffic: top view of bridge
+      - time series: comparison to measurements
+      - time series: events
+      - show area sensors can't be placed
 * Todos
 ** TODO <2020-01-09 Thu> [0/5]
 *** TODO 250 words

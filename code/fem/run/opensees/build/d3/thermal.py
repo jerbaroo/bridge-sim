@@ -10,6 +10,7 @@ from fem.model import BuildContext, DeckShells
 from fem.params import SimParams
 from fem.run.build.types import DeckElements, Node
 from fem.run.opensees.build.d3.util import comment
+from util import print_d
 
 
 def opensees_thermal_axial_deck_loads(

@@ -155,7 +155,7 @@ parula_cmap = colors.LinearSegmentedColormap.from_list(
     ],
 )
 
-default_cmap = matplotlib.cm.get_cmap("viridis")
+default_cmap = matplotlib.cm.get_cmap("jet")
 
 
 # Colourbar from Diana.

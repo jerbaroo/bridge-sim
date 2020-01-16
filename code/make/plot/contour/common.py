@@ -24,7 +24,7 @@ def damage_scenario_plot(
     titles: List[str],
     saves: List[str],
     run: bool,
-    levels: int = 100,
+    levels: int,
 ):
     """Save a contour plot of a damage scenario under direct simulation."""
     c, sim_params = damage_scenario.use(
@@ -41,6 +41,7 @@ def damage_scenario_plot(
         top_view_bridge(c.bridge, abutments=True, piers=True)
         plot_contour_deck(c=c, responses=sim_responses, levels=levels)
         plt.title(title)
+        plt.tight_layout()
         plt.savefig(save)
         plt.close()
 

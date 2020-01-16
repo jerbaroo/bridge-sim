@@ -12,7 +12,7 @@ from plot.geometry import top_view_bridge
 from util import safe_str
 
 
-def unit_axial_thermal_deck_load(c: Config):
+def unit_axial_thermal_deck_load(c: Config, run: bool):
     """Response to unit axial thermal deck loading."""
     response_types = [
         ResponseType.XTranslation,
@@ -34,8 +34,8 @@ def unit_axial_thermal_deck_load(c: Config):
             )
             for rt in response_types
         ],
-        run=True,
-        levels=8,
+        run=run,
+        levels=14,
     )
 
 
