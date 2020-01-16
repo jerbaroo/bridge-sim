@@ -331,7 +331,7 @@ damage identification and SHM of civil infrastructure, with a particular focus
 on bridges. While the amount of literature related to SHM is vast with numerous
 book written on the topic, the literature related to SHM of bridges is a little
 smaller, and the focus on concrete slab bridges smaller again. In particular
-there seems to be mush more research on SHM of expensive bridges such as the
+there seems to be much more research on SHM of expensive bridges such as the
 Sydney Harbour Bridge (SHB) rather than less expensive but numerous concrete
 slab bridges. The literature is vast therefore a complete literature review is
 not presented but the papers that are visited are believed to be representative.
@@ -524,7 +524,7 @@ containing primarily features from the damaged joint. This method did not
 perform well when the amount of arches considered was increased to 71. The other
 method applied in cite:diez2016clustering considered a "joint representative", a
 feature that is the mean of the features from one arch. Then a pairwise map was
-created using the euclidean distance between each pair of joint representatives.
+created using the Euclidean distance between each pair of joint representatives.
 This method detected the known damaged arch, another arch with a known faulty
 sensor and a third arch with unknown damaged state.
 
@@ -553,12 +553,12 @@ difficult.
 
 A regression analysis was applied to acceleration data from the Alamosa Canyon
 Bridge in New Mexico in cite:sohn1998adaptive. The natural frequency varied
-approximately 5% during the 24 hour interval when measurements were taken and
+approximately 5% during the 24-hour interval when measurements were taken and
 the frequency was well correlated with temperature. Measured temperatures
 exceeded $\SI{45}{\celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
 south. In cite:peeters2000system a linear relationship is shown between the 1st
-and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
+and 2nd eigenfrequencies of the Z24 bridge in Switzerland and temperature above
 $\SI{0}{\celcius}$, and a separate linear relationship with temperature below
 $\SI{0}{\celcius}$. The bilinear relationship was related to the presence of the
 asphalt on the bridge. In cite:moser2011environmental a number of model are
