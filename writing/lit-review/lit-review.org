@@ -1,34 +1,298 @@
-#+OPTIONS: date:nil toc:nil
+#+AUTHOR: Jeremy Barisch-Rooney 11688238
+#+TITLE: Damage Detection of Concrete Slab Bridges
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usemintedstyle{emacs}
+#+LATEX_HEADER: \usepackage{commath}
 #+LATEX_HEADER: \usepackage{siunitx}
+#+LATEX_HEADER: \usepackage[square, numbers]{natbib}
+#+LATEX_HEADER: \usepackage{xcolor}
 
-Dear reader, this is part of the literature review from my thesis, the course
-was cancelled in my year but my supervisor was kind enough to sign me up for the
-literature review part of the course as I write my thesis. If you feel like only
-reviewing ~1500 words which I believe is the limit, then you can stop at Section
-[[Practical Considerations]].
+# ./cli.sh --save --mesh full contour cover-photo --x 85 --deform 3.5
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/cover-photo/cover-photo-cropped.pdf]]
 
-* Damage Identification
+#+LATEX: \newpage
 
-# Overview of methods.
-Methods of damage identification that monitor changes in civil infrastructure
-include methods based on modal properties, methods based on a model-updating
-procedure, probabilistic approaches e.g. using Bayes theorem, and pattern
-recognition approaches such as artificial neural networks.
+Dear reader, this literature review is taken from my thesis, the course was
+cancelled in my year but my supervisor was kind enough to sign me up for the
+literature review part of the course as I write my thesis.
+
+* Introduction
+
+# Motivation of the research question.
+The probability of a bridge to fail increases over time until it is no longer
+considered safe for use. Maintenance of a bridge is typically carried out when
+something goes wrong or according to a preventative maintenance schedule based
+on expert knowledge, neither approach making the best use of limited maintenance
+resources. The Nanfang'ao bridge collapse in Taiwan on 1 October 2019 in which 6
+people were killed and 12 were injured is a recent example of the importance of
+maintainence of civil infrastructure. The bridge was only twenty years old.
+
+# Thesis questions.
+Sensors can provide real-time information without the delay or cost of a manual
+maintenance check. How can we detect damage on a no-prestress no-postension
+concrete slab bridge? This question is the topic of this thesis. In order to
+answer this question we must first answer the question of how can we collect
+sensor data for the purpose of damage detection? Only then can we answer the
+question of how can we detect damage in the acquired data. Related but less
+central questions include: how does the installed sensor configuration affect
+the ability to detect damage, and how could such a damage detection system be
+installed for the purpose of real-time structural health monitoring (SHM)?
+
+# is the What are the costs and benefits of installing a decision support system
+# (DSS) based on real-time sensor data for the purpose of maintenance of a
+# no-prestress no-postension concrete slab bridge? What analyses of sensor data do
+# and do not provide valuable information to the user of a DSS? And what are the
+# costs and benefits of installing different types and quantites of sensors on a
+# bridge?
+
+# Necessary to simulate sensor data with a FEM.
+In order to classify data as coming from either a damaged or healthy bridge it
+is of course necessary to have sensor data corresponding to both the damaged and
+healthy state of the bridge, otherwise we could not evaluate the accuracy of the
+classification techniques applied. Due to the fact that bridges are expensive
+structures, it is unsurprisingly not permitted in the general case to apply
+damage to a bridge. The use of finite element (FE) software allows us to create
+a simulation of a bridge to which damage can be applied. Sensor data can be
+collected from the FE simulation for the purpose of damage classification.
+
+# OpenSees FEM (sensor data) to collect data.
+OpenSees (The Open System for Earthquake Engineering Simulation) is an
+open-source FE software package that anyone with a Windows, macOS or Linux
+machine, and an internet connection, can download and install. Depending on
+open-source rather than proprietary FE software enables users to explore,
+extend, or reproduce this research without having to acquire an expensive
+proprietary licence. All sensor data that is used for damage detection in this
+thesis is generated with the open-source program OpenSees.
+
+# A FEM (sensor data) is different from reality.
+A finite element model (FEM) is a model of a structure in software. All models
+are wrong but some are useful cite:box1979robustness. The sensor data that is
+generated with FE software will be different from sensor data collected from a
+real bridge, due to environmental and operational effects. However the simulated
+sensor data should be close enough to real data to provide confidence that the
+damage detection applied can also work with real sensor data, while acknowleding
+that some additional work would likely be needed to tune the anaysis techniques
+once real sensor data is available. It is thus necessary to validate the FE
+model and simulated sensor data in order to provide confidence in the damage
+detection methods applied to the data.
+
+# Validation of point loads.
+A FEM of the no-prestress no-postension concrete slab bridge, bridge 705, in
+Amsterdam was available at TNO (Netherlands Organisation for Applied Scientific
+Research) for the proprietary FE software package Diana. This FEM was previously
+validated against measurements from an experimental campaign. The existence of a
+validated FEM for bridge 705 allows the FEM for OpenSees to be validated by
+comparing responses under the same loading conditions in the two models. Sensor
+data collected with OpenSees is also compared directly to the measurements from
+static load tests in the experimental campaign.
+
+# Validation of temperature and pier settlement.
+An important environmental effect to consider is that of temperature. When a
+structure is heated up it will expand and when it cools down it will contract.
+In a structure such as a bridge where movement is constrained at the piers and
+abutments, forces will build up due to the thermal expansion/contraction and the
+bridge will deform. The effect of temperature and pier settlement (which is one
+of the considered damage scenarios) are validated by comparison of the responses
+generated under those conditions to the responses recorded in the FE software
+package AxisVM. AxisVM provides a graphical user interface (GUI) which allows
+for the simple visual verification of the built model, and the application of
+thermal loading or pier settlement is as easy as clicking a few buttons.
+
+# Validation of time series.
+Once the FE model is validated additional steps are still necessary in order to
+combine responses generated via FE simulation under different loading conditions
+into a time series of responses under moving traffic. These time series are the
+data that will be used for damage detection, thus validating their correctness
+is paramount. To accomplish this a comparison will be made between a time series
+of measurements from the experimental campaign, where a truck was driven across
+bridge 705, and a time series of the simulated sensor data of the same truck
+moving across bridge 705.
+
+# Validate of analysis techniques.
+# Bridge data corresponding to states normal and abnormal was not available,
+# however data was avilable from viaducts corresponding to two states, high and
+# low temperature. In this thesis the **analysis techniques are tested** on this
+# data to provide, an albeit limited, test that the techniques can perform a
+# classification between states on real data.
+
+# And it is necessary to **test the developed analysis techniques on real data**
+# to have confidence in the techniques, for when a DSS for bridge maintenance is
+# installed in real life.
+
+# After all, "in theory there is no difference between theory and practice, while
+# in practice there is", \textcolor{red}{TODO:REF ambiquity of who said this}.
+
+# Difficulty of determining "healthy" state.
+SHM is a term used to describe a range of systems implemented for the purpose of
+assisting and informing about the "fitness of purpose" of a structure. A major
+part of any SHM system has to be geared towards long term evaluation of what is
+the "normal" of "healthy" state of the system cite:aktan2001monitoring. This is
+because environmental effects such as temperature can affect the response of the
+structure enough to signal a departure from the structure's healthy state.
+
+# Used with operator expertise.
+Evaluation of a SHM system for bridges requires that the SHM system has been
+installed prior to the occurence of damage. However for the economical decision
+of installing a long-term SHM system to be taken, someone needs to be convinced
+of the potential value of the system, somewhat of a catch 22. Thus research is
+largely based on numerical simulations of bridges, in which case environmental
+and operational effects are typically missing in the analysis, or damage is
+applied to a bridge before it is decommissioned, in which case the bridge is not
+under operational load. For these reasons any SHM system that is installed will
+likely be used in combination with operator expertise to prioritise maintenance
+or damage investigation, as the SHM system's long-term accuracy is evaluated and
+the system improved. According to cite:brownjohn2006structural, while a SHM
+system should be capable of a minimal amount of damage assessment the more
+likely scenario is that an additional investigation is triggered by the system.
+
+# Intelligence augmentation for decision making.
+A decision support system for bridge maintenance is a software system that
+provides the user of the system with information on the current state of a
+bridge. The provided information should enable the operator of the system to
+make a more informed decision about when and/or where maintenance should be
+carried out. The provided information can include real-time sensor data and an
+analysis thereof. Intelligence augmentation, where human experise is augmented
+by artifical intelligence (AI) techniques is a natural step in the development
+of fully automated AI-based systems. An example of this step in development is
+the car company Tesla's "auto-pilot" for self-driving on highways which is only
+a step in the direction to full self-driving but has shown enough value to be
+produced and will allow for the collection of huge amounts of data for the
+future improvement of the system. While AI can extend human's cognition with
+computational processing capacity, humans can at this point still offer a more
+holistic, intuitive approach in decision making cite:jarrahi2018artificial.
+
+# OpenSees is my open source FE program of choice.
+# This thesis could have gone one of two ways. The verified FEM of bridge 705 for
+# Diana could have been used to simulate sensor responses for analysis. However
+# Diana requires a relatively expensive proprietary licence for use (you must ask
+# for a quote) and the file format of FEMs in Diana is rather awkward to modify.
+# \textcolor{red}{support this claim}. By using OpenSees it was easier to target a
+# greater number of bridges, by generating FEMs based on a high-level bridge
+# specification. More importantly however OpenSees does not require a licence for
+# use and is additionaly available for macOS users thus allowing for the research
+# to be reproduced or extended.
+
+# TODO: Talk about Diana in the FE Section.
+
+# What is extensibility and what is the benefit for this thesis?
+Extensibility is a measure of the ability to extend software without accessing
+existing code to edit or copy it cite:krishnamurthi1998toward. The research in
+this thesis is not just reproduceable but also extensible. This is achieved by
+not depending on expensive proprietary software, by "lifting" parameters to the
+boundaries of the system, and by publishing a system of composable functions
+that present the problem domain at a high-level of abstraction. After reading
+this thesis the large amount of work that went into data collection will become
+clear. It is my sincere hope to facilitate further research in the area of
+damage detection of concrete slab bridges and to prevent any duplication of
+effort. Any interested party should be able to download this work and swiftly
+move to the application of damage detection methods.
+
+# Structure.
+This thesis continues with an overview of the existing literature on damage
+detection and structural health monitoring of civil infrastructure, with a focus
+on bridges. Then additional motivational and theoretical background information
+is presented. The methods section describes the generation of sensor data via an
+extensible data collection system that combines data from many FE simulations,
+describes the inputs and outputs of the data collection system, and outlines the
+damage detection experiments on the generated data. In the results section the
+generated data and results of experiments on that data will be inspected and
+finally a conclusion of the work and results is presented.
+
+# Thesis structure.
+# The research question that this thesis answers is: how can sensors be utilized
+# to build a DSS for bridge maintenance. The structure of this thesis and how the
+# research question is answered is as follows. First a review of relevant
+# literature and background material is presented. The DSS is then introduced at a
+# high-level, showing how the separate components interact. The components of the
+# DSS are examined in detail, with a large focus on the condition classification
+# model that determines if sensor measurements represent an abnormal condition of
+# the bridge. An analysis is presented of which sensor types and what sensor
+# placement is optimal for detecting such an abnormal condition. A finite element
+# model is used to simulate sensor measurements in order to address the lack of
+# available data. Due to the safety requirements of any bridge, uncertainty
+# measures for the damage estimates are calculated. Once the capabilities and
+# limitations of the model are understood, an outline of a DSS is presented for
+# policy makers which includes the model and a cost-benefit analysis is presented
+# of the system. Finally (stretch-goal) an investigation is conducted into how
+# such a system can be generalized to bridges other than bridge 705.
+
+  # Data-driven model.
+  # A DSS for bridge maintenance must provide information on the damage status of
+  # the bridge to the user of the system or policy maker. Thus it is necessary to
+  # transform the responses measured by the sensors into a report of the damage
+  # condition of the bridge. To accomplish this a condition classification model
+  # (CCM) is built which transforms sensor measurements into a condition report.
+  # The CCM presened in this thesis is based primarily on two statistical methods
+  # referred to from here on out as abnormal condition classification (ACC) and
+  # similar structure similar behaviour (SSSB). A number of damage scenarios are
+  # constructed and it is the goal of the CCM to identify the scenario based on
+  # the senor measurements.
+
+  # ACC.
+  # The goal of ACC is to determine if the condition of the bridge has deviated
+  # from undamaged conditions. The ACC operates under the assumption that when the
+  # bridge is damaged that the distribution of sensor responses will deviate from
+  # what is seen under undamaged conditions. To build an ACC system it is then a
+  # requirement to determine what the distribution of sensor measurements are
+  # during normal operation of the bridge. To achieve this the normal range of
+  # loading conditions (traffic) are determined from data and applied to the FEM,
+  # resulting in a set of simulated sensor measurements. A one-class classifier
+  # and other statistical techniques can be applied to the simulated responses to
+  # decide if responses fall within the expected normal range of responses or not.
+
+  # SSSB.
+  # The SSSB method is based on the assumption that similar structures should
+  # behave in a similar manner when subjected to the same load. Bridge 705 in
+  # Amsterdam has seven spans each with the same dimensions, ignoring the small
+  # differences due to construction and time in operation. To develop an SSSB
+  # system loads must be "driven" across the bridge in the FEM, then an analysis
+  # must be performed on the difference between sensor measurements from sensors
+  # at equivalent positions on each substructure.
+
+#+LATEX: \clearpage
+* Literature Review
+
+# Introduction.
+The goal of this Section is to summarise the existing body of work related to
+the subject area of this thesis. This Section thus outlines the existing work on
+damage identification and SHM of civil infrastructure, with a particular focus
+on bridges. While the amount of literature related to SHM is vast with numerous
+book written on the topic, the literature related to SHM of bridges is a little
+smaller, and the focus on concrete slab bridges smaller again. In particular
+there seems to be mush more research on SHM of expensive bridges such as the
+Sydney Harbour Bridge (SHB) rather than less expensive but numerous concrete
+slab bridges. The literature is vast therefore a complete literature review is
+not presented but the papers that are visited are believed to be representative.
+A brief description is presented of each relevant paper along with a criticism
+of the research. This literature review is structured in two primary components,
+first research into damage detection of SHM is presented, followed by a review
+of practical considerations such as environmental noise and lessons learned from
+SHM installations.
+
+** Damage Detection
 
 # Natural frequencies and mode shapes: bulk of the research.
-A significant amount of the early research into damage identification of civil
-infrastructure is based on modal properties, attempting to detect damage by
-classifying changes in natural frequency or mode shape.
+Much of the early research into damage identification of civil infrastructure is
+based on identifying modal properties, detecting damage by classifying changes
+in natural frequency or mode shape. Model-updating methods are based on having a
+model available and attempt to minimize the error between the model and real
+measurements by modifying model parameters with an optimization algorithm, in
+order to determine the state of the structure. Research into damage detection
+has over the years turned to the use of machine learning, in particular
+unsupervised learning which does not require a model. This Subsection will
+review some of the different methods of damage detection and finish with a
+review of machine learning-based damage detection.
 
 # I-40: no change until final damage case, same change in undamaged data.
-Damage was applied to the I-40 bridge, a 130m girder bridge over the RIO Grande
+Damage was applied to the I-40 bridge, a 130m girder bridge over the Rio Grande
 river, before it's demolition, and data recorded from ambient vibration tests.
 The damage was intended to simulate fatigue cracking and was inflicted with
 torch cuts in a girder. In the fourth and most severe damage state the web of
-the girder contained a 6 foot cut and the flange was completely cut through. In
-cite:farrar1994dynamic it is noted that changes in dynamic properties were only
-observed in the fourth damage state. Furthermore, changes of similar magnitude
-were observed from repeated ambient vibration tests on the undamaged structure.
+the girder contained a $\SI{1.8}{\meter}$ cut and the flange was completely cut
+through. In cite:farrar1994dynamic it is noted that changes in dynamic
+properties were only observed in the fourth damage state. Furthermore, changes
+of similar magnitude were observed from repeated ambient vibration tests on the
+undamaged structure.
 
 # Curvature mode shapes.
 In cite:pandey1991damage introduced the use of the curvature of mode shapes
@@ -61,8 +325,9 @@ structures could be monitored for /any/ changes after sensor installation, not
 knowing whether the structure was already damaged or not, 3) a FEM is used to
 generate an approximation of the baseline state. The robustness to noise is a
 more crucial problem because civil structures will be subjected to environmental
-factors such as temperature changes. The work cite:stubbs2000global simply
-states "the existence of noise in the data processing should be addressed".
+factors such as temperature changes and ambient vibration. In the research
+cite:stubbs2000global it simply states "the existence of noise in the data
+processing should be addressed".
 
 # Dogna: modal curvature, not robust to noise.
 The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
@@ -74,12 +339,12 @@ However the dynamic tests were all carried out under similar environmental
 conditions, thus the robustness to noise was not investigated.
 
 # Problem of vibration.
-In concrete structures with reinforcing steel bars, the bar are tensioned such
+In concrete structures with reinforcing steel bars, the bars are tensioned such
 that the concrete remains in compression. Once the steel bars have corroded and
 failed the concrete bridge is liable to collapse. However the stiffness of the
 bridge is mostly contributed by the concrete, the corrosion of the steel has
-little influence on the dynamics, until the steel bars and bridge have failed
-cite:friswell1997damage.
+little influence on the dynamics, until the reinforcing steel bars and bridge
+have failed cite:friswell1997damage.
 
 # Z24 bridge in Switzerland.
 In cite:teughels2004structural a model-updating approach is applied which
@@ -116,16 +381,19 @@ vibration tests. The method has the potential advantage of not requiring an
 accurate analytical model, yet the study was only on a single column of a bridge
 and it was a laboratory experiment that did not account for environmental noise.
 
-* Machine Learning
+*** Machine Learning
 
 # Introduction to ML.
-Machine learning based approaches map inputs to outputs based on previously
-given input-output pairs, known as training data. Supervised learning methods
-require the existence of data corresponding to damage states, which is unlikely
-in the case of civil infrastructure. Unsupervised learning methods classify data
-into clusters without pre-existing labels. One-class classification is a form of
-outlier detection that can be considered a special case of supervised-learning,
-where only one class of training data is present in the training data.
+Machine learning can broadly be split into two variants, supervised and
+unsupervised learning. Supervised learning methods map inputs to outputs based
+on previously given input-output pairs known as labeled training data. Thus for
+damage detection, supervised learning methods require the existence of data
+corresponding to damage states, which is unlikely in the case of expensive civil
+infrastructure such as bridges. Unsupervised learning methods attempt to find
+previously unknown patterns in data set without pre-existing labels. One-class
+classification is a form of outlier detection that can be considered a special
+case of supervised-learning, where only one class of training data is present in
+the training data.
 
 # ML for SHM: prediction (level 4) not possible.
 In cite:worden2006application a number of damage identification experiments were
@@ -153,12 +421,13 @@ bridge in cite:neves2017structural. To accomplish this an ANN is trained on past
 acceleration responses from the healthy bridge and then used to predict future
 values, the difference between predicted and measured data are used as a damage
 indicator. While prediction of subsequent acceleration data was possible, the
-only loading applied was one moving vehicle, a train, no additional vehicles or
-second lane of traffic. Furthermore the authors suggest further work regarding
-the effect of environmental and operational effects.
+loading applied is a much simplified case in contrast to a highway bridge that
+may have multiple lanes of traffic, in the research the loading applied was a
+single heavy vehicle (a train). Furthermore the authors suggest further work
+regarding the effect of environmental and operational effects.
 
-The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built
-in 1932. The SHB consists of 800 jack arches in longitudinal direction. In an
+The Sydney Harbour Bridge is a steel-reinforced concrete bridge built in 1932.
+The SHB consists of 800 jack arches in longitudinal direction. In an
 experimental campaign each jack arch was fitted with 3 accelerometers. It was
 known that one of the arches was cracked. Two very interesting papers applied
 damage detection to acceleration data collected from the sensors on the SHB.
@@ -171,21 +440,23 @@ differently. An SVM was trained using labeled data from features combining data
 from sets of 3 accelerometers on an arch. A one-class SVM (OCSVM) which is an
 unsupervised variant of the SVM that is trained only on the healthy data, was
 also tested. The supervised variant achieved an accuracy of approximately 0.97
-and the unsupervised approximately 0.71.
+and the unsupervised approximately 0.71. In cite:anaissi2017adaptive an
+algorithm is suggested to improve selection of the Gaussian model parameter of
+the OCSVM, which improved damage detection accuracy on the same SHB data set.
 
 Two methods were applied in cite:diez2016clustering using the idea that similar
 substructures should behave similarly. k-means clustering was applied to the
-features collected from each joint. With k-means k=2 and only considering 6
-joints, including one known damaged joint, a cluster was formed containing
-primarily features from the damaged joint. This method did not perform well when
-the amount of joints considered was increased to 71. The other method applied in
-cite:diez2016clustering considered a "joint representative", a feature that is
-the mean of the features from one joint. Then a pairwise map was created using
-the euclidean distance between each pair of joint representatives. This method
-detected the known damaged joint, another joint with a known faulty sensor and a
-third joint with unknown damaged state.
+features collected from each arch. k-means clustering with k=2 and only
+considering 6 arches, including one known damaged arch, a cluster was formed
+containing primarily features from the damaged joint. This method did not
+perform well when the amount of arches considered was increased to 71. The other
+method applied in cite:diez2016clustering considered a "joint representative", a
+feature that is the mean of the features from one arch. Then a pairwise map was
+created using the euclidean distance between each pair of joint representatives.
+This method detected the known damaged arch, another arch with a known faulty
+sensor and a third arch with unknown damaged state.
 
-* Practical Considerations
+** Practical Considerations
 
 # TODO: Temperature in concrete. For example, concrete absorbs considerable
 # moisture during damp weather, which considerable increases the mass of the
@@ -197,11 +468,14 @@ third joint with unknown damaged state.
 # measurements. There are further difficulties with highway bridges because they
 # are highly damped with low natural frequencies
 
-Any SHM system that is deployed on a real-life structure must consider the
-environmental and operational effects that will affect the responses of the
-bridge. Temperature changes the stiffness properties of a bridge deck resulting
-in different responses throught a day or year, and noise from traffic on another
-lane will also make damage identification more difficult.
+*** Noise
+
+Any structural health monitoring system that is deployed on a real-life
+structure must consider the environmental and operational effects that will
+affect the responses of the bridge. Temperature changes the stiffness properties
+of a bridge deck resulting in different responses throught a day or year, and
+noise from traffic on another lane will also make damage identification more
+difficult.
 
 # Good reading: https://royalsocietypublishing.org/doi/full/10.1098/rsta.2006.1935#bib42
 
@@ -209,13 +483,16 @@ A regression analysis was applied to acceleration data from the Alamosa Canyon
 Bridge in New Mexico in cite:sohn1998adaptive. The natural frequency varied
 approximately 5% during the 24 hour interval when measurements were taken and
 the frequency was well correlated with temperature. Measured temperatures
-exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
+exceeded $\SI{45}{\celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
 south. In cite:peeters2000system a linear relationship is shown between the 1st
 and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
-$\SI{0}{celcius}$, and a separate linear relationship below temperature below
-$\SI{0}{celcius}$. The linear relationship was related to the presence of the
-asphalt on the bridge.
+$\SI{0}{\celcius}$, and a separate linear relationship with temperature below
+$\SI{0}{\celcius}$. The bilinear relationship was related to the presence of the
+asphalt on the bridge. In cite:moser2011environmental a number of model are
+proposed to show the relationship between natural frequency and temperature,
+these included a bilinear model and 4th polynomial order models with and without
+cross terms, all models performed well.
 
 An integrated machine learning algorithm, combining techniques including PCA, is
 presented in cite:ye2018integrated for separating the individual components of
@@ -231,7 +508,9 @@ simulation of a hard drive, and a laboratory test on a spring-mass system. The
 authors admit that several issues are to be addressed before the approach can be
 used on real structures.
 
-In a real-life installation the possibility that a sensor has developed a fault
+*** Faulty Sensor
+
+In any deployed SHM system the possibility that a sensor has developed a fault
 and that the received signal is incorrect must be considered, in the work on the
 SHB cite:diez2016clustering one of the sensors was faulty, which was detected as
 damage. Damaged sensors can be detected via sensor data reconstruction. In this
@@ -243,25 +522,76 @@ mean square error estimation cite:kullaa2010sensor, and support vector
 regression cite:law2017data. A recurrent neural network (RNN) was used that
 includes both spatial and past temporal data cite:moustapha2008wireless. More
 recently in 2019 a bidirectional RNN includes more information by considering
-spatial and both past and future temporal correlations cite:jeong2019sensor.
+spatial and both past and future temporal correlations citep:jeong2019sensor.
 This method outperformed a number of existing methods on their test set, however
 the test data was from numerical simulation of an unvalidated model.
 
-* Conclusion
+# TODO: Future correlations?
 
-Early work on damage identification of civil infrastructure was largely focused
-on the analysis of modal properties such as mode shapes while recent work tends
-to employ machine learning, with particular use of unsupervised methods such as
-the OCSVM. Feature extraction is arguably the most important and difficult step
-in ML-based health monitoring cite:worden2006application. Much of the existing
-research suggests promising results in a simulated or laboratory setting, and
-does not consider the difficulties that environmental or operational effects
-provide. Two works that succesfully detected aprioi known damage on the SHB
-combined machine learning techniques with knowledge about the behaviour of the
-structure.
+*** Deployments
 
-{TODO: more on: anomaly detection. SHM installations in real life, and anomaly
-detection of non-bridge structures e.g. levees. and conclusion.}
+A few bridges that had a SHM system deployed in real life have already been
+visited in this literature review. In the majority of these cases the bridge
+being researched was scheduled to be demolished
+cite:farrar1994dynamic,dilena2011dynamic,teughels2004structural, which enabled
+different damages to be applied to the bridge in the period prior to demolition.
+The SHB however had sensors installed on lane 7 in 2014 and they were still in
+use in 2016 cite:diez2016clustering. In this Subsection we will examine a few
+SHM deployments on bridges around the world.
+
+A number of SHMS systems were deployed to monitor distinct behaviours on bridges
+in Kentucky. From 2005 - 2011 a system was deployed to monitor impact damage
+from over-height vehicles to the eastbound I-64 bridge and to identify the
+vehicles cite:harik2011implementation. Vehicles were recorded by ultrasonic
+height sensors and video cameras, accelerometers and strain gauges compared
+impact to responses from sensors on a second bridge. One of the drawbacks that
+led to the system being decommissioned was the cost of replacement of the data
+acquisition system (once due to vandalism and once due to lightning strike) and
+time the system was down. Two SHM systems were deployed in Kentucky on bridges
+over the Ohio river, a barge impact detection system on the US 41 bridge and a
+crack growth monitoring system on the I-275 bridge cite:peiris2018lessons. The
+barge impact detection system (2006 - 2015) was pooly configured. Threshold
+limits were set based on cite:yuan2008multi and did not detect an impact that
+was less than 0.25 times the set threshold. Data transfer was also sporadic due
+to a change in communication protocol by the cellular provider. The crack
+detection system consisted of a vibrating wire micro crack meter transmitting
+data to a server by cell modem every 10 minutes and data is viewable via a
+website. This was a succesful low cost installation which began in 2012, and was
+still operational in 2018 and through it additional costly repairs were deemed
+unecessary.
+
+A number of SHM systems have been installed on bridges in Sweden. According to
+cite:enckell2007structural many communities are responsible for the maintenance
+of their own bridges, but new constructions are dependent on political decisions
+that delay projects, thus a SHM system is deployed to provide confidence in the
+health of an old structure and the safety of users. The 9 x 78 m span New Årsta
+Railway Bridge highlights a number of proactical issues relating to the SHM
+system installed during construction in 2003 cite:enckell2006structural. Data
+collection was interrupted due to interruption in power delivery and internet
+connectivity, water damage to the data logger due to freezing of a drainage
+hole, and damage to sensors including "violent treatment after the installation
+like hitting the sensors with heavy re-bars". In cite:enckell2011evaluation a
+distributed fiber optic based SHM system was installed on the $\SI{950}{\meter}$
+steel-beam concrete-deck Götaälv bridge between Gothenburg and Hisingen. In an
+on-site crack test, the SHM system detected 4 of 7 cracks. The system is
+designed to operate for 15 years however it's effectiveness in reality remains
+to be seen.
+
+** Summary
+
+The trend in damage detection is to employ machine learning, with particular use
+of unsupervised methods such as the OCSVM because they do not require having a
+model available. Feature extraction is arguably the most important and difficult
+step in ML-based health monitoring cite:worden2006application. Much of the
+existing research suggests promising results but in a simulated or laboratory
+setting, and does not consider the difficulties that environmental or
+operational effects provide. Two works that succesfully detected apriori known
+damage on the SHB combined machine learning techniques with knowledge about the
+behaviour of the structure, in these works data from multiple sensors was
+compared.
+
+\textcolor{red}{TODO: more on: anomaly detection. SHM installations in Hong
+Kong, and anomaly detection of non-bridge structures e.g. levees.}
 
 bibliographystyle:ieeetr
 bibliography:../thesis/myrefs.bib

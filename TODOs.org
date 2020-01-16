@@ -59,23 +59,21 @@ CLOSED: [2020-01-09 Thu 12:34]
 *** TODO Look at plots and nodes in Axis
 *** TODO Why simplest case of displacement 0mm
 ** January 16
-- Submit literature review tonight
-- How to set equivalent boundary conditions on abutments in Axis
-- For next Friday:
-  - pier settlement convergence test takes a long time
-    - it seems strains are fine away from the piers
-    - preventing me from collecting data
-  - focus on
-    - writing
-    - collect data
-    - remainder of plots
-      - thermal loading validation
-      - annual effect of temperature
-      - traffic: light vehicles
-      - traffic: top view of bridge
-      - time series: comparison to measurements
-      - time series: events
-      - show area sensors can't be placed
+- Submit introduction & literature review tonight
+- Pier settlement convergence test takes a long time
+  - it seems strains are fine away from the piers
+  - preventing me from collecting data
+  - save pier settlement data to hard drive
+- Focus on
+  - writing
+  - collect data
+  - plots
+- Thermal loading:
+  - Can you send .axs/.axd files for minimal examples
+  - How to set equivalent boundary conditions on abutments in Axis
+  - Why step 3 for strain but not for displacement
+  - What is that compatibility equation, specifically
+  - Setting boundary conditions for multiple line supports in Axis
 * Todos
 ** TODO <2020-01-09 Thu> [0/5]
 *** TODO 250 words

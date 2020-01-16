@@ -26,6 +26,7 @@ I would like to thank...
 #+LATEX: \newpage
 
 * Introduction
+
 # Motivation of the research question.
 The probability of a bridge to fail increases over time until it is no longer
 considered safe for use. Maintenance of a bridge is typically carried out when
@@ -38,8 +39,8 @@ maintainence of civil infrastructure. The bridge was only twenty years old.
 # Thesis questions.
 Sensors can provide real-time information without the delay or cost of a manual
 maintenance check. How can we detect damage on a no-prestress no-postension
-concrete slab bridge? This question is the topic of the thesis. In order to
-anser this question we must first answer the question of how can we collect
+concrete slab bridge? This question is the topic of this thesis. In order to
+answer this question we must first answer the question of how can we collect
 sensor data for the purpose of damage detection? Only then can we answer the
 question of how can we detect damage in the acquired data. Related but less
 central questions include: how does the installed sensor configuration affect
@@ -326,32 +327,44 @@ type =Int=".
 # Introduction.
 The goal of this Section is to summarise the existing body of work related to
 the subject area of this thesis. This Section thus outlines the existing work on
-damage identification of civil infrastructure, traffic and bridge simulations,
-and real-life installations of sensors on bridges for the purpose of structural
-health monitoring.
+damage identification and SHM of civil infrastructure, with a particular focus
+on bridges. While the amount of literature related to SHM is vast with numerous
+book written on the topic, the literature related to SHM of bridges is a little
+smaller, and the focus on concrete slab bridges smaller again. In particular
+there seems to be mush more research on SHM of expensive bridges such as the
+Sydney Harbour Bridge (SHB) rather than less expensive but numerous concrete
+slab bridges. The literature is vast therefore a complete literature review is
+not presented but the papers that are visited are believed to be representative.
+A brief description is presented of each relevant paper along with a criticism
+of the research. This literature review is structured in two primary components,
+first research into damage detection of SHM is presented, followed by a review
+of practical considerations such as environmental noise and lessons learned from
+SHM installations.
 
-** Damage Identification
-
-# Overview of methods.
-Methods of damage identification that monitor changes in civil infrastructure
-include methods based on modal properties, methods based on a model-updating
-procedure, probabilistic approaches e.g. using Bayes theorem, and pattern
-recognition approaches such as artificial neural networks.
+** Damage Detection
 
 # Natural frequencies and mode shapes: bulk of the research.
-A significant amount of the early research into damage identification of civil
-infrastructure is based on modal properties, attempting to detect damage by
-classifying changes in natural frequency or mode shape.
+Much of the early research into damage identification of civil infrastructure is
+based on identifying modal properties, detecting damage by classifying changes
+in natural frequency or mode shape. Model-updating methods are based on having a
+model available and attempt to minimize the error between the model and real
+measurements by modifying model parameters with an optimization algorithm, in
+order to determine the state of the structure. Research into damage detection
+has over the years turned to the use of machine learning, in particular
+unsupervised learning which does not require a model. This Subsection will
+review some of the different methods of damage detection and finish with a
+review of machine learning-based damage detection.
 
 # I-40: no change until final damage case, same change in undamaged data.
-Damage was applied to the I-40 bridge, a 130m girder bridge over the RIO Grande
+Damage was applied to the I-40 bridge, a 130m girder bridge over the Rio Grande
 river, before it's demolition, and data recorded from ambient vibration tests.
 The damage was intended to simulate fatigue cracking and was inflicted with
 torch cuts in a girder. In the fourth and most severe damage state the web of
-the girder contained a 6 foot cut and the flange was completely cut through. In
-cite:farrar1994dynamic it is noted that changes in dynamic properties were only
-observed in the fourth damage state. Furthermore, changes of similar magnitude
-were observed from repeated ambient vibration tests on the undamaged structure.
+the girder contained a $\SI{1.8}{\meter}$ cut and the flange was completely cut
+through. In cite:farrar1994dynamic it is noted that changes in dynamic
+properties were only observed in the fourth damage state. Furthermore, changes
+of similar magnitude were observed from repeated ambient vibration tests on the
+undamaged structure.
 
 # Curvature mode shapes.
 In cite:pandey1991damage introduced the use of the curvature of mode shapes
@@ -384,8 +397,9 @@ structures could be monitored for /any/ changes after sensor installation, not
 knowing whether the structure was already damaged or not, 3) a FEM is used to
 generate an approximation of the baseline state. The robustness to noise is a
 more crucial problem because civil structures will be subjected to environmental
-factors such as temperature changes. The work cite:stubbs2000global simply
-states "the existence of noise in the data processing should be addressed".
+factors such as temperature changes and ambient vibration. In the research
+cite:stubbs2000global it simply states "the existence of noise in the data
+processing should be addressed".
 
 # Dogna: modal curvature, not robust to noise.
 The 64m concrete Dogna bridge in Italy was built in 1978 and suffered from a
@@ -397,12 +411,12 @@ However the dynamic tests were all carried out under similar environmental
 conditions, thus the robustness to noise was not investigated.
 
 # Problem of vibration.
-In concrete structures with reinforcing steel bars, the bar are tensioned such
+In concrete structures with reinforcing steel bars, the bars are tensioned such
 that the concrete remains in compression. Once the steel bars have corroded and
 failed the concrete bridge is liable to collapse. However the stiffness of the
 bridge is mostly contributed by the concrete, the corrosion of the steel has
-little influence on the dynamics, until the steel bars and bridge have failed
-cite:friswell1997damage.
+little influence on the dynamics, until the reinforcing steel bars and bridge
+have failed cite:friswell1997damage.
 
 # Z24 bridge in Switzerland.
 In cite:teughels2004structural a model-updating approach is applied which
@@ -442,13 +456,16 @@ and it was a laboratory experiment that did not account for environmental noise.
 *** Machine Learning
 
 # Introduction to ML.
-Machine learning based approaches map inputs to outputs based on previously
-given input-output pairs, known as training data. Supervised learning methods
-require the existence of data corresponding to damage states, which is unlikely
-in the case of civil infrastructure. Unsupervised learning methods classify data
-into clusters without pre-existing labels. One-class classification is a form of
-outlier detection that can be considered a special case of supervised-learning,
-where only one class of training data is present in the training data.
+Machine learning can broadly be split into two variants, supervised and
+unsupervised learning. Supervised learning methods map inputs to outputs based
+on previously given input-output pairs known as labeled training data. Thus for
+damage detection, supervised learning methods require the existence of data
+corresponding to damage states, which is unlikely in the case of expensive civil
+infrastructure such as bridges. Unsupervised learning methods attempt to find
+previously unknown patterns in data set without pre-existing labels. One-class
+classification is a form of outlier detection that can be considered a special
+case of supervised-learning, where only one class of training data is present in
+the training data.
 
 # ML for SHM: prediction (level 4) not possible.
 In cite:worden2006application a number of damage identification experiments were
@@ -476,12 +493,13 @@ bridge in cite:neves2017structural. To accomplish this an ANN is trained on past
 acceleration responses from the healthy bridge and then used to predict future
 values, the difference between predicted and measured data are used as a damage
 indicator. While prediction of subsequent acceleration data was possible, the
-only loading applied was one moving vehicle, a train, no additional vehicles or
-second lane of traffic. Furthermore the authors suggest further work regarding
-the effect of environmental and operational effects.
+loading applied is a much simplified case in contrast to a highway bridge that
+may have multiple lanes of traffic, in the research the loading applied was a
+single heavy vehicle (a train). Furthermore the authors suggest further work
+regarding the effect of environmental and operational effects.
 
-The Syndey Harbour Bridge (SHB) is a steel-reinforced concrete bridge built
-in 1932. The SHB consists of 800 jack arches in longitudinal direction. In an
+The Sydney Harbour Bridge is a steel-reinforced concrete bridge built in 1932.
+The SHB consists of 800 jack arches in longitudinal direction. In an
 experimental campaign each jack arch was fitted with 3 accelerometers. It was
 known that one of the arches was cracked. Two very interesting papers applied
 damage detection to acceleration data collected from the sensors on the SHB.
@@ -494,7 +512,9 @@ differently. An SVM was trained using labeled data from features combining data
 from sets of 3 accelerometers on an arch. A one-class SVM (OCSVM) which is an
 unsupervised variant of the SVM that is trained only on the healthy data, was
 also tested. The supervised variant achieved an accuracy of approximately 0.97
-and the unsupervised approximately 0.71.
+and the unsupervised approximately 0.71. In cite:anaissi2017adaptive an
+algorithm is suggested to improve selection of the Gaussian model parameter of
+the OCSVM, which improved damage detection accuracy on the same SHB data set.
 
 Two methods were applied in cite:diez2016clustering using the idea that similar
 substructures should behave similarly. k-means clustering was applied to the
@@ -535,13 +555,16 @@ A regression analysis was applied to acceleration data from the Alamosa Canyon
 Bridge in New Mexico in cite:sohn1998adaptive. The natural frequency varied
 approximately 5% during the 24 hour interval when measurements were taken and
 the frequency was well correlated with temperature. Measured temperatures
-exceeded $\SI{45}{celcius}$ and the eastern and western sides of the bridge
+exceeded $\SI{45}{\celcius}$ and the eastern and western sides of the bridge
 showed a large temperature gradient, because the bridge is oriented north to
 south. In cite:peeters2000system a linear relationship is shown between the 1st
 and 2nd eigenfrequencies of the Z24 bridge in Zwitzerland and temperature above
-$\SI{0}{celcius}$, and a separate linear relationship with temperature below
-$\SI{0}{celcius}$. The bilinear relationship was related to the presence of the
-asphalt on the bridge.
+$\SI{0}{\celcius}$, and a separate linear relationship with temperature below
+$\SI{0}{\celcius}$. The bilinear relationship was related to the presence of the
+asphalt on the bridge. In cite:moser2011environmental a number of model are
+proposed to show the relationship between natural frequency and temperature,
+these included a bilinear model and 4th polynomial order models with and without
+cross terms, all models performed well.
 
 An integrated machine learning algorithm, combining techniques including PCA, is
 presented in cite:ye2018integrated for separating the individual components of
@@ -620,7 +643,7 @@ collection was interrupted due to interruption in power delivery and internet
 connectivity, water damage to the data logger due to freezing of a drainage
 hole, and damage to sensors including "violent treatment after the installation
 like hitting the sensors with heavy re-bars". In cite:enckell2011evaluation a
-distributed fiber optic based SHM system was installed on the $\SI{950}{meter}$
+distributed fiber optic based SHM system was installed on the $\SI{950}{\meter}$
 steel-beam concrete-deck Götaälv bridge between Gothenburg and Hisingen. In an
 on-site crack test, the SHM system detected 4 of 7 cracks. The system is
 designed to operate for 15 years however it's effectiveness in reality remains
@@ -628,47 +651,21 @@ to be seen.
 
 ** Summary
 
-Early work on damage identification of civil infrastructure was largely focused
-on the analysis of modal properties such as mode shapes while recent work tends
-to employ machine learning, with particular use of unsupervised methods such as
-the OCSVM. Feature extraction is arguably the most important and difficult step
-in ML-based health monitoring cite:worden2006application. Much of the existing
-research suggests promising results in a simulated or laboratory setting, and
-does not consider the difficulties that environmental or operational effects
-provide. Two works that succesfully detected apriori known damage on the SHB
-combined machine learning techniques with knowledge about the behaviour of the
-structure, in these works data from multiple sensors was compared.
+The trend in damage detection is to employ machine learning, with particular use
+of unsupervised methods such as the OCSVM because they do not require having a
+model available. Feature extraction is arguably the most important and difficult
+step in ML-based health monitoring cite:worden2006application. Much of the
+existing research suggests promising results but in a simulated or laboratory
+setting, and does not consider the difficulties that environmental or
+operational effects provide. Two works that succesfully detected apriori known
+damage on the SHB combined machine learning techniques with knowledge about the
+behaviour of the structure, in these works data from multiple sensors was
+compared.
 
-\textcolor{red}{TODO: more on: anomaly detection. SHM installations in real
-life, and anomaly detection of non-bridge structures e.g. levees.}
+\textcolor{red}{TODO: more on: anomaly detection. SHM installations in Hong
+Kong, and anomaly detection of non-bridge structures e.g. levees.}
 
-** Tables
-
-Tables [[tbl:lit-review-1]] and [[tbl:lit-review-2]] summarize the literature which is
-most relevant to this thesis. The tables break down the literature into a number
-of criteria, in order to give a high-level view of the contributions of the
-literature. Table [[tbl:lit-review-1]] breaks down the literature into bridge type,
-damage type, how traffic was simulated and if the FEM was validated. Table
-[[tbl:lit-review-2]] gives an overview of the damage identification methods for the
-same literature as Table [[tbl:lit-review-1]]. \textcolor{red}{Comment on
-reproducability}
-
-#+ATTR_LATEX: :float sideways
-#+NAME: tbl:lit-review-1
-| Paper                | Bridge type     | Damage type         | Traffic simulation      | Validation of FEM      |
-|----------------------+-----------------+---------------------+-------------------------+------------------------|
-| cite:yeung2005damage | 214m Suspension | Corrosion and       | One vehicle represented | "Reasonable agreement" |
-|                      |                 | loosening of joints | as two points loads     | with measurements      |
-
-#+ATTR_LATEX: :float sideways
-#+NAME: tbl:lit-review-2
-| Paper                | Measurement | Feature           | Analysis | Noise      | Accuracy |
-|----------------------+-------------+-------------------+----------+------------+----------|
-| cite:yeung2005damage | Vibration   | Frequency spectra | ANN      | "Moderate" |      70% |
-|                      |             |                   |          |            |          |
-
-#+LATEX: \newpage
-* Background and Motivation
+* Motivation
 
 The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however provides background
@@ -1247,6 +1244,7 @@ cases, which was true in this case.
 *** Summary
 \textcolor{red}{TODO: conclude the literature review}
 #+LATEX: \clearpage
+* Theory
 * Methods
 ** Simulation
 # Section overview.
