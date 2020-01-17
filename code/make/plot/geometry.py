@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib.cm import get_cmap
 
 from classify.scenarios import healthy_and_cracked_scenarios
+from classify.without import without_pier_lines, without_wheel_tracks
 from config import Config
 from fem.build import get_bridge_nodes, get_bridge_shells
 from fem.model import BuildContext, Node, Shell
@@ -13,6 +14,7 @@ from plot import default_cmap, parula_cmap, plt
 from plot.geometry import top_view_bridge
 from plot.geometry.shell import shell_properties_3d, shell_properties_top_view
 from plot.geometry.node import node_scatter_3d
+from plot.responses import plot_deck_sensors
 from util import flatten, safe_str
 
 
@@ -167,3 +169,17 @@ def make_node_plots(original_c: Config):
                     )
                 )
                 plt.close()
+
+
+def make_available_sensors_plot(c: Config, pier_radius: float, track_radius):
+    """Scatter plot of sensors used for classification."""
+    top_view_bridge(c.bridge, abutments=True, piers=True, compass=False)
+    without_p = without_pier_lines(c=c, radius=pier_radius)
+    without_t = without_wheel_tracks(c=c, radius=track_radius)
+    def without(point: Point) -> bool:
+        return without_t(point) or without_p(point)
+    plot_deck_sensors(c=c, without=without, label=True)
+    plt.title(f"Sensors available for classification on {c.bridge.name}")
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("sensors", "unavailable-sensors.pdf"))
+    plt.close()

@@ -180,6 +180,13 @@ def nodes():
     geometry_.make_node_plots(c())
 
 
+@geometry.command(help="Plot available sensors on the deck.")
+@click.option("--pier-radius", type=float, required=True, help="Radius around pier lines to ignore.")
+@click.option("--track-radius", type=float, required=True, help="Radius around wheel tracks to ignore.")
+def avail_sensors(pier_radius, track_radius):
+    geometry_.make_available_sensors_plot(c=c(), pier_radius=pier_radius, track_radius=track_radius)
+
+
 ######################
 ##### Simulation #####
 ######################
@@ -198,19 +205,6 @@ def uls():
 @simulate.command(help="Record information for convergence plots.")
 def converge():
     verification.make_convergence_data(c())
-
-
-@simulate.command(help="Record strain convergence for pier settlement.")
-@click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
-@click.option("--ignore", type=float, required=True, help="Radius around pier lines to ignore.")
-@click.option("--dist", type=float, required=True, help="Distance around point to collect.")
-def converge_pier(pier, ignore, dist):
-    verification.make_pier_convergence_data(
-        c=c(),
-        pier_i=pier,
-        strain_ignore_radius=ignore,
-        max_distance=dist,
-    )
 
 
 ######################

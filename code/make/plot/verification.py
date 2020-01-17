@@ -38,7 +38,7 @@ from model.load import DisplacementCtrl, MvVehicle, PointLoad
 from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
+from plot.responses import plot_contour_deck, plot_deck_sensors
 from plot.validation import plot_mmm_strain_convergence
 from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str, scalar
 
@@ -706,16 +706,21 @@ def plot_pier_convergence(
             else:
                 raise e
 
-    plot_mmm_strain_convergence(
-        c=og_c, pier=pier, parameters=df, all_strains=all_strains)
     # For each set of responses remove the removed points.
     for key, displacements in all_displacements.items():
         all_displacements[key] = displacements.without(without)
         print(f"Filtering displacements with max shell len {key}", end="\r")
+    print()
     for key, strains in all_strains.items():
         all_strains[key] = strains.without(without)
         print(f"Filtering strains with max shell len {key}", end="\r")
     print()
+
+    plot_mmm_strain_convergence(
+        c=og_c, pier=pier, parameters=df, all_strains=all_strains)
+    plot_deck_sensors(c=c, without=without)
+    plt.savefig(og_c.get_image_path("convergence-pier", "unavailable sensors.pdf"))
+    plt.close()
 
 
 def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):

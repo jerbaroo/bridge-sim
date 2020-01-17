@@ -3,7 +3,7 @@
 Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
 """
-from typing import List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -11,12 +11,41 @@ import numpy as np
 from scipy.stats import chisquare
 
 from config import Config
+from fem.build import get_bridge_nodes, det_nodes
 from fem.responses import Responses
 from fem.run import FEMRunner
+from model.bridge import Point
 from model.load import PointLoad
 from model.response import Response, ResponseType, resize_and_units
 from plot import default_cmap, plt
-from util import print_w
+from util import flatten, print_w
+
+
+def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool=False):
+    """Scatter plot of deck sensors."""
+    deck_nodes, _ = get_bridge_nodes(c.bridge)
+    deck_nodes = det_nodes(deck_nodes)
+    unavail_nodes = []
+    avail_nodes = []
+    for node in deck_nodes:
+        if without(Point(x=node.x, y=node.y, z=node.z)):
+            unavail_nodes.append(node)
+        else:
+            avail_nodes.append(node)
+    X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
+    for node in deck_nodes:
+        X.append(node.x)
+        Z.append(node.z)
+        if without(Point(x=node.x, y=node.y, z=node.z)):
+            H.append(1)
+        else:
+            H.append(0)
+    plt.scatter([node.x for node in avail_nodes], [node.z for node in avail_nodes], s=5, color="#1f77b4")
+    plt.scatter([node.x for node in unavail_nodes], [node.z for node in unavail_nodes], color="#ff7f0e", s=5)
+    if label:
+        plt.scatter([avail_nodes[0].x], [avail_nodes[0].z], color="#1f77b4", label="available", s=5)
+        plt.scatter([unavail_nodes[0].x], [unavail_nodes[0].z], color="#ff7f0e", label="unavailable", s=5)
+        plt.legend()
 
 
 def plot_distributions(
