@@ -573,6 +573,7 @@ def plot_pier_convergence(
         nesw_location: int,
         nesw_max_dist: float,
         min_shell_len: float,
+        max_shell_len: Optional[float] = None,
 ):
     """Make pier convergence data file, decreasing mesh size per simulation."""
     # We will be modifying the 'Config', so make a copy.
@@ -591,7 +592,8 @@ def plot_pier_convergence(
         )
     else:
         raise ValueError("Invalid NESW plot location")
-    max_shell_len = c.bridge.length / 10
+    if max_shell_len is None:
+        max_shell_len = c.bridge.length / 10
     # Construct a function to ignore responses, this is around pier lines.
     without = without_pier_lines(bridge=c.bridge, radius=strain_ignore_radius)
 
