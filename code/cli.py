@@ -239,19 +239,32 @@ def convergence():
     verification.plot_convergence(c())
 
 
-@validate.command(help="Plot convergence in compass directions from point.")
-@click.option("--filename", type=str, required=True, help="Filename of data to plot.")
-@click.option("--title", type=str, required=True, help="Title inset, describing the point.")
-@click.option("--label", type=str, required=True, help="String appended to plot filename.")
-def nesw_conv(filename: str, title: str, label: str):
-    config = c()
-    convergence_dir = os.path.dirname(
-        config.get_image_path("convergence", "_", bridge=False))
-    verification.plot_nesw_strain_convergence(
-        c=config,
-        filepath=os.path.join(convergence_dir, filename),
-        from_=title,
-        label=label,
+@validate.command(help="Plot strain convergence for pier settlement.")
+@click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
+@click.option("--max_nodes", type=int, required=True, help="Maximum number of nodes in a simulation.")
+@click.option("--without-radius", type=float, required=True, help="Radius around pier lines to ignore.")
+@click.option("--nesw-loc", type=int, required=True, help="Location of pier to plot NESW around.")
+@click.option("--nesw-max-dist", type=float, required=True, help="Maximum distance to plot NESW around.")
+@click.option("--process", type=int, default=0, help="Results identifier.")
+@click.option("--min-shell-len", type=float, default=0, help="Minimum shell len considered.")
+def pier_conv(
+        pier: int,
+        max_nodes: int,
+        without_radius: float,
+        nesw_loc: int,
+        nesw_max_dist: float,
+        process: int,
+        min_shell_len: float,
+):
+    verification.plot_pier_convergence(
+        c=c(),
+        process=process,
+        pier_i=pier,
+        max_nodes=max_nodes,
+        strain_ignore_radius=without_radius,
+        nesw_location=nesw_loc,
+        nesw_max_dist=nesw_max_dist,
+        min_shell_len=min_shell_len,
     )
 
 

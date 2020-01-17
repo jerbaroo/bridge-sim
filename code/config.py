@@ -52,6 +52,7 @@ class Config:
     ):
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
+        self._bridge = bridge
         self.bridge = bridge()
 
         # OpenSees

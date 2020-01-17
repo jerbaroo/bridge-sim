@@ -4,6 +4,7 @@ import itertools
 import math
 import os
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple
@@ -23,6 +24,7 @@ from classify.data.responses import (
 )
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.vehicle import wagen1
+from classify.without import without_pier_lines
 from config import Config
 from fem.build import det_nodes, det_shells
 from fem.model import Shell
@@ -37,6 +39,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
+from plot.validation import plot_mmm_strain_convergence
 from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str, scalar
 
 # Positions of truck front axle.
@@ -561,89 +564,132 @@ def r2_plots(c: Config):
     plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))
 
 
-def make_pier_convergence_data(c: Config, pier_i: int, strain_ignore_radius: float, max_distance: float):
+def plot_pier_convergence(
+        c: Config,
+        process: int,
+        pier_i: int,
+        max_nodes: int,
+        strain_ignore_radius: float,
+        nesw_location: int,
+        nesw_max_dist: float,
+        min_shell_len: float,
+):
     """Make pier convergence data file, decreasing mesh size per simulation."""
-    bridge = bridge_705_3d()
-    fem_params = SimParams(
+    # We will be modifying the 'Config', so make a copy.
+    og_c = c
+    c = deepcopy(c)
+    sim_params = SimParams(
         response_types=[ResponseType.YTranslation, ResponseType.Strain],
         displacement_ctrl=DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_i),
     )
     pier = c.bridge.supports[pier_i]
-    PIER_LEFT_CENTER = Point(x=pier.x - (pier.length / 2), y=0, z=pier.z)
-    max_shell_len = 10
-
-    def bridge_overload(**kwargs):
-        return bridge_705_3d(
-            name=f"Bridge 705",
-            accuracy="convergence-pier",
-            base_mesh_deck_max_x=max_shell_len,
-            base_mesh_deck_max_z=max_shell_len,
-            base_mesh_pier_max_long=max_shell_len,
-            **kwargs,
+    if nesw_location == 0:
+        nesw_point = Point(
+            x=pier.x - (pier.length / 2),
+            y=0,
+            z=pier.z - (pier.width_top / 2)
         )
+    else:
+        raise ValueError("Invalid NESW plot location")
+    max_shell_len = c.bridge.length / 10
+    # Construct a function to ignore responses, this is around pier lines.
+    without = without_pier_lines(bridge=c.bridge, radius=strain_ignore_radius)
 
-    # A grid of points over which to calculate the mean response. The reason for
-    # this is because if the number of nodes increases, as model size increases,
-    # then there will be an increase in nodes where responses are large, thus
-    # model size will influence the mean/min calculation.
-    grid = [
-        Point(x=x, y=0, z=z)
-        for x, z in itertools.product(
-            np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)),
-            np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
-        )
-    ]
+    def update_bridge():
+        c.bridge.name = "Bridge 705"
+        c.bridge.accuracy = f"convergence-pier-{pier_i}-{max_shell_len}"
+        c.bridge.base_mesh_deck_max_x = max_shell_len
+        c.bridge.base_mesh_deck_max_z = max_shell_len
+        c.bridge.base_mesh_pier_max_long = max_shell_len
+        return c.bridge
 
-    # Write the header information to the results file.
-    c = bridge_705_config(bridge_overload)
-    path = c.get_image_path("convergence-pier", f"convergence_results_pier-{pier_i}", bridge=False)
-    with open(path + ".txt", "w") as f:
-        f.write(
-            "xload,zload,max_mesh,decknodes,piernodes,time"
-            + ",min_d,max_d,mean_d,min_s,max_s,mean_s,shell-size,deck-size,pier-size"
-        )
-    # Header information for a second file, recording strain close to the load.
-    strain_path = c.get_image_path("convergence-pier", "strain-inf.txt", bridge=False)
-    with open(strain_path, "w") as f:
-        # Simulation parameters, direction recording, and recordings.
-        f.write("max_mesh,decknodes,piernodes,compass,responses")
+    # Write parameter information to the results file.
+    filepath = c.get_image_path(
+        "convergence-pier",
+        safe_str(f"{c.bridge.name}-{process}-convergence-results-pier-{pier_i}") + ".csv",
+        # We are storing results for all model sizes in the same file, so no
+        # need for bridge accuracy in filepath.
+        acc=False,
+    )
+    print_i(f"Saving parameters to {filepath}")
 
-    max_shell_lens = list(np.arange(10, 2 - 0.00001, -1))
+    if not os.path.exists(filepath):
+        print_i(filepath)
+        # Parameters of simulations are written to a file.
+        df = pd.DataFrame(columns=[
+            "deck-nodes", "pier-nodes", "time", "shell-size", "deck-size", "pier-size"
+        ])
+        df.index.name = "max-shell-len"
+        df.to_csv(filepath)
+    df = pd.read_csv(filepath, index_col="max-shell-len")
+
+    max_shell_lens = list(np.arange(max_shell_len, 2 - 0.00001, -1))
     max_shell_lens += list(np.arange(1.9, 1 - 0.00001, -0.1))
     max_shell_lens += list(np.arange(0.9, 0.1 - 0.00001, -0.01))
     max_shell_lens = list(map(round_m, max_shell_lens))
+    max_shell_lens = [msl for msl in max_shell_lens if msl <= max_shell_len]
+    max_shell_lens = [msl for msl in max_shell_lens if msl >= min_shell_len]
+    print_i(f"Max shell lens = {max_shell_lens}")
 
+    # Load responses for each parameter setting. If the simulation has not run
+    # yet then it will be run and the parameter settings saved.
+    all_displacements = dict()
+    all_strains = dict()
     for max_shell_len in max_shell_lens:
-
         print(f"max shell len = {max_shell_len}")
-
-        with open(path + ".txt", "a") as f:
-            f.write(f"\n{pier.x}, {pier.z}, {max_shell_len}")
-
-        c = bridge_705_config(bridge_overload)
+        update_bridge()
         try:
-            # Start timing and run the simulation.
+            # Start timing and load the results into memory.
             start = timer()
             displacements = load_fem_responses(
                 c=c,
-                sim_params=fem_params,
+                sim_params=sim_params,
                 response_type=ResponseType.YTranslation,
                 sim_runner=OSRunner(c),
-                run=True,
             )
+            all_displacements[max_shell_len] = displacements
+            strains = load_fem_responses(
+                c=c,
+                sim_params=sim_params,
+                response_type=ResponseType.Strain,
+                sim_runner=OSRunner(c),
+            )
+            all_strains[max_shell_len] = strains
             end = timer()
-
-            # Determine amount of nodes.
-            nodes = det_nodes(fem_params.bridge_nodes)
-            deck_nodes = len([n for n in nodes if n.deck])
-            pier_nodes = len([n for n in nodes if not n.deck])
-
-            # Determine shell sizes for the deck, pier and whole bridge.
-            shells = det_shells(fem_params.bridge_shells)
-            avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
-            avg_pier_size = np.mean([s.area() for s in shells if s.pier])
-            avg_shell_size = np.mean([s.area() for s in shells])
-
+            # If the simulation was run, then nodes from the built FEM will be
+            # attached. In that case save the paramameters.
+            if hasattr(sim_params, "bridge_nodes"):
+                nodes = det_nodes(sim_params.bridge_nodes)
+                # Clear the parameter, so the test works next iteration.
+                del sim_params.bridge_nodes
+                deck_nodes = len([n for n in nodes if n.deck])
+                pier_nodes = len([n for n in nodes if not n.deck])
+                assert deck_nodes + pier_nodes == len(nodes)
+                # Determine shell sizes for the deck, pier and whole bridge.
+                shells = det_shells(sim_params.bridge_shells)
+                avg_shell_size = np.mean([s.area() for s in shells])
+                avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
+                avg_pier_size = np.mean([s.area() for s in shells if s.pier])
+                # Add the new parameters to the DataFrame and write to disk.
+                if df.index.contains(max_shell_len):
+                    df.drop(max_shell_len)
+                df.append(pd.Series(name=max_shell_len))
+                for param_name, param in [
+                        ("deck-nodes", deck_nodes),
+                        ("pier-nodes", pier_nodes),
+                        ("time", end - start),
+                        ("shell-size", avg_shell_size),
+                        ("deck-size", avg_deck_size),
+                        ("pier-size", avg_pier_size),
+                ]:
+                    df.at[max_shell_len, param_name] = param
+                df.to_csv(filepath)
+            row = df.loc[max_shell_len, :]
+            # Stop the simulation if maximum amount of nodes are reached.
+            if float(row["deck-nodes"]) + float(row["pier-nodes"]) > max_nodes:
+                print_i("Maximum nodes reached")
+                break
+            print(df)
             # TODO: Remove to deck interpolation test.
             for x in displacements.xs:
                 if 0 in displacements.zs[x]:
@@ -651,79 +697,23 @@ def make_pier_convergence_data(c: Config, pier_i: int, strain_ignore_radius: flo
                         og = displacements.responses[0][x][0][z]
                         ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
-
-            # Determine min, max and mean displacements.
-            all_displacements = np.array(list(displacements.values()))
-            grid_displacements = np.array(
-                [displacements.at_deck(point, interp=True) for point in grid]
-            )
-
-            # Minimum displacement is under the load.
-            min_d = scalar(np.min(all_displacements))
-            max_d = scalar(np.max(grid_displacements))
-            mean_d = scalar(np.mean(grid_displacements))
-
-            strains = load_fem_responses(
-                c=c,
-                sim_params=fem_params,
-                response_type=ResponseType.Strain,
-                sim_runner=OSRunner(c),
-            )
-
-            # Also write results of strain recordings, for each direction.
-            for dir_name, x_mul, z_mul in [
-                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
-                recordings = []
-                for delta in np.arange(0, max_distance, 0.05):
-                    strain_point = Point(
-                        x=PIER_LEFT_CENTER.x + (delta * x_mul),
-                        y=0,
-                        z=PIER_LEFT_CENTER.z + (delta * z_mul),
-                    )
-                    if (
-                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
-                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
-                    ):
-                        break
-                    recordings.append(scalar(strains.at_deck(strain_point, interp=True)))
-                with open(strain_path, "a") as f:
-                    f.write(
-                        f"\n{max_shell_len}, {deck_nodes}, {pier_nodes}, {dir_name}, {recordings}"
-                    )
-
-            # Remove strain around the pier lines.
-            pier_z_min, pier_z_max = pier.z_min_max_top()
-            for pier_x in pier.x_min_max_top():
-                for ignore_point in [
-                        Point(x=pier_x, y=0, z=z)
-                        for z in np.linspace(pier_z_min, pier_z_max, 10)
-                ]:
-                    print_i(f"Ignoring strain around {ignore_point}")
-                    strains = strains.without(radius=strain_ignore_radius, of=ignore_point)
-
-            all_strains = np.array(list(strains.values()))
-            grid_strains = np.array(
-                [strains.at_deck(point, interp=True) for point in grid]
-            )
-            min_s = scalar(np.min(grid_strains))
-            # Maximum strain is under the load.
-            max_s = scalar(np.max(all_strains))
-            mean_s = scalar(np.mean(grid_strains))
-
-            # Write results for this simulation to disk.
-            with open(path + ".txt", "a") as f:
-                f.write(
-                    f", {deck_nodes}, {pier_nodes}, {end - start}"
-                    f", {min_d}, {max_d}, {mean_d}"
-                    f", {min_s}, {max_s}, {mean_s}"
-                    f", {avg_shell_size}, {avg_deck_size}, {avg_pier_size}"
-                )
-
         except ValueError as e:
             if "No responses found" in str(e):
                 print_i("Simulation failed. Time to plot results")
+                break
             else:
                 raise e
+
+    plot_mmm_strain_convergence(
+        c=og_c, pier=pier, parameters=df, all_strains=all_strains)
+    # For each set of responses remove the removed points.
+    for key, displacements in all_displacements.items():
+        all_displacements[key] = displacements.without(without)
+        print(f"Filtering displacements with max shell len {key}", end="\r")
+    for key, strains in all_strains.items():
+        all_strains[key] = strains.without(without)
+        print(f"Filtering strains with max shell len {key}", end="\r")
+    print()
 
 
 def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):

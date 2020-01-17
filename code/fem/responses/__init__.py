@@ -151,14 +151,15 @@ class Responses:
                 for z, response in z_dict.items():
                     self.responses[self.times[0]][x][y][z] = f(response)
 
-    def without(self, radius: float, of: Point) -> "Responses":
+    def without(self, remove: Callable[[Point], bool]) -> "Responses":
         responses = []
         for x, y_dict in self.responses[self.times[0]].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
                     p = Point(x=x, y=y, z=z)
-                    if abs(p.distance(of)) > radius:
+                    if not remove(p):
                         responses.append((response, p))
+                    # if abs(p.distance(of)) > radius:
         return Responses(response_type=self.response_type, responses=responses)
 
     def values(self):

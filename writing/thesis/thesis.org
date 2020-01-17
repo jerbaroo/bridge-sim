@@ -637,7 +637,7 @@ cite:enckell2007structural many communities are responsible for the maintenance
 of their own bridges, but new constructions are dependent on political decisions
 that delay projects, thus a SHM system is deployed to provide confidence in the
 health of an old structure and the safety of users. The 9 x 78 m span New Årsta
-Railway Bridge highlights a number of proactical issues relating to the SHM
+Railway Bridge highlights a number of practical issues relating to the SHM
 system installed during construction in 2003 cite:enckell2006structural. Data
 collection was interrupted due to interruption in power delivery and internet
 connectivity, water damage to the data logger due to freezing of a drainage
