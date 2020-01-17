@@ -595,7 +595,7 @@ def plot_pier_convergence(
     if max_shell_len is None:
         max_shell_len = c.bridge.length / 10
     # Construct a function to ignore responses, this is around pier lines.
-    without = without_pier_lines(bridge=c.bridge, radius=strain_ignore_radius)
+    without = without_pier_lines(c=c, radius=strain_ignore_radius)
 
     def update_bridge():
         c.bridge.name = "Bridge 705"
