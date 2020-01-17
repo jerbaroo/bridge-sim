@@ -247,6 +247,7 @@ def convergence():
 @click.option("--nesw-max-dist", type=float, required=True, help="Maximum distance to plot NESW around.")
 @click.option("--process", type=int, default=0, help="Results identifier.")
 @click.option("--min-shell-len", type=float, default=0, help="Minimum shell len considered.")
+@click.option("--max-shell-len", type=float, help="Maximum shell len considered.")
 def pier_conv(
         pier: int,
         max_nodes: int,
@@ -255,6 +256,7 @@ def pier_conv(
         nesw_max_dist: float,
         process: int,
         min_shell_len: float,
+        max_shell_len: float,
 ):
     verification.plot_pier_convergence(
         c=c(),
@@ -265,6 +267,7 @@ def pier_conv(
         nesw_location=nesw_loc,
         nesw_max_dist=nesw_max_dist,
         min_shell_len=min_shell_len,
+        max_shell_len=max_shell_len,
     )
 
 
