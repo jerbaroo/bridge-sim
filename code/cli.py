@@ -232,13 +232,13 @@ def convergence():
 
 @validate.command(help="Plot strain convergence for pier settlement.")
 @click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
-@click.option("--max_nodes", type=int, required=True, help="Maximum number of nodes in a simulation.")
+@click.option("--max-nodes", type=int, required=True, help="Maximum number of nodes in a simulation.")
 @click.option("--without-radius", type=float, required=True, help="Radius around pier lines to ignore.")
 @click.option("--nesw-loc", type=int, required=True, help="Location of pier to plot NESW around.")
 @click.option("--nesw-max-dist", type=float, required=True, help="Maximum distance to plot NESW around.")
 @click.option("--process", type=int, default=0, help="Results identifier.")
 @click.option("--min-shell-len", type=float, default=0, help="Minimum shell len considered.")
-@click.option("--max-shell-len", type=float, help="Maximum shell len considered.")
+@click.option("--max-shell-len", type=float, required=True, help="Maximum shell len considered.")
 def pier_conv(
         pier: int,
         max_nodes: int,
