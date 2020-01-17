@@ -204,7 +204,7 @@ is presented. The methods section describes the generation of sensor data via an
 extensible data collection system that combines data from many FE simulations,
 describes the inputs and outputs of the data collection system, and outlines the
 damage detection experiments on the generated data. In the results section the
-generated data and results of experiments on that data will be inspected and
+generated data and results of experiments on that data will be discussed and
 finally a conclusion of the work and results is presented.
 
 # Thesis structure.
