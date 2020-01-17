@@ -2172,9 +2172,18 @@ Model]] that the generated mesh of the bridge deck will have greater density in
 most areas but may also have reduced density in areas away from the applied
 load.
 
-#+NAME: fig:simulation-time
-#+CAPTION[Run time as a function of model size]: TODO:CAPTION
-[[./images/simulation-time.png]]
+The generated strain responses are not converging close to the point loads that
+are applied on the wheel tracks, and also not converging close to the piers
+under pier settlement. Under elastic plate theory, stresses (and therefore also
+strains) under a point load are infinitely large, which is why we do not observe
+convergence cite:timoshenko1959theory. Therefore strain sensors are not placed
+around the piers or near the wheel tracks for the purpose of classification.
+Figure [[fig:strain-sensors]] shows the positions on bridge 705 where simulated
+strain responses are collected.
+
+#+NAME: fig:strain-sensors
+#+CAPTION[Positions of available strain sensors]: Available positions in simulation to place strain sensors on the deck of bridge 705 for the purpose of classification. The blue dots indicate positions where strain sensors are available while the red sensors indicate positions where data from strain sensors cannot be used due to a lack of convergence.
+[[../../saved-generated-data-images/bridge-705-full-3d/healthy/sensors/unavailable-sensors.pdf]]
 
 *** Model Assumptions
 
