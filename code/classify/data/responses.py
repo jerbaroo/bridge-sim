@@ -23,6 +23,10 @@ from util import print_i, print_w
 D: str = "classify.data.responses"
 # D: bool = False
 
+############################
+##### Via wheel tracks #####
+############################
+
 
 def responses_to_traffic(
     c: Config,
@@ -34,7 +38,6 @@ def responses_to_traffic(
     response_type: ResponseType,
     fem_runner: FEMRunner,
     min_max: bool = False,
-    per_axle: bool = False,
 ) -> List[Responses]:
     """The 'Responses' to 'Traffic' at each simulation step.
 
@@ -52,9 +55,6 @@ def responses_to_traffic(
     """
     for t in range(len(traffic)):
         traffic[t] = list(chain.from_iterable(traffic[t]))
-
-    if per_axle:
-        raise ValueError("Per axle option is deprecated")
 
     # Wheel tracks the vehicle's drive on and an ILMatrix for each wheel track.
     z_fracs = sorted(
@@ -256,20 +256,26 @@ def responses_to_loads(
     )
 
 
+#################################
+##### Via direct simulation #####
+#################################
+
+
 def responses_to_loads_(
     c: Config,
     loads: List[List[PointLoad]],
     response_type: ResponseType,
-    bridge_scenario: BridgeScenario,
+    damage_scenario: BridgeScenario,
     points: List[Point],
     sim_runner: FEMRunner,
 ):
-    """Like 'responses_to_loads' but responses are via direct simulation.
+    """Responses to loads via direct simulation.
 
-    Returns a numPy array of shape len(loads) * len(points).
+    NOTE: this function will place a point load directly. This function doesn't
+    take into account wheel track buckets.
 
     """
-    if not isinstance(bridge_scenario, HealthyBridge):
+    if not isinstance(damage_scenario, HealthyBridge):
         raise ValueError("Only HealthyBridge supported in direct simulation")
     expt_responses = load_expt_responses(
         c=c,
@@ -304,7 +310,12 @@ def responses_to_vehicles_(
     sim_runner: FEMRunner,
     bridge_scenario: BridgeScenario = HealthyBridge(),
 ):
-    """Responses to vehicles via direct simulation."""
+    """Responses to vehicles via direct simulation.
+
+    NOTE: this function will place a point load directly at the center of each
+    wheel. This function doesn't take into account wheel track buckets.
+
+    """
     print_w("TODO: converting vehicle to point loads")
     loads = [
         list(

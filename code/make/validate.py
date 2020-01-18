@@ -5,6 +5,7 @@ from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from util import clean_generated, print_s
+from validate.campaign import displa_sensor_xz
 
 
 def density_no_effect(c: Config):
@@ -46,3 +47,12 @@ def density_no_effect(c: Config):
             print_s(f"Density's ratio = {density}")
             print_s(f"Max {response_type.name()} = {amax}")
             print_s(f"Min {response_type.name()} = {amin}")
+
+
+def truck_1_time_series(c: Config):
+    """Time series of 3 sensors to Truck 1's movement."""
+    displa_labels = ["U13", "U26", "U29"]
+    displa_points = []
+    for displa_label in displa_labels:
+        sensor_x, sensor_z = displa_sensor_xz[displa_label]
+        displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))

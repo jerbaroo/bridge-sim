@@ -289,6 +289,12 @@ def density():
     validate.density_no_effect(c())
 
 
+@validate.command(help="Time series of 3 sensors to Truck 1's movement.")
+def truck_1_ts():
+    from make import validate
+    validate.truck_1_time_series(c())
+
+
 #################
 ##### Param #####
 #################

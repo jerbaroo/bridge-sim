@@ -45,38 +45,7 @@ from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
 
-# TNO provided files.
-meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
 diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
-displa_sensors = pd.read_csv("data/verification/displasensors.txt")
-strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
-
-
-def truck_1_expt_xs():
-    truck_xs_expt = set()
-    for row in displa_sensors.itertuples():
-        sensor_label = getattr(row, "label")
-        responses = meas[meas["sensorlabel"] == sensor_label]
-        for sensor_row in responses.itertuples():
-            truck_xs_expt.add(getattr(sensor_row, "xpostruck"))
-    return sorted(truck_xs_expt)
-
-
-def displa_sensor_xz(sensor_label):
-    """X and z position of a displacement sensor."""
-    sensor = displa_sensors[displa_sensors["label"] == sensor_label]
-    sensor_x = sensor.iloc[0]["x"]
-    sensor_z = sensor.iloc[0]["z"]
-    return sensor_x, sensor_z
-
-
-def strain_sensor_xz(sensor_label):
-    """X and z position of a strain sensor."""
-    sensor = strain_sensors[strain_sensors["label"] == sensor_label]
-    sensor_x = sensor.iloc[0]["x"]
-    sensor_z = sensor.iloc[0]["z"]
-    return sensor_x, sensor_z
-
 
 # Interpolation function for each sensor position.
 diana_interp_funcs = dict()
