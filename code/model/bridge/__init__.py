@@ -543,12 +543,12 @@ class Bridge:
         self._assert_bridge()
 
     def _get_section(self, section: Section3D) -> Section3D:
-         """An equivalent section if exists, else the given one."""
-         section_prop_str = section.prop_str()
-         if section_prop_str in self._sections_dict:
-             return self._sections_dict[section_prop_str]
-         self._sections_dict[section_prop_str] = section
-         return self._sections_dict[section_prop_str]
+        """An equivalent section if exists, else the given one."""
+        section_prop_str = section.prop_str()
+        if section_prop_str in self._sections_dict:
+            return self._sections_dict[section_prop_str]
+        self._sections_dict[section_prop_str] = section
+        return self._sections_dict[section_prop_str]
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""

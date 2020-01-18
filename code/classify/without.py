@@ -15,7 +15,7 @@ def _distance_numpy(A, B, P):
         return norm(P - A)
     if arccos(dot((P - B) / norm(P - B), (A - B) / norm(A - B))) > pi / 2:
         return norm(P - B)
-    return norm(cross(A-B, A-P))/norm(B-A)
+    return norm(cross(A - B, A - P)) / norm(B - A)
 
 
 def without_pier_lines(c: Config, radius: float):
@@ -24,6 +24,7 @@ def without_pier_lines(c: Config, radius: float):
     This function only applies to sensors on the bridge deck.
 
     """
+
     def _without_pier_lines(point: Point) -> bool:
         if point.y != 0 or radius == 0:
             return False
@@ -41,6 +42,7 @@ def without_pier_lines(c: Config, radius: float):
                 if dist <= radius:
                     return True
         return False
+
     return _without_pier_lines
 
 
@@ -51,6 +53,7 @@ def without_wheel_tracks(c: Config, radius: float):
 
     """
     wheel_track_zs = c.bridge.wheel_tracks(c)
+
     def _without_pier_lines(point: Point) -> bool:
         if point.y != 0 or radius == 0:
             return False
@@ -67,4 +70,5 @@ def without_wheel_tracks(c: Config, radius: float):
                 # print(f"from point {p3} to {p1} - {p2}")
                 # print(f"radius = {radius}")
         return False
+
     return _without_pier_lines

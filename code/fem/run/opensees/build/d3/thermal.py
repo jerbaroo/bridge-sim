@@ -61,8 +61,9 @@ def opensees_thermal_axial_deck_loads(
             """Return a string with 0, 1, or 2 OpenSees load commands."""
             if np.isclose(self.x, 0) and np.isclose(self.z, 0):
                 return ""
-            return f"\nload {n_id} {np.around(self.x, 3)} 0 {np.around(self.z, 3)} 0 0 0"
-
+            return (
+                f"\nload {n_id} {np.around(self.x, 3)} 0 {np.around(self.z, 3)} 0 0 0"
+            )
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):
@@ -100,7 +101,9 @@ def opensees_thermal_axial_deck_loads(
             # be accurately compared to 0, and there won't be a small residual
             # force.
             nodal_thermal_force_n = cross_section_thermal_force_n / 2
-            assert np.isclose(cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2)
+            assert np.isclose(
+                cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
+            )
             print(
                 f"Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
             )

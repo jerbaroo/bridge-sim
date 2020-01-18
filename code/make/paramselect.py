@@ -23,10 +23,7 @@ def number_of_uls_plot(c: Config):
     times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
     print_i(f"Times = {times}")
     truck_loads = [
-        flatten(
-            wagen1.to_point_loads(time=time, bridge=c.bridge),
-            PointLoad,
-        )
+        flatten(wagen1.to_point_loads(time=time, bridge=c.bridge), PointLoad,)
         for time in times
     ]
     print_i(f"Truck loads = {truck_loads[0]}")
@@ -39,8 +36,10 @@ def number_of_uls_plot(c: Config):
                 x - (wagen1_wheel_length / 2),
                 x + (wagen1_wheel_length / 2),
             ]
+
             def frac_in_bin(_wheel_load):
                 """Fraction of current wheel in given bin."""
+
                 def _frac_in_bin(bin_x_lo, bin_x_hi):
                     wheel_x_lo, wheel_x_hi = _wheel_load.wheel_xs
                     # Fully out.
@@ -59,7 +58,9 @@ def number_of_uls_plot(c: Config):
                     if wheel_x_lo < bin_x_lo:
                         return (wheel_x_hi - bin_x_lo) / wagen1_wheel_length
                     raise ValueError("Unknown state")
+
                 return _frac_in_bin
+
             wheel_load.frac_in_bin = frac_in_bin(wheel_load)
 
     # For each amount of unit load simulations, collect a function for each
@@ -72,10 +73,13 @@ def number_of_uls_plot(c: Config):
         # Calculate wheel track bins, point load is in bin center.
         sml_bin_width = (c.bridge.length / (num_uls - 1)) / 2
         bins = [0]
-        bins += list(np.linspace(sml_bin_width, c.bridge.x_max - sml_bin_width, num_uls - 1))
+        bins += list(
+            np.linspace(sml_bin_width, c.bridge.x_max - sml_bin_width, num_uls - 1)
+        )
         bins += [c.bridge.x_max]
         bins = [np.around(bin, 3) for bin in bins]
         print_i(f"Bins = {bins}")
+
         def get_bin_load_x(bin_x_lo, bin_x_hi):
             if np.isclose(bin_x_lo, 0):
                 return 0
@@ -102,12 +106,14 @@ def number_of_uls_plot(c: Config):
                             c=c,
                             response_type=response_type,
                             sim_runner=OSRunner(c),
-                            sim_params = SimParams(
-                                ploads=[PointLoad(
-                                    x_frac=c.bridge.x_frac(bin_load_x),
-                                    z_frac=wheel_load.z_frac,
-                                    kn=wheel_load.kn,
-                                )],
+                            sim_params=SimParams(
+                                ploads=[
+                                    PointLoad(
+                                        x_frac=c.bridge.x_frac(bin_load_x),
+                                        z_frac=wheel_load.z_frac,
+                                        kn=wheel_load.kn,
+                                    )
+                                ],
                                 response_types=[response_type],
                             ),
                         )
@@ -122,7 +128,9 @@ def number_of_uls_plot(c: Config):
                         for sim_responses, frac in wheel_responses:
                             response += sim_responses.at_deck(point, interp=True) * frac
                     return response
+
                 return _response_to_truck
+
             response_to_trucks[-1].append(response_to_truck(responses))
 
     # Response functions ordered by truck then number of ULS.
@@ -134,9 +142,9 @@ def number_of_uls_plot(c: Config):
         points = [
             Point(x=x, y=0, z=c.bridge.z(wheel_load.z_frac))
             for x in np.linspace(
-                    max(truck_x_pos, c.bridge.x_min),
-                    min(truck_x_pos, c.bridge.x_max),
-                    num_points,
+                max(truck_x_pos, c.bridge.x_min),
+                min(truck_x_pos, c.bridge.x_max),
+                num_points,
             )
         ]
         for p_i, point in enumerate(points):
@@ -157,7 +165,11 @@ def number_of_uls_plot(c: Config):
                 max_after_chosen *= 1000
                 units_str = "mm"
             difference = np.around(max_after_chosen - min_after_chosen, 3)[0]
-            plt.axvline(chosen_uls, label=f"Max. difference after {chosen_uls} ULS = {difference} {units_str}", color="black")
+            plt.axvline(
+                chosen_uls,
+                label=f"Max. difference after {chosen_uls} ULS = {difference} {units_str}",
+                color="black",
+            )
             plt.axhline(min_after_chosen, color="black")
             plt.axhline(max_after_chosen, color="black")
             plt.legend()
@@ -169,5 +181,9 @@ def number_of_uls_plot(c: Config):
                 f"\nTruck 1's front axle at x = {np.around(truck_x_pos, 2)} m, on the south lane of Bridge 705."
             )
         plt.tight_layout()
-        plt.savefig(c.get_image_path("paramselection", safe_str(f"uls-truck-x-{truck_x_pos:.2f}") + ".pdf"))
+        plt.savefig(
+            c.get_image_path(
+                "paramselection", safe_str(f"uls-truck-x-{truck_x_pos:.2f}") + ".pdf"
+            )
+        )
         plt.close()

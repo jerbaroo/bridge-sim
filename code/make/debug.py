@@ -47,18 +47,22 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
                 run=True,
             )
             for scatter in [True, False]:
-                top_view_bridge(min_config.bridge, abutments=True, piers=True, lanes=True)
+                top_view_bridge(
+                    min_config.bridge, abutments=True, piers=True, lanes=True
+                )
                 plot_contour_deck(
-                    c=min_config,
-                    responses=sim_responses,
-                    scatter=scatter,
-                    levels=100,
+                    c=min_config, responses=sim_responses, scatter=scatter, levels=100,
                 )
                 plt.title(f"{refinement_radii}")
-                plt.savefig(min_config.get_image_path(
-                    "debugging",
-                    safe_str(f"{response_type.name()}-{refinement_radii}-scatter-{scatter}") + ".pdf"
-                ))
+                plt.savefig(
+                    min_config.get_image_path(
+                        "debugging",
+                        safe_str(
+                            f"{response_type.name()}-{refinement_radii}-scatter-{scatter}"
+                        )
+                        + ".pdf",
+                    )
+                )
                 plt.close()
 
     build_with_refinement([])

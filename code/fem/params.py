@@ -43,10 +43,10 @@ class SimParams:
         self._assert()
 
     def build_ctx(self, bridge: Bridge) -> BuildContext:
-         return BuildContext(
-             add_loads=[pload.point(bridge) for pload in self.ploads],
-             refinement_radii=self.refinement_radii
-         )
+        return BuildContext(
+            add_loads=[pload.point(bridge) for pload in self.ploads],
+            refinement_radii=self.refinement_radii,
+        )
 
     def _assert(self):
         """Maximum 1 load type should be applied (due to linear assumption)."""

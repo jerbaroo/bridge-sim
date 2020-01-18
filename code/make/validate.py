@@ -22,20 +22,19 @@ def density_no_effect(c: Config):
             if not callable(pier._sections):
                 raise ValueError("Experiment requires callable pier sections")
             original_sections = pier._sections
+
             def new_sections(section_frac_len):
                 section = original_sections(section_frac_len)
                 section.density = density
                 return section
+
             pier._sections = new_sections
 
     for density in [0.2, 100]:
         clean_generated(c)
         set_density(density)
         for response_type in response_types:
-            sim_params = SimParams(
-                response_types=[response_type],
-                ploads=[pload],
-            )
+            sim_params = SimParams(response_types=[response_type], ploads=[pload],)
             sim_responses = load_fem_responses(
                 c=c,
                 sim_runner=OSRunner(c),

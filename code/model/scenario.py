@@ -21,7 +21,9 @@ class BridgeScenario:
         self.mod_bridge = mod_bridge
         self.mod_sim_params = mod_sim_params
 
-    def use(self, c: Config, sim_params: Optional[SimParams] = None) -> Union[Config, Tuple[Config, SimParams]]:
+    def use(
+        self, c: Config, sim_params: Optional[SimParams] = None
+    ) -> Union[Config, Tuple[Config, SimParams]]:
         """Copies of the given arguments modified for this damage scenario."""
         config_copy = deepcopy(c)
         config_copy.bridge = self.mod_bridge(config_copy.bridge)

@@ -95,7 +95,9 @@ def unit_thermal_deck_load(c: Config):
 def make_axis_plots(c: Config):
     """Create AxisVM plots for thermal loading."""
     axis_values = pd.read_csv("validation/axis-screenshots/thermal-min-max.csv")
-    for response_type, rt_name, rt_units in [(ResponseType.YTranslation, "displa", "mm")]:
+    for response_type, rt_name, rt_units in [
+        (ResponseType.YTranslation, "displa", "mm")
+    ]:
         for thermal_type in ["axial"]:
             for direction in ["x", "y", "z"]:
                 axis_img = mpimg.imread(
@@ -112,7 +114,9 @@ def make_axis_plots(c: Config):
                     ),
                 )
                 # Plot the load and min, max values.
-                row = axis_values[axis_values["name"] == f"{direction}-{thermal_type}-{rt_name}"]
+                row = axis_values[
+                    axis_values["name"] == f"{direction}-{thermal_type}-{rt_name}"
+                ]
                 amin, amax = float(row["min"]), float(row["max"])
                 if response_type == ResponseType.Strain:
                     amax, amin = -amin * 1e6, -amax * 1e6
@@ -131,14 +135,19 @@ def make_axis_plots(c: Config):
                     )
                 plt.legend()
                 # Add the Axis colorbar.
-                plt.imshow(np.array([[amin, amax]]), cmap=get_cmap("jet"), extent=(0, 0, 0, 0))
+                plt.imshow(
+                    np.array([[amin, amax]]), cmap=get_cmap("jet"), extent=(0, 0, 0, 0)
+                )
                 clb = plt.colorbar()
                 clb.ax.set_title(rt_units)
                 # Title and save.
                 plt.title(f"Pier displacement of 1 m")
                 plt.xlabel("X position (mm)")
                 plt.ylabel("Z position (mm)")
-                plt.savefig(c.get_image_path(
-                    "validation/thermal", f"axis-{direction}-{thermal_type}-{rt_name}.pdf",
-                ))
+                plt.savefig(
+                    c.get_image_path(
+                        "validation/thermal",
+                        f"axis-{direction}-{thermal_type}-{rt_name}.pdf",
+                    )
+                )
                 plt.close()

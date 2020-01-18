@@ -193,7 +193,9 @@ class Responses:
                 # print("interp1d, x == x, z == z")
                 return vs[0]
             # print("interp1d, x == x")
-            return interp1d([z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value="extrapolate")(z)
+            return interp1d(
+                [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value="extrapolate"
+            )(z)
         if z_lo_x_lo == z_hi_x_lo:
             # print("interp1d, z == z")
             return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value="extrapolate")(x)
@@ -425,8 +427,7 @@ class SimResponses(Responses):
         self.c = c
         self.sim_params = sim_params
         self.sim_runner = sim_runner
-        super().__init__(
-            response_type=response_type, responses=responses, build=build)
+        super().__init__(response_type=response_type, responses=responses, build=build)
 
     def save(self):
         """Save theses simulation responses to disk."""

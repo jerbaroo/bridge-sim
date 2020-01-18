@@ -255,7 +255,9 @@ class BuildContext:
         self.next_s_id += 1
         return self.next_s_id - 1
 
-    def get_node(self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None) -> Node:
+    def get_node(
+        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+    ) -> Node:
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
         if pos not in self.nodes_by_pos:

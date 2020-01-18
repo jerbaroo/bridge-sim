@@ -21,7 +21,7 @@ from plot import default_cmap, plt
 from util import flatten, print_w
 
 
-def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool=False):
+def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool = False):
     """Scatter plot of deck sensors."""
     deck_nodes, _ = get_bridge_nodes(c.bridge)
     deck_nodes = det_nodes(deck_nodes)
@@ -40,11 +40,33 @@ def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool=F
             H.append(1)
         else:
             H.append(0)
-    plt.scatter([node.x for node in avail_nodes], [node.z for node in avail_nodes], s=5, color="#1f77b4")
-    plt.scatter([node.x for node in unavail_nodes], [node.z for node in unavail_nodes], color="#ff7f0e", s=5)
+    plt.scatter(
+        [node.x for node in avail_nodes],
+        [node.z for node in avail_nodes],
+        s=5,
+        color="#1f77b4",
+    )
+    plt.scatter(
+        [node.x for node in unavail_nodes],
+        [node.z for node in unavail_nodes],
+        color="#ff7f0e",
+        s=5,
+    )
     if label:
-        plt.scatter([avail_nodes[0].x], [avail_nodes[0].z], color="#1f77b4", label="available", s=5)
-        plt.scatter([unavail_nodes[0].x], [unavail_nodes[0].z], color="#ff7f0e", label="unavailable", s=5)
+        plt.scatter(
+            [avail_nodes[0].x],
+            [avail_nodes[0].z],
+            color="#1f77b4",
+            label="available",
+            s=5,
+        )
+        plt.scatter(
+            [unavail_nodes[0].x],
+            [unavail_nodes[0].z],
+            color="#ff7f0e",
+            label="unavailable",
+            s=5,
+        )
         plt.legend()
 
 

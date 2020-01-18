@@ -76,11 +76,14 @@ def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save_to
         c_func = bridge_705_config
     # Setup the directory to save results.
     og_c_func = c_func
+
     def c_func_save(*args, **kwargs):
         result_c = og_c_func(*args, **kwargs)
         result_c.root_generated_data_dir = os.path.join(
-            save_to, result_c.root_generated_data_dir)
+            save_to, result_c.root_generated_data_dir
+        )
         return result_c
+
     c_func = c_func_save
     if dimensions == "3":
         c = lambda: c_func(bridge_705_3d_overload)
@@ -178,10 +181,22 @@ def nodes():
 
 
 @geometry.command(help="Plot available sensors on the deck.")
-@click.option("--pier-radius", type=float, required=True, help="Radius around pier lines to ignore.")
-@click.option("--track-radius", type=float, required=True, help="Radius around wheel tracks to ignore.")
+@click.option(
+    "--pier-radius",
+    type=float,
+    required=True,
+    help="Radius around pier lines to ignore.",
+)
+@click.option(
+    "--track-radius",
+    type=float,
+    required=True,
+    help="Radius around wheel tracks to ignore.",
+)
 def avail_sensors(pier_radius, track_radius):
-    geometry_.make_available_sensors_plot(c=c(), pier_radius=pier_radius, track_radius=track_radius)
+    geometry_.make_available_sensors_plot(
+        c=c(), pier_radius=pier_radius, track_radius=track_radius
+    )
 
 
 ######################
@@ -232,22 +247,43 @@ def convergence():
 
 @validate.command(help="Plot strain convergence for pier settlement.")
 @click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
-@click.option("--max-nodes", type=int, required=True, help="Maximum number of nodes in a simulation.")
-@click.option("--without-radius", type=float, required=True, help="Radius around pier lines to ignore.")
-@click.option("--nesw-loc", type=int, required=True, help="Location of pier to plot NESW around.")
-@click.option("--nesw-max-dist", type=float, required=True, help="Maximum distance to plot NESW around.")
+@click.option(
+    "--max-nodes",
+    type=int,
+    required=True,
+    help="Maximum number of nodes in a simulation.",
+)
+@click.option(
+    "--without-radius",
+    type=float,
+    required=True,
+    help="Radius around pier lines to ignore.",
+)
+@click.option(
+    "--nesw-loc", type=int, required=True, help="Location of pier to plot NESW around."
+)
+@click.option(
+    "--nesw-max-dist",
+    type=float,
+    required=True,
+    help="Maximum distance to plot NESW around.",
+)
 @click.option("--process", type=int, default=0, help="Results identifier.")
-@click.option("--min-shell-len", type=float, default=0, help="Minimum shell len considered.")
-@click.option("--max-shell-len", type=float, required=True, help="Maximum shell len considered.")
+@click.option(
+    "--min-shell-len", type=float, default=0, help="Minimum shell len considered."
+)
+@click.option(
+    "--max-shell-len", type=float, required=True, help="Maximum shell len considered."
+)
 def pier_conv(
-        pier: int,
-        max_nodes: int,
-        without_radius: float,
-        nesw_loc: int,
-        nesw_max_dist: float,
-        process: int,
-        min_shell_len: float,
-        max_shell_len: float,
+    pier: int,
+    max_nodes: int,
+    without_radius: float,
+    nesw_loc: int,
+    nesw_max_dist: float,
+    process: int,
+    min_shell_len: float,
+    max_shell_len: float,
 ):
     verification.plot_pier_convergence(
         c=c(),
@@ -263,9 +299,12 @@ def pier_conv(
 
 
 @validate.command(help="Contour plots of unit thermal deck loading.")
-@click.option("--run", is_flag=True, default=True, help="Run the simulations before plotting.")
+@click.option(
+    "--run", is_flag=True, default=True, help="Run the simulations before plotting."
+)
 def thermal(run):
     from make.plot.contour import thermal
+
     thermal.make_axis_plots(c())
     thermal.unit_axial_thermal_deck_load(c=c(), run=run)
     # thermal.unit_moment_thermal_deck_load(c())
@@ -286,12 +325,14 @@ def pier_disp():
 @validate.command(help="Confirm that density has no effect on simulation.")
 def density():
     from make import validate
+
     validate.density_no_effect(c())
 
 
 @validate.command(help="Time series of 3 sensors to Truck 1's movement.")
 def truck_1_ts():
     from make import validate
+
     validate.truck_1_time_series(c())
 
 
@@ -349,6 +390,7 @@ def traffic_concrete():
 @click.option("--moment", type=float, required=True)
 def traffic_thermal(axial, moment):
     from make.plot.contour.traffic_thermal import thermal_deck_load
+
     thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
@@ -367,6 +409,7 @@ def debug():
 @click.option("--plot", type=bool, default=True)
 def refinement_tcls(build: bool, plot: bool):
     from make import debug
+
     debug.mesh_refinement(c=c(), build=build, plot=plot)
 
 
@@ -386,7 +429,9 @@ def oneclass():
 
 
 @classify.command()
-@click.option("--load", type=bool, default=False, help="Load calculated features from disk.")
+@click.option(
+    "--load", type=bool, default=False, help="Load calculated features from disk."
+)
 def pairwise_cluster_2(load):
     classification_.pairwise_cluster(c=c(), load=load)
 

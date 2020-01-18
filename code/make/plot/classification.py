@@ -87,7 +87,9 @@ def pairwise_cluster(c: Config, load: bool):
     features_path = c.get_data_path("features", "pairwise-cluster", bridge=False)
     if not load:
         normal_traffic_array, _ = load_normal_traffic_array(c=c, mins=24)
-        normal_traffic_array = normal_traffic_array[int(len(normal_traffic_array) / 24):]
+        normal_traffic_array = normal_traffic_array[
+            int(len(normal_traffic_array) / 24) :
+        ]
         response_type = ResponseType.YTranslation
         grid_points = [
             Point(x=x, y=0, z=-9.65)
@@ -131,6 +133,7 @@ def pairwise_cluster(c: Config, load: bool):
 
     # Cluster each pairwise map.
     from sklearn.cluster import KMeans
+
     kmeans = KMeans(n_clusters=2)
     kmeans.fit(features)
 

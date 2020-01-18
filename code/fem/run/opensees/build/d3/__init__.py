@@ -465,9 +465,7 @@ def opensees_test(pier_disp: Optional[DisplacementCtrl]):
 
 
 def build_model_3d(
-    c: Config,
-    expt_params: ExptParams,
-    os_runner: "OSRunner",
+    c: Config, expt_params: ExptParams, os_runner: "OSRunner",
 ):
     """Build OpenSees 3D model files.
 

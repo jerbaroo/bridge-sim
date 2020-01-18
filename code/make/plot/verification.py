@@ -40,7 +40,16 @@ from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, plot_deck_sensors
 from plot.validation import plot_mmm_strain_convergence
-from util import clean_generated, flatten, print_i, print_w, read_csv, round_m, safe_str, scalar
+from util import (
+    clean_generated,
+    flatten,
+    print_i,
+    print_w,
+    read_csv,
+    round_m,
+    safe_str,
+    scalar,
+)
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -534,15 +543,15 @@ def r2_plots(c: Config):
 
 
 def plot_pier_convergence(
-        c: Config,
-        process: int,
-        pier_i: int,
-        max_nodes: int,
-        strain_ignore_radius: float,
-        nesw_location: int,
-        nesw_max_dist: float,
-        min_shell_len: float,
-        max_shell_len: Optional[float] = None,
+    c: Config,
+    process: int,
+    pier_i: int,
+    max_nodes: int,
+    strain_ignore_radius: float,
+    nesw_location: int,
+    nesw_max_dist: float,
+    min_shell_len: float,
+    max_shell_len: Optional[float] = None,
 ):
     """Make pier convergence data file, decreasing mesh size per simulation."""
     # We will be modifying the 'Config', so make a copy.
@@ -555,9 +564,7 @@ def plot_pier_convergence(
     pier = c.bridge.supports[pier_i]
     if nesw_location == 0:
         nesw_point = Point(
-            x=pier.x - (pier.length / 2),
-            y=0,
-            z=pier.z - (pier.width_top / 2)
+            x=pier.x - (pier.length / 2), y=0, z=pier.z - (pier.width_top / 2)
         )
     else:
         raise ValueError("Invalid NESW plot location")
@@ -577,7 +584,8 @@ def plot_pier_convergence(
     # Write parameter information to the results file.
     filepath = c.get_image_path(
         "convergence-pier",
-        safe_str(f"{c.bridge.name}-{process}-convergence-results-pier-{pier_i}") + ".csv",
+        safe_str(f"{c.bridge.name}-{process}-convergence-results-pier-{pier_i}")
+        + ".csv",
         # We are storing results for all model sizes in the same file, so no
         # need for bridge accuracy in filepath.
         acc=False,
@@ -587,9 +595,16 @@ def plot_pier_convergence(
     if not os.path.exists(filepath):
         print_i(filepath)
         # Parameters of simulations are written to a file.
-        df = pd.DataFrame(columns=[
-            "deck-nodes", "pier-nodes", "time", "shell-size", "deck-size", "pier-size"
-        ])
+        df = pd.DataFrame(
+            columns=[
+                "deck-nodes",
+                "pier-nodes",
+                "time",
+                "shell-size",
+                "deck-size",
+                "pier-size",
+            ]
+        )
         df.index.name = "max-shell-len"
         df.to_csv(filepath)
     df = pd.read_csv(filepath, index_col="max-shell-len")
@@ -646,12 +661,12 @@ def plot_pier_convergence(
                     df.drop(max_shell_len)
                 df.append(pd.Series(name=max_shell_len))
                 for param_name, param in [
-                        ("deck-nodes", deck_nodes),
-                        ("pier-nodes", pier_nodes),
-                        ("time", end - start),
-                        ("shell-size", avg_shell_size),
-                        ("deck-size", avg_deck_size),
-                        ("pier-size", avg_pier_size),
+                    ("deck-nodes", deck_nodes),
+                    ("pier-nodes", pier_nodes),
+                    ("time", end - start),
+                    ("shell-size", avg_shell_size),
+                    ("deck-size", avg_deck_size),
+                    ("pier-size", avg_pier_size),
                 ]:
                     df.at[max_shell_len, param_name] = param
                 df.to_csv(filepath)
@@ -686,13 +701,14 @@ def plot_pier_convergence(
     print()
 
     plot_mmm_strain_convergence(
-        c=og_c, pier=pier, parameters=df, all_strains=all_strains)
+        c=og_c, pier=pier, parameters=df, all_strains=all_strains
+    )
     plot_deck_sensors(c=c, without=without)
     plt.savefig(og_c.get_image_path("convergence-pier", "unavailable sensors.pdf"))
     plt.close()
 
 
-def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):
+def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6):
     """Make convergence data file, increasing mesh density per simulation."""
     load_point = Point(x=x, y=0, z=z)
     bridge = bridge_705_3d()
@@ -825,7 +841,11 @@ def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):
 
             # Also write results of strain recordings, for each direction.
             for dir_name, x_mul, z_mul in [
-                    ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
+                ("N", 0, 1),
+                ("E", -1, 0),
+                ("S", 0, -1),
+                ("W", 1, 0),
+            ]:
                 recordings = []
                 for delta in np.arange(0, 5, 0.05):
                     strain_point = Point(
@@ -834,8 +854,10 @@ def make_convergence_data(c: Config, x: float=34.955, z: float=29.226 - 16.6):
                         z=load_point.z + (delta * z_mul),
                     )
                     if (
-                        strain_point.x < c.bridge.x_min or strain_point.x > c.bridge.x_max
-                        or strain_point.z < c.bridge.z_min or strain_point.z > c.bridge.z_max
+                        strain_point.x < c.bridge.x_min
+                        or strain_point.x > c.bridge.x_max
+                        or strain_point.z < c.bridge.z_min
+                        or strain_point.z > c.bridge.z_max
                     ):
                         break
                     print(strain_point.x, strain_point.z)
@@ -859,13 +881,22 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
     with open(filepath) as f:
         lines = list(map(lambda l: l.split(",", len(headers) - 1), f.readlines()[1:]))
     for max_mesh, deck_nodes, pier_nodes, compass, responses in lines:
-        parsed_lines.append([
-            float(max_mesh),
-            float(deck_nodes),
-            float(pier_nodes),
-            compass.strip(),
-            np.array(list(map(float, responses.replace("[", "").replace("]", "").split(",")))),
-        ])
+        parsed_lines.append(
+            [
+                float(max_mesh),
+                float(deck_nodes),
+                float(pier_nodes),
+                compass.strip(),
+                np.array(
+                    list(
+                        map(
+                            float,
+                            responses.replace("[", "").replace("]", "").split(","),
+                        )
+                    )
+                ),
+            ]
+        )
     df = pd.DataFrame(parsed_lines, columns=headers)
     # First find the maximum distance traversed.
     delta_distance = 0.05
@@ -884,7 +915,9 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
     # For each compass point.
     plt.square()
     fig, axes = plt.subplots(nrows=2, ncols=2)
-    for ax, compass, compass_name, in zip(axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]):
+    for ax, compass, compass_name, in zip(
+        axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]
+    ):
         # Collect data into responses per max_shell_len.
         lines = {}
         compass_df = df[df["compass"] == compass]
@@ -906,13 +939,17 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
             if distance > max_distance:
                 break
         ax.set_xlim(2, min(max_shell_lens))
-        ax.set_title(f"Strain at increasing distance\nin direction {compass_name} from\n{from_}")
+        ax.set_title(
+            f"Strain at increasing distance\nin direction {compass_name} from\n{from_}"
+        )
         ax.set_xlabel("max_shell_len (m)")
         ax.set_ylabel("Strain (m\m)")
     plt.tight_layout()
     clb = plt.colorbar(mappable, ax=axes.ravel())
     clb.ax.set_title("Distance (m)")
-    plt.savefig(c.get_image_path("convergence", f"convergencestrain-{label}.pdf", bridge=False))
+    plt.savefig(
+        c.get_image_path("convergence", f"convergencestrain-{label}.pdf", bridge=False)
+    )
     plt.close()
 
 
@@ -924,7 +961,9 @@ def plot_convergence(c: Config):
     name.
 
     """
-    convergence_dir = os.path.dirname(c.get_image_path("convergence", "_", bridge=False))
+    convergence_dir = os.path.dirname(
+        c.get_image_path("convergence", "_", bridge=False)
+    )
 
     # Get all simulations results from each machine.
     machines = dict()

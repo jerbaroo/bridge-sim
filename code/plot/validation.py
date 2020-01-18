@@ -13,10 +13,7 @@ from util import print_i, scalar
 
 
 def plot_mmm_strain_convergence(
-        c: Config,
-        pier: int,
-        parameters: pd.DataFrame,
-        all_strains: Dict[float, Responses]
+    c: Config, pier: int, parameters: pd.DataFrame, all_strains: Dict[float, Responses]
 ):
     """Plot convergence of given responses as model size grows."""
     # A grid of points 1m apart, over which to calculate responses.
@@ -33,9 +30,7 @@ def plot_mmm_strain_convergence(
     num_sims = len(list(all_strains))
     for sim, strains in enumerate(all_strains.values()):
         print_i(f"Gathering strains from simulation {sim + 1} / {num_sims}", end="\r")
-        grid_strains = np.array(
-            [strains.at_deck(point, interp=True) for point in grid]
-        )
+        grid_strains = np.array([strains.at_deck(point, interp=True) for point in grid])
         gmins.append(scalar(np.min(grid_strains)))
         gmaxes.append(scalar(np.max(grid_strains)))
         gmeans.append(scalar(np.mean(grid_strains)))
@@ -60,15 +55,19 @@ def plot_mmm_strain_convergence(
 
 
 def plot_nesw_convergence(
-        point: Point,
-        max_distance: float,
-        parameters: pd.DataFrame,
-        all_responses: Dict[float, Responses],
+    point: Point,
+    max_distance: float,
+    parameters: pd.DataFrame,
+    all_responses: Dict[float, Responses],
 ):
     """Plot convergence in each compass direction from a point."""
     compass_responses = defaultdict(lambda: [])
     for compass_name, x_mul, z_mul in [
-            ("N", 0, 1), ("E", -1, 0), ("S", 0, -1), ("W", 1, 0)]:
+        ("N", 0, 1),
+        ("E", -1, 0),
+        ("S", 0, -1),
+        ("W", 1, 0),
+    ]:
         print(f"compass name = {compass_name}")
         for delta in np.arange(0, max_distance, 0.05):
             print(f"delta = {delta}")

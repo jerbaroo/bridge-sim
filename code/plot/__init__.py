@@ -33,8 +33,10 @@ D: bool = False
 def _portrait():
     matplotlib.rcParams["figure.figsize"] = (10, 16)
 
+
 def _square():
     matplotlib.rcParams["figure.figsize"] = (16, 16)
+
 
 def _landspace():
     matplotlib.rcParams["figure.figsize"] = (16, 10)

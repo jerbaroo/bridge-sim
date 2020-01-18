@@ -43,10 +43,12 @@ def convert_sim_translation_responses(
         # For each collected response at that time.
         for i in range(len(parsed_sim_trans_responses[time])):
             node = nodes[node_index]
-            result.append((
-                parsed_sim_trans_responses[time][i],
-                Point(x=node.x, y=node.y, z=node.z)
-            ))
+            result.append(
+                (
+                    parsed_sim_trans_responses[time][i],
+                    Point(x=node.x, y=node.y, z=node.z),
+                )
+            )
             node_index += 1
     converted_expt_responses[sim_ind][response_type] = result
 
@@ -113,14 +115,12 @@ def convert_strain_responses(
             half_height = element.section.thickness / 2
             # print(response_point.x, response_point.y, response_point.z)
             # print(eps11)
-            result.append((
-                (eps11 - (theta11 * half_height)) * -1e6,
-                Point(
-                    x=response_point.x,
-                    y=response_point.y,
-                    z=response_point.z,
+            result.append(
+                (
+                    (eps11 - (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
                 )
-            ))
+            )
 
     converted_expt_responses[sim_ind][ResponseType.Strain] = result
     print(len(result))
