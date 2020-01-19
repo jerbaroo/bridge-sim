@@ -1,7 +1,8 @@
 import itertools
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, List
 
+import matplotlib
 import numpy as np
 import pandas as pd
 
@@ -55,24 +56,63 @@ def plot_mmm_strain_convergence(
 
 
 def plot_nesw_convergence(
-    point: Point,
-    max_distance: float,
-    parameters: pd.DataFrame,
-    all_responses: Dict[float, Responses],
+        c: Config,
+        responses: Dict[float, Responses],
+        point: Point,
+        max_distance: float,
 ):
-    """Plot convergence in each compass direction from a point."""
-    compass_responses = defaultdict(lambda: [])
-    for compass_name, x_mul, z_mul in [
-        ("N", 0, 1),
-        ("E", -1, 0),
-        ("S", 0, -1),
-        ("W", 1, 0),
-    ]:
-        print(f"compass name = {compass_name}")
-        for delta in np.arange(0, max_distance, 0.05):
-            print(f"delta = {delta}")
-            compass_responses[compass_name].append([])
-            for max_shell_len, responses in all_responses:
-                compass_responses[compass_name][-1].append(
-                    scalar(responses.at_deck(point, interp=True))
-                )
+    """Plot convergence of strain at different points around a load."""
+    delta_distance = 0.01
+    skip = 3
+    # Create color mappable for distances.
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
+    cmap = matplotlib.cm.get_cmap("jet")
+    mappable = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap)
+    color = lambda d: mappable.to_rgba(d)
+    # For each compass point.
+    compass_dir = {
+        "N": (0, 1),
+        "E": (-1, 0),
+        "S": (0, -1),
+        "W": (1, 0),
+    }
+    plt.square()
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    for ax, compass, compass_name, in zip(
+        axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]
+    ):
+        # Collect data into responses.
+        x_mul, z_mul = compass_dir[compass]
+        for distance in np.arange(0, max_distance, step=delta_distance)[::skip]:
+            dist_point = Point(
+                x=point.x + (distance * x_mul),
+                y=point.y,
+                z=point.z + (distance * z_mul),
+            )
+            print(dist_point)
+            if (
+                dist_point.x < c.bridge.x_min
+                or dist_point.x > c.bridge.x_max
+                or dist_point.z < c.bridge.z_min
+                or dist_point.z > c.bridge.z_max
+            ):
+                break
+            line_responses = []
+            for max_shell_len, sim_responses in responses.items():
+                line_responses.append((
+                    max_shell_len,
+                    scalar(sim_responses.at_deck(dist_point, interp=True))
+                ))
+            line_responses = np.array(sorted(line_responses, key=lambda t: t[0])).T
+            ax.plot(line_responses[0], line_responses[1], color=color(distance))
+            if distance > max_distance:
+                break
+        ax.set_xlim(ax.get_xlim()[1], ax.get_xlim()[0])
+        ax.set_title(
+            f"Strain at increasing distance\nin direction {compass_name}"
+        )
+        ax.set_xlabel("max_shell_len (m)")
+        ax.set_ylabel("Strain (m\m)")
+    plt.tight_layout()
+    clb = plt.colorbar(mappable, ax=axes.ravel())
+    clb.ax.set_title("Distance (m)")

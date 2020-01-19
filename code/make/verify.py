@@ -137,21 +137,21 @@ def compare_responses(c: Config):
     plt.plot(np.array(responses).reshape(-1, 1))
 
     # # Then from 'TrafficArray' we get  responses, with binning.
-    responses = [
-        responses_to_loads_m(
-            c=c,
-            response_type=ResponseType.YTranslation,
-            points=[point],
-            sim_runner=OSRunner(c),
-            loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
-        )
-        for time in wagen1_times
-    ]
-    plt.subplot(4, 1, 4)
-    plt.title(
-        f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
-    )
-    plt.plot(np.array(responses).reshape(-1, 1))
+    # responses = [
+    #     responses_to_loads_m(
+    #         c=c,
+    #         response_type=ResponseType.YTranslation,
+    #         points=[point],
+    #         sim_runner=OSRunner(c),
+    #         loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
+    #     )
+    #     for time in wagen1_times
+    # ]
+    # plt.subplot(4, 1, 4)
+    # plt.title(
+    #     f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
+    # )
+    # plt.plot(np.array(responses).reshape(-1, 1))
 
     plt.tight_layout()
     plt.savefig(c.get_image_path("system-verification", "compare-time-series.pdf"))

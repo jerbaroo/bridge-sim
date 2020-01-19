@@ -34,7 +34,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck, plot_deck_sensors
-from plot.validation import plot_mmm_strain_convergence
+from plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
 from util import (
     clean_generated,
     flatten,
@@ -670,14 +670,13 @@ def plot_pier_convergence(
             if float(row["deck-nodes"]) + float(row["pier-nodes"]) > max_nodes:
                 print_i("Maximum nodes reached")
                 break
-            print(df)
             # TODO: Remove to deck interpolation test.
-            for x in displacements.xs:
-                if 0 in displacements.zs[x]:
-                    for z in displacements.zs[x][0]:
-                        og = displacements.responses[0][x][0][z]
-                        ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
-                        assert np.isclose(og, ip)
+            # for x in displacements.xs:
+            #     if 0 in displacements.zs[x]:
+            #         for z in displacements.zs[x][0]:
+            #             og = displacements.responses[0][x][0][z]
+            #             ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
+            #             assert np.isclose(og, ip)
         except ValueError as e:
             if "No responses found" in str(e):
                 print_i("Simulation failed. Time to plot results")
@@ -685,19 +684,37 @@ def plot_pier_convergence(
             else:
                 raise e
 
-    # For each set of responses remove the removed points.
-    for key, displacements in all_displacements.items():
-        all_displacements[key] = displacements.without(without)
-        print(f"Filtering displacements with max shell len {key}", end="\r")
-    print()
-    for key, strains in all_strains.items():
-        all_strains[key] = strains.without(without)
-        print(f"Filtering strains with max shell len {key}", end="\r")
-    print()
+    plot_nesw_convergence(
+        c=c,
+        responses=all_strains,
+        point=nesw_point,
+        max_distance=nesw_max_dist
+    )
+    filepath = c.get_image_path(
+        "convergence-pier",
+        safe_str(f"{c.bridge.name}-{process}-convergence-nesw-pier-{pier_i}")
+        + ".pdf",
+        acc=False,
+    )
+    plt.savefig(filepath)
+    plt.close()
 
+    # For each set of responses remove the removed points.
+    # for key, displacements in all_displacements.items():
+    #     all_displacements[key] = displacements.without(without)
+    #     print(f"Filtering displacements with max shell len {key}", end="\r")
+    # print()
+    # for key, strains in all_strains.items():
+    #     all_strains[key] = strains.without(without)
+    #     print(f"Filtering strains with max shell len {key}", end="\r")
+    # print()
+
+    # Plot strain over max-shell-len.
     plot_mmm_strain_convergence(
         c=og_c, pier=pier, parameters=df, all_strains=all_strains
     )
+
+    # A plot of sensors that are (un)available.
     plot_deck_sensors(c=c, without=without)
     plt.savefig(og_c.get_image_path("convergence-pier", "unavailable sensors.pdf"))
     plt.close()
