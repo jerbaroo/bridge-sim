@@ -9,8 +9,8 @@ from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic_array
 from classify.scenarios import all_scenarios
 from classify.scenario.bridge import (
-    HealthyBridge,
-    PierDispBridge,
+    HealthyDamage,
+    PierDispDamage,
     equal_pier_disp,
     longitudinal_pier_disp,
 )
@@ -20,7 +20,7 @@ from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.load import DisplacementCtrl
 from model.response import ResponseType, resize_and_units
-from model.scenario import BridgeScenario
+from model.scenario import DamageScenario
 from plot import plt
 from plot.responses import plot_contour_deck, plot_distributions
 from util import print_i, safe_str
@@ -47,24 +47,24 @@ def distribution_plots(c: Config):
 
 def lane_distribution_plots(
     c: Config,
-    bridge_scenarios: List[BridgeScenario],
+    bridge_scenarios: List[DamageScenario],
     response_type: ResponseType,
     num: int = 25,
 ):
-    """For each 'BridgeScenario' plot response distributions along each lane.
+    """For each 'DamageScenario' plot response distributions along each lane.
 
     All simulations are under the normal traffic scenario.
 
     Args:
         c: Config, global configuration object.
-        bridge_scenarios: List[BridgeScenario], each bridge scenario for which
+        bridge_scenarios: List[DamageScenario], each bridge scenario for which
             to plot the distribution of responses. The first scenario must be
             the healthy scenario.
         response_type: ResponseType, the type of sensor response to record.
         num: int, the number of points at which to record responses.
 
     """
-    assert isinstance(bridge_scenarios[0], HealthyBridge)
+    assert isinstance(bridge_scenarios[0], HealthyDamage)
     print_i("Lane distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 
@@ -290,23 +290,23 @@ def check_non_numeric(a):
 
 
 def deck_distribution_plots(c: Config):
-    """For each 'BridgeScenario' plot response distributions along each lane.
+    """For each 'DamageScenario' plot response distributions along each lane.
 
     All simulations are under the normal traffic scenario.
 
     Args:
         c: Config, global configuration object.
-        bridge_scenarios: List[BridgeScenario], each bridge scenario for which
+        bridge_scenarios: List[DamageScenario], each bridge scenario for which
             to plot the distribution of responses. The first scenario must be
             the healthy scenario.
         response_type: ResponseType, the type of sensor response to record.
 
     """
     bridge_scenarios = (
-        [HealthyBridge()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
+            [HealthyDamage()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
     )
     response_type = ResponseType.YTranslation
-    assert isinstance(bridge_scenarios[0], HealthyBridge)
+    assert isinstance(bridge_scenarios[0], HealthyDamage)
     print_i("Deck distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 

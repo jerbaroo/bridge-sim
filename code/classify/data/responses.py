@@ -6,7 +6,7 @@ import numpy as np
 from fem.responses.matrix import load_expt_responses
 from scipy.interpolate import interp1d
 
-from classify.scenario.bridge import CrackedBridge, HealthyBridge, PierDispBridge
+from classify.scenario.bridge import CrackedDamage, HealthyDamage, PierDispDamage
 from config import Config
 from fem.params import ExptParams, SimParams
 from fem.responses import Responses
@@ -16,7 +16,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
-from model.scenario import BridgeScenario, Traffic, TrafficArray
+from model.scenario import DamageScenario, Traffic, TrafficArray
 from util import flatten, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
@@ -32,7 +32,7 @@ def responses_to_traffic_array(
     c: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
-    bridge_scenario: BridgeScenario,
+    bridge_scenario: DamageScenario,
     points: List[Point],
     sim_runner: Callable[[Config], FEMRunner],
     j=None,
@@ -42,7 +42,7 @@ def responses_to_traffic_array(
     Args:
         c: Config, global configuration object.
         traffic: Traffic, a list of moving vehicles at each simulation step.
-        bridge_scenario: BridgeScenario, the damage scenario of the bridge.
+        bridge_scenario: DamageScenario, the damage scenario of the bridge.
         start_time: float, time at which the traffic simulation starts.
         time_step: List[float], time between each step of the simulation.
         points: List[Point], points on the bridge to calculate responses at.
@@ -87,7 +87,7 @@ def responses_to_traffic_array(
     responses = np.matmul(traffic_array, unit_load_matrix)
 
     pd_responses = np.zeros(responses.shape)
-    if isinstance(bridge_scenario, PierDispBridge):
+    if isinstance(bridge_scenario, PierDispDamage):
         pd_responses = pd_responses.T  # Transpose so indexed by point first.
         pd_matrix = DCMatrix.load(
             c=c, response_type=response_type, fem_runner=sim_runner(c)
@@ -114,7 +114,7 @@ def responses_to_loads_m(
     response_type: ResponseType,
     points: List[Point],
     sim_runner: FEMRunner,
-    damage_scenario: BridgeScenario = HealthyBridge(),
+    damage_scenario: DamageScenario = HealthyDamage(),
 ):
     """Responses to point loads, point loads are converted to a 'TrafficArray'.
 
@@ -164,7 +164,7 @@ def responses_to_loads_m(
 def responses_to_traffic(
     c: Config,
     traffic: "Traffic",
-    bridge_scenario: BridgeScenario,
+    bridge_scenario: DamageScenario,
     start_time: float,
     time_step: float,
     points: List[Point],
@@ -267,7 +267,7 @@ def responses_to_loads_d(
     points: List[Point],
     loads: List[List[PointLoad]],
     sim_runner: FEMRunner,
-    damage_scenario: BridgeScenario = HealthyBridge(),
+    damage_scenario: DamageScenario = HealthyDamage(),
 ):
     """Responses to loads via direct simulation.
 
@@ -278,8 +278,8 @@ def responses_to_loads_d(
     take into account wheel track buckets.
 
     """
-    if not isinstance(damage_scenario, HealthyBridge):
-        raise ValueError("Only HealthyBridge supported in direct simulation")
+    if not isinstance(damage_scenario, HealthyDamage):
+        raise ValueError("Only HealthyDamage supported in direct simulation")
     expt_responses = load_expt_responses(
         c=c,
         expt_params=ExptParams(
@@ -306,7 +306,7 @@ def responses_to_vehicles_d(
     times: List[float],
     sim_runner: FEMRunner,
     binned: bool = True,
-    damage_scenario: BridgeScenario = HealthyBridge(),
+    damage_scenario: DamageScenario = HealthyDamage(),
 ):
     """Response at points to vehicles via direct simulation.
 
@@ -314,8 +314,8 @@ def responses_to_vehicles_d(
     wheel. This function doesn't take into account wheel track buckets.
 
     """
-    if not isinstance(damage_scenario, HealthyBridge):
-        raise ValueError("Only HealthyBridge supported in direct simulation")
+    if not isinstance(damage_scenario, HealthyDamage):
+        raise ValueError("Only HealthyDamage supported in direct simulation")
     if binned:
         print("binned")
         loads = [

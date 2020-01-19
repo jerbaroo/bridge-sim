@@ -1,4 +1,4 @@
-from classify.scenario.bridge import ThermalBridge
+from classify.scenario.bridge import ThermalDamage
 from config import Config
 from make.plot.contour.common import damage_scenario_traffic_plot
 from model.response import ResponseType
@@ -15,7 +15,7 @@ def thermal_deck_load(c: Config, axial_delta_temp: float, moment_delta_temp: flo
     damage_scenario_traffic_plot(
         c=c,
         response_types=response_types,
-        damage_scenario=ThermalBridge(axial_delta_temp=c.unit_axial_delta_temp_c),
+        damage_scenario=ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c),
         titles=[
             f"{rt.name()} to {axial_delta_temp}C axial, {moment_delta_temp}C moment,\nthermal loading of the deck"
             for rt in response_types

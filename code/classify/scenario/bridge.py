@@ -6,11 +6,11 @@ from config import Config
 from fem.params import SimParams
 from model.bridge import Bridge
 from model.load import DisplacementCtrl
-from model.scenario import BridgeScenario
+from model.scenario import DamageScenario
 from util import round_m
 
 
-class HealthyBridge(BridgeScenario):
+class HealthyDamage(DamageScenario):
     def __init__(self):
         super().__init__(name="normal")
 
@@ -18,7 +18,7 @@ class HealthyBridge(BridgeScenario):
 CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 
-class CrackedBridge(BridgeScenario):
+class CrackedDamage(DamageScenario):
     """A cracked bridge, defined by an area of a bridge's deck to crack."""
 
     def __init__(
@@ -81,7 +81,7 @@ class CrackedBridge(BridgeScenario):
         bridge.sections = cracked_sections + bridge.sections
 
 
-def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
+def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:
     """A bridge with the center of a lane cracked."""
     x_frac = percent / 100
 
@@ -90,12 +90,12 @@ def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
         length, width = bridge.x(x_frac), bridge.lanes[lane].width
         return x_start, z_start, x_start + length, z_start + width
 
-    return CrackedBridge(
+    return CrackedDamage(
         name=f"crack-lane-{lane}-center-{percent}", crack_area=crack_area
     )
 
 
-def start_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
+def start_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:
     """A bridge with the start of the lane cracked."""
     x_frac = percent / 100
 
@@ -104,12 +104,12 @@ def start_lane_crack(percent: float = 20, lane: int = 0) -> CrackedBridge:
         length, width = bridge.x(x_frac), bridge.lanes[lane].width
         return x_start, z_start, x_start + length, z_start + width
 
-    return CrackedBridge(
+    return CrackedDamage(
         name=f"crack-lane-{lane}-start-{percent}", crack_area=crack_area
     )
 
 
-class PierDispBridge(BridgeScenario):
+class PierDispDamage(DamageScenario):
     def __init__(self, pier_disps: [DisplacementCtrl], name_prefix: str = ""):
         if len(pier_disps) < 1:
             raise ValueError("At least 1 PierDisp required")
@@ -118,9 +118,9 @@ class PierDispBridge(BridgeScenario):
         self.pier_disps = pier_disps
 
 
-def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispBridge:
+def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispDamage:
     """All piers with equal given displacement."""
-    return PierDispBridge(
+    return PierDispDamage(
         pier_disps=[
             DisplacementCtrl(displacement=displacement, pier=p)
             for p in range(len(bridge.supports))
@@ -129,7 +129,7 @@ def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispBridge:
     )
 
 
-def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDispBridge:
+def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDispDamage:
     """Pier displacement that increases in longitudinal direction."""
     increase_every = len(set(pier.z for pier in bridge.supports))
     pier_disps = []
@@ -138,10 +138,10 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
         if p != 0 and p % increase_every == 0:
             displacement += step
         pier_disps.append(DisplacementCtrl(displacement=displacement, pier=p))
-    return PierDispBridge(pier_disps=pier_disps, name_prefix="longitudinal")
+    return PierDispDamage(pier_disps=pier_disps, name_prefix="longitudinal")
 
 
-class ThermalBridge(BridgeScenario):
+class ThermalDamage(DamageScenario):
     """Thermal expansion, with axial and bending moment components."""
 
     def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):

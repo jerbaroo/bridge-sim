@@ -9,7 +9,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from classify.scenario.bridge import HealthyBridge
+from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from classify.data.responses import responses_to_traffic
 from config import Config

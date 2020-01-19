@@ -6,7 +6,7 @@ from sklearn.svm import OneClassSVM
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
-from classify.scenario.bridge import HealthyBridge
+from classify.scenario.bridge import HealthyDamage
 from classify.scenarios import healthy_and_cracked_scenarios
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
@@ -22,7 +22,7 @@ from util import print_i
 
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
-    bridge_scenarios = [HealthyBridge()] + each_pier_scenarios(c)
+    bridge_scenarios = [HealthyDamage()] + each_pier_scenarios(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
@@ -150,7 +150,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
         )
     ]
 
-    bridge_scenario = HealthyBridge()
+    bridge_scenario = HealthyDamage()
     responses = responses_to_traffic_array(
         c=c,
         traffic_array=normal_traffic_array,

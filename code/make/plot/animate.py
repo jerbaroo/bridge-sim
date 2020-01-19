@@ -1,4 +1,4 @@
-from classify.scenario.bridge import HealthyBridge
+from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from config import Config
 from fem.run.opensees import OSRunner
@@ -33,7 +33,7 @@ def traffic(c: Config):
         animate_traffic_top_view(
             c=c,
             bridge=c.bridge,
-            bridge_scenario=HealthyBridge(),
+            bridge_scenario=HealthyDamage(),
             traffic_name=traffic_scenario.name,
             traffic=traffic[start_index:],
             start_time=start_index * time_step,

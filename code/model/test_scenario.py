@@ -1,7 +1,7 @@
 """Test model.scenario and classify.data.scenarios."""
 from timeit import default_timer as timer
 
-from classify.scenario.bridge import HealthyBridge, PierDispBridge
+from classify.scenario.bridge import HealthyDamage, PierDispDamage
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from model.load import DisplacementCtrl, MvVehicle
 from model.scenario import TrafficScenario, to_traffic, to_traffic_array
@@ -33,8 +33,8 @@ def test_scenario():
         last_init_x_frac = mv_vehicle.init_x_frac
 
     # Simply check that no errors are created.
-    HealthyBridge()
-    PierDispBridge(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
+    HealthyDamage()
+    PierDispDamage(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
 
     # Time how long it takes to generate traffic.
     start = timer()
@@ -97,7 +97,7 @@ def test_scenario():
     responses_2 = responses_to_traffic(
         c,
         traffic,
-        HealthyBridge(),
+        HealthyDamage(),
         start_time=0,
         time_step=time_step,
         points=points,

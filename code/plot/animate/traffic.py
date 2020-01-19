@@ -8,12 +8,12 @@ import matplotlib.colors as colors
 
 from config import Config
 from classify.data.responses import responses_to_traffic
-from classify.scenario.bridge import HealthyBridge
+from classify.scenario.bridge import HealthyDamage
 from fem.run import FEMRunner
 from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import ResponseType
-from model.scenario import BridgeScenario, Traffic
+from model.scenario import DamageScenario, Traffic
 from plot import animate_plot, plt
 from plot.geom import top_view_bridge
 from plot.load import top_view_vehicles
@@ -30,7 +30,7 @@ def animate_traffic_top_view(
     fem_runner: FEMRunner,
     response_type: ResponseType,
     traffic_name: str,
-    bridge_scenario: BridgeScenario,
+    bridge_scenario: DamageScenario,
     save: str,
 ):
     """Animate traffic from a top view with contour and total weight.
@@ -43,7 +43,7 @@ def animate_traffic_top_view(
         fem_runner: FEMRunner, FE program used to run the simulations.
         response_type: ResponseType, type of sensor response to record.
         traffic_name: str, name of the traffic scenario.
-        bridge_scenario: BridgeScenario, damage scenario of the bridge.
+        bridge_scenario: DamageScenario, damage scenario of the bridge.
         save: str, filepath where to save the animation.
 
     """

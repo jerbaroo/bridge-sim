@@ -16,13 +16,13 @@ from fem.run import FEMRunner
 from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import Event, ResponseType
-from model.scenario import BridgeScenario, Traffic, TrafficScenario
+from model.scenario import DamageScenario, Traffic, TrafficScenario
 
 
 def events_from_traffic(
     c: Config,
     traffic: Traffic,
-    bridge_scenario: BridgeScenario,
+    bridge_scenario: DamageScenario,
     points: List[Point],
     response_types: List[ResponseType],
     fem_runner: FEMRunner,
@@ -102,7 +102,7 @@ class Events:
     def num_events(
         self,
         traffic_scenario: TrafficScenario,
-        bridge_scenario: BridgeScenario,
+        bridge_scenario: DamageScenario,
         at: Point,
         response_type: ResponseType,
         fem_runner: FEMRunner,
@@ -126,19 +126,19 @@ class Events:
     def get_events(
         self,
         traffic_scenario: TrafficScenario,
-        bridge_scenarios: List[BridgeScenario],
+        bridge_scenarios: List[DamageScenario],
         point: Point,
         response_type: ResponseType,
         fem_runner: FEMRunner,
-    ) -> Dict[BridgeScenario, List[List[Event]]]:
+    ) -> Dict[DamageScenario, List[List[Event]]]:
         """Get events from a simulation of a bridge in a scenario.
 
-        Returns a dictionary of BridgeScenario to list of list of Event. Each
+        Returns a dictionary of DamageScenario to list of list of Event. Each
         inner list of Event is for a separate simulation. The lists for each
-        BridgeScenario correspond to the same simulations.
+        DamageScenario correspond to the same simulations.
 
         """
-        # A dictionary of 'BridgeScenario' to list of tuples of, file path and
+        # A dictionary of 'DamageScenario' to list of tuples of, file path and
         # traffic simulation ID.
         events_dict = {
             bridge_scenario: list(
@@ -155,7 +155,7 @@ class Events:
             )
             for bridge_scenario in bridge_scenarios
         }
-        # Traffic simulation IDs for each BridgeScenario.
+        # Traffic simulation IDs for each DamageScenario.
         traffic_dict = {
             bridge_scenario: set(map(lambda x: x[1], events_dict[bridge_scenario]))
             for bridge_scenario in bridge_scenarios
@@ -193,7 +193,7 @@ class Events:
         self,
         bridge: Bridge,
         traffic_scenario: TrafficScenario,
-        bridge_scenarios: List[BridgeScenario],
+        bridge_scenarios: List[DamageScenario],
         points: List[Point],
         response_types: List[ResponseType],
         fem_runner: FEMRunner,
@@ -205,7 +205,7 @@ class Events:
         Args:
             bridge: Bridge, bridge on which traffic drives one.
             traffic_scenario: TrafficScenario, scenario of the traffic.
-            bridge_scenarios: List[BridgeScenario], bridge damage scenarios.
+            bridge_scenarios: List[DamageScenario], bridge damage scenarios.
             points: List[Point], points at which to record responses.
             response_types: List[ResponseType], type of responses to record.
             fem_runner: FEMRunner, FE program to run simulations with.

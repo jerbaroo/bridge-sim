@@ -11,7 +11,7 @@ from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.response import ResponseType
-from model.scenario import BridgeScenario
+from model.scenario import DamageScenario
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
@@ -20,7 +20,7 @@ from plot.responses import plot_contour_deck
 def damage_scenario_plot(
     c: Config,
     response_types: List[ResponseType],
-    damage_scenario: BridgeScenario,
+    damage_scenario: DamageScenario,
     titles: List[str],
     saves: List[str],
     run: bool,
@@ -49,7 +49,7 @@ def damage_scenario_plot(
 def damage_scenario_traffic_plot(
     c: Config,
     response_types: List[ResponseType],
-    damage_scenario: BridgeScenario,
+    damage_scenario: DamageScenario,
     titles: List[str],
     saves: List[str],
     times: int = 3,

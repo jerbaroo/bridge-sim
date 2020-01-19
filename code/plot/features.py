@@ -12,7 +12,7 @@ from fem.run import FEMRunner
 from model.bridge import Bridge, Point
 from model.load import MvVehicle
 from model.response import Event, ResponseType
-from model.scenario import BridgeScenario, TrafficScenario
+from model.scenario import DamageScenario, TrafficScenario
 from plot import plt
 from util import print_d, print_i, pstr
 from vehicles.sample import sample_vehicle
@@ -73,7 +73,7 @@ def plot_event(
 def plot_events_from_traffic(
     c: Config,
     bridge: Bridge,
-    bridge_scenario: BridgeScenario,
+    bridge_scenario: DamageScenario,
     traffic_name: str,
     traffic: "Traffic",
     start_time: float,

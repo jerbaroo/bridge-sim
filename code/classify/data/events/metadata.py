@@ -9,7 +9,7 @@ from config import Config
 from fem.run import FEMRunner
 from model import Point
 from model.response import ResponseType
-from model.scenario import BridgeScenario, TrafficScenario
+from model.scenario import DamageScenario, TrafficScenario
 
 
 def file_path(c: Config, series: pd.Series):
@@ -59,7 +59,7 @@ class Metadata:
     def add_file_path(
         self,
         traffic_scenario: TrafficScenario,
-        bridge_scenario: BridgeScenario,
+        bridge_scenario: DamageScenario,
         point: Point,
         response_type: ResponseType,
         fem_runner: FEMRunner,
@@ -71,7 +71,7 @@ class Metadata:
 
         Args:
             traffic_scenario: TrafficScenario, traffic scenario on the bridge.
-            bridge_scenario: BridgeScenario: scenario of damage to the bridge.
+            bridge_scenario: DamageScenario: scenario of damage to the bridge.
             point: Point, sensor position at which events are recorded.
             response_type: ResponseType, sensor type of recorded events.
             fem_runner: FEMRunner, FE program used to simulate events.
@@ -118,7 +118,7 @@ class Metadata:
     def file_paths(
         self,
         traffic_scenario: TrafficScenario,
-        bridge_scenario: BridgeScenario,
+        bridge_scenario: DamageScenario,
         point: Point,
         response_type: ResponseType,
         fem_runner: FEMRunner,
@@ -128,7 +128,7 @@ class Metadata:
 
         Args:
             traffic_scenario: TrafficScenario, traffic scenario on the bridge.
-            bridge_scenario: BridgeScenario: scenario of damage to the bridge.
+            bridge_scenario: DamageScenario: scenario of damage to the bridge.
             point: Point, the sensor position at which events are recorded.
             response_type: ResponseType, the sensor type of recorded events.
             fem_runner: FEMRunner, the FE program used to simulate events.

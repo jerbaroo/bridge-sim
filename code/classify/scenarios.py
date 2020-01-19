@@ -1,9 +1,9 @@
 import itertools
 
 from classify.scenario.bridge import (
-    HealthyBridge,
-    PierDispBridge,
-    ThermalBridge,
+    HealthyDamage,
+    PierDispDamage,
+    ThermalDamage,
     center_lane_crack,
     equal_pier_disp,
     longitudinal_pier_disp,
@@ -11,14 +11,14 @@ from classify.scenario.bridge import (
 )
 from model.load import DisplacementCtrl
 
-healthy_scenario = HealthyBridge()
+healthy_scenario = HealthyDamage()
 
 cracked_scenario = center_lane_crack()
 cracked_scenario2 = start_lane_crack()
 
 # Each pier displaced by 1mm.
 each_pier_scenarios = lambda c: [
-    PierDispBridge([DisplacementCtrl(displacement=0.001, pier=p)])
+    PierDispDamage([DisplacementCtrl(displacement=0.001, pier=p)])
     for p, _ in enumerate(c.bridge.supports)
 ]
 
@@ -36,7 +36,7 @@ healthy_and_cracked_scenarios = (
     [healthy_scenario] + [cracked_scenario] + [cracked_scenario2]
 )
 
-unit_temp_scenario = ThermalBridge(axial_delta_temp=1, moment_delta_temp=1)
+unit_temp_scenario = ThermalDamage(axial_delta_temp=1, moment_delta_temp=1)
 
 all_scenarios = lambda c: (
     healthy_and_cracked_scenarios

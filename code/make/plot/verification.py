@@ -17,7 +17,7 @@ from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
 from classify.data.responses import responses_to_vehicles_d
-from classify.scenario.bridge import HealthyBridge, PierDispBridge
+from classify.scenario.bridge import HealthyDamage, PierDispDamage
 from classify.vehicle import wagen1
 from classify.without import without_pier_lines
 from config import Config
@@ -348,7 +348,7 @@ def r2_plots(c: Config):
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=ResponseType.YTranslation,
-            bridge_scenario=HealthyBridge(),
+            bridge_scenario=HealthyDamage(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
@@ -461,7 +461,7 @@ def r2_plots(c: Config):
         mv_vehicles=[wagen1],
         times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
         response_type=ResponseType.Strain,
-        bridge_scenario=HealthyBridge(),
+        bridge_scenario=HealthyDamage(),
         points=[
             Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
         ],
