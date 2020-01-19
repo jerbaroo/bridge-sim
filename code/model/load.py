@@ -293,9 +293,9 @@ class MvVehicle(Vehicle):
     def frac_in_bin(self, wheel_x, bin_x_lo, bin_x_hi) -> float:
         """Fraction of current wheel in given bin."""
         wheel_x_lo, wheel_x_hi = [
-                wheel_x - (self.wheel_length / 2),
-                wheel_x + (self.wheel_length / 2),
-            ]
+            wheel_x - (self.wheel_length / 2),
+            wheel_x + (self.wheel_length / 2),
+        ]
         # Fully out.
         if wheel_x_hi < bin_x_lo or wheel_x_lo > bin_x_hi:
             return 0
@@ -342,18 +342,23 @@ class MvVehicle(Vehicle):
 
         # Asserting correctness!
 
-        bin_fracs = [self.frac_in_bin(
-            wheel_x=c.bridge.x(wheel_load.x_frac),
-            bin_x_lo=b_[0],
-            bin_x_hi=b_[1],
-        ) for b_ in bins]
+        bin_fracs = [
+            self.frac_in_bin(
+                wheel_x=c.bridge.x(wheel_load.x_frac), bin_x_lo=b_[0], bin_x_hi=b_[1],
+            )
+            for b_ in bins
+        ]
         print(f"bin fracs = {bin_fracs}")
-        assert bins[0][0] == 0 or bins[-1][-1] == c.bridge.x_max or np.isclose(sum(bin_fracs), 1)
+        assert (
+            bins[0][0] == 0
+            or bins[-1][-1] == c.bridge.x_max
+            or np.isclose(sum(bin_fracs), 1)
+        )
 
         return bins
 
     def to_point_loads_binned(
-            self, c: Config, time: float
+        self, c: Config, time: float
     ) -> List[Tuple[List[PointLoad], List[PointLoad]]]:
         """Two lists of point loads per axle, one list per wheel.
 
@@ -370,18 +375,23 @@ class MvVehicle(Vehicle):
                 result[-1].append([])
                 # Split that wheel load up, into one load per bin.
                 for bin_ in self.bins(c=c, wheel_load=wheel_load):
-                    result[-1][-1].append(PointLoad(
-                        x_frac=c.bridge.x_frac(c.bridge.bin_load_x(*bin_)),
-                        z_frac=c.bridge.z_frac(c.bridge.z(wheel_load.z_frac)),
-                        kn=wheel_load.kn * self.frac_in_bin(
-                            wheel_x=c.bridge.x(wheel_load.x_frac),
-                            bin_x_lo=bin_[0],
-                            bin_x_hi=bin_[1],
+                    result[-1][-1].append(
+                        PointLoad(
+                            x_frac=c.bridge.x_frac(c.bridge.bin_load_x(*bin_)),
+                            z_frac=c.bridge.z_frac(c.bridge.z(wheel_load.z_frac)),
+                            kn=wheel_load.kn
+                            * self.frac_in_bin(
+                                wheel_x=c.bridge.x(wheel_load.x_frac),
+                                bin_x_lo=bin_[0],
+                                bin_x_hi=bin_[1],
+                            ),
                         )
-                    ))
+                    )
         return result
 
-    def to_point_load_pw(self, time: float, bridge: Bridge) -> List[Tuple[PointLoad, PointLoad]]:
+    def to_point_load_pw(
+        self, time: float, bridge: Bridge
+    ) -> List[Tuple[PointLoad, PointLoad]]:
         """A tuple of point load per axle, one point load per wheel."""
         z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
         assert z0 < z1

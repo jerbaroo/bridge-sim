@@ -170,8 +170,7 @@ class FEMRunner:
             dirname = self.name
         dirname = safe_str(dirname)
         return shorten_path(
-            self.c,
-            safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
+            self.c, safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
         )
 
     def sim_out_path(

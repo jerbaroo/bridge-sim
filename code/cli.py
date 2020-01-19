@@ -1,5 +1,6 @@
 """Command line interface to bridge-sim."""
 import os
+import pathos.multiprocessing as multiprocessing
 
 import click
 
@@ -20,19 +21,31 @@ from model.bridge.bridge_705 import (
 )
 from util import clean_generated, print_i
 
-
-c = None
+b_func = None
 c_func = None
 two_materials_ = None
-parallel_ = None
+parallel_ulm_ = None
+save_to_ = None
+shorten_paths_ = None
 
 
 def bridge_705_3d_overload(*args, **kwargs):
-    return bridge_705_3d(
+    new_c = bridge_705_3d(
         *args,
         **kwargs,
         single_sections=(bridge_705_single_sections if two_materials_ else None),
     )
+    return new_c
+
+
+def c():
+    new_c = c_func(b_func)
+    new_c.parallel_ulm = parallel_ulm_
+    new_c.shorten_paths = shorten_paths_
+    new_c.root_generated_data_dir = os.path.join(
+        save_to_, new_c.root_generated_data_dir
+    )
+    return new_c
 
 
 @click.group()
@@ -51,44 +64,63 @@ def bridge_705_3d_overload(*args, **kwargs):
     help="One material for the deck and one for piers.",
 )
 @click.option(
-    "--parallel", is_flag=True, default=True, help="Run simulations in parallel.",
+    "--parallel-ulm",
+    type=bool,
+    default=True,
+    help=f"One process per wheel track (max {multiprocessing.cpu_count()} processes).",
 )
 @click.option(
     "--save-to", type=str, default="", help="Save/load data from a given folder.",
 )
-def cli(dimensions: str, mesh: str, two_materials: bool, parallel: bool, save_to: bool):
+@click.option(
+    "--shorten-paths",
+    type=bool,
+    default=True,
+    help="Save responses at shorter filepaths.",
+)
+def cli(
+    dimensions: str,
+    mesh: str,
+    two_materials: bool,
+    parallel_ulm: bool,
+    save_to: bool,
+    shorten_paths: bool,
+):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
-    global c
     global c_func
+    global b_func
     global two_materials_
+    global save_to_
+    global parallel_ulm_
+    global shorten_paths_
+    two_materials_ = two_materials
+    save_to_ = save_to
+    parallel_ulm_ = parallel_ulm
+    shorten_paths_ = shorten_paths
+
     click.echo(f"Dimensions: {dimensions}")
     click.echo(f"Mesh density: {mesh}")
-    click.echo(f"Two materials: {two_materials}")
-    click.echo(f"Parallel: {parallel}")
-    two_materials_ = two_materials
-    parallel_ = parallel
+    click.echo(f"Two materials: {two_materials_}")
+    click.echo(f"Save to: {save_to_}")
+    click.echo(f"Parallel wheel tracks: {parallel_ulm_}")
+    click.echo(f"Shorten paths: {shorten_paths_}")
+
     if mesh == "low":
         c_func = bridge_705_low_config
     elif mesh == "med":
         c_func = bridge_705_med_config
     elif mesh == "full":
         c_func = bridge_705_config
-    # Setup the directory to save results.
-    og_c_func = c_func
+    else:
+        raise ValueError(f"Unknown mesh {mesh}")
 
-    def c_func_save(*args, **kwargs):
-        result_c = og_c_func(*args, **kwargs)
-        result_c.root_generated_data_dir = os.path.join(
-            save_to, result_c.root_generated_data_dir
-        )
-        return result_c
-
-    c_func = c_func_save
     if dimensions == "3":
-        c = lambda: c_func(bridge_705_3d_overload)
+        b_func = bridge_705_3d_overload
     elif dimensions == "2":
-        c = lambda: c_func(bridge_705_2d)
+        b_func = bridge_705_2d
+    else:
+        raise ValueError(f"Unknown dimensions {dimensions}")
 
 
 ################
@@ -418,6 +450,7 @@ def comp_responses():
     from make import verify
 
     verify.compare_responses(c())
+
 
 ##########################
 ##### Classification #####

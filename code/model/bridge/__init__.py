@@ -639,7 +639,9 @@ class Bridge:
             sml_bin_width = (self.length / (c.il_num_loads - 1)) / 2
             bins = [0]
             bins += list(
-                np.linspace(sml_bin_width, self.x_max - sml_bin_width, c.il_num_loads - 1)
+                np.linspace(
+                    sml_bin_width, self.x_max - sml_bin_width, c.il_num_loads - 1
+                )
             )
             bins += [c.bridge.x_max]
             c.wheel_track_bins[c.il_num_loads] = [np.around(b, 3) for b in bins]

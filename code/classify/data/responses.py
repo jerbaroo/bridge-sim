@@ -58,16 +58,9 @@ def responses_to_traffic_array(
     ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 
     if np.count_nonzero(traffic_array) > 0:
-        # First collect the unit load simulations per wheel track.
-        il_matrices = {
-            wheel_z: ILMatrix.load(
-                c=c,
-                response_type=response_type,
-                fem_runner=sim_runner,
-                load_z_frac=c.bridge.z_frac(wheel_z),
-            )
-            for wheel_z in wheel_zs
-        }
+        il_matrices = ILMatrix.load_ulm(
+            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
+        )
 
         # Create a matrix of unit load simulation (rows) * point (columns).
         print_i(f"Calculating unit load matrix...")
@@ -78,9 +71,7 @@ def responses_to_traffic_array(
             # For each unit load simulation.
             for sim_responses in il_matrix.expt_responses:
                 for j, point in enumerate(points):
-                    unit_load_matrix[i][j] = sim_responses._at(
-                        x=point.x, y=point.y, z=point.z
-                    )
+                    unit_load_matrix[i][j] = sim_responses.at_deck(point, interp=True)
                 i += 1
             print_i(f"Calculated unit load matrix for wheel track {w}")
         # Divide by the load of the unit load simulations, so the value at a

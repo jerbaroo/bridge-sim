@@ -48,8 +48,7 @@ def number_of_uls_plot(c: Config):
                     response_type=response_type,
                     sim_runner=OSRunner(c),
                     sim_params=SimParams(
-                        ploads=[wheel_bin_load],
-                        response_types=[response_type],
+                        ploads=[wheel_bin_load], response_types=[response_type],
                     ),
                 )
                 responses[-1].append((sim_responses, bin_frac))

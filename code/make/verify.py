@@ -76,61 +76,82 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
 
 def compare_responses(c: Config):
     """Compare responses to Truck 1, direct simulation and matmul."""
+    assert c.il_num_loads == 400
+    num_times = 100
+    # Running time:
+    # responses_to_vehicles_d: num_times * 8
+    # responses_to_vehicles_d: 4 * il_num_loads
+    # responses_to_loads_m: 0 (4 * il_num_loads)
+    # responses_to_loads_m: 0 (4 * il_num_loads)
+
     point = Point(x=c.bridge.x_max / 2, y=0, z=0)
     end_time = wagen1.time_at(x=c.bridge.x_max, bridge=c.bridge)
-    wagen1_times = np.linspace(0, end_time, 10)
-    # Start with responses from direct simulation.
-    responses = responses_to_vehicles_d(
-        c=c,
-        response_type=ResponseType.YTranslation,
-        points=[point],
-        mv_vehicles=[wagen1],
-        times=wagen1_times,
-        sim_runner=OSRunner(c),
-        binned=False,
-    )
+    wagen1_times = np.linspace(0, end_time, num_times)
     plt.portrait()
-    plt.subplot(3, 1, 1)
-    plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\n ")
-    plt.plot(responses)
 
-    # Then responses from direct simulation with binning.
-    responses = responses_to_vehicles_d(
-        c=c,
-        response_type=ResponseType.YTranslation,
-        points=[point],
-        mv_vehicles=[wagen1],
-        times=wagen1_times,
-        sim_runner=OSRunner(c),
-        binned=True,
-    )
-    plt.subplot(3, 1, 2)
-    plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\nbinned")
-    plt.plot(responses)
+    # Start with responses from direct simulation.
+    # responses = responses_to_vehicles_d(
+    #     c=c,
+    #     response_type=ResponseType.YTranslation,
+    #     points=[point],
+    #     mv_vehicles=[wagen1],
+    #     times=wagen1_times,
+    #     sim_runner=OSRunner(c),
+    #     binned=False,
+    # )
+    # plt.subplot(4, 1, 1)
+    # plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\n ")
+    # plt.plot(responses)
+
+    # # Then responses from direct simulation with binning.
+    # responses = responses_to_vehicles_d(
+    #     c=c,
+    #     response_type=ResponseType.YTranslation,
+    #     points=[point],
+    #     mv_vehicles=[wagen1],
+    #     times=wagen1_times,
+    #     sim_runner=OSRunner(c),
+    #     binned=True,
+    # )
+    # plt.subplot(4, 1, 2)
+    # plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\nbinned")
+    # plt.plot(responses)
 
     # Then from 'TrafficArray' we get  responses, without binning.
-    responses = [responses_to_loads_m(
-        c=c,
-        response_type=ResponseType.YTranslation,
-        points=[point],
-        sim_runner=OSRunner(c),
-        loads=flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad),
-    ) for time in wagen1_times]
-    plt.subplot(3, 1, 3)
-    plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array")
-    plt.plot(responses)
-    plt.show()
+    responses = [
+        responses_to_loads_m(
+            c=c,
+            response_type=ResponseType.YTranslation,
+            points=[point],
+            sim_runner=OSRunner(c),
+            loads=flatten(
+                wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad
+            ),
+        )
+        for time in wagen1_times
+    ]
+    plt.subplot(4, 1, 3)
+    plt.title(
+        f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array"
+    )
+    plt.plot(np.array(responses).reshape(-1, 1))
 
     # # Then from 'TrafficArray' we get  responses, with binning.
-    responses = [responses_to_loads_m(
-        c=c,
-        response_type=ResponseType.YTranslation,
-        points=[point],
-        times=wagen1_times,
-        sim_runner=OSRunner(c),
-        loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
-    ) for time in wagen1_times]
-    plt.subplot(3, 1, 4)
-    plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned")
-    plt.plot(responses)
-    plt.show()
+    responses = [
+        responses_to_loads_m(
+            c=c,
+            response_type=ResponseType.YTranslation,
+            points=[point],
+            sim_runner=OSRunner(c),
+            loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
+        )
+        for time in wagen1_times
+    ]
+    plt.subplot(4, 1, 4)
+    plt.title(
+        f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
+    )
+    plt.plot(np.array(responses).reshape(-1, 1))
+
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("system-verification", "compare-time-series.pdf"))

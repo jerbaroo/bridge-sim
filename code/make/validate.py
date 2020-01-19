@@ -9,6 +9,7 @@ from model.response import ResponseType
 from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
+from plot import plt
 from util import clean_generated, print_s
 from validate.campaign import displa_sensor_xz
 
@@ -63,7 +64,8 @@ def truck_1_time_series(c: Config):
         displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
     # Get times to record truck movements.
     end_time = wagen1.time_at(x=c.bridge.x_max, bridge=c.bridge)
-    wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
+    # wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
+    wagen1_times = np.linspace(0, end_time, 200)
     # Calculate responses at points.
     responses = responses_to_vehicles_d(
         c=c,
@@ -73,11 +75,11 @@ def truck_1_time_series(c: Config):
         times=wagen1_times,
         sim_runner=OSRunner(c),
         binned=True,
-    )
+    ).T
     plt.portrait()
-    for s_i, sensor_responses in enumerate(displa_points):
+    for s_i, sensor_responses in enumerate(responses):
         plt.subplot(len(displa_points), 1, s_i + 1)
         plt.plot(sensor_responses)
         plt.title(displa_labels[s_i])
-    plt.savefig("truck-1-time-series", "time-series.pdf")
+    plt.savefig(c.get_image_path("truck-1-time-series", "time-series.pdf"))
     plt.close()
