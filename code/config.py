@@ -77,7 +77,6 @@ class Config:
         # Responses & events.
         self.sensor_hz: float = 1 / 400
         self.time_end: float = 2  # Seconds.
-        self.time_overlap: float = self.time_end * 0.1  # Seconds.
 
         # Vehicles.
         self.perturb_stddev: float = 0.1

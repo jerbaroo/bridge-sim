@@ -29,7 +29,7 @@ from fem.run.build.elements import shells_by_id
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from model.load import DisplacementCtrl, MvVehicle, PointLoad
+from model.load import PierSettlement, MvVehicle, PointLoad
 from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
@@ -554,7 +554,7 @@ def plot_pier_convergence(
     c = deepcopy(c)
     sim_params = SimParams(
         response_types=[ResponseType.YTranslation, ResponseType.Strain],
-        displacement_ctrl=DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_i),
+        displacement_ctrl=PierSettlement(displacement=c.pd_unit_disp, pier=pier_i),
     )
     pier = c.bridge.supports[pier_i]
     if nesw_location == 0:

@@ -6,7 +6,7 @@ import numpy as np
 from config import Config
 from fem.params import ExptParams, SimParams
 from model.bridge import Dimensions, Fix, Layer, Patch, Section
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from util import print_d, print_i
 
@@ -146,21 +146,21 @@ def opensees_recorders(c: Config, os_runner: "OSRunner", fem_params: SimParams):
     return recorders
 
 
-def opensees_test(c: Config, displacement_ctrl: DisplacementCtrl):
+def opensees_test(c: Config, displacement_ctrl: PierSettlement):
     """OpenSees test command."""
     if displacement_ctrl is None:
         return ""
     return "test NormDispIncr 1.0e-12 100"
 
 
-def opensees_algorithm(c: Config, displacement_ctrl: DisplacementCtrl):
+def opensees_algorithm(c: Config, displacement_ctrl: PierSettlement):
     """OpenSees algorithm command."""
     if displacement_ctrl is None:
         return "algorithm Linear"
     return "algorithm Newton"
 
 
-def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
+def opensees_integrator(c: Config, displacement_ctrl: PierSettlement):
     """OpenSees integrator command."""
     if displacement_ctrl is None:
         return "integrator LoadControl 1"
@@ -171,7 +171,7 @@ def opensees_integrator(c: Config, displacement_ctrl: DisplacementCtrl):
     )
 
 
-def opensees_materials(c: Config, displacement_ctrl: DisplacementCtrl):
+def opensees_materials(c: Config, displacement_ctrl: PierSettlement):
     """OpenSees material commands."""
     if displacement_ctrl is None:
         # In standard case return:

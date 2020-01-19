@@ -25,7 +25,7 @@ from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from plot import axis_colors, diana_cmap, diana_r_cmap, parula_cmap, plt
 from plot.contour import contour_responses_3d
@@ -288,7 +288,7 @@ def piers_displaced(c: Config):
 
             # Run the simulation and collect responses.
             pier = c.bridge.supports[p]
-            pier_disp = DisplacementCtrl(displacement=c.pd_unit_disp, pier=p)
+            pier_disp = PierSettlement(displacement=c.pd_unit_disp, pier=p)
             sim_params = SimParams(
                 response_types=response_types, displacement_ctrl=pier_disp,
             )

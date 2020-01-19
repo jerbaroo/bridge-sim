@@ -13,7 +13,7 @@ from classify.data.events import Events, events_from_mv_vehicles, save_events
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
-from model.load import DisplacementCtrl, MvVehicle
+from model.load import PierSettlement, MvVehicle
 from model.response import Event, ResponseType
 
 c = bridge_705_test_config(bridge_705_3d)
@@ -159,7 +159,7 @@ def test_events_class():
         traffic_scenario=normal_traffic(c),
         bridge_scenarios=[
             BridgeScenarioDisplacementCtrl(
-                displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1)
+                displacement_ctrl=PierSettlement(displacement=0.1, pier=1)
             )
         ],
         at=at,

@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 
 from classify.scenario.bridge import HealthyDamage, PierDispDamage
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
-from model.load import DisplacementCtrl, MvVehicle
+from model.load import PierSettlement, MvVehicle
 from model.scenario import TrafficScenario, to_traffic, to_traffic_array
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_debug_config
 from util import print_i
@@ -34,7 +34,7 @@ def test_scenario():
 
     # Simply check that no errors are created.
     HealthyDamage()
-    PierDispDamage(displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1))
+    PierDispDamage(displacement_ctrl=PierSettlement(displacement=0.1, pier=1))
 
     # Time how long it takes to generate traffic.
     start = timer()

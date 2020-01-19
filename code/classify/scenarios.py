@@ -9,7 +9,7 @@ from classify.scenario.bridge import (
     longitudinal_pier_disp,
     start_lane_crack,
 )
-from model.load import DisplacementCtrl
+from model.load import PierSettlement
 
 healthy_scenario = HealthyDamage()
 
@@ -18,7 +18,7 @@ cracked_scenario2 = start_lane_crack()
 
 # Each pier displaced by 1mm.
 each_pier_scenarios = lambda c: [
-    PierDispDamage([DisplacementCtrl(displacement=0.001, pier=p)])
+    PierDispDamage([PierSettlement(displacement=0.001, pier=p)])
     for p, _ in enumerate(c.bridge.supports)
 ]
 

@@ -18,7 +18,7 @@ from classify.scenario.traffic import normal_traffic
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from model.bridge import Point
-from model.load import DisplacementCtrl
+from model.load import PierSettlement
 from model.response import ResponseType, resize_and_units
 from model.scenario import DamageScenario
 from plot import plt

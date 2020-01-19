@@ -3,7 +3,7 @@ from fem.params import ExptParams, SimParams
 from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
-from model.load import DisplacementCtrl
+from model.load import PierSettlement
 from model.response import ResponseType
 from util import print_w
 
@@ -33,7 +33,7 @@ class DCMatrix(ResponsesMatrix):
         _expt_params = ExptParams(
             [
                 SimParams(
-                    displacement_ctrl=DisplacementCtrl(c.pd_unit_disp, i),
+                    displacement_ctrl=PierSettlement(c.pd_unit_disp, i),
                     response_types=[response_type],
                 )
                 for i in range(len(c.bridge.supports))

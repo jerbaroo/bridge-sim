@@ -6,7 +6,7 @@ from fem.run.opensees import OSRunner
 from fem.run.opensees.build import build_model_2d
 from model.bridge import Fix, Patch, Section
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from util import clean_generated
 
@@ -77,7 +77,7 @@ def test_build_2d_displacement_ctrl():
     expt_params = ExptParams(
         [
             SimParams(
-                displacement_ctrl=DisplacementCtrl(0.1, 1),
+                displacement_ctrl=PierSettlement(0.1, 1),
                 loads=[],
                 response_types=[ResponseType.YTranslation, ResponseType.Strain],
             )
@@ -100,7 +100,7 @@ def test_build_2d_displacement_ctrl():
     expt_params = ExptParams(
         [
             SimParams(
-                displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
+                displacement_ctrl=PierSettlement(displacement=0.1, pier=1),
                 loads=[],
                 response_types=[ResponseType.YTranslation, ResponseType.Strain],
             )
@@ -113,7 +113,7 @@ def test_build_2d_displacement_ctrl():
     expt_params = ExptParams(
         [
             SimParams(
-                displacement_ctrl=DisplacementCtrl(displacement=0.1, pier=1),
+                displacement_ctrl=PierSettlement(displacement=0.1, pier=1),
                 loads=[],
                 response_types=[ResponseType.YTranslation, ResponseType.Strain],
             )

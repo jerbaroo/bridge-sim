@@ -23,7 +23,7 @@ from fem.run.opensees.build.d3.thermal import (
 )
 from fem.run.opensees.build.d3.util import comment
 from model.bridge import Point, Section3D, Support3D
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from util import flatten, print_d, print_i, print_w, round_m
 
@@ -178,7 +178,7 @@ def opensees_fixed_pier_nodes(
     c: Config,
     sim_params: SimParams,
     all_support_nodes: PierNodes,
-    pier_disp: Optional[DisplacementCtrl] = None,
+    pier_disp: Optional[PierSettlement] = None,
 ) -> str:
     """OpenSees fix commands for fixed support nodes."""
     # First, for thermal loading, we determine the piers at each longitudinal
@@ -313,7 +313,7 @@ def opensees_load(
     c: Config,
     pload: PointLoad,
     deck_nodes: DeckNodes,
-    pier_disp: Optional[DisplacementCtrl] = None,
+    pier_disp: Optional[PierSettlement] = None,
 ):
     """An OpenSees load command."""
     pload_z = c.bridge.z(z_frac=pload.z_frac)
@@ -347,7 +347,7 @@ def opensees_loads(
     c: Config,
     ploads: List[PointLoad],
     deck_nodes: DeckNodes,
-    pier_disp: Optional[DisplacementCtrl],
+    pier_disp: Optional[PierSettlement],
 ):
     """OpenSees load commands for a .tcl file."""
     # In case of pier displacement apply load at the pier's central bottom node,
@@ -440,7 +440,7 @@ def opensees_stress_variables(
     return det_shells_id_str(ctx), os_runner.stress_path(sim_params)
 
 
-def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
+def opensees_integrator(c: Config, pier_disp: Optional[PierSettlement]):
     """The integrator command to use based on FEMParams."""
     if pier_disp is None:
         return "integrator LoadControl 1"
@@ -450,14 +450,14 @@ def opensees_integrator(c: Config, pier_disp: Optional[DisplacementCtrl]):
     )
 
 
-def opensees_algorithm(pier_disp: Optional[DisplacementCtrl]):
+def opensees_algorithm(pier_disp: Optional[PierSettlement]):
     """The algorithm command to use based on FEMParams."""
     if pier_disp is None:
         return "algorithm Linear"
     return "algorithm Newton"
 
 
-def opensees_test(pier_disp: Optional[DisplacementCtrl]):
+def opensees_test(pier_disp: Optional[PierSettlement]):
     """The test command to use based on FEMParams."""
     if pier_disp is None:
         return ""

@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from fem.model import BuildContext
 from model.bridge import Bridge
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from util import safe_str
 
@@ -16,7 +16,7 @@ class SimParams:
     Args:
         response_types: [ResponseType], response types to record.
         ploads: List[PointLoad], point loads to apply in the simulation.
-        displacement_ctrl: DisplacementCtrl, apply a load until the given
+        displacement_ctrl: PierSettlement, apply a load until the given
             displacement in meters is reached.
         axial_delta_temp: Optional[float], axial thermal loading in celcius.
         moment_delta_temp: Optional[float], moment thermal loading in celcius.
@@ -29,7 +29,7 @@ class SimParams:
         self,
         response_types: List[ResponseType],
         ploads: List[PointLoad] = [],
-        displacement_ctrl: Optional[DisplacementCtrl] = None,
+        displacement_ctrl: Optional[PierSettlement] = None,
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
         refinement_radii: List[float] = [],

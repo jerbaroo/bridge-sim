@@ -11,7 +11,7 @@ from classify.data.scenarios import (
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_debug_config
-from model.load import DisplacementCtrl
+from model.load import PierSettlement
 from model.response import ResponseType
 
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     point = Point(x=35, y=0, z=8.4)
     traffic_scenario = normal_traffic(c, 5, 2)
     bridge_scenarios = [BridgeScenarioNormal()]
-    # BridgeScenarioDisplacementCtrl(DisplacementCtrl(
+    # BridgeScenarioDisplacementCtrl(PierSettlement(
     #     displacement=0.1, pier=1))]
     response_type = ResponseType.YTranslation
     fem_runner = OSRunner(c)

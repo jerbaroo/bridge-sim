@@ -15,7 +15,7 @@ from util import assert_sorted, round_m, safe_str
 D: bool = False
 
 
-class DisplacementCtrl:
+class PierSettlement:
     """Apply a load to a pier until the displacement is reached.
 
     Args:

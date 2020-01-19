@@ -26,7 +26,7 @@ from fem.run.opensees.build.d3 import (
 )
 from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
-from model.load import DisplacementCtrl, PointLoad
+from model.load import PierSettlement, PointLoad
 from model.response import ResponseType
 from util import round_m
 
