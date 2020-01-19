@@ -256,7 +256,6 @@ def bridge_705_low_config(bridge: Callable[..., Bridge]) -> Config:
             base_mesh_pier_max_long=3,
         )
     )
-    c.sensor_hz = 1 / 100
     return c
 
 
