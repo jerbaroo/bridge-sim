@@ -63,7 +63,7 @@ class Config:
         # Simulation settings.
         self.parallel = False
         self.resp_matrices = dict()
-        self.il_num_loads: int = 100
+        self.il_num_loads: int = 400
         self.il_unit_load_kn: float = 1000
         self.pd_unit_disp: float = 1.0
         self.pd_unit_load_kn: int = 10

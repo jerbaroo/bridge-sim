@@ -14,7 +14,7 @@ from config import Config
 from fem.params import ExptParams, SimParams
 from model.bridge import Dimensions, Point
 from model.response import Response, ResponseType
-from util import nearest_index, print_d, print_i
+from util import nearest_index, print_i, print_w
 
 # Print debug information for this file.
 D: str = "fem.responses"
@@ -81,6 +81,7 @@ def load_fem_responses(
     )
 
     # Run an experiment with a single FEM simulation.
+    print(path)
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         sim_runner.run(ExptParams([sim_params]))
@@ -173,8 +174,8 @@ class Responses:
         """Response at the deck (y = 0) with optional interpolation."""
         assert point.y == 0
         if not interp:
-            raise ValueError("We are always interpolating the deck")
-            return self._at_deck_no_interp(x=point.x, z=point.z)
+            print_w("Not interpolating response!")
+            return self.at_deck_snap(x=point.x, z=point.z)
         return self._at_deck_interp(x=point.x, z=point.z)
 
     def _at_deck_interp(self, x: float, z: float):
@@ -236,180 +237,14 @@ class Responses:
 
     # TODO: Check these.
 
-    def _at_deck_no_interp(self, x: float, z: float):
+    def at_deck_snap(self, x: float, z: float):
+        """Deck response from nearest available sensor."""
+        y = 0
         x_ind = nearest_index(self.xs, x)
         x_near = self.xs[x_ind]
         z_ind = nearest_index(self.zs[x_near][y], z)
-        z_near = self.zs[x_near][y_near][z_ind]
-        return self.responses[0][x_near][y][z_near].value
-
-    def _at(self, x: float, y: float, z: float, time_index: int = 0):
-        x_ind = nearest_index(self.xs, x)
-        x_near = self.xs[x_ind]
-        y_ind = nearest_index(self.ys[x_near], y)
-        y_near = self.ys[x_near][y_ind]
-        z_ind = nearest_index(self.zs[x_near][y_near], z)
-        z_near = self.zs[x_near][y_near][z_ind]
-        return self.responses[time_index][x_near][y_near][z_near].value
-
-    def at(
-        self,
-        x_frac: float = 0,
-        y_frac: float = 1,
-        z_frac: float = 0.5,
-        time_index: int = 0,
-        interpolate: bool = False,
-    ):
-        """Return a response from a sensor at a given position."""
-        assert 0 <= x_frac <= 1
-        assert 0 <= y_frac <= 1
-        assert 0 <= z_frac <= 1
-
-        x = self.c.bridge.x(x_frac=x_frac)
-        y = self.c.bridge.y(y_frac=y_frac)
-        z = self.c.bridge.z(z_frac=z_frac)
-
-        if interpolate:
-            return self.at_interpolate(x=x, y=y, z=z, time_index=time_index)
-
-        return self._at(x=x, y=y, z=z)
-
-    def at_interpolate(
-        self, x: float = 0, y: float = 1, z: float = 0.5, time_index: int = 0
-    ):
-        """Compute an interpolated response via axis fractions in [0 1].
-
-        Interpolate the response between the 8 closest points of a cuboid.
-
-        """
-        print_d(D, f"Interpolating")
-
-        x_lo_ind, x_hi_ind = self._x_indices(x=x)
-        x_lo, x_hi = self.xs[x_lo_ind], self.xs[x_hi_ind]
-
-        y_lo_x_lo_ind, y_hi_x_lo_ind = self._y_indices(x=x_lo, y=y)
-        y_lo_x_hi_ind, y_hi_x_hi_ind = self._y_indices(x=x_hi, y=y)
-        y_lo_x_lo, y_hi_x_lo = (
-            self.ys[x_lo][y_lo_x_lo_ind],
-            self.ys[x_lo][y_hi_x_lo_ind],
-        )
-        y_lo_x_hi, y_hi_x_hi = (
-            self.ys[x_hi][y_lo_x_hi_ind],
-            self.ys[x_hi][y_hi_x_hi_ind],
-        )
-
-        z_lo_y_lo_x_lo_ind, z_hi_y_lo_x_lo_ind = self._z_indices(
-            x=x_lo, y=y_lo_x_lo, z=z
-        )
-        z_lo_y_lo_x_hi_ind, z_hi_y_lo_x_hi_ind = self._z_indices(
-            x=x_hi, y=y_lo_x_hi, z=z
-        )
-        z_lo_y_hi_x_lo_ind, z_hi_y_hi_x_lo_ind = self._z_indices(
-            x=x_lo, y=y_hi_x_lo, z=z
-        )
-        z_lo_y_hi_x_hi_ind, z_hi_y_hi_x_hi_ind = self._z_indices(
-            x=x_hi, y=y_hi_x_hi, z=z
-        )
-        z_lo_y_lo_x_lo, z_hi_y_lo_x_lo = (
-            self.zs[x_lo][y_lo_x_lo][z_lo_y_lo_x_lo_ind],
-            self.zs[x_lo][y_lo_x_lo][z_hi_y_lo_x_lo_ind],
-        )
-        z_lo_y_lo_x_hi, z_hi_y_lo_x_hi = (
-            self.zs[x_hi][y_lo_x_hi][z_lo_y_lo_x_hi_ind],
-            self.zs[x_hi][y_lo_x_hi][z_hi_y_lo_x_hi_ind],
-        )
-        z_lo_y_hi_x_lo, z_hi_y_hi_x_lo = (
-            self.zs[x_lo][y_hi_x_lo][z_lo_y_hi_x_lo_ind],
-            self.zs[x_lo][y_hi_x_lo][z_hi_y_hi_x_lo_ind],
-        )
-        z_lo_y_hi_x_hi, z_hi_y_hi_x_hi = (
-            self.zs[x_hi][y_hi_x_hi][z_lo_y_hi_x_hi_ind],
-            self.zs[x_hi][y_hi_x_hi][z_hi_y_hi_x_hi_ind],
-        )
-
-        points = [  # z y x
-            Point(x=x_lo, y=y_lo_x_lo, z=z_lo_y_lo_x_lo),  # 0 0 0
-            Point(x=x_hi, y=y_lo_x_hi, z=z_lo_y_lo_x_hi),  # 0 0 1
-            Point(x=x_lo, y=y_hi_x_lo, z=z_lo_y_hi_x_lo),  # 0 1 0
-            Point(x=x_hi, y=y_hi_x_hi, z=z_lo_y_hi_x_hi),  # 0 1 1
-            Point(x=x_lo, y=y_lo_x_lo, z=z_hi_y_lo_x_lo),  # 1 0 0
-            Point(x=x_hi, y=y_lo_x_hi, z=z_hi_y_lo_x_hi),  # 1 0 1
-            Point(x=x_lo, y=y_hi_x_lo, z=z_hi_y_hi_x_lo),  # 1 1 0
-            Point(x=x_hi, y=y_hi_x_hi, z=z_hi_y_hi_x_hi),
-        ]  # 1 1 1
-        [print(D, f"point = {point}") for point in points]
-        request = Point(x=x, y=y, z=z)
-        print(D, f"request = {request}")
-        distances = [point.distance(request) for point in points]
-        print(D, f"distances = {distances}")
-        sum_distances = sum(distances)
-        if sum_distances == 0:
-            p = points[0]
-            return self.responses[time_index][p.x][p.y][p.z].value
-        print(D, f"sum distances = {sum_distances}")
-        responses = [
-            self.responses[time_index][point.x][point.y][point.z].value
-            for point in points
-        ]
-        print(D, f"responses = {responses}")
-        response = sum(
-            [
-                response * (distance / sum_distances)
-                for response, distance in zip(responses, distances)
-            ]
-        )
-        print(D, f"response = {response}")
-        return response
-
-    def _x_indices(self, x: float) -> Tuple[int, int]:
-        """Indices of the x positions of sensors either side of x."""
-        # If only one point, return that.
-        if len(self.xs) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.xs)):
-            if self.xs[i] == x:
-                return i, i
-            if self.xs[i] > x and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
-
-    def _y_indices(self, x: float, y: float) -> Tuple[int, int]:
-        """Indices of the y positions of sensors either side of y."""
-        print(D, self.ys[x])
-        print(D, f"x = {x}, y = {y}")
-        # If only one point, return that.
-        if len(self.ys[x]) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.ys[x])):
-            if self.ys[x][i] == y:
-                return i, i
-            if self.ys[x][i] > y and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
-
-    def _z_indices(self, x: float, y: float, z: float) -> Tuple[int, int]:
-        """Indices of the z positions of sensors either side of z.
-
-        TODO: Test this.
-        TODO: Switch to numpy.searchsorted for performance.
-        TODO: Factor out into a method re-usable for x, y, z.
-
-        """
-        # If only one point, return that.
-        if len(self.zs[x][y]) == 1:
-            return 0, 0
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(self.zs[x][y])):
-            if self.zs[x][y][i] == z:
-                return i, i
-            if self.zs[x][y][i] > z and i > 0:
-                return i - 1, i
-        # Else the last point.
-        return i, i
+        z_near = self.zs[x_near][y][z_ind]
+        return self.responses[0][x_near][y][z_near]
 
 
 class SimResponses(Responses):

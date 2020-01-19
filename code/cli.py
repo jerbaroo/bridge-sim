@@ -394,24 +394,30 @@ def traffic_thermal(axial, moment):
     thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
-#################
-##### Debug #####
-#################
+##################
+##### Verify #####
+##################
 
 
-@cli.group(help="Debug this system.")
-def debug():
+@cli.group(help="Verify/debug this system.")
+def verify():
     pass
 
 
-@debug.command(help="TCL files & contour plots for mesh refinement.")
+@verify.command(help="TCL files & contour plots for mesh refinement.")
 @click.option("--build", type=bool, default=True)
 @click.option("--plot", type=bool, default=True)
 def refinement_tcls(build: bool, plot: bool):
-    from make import debug
+    from make import verify
 
-    debug.mesh_refinement(c=c(), build=build, plot=plot)
+    verify.mesh_refinement(c=c(), build=build, plot=plot)
 
+
+@verify.command(help="Compare responses by direct simulation and matmul.")
+def comp_responses():
+    from make import verify
+
+    verify.compare_responses(c())
 
 ##########################
 ##### Classification #####

@@ -1,4 +1,9 @@
+import numpy as np
+
+from classify.data.responses import responses_to_vehicles_d
+from classify.vehicle import wagen1
 from config import Config
+from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
 from fem.params import ExptParams, SimParams
@@ -50,8 +55,29 @@ def density_no_effect(c: Config):
 
 def truck_1_time_series(c: Config):
     """Time series of 3 sensors to Truck 1's movement."""
+    # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
     displa_points = []
     for displa_label in displa_labels:
-        sensor_x, sensor_z = displa_sensor_xz[displa_label]
+        sensor_x, sensor_z = displa_sensor_xz(displa_label)
         displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # Get times to record truck movements.
+    end_time = wagen1.time_at(x=c.bridge.x_max, bridge=c.bridge)
+    wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
+    # Calculate responses at points.
+    responses = responses_to_vehicles_d(
+        c=c,
+        response_type=ResponseType.YTranslation,
+        points=displa_points,
+        mv_vehicles=[wagen1],
+        times=wagen1_times,
+        sim_runner=OSRunner(c),
+        binned=True,
+    )
+    plt.portrait()
+    for s_i, sensor_responses in enumerate(displa_points):
+        plt.subplot(len(displa_points), 1, s_i + 1)
+        plt.plot(sensor_responses)
+        plt.title(displa_labels[s_i])
+    plt.savefig("truck-1-time-series", "time-series.pdf")
+    plt.close()

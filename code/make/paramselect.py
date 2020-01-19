@@ -14,112 +14,45 @@ from util import clean_generated, flatten, print_i, safe_str
 
 def number_of_uls_plot(c: Config):
     """Plot error as a function of number of unit load simulations."""
+    num_truck_positions = 1
     response_type = ResponseType.YTranslation
-    wagen1_wheel_length = 0.31  # Meters.
     num_ulss = np.arange(50, 600, 1)
     chosen_uls = 400
 
     # Point load for each wheel of truck 1 in the experimental campaign.
-    times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
-    print_i(f"Times = {times}")
-    truck_loads = [
-        flatten(wagen1.to_point_loads(time=time, bridge=c.bridge), PointLoad,)
-        for time in times
-    ]
-    print_i(f"Truck loads = {truck_loads[0]}")
-
-    # Calculate the wheel positions of truck 1, attached to 'PointLoad's.
-    for wheel_loads in truck_loads:
-        for wheel_load in wheel_loads:
-            x = c.bridge.x(wheel_load.x_frac)
-            wheel_load.wheel_xs = [
-                x - (wagen1_wheel_length / 2),
-                x + (wagen1_wheel_length / 2),
-            ]
-
-            def frac_in_bin(_wheel_load):
-                """Fraction of current wheel in given bin."""
-
-                def _frac_in_bin(bin_x_lo, bin_x_hi):
-                    wheel_x_lo, wheel_x_hi = _wheel_load.wheel_xs
-                    # Fully out.
-                    if wheel_x_hi < bin_x_lo or wheel_x_lo > bin_x_hi:
-                        return 0
-                    # Fully in.
-                    if wheel_x_lo >= bin_x_lo and wheel_x_hi <= bin_x_hi:
-                        return 1
-                    # Middle in.
-                    if wheel_x_hi > bin_x_hi and wheel_x_lo < bin_x_lo:
-                        return (bin_x_hi - bin_x_lo) / wagen1_wheel_length
-                    # Lower half in.
-                    if wheel_x_hi > bin_x_hi:
-                        return (bin_x_hi - wheel_x_lo) / wagen1_wheel_length
-                    # Lower half in.
-                    if wheel_x_lo < bin_x_lo:
-                        return (wheel_x_hi - bin_x_lo) / wagen1_wheel_length
-                    raise ValueError("Unknown state")
-
-                return _frac_in_bin
-
-            wheel_load.frac_in_bin = frac_in_bin(wheel_load)
+    wagen1_times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
 
     # For each amount of unit load simulations, collect a function for each
-    # truck position. The truck position will calculate the response at a given
-    # point based on the amount of unit load simulations.
+    # truck position. The function will calculate the response at a given
+    # point based on the amount of unit load simulations/bins.
     response_to_trucks = []
     for num_uls in num_ulss:
+        c.il_num_loads = num_uls
         response_to_trucks.append([])
         print_i(f"Number of ULS = {num_uls}")
-        # Calculate wheel track bins, point load is in bin center.
-        sml_bin_width = (c.bridge.length / (num_uls - 1)) / 2
-        bins = [0]
-        bins += list(
-            np.linspace(sml_bin_width, c.bridge.x_max - sml_bin_width, num_uls - 1)
-        )
-        bins += [c.bridge.x_max]
-        bins = [np.around(bin, 3) for bin in bins]
-        print_i(f"Bins = {bins}")
-
-        def get_bin_load_x(bin_x_lo, bin_x_hi):
-            if np.isclose(bin_x_lo, 0):
-                return 0
-            if np.isclose(bin_x_hi, c.bridge.x_max):
-                return c.bridge.x_max
-            return bin_x_hi - ((bin_x_hi - bin_x_lo) / 2)
-
-        # For each truck position, get a list of (SimResponses, fraction) per
-        # wheel. Where the fraction is the fraction of the wheel in that bin.
-        # Then append the function that will calculate the response at a point
-        # from the truck, to 'response_to_trucks'.
-        for truck_i, wheel_loads in enumerate(truck_loads[:1]):
+        # A list of loads per truck position. This is nested in here because it
+        # depends on the setting of 'il_num_loads'. Because a load is calculated
+        # based on where the bins are positioned.
+        truck_loads = [
+            flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad)
+            for time in times
+        ][:num_truck_positions]
+        print_i(f"Truck loads = {truck_loads[0]}")
+        # For each truck position, get a list of SimResponses per wheel bin.
+        for truck_i, wheel_bin_loads in enumerate(truck_loads):
             print_i(f"Truck position index = {truck_i}")
             responses = []
-            for wheel_load in wheel_loads:
-                responses.append([])
-                for bin_x_lo, bin_x_hi in zip(bins[:-1], bins[1:]):
-                    bin_frac = wheel_load.frac_in_bin(bin_x_lo, bin_x_hi)
-                    assert bin_frac <= 1
-                    if bin_frac > 0:
-                        bin_load_x = get_bin_load_x(bin_x_lo, bin_x_hi)
-                        print(bin_load_x)
-                        sim_responses = load_fem_responses(
-                            c=c,
-                            response_type=response_type,
-                            sim_runner=OSRunner(c),
-                            sim_params=SimParams(
-                                ploads=[
-                                    PointLoad(
-                                        x_frac=c.bridge.x_frac(bin_load_x),
-                                        z_frac=wheel_load.z_frac,
-                                        kn=wheel_load.kn,
-                                    )
-                                ],
-                                response_types=[response_type],
-                            ),
-                        )
-                        responses[-1].append((sim_responses, bin_frac))
-                bin_fracs = list(map(lambda t: t[1], responses[-1]))
-                assert np.isclose(sum(bin_fracs), 1)
+            for wheel_bin_load in wheel_bin_loads:
+                sim_responses = load_fem_responses(
+                    c=c,
+                    response_type=response_type,
+                    sim_runner=OSRunner(c),
+                    sim_params=SimParams(
+                        ploads=[wheel_bin_load],
+                        response_types=[response_type],
+                    ),
+                )
+                responses[-1].append((sim_responses, bin_frac))
 
             def response_to_truck(_responses):
                 def _response_to_truck(point: Point):

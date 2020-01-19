@@ -16,12 +16,7 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
-from classify.data.responses import (
-    responses_to_traffic_array,
-    responses_to_loads,
-    responses_to_loads_,
-    responses_to_vehicles_,
-)
+from classify.data.responses import responses_to_vehicles_d
 from classify.scenario.bridge import HealthyBridge, PierDispBridge
 from classify.vehicle import wagen1
 from classify.without import without_pier_lines
@@ -140,7 +135,7 @@ def per_sensor_plots(
     amax *= 1.1
 
     # Calculate displacement with OpenSees via direct simulation.
-    os_strain = responses_to_vehicles_(
+    os_strain = responses_to_vehicles_d(
         c=c,
         mv_vehicles=[wagen1],
         times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -246,7 +241,7 @@ def per_sensor_plots(
 
     # Calculate displacement with OpenSees via direct simulation.
     os_displacement = (
-        responses_to_vehicles_(
+        responses_to_vehicles_d(
             c=c,
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -348,7 +343,7 @@ def r2_plots(c: Config):
 
     # Displacement in OpenSees via direct simulation (measurement points).
     displa_os_meas = (
-        responses_to_vehicles_(
+        responses_to_vehicles_d(
             c=c,
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
@@ -461,7 +456,7 @@ def r2_plots(c: Config):
     print_i(f"Count nan = {count_nan}")
 
     # Strain in OpenSees via direct simulation (measurement points).
-    strain_os_meas = responses_to_vehicles_(
+    strain_os_meas = responses_to_vehicles_d(
         c=c,
         mv_vehicles=[wagen1],
         times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],

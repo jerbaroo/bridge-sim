@@ -333,9 +333,12 @@ def opensees_load(
         )
 
     assert np.isclose(best_node.y, 0)
+    print(f"before assert load.x = {pload_x}")
+    print(f"best_node_x = {best_node.x}")
     # If we have a proper mesh then this should be the exact node.
-    assert np.isclose(best_node.x, pload_x)
-    assert np.isclose(best_node.z, pload_z)
+    # TODO: Remove atol when fractional positioning is removed from the system.
+    assert np.isclose(best_node.x, pload_x, atol=0.001)
+    assert np.isclose(best_node.z, pload_z, atol=0.001)
 
     return f"load {best_node.n_id} 0 {pload.kn * 1000} 0 0 0 0"
 
@@ -484,6 +487,7 @@ def build_model_3d(
         print(sim_ctx)
         sim_params.ctx = sim_ctx
         for load in sim_params.ploads:
+            print(f"Load in build_model_3d = {load.point(c.bridge)}")
             sim_ctx.add_loads.append(
                 Point(x=c.bridge.x(load.x_frac), y=0, z=c.bridge.z(load.z_frac))
             )

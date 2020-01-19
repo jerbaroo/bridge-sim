@@ -5,6 +5,7 @@ from typing import Union
 import os
 import math
 import numpy as np
+import pandas as pd
 
 import scipy.stats as stats
 from colorama import init
@@ -79,6 +80,33 @@ def nearest_index(array, value):
         return i - 1
     else:
         return i
+
+
+def shorten_path(c: Config, filepath: str) -> str:
+    """Shorten path by mapping to shorter filepath."""
+    df_path = ".filepath-shortening-map.txt"
+    # os.remove(df_path)
+    # import sys; sys.exit()
+    if os.path.exists(df_path):
+        df = pd.read_csv(df_path, index_col=0)
+    else:
+        df = pd.DataFrame(columns=["original", "short"])
+    existing_row = df[df["original"] == filepath]
+    if len(existing_row) == 1:
+        return str(existing_row["short"].iloc[0])
+    elif len(existing_row) > 1:
+        raise ValueError("OOps")
+    if len(df.index) == 0:
+        short = 1
+    else:
+        short = len(df.index) + 1
+    short = os.path.join(os.path.dirname(filepath), "short" + str(short) + os.path.splitext(filepath)[1])
+    if not os.path.exists(os.path.dirname(short)):
+        os.makedirs(os.path.dirname(short))
+    df = df.append({"original": filepath, "short": short}, ignore_index=True)
+    df.to_csv(df_path)
+    return short
+
 
 
 def clean_generated(c: "Config"):

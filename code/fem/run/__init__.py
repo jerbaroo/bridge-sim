@@ -10,7 +10,7 @@ from fem.params import ExptParams, SimParams
 from fem.responses import SimResponses
 from model.bridge import Bridge
 from model.response import ResponseType
-from util import print_d, print_i, safe_str
+from util import print_d, print_i, safe_str, shorten_path
 
 # Print debug information for this file.
 D: str = "fem.run"
@@ -169,7 +169,10 @@ class FEMRunner:
         if dirname is None:
             dirname = self.name
         dirname = safe_str(dirname)
-        return safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
+        return shorten_path(
+            self.c,
+            safe_str(self.c.get_data_path(dirname, filename)) + f".{ext}"
+        )
 
     def sim_out_path(
         self,
