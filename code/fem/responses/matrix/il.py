@@ -1,7 +1,8 @@
 import os
 import pathos.multiprocessing as multiprocessing
-from typing import List
+from typing import List, Optional
 
+import dill
 import numpy as np
 
 from config import Config
@@ -74,42 +75,88 @@ class ILMatrix(ResponsesMatrix):
         )
 
     @staticmethod
+    def load_ulm(
+        c: Config,
+        uls,
+        wheel_zs,
+        points,
+        save_path: Optional[str] = None,
+    ):
+        save_path = save_path + ".ulm"
+        if save_path in c.resp_matrices:
+            return c.resp_matrices[save_path]
+        ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
+        # Create a matrix of unit load simulation (rows) * point (columns).
+        print_i(f"Calculating unit load matrix...")
+        unit_load_matrix = np.empty(ulm_shape)
+        for w, wheel_z in enumerate(wheel_zs):
+            i = w * c.il_num_loads  # Row index.
+            il_matrix = uls[wheel_z]
+            # For each unit load simulation.
+            for sim_responses in il_matrix.expt_responses:
+                for j, point in enumerate(points):
+                    unit_load_matrix[i][j] = sim_responses.at_deck(point, interp=True)
+                i += 1
+            print_i(f"Calculated unit load matrix for wheel track {w}")
+        # Divide by the load of the unit load simulations, so the value at a
+        # cell is the response to 1 kN. Then multiple the traffic and unit load
+        # matrices to get the responses.
+        unit_load_matrix /= c.il_unit_load_kn
+        c.resp_matrices[save_path] = unit_load_matrix
+        return unit_load_matrix
+
+    @staticmethod
     def load_uls(
         c: Config,
         response_type: ResponseType.YTranslation,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
         save_all: bool = True,
+        ret_uls_path: bool = False,
     ):
-        id_str = ILMatrix.id_str(
-            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
-        )
-        uls_path = c.get_data_path("ulms", safe_str(id_str) + ".ulm")
-        if not os.path.exists(uls_path):
-            uls = dict()
-            print_i("Running simulations in parallel")
-            processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
-            with multiprocessing.Pool(processes=processes) as pool:
-
-                def load_into_uls(args):
-                    c, wheel_z, response_type, sim_runner = args
-                    uls[wheel_z] = ILMatrix.load(
-                        c=c,
-                        response_type=response_type,
-                        fem_runner=sim_runner,
-                        load_z_frac=c.bridge.z_frac(wheel_z),
-                    )
-
-                pool.map(
-                    load_into_uls,
-                    [(c, wheel_z, response_type, sim_runner) for wheel_z in wheel_zs],
+        uls_path = ILMatrix.id_str(
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+        ) + "-uls"
+        # Return if these ULS are already in memory.
+        if uls_path in c.resp_matrices:
+            if ret_uls_path:
+                return c.resp_matrices[uls_path], uls_path
+            return c.resp_matrices[uls_path]
+        def wheel_track_path(wheel_z):
+            id_str = ILMatrix.id_str(
+                c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=[wheel_z],
+            )
+            return c.get_data_path("uls", safe_str(id_str) + ".uls")
+        def create_wheel_track(wheel_z):
+            if not os.path.exists(wheel_track_path(wheel_z)):
+                wheel_track = ILMatrix.load(
+                    c=c,
+                    response_type=response_type,
+                    fem_runner=sim_runner,
+                    load_z_frac=c.bridge.z_frac(wheel_z),
                 )
-            with open(uls_path) as f:
-                print("Saving ULS to disk!")
-                pickle.dump(uls, f)
-                print("Saved ULS to disk!")
-        with open(uls_path) as f:
-            return pickle.load(f)
+                with open(wheel_track_path(wheel_z), "wb") as f:
+                    print(f"Saving wheel track {wheel_z} to disk!")
+                    dill.dump(wheel_track, f)
+                    print(f"Saved wheel track {wheel_z} to disk!")
+        # For each wheel track, generate it if doesn't exists.
+        processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
+        with multiprocessing.Pool(processes=processes) as pool:
+            pool.map(
+                create_wheel_track, wheel_zs
+            )
+        # Load all wheel tracks from disk into the resulting dictionary.
+        result = dict()
+        for wheel_z in wheel_zs:
+            with open(wheel_track_path(wheel_z), "rb") as f:
+                result[wheel_z] = dill.load(f)
+        c.resp_matrices[uls_path] = result
+        if ret_uls_path:
+            return result, uls_path
+        return result
 
     @staticmethod
     def load(

@@ -559,7 +559,7 @@ def plot_pier_convergence(
     pier = c.bridge.supports[pier_i]
     if nesw_location == 0:
         nesw_point = Point(
-            x=pier.x - (pier.length / 2), y=0, z=pier.z - (pier.width_top / 2)
+            x=pier.x - (pier.length / 2), y=0, z=pier.z + (pier.width_top / 2)
         )
     else:
         raise ValueError("Invalid NESW plot location")
@@ -704,21 +704,23 @@ def plot_pier_convergence(
     #     all_displacements[key] = displacements.without(without)
     #     print(f"Filtering displacements with max shell len {key}", end="\r")
     # print()
-    # for key, strains in all_strains.items():
-    #     all_strains[key] = strains.without(without)
-    #     print(f"Filtering strains with max shell len {key}", end="\r")
-    # print()
-
-    # Plot strain over max-shell-len.
-    plot_mmm_strain_convergence(
-        c=og_c, pier=pier, parameters=df, all_strains=all_strains
-    )
 
     # A plot of sensors that are (un)available.
     plot_deck_sensors(c=c, without=without)
     plt.savefig(og_c.get_image_path("convergence-pier", "unavailable sensors.pdf"))
     plt.close()
 
+    # Plot convergence of strain, first with all sensors, then without some.
+    plot_mmm_strain_convergence(
+        c=og_c, pier=pier, parameters=df, all_strains=all_strains
+    )
+    plt.savefig(c.get_image_path("convergence-pier-strain", "mmm-0.pdf"))
+    plt.close()
+    plot_mmm_strain_convergence(
+        c=og_c, pier=pier, parameters=df, all_strains=all_strains, without=without,
+    )
+    plt.savefig(c.get_image_path("convergence-pier-strain", f"mmm-{strain_ignore_radius}.pdf"))
+    plt.close()
 
 def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6):
     """Make convergence data file, increasing mesh density per simulation."""

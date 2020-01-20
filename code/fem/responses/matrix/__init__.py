@@ -158,7 +158,7 @@ def load_expt_responses(
         )
 
     if c.parallel:
-        print_i("Running simulations in parallel")
+        raise ValueError("fem.responses.matrix.__init__.py")
         with Pool() as pool:
             results = pool.map(process, indices_and_params)
     else:

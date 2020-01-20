@@ -1,6 +1,6 @@
 import itertools
 from collections import defaultdict
-from typing import Dict, List
+from typing import Callable, Dict, List, Optional
 
 import matplotlib
 import numpy as np
@@ -14,7 +14,8 @@ from util import print_i, scalar
 
 
 def plot_mmm_strain_convergence(
-    c: Config, pier: int, parameters: pd.DataFrame, all_strains: Dict[float, Responses]
+        c: Config, pier: int, parameters: pd.DataFrame, all_strains: Dict[float, Responses],
+        without: Optional[Callable[[Point], bool]] = None
 ):
     """Plot convergence of given responses as model size grows."""
     # A grid of points 1m apart, over which to calculate responses.
@@ -25,6 +26,12 @@ def plot_mmm_strain_convergence(
             np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
         )
     ]
+    # If requested, remove some values from the responses.
+    if without is not None:
+        grid = [point for point in grid if not without(point)]
+        for i, strains in all_strains.items():
+            print(f"Removing points from strains {i} / {len(all_strains)}")
+            all_strains[i] = strains.without(without)
     # Collect responses over all responses, and over the grid.
     mins, maxes, means = [], [], []
     gmins, gmaxes, gmeans = [], [], []
@@ -40,6 +47,13 @@ def plot_mmm_strain_convergence(
         maxes.append(scalar(np.max(strains)))
         means.append(scalar(np.mean(strains)))
     print()
+    # Normalize and plot the mins, maxes, and means.
+    mins, maxes, means = np.array(mins), np.array(maxes), np.array(means)
+    gmins, gmaxes, gmeans = np.array(gmins), np.array(gmaxes), np.array(gmeans)
+    def normalize(ys):
+        return ys / np.mean(ys[:-5])
+    mins, maxes, means = normalize(mins), normalize(maxes), normalize(means)
+    gmins, gmaxes, gmeans = normalize(gmins), normalize(gmaxes), normalize(gmeans)
     max_shell_lens = list(all_strains.keys())
     plt.plot(max_shell_lens, mins, label="mins")
     plt.plot(max_shell_lens, maxes, label="maxes")
@@ -51,8 +65,6 @@ def plot_mmm_strain_convergence(
     plt.landscape()
     plt.xlim(plt.xlim()[1], plt.xlim()[0])
     plt.tight_layout()
-    plt.savefig(c.get_image_path("convergence-pier-strain", "mmm.pdf"))
-    plt.close()
 
 
 def plot_nesw_convergence(
@@ -62,7 +74,7 @@ def plot_nesw_convergence(
         max_distance: float,
 ):
     """Plot convergence of strain at different points around a load."""
-    delta_distance = 0.01
+    delta_distance = 0.05
     skip = 3
     # Create color mappable for distances.
     norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
@@ -72,9 +84,9 @@ def plot_nesw_convergence(
     # For each compass point.
     compass_dir = {
         "N": (0, 1),
-        "E": (-1, 0),
+        "E": (1, 0),
         "S": (0, -1),
-        "W": (1, 0),
+        "W": (-1, 0),
     }
     plt.square()
     fig, axes = plt.subplots(nrows=2, ncols=2)

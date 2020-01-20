@@ -90,18 +90,18 @@ def compare_responses(c: Config):
     plt.portrait()
 
     # Start with responses from direct simulation.
-    # responses = responses_to_vehicles_d(
-    #     c=c,
-    #     response_type=ResponseType.YTranslation,
-    #     points=[point],
-    #     mv_vehicles=[wagen1],
-    #     times=wagen1_times,
-    #     sim_runner=OSRunner(c),
-    #     binned=False,
-    # )
-    # plt.subplot(4, 1, 1)
-    # plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\n ")
-    # plt.plot(responses)
+    responses = responses_to_vehicles_d(
+        c=c,
+        response_type=ResponseType.YTranslation,
+        points=[point],
+        mv_vehicles=[wagen1],
+        times=wagen1_times,
+        sim_runner=OSRunner(c),
+        binned=False,
+    )
+    plt.subplot(4, 1, 1)
+    plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\n ")
+    plt.plot(responses)
 
     # # Then responses from direct simulation with binning.
     # responses = responses_to_vehicles_d(
@@ -116,6 +116,9 @@ def compare_responses(c: Config):
     # plt.subplot(4, 1, 2)
     # plt.title(f"{wagen1_times} responses from {c.il_num_loads} il_num_loads\nbinned")
     # plt.plot(responses)
+    
+    num_times = int(end_time / c.sensor_hz)
+    wagen1_times = np.linspace(0, end_time, num_times)
 
     # Then from 'TrafficArray' we get  responses, without binning.
     responses = [

@@ -91,29 +91,33 @@ def shorten_path(c: Config, filepath: str) -> str:
     lock = FileLock(df_path + ".lock", timeout=1)
     # os.remove(df_path)
     # import sys; sys.exit()
-    with lock:
-        if os.path.exists(df_path):
-            df = pd.read_csv(df_path, index_col=0)
-        else:
-            df = pd.DataFrame(columns=["original", "short"])
-        existing_row = df[df["original"] == filepath]
-        if len(existing_row) == 1:
-            return str(existing_row["short"].iloc[0])
-        elif len(existing_row) > 1:
-            raise ValueError("OOps")
-        if len(df.index) == 0:
-            short = 1
-        else:
-            short = len(df.index) + 1
-        short = os.path.join(
-            os.path.dirname(filepath),
-            "short" + str(short) + os.path.splitext(filepath)[1],
-        )
-        if not os.path.exists(os.path.dirname(short)):
-            os.makedirs(os.path.dirname(short))
-        df = df.append({"original": filepath, "short": short}, ignore_index=True)
-        df.to_csv(df_path)
-    print_i(f"Shortening path to : {short}")
+    try:
+        with lock:
+            if os.path.exists(df_path):
+                df = pd.read_csv(df_path, index_col=0)
+            else:
+                df = pd.DataFrame(columns=["original", "short"])
+            existing_row = df[df["original"] == filepath]
+            if len(existing_row) == 1:
+                return str(existing_row["short"].iloc[0])
+            elif len(existing_row) > 1:
+                raise ValueError("OOps")
+            if len(df.index) == 0:
+                short = 1
+            else:
+                short = len(df.index) + 1
+            short = os.path.join(
+                os.path.dirname(filepath),
+                "short" + str(short) + os.path.splitext(filepath)[1],
+            )
+            if not os.path.exists(os.path.dirname(short)):
+                os.makedirs(os.path.dirname(short))
+            df = df.append({"original": filepath, "short": short}, ignore_index=True)
+            df.to_csv(df_path)
+    except Timeout:
+        print_w(f"Timeout attempting to acquire: {filepath}")
+        return shorten_path(c=c, filepath=filepath)
+    print_i(f"Shortened path to: {short}")
     return short
 
 
