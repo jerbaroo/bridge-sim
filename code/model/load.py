@@ -290,6 +290,12 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
+    def left_bridge(self, bridge: Bridge):
+        """Time the vehicle has left the bridge."""
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x <= 0
+        return float(abs(init_x) + bridge.length + self.length) / self.mps
+
     def frac_in_bin(self, wheel_x, bin_x_lo, bin_x_hi) -> float:
         """Fraction of current wheel in given bin."""
         wheel_x_lo, wheel_x_hi = [

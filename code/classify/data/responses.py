@@ -257,11 +257,8 @@ def responses_to_loads_d(
 ):
     """Responses to loads via direct simulation.
 
-    TODO: Currently, additional nodes are placed at points of interest, with 0
-    kN force. Also add this to 'responses_from_traffic_array'.
-
     NOTE: this function will place a point load directly. This function doesn't
-    take into account wheel track buckets.
+    take into account wheel track bins.
 
     """
     if not isinstance(damage_scenario, HealthyDamage):
@@ -314,9 +311,11 @@ def responses_to_vehicles_d(
             [v.to_point_load_pw(time=time, bridge=c.bridge) for v in mv_vehicles]
             for time in times
         ]
+        import pdb; pdb.set_trace()
     loads = [flatten(vehicle_loads, PointLoad) for vehicle_loads in loads]
     print([len(load_) for load_ in loads])
     print(loads[0])
+    print(loads[-1])
     assert isinstance(loads, list)
     assert isinstance(loads[0], list)
     assert isinstance(loads[0][0], PointLoad)
