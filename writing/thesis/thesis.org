@@ -695,6 +695,8 @@ outlines the categorization of the 3,283 structures in the network.
 |----------------------+--------+----------------|
 | Total                |  3,283 |      4,530,593 |
 
+# TODO: https://www.wellsconcrete.com/blog/use-prestressed-concrete-vs-cast-place-concrete-precastprestressed-concrete/
+
 # Types of bridges.
 ** Bridge Maintenance
 In this subsection we will take a brief look at the cost of bridge maintenance,

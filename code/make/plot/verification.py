@@ -652,7 +652,7 @@ def plot_pier_convergence(
                 avg_deck_size = np.mean([s.area() for s in shells if not s.pier])
                 avg_pier_size = np.mean([s.area() for s in shells if s.pier])
                 # Add the new parameters to the DataFrame and write to disk.
-                if df.index.contains(max_shell_len):
+                if max_shell_len in df.index:
                     df.drop(max_shell_len)
                 df.append(pd.Series(name=max_shell_len))
                 for param_name, param in [
