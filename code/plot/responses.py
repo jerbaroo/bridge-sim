@@ -121,7 +121,7 @@ def plot_contour_deck(
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
-    levels: int = 25,
+    levels: int = 14,
     resize: bool = True,
     units: Optional[str] = None,
     show_legend: bool = True,
@@ -181,8 +181,8 @@ def plot_contour_deck(
 
     # Plot min and max responses.
     for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin:.4f} {unit_str}", "orange", 1),
-        ((amax_x, amax_z), f"max = {amax:.4f} {unit_str}", "green", 1),
+        ((amin_x, amin_z), f"min = {amin:.4f} {unit_str}", "orange", 0),
+        ((amax_x, amax_z), f"max = {amax:.4f} {unit_str}", "green", 0),
         ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} {unit_str}", "red", 0),
     ]:
         plt.scatter(

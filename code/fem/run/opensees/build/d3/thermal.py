@@ -241,7 +241,7 @@ def opensees_thermal_moment_deck_loads(
             print_d(D,
                 f"After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
             )
-            print_(D,
+            print_d(D,
                 f"After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
             )
 

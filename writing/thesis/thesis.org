@@ -2204,11 +2204,11 @@ to FEMs of bridge 705 for AxisVM and OpenSees respectively.
 
 #+NAME: fig:thermal-axial-z-axis
 #+CAPTION[Z translation from axial thermal loading with AxisVM]: Z translation from axial thermal loading with AxisVM. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in AxisVM.
-[[../../saved-generated-data-images/bridge-705-med-3d/healthy/validation/thermal/axis-z-axial-displa.pdf]]
+[[./saved-images/thermal/axis-ytrans-axial.pdf]]
 
 #+NAME: fig:thermal-axial-z-os
 #+CAPTION[Z translation from axial thermal loading with OpenSees]: Z translation from axial thermal loading with OpenSees. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in OpenSees.
-[[../../saved-generated-data-images/bridge-705-med-3d/healthy/validation/thermal/thermal-deck-unit-axial_load-z-translation.pdf]]
+[[./saved-images/thermal/thermal-deck-unit-axial_load-displacement.pdf]]
 
 *** Parameter Selection
 
