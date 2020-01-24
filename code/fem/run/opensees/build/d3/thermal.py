@@ -12,6 +12,10 @@ from fem.run.build.types import DeckElements, Node
 from fem.run.opensees.build.d3.util import comment
 from util import print_d
 
+# Print debug information for this file.
+D: str = "fem.run.opensees.build.d3.thermal"
+D: bool = False
+
 
 def opensees_thermal_axial_deck_loads(
     sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
@@ -67,17 +71,17 @@ def opensees_thermal_axial_deck_loads(
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):
-        print(shell)
-        print(np.array(deck_elements).shape)
-        print()
-        print(f"cte = {shell.section.cte}")
-        print(f"d_temp = {sim_params.axial_delta_temp}")
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, "")
+        print_d(D, f"cte = {shell.section.cte}")
+        print_d(D, f"d_temp = {sim_params.axial_delta_temp}")
         shell_thermal_strain = shell.section.cte * sim_params.axial_delta_temp
-        print(f"thermal strain = {shell_thermal_strain}")
+        print_d(D, f"thermal strain = {shell_thermal_strain}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_thermal_stress = shell_youngs_si * shell_thermal_strain
-        print(f"shell youngs SI = {shell_youngs_si}")
-        print(f"thermal stress = {shell_thermal_stress}")
+        print_d(D, f"shell youngs SI = {shell_youngs_si}")
+        print_d(D, f"thermal stress = {shell_thermal_stress}")
         # For each cross section consider the pair of nodes at the corners.
         for n_id_0, n_id_1, load_direction in [
             (shell.ni_id, shell.nj_id, LoadDirection.ZPOS),
@@ -85,18 +89,18 @@ def opensees_thermal_axial_deck_loads(
             (shell.nk_id, shell.nl_id, LoadDirection.ZNEG),
             (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
         ]:
-            print(f"node ids = {n_id_0}, {n_id_1}")
+            print_d(D, f"node ids = {n_id_0}, {n_id_1}")
             node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
             assert_load_direction(
                 node_0=node_0, node_1=node_1, direction=load_direction
             )
             node_distance = node_0.distance_n(node_1)
             assert node_distance > 0
-            print(f"node distance = {node_distance}")
+            print_d(D, f"node distance = {node_distance}")
             cross_section_area = shell.section.thickness * node_distance
-            print(f"cross section area = {cross_section_area}")
+            print_d(D, f"cross section area = {cross_section_area}")
             cross_section_thermal_force_n = shell_thermal_stress * cross_section_area
-            print(f"cross section thermal force = {cross_section_thermal_force_n}")
+            print_d(D, f"cross section thermal force = {cross_section_thermal_force_n}")
             # NOTE: Rounding to 0 to ensure that the sum of forces on a node can
             # be accurately compared to 0, and there won't be a small residual
             # force.
@@ -104,20 +108,20 @@ def opensees_thermal_axial_deck_loads(
             assert np.isclose(
                 cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
             )
-            print(
+            print_d(D,
                 f"Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
             )
-            print(
+            print_d(D,
                 f"Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
             )
             for n_id in [n_id_0, n_id_1]:
                 thermal_loads_by_nid[n_id].add_load(
                     magnitude=nodal_thermal_force_n, direction=load_direction
                 )
-            print(
+            print_d(D,
                 f"After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
             )
-            print(
+            print_d(D,
                 f"After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
             )
 
@@ -186,17 +190,17 @@ def opensees_thermal_moment_deck_loads(
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):
-        print(shell)
-        print(np.array(deck_elements).shape)
-        print()
-        print(f"cte = {shell.section.cte}")
-        print(f"d_temp = {sim_params.moment_delta_temp}")
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, "")
+        print_d(D, f"cte = {shell.section.cte}")
+        print_d(D, f"d_temp = {sim_params.moment_delta_temp}")
         shell_strain_top = shell.section.cte * sim_params.moment_delta_temp
-        print(f"strain_top = {shell_strain_top}")
+        print_d(D, f"strain_top = {shell_strain_top}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_stress_top = shell_youngs_si * shell_strain_top
-        print(f"shell youngs SI = {shell_youngs_si}")
-        print(f"stress_top = {shell_stress_top}")
+        print_d(D, f"shell youngs SI = {shell_youngs_si}")
+        print_d(D, f"stress_top = {shell_stress_top}")
         # For each cross section consider the pair of nodes at the corners.
         for n_id_0, n_id_1, load_direction in [
             (shell.ni_id, shell.nj_id, LoadDirection.ZPOS),
@@ -204,14 +208,14 @@ def opensees_thermal_moment_deck_loads(
             (shell.nk_id, shell.nl_id, LoadDirection.ZNEG),
             (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
         ]:
-            print(f"node ids = {n_id_0}, {n_id_1}")
+            print_d(D, f"node ids = {n_id_0}, {n_id_1}")
             node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
             assert_load_direction(
                 node_0=node_0, node_1=node_1, direction=load_direction
             )
             node_distance = node_0.distance_n(node_1)
-            print(f"node distance = {node_distance}")
-            print(f"section thickness = {shell.section.thickness}")
+            print_d(D, f"node distance = {node_distance}")
+            print_d(D, f"section thickness = {shell.section.thickness}")
             force_top_n = (
                 shell_stress_top
                 * (shell.section.thickness / 2)
@@ -219,12 +223,12 @@ def opensees_thermal_moment_deck_loads(
                 * node_distance
             )
             moment_top_nm = force_top_n * (2 / 3) * (shell.section.thickness / 2)
-            print(f"force top n = {force_top_n}")
-            print(f"moment nm = {moment_top_nm}")
-            print(
+            print_d(D, f"force top n = {force_top_n}")
+            print_d(D, f"moment nm = {moment_top_nm}")
+            print_d(D,
                 f"Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
             )
-            print(
+            print_d(D,
                 f"Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
             )
             # The moment per node is moment_top_nm / 2. But since we also want
@@ -234,10 +238,10 @@ def opensees_thermal_moment_deck_loads(
                 thermal_loads_by_nid[n_id].add_load(
                     magnitude=moment_top_nm, direction=load_direction
                 )
-            print(
+            print_d(D,
                 f"After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
             )
-            print(
+            print_(D,
                 f"After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
             )
 
