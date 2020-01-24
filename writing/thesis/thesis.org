@@ -2195,19 +2195,19 @@ In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
 each FE software package, one simulation of unit axial thermal loading and one
-simulation of unit moment thermal loading. Figures [[fig:thermal-axial-z-axis]] and
-[[fig:thermal-axial-z-os]] show displacement from unit axial thermal loading applied
+simulation of unit moment thermal loading. Figures [[fig:thermal-axial-y-axis]] and
+[[fig:thermal-axial-y-os]] show displacement from unit axial thermal loading applied
 to FEMs of bridge 705 for AxisVM and OpenSees respectively.
 
 # TODO: Move to full mesh thermal images.
 # TODO: Include other thermal images.
 
-#+NAME: fig:thermal-axial-z-axis
-#+CAPTION[Z translation from axial thermal loading with AxisVM]: Z translation from axial thermal loading with AxisVM. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in AxisVM.
+#+NAME: fig:thermal-axial-y-axis
+#+CAPTION[Displacement from axial thermal loading in AxisVM]: Displacement from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 in AxisVM.
 [[./saved-images/thermal/axis-ytrans-axial.pdf]]
 
-#+NAME: fig:thermal-axial-z-os
-#+CAPTION[Z translation from axial thermal loading with OpenSees]: Z translation from axial thermal loading with OpenSees. A $\SI{+1}{\celsius}$ axial load was applied to the deck of a FEM of bridge 705 in OpenSees.
+#+NAME: fig:thermal-axial-y-os
+#+CAPTION[Displacement from axial thermal loading in OpenSees]: Displacement from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 in OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-axial_load-displacement.pdf]]
 
 *** Parameter Selection

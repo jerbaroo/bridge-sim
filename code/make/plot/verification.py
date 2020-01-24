@@ -713,7 +713,7 @@ def plot_pier_convergence(
     plt.close()
 
     # Plot convergence of strain, first with all sensors, then without some.
-    title = "Strain convergence as a function of model size\ndue to settlement of pier 4"
+    title = f"Strain convergence as a function of model size\ndue to settlement of pier {pier_i}"
     plot_mmm_strain_convergence(c=og_c, pier=pier, df=df, all_strains=all_strains, title=title, append="0")
     plot_mmm_strain_convergence(c=og_c, pier=pier, df=df, all_strains=all_strains, title=title, without=without, append=f"{strain_ignore_radius}")
 
