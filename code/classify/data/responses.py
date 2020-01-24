@@ -35,7 +35,6 @@ def responses_to_traffic_array(
     bridge_scenario: DamageScenario,
     points: List[Point],
     sim_runner: Callable[[Config], FEMRunner],
-    j=None,
 ):
     """The magic function.
 
@@ -64,9 +63,6 @@ def responses_to_traffic_array(
         unit_load_matrix = ILMatrix.load_ulm(
             c=c, uls=uls, wheel_zs=wheel_zs, points=points, save_path=uls_path
         )
-        if j is not None:
-            pass
-            # print(f"j = {j}, uls[j][0] = {unit_load_matrix[j][0]}")
     else:
         unit_load_matrix = np.zeros(ulm_shape)
 
@@ -142,7 +138,6 @@ def responses_to_loads_m(
         response_type=response_type,
         bridge_scenario=damage_scenario,
         points=points,
-        j=j,
         sim_runner=sim_runner,
     )
 
@@ -311,7 +306,6 @@ def responses_to_vehicles_d(
             [v.to_point_load_pw(time=time, bridge=c.bridge) for v in mv_vehicles]
             for time in times
         ]
-        import pdb; pdb.set_trace()
     loads = [flatten(vehicle_loads, PointLoad) for vehicle_loads in loads]
     print([len(load_) for load_ in loads])
     print(loads[0])

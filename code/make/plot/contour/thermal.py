@@ -18,6 +18,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         ResponseType.XTranslation,
         ResponseType.YTranslation,
         ResponseType.ZTranslation,
+        ResponseType.Strain,
     ]
     damage_scenario_plot(
         c=c,
@@ -39,12 +40,13 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
     )
 
 
-def unit_moment_thermal_deck_load(c: Config):
+def unit_moment_thermal_deck_load(c: Config, run: bool):
     """Response to unit moment thermal deck loading."""
     response_types = [
         ResponseType.XTranslation,
         ResponseType.YTranslation,
         ResponseType.ZTranslation,
+        ResponseType.Strain,
     ]
     damage_scenario_plot(
         c=c,
@@ -61,10 +63,12 @@ def unit_moment_thermal_deck_load(c: Config):
             )
             for rt in response_types
         ],
+        run=run,
+        levels=14,
     )
 
 
-def unit_thermal_deck_load(c: Config):
+def unit_thermal_deck_load(c: Config, run: bool):
     """Response to unit thermal deck loading."""
     response_types = [
         ResponseType.XTranslation,
@@ -89,6 +93,8 @@ def unit_thermal_deck_load(c: Config):
             )
             for rt in response_types
         ],
+        run=run,
+        levels=14,
     )
 
 

@@ -1,14 +1,15 @@
 """Useful functions that don't belong anywhere else."""
 from __future__ import annotations
-from typing import Union
 
 import os
 import math
+from typing import Union
+
 import numpy as np
 import pandas as pd
+import portalocker
 import scipy.stats as stats
 from colorama import init
-from filelock import FileLock
 from termcolor import colored
 
 init()
@@ -35,7 +36,6 @@ def flatten(container, t):
                     yield j
             else:
                 yield i
-
     return list(_flatten(container, t))
 
 
@@ -85,10 +85,14 @@ def nearest_index(array, value):
 def shorten_path(c: Config, filepath: str) -> str:
     """Shorten path by mapping to shorter filepath saved on disk."""
     if not c.shorten_paths:
-        print_i(f"Not shortening path: {filepath}")
         return filepath
     df_path = c.get_data_path("metadata", "filepath-shortening-map.txt")
-    with FileLock(df_path + ".lock"):
+    lock_path = df_path + ".lock"
+    # with FileLock(df_path + ".lock"):
+    with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
+        def flush():
+            f.flush()
+            os.fsync(f.fileno())
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0)
         else:
@@ -97,7 +101,7 @@ def shorten_path(c: Config, filepath: str) -> str:
         if len(existing_row) == 1:
             return str(existing_row["short"].iloc[0])
         elif len(existing_row) > 1:
-            raise ValueError("OOps")
+            raise ValueError("Oops")
         short = len(df.index) + 1
         short = os.path.join(
             os.path.dirname(filepath),
@@ -107,6 +111,7 @@ def shorten_path(c: Config, filepath: str) -> str:
             os.makedirs(os.path.dirname(short))
         df = df.append({"original": filepath, "short": short}, ignore_index=True)
         df.to_csv(df_path)
+        flush()
     print_i(f"Shortened path to: {short}")
     return short
 

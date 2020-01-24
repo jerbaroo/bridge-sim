@@ -160,7 +160,7 @@ def opensees_fixed_abutment_nodes(
                     node=node,
                     fix_x_translation=False,
                     fix_y_translation=True,
-                    fix_z_translation=False,
+                    fix_z_translation=True,
                     # fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
                     fix_x_rotation=False,
                     fix_y_rotation=False,
@@ -226,7 +226,8 @@ def opensees_fixed_pier_nodes(
                     node=node,
                     fix_x_translation=pier.fix_x_translation,
                     fix_y_translation=False if free_y_trans else pier.fix_y_translation,
-                    fix_z_translation=fix_pier_z_translation(pier),
+                    # fix_z_translation=fix_pier_z_translation(pier),
+                    fix_z_translation=True,
                     fix_x_rotation=pier.fix_x_rotation,
                     fix_y_rotation=pier.fix_y_rotation,
                     fix_z_rotation=pier.fix_z_rotation,
@@ -484,7 +485,6 @@ def build_model_3d(
 
         # Setup the 'BuildContext' for this simulation.
         sim_ctx = sim_params.build_ctx(c.bridge)
-        print(sim_ctx)
         sim_params.ctx = sim_ctx
         for load in sim_params.ploads:
             print(f"Load in build_model_3d = {load.point(c.bridge)}")

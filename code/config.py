@@ -63,7 +63,7 @@ class Config:
         # Simulation performance.
         self.parallel = False
         self.parallel_ulm = True
-        self.shorten_paths = True
+        self.shorten_paths = False
         self.resp_matrices = dict()
 
         # Unit loads.

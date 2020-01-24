@@ -669,10 +669,10 @@ The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however provides background
 information in an attempt to motivate this thesis, thus the focus is now on the
 question of /why/. Why should sensors be installed on concrete slab bridges for
-the purpose of damage detection? In doing so this Section will examine the
-different types of Bridges, types of damage that occur, how health monitoring
-takes place, and why an extensible system for researching damage detection on
-bridges is desirable.
+the purpose of damage detection? This Section will examine the different types
+of bridges, types of damage that occur, how health monitoring takes place, and
+why an extensible system for researching damage detection on bridges is
+desirable.
 
 ** Existing Bridges
 # Dutch road network overview.
@@ -696,6 +696,12 @@ outlines the categorization of the 3,283 structures in the network.
 | Total                |  3,283 |      4,530,593 |
 
 # TODO: https://www.wellsconcrete.com/blog/use-prestressed-concrete-vs-cast-place-concrete-precastprestressed-concrete/
+
+Bridge 705 is a bridge in
+
+#+CAPTION[Photo of the piers of bridge 705]: Photo of the piers of bridge 705. This photo shows piers at 5 of the 6 positions in longitudinal direction of the bridge. The two rows of piers furthest from the camera and the one row closest to the camera are hinged piers (notice the blue hinge closest to the camera) that allow the bridge deck to move in longitudinal direction. The remaining two rows of piers are fixed against longitudinal translation. The bridge is symmetrical, thus the single row of piers not shown (behind the camera) are also hinged.
+#+NAME: fig:705-piers
+[[./saved-images/photo-705-piers.JPG]]
 
 # Types of bridges.
 ** Bridge Maintenance
@@ -1314,11 +1320,21 @@ bridge705 = Bridge {
   piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
   }
 #+END_SRC
-   
-#+CAPTION: Cross section of bridge 705.
-#+NAME: fig:bridge-705-spec
-[[../images/bridge-705-spec.png]]
 
+# Boundary conditions.
+The boundary conditions of the model, whether degrees of freedom are fixed or
+not fixed at the supports, will significantly affect the results of simulation.
+The boundary conditions of the FEM of bridge 705 should be set such that they
+are reflective of reality. The nodes along each of the abutments and along the
+bottom of each pier are the nodal supports. Each of these nodal supports are
+fixed against vertical translation, which makes obvious sense as the abutments
+and piers resist the force of gravity acting on the structure and vehicles, in
+order to keep the bridge suspended. In addition, a number of piers are fixed
+against longitudinal translation while some are not. Hinged piers, as can be
+clearly seen in Figure [[fig:705-piers]], are not fixed against longitudinal
+translation, while the remaining piers are fixed. All of the remaining degrees
+of freedom are set as not fixed.
+  
 **** Discretization
 - Material properties may vary according to a continuous function on a real
   bridge while material properties in the FEM change at given discretization
@@ -1358,11 +1374,11 @@ pier to 1.266 meters at the top. The photograph of bridge presented in Figure
 a model of bridge 705 for simulation, the piers are discretized into a number of
 shell elements based on the $max_shell_len$ parameter as described in Subsection
 [[Meshing]], each shell is assigned a value linearly in the range $[1.266, 0.362]$.
+Poisson's ratio, which is the negative ratio of lateral strain to longitudinal
+strain is constant for the entirety of the bridge deck and for the piers, set to
+the material constant of 0.2 for concrete.
 
-Poisson's ratio is constant for the entirety of the bridge deck and for the
-piers, set to a value of 0.2. This will not have an affect on the simulation
-because ...
-TODO: Why is Poisson's ratio not going to have an effect.
+TODO: Why is Density not going to have an effect.
 
 The nodes of the generated FEM which have degree's of freedom fixed are: the
 nodes which make up the abutments at the east and west ends of the bridge, and
@@ -1441,24 +1457,55 @@ load that is applied in FE simulation. Thermal noise is considered sufficient to
 investigate the robustness of the damage identification model to long-term
 variations in response, whether these have daily or annual periods.
 
-# How temperature is modeled.
-OpenSees does not directly support the application of a thermal load based on a
-user-input change in temperature (e.g. $+\SI{2}{\celsius}$), thus the thermal
-load is calculated based on the theory of linear thermal expansion. Under the
-assumption of linear thermal expansion, the strain caused by a change in
-temperature ($\varepsilon_thermal$) is linearly proportional to the change in
-temperature, $\varepsilon_thermal \propto \delta{T}$.
+# Linear thermal expansion.
+OpenSees does not directly support the application of a thermal load based on
+user-input changes in temperature, therefore thermal load is calculated based on
+the theory of linear thermal expansion. Under the assumption of linear thermal
+expansion, the strain due to a change in temperature ($\varepsilon_{thermal}$)
+is linearly proportional to the change in temperature, $\varepsilon_thermal
+\propto \delta{T}$. These calculation
 
-# Axial and bending moment load.
+# Temperature decomposed into: axial and bending moment load.
 The equivalent force applied to a beam can be decomposed into an axial force and
-a bending moment as is shown in Figure
-\textcolor{red}{TODO fig:thermal-loading}.
+a bending moment as is shown in Figure \textcolor{red}{TODO
+fig:thermal-loading}.
 
-# Calculating the thermal load.
+The degrees of freedom in transverse direction must also be set. According to
+the expertise of a colleague at TNO who built the FEM of bridge 705 for the
+Diana software package, the wide bridge deck would allow for minimal translation
+in transverse direction due to the friction along this width, thus the nodes
+along the abutment can be fixed against translation in transverse direction. In
+order to determine if the nodal supports belonging to the piers should be fixed
+against translation in transverse direction, a calculation can be made in order
+to determine if the bridge would move in transverse direction under a thermal
+load. This calculation takes the form of comparing the force in transverse
+direction due to axial thermal loading $F_{z\_temp}$ to the force in transverse
+direction necessary to move the structure at one of the piers.
+
+The force necessary to move the structure at one of the piers is the force due
+the self weight of the structure multiplied by the coefficient of friction
+between steel (the support at the bottom of the pier) and concrete (the body of
+the pier) $F_{vert} \cdot \mu$. $F_{z\_temp}$ due to axial thermal loading of
+$\SI{+15}{\celcius}$, and $F_{vert}$, were calculated from the FEM of bridge 705
+for AxisVM as $\SI{3000}{\kN}$ and $\SI{3600}{\kN}$ respectively. With a
+coefficient of friction of 0.58, $F_{vert} \cdot \mu \approx \SI{2088}{\kN}$ and
+thus $F_{z\_temp} > F_{vert} \cdot \mu$. This means that after a change in
+temperature of only a few degrees $\frac{2088}{3000} \cdot \SI{15}{celcius}
+\approx \SI{4.6}{\celcius}$ the force due to temperature in transverse direction
+will overcome the resistance of the piers.
+
+This result complicates modeling, as the piers will not move in transverse
+direction below a change of $\SI{4.6}{\celcius}$ from the temperature that the
+concrete was set at. However beyond this temperature range the piers will move.
+In order to simplify modeling, only the case where the piers will not move is
+considered, thus the supporting nodes of the piers are fixed against movement
+in transverse direction.
+
+# Calculating the axial thermal load.
 The combination of a change in temperature and a known coefficient of thermal
-expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
-load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
-strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
+expansion (CTE or $\alpha$) of a material can be used to calculate the axial
+thermal load to be applied to a material as shown in Equation [[eqn:thermal]]. First
+the strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
 product of $\alpha$ and $\delta{T}$, then in combination with Young's modulus
 $E$ the equivalent stress $\sigma_thermal$ is obtained. The thermal load
 $F_thermal$ to be applied to the cross section of an element in simulation is
@@ -2148,9 +2195,9 @@ In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
 each FE software package, one simulation of unit axial thermal loading and one
-simulation of unit moment thermal loading. Figures [[fig:thermal-axial-z-axis]] -
+simulation of unit moment thermal loading. Figures [[fig:thermal-axial-z-axis]] and
 [[fig:thermal-axial-z-os]] show displacement from unit axial thermal loading applied
-to FEMs of bridge 705, one in AxisVM and one in OpenSees.
+to FEMs of bridge 705 for AxisVM and OpenSees respectively.
 
 # TODO: Move to full mesh thermal images.
 # TODO: Include other thermal images.
@@ -2197,10 +2244,11 @@ from each pier (Figures [[fig:pier-strain-4]] and [[fig:pier-strain-5]]). Recall
 pier 4 is the pier undergoing settlement in Figure [[fig:pd-4s-axis]] and pier 5 is
 shown in Figure [[fig:pd-5s-axis]]. Figures [[fig:pier-strain-4]] and [[fig:pier-strain-5]]
 show how strain converges at increasing distances from each pier, thus a value
-of $\SI{2}{\meter}$ was chosen where strains are not collected around each pier.
-Around each pier it will be more difficult to install sensors on the bottom of
-the bridge deck due to the presence of the piers, thus this is a realistic set
-of sensor positions that are being ignored. TODO: Reference.
+of $\SI{2}{\meter}$ was chosen where strains are not collected around each pier
+for the purpose of classification. Around each pier it will be more difficult to
+install sensors on the bottom of the bridge deck due to the presence of the
+piers, thus this is a realistic set of sensor positions that are being ignored.
+TODO: Reference.
 
 # ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-4-convergence
 # validate pier-conv --pier 4 --max-nodes 100000 --without-radius 2 --nesw-loc 0
@@ -2209,6 +2257,14 @@ of sensor positions that are being ignored. TODO: Reference.
 #+NAME: fig:pier-strain-4
 #+CAPTION[Strain convergence at distances from pier 4]:
 [[./saved-images/bridge-705-0-convergence-nesw-pier-4.pdf]]
+
+#+NAME: fig:pier-strain-4
+#+CAPTION[Strain convergence at distances from pier 4]:
+[[./saved-images/bridge-705-0-convergence-nesw-pier-4.pdf]]
+
+# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
+# validate pier-conv --pier 5 --max-nodes 100000 --without-radius 2 --nesw-loc 0
+# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
 
 #+NAME: fig:pier-strain-5
 #+CAPTION[Sensors unused]:

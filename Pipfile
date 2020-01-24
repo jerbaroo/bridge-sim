@@ -21,6 +21,7 @@ scipy = "*"
 sklearn = "*"
 termcolor = "*"
 filelock = "*"
+portalocker = "*"
 
 [pipenv]
 allow_prereleases = true

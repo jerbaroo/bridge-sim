@@ -75,7 +75,7 @@ def c():
 @click.option(
     "--shorten-paths",
     type=bool,
-    default=True,
+    default=False,
     help="Save responses at shorter filepaths.",
 )
 def cli(
@@ -331,16 +331,14 @@ def pier_conv(
 
 
 @validate.command(help="Contour plots of unit thermal deck loading.")
-@click.option(
-    "--run", is_flag=True, default=True, help="Run the simulations before plotting."
-)
+@click.option("--run", is_flag=True, help="Run the simulations before plotting.")
 def thermal(run):
     from make.plot.contour import thermal
 
     thermal.make_axis_plots(c())
     thermal.unit_axial_thermal_deck_load(c=c(), run=run)
-    # thermal.unit_moment_thermal_deck_load(c())
-    # thermal.unit_thermal_deck_load(c())
+    thermal.unit_moment_thermal_deck_load(c(), run=run)
+    thermal.unit_thermal_deck_load(c(), run=run)
 
 
 @validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")
