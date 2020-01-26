@@ -2146,61 +2146,63 @@ material properties of both FEMs are given in Table [[tbl:single-section]].
 | Young's modulus   | 47277 MPa  | 38400 MPa  |
 | Poisson's ratio   | 0.2        | 0.2        |
 
-Simulations were run where a displacement load was applied to the central node
-at the bottom of each pier of bridge 705, one simulation per pier. The response
-patterns are similar for the piers that are closest to the northern and southern
-edges of the bridge, and similar for each of the remaining piers. Thus one pier
-near the southern edge of the bridge and one near the center of the bridge in
-transverse direction are chosen for comparison, these are piers 4 and 5 in
-Figure TODO. Both of these piers are displaced by $\SI{1}{\meter}$ with AxisVM
-and also with OpenSees. Contour plots of the displacement and strain are shown
-in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for the settlement of pier 4 and in
-Figures [[fig:pd-5d-axis]] - [[fig:pd-5s-os]] for pier 5.
+***** Pier Settlement
 
-# TODO Validate piers and write about remaining images.
+Simulations were run, both with OpenSees and AxisVM, where a displacement load
+was applied to the central node at the bottom of each pier of bridge 705, one
+simulation per pier. The response patterns are similar for the piers that are
+closest to the northern and southern edges of the bridge, and similar for each
+of the remaining piers. Thus one pier near the southern edge of the bridge and
+one pier just north of that pier are chosen for comparison, these are piers 4
+and 5 in Figure TODO. Both of these piers are displaced by $\SI{1}{\meter}$ with
+AxisVM and also with OpenSees. Contour plots of the displacement and strain are
+shown in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for the settlement of pier 4 and
+in Appendix [[sec:app:pier]] for pier 5.
 
 #+NAME: fig:pd-4d-axis
-#+CAPTION[Displacement from pier (4) settlement with AxisVM]: Displacement recorded in AxisVM when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+#+CAPTION[Displacement from settlement of pier 4 with AxisVM]: Displacement recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
 [[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-displa.png]]
 
 #+NAME: fig:pd-4d-os
-#+CAPTION[Displacement from pier (4) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+#+CAPTION[Displacement from settlement of pier 4 with OpenSees]: Displacement recorded with OpenSees when a pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
 [[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-displacement.pdf]]
 
 #+NAME: fig:pd-4s-axis
-#+CAPTION[Strain from pier (4) settlement with AxisVM]: Strain recorded in AxisVM when a pier (4) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
+#+CAPTION[Strain from settlement of pier 4 with AxisVM]: Strain recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
 [[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-strain.png]]
 
 #+NAME: fig:pd-4s-os
-#+CAPTION[Strain from pier (4) settlement with OpenSees]: Strain recorded with OpenSees when a pier (4) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
+#+CAPTION[Strain from settlement of pier 4 with OpenSees]: Strain recorded with OpenSees when pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
 [[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-strain.pdf]]
 
-#+NAME: fig:pd-5d-axis
-#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+The contour plots of pier settlement show that the displacements collected with
+OpenSees are in very close agreement with those collected with AxisVM. However
+the range of strains collected with AxisVM and OpenSees are clearly different,
+which can be seen if the colourbars in Figures [[fig:pd-4s-axis]] and [[fig:pd-4s-os]]
+are compared. The range of strains are different likely due to non-convergence
+where the solution tends to infinity cite:timoshenko1959theory. In order to
+investigate this claim, convergence of strains is investigated at points at
+increasing distance from pier 4 in Figure [[fig:pier-4-nesw]] and in Figure
+[[fig:pier-5-nesw]] in Appendix [[sec:app:pier]].
 
-#+NAME: fig:pd-5d-os
-#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-4-convergence
+# validate pier-conv --pier 4 --max-nodes 100000 --without-radius 2 --nesw-loc 0
+# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
 
-#+NAME: fig:pd-5s-axis
-#+CAPTION[Strain from pier (5) settlement with AxisVM]: Strain recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
+#+NAME: fig:pier-4-nesw
+#+CAPTION[Strain convergence at distances from pier 4]: Strain convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 4. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 4.
+[[./saved-images/piers/nesw-pier-4.pdf]]
 
-#+NAME: fig:pd-5s-os
-#+CAPTION[Strain from pier (5) settlement with OpenSees]: Strain recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
+***** Thermal Loading
 
 In order to validate the implementation of thermal loading, as discussed in
 Subsection [[Noise Model]], simulations of unit thermal loading were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
-each FE software package, one simulation of unit axial thermal loading and one
-simulation of unit moment thermal loading. Figures [[fig:thermal-axial-y-axis]] and
-[[fig:thermal-axial-y-os]] show displacement from unit axial thermal loading applied
-to FEMs of bridge 705 for AxisVM and OpenSees respectively.
-
-# TODO: Move to full mesh thermal images.
-# TODO: Include other thermal images.
+each of these FE applications, one simulation of unit axial thermal loading and
+one simulation of unit moment thermal loading. Thermal loading is explained in
+Subsection [[Noise]]. Figures [[fig:thermal-axial-y-axis]] and [[fig:thermal-axial-y-os]]
+show displacement from unit axial thermal loading applied to FEMs of bridge 705
+for AxisVM and OpenSees respectively.
 
 #+NAME: fig:thermal-axial-y-axis
 #+CAPTION[Displacement from axial thermal loading in AxisVM]: Displacement from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 in AxisVM.
@@ -2212,18 +2214,19 @@ to FEMs of bridge 705 for AxisVM and OpenSees respectively.
 
 *** Parameter Selection
 
+# max_shell_len.
 Increasing mesh density increases the accuracy of responses but also increases
-run time of the FE simulation. Figure \textcolor{red}{TODO} shows the run time
-of a FE simulation of bridge 705 as a function of the FEM size. Based on these
-values a base mesh density of \textcolor{red}{X * Z} was chosen.
-\textcolor{red}{time reduction and $\epsilon$}. Recall from Subsection [[Bridge
-Model]] that the generated mesh of the bridge deck will have greater density in
-most areas but may also have reduced density in areas away from the applied
-load.
+run time of the FE simulation. A value of $MSL = 0.5$ was chosen to run point
+load simulations, at $MSL = 0.5$ the number of nodes in the generated FEM of
+bridge 705 for OpenSees is $\approx 24,000$. Figures [[fig:converge-displa]] and
+[[fig:converge-strain]] show convergence of displacement and strains respectively
+and justify the selection of $MSL = 0.5$. At this value the run time of a
+simulation is approximatley three minutes on a TODO machine.
 
+# Non convergence of strains -> ignroed sensors.
 The generated strain responses are not converging close to the point loads that
-are applied on the wheel tracks, and also not converging close to the piers
-under pier settlement. Under elastic plate theory, stresses (and therefore also
+are applied on the wheel tracks, and also not converging close to the piers in
+the pier settlement simulations. Under elastic plate theory, the stresses (and
 strains) under a point load are infinitely large, which is why we do not observe
 convergence cite:timoshenko1959theory. Therefore strain sensors are not placed
 around the piers or near the wheel tracks for the purpose of classification.
@@ -2231,44 +2234,17 @@ Figure [[fig:strain-sensors]] shows the positions on bridge 705 where simulated
 strain responses are collected, the selection of these sensors is justified in
 the following paragraphs.
 
+# Sensors ignored around piers.
+Figures [[fig:pier-4-nesw]] and [[fig:pier-5-nesw]] show how the collected strains
+converge at increasing distance from each pier, thus a value of $\SI{2}{\meter}$
+was chosen where strains are not collected around each pier for the purpose of
+classification. Around each pier it will be more difficult to install sensors on
+the bottom of the bridge deck due to the presence of the piers, thus this is a
+realistic set of sensor positions that are being ignored. TODO: Reference.
+
 #+NAME: fig:strain-sensors
 #+CAPTION[Positions of available strain sensors]: Available positions in simulation to place strain sensors on the deck of bridge 705 for the purpose of classification. The blue dots indicate positions where strain sensors are available while the red sensors indicate positions where data from strain sensors cannot be used due to a lack of convergence.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/sensors/unavailable-sensors.pdf]]
-
-In the simulations of pier settlement, non-convergence of strain responses is
-observed close to the piers. This non-convergence is because of singularites in
-the solution where the strains tend to infinity cite:timoshenko1959theory. Pier
-settlement simulations were run for piers 4 and 5 and the strains plotted as a
-function of model size at a number of different points at increasing distance
-from each pier (Figures [[fig:pier-strain-4]] and [[fig:pier-strain-5]]). Recall that
-pier 4 is the pier undergoing settlement in Figure [[fig:pd-4s-axis]] and pier 5 is
-shown in Figure [[fig:pd-5s-axis]]. Figures [[fig:pier-strain-4]] and [[fig:pier-strain-5]]
-show how strain converges at increasing distances from each pier, thus a value
-of $\SI{2}{\meter}$ was chosen where strains are not collected around each pier
-for the purpose of classification. Around each pier it will be more difficult to
-install sensors on the bottom of the bridge deck due to the presence of the
-piers, thus this is a realistic set of sensor positions that are being ignored.
-TODO: Reference.
-
-# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-4-convergence
-# validate pier-conv --pier 4 --max-nodes 100000 --without-radius 2 --nesw-loc 0
-# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
-
-#+NAME: fig:pier-strain-4
-#+CAPTION[Strain convergence at distances from pier 4]:
-[[./saved-images/bridge-705-0-convergence-nesw-pier-4.pdf]]
-
-#+NAME: fig:pier-strain-4
-#+CAPTION[Strain convergence at distances from pier 4]:
-[[./saved-images/bridge-705-0-convergence-nesw-pier-4.pdf]]
-
-# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
-# validate pier-conv --pier 5 --max-nodes 100000 --without-radius 2 --nesw-loc 0
-# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
-
-#+NAME: fig:pier-strain-5
-#+CAPTION[Sensors unused]:
-[[saved-images/]]
 
 *** Model Assumptions
 
@@ -2334,16 +2310,17 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 ** Damage Identification
 
+#+LATEX: \clearpage
 * Appendix
 :PROPERTIES:
 :APPENDIX: t
 :END:
 
-** Bridge 705 Material Properties
+** Bridge 705
 
-#+CAPTION: Density of the deck of the generated FEM of bridge 705 in kilogram per meter. The bridge deck under the tram lane, in the center of the bridge (light green), is the most dense (2.9 kg/m). The deck under the traffic lanes (teal green) is slightly less dense at (2.845 kg/mg) and the purple areas in-between are the least dense at approximately 2.6 kg/m. The material properties are symmetric across the longitudinal center of the bridge.
-#+NAME: fig:bridge-705-density
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-false-lanes-true.pdf]]
+# #+CAPTION: Density of the deck of the generated FEM of bridge 705 in kilogram per meter. The bridge deck under the tram lane, in the center of the bridge (light green), is the most dense (2.9 kg/m). The deck under the traffic lanes (teal green) is slightly less dense at (2.845 kg/mg) and the purple areas in-between are the least dense at approximately 2.6 kg/m. The material properties are symmetric across the longitudinal center of the bridge.
+# #+NAME: fig:bridge-705-density
+# [[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-false-lanes-true.pdf]]
 
 #+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-youngs
@@ -2379,28 +2356,17 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 |    32599 | 2.724E-06 |       740 |  38400 |
 |    32600 | 2.724E-06 |       750 |  38400 |
 
+#+LATEX: \clearpage
+** Diana FEM
+
 #+NAME: tbl:diana-nodes
-#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana
-bridge 705 model. Each node corresponds to a loading position in Table
-[[tbl:loading-positions]]. Providing this information allows for the contour plots
-from the Diana model to be reproduced, by anyone with a licence for the Diana
-software. The Diana model can either be requested from the thesis author, or
-can be found in the =traffic-sim= GitHub repository.
+#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana bridge 705 model. Each node corresponds to a loading position in Table [[tbl:loading-positions]]. Providing this information allows for the contour plots from the Diana model to be reproduced, by anyone with a licence for the Diana software. The Diana model can either be requested from the thesis author, or can be found in the =traffic-sim= GitHub repository.
 | Label | Node identifier |        X |        Z |
 |-------+-----------------+----------+----------|
 | A     | 126'679         | 34.95459 | 26.24579 |
 | B     | 87'125          | 51.25051 |     16.6 |
 | C     | 53'166          | 89.98269 | 9.445789 |
 | D     | 54'603          | 102.5037 | 6.954211 |
-
-#+NAME: tbl:sensor-pos
-#+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
-| Label |     X | Z | Type | Company |
-|-------+-------+---+------+---------|
-|  0.49 | 0.465 | A |      |         |
-|  0.14 | 0.130 | B |      |         |
-| 0.162 | 0.180 | C |      |         |
-|  0.13 | 0.128 | D |      |         |
 
 #+NAME: fig:comp-diana-b
 #+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b]] from simulation with OpenSees.
@@ -2425,6 +2391,47 @@ can be found in the =traffic-sim= GitHub repository.
 #+NAME: fig:comp-os-d
 #+CAPTION[Displacement in OpenSees from point load (D)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d]] from simulation with Diana.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/diana-comp/d-displacement.pdf]]
+
+#+LATEX: \clearpage
+** Experimental Campaign
+
+#+NAME: tbl:sensor-pos
+#+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
+| Label |     X | Z | Type | Company |
+|-------+-------+---+------+---------|
+|  0.49 | 0.465 | A |      |         |
+|  0.14 | 0.130 | B |      |         |
+| 0.162 | 0.180 | C |      |         |
+|  0.13 | 0.128 | D |      |         |
+
+#+LATEX: \clearpage
+** Pier Settlement
+<<sec:app:pier>>
+
+#+NAME: fig:pd-5d-axis
+#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+
+#+NAME: fig:pd-5d-os
+#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+
+#+NAME: fig:pd-5s-axis
+#+CAPTION[Strain from pier (5) settlement with AxisVM]: Strain recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
+
+#+NAME: fig:pd-5s-os
+#+CAPTION[Strain from pier (5) settlement with OpenSees]: Strain recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
+[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
+
+
+# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
+# validate pier-conv --pier 5 --max-nodes 100000 --without-radius 2 --nesw-loc 0
+# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
+
+#+NAME: fig:pier-5-nesw
+#+CAPTION[Strain convergence at distances from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
+[[./saved-images/piers/nesw-pier-5.pdf]]
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
