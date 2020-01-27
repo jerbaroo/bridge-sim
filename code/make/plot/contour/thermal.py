@@ -19,24 +19,34 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         ResponseType.YTranslation,
         ResponseType.ZTranslation,
         ResponseType.Strain,
+        ResponseType.Strain,
     ]
+    final_response_types = response_types[:]
+    final_response_types[-1] = ResponseType.Stress
+    map_responses = [lambda x: x for rt in response_types]
+    def to_stress(s):
+        s = s.strain_to_real_strain(c.cte * 1E+6)
+        s = s.deck_strain_to_stress(bridge=c.bridge, times=1E-6)
+        return s
+    map_responses[-1] = to_stress
     damage_scenario_plot(
         c=c,
         response_types=response_types,
         damage_scenario=ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c),
-        titles=[
+        titles = [
             f"{rt.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees"
-            for rt in response_types
+            for rt in final_response_types
         ],
         saves=[
             c.get_image_path(
                 "validation/thermal",
                 safe_str(f"thermal-deck-unit-axial_load-{rt.name()})") + ".pdf",
             )
-            for rt in response_types
+            for rt in final_response_types
         ],
         run=run,
         levels=14,
+        map_responses=map_responses,
     )
 
 

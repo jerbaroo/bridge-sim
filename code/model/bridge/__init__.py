@@ -352,7 +352,6 @@ class Section3D:
         start_z_frac: float, start of the section as a fraction of z position.
         end_x_frac: float, end of the section as a fraction of x position.
         end_z_frac: float, end of the section as a fraction of z position.
-        cte: float, coefficient of thermal expansion, in meters per celcius.
 
     """
 
@@ -368,7 +367,6 @@ class Section3D:
         start_z_frac: float,
         end_x_frac: float,
         end_z_frac: float,
-        cte: float = 12e-6,
     ):
         self.id = Section3D.next_id
         Section3D.next_id += 1
@@ -380,7 +378,6 @@ class Section3D:
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
-        self.cte = cte
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
         """Whether this section contains the given point."""
@@ -408,7 +405,6 @@ class Section3D:
             + f"\n  thickness = {self.thickness} m"
             + f"\n  youngs = {self.youngs} MPa"
             + f"\n  poissons = {self.poissons}"
-            + f"\n  cte = {self.cte}"
         )
 
 

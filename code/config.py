@@ -40,6 +40,9 @@ class Config:
             This applies if 'vehicle_pdf_col' is "length".
         generated_data: str, directory where to save generated files.
 
+    Attrs:
+        cte: float, coefficient of thermal expansion, in meters per celcius.
+
     """
 
     def __init__(
@@ -73,6 +76,7 @@ class Config:
         self.pd_unit_load_kn: int = 10
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
+        self.cte = 12e-6
 
         # Responses & events.
         self.sensor_hz: float = 1 / 400

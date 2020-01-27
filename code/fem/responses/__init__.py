@@ -163,6 +163,10 @@ class Responses:
                     # if abs(p.distance(of)) > radius:
         return Responses(response_type=self.response_type, responses=responses)
 
+    def strain_to_real_strain(self, strain_1: float):
+        self.map(lambda r: r - strain_1)
+        return self
+
     def deck_strain_to_stress(self, bridge: Bridge, times: float = 1):
         """Convert strains on the deck to stresses."""
         if self.response_type != ResponseType.Strain:
@@ -171,6 +175,7 @@ class Responses:
             raise ValueError("Currently only single deck section supported")
         youngs = bridge.sections[0].youngs
         self.map(lambda r: r * youngs * times)
+        return self
 
     def values(self):
         """Yield each response value."""

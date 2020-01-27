@@ -149,12 +149,13 @@ def plot_contour_deck(
         raise ValueError(f"No responses for contour plot")
 
     # Resize all responses.
-    if resize:
-        H, _ = resize_and_units(np.array(H), responses.response_type)
-        amin, _ = resize_and_units(amin, responses.response_type)
-        amax, unit_str = resize_and_units(amax, responses.response_type)
+    unit_str = responses.response_type.units()
     if units is not None:
         unit_str = units
+    # if resize:
+    #     H, _ = resize_and_units(np.array(H), responses.response_type)
+    #     amin, _ = resize_and_units(amin, responses.response_type)
+    #     amax, unit_str = resize_and_units(amax, responses.response_type)
 
     # Plot responses and colorbar.
     if scatter:

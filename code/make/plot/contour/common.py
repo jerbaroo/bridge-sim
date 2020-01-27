@@ -1,12 +1,12 @@
 import itertools
-from typing import List
+from typing import Callable, List, Optional
 
 import numpy as np
 
 from classify.data.responses import responses_to_traffic_array
 from config import Config
 from fem.params import SimParams
-from fem.responses import load_fem_responses
+from fem.responses import load_fem_responses, Responses
 from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
@@ -25,12 +25,13 @@ def damage_scenario_plot(
     saves: List[str],
     run: bool,
     levels: int,
+    map_responses: Optional[Callable[[Responses], Responses]] = None,
 ):
     """Save a contour plot of a damage scenario under direct simulation."""
     c, sim_params = damage_scenario.use(
         c=c, sim_params=SimParams(response_types=response_types)
     )
-    for response_type, title, save in zip(response_types, titles, saves):
+    for i, (response_type, title, save) in enumerate(zip(response_types, titles, saves)):
         sim_responses = load_fem_responses(
             c=c,
             sim_runner=OSRunner(c),
@@ -38,6 +39,8 @@ def damage_scenario_plot(
             sim_params=sim_params,
             run=run,
         )
+        if map_responses is not None:
+            sim_responses = map_responses[i](sim_responses)
         top_view_bridge(c.bridge, abutments=True, piers=True)
         plot_contour_deck(c=c, responses=sim_responses, levels=levels)
         plt.title(title)

@@ -18,7 +18,7 @@ D: bool = False
 
 
 def opensees_thermal_axial_deck_loads(
-    sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
 ):
     """Thermal axial loads for deck shells, if in the simulation parameters."""
     if sim_params.axial_delta_temp is None:
@@ -74,10 +74,10 @@ def opensees_thermal_axial_deck_loads(
         print_d(D, shell)
         print_d(D, np.array(deck_elements).shape)
         print_d(D, "")
-        print_d(D, f"cte = {shell.section.cte}")
+        print_d(D, f"cte = {c.cte}")
         print_d(D, f"d_temp = {sim_params.axial_delta_temp}")
-        shell_thermal_strain = shell.section.cte * sim_params.axial_delta_temp
-        print_d(D, f"thermal strain = {shell_thermal_strain}")
+        shell_thermal_strain = c.cte * sim_params.axial_delta_temp
+        print(D, f"thermal strain = {shell_thermal_strain}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_thermal_stress = shell_youngs_si * shell_thermal_strain
         print_d(D, f"shell youngs SI = {shell_youngs_si}")
@@ -101,9 +101,6 @@ def opensees_thermal_axial_deck_loads(
             print_d(D, f"cross section area = {cross_section_area}")
             cross_section_thermal_force_n = shell_thermal_stress * cross_section_area
             print_d(D, f"cross section thermal force = {cross_section_thermal_force_n}")
-            # NOTE: Rounding to 0 to ensure that the sum of forces on a node can
-            # be accurately compared to 0, and there won't be a small residual
-            # force.
             nodal_thermal_force_n = cross_section_thermal_force_n / 2
             assert np.isclose(
                 cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
@@ -136,7 +133,7 @@ def opensees_thermal_axial_deck_loads(
 
 
 def opensees_thermal_moment_deck_loads(
-    sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
+    c: Config, sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
 ):
     """Thermal moment loads for deck shells, if in the simulation parameters."""
     if sim_params.moment_delta_temp is None:
@@ -193,9 +190,9 @@ def opensees_thermal_moment_deck_loads(
         print_d(D, shell)
         print_d(D, np.array(deck_elements).shape)
         print_d(D, "")
-        print_d(D, f"cte = {shell.section.cte}")
+        print_d(D, f"cte = {c.cte}")
         print_d(D, f"d_temp = {sim_params.moment_delta_temp}")
-        shell_strain_top = shell.section.cte * sim_params.moment_delta_temp
+        shell_strain_top = c.cte * sim_params.moment_delta_temp
         print_d(D, f"strain_top = {shell_strain_top}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_stress_top = shell_youngs_si * shell_strain_top

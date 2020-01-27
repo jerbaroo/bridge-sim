@@ -549,13 +549,13 @@ def build_model_3d(
             .replace(
                 "<<THERMAL_AXIAL_LOAD_DECK>>",
                 opensees_thermal_axial_deck_loads(
-                    sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
             .replace(
                 "<<THERMAL_MOMENT_LOAD_DECK>>",
                 opensees_thermal_moment_deck_loads(
-                    sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
             .replace("<<SUPPORTS>>", "")
