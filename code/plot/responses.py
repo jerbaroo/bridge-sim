@@ -122,7 +122,7 @@ def plot_contour_deck(
     norm=None,
     scatter: bool = False,
     levels: int = 14,
-    resize: bool = True,
+    resize: bool = False,
     units: Optional[str] = None,
     show_legend: bool = True,
 ):
@@ -169,6 +169,8 @@ def plot_contour_deck(
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
     clb = plt.colorbar(cs, norm=norm)
+    print(units)
+    print(unit_str)
     clb.ax.set_title(unit_str)
 
     # Plot point loads.

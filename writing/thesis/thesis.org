@@ -2322,7 +2322,7 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 # #+NAME: fig:bridge-705-density
 # [[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-false-lanes-true.pdf]]
 
-#+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the longitudinal center of the bridge.
+#+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the width of the bridge.
 #+NAME: fig:bridge-705-youngs
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-false-lanes-true.pdf]]
 

@@ -234,58 +234,48 @@ def cracked_concrete_plots(c: Config):
 def piers_displaced(c: Config):
     """Contour plots of pier displacement for the given pier indices."""
     pier_indices = [4, 5]
-    color_bins = {
-        4: [
-            1.19,
-            0.8,
-            0.7,
-            0.6,
-            0.5,
-            0.4,
-            0.3,
-            0.2,
-            0.1,
-            0,
-            -0.1,
-            -0.2,
-            -0.3,
-            -0.4,
-            -0.61,
-        ],
-        5: [
-            1.36,
-            1.05,
-            0.9,
-            0.75,
-            0.6,
-            0.45,
-            0.3,
-            0.15,
-            0,
-            -0.15,
-            -0.3,
-            -0.45,
-            -0.6,
-            -0.75,
-            -1.1,
-        ],
-    }
     y = 0
+    levels = 14
+    # color_bins = {
+    #     4: [
+    #         1.19,
+    #         0.8,
+    #         0.7,
+    #         0.6,
+    #         0.5,
+    #         0.4,
+    #         0.3,
+    #         0.2,
+    #         0.1,
+    #         0,
+    #         -0.1,
+    #         -0.2,
+    #         -0.3,
+    #         -0.4,
+    #         -0.61,
+    #     ],
+    #     5: [
+    #         1.36,
+    #         1.05,
+    #         0.9,
+    #         0.75,
+    #         0.6,
+    #         0.45,
+    #         0.3,
+    #         0.15,
+    #         0,
+    #         -0.15,
+    #         -0.3,
+    #         -0.45,
+    #         -0.6,
+    #         -0.75,
+    #         -1.1,
+    #     ],
+    # }
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
     for r_i, response_type in enumerate(response_types):
         for p in pier_indices:
-            # Construct unit string and get Axis values.
-            if response_type == ResponseType.YTranslation:
-                rt_str = "displa"
-                unit_str = "mm"
-            elif response_type == ResponseType.Strain:
-                rt_str = "strain"
-                unit_str = "MPa"
-            else:
-                raise ValueError("Unsupported response type")
-            row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
-
             # Run the simulation and collect responses.
             pier = c.bridge.supports[p]
             pier_disp = PierSettlement(displacement=c.pd_unit_disp, pier=p)
@@ -299,43 +289,48 @@ def piers_displaced(c: Config):
                 sim_runner=OSRunner(c),
                 run=r_i == 0,  # Only need to run it once.
             )
-
-            # Map simulation strains to stresses.
-            units = None
-            if response_type == ResponseType.Strain:
-                sim_responses.map(lambda v: v * c.bridge.sections[0].youngs * 1e-6)
-                if len(c.bridge.sections) > 1:
-                    raise ValueError("Expected only 1 deck section")
-                units = "MPa"
-
-            # Map simulation from 1m to 1mm.
+            # Mapping simulation from 1m to 1mm requires dividing by 1000.
+            # However since we also want to convert from meter to millimeter
+            # this cancels out for displacement. In the case of stress we map
+            # from kn/m2 to kn/mm2 (E-6) and then divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
-            sim_responses.map(lambda v: v / 1000)
+            # Construct unit string and get Axis values.
+            if response_type == ResponseType.YTranslation:
+                rt_str = "displa"
+                units = "mm"
+            elif response_type == ResponseType.Strain:
+                rt_str = "strain"
+                units = "kN/mm²"
+                sim_responses.deck_strain_to_stress(bridge=c.bridge, times=1E-9)
+            else:
+                raise ValueError("Unsupported response type")
+            row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
 
             # Plot and save the image. If plotting strains use Axis values for
             # colour normalization.
-            norm = None
+            # norm = None
             cmap = colors.LinearSegmentedColormap.from_list(
-                "axis", list(reversed(axis_colors)), N=14
+                "axis", list(reversed(axis_colors)), N=levels
             )
-            if response_type == ResponseType.Strain:
-                bins = color_bins[p]
-                assert len(bins) == 15
-                norm = colors.BoundaryNorm(list(reversed(bins)), len(bins))
-                plt.scatter(x=[0, 0], y=[0, 0], c=[bins[0], bins[-1]], alpha=0)
-                sim_response_values = list(sim_responses.values())
+            # if response_type == ResponseType.Strain:
+            #     bins = color_bins[p]
+            #     assert len(bins) == 15
+            #     norm = colors.BoundaryNorm(list(reversed(bins)), len(bins))
+            #     plt.scatter(x=[0, 0], y=[0, 0], c=[bins[0], bins[-1]], alpha=0)
+            #     sim_response_values = list(sim_responses.values())
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
                 y=y,
                 cmap=cmap,
-                norm=norm,
+                # norm=norm,
                 responses=sim_responses,
-                levels=14,
+                levels=levels,
                 units=units,
                 show_legend=response_type == ResponseType.YTranslation,
             )
-            plt.title(f"{response_type.name()} from pier settlement of 1 mm")
+            plt.tight_layout()
+            plt.title(f"{response_type.name()} from 1mm pier settlement")
             plt.savefig(
                 c.get_image_path(
                     "validation/pier-displacement",
@@ -359,11 +354,11 @@ def piers_displaced(c: Config):
             # Plot the load and min, max values.
             amin, amax = float(row["min"]), float(row["max"])
             for point, leg_label, color in [
-                ((0, 0), f"min = {np.around(amin, 3)} {unit_str}", "r"),
-                ((0, 0), f"max = {np.around(amax, 3)} {unit_str}", "r"),
+                ((0, 0), f"min = {np.around(amin, 3)} {units}", "r"),
+                ((0, 0), f"max = {np.around(amax, 3)} {units}", "r"),
                 (
                     (0, 0),
-                    f"|min-max| = {np.around(abs(amax - amin), 3)} {unit_str}",
+                    f"|min-max| = {np.around(abs(amax - amin), 3)} {units}",
                     "r",
                 ),
             ]:
@@ -378,17 +373,16 @@ def piers_displaced(c: Config):
             if response_type == ResponseType.YTranslation:
                 plt.legend()
             # Add the Axis colorbar.
-            plt.imshow(
-                np.array([[amin, amax]]), cmap=cmap, norm=norm, extent=(0, 0, 0, 0)
-            )
+            plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
             clb = plt.colorbar()
-            clb.ax.set_title(unit_str)
+            clb.ax.set_title(units)
             # Title and save.
-            plt.title(f"{response_type.name()} from pier settlement of 1 mm")
+            plt.title(f"{response_type.name()} from 1mm pier settlement")
             plt.xlabel("X position (m)")
             plt.ylabel("Z position (m)")
+            plt.tight_layout()
             plt.savefig(
-                c.get_image_path("validation/pier-displacement", f"{p}-axis-{rt_str}",)
+                c.get_image_path("validation/pier-displacement", f"{p}-axis-{rt_str}.pdf",)
             )
             plt.close()
 

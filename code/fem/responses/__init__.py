@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d, interp2d
 
 from config import Config
 from fem.params import ExptParams, SimParams
-from model.bridge import Dimensions, Point
+from model.bridge import Bridge, Dimensions, Point
 from model.response import Response, ResponseType
 from util import nearest_index, print_i, print_w
 
@@ -48,11 +48,11 @@ def load_fem_responses(
             which responses are generated and saved to disk.
         response_type: ResponseType, responses to load from disk and return.
         sim_runner: FEMRunner, FE program to run the simulation with.
-        run:
+        run: bool, run the simulation even if results are already saved.
         index: Optional[int], simulation progress (n/m) printed if given.
 
     NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
-    'fem' section of the code should be separate from that abstraction.
+    'fem' module of this package should be separate from that abstraction.
 
     """
     if response_type not in sim_params.response_types:
@@ -163,6 +163,15 @@ class Responses:
                     # if abs(p.distance(of)) > radius:
         return Responses(response_type=self.response_type, responses=responses)
 
+    def deck_strain_to_stress(self, bridge: Bridge, times: float = 1):
+        """Convert strains on the deck to stresses."""
+        if self.response_type != ResponseType.Strain:
+            raise ValueError(f"Responses are not {response_type.Strain}")
+        if len(bridge.sections) > 1:
+            raise ValueError("Currently only single deck section supported")
+        youngs = bridge.sections[0].youngs
+        self.map(lambda r: r * youngs * times)
+
     def values(self):
         """Yield each response value."""
         for y_dict in self.responses[self.times[0]].values():
@@ -175,7 +184,7 @@ class Responses:
         assert point.y == 0
         if not interp:
             print_w("Not interpolating response!")
-            return self.at_deck_snap(x=point.x, z=point.z)
+            return self._at_deck_snap(x=point.x, z=point.z)
         return self._at_deck_interp(x=point.x, z=point.z)
 
     def _at_deck_interp(self, x: float, z: float):
@@ -235,9 +244,7 @@ class Responses:
         # Else the last point.
         return a[i], a[i]
 
-    # TODO: Check these.
-
-    def at_deck_snap(self, x: float, z: float):
+    def _at_deck_snap(self, x: float, z: float):
         """Deck response from nearest available sensor."""
         y = 0
         x_ind = nearest_index(self.xs, x)
