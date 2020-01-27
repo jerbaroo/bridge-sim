@@ -1,5 +1,5 @@
 import itertools
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
@@ -25,7 +25,7 @@ def damage_scenario_plot(
     saves: List[str],
     run: bool,
     levels: int,
-    map_responses: Optional[Callable[[Responses], Responses]] = None,
+    map_responses: Optional[Tuple[Callable[[Responses], Responses], str]] = None,
 ):
     """Save a contour plot of a damage scenario under direct simulation."""
     c, sim_params = damage_scenario.use(
@@ -39,10 +39,12 @@ def damage_scenario_plot(
             sim_params=sim_params,
             run=run,
         )
+        units = None
         if map_responses is not None:
-            sim_responses = map_responses[i](sim_responses)
+            sim_responses = map_responses[i][0](sim_responses)
+            units = map_responses[i][1]
         top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=levels)
+        plot_contour_deck(c=c, responses=sim_responses, levels=levels, units=units)
         plt.title(title)
         plt.tight_layout()
         plt.savefig(save)

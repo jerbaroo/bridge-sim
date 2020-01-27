@@ -14,6 +14,7 @@ from util import safe_str
 
 def unit_axial_thermal_deck_load(c: Config, run: bool):
     """Response to unit axial thermal deck loading."""
+    # Raw responses being collected.
     response_types = [
         ResponseType.XTranslation,
         ResponseType.YTranslation,
@@ -21,14 +22,21 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         ResponseType.Strain,
         ResponseType.Strain,
     ]
+    # Response types being plotted.
     final_response_types = response_types[:]
     final_response_types[-1] = ResponseType.Stress
-    map_responses = [lambda x: x for rt in response_types]
+    # Map from raw responses to responses and units for plotting. The
+    # displacements are converted from meter to millimeter, and the strains are
+    # converted to real strains and then converted to stresses.
+    map_responses = [(lambda x: x, rt.units()) for rt in response_types]
+    for i in [0, 1, 2]:
+        map_responses[i] = ((lambda r: r.map(lambda v: v * 1000)), "mm")
     def to_stress(s):
         s = s.strain_to_real_strain(c.cte * 1E+6)
         s = s.deck_strain_to_stress(bridge=c.bridge, times=1E-6)
         return s
-    map_responses[-1] = to_stress
+    map_responses[-1] = (to_stress, ResponseType.Stress.units())
+    # Put it all together for plotting purposes.
     damage_scenario_plot(
         c=c,
         response_types=response_types,

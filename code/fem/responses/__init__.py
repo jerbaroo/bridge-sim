@@ -151,6 +151,7 @@ class Responses:
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
                     self.responses[self.times[0]][x][y][z] = f(response)
+        return self
 
     def without(self, remove: Callable[[Point], bool]) -> "Responses":
         responses = []
