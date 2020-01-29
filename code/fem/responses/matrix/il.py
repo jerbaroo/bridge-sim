@@ -9,6 +9,7 @@ from config import Config
 from fem.params import ExptParams, SimParams
 from fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from fem.run import FEMRunner
+from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
 from util import print_d, print_i, print_w, round_m, safe_str
@@ -76,20 +77,39 @@ class ILMatrix(ResponsesMatrix):
 
     @staticmethod
     def load_ulm(
-        c: Config, uls, wheel_zs, points, save_path: Optional[str] = None,
+            c: Config,
+            response_type: ResponseType,
+            points: List[Point],
+            sim_runner: FEMRunner,
     ):
-        save_path = save_path + ".ulm"
-        if save_path in c.resp_matrices:
-            return c.resp_matrices[save_path]
-        ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
-        # Create a matrix of unit load simulation (rows) * point (columns).
+        wheel_zs = c.bridge.wheel_track_zs(c)
+        # A unique path for this unit load matrix.
+        result_path = ILMatrix.id_str(
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+        ) + str([str(point) for point in points]) + "-ulm"
+        # If the unit load matrix is available, return it.
+        if result_path in c.resp_matrices:
+            print_i(f"Unit load matrix {wheel_zs} already calculated!")
+            return c.resp_matrices[result_path]
+        # Otherwise load each wheel track..
+        wheel_tracks = ILMatrix.load_wheel_tracks(
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+        )
+        # ..and calculate the unit load matrix.
+        # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
         print_i(f"Calculating unit load matrix...")
-        unit_load_matrix = np.empty(ulm_shape)
-        for w, wheel_z in enumerate(wheel_zs):
+        unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
+        for w, wheel_z in enumerate(wheel_tracks.keys()):
             i = w * c.il_num_loads  # Row index.
-            il_matrix = uls[wheel_z]
+            wheel_track = wheel_tracks[wheel_z]
             # For each unit load simulation.
-            for sim_responses in il_matrix.expt_responses:
+            for sim_responses in wheel_track.expt_responses:
                 for j, point in enumerate(points):
                     unit_load_matrix[i][j] = sim_responses.at_deck(point, interp=True)
                 i += 1
@@ -98,35 +118,28 @@ class ILMatrix(ResponsesMatrix):
         # cell is the response to 1 kN. Then multiple the traffic and unit load
         # matrices to get the responses.
         unit_load_matrix /= c.il_unit_load_kn
-        c.resp_matrices[save_path] = unit_load_matrix
+        c.resp_matrices[result_path] = unit_load_matrix
         return unit_load_matrix
 
     @staticmethod
-    def load_uls(
+    def load_wheel_tracks(
         c: Config,
         response_type: ResponseType.YTranslation,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
         save_all: bool = True,
-        ret_uls_path: bool = False,
     ):
-        # A unique path for the combination of wheel tracks.
-        uls_path = (
-            ILMatrix.id_str(
-                c=c,
-                response_type=response_type,
-                sim_runner=sim_runner,
-                wheel_zs=wheel_zs,
-            )
-            + "-uls"
-        )
-        # if ret_uls_path:
-        #     return uls_path
-        # Return if these ULS are already in memory.
-        if uls_path in c.resp_matrices:
-            if ret_uls_path:
-                return c.resp_matrices[uls_path], uls_path
-            return c.resp_matrices[uls_path]
+        # A unique path these wheel tracks.
+        result_path = ILMatrix.id_str(
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+        ) + "-uls"
+        # Return if these wheel tracks are already in memory.
+        if result_path in c.resp_matrices:
+            print_i(f"Wheel tracks {wheel_zs} already calculated!")
+            return c.resp_matrices[result_path]
 
         def wheel_track_path(wheel_z):
             id_str = ILMatrix.id_str(
@@ -146,9 +159,11 @@ class ILMatrix(ResponsesMatrix):
                     load_z_frac=c.bridge.z_frac(wheel_z),
                 )
                 with open(wheel_track_path(wheel_z), "wb") as f:
-                    print(f"Saving wheel track {wheel_z} to disk!")
+                    print_i(f"Saving wheel track {wheel_z} to disk!")
                     dill.dump(wheel_track, f)
-                    print(f"Saved wheel track {wheel_z} to disk!")
+                    print_i(f"Saved wheel track {wheel_z} to disk!")
+            else:
+                print_i(f"Wheel track {wheel_z} already calculated!")
 
         # For each wheel track, generate it if doesn't exists.
         processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
@@ -159,9 +174,7 @@ class ILMatrix(ResponsesMatrix):
         for wheel_z in wheel_zs:
             with open(wheel_track_path(wheel_z), "rb") as f:
                 result[wheel_z] = dill.load(f)
-        c.resp_matrices[uls_path] = result
-        if ret_uls_path:
-            return result, uls_path
+        c.resp_matrices[result_path] = result
         return result
 
     @staticmethod

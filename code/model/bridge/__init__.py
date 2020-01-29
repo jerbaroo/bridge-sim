@@ -615,7 +615,7 @@ class Bridge:
         acc_str = f"-{self.accuracy}" if acc else ""
         return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
-    def wheel_tracks(self, c: "Config"):
+    def wheel_track_zs(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
         half_axle = c.axle_width / 2
         return sorted(

@@ -32,7 +32,7 @@ def responses_to_traffic_array(
     c: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
-    bridge_scenario: DamageScenario,
+    damage_scenario: DamageScenario,
     points: List[Point],
     sim_runner: FEMRunner,
 ):
@@ -41,7 +41,7 @@ def responses_to_traffic_array(
     Args:
         c: Config, global configuration object.
         traffic_array: TrafficArray, ....
-        bridge_scenario: DamageScenario, the damage scenario of the bridge.
+        damage_scenario: DamageScenario, the damage scenario of the bridge.
         response_type, ResponseType, the type of sensor response to calculate.
         points: List[Point], points on the bridge to calculate responses at.
         sim_runner: FEMRunner, the FEM program to run simulations with.
@@ -49,34 +49,29 @@ def responses_to_traffic_array(
     TODO: Make 'TrafficArray' optional.
 
     """
-    wheel_zs = c.bridge.wheel_tracks(c)
-    ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
-
     if np.count_nonzero(traffic_array) == 0:
-        unit_load_matrix = np.zeros(ulm_shape)
+        unit_load_matrix = np.zeros(
+            len(c.bridge.wheel_tracks(c)) * c.il_num_loads,
+            len(points),
+        )
     else:
-        uls, uls_path = ILMatrix.load_uls(
+        unit_load_matrix = ILMatrix.load_ulm(
             c=c,
             response_type=response_type,
+            points=points,
             sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
-            ret_uls_path=True,
         )
-        unit_load_matrix = ILMatrix.load_ulm(
-            c=c, uls=uls, wheel_zs=wheel_zs, points=points, save_path=uls_path
-        )
-
     responses = np.matmul(traffic_array, unit_load_matrix)
 
     pd_responses = np.zeros(responses.shape)
-    if isinstance(bridge_scenario, PierDispDamage):
+    if isinstance(damage_scenario, PierDispDamage):
         pd_responses = pd_responses.T  # Transpose so indexed by point first.
         pd_matrix = DCMatrix.load(
             c=c, response_type=response_type, fem_runner=sim_runner(c)
         )
         assert len(pd_responses) == len(points)
         for p, point in enumerate(points):
-            for pier_displacement in bridge_scenario.pier_disps:
+            for pier_displacement in damage_scenario.pier_disps:
                 pd_responses[p] += pd_matrix.sim_response(
                     expt_frac=np.interp(
                         pier_displacement.pier, [0, len(c.bridge.supports) - 1], [0, 1],
@@ -113,7 +108,7 @@ def x_to_wheel_track_index(c: Config):
 def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
     """Convert a list of loads per timestep to a 'TrafficArray'."""
     times = len(loads)
-    wheel_track_zs = c.bridge.wheel_tracks(c)
+    wheel_track_zs = c.bridge.wheel_track_zs(c)
     num_load_positions = c.il_num_loads * len(wheel_track_zs)
     traffic_array = np.zeros((times, num_load_positions))
     wheel_track_index = x_to_wheel_track_index(c)
