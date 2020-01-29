@@ -17,7 +17,7 @@ from model.bridge import Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
 from model.scenario import DamageScenario, Traffic, TrafficArray
-from util import flatten, print_i, print_w
+from util import flatten, print_d, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"
@@ -34,7 +34,7 @@ def responses_to_traffic_array(
     response_type: ResponseType,
     bridge_scenario: DamageScenario,
     points: List[Point],
-    sim_runner: Callable[[Config], FEMRunner],
+    sim_runner: FEMRunner,
 ):
     """The magic function.
 
@@ -47,10 +47,8 @@ def responses_to_traffic_array(
         points: List[Point], points on the bridge to calculate responses at.
         response_type, ResponseType, the type of sensor response to calculate.
         sim_runner: FEMRunner, the FEM program to run simulations with.
-        min_max: bool, if true also return the minimum and maximum responses.
 
     TODO: Make 'TrafficArray' optional.
-    TODO: Find references ot 'j' and remove.
 
     """
     wheel_zs = c.bridge.wheel_tracks(c)
@@ -94,56 +92,48 @@ def responses_to_traffic_array(
     return responses + pd_responses
 
 
-def responses_to_loads_m(
-    c: Config,
-    loads: List[PointLoad],
-    response_type: ResponseType,
-    points: List[Point],
-    sim_runner: FEMRunner,
-    damage_scenario: DamageScenario = HealthyDamage(),
-):
-    """Responses to point loads, point loads are converted to a 'TrafficArray'.
+def x_to_wheel_track_index(c: Config):
+    """Return a function from x position to wheel track index."""
+    sml_bin_length = (c.bridge.length / (c.il_num_loads - 1)) / 2
+    end_first_bin = c.bridge.x_min + sml_bin_length
+    start_last_bin = c.bridge.x_max - sml_bin_length
+    interp = interp1d([end_first_bin, start_last_bin], [1, c.il_num_loads - 2])
+    print_d(D, f"sml_bin_length = {sml_bin_length}")
+    print_d(D, f"end first bin = {end_first_bin}")
+    print_d(D, f"start last bin = {start_last_bin}")
+    def wheel_track_index(x):
+        if x < end_first_bin:
+            return 0
+        if x > start_last_bin:
+            return c.il_num_loads - 1
+        return int(np.around(interp(x), 0))
+    return wheel_track_index
 
-    TODO: Make this take a List[List[PointLoad]] such that time is taken into
-    account.
 
-    NOTE: This function creates a 'TrafficArray' from loads and then calls
-    'responses_to_traffic_array'.
-
-    """
-    # Create an empty 'TrafficArray' with one time step.
+def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
+    """Convert a list of loads per timestep to a 'TrafficArray'."""
+    times = len(loads)
     wheel_track_zs = c.bridge.wheel_tracks(c)
     num_load_positions = c.il_num_loads * len(wheel_track_zs)
-    traffic_array = np.zeros((1, num_load_positions))
-
-    # Insert the point loads into the 'TrafficArray'.
-    interp = interp1d(
-        [0, c.bridge.length], [0, c.il_num_loads - 1], fill_value="extrapolate"
-    )
-    for load in loads:
-        wheel_track_found = False
-        load_z = c.bridge.z(load.z_frac)
-        for w, wheel_track_z in enumerate(wheel_track_zs):
-            if np.isclose(wheel_track_z, load_z):
-                wheel_track_found = True
-                x_ind = int(interp(c.bridge.x(load.x_frac)))
-                j = w * c.il_num_loads + x_ind
-                print(f"j = {j}")
-                traffic_array[0][j] = load.kn
-        if not wheel_track_found:
-            print(wheel_track_zs)
-            raise ValueError(f"No wheel track for point load at z = {load_z}")
-
-    print([(point.x, point.z, point.y) for point in points])
-
-    return responses_to_traffic_array(
-        c=c,
-        traffic_array=traffic_array,
-        response_type=response_type,
-        bridge_scenario=damage_scenario,
-        points=points,
-        sim_runner=sim_runner,
-    )
+    traffic_array = np.zeros((times, num_load_positions))
+    wheel_track_index = x_to_wheel_track_index(c)
+    for time, time_loads in enumerate(loads):
+        for load in time_loads:
+            wheel_track_found = False
+            load_z = c.bridge.z(load.z_frac)
+            load_x = c.bridge.x(load.x_frac)
+            for w, wheel_track_z in enumerate(wheel_track_zs):
+                if not wheel_track_found and np.isclose(wheel_track_z, load_z):
+                    wheel_track_found = True
+                    x_ind = wheel_track_index(load_x)
+                    print_d(D, f"load z = {load_z}")
+                    print_d(D, f"load x = {load_x}")
+                    j = w * c.il_num_loads
+                    print_d(D, f"j = {j + x_ind}")
+                    traffic_array[time][j + x_ind] += load.kn
+            if not wheel_track_found:
+                raise ValueError(f"No wheel track for point load at z = {load_z}")
+    return traffic_array
 
 
 def responses_to_traffic(
@@ -161,6 +151,7 @@ def responses_to_traffic(
 
     """
     print_w("Deprecated 'responses_to_traffic': no need to be using this function")
+    import sys; sys.exit()
     for t in range(len(traffic)):
         traffic[t] = list(chain.from_iterable(traffic[t]))
 

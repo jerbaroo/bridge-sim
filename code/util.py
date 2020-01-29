@@ -36,7 +36,6 @@ def flatten(container, t):
                     yield j
             else:
                 yield i
-
     return list(_flatten(container, t))
 
 

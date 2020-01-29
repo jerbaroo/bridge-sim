@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from classify.data.responses import responses_to_loads_m, responses_to_vehicles_d
+from classify.data.responses import loads_to_traffic_array, responses_to_traffic_array, responses_to_vehicles_d
 from classify.vehicle import wagen1
 from config import Config
 from fem.build import BuildContext
@@ -77,7 +77,7 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
 def compare_responses(c: Config):
     """Compare responses to Truck 1, direct simulation and matmul."""
     assert c.il_num_loads == 400
-    num_times = 100
+    num_times = 200
     # Running time:
     # responses_to_vehicles_d: num_times * 8
     # responses_to_vehicles_d: 4 * il_num_loads
@@ -85,7 +85,7 @@ def compare_responses(c: Config):
     # responses_to_loads_m: 0 (4 * il_num_loads)
 
     point = Point(x=c.bridge.x_max / 2, y=0, z=0)
-    end_time = wagen1.left_bridge(bridge=c.bridge)
+    end_time = wagen1.time_left_bridge(bridge=c.bridge)
     wagen1_times = np.linspace(0, end_time, num_times)
     plt.portrait()
 
@@ -119,46 +119,42 @@ def compare_responses(c: Config):
     plt.title(f"{num_times} responses (binned)")
     plt.plot(responses_binned)
 
-    # plt.subplot(4, 1, 3)
-    # plt.plot(np.array(responses_not_binned) - np.array(responses_binned))
-    # plt.title("Difference between first and second plots")
-
     num_times = int(end_time / c.sensor_hz)
     wagen1_times = np.linspace(0, end_time, num_times)
-
-    # Then from 'TrafficArray' we get responses, without binning.
-    responses_ulm = [
-        responses_to_loads_m(
-            c=c,
-            response_type=ResponseType.YTranslation,
-            points=[point],
-            sim_runner=OSRunner(c),
-            loads=flatten(
-                wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad
-            ),
-        )
+    wagen1_loads = [
+        flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
         for time in wagen1_times
     ]
+
+    # Then from 'TrafficArray' we get responses, without binning.
+    responses_ulm = responses_to_traffic_array(
+        c=c,
+        traffic_array=loads_to_traffic_array(wagen1_loads),
+        response_type=ResponseType.YTranslation,
+        bridge_scenario=HealthyDamage(),
+        points=[point],
+        sim_runner=OSRunner(c),
+    )
     plt.subplot(4, 1, 3)
     plt.title(f"{num_times} responses with ULS = {c.il_num_loads} traffic_array")
     plt.plot(np.array(responses_ulm).reshape(-1, 1))
 
     # # Then from 'TrafficArray' we get responses, with binning.
-    responses = [
-        responses_to_loads_m(
-            c=c,
-            response_type=ResponseType.YTranslation,
-            points=[point],
-            sim_runner=OSRunner(c),
-            loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
-        )
-        for time in wagen1_times
-    ]
-    plt.subplot(4, 1, 4)
-    plt.title(
-        f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
-    )
-    plt.plot(np.array(responses).reshape(-1, 1))
+    # responses = [
+    #     responses_to_loads_m(
+    #         c=c,
+    #         response_type=ResponseType.YTranslation,
+    #         points=[point],
+    #         sim_runner=OSRunner(c),
+    #         loads=flatten(wagen1.to_point_loads_binned(c=c, time=time), PointLoad),
+    #     )
+    #     for time in wagen1_times
+    # ]
+    # plt.subplot(4, 1, 4)
+    # plt.title(
+    #     f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
+    # )
+    # plt.plot(np.array(responses).reshape(-1, 1))
 
     plt.tight_layout()
     plt.savefig(c.get_image_path("system-verification", "compare-time-series.pdf"))

@@ -18,7 +18,6 @@ def test_traffic_sequence():
     traffic_sequence, warmed_up_at = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
-    print(warmed_up_at)
     # Time the simulation has warmed up at should be when the first vehicle has
     # left the bridge. Since all vehicles have the same speed, this should at
     # least be greater than the time any vehicle takes until it has begun to
@@ -35,6 +34,20 @@ def test_traffic_sequence():
     # the time the simulation has 'warmed_up_at', and the second last event
     # should be before less than.
     assert penul_time < max_time + warmed_up_at < final_time
+
+
+def test_to_traffic_array():
+    max_time = 10
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence, warmed_up_at = traffic_scenario.traffic_sequence(
+        bridge=c.bridge, max_time=max_time
+    )
+    traffic_array = to_traffic_array(
+        c=c,
+        traffic_sequence=traffic_sequence,
+        warmed_up_at=warmed_up_at,
+        max_time=max_time
+    )
 
 
 # def test_scenario():

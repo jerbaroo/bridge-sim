@@ -216,7 +216,7 @@ def to_traffic(
 
 
 def to_traffic_array(
-    c: Config, traffic_sequence: TrafficSequence, max_time: float,
+        c: Config, traffic_sequence: TrafficSequence, warmed_up_at: float, max_time: float,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'.
 
@@ -226,7 +226,7 @@ def to_traffic_array(
     """
     print_i("Converting to 'TrafficArray")
     time_step = c.sensor_hz
-
+    # Initial traffic array, to be filled in.
     result = np.zeros(
         (
             # '+ 1' to account for time t = 0.
@@ -235,43 +235,26 @@ def to_traffic_array(
             len(c.bridge.lanes) * 2 * c.il_num_loads,
         )
     )
+    # Current traffic per lane.
     current = [deque([]) for _ in c.bridge.lanes]
-    time, t = 0, 0
+    # Current time and timestep index.
+    time, time_i = 0, 0
+    # The next event and time the next event occurs.
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
-    # Interpolate from x position to index of unit load simulation.
+    # Interpolate from x position to wheel track bucket.
     bridge_length = c.bridge.length
     interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
-
-    # def vehicles_to_loads(
-    #         c: Config, il_num_loads: Optional[float] = None,
-    #         out: Optional[np.array] = None):
-    #     """Decompile a list of vehicles into 'WheelTrackLoads'.
-
-    #     TODO: Loading
-
-    #     Args:
-    #         c: Config, global configuration object.
-    #         il_num_loads: Optional[float], number of unit load simulations per
-    #             wheel track.
-
-    #     """
-    #     # Column index where each wheel track starts.
-    #     j_indices = [
-    #         (l * 2 * il_num_loads, (l * 2 * il_num_loads) + 1)
-    #         for l, _ in enumerate(current)
-    #     ]
-
     # Column index where each wheel track starts.
     j_indices = [
-        (l * 2 * c.il_num_loads, (l * 2 * c.il_num_loads) + 1)
+        (l * 2 * c.il_num_loads, ((l * 2) + 1) * c.il_num_loads)
         for l, _ in enumerate(current)
     ]
 
     last_print_time = -np.inf
     while time <= max_time:
         if time - last_print_time > 1:
-            print_i(f"Generating 'Traffic', time = {time} s", end="\r")
+            print_i(f"Generating 'TrafficArray', time = {time:.3f} s", end="\r")
             last_print_time = time
 
         # While events have occurred update current traffic.
@@ -304,11 +287,11 @@ def to_traffic_array(
                         # For each wheel.
                         for j in [j0, j1]:
                             # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
-                            result[t][j + x_ind] = kn
+                            result[time_i][j + x_ind] = kn
 
         time += time_step
-        t += 1
+        time_i += 1
 
-    print_i(f"Generated 'Traffic', time = {time} s")
+    print_i(f"Generated 'TrafficArray', time = {time:.3f} s")
     # We divide by 2 because the load per axle is shared by 2 wheels.
     return result / 2
