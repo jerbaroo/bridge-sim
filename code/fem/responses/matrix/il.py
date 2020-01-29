@@ -110,6 +110,7 @@ class ILMatrix(ResponsesMatrix):
         save_all: bool = True,
         ret_uls_path: bool = False,
     ):
+        # A unique path for the combination of wheel tracks.
         uls_path = (
             ILMatrix.id_str(
                 c=c,
@@ -119,6 +120,8 @@ class ILMatrix(ResponsesMatrix):
             )
             + "-uls"
         )
+        # if ret_uls_path:
+        #     return uls_path
         # Return if these ULS are already in memory.
         if uls_path in c.resp_matrices:
             if ret_uls_path:

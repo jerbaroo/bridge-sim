@@ -148,7 +148,7 @@ class TrafficScenario:
 
             # Find next enter/leave event.
             for v in next_vehicles:
-                t = v.enters_bridge(bridge)
+                t = v.time_entering_bridge(bridge)
                 if t < event_time:
                     vehicle, event_time = v, t
             for v, t in time_leave:

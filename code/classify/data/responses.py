@@ -40,12 +40,10 @@ def responses_to_traffic_array(
 
     Args:
         c: Config, global configuration object.
-        traffic: Traffic, a list of moving vehicles at each simulation step.
+        traffic_array: TrafficArray, ....
         bridge_scenario: DamageScenario, the damage scenario of the bridge.
-        start_time: float, time at which the traffic simulation starts.
-        time_step: List[float], time between each step of the simulation.
-        points: List[Point], points on the bridge to calculate responses at.
         response_type, ResponseType, the type of sensor response to calculate.
+        points: List[Point], points on the bridge to calculate responses at.
         sim_runner: FEMRunner, the FEM program to run simulations with.
 
     TODO: Make 'TrafficArray' optional.
@@ -54,7 +52,9 @@ def responses_to_traffic_array(
     wheel_zs = c.bridge.wheel_tracks(c)
     ulm_shape = (len(wheel_zs) * c.il_num_loads, len(points))
 
-    if np.count_nonzero(traffic_array) > 0:
+    if np.count_nonzero(traffic_array) == 0:
+        unit_load_matrix = np.zeros(ulm_shape)
+    else:
         uls, uls_path = ILMatrix.load_uls(
             c=c,
             response_type=response_type,
@@ -65,8 +65,6 @@ def responses_to_traffic_array(
         unit_load_matrix = ILMatrix.load_ulm(
             c=c, uls=uls, wheel_zs=wheel_zs, points=points, save_path=uls_path
         )
-    else:
-        unit_load_matrix = np.zeros(ulm_shape)
 
     responses = np.matmul(traffic_array, unit_load_matrix)
 
@@ -127,12 +125,13 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
             for w, wheel_track_z in enumerate(wheel_track_zs):
                 if not wheel_track_found and np.isclose(wheel_track_z, load_z):
                     wheel_track_found = True
-                    x_ind = wheel_track_index(load_x)
                     print_d(D, f"load z = {load_z}")
                     print_d(D, f"load x = {load_x}")
-                    j = w * c.il_num_loads
-                    print_d(D, f"j = {j + x_ind}")
-                    traffic_array[time][j + x_ind] += load.kn
+                    x_ind = wheel_track_index(load_x)
+                    j = (w * c.il_num_loads) + x_ind
+                    print_d(D, f"x_ind = {x_ind}")
+                    print_d(D, f"j = {j}")
+                    traffic_array[time][j] += load.kn
             if not wheel_track_found:
                 raise ValueError(f"No wheel track for point load at z = {load_z}")
     return traffic_array
@@ -271,7 +270,7 @@ def responses_to_loads_d(
     result = []
     for sim_responses in expt_responses:
         result.append([sim_responses.at_deck(point, interp=True) for point in points])
-        print("Interpolating responses in responses_from_load_d")
+        print_i("Interpolating responses in responses_from_load_d")
     return np.array(result)
 
 

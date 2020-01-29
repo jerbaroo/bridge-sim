@@ -618,7 +618,7 @@ class Bridge:
     def wheel_tracks(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
         half_axle = c.axle_width / 2
-        return list(
+        return sorted(
             chain.from_iterable(
                 [lane.z_center - half_axle, lane.z_center + half_axle]
                 for lane in self.lanes

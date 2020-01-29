@@ -8,6 +8,7 @@ from classify.data.responses import (
     responses_to_vehicles_d,
 )
 from classify.vehicle import wagen1
+from classify.scenarios import healthy_scenario
 from config import Config
 from fem.build import BuildContext
 from fem.params import ExptParams, SimParams
@@ -81,7 +82,7 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
 def compare_responses(c: Config):
     """Compare responses to Truck 1, direct simulation and matmul."""
     assert c.il_num_loads == 400
-    num_times = 200
+    num_times = 50
     # Running time:
     # responses_to_vehicles_d: num_times * 8
     # responses_to_vehicles_d: 4 * il_num_loads
@@ -107,7 +108,7 @@ def compare_responses(c: Config):
     plt.title(f"{num_times} responses")
     plt.plot(responses_not_binned)
 
-    # # Then responses from direct simulation with binning.
+    # Then responses from direct simulation with binning.
     c.shorten_paths = True
     responses_binned = responses_to_vehicles_d(
         c=c,
@@ -122,6 +123,7 @@ def compare_responses(c: Config):
     plt.subplot(4, 1, 2)
     plt.title(f"{num_times} responses (binned)")
     plt.plot(responses_binned)
+    xlim = plt.xlim()
 
     num_times = int(end_time / c.sensor_hz)
     wagen1_times = np.linspace(0, end_time, num_times)
@@ -133,9 +135,9 @@ def compare_responses(c: Config):
     # Then from 'TrafficArray' we get responses, without binning.
     responses_ulm = responses_to_traffic_array(
         c=c,
-        traffic_array=loads_to_traffic_array(wagen1_loads),
+        traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
         response_type=ResponseType.YTranslation,
-        bridge_scenario=HealthyDamage(),
+        bridge_scenario=healthy_scenario,
         points=[point],
         sim_runner=OSRunner(c),
     )

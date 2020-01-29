@@ -278,11 +278,17 @@ class MvVehicle(Vehicle):
         assert init_x < x
         return float(abs(init_x - x)) / self.mps
 
-    def enters_bridge(self, bridge: Bridge):
-        """Time the vehicle enters the bridge."""
+    def time_entering_bridge(self, bridge: Bridge):
+        """Time the vehicle begins to enter the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x)) / self.mps
+
+    def time_entered_bridge(self, bridge: Bridge):
+        """Time the vehicle has entered the bridge."""
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x <= 0
+        return float(abs(init_x) + self.length) / self.mps
 
     def time_leaving_bridge(self, bridge: Bridge):
         """Time the vehicle begins to leave the bridge."""

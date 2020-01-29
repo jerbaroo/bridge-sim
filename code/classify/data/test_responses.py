@@ -2,15 +2,25 @@
 import numpy as np
 import pytest
 
-from classify.data.responses import x_to_wheel_track_index
+from classify.data.responses import loads_to_traffic_array, x_to_wheel_track_index
+from classify.vehicle import wagen1
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from model.load import MvVehicle
+from model.load import MvVehicle, PointLoad
 from model.response import ResponseType
+from util import flatten, print_d
+
+# Comment/uncomment to print debug statements for this file.
+D: str = "classify.data.test_responses"
+D: bool = False
 
 c = bridge_705_config(bridge_705_3d)
 c.il_num_loads = 10
+entering_time = wagen1.time_entering_bridge(bridge=c.bridge)
+entered_time = wagen1.time_entered_bridge(bridge=c.bridge)
+leaving_time = wagen1.time_leaving_bridge(bridge=c.bridge)
+left_time = wagen1.time_left_bridge(bridge=c.bridge)
 
 
 def test_x_to_wheel_track_index():
@@ -30,6 +40,39 @@ def test_x_to_wheel_track_index():
     assert (
         wheel_track_index(c.bridge.x_max - sml_bin_width - 0.001) == c.il_num_loads - 2
     )
+
+
+def test_to_point_load_pw():
+    # As Truck 1 enters the bridge.
+    wagen1_times = np.linspace(entering_time, entered_time - 0.001, 100)
+    for time in wagen1_times:
+        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        assert total_kn < wagen1.total_kn()
+    # As Truck 1 is fully on the bridge.
+    wagen1_times = np.linspace(entered_time, leaving_time, 100)
+    for time in wagen1_times:
+        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        assert total_kn == wagen1.total_kn()
+    # As Truck 1 is leaving the bridge.
+    wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
+    for time in wagen1_times:
+        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        assert total_kn < wagen1.total_kn()
+
+
+def test_loads_to_traffic_array():
+    wagen1_loads = [
+        flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
+        for time in np.linspace(entered_time, leaving_time, 1000)
+    ]
+    for row in loads_to_traffic_array(c=c, loads=wagen1_loads):
+        assert sum(row) == wagen1.total_kn()
 
 
 # def test_response_to_mv_vehicles():
