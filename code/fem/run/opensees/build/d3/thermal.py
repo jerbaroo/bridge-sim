@@ -105,21 +105,25 @@ def opensees_thermal_axial_deck_loads(
             assert np.isclose(
                 cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
             )
-            print_d(D,
-                f"Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
+            print_d(
+                D,
+                f"Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}",
             )
-            print_d(D,
-                f"Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
+            print_d(
+                D,
+                f"Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}",
             )
             for n_id in [n_id_0, n_id_1]:
                 thermal_loads_by_nid[n_id].add_load(
                     magnitude=nodal_thermal_force_n, direction=load_direction
                 )
-            print_d(D,
-                f"After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}"
+            print_d(
+                D,
+                f"After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}",
             )
-            print_d(D,
-                f"After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}"
+            print_d(
+                D,
+                f"After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}",
             )
 
     thermal_load_str = "".join(
@@ -180,7 +184,9 @@ def opensees_thermal_moment_deck_loads(
             """Return a string with 0, 1, or 2 OpenSees load commands."""
             if np.isclose(self.x, 0) and np.isclose(self.z, 0):
                 return ""
-            return f"\nload {n_id} 0 0 0 {np.around(self.z, 3)} 0 {-np.around(self.x, 3)}"
+            return (
+                f"\nload {n_id} 0 0 0 {np.around(self.z, 3)} 0 {-np.around(self.x, 3)}"
+            )
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):
@@ -219,11 +225,13 @@ def opensees_thermal_moment_deck_loads(
             moment_top_nm = force_top_n * (2 / 3) * (shell.section.thickness / 2)
             print_d(D, f"force top n = {force_top_n}")
             print_d(D, f"moment nm = {moment_top_nm}")
-            print_d(D,
-                f"Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
+            print_d(
+                D,
+                f"Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}",
             )
-            print_d(D,
-                f"Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
+            print_d(
+                D,
+                f"Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}",
             )
             # The moment per node is moment_top_nm / 2. But since we also want
             # to include moment_bottom_nm / 2 which is equal to moment_top_nm,
@@ -233,11 +241,13 @@ def opensees_thermal_moment_deck_loads(
                 thermal_loads_by_nid[n_id].add_load(
                     magnitude=moment_top_nm / 2, direction=load_direction
                 )
-            print_d(D,
-                f"After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}"
+            print_d(
+                D,
+                f"After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}",
             )
-            print_d(D,
-                f"After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}"
+            print_d(
+                D,
+                f"After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}",
             )
 
     thermal_load_str = "".join(

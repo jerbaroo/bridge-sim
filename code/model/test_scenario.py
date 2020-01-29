@@ -16,7 +16,8 @@ def test_traffic_sequence():
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence, warmed_up_at = traffic_scenario.traffic_sequence(
-        bridge=c.bridge, max_time=max_time)
+        bridge=c.bridge, max_time=max_time
+    )
     print(warmed_up_at)
     # Time the simulation has warmed up at should be when the first vehicle has
     # left the bridge. Since all vehicles have the same speed, this should at

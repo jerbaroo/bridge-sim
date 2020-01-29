@@ -690,7 +690,7 @@ def plot_pier_convergence(
         responses=all_strains,
         point=nesw_point,
         max_distance=nesw_max_dist,
-        from_=f"the NW point of pier {pier_i}"
+        from_=f"the NW point of pier {pier_i}",
     )
     filepath = og_c.get_image_path(
         "convergence-pier",
@@ -709,13 +709,25 @@ def plot_pier_convergence(
 
     # A plot of sensors that are (un)available.
     plot_deck_sensors(c=c, without=without)
-    plt.savefig(og_c.get_image_path("convergence-pier", "unavailable sensors.pdf", acc=False))
+    plt.savefig(
+        og_c.get_image_path("convergence-pier", "unavailable sensors.pdf", acc=False)
+    )
     plt.close()
 
     # Plot convergence of strain, first with all sensors, then without some.
     title = f"Strain convergence as a function of model size\ndue to settlement of pier {pier_i}"
-    plot_mmm_strain_convergence(c=og_c, pier=pier, df=df, all_strains=all_strains, title=title, append="0")
-    plot_mmm_strain_convergence(c=og_c, pier=pier, df=df, all_strains=all_strains, title=title, without=without, append=f"{strain_ignore_radius}")
+    plot_mmm_strain_convergence(
+        c=og_c, pier=pier, df=df, all_strains=all_strains, title=title, append="0"
+    )
+    plot_mmm_strain_convergence(
+        c=og_c,
+        pier=pier,
+        df=df,
+        all_strains=all_strains,
+        title=title,
+        without=without,
+        append=f"{strain_ignore_radius}",
+    )
 
 
 def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6):

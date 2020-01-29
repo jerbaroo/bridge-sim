@@ -36,6 +36,7 @@ def flatten(container, t):
                     yield j
             else:
                 yield i
+
     return list(_flatten(container, t))
 
 
@@ -90,9 +91,11 @@ def shorten_path(c: Config, filepath: str) -> str:
     lock_path = df_path + ".lock"
     # with FileLock(df_path + ".lock"):
     with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
+
         def flush():
             f.flush()
             os.fsync(f.fileno())
+
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0)
         else:

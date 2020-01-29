@@ -31,7 +31,9 @@ def damage_scenario_plot(
     c, sim_params = damage_scenario.use(
         c=c, sim_params=SimParams(response_types=response_types)
     )
-    for i, (response_type, title, save) in enumerate(zip(response_types, titles, saves)):
+    for i, (response_type, title, save) in enumerate(
+        zip(response_types, titles, saves)
+    ):
         sim_responses = load_fem_responses(
             c=c,
             sim_runner=OSRunner(c),

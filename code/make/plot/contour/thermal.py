@@ -31,17 +31,19 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
     map_responses = [(lambda x: x, rt.units()) for rt in response_types]
     for i in [0, 1, 2]:
         map_responses[i] = ((lambda r: r.map(lambda v: v * 1000)), "mm")
+
     def to_stress(s):
-        s = s.strain_to_real_strain(c.cte * 1E+6)
-        s = s.deck_strain_to_stress(bridge=c.bridge, times=1E-6)
+        s = s.strain_to_real_strain(c.cte * 1e6)
+        s = s.deck_strain_to_stress(bridge=c.bridge, times=1e-6)
         return s
+
     map_responses[-1] = (to_stress, ResponseType.Stress.units())
     # Put it all together for plotting purposes.
     damage_scenario_plot(
         c=c,
         response_types=response_types,
         damage_scenario=ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c),
-        titles = [
+        titles=[
             f"{rt.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees"
             for rt in final_response_types
         ],
@@ -77,10 +79,12 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
     map_responses = [(lambda x: x, rt.units()) for rt in response_types]
     for i in [0, 1, 2]:
         map_responses[i] = ((lambda r: r.map(lambda v: v * 1000)), "mm")
+
     def to_stress(s):
-        s = s.strain_to_real_strain((c.cte / 2) * 1E+6)
-        s = s.deck_strain_to_stress(bridge=c.bridge, times=1E-6)
+        s = s.strain_to_real_strain((c.cte / 2) * 1e6)
+        s = s.deck_strain_to_stress(bridge=c.bridge, times=1e-6)
         return s
+
     map_responses[-1] = (to_stress, ResponseType.Stress.units())
     # Put it all together for plotting purposes.
     damage_scenario_plot(
@@ -138,10 +142,10 @@ def make_axis_plots(c: Config):
     """Create AxisVM plots for thermal loading."""
     axis_values = pd.read_csv("validation/axis-screenshots/thermal-min-max.csv")
     for response_type, rt_name, rt_units in [
-            (ResponseType.XTranslation, "xtrans", "mm"),
-            (ResponseType.YTranslation, "ytrans", "mm"),
-            (ResponseType.ZTranslation, "ztrans", "mm"),
-            (ResponseType.Stress, "stress", "m/m"),
+        (ResponseType.XTranslation, "xtrans", "mm"),
+        (ResponseType.YTranslation, "ytrans", "mm"),
+        (ResponseType.ZTranslation, "ztrans", "mm"),
+        (ResponseType.Stress, "stress", "m/m"),
     ]:
         for thermal_type in ["axial"]:
             axis_img = mpimg.imread(
@@ -192,8 +196,7 @@ def make_axis_plots(c: Config):
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                    "validation/thermal",
-                    f"axis-{rt_name}-{thermal_type}.pdf",
+                    "validation/thermal", f"axis-{rt_name}-{thermal_type}.pdf",
                 )
             )
             plt.close()

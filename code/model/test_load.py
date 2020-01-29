@@ -7,7 +7,7 @@ c = bridge_705_config(bridge_705_3d)
 
 def test_mv_vehicle_leaves_bridge():
     assert wagen1.init_x_frac == 0
-    assert c.bridge.length / wagen1.mps == wagen1.leaves_bridge(c.bridge)
+    assert c.bridge.length / wagen1.mps == wagen1.time_leaving_bridge(c.bridge)
 
 
 # def test_mv_vehicle_to_point_loads():

@@ -76,11 +76,7 @@ class ILMatrix(ResponsesMatrix):
 
     @staticmethod
     def load_ulm(
-        c: Config,
-        uls,
-        wheel_zs,
-        points,
-        save_path: Optional[str] = None,
+        c: Config, uls, wheel_zs, points, save_path: Optional[str] = None,
     ):
         save_path = save_path + ".ulm"
         if save_path in c.resp_matrices:
@@ -114,22 +110,30 @@ class ILMatrix(ResponsesMatrix):
         save_all: bool = True,
         ret_uls_path: bool = False,
     ):
-        uls_path = ILMatrix.id_str(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
-        ) + "-uls"
+        uls_path = (
+            ILMatrix.id_str(
+                c=c,
+                response_type=response_type,
+                sim_runner=sim_runner,
+                wheel_zs=wheel_zs,
+            )
+            + "-uls"
+        )
         # Return if these ULS are already in memory.
         if uls_path in c.resp_matrices:
             if ret_uls_path:
                 return c.resp_matrices[uls_path], uls_path
             return c.resp_matrices[uls_path]
+
         def wheel_track_path(wheel_z):
             id_str = ILMatrix.id_str(
-                c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=[wheel_z],
+                c=c,
+                response_type=response_type,
+                sim_runner=sim_runner,
+                wheel_zs=[wheel_z],
             )
             return c.get_data_path("uls", safe_str(id_str) + ".uls")
+
         def create_wheel_track(wheel_z):
             if not os.path.exists(wheel_track_path(wheel_z)):
                 wheel_track = ILMatrix.load(
@@ -142,12 +146,11 @@ class ILMatrix(ResponsesMatrix):
                     print(f"Saving wheel track {wheel_z} to disk!")
                     dill.dump(wheel_track, f)
                     print(f"Saved wheel track {wheel_z} to disk!")
+
         # For each wheel track, generate it if doesn't exists.
         processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
         with multiprocessing.Pool(processes=processes) as pool:
-            pool.map(
-                create_wheel_track, wheel_zs
-            )
+            pool.map(create_wheel_track, wheel_zs)
         # Load all wheel tracks from disk into the resulting dictionary.
         result = dict()
         for wheel_z in wheel_zs:

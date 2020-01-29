@@ -14,13 +14,13 @@ from util import print_d, print_i, scalar
 
 
 def plot_mmm_strain_convergence(
-        c: Config,
-        pier: int,
-        df: pd.DataFrame,
-        all_strains: Dict[float, Responses],
-        title: str,
-        without: Optional[Callable[[Point], bool]] = None,
-        append: Optional[str] = None,
+    c: Config,
+    pier: int,
+    df: pd.DataFrame,
+    all_strains: Dict[float, Responses],
+    title: str,
+    without: Optional[Callable[[Point], bool]] = None,
+    append: Optional[str] = None,
 ):
     """Plot convergence of given responses as model size grows."""
     # A grid of points 1m apart, over which to calculate responses.
@@ -58,6 +58,7 @@ def plot_mmm_strain_convergence(
     def normalize(ys):
         print(ys)
         return ys / np.mean(ys[-5:])
+
     mins, maxes, means = normalize(mins), normalize(maxes), normalize(means)
     gmins, gmaxes, gmeans = normalize(gmins), normalize(gmaxes), normalize(gmeans)
     deck_nodes = [df.at[msl, "deck-nodes"] for msl in max_shell_lens]
@@ -79,7 +80,9 @@ def plot_mmm_strain_convergence(
     plt.title(title)
     plt.tight_layout()
     plt.legend()
-    plt.savefig(c.get_image_path("convergence-pier-strain", f"mmm-{append}-all.pdf", acc=False))
+    plt.savefig(
+        c.get_image_path("convergence-pier-strain", f"mmm-{append}-all.pdf", acc=False)
+    )
     plt.close()
     # Only plot some lines, for the thesis.
     plt.landscape()
@@ -92,17 +95,19 @@ def plot_mmm_strain_convergence(
     plt.ylabel("Strain (m\m)")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(c.get_image_path("convergence-pier-strain", f"mmm-{append}.pdf", acc=False))
+    plt.savefig(
+        c.get_image_path("convergence-pier-strain", f"mmm-{append}.pdf", acc=False)
+    )
     plt.close()
 
 
 def plot_nesw_convergence(
-        c: Config,
-        df: pd.DataFrame,
-        responses: Dict[float, Responses],
-        point: Point,
-        max_distance: float,
-        from_: str,
+    c: Config,
+    df: pd.DataFrame,
+    responses: Dict[float, Responses],
+    point: Point,
+    max_distance: float,
+    from_: str,
 ):
     """Plot convergence of strain at different points around a load."""
     delta_distance = 0.05
@@ -144,10 +149,12 @@ def plot_nesw_convergence(
             for max_shell_len, sim_responses in responses.items():
                 deck_nodes = float(df.at[max_shell_len, "deck-nodes"])
                 pier_nodes = float(df.at[max_shell_len, "pier-nodes"])
-                line_responses.append((
-                    deck_nodes + pier_nodes,
-                    scalar(sim_responses.at_deck(dist_point, interp=True))
-                ))
+                line_responses.append(
+                    (
+                        deck_nodes + pier_nodes,
+                        scalar(sim_responses.at_deck(dist_point, interp=True)),
+                    )
+                )
             line_responses = np.array(sorted(line_responses, key=lambda t: t[0])).T
             ax.plot(line_responses[0], line_responses[1], color=color(distance))
             if distance > max_distance:

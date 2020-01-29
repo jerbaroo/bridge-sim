@@ -58,7 +58,11 @@ def responses_to_traffic_array(
 
     if np.count_nonzero(traffic_array) > 0:
         uls, uls_path = ILMatrix.load_uls(
-            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs, ret_uls_path=True
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+            ret_uls_path=True,
         )
         unit_load_matrix = ILMatrix.load_ulm(
             c=c, uls=uls, wheel_zs=wheel_zs, points=points, save_path=uls_path

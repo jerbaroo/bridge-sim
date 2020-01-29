@@ -122,7 +122,7 @@ def compare_responses(c: Config):
     # plt.subplot(4, 1, 3)
     # plt.plot(np.array(responses_not_binned) - np.array(responses_binned))
     # plt.title("Difference between first and second plots")
-    
+
     num_times = int(end_time / c.sensor_hz)
     wagen1_times = np.linspace(0, end_time, num_times)
 
@@ -140,9 +140,7 @@ def compare_responses(c: Config):
         for time in wagen1_times
     ]
     plt.subplot(4, 1, 3)
-    plt.title(
-        f"{num_times} responses with ULS = {c.il_num_loads} traffic_array"
-    )
+    plt.title(f"{num_times} responses with ULS = {c.il_num_loads} traffic_array")
     plt.plot(np.array(responses_ulm).reshape(-1, 1))
 
     # # Then from 'TrafficArray' we get responses, with binning.

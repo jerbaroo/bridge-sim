@@ -301,7 +301,7 @@ def piers_displaced(c: Config):
             elif response_type == ResponseType.Strain:
                 rt_str = "strain"
                 units = "kN/mm²"
-                sim_responses.deck_strain_to_stress(bridge=c.bridge, times=1E-9)
+                sim_responses.deck_strain_to_stress(bridge=c.bridge, times=1e-9)
             else:
                 raise ValueError("Unsupported response type")
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
@@ -356,11 +356,7 @@ def piers_displaced(c: Config):
             for point, leg_label, color in [
                 ((0, 0), f"min = {np.around(amin, 3)} {units}", "r"),
                 ((0, 0), f"max = {np.around(amax, 3)} {units}", "r"),
-                (
-                    (0, 0),
-                    f"|min-max| = {np.around(abs(amax - amin), 3)} {units}",
-                    "r",
-                ),
+                ((0, 0), f"|min-max| = {np.around(abs(amax - amin), 3)} {units}", "r",),
             ]:
                 plt.scatter(
                     [point[0]],
@@ -382,7 +378,9 @@ def piers_displaced(c: Config):
             plt.ylabel("Z position (m)")
             plt.tight_layout()
             plt.savefig(
-                c.get_image_path("validation/pier-displacement", f"{p}-axis-{rt_str}.pdf",)
+                c.get_image_path(
+                    "validation/pier-displacement", f"{p}-axis-{rt_str}.pdf",
+                )
             )
             plt.close()
 
