@@ -17,15 +17,21 @@ def test_mv_vehicle_time_leaving_bridge():
     # Bottom lane.
     assert c.bridge.length / wagen1.mps == wagen1.time_leaving_bridge(c.bridge)
     # Top lane.
-    assert c.bridge.length / wagen1_top_lane.mps == wagen1_top_lane.time_leaving_bridge(c.bridge)
+    assert c.bridge.length / wagen1_top_lane.mps == wagen1_top_lane.time_leaving_bridge(
+        c.bridge
+    )
 
 
 def test_mv_vehicle_time_left_bridge():
     # Bottom lane.
-    time_to_leave = wagen1.time_left_bridge(c.bridge) - wagen1.time_leaving_bridge(c.bridge)
+    time_to_leave = wagen1.time_left_bridge(c.bridge) - wagen1.time_leaving_bridge(
+        c.bridge
+    )
     assert np.isclose(wagen1.length / wagen1.mps, time_to_leave)
     # Top lane.
-    time_to_leave = wagen1_top_lane.time_left_bridge(c.bridge) - wagen1_top_lane.time_leaving_bridge(c.bridge)
+    time_to_leave = wagen1_top_lane.time_left_bridge(
+        c.bridge
+    ) - wagen1_top_lane.time_leaving_bridge(c.bridge)
     assert np.isclose(wagen1_top_lane.length / wagen1_top_lane.mps, time_to_leave)
 
 
