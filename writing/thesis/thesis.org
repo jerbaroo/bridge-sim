@@ -1356,11 +1356,11 @@ were used in the generated FEM of bridge 705 for OpenSees. These material
 properties originally came from blueprints that were used for the construction
 of the bridge. The material properties are specified in terms of density in
 kilogram per meter, thickness in meters and Young's modulus in mega Pascal.
-Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705.
-Similar figures for density and Young's modulus are available in the Appendix as
-Figures [[fig:bridge-705-density]], [[fig:bridge-705-youngs]]. Note that for all these
-plots the material properties are symmetric across the longitudinal center of
-the bridge. The material properties of bridge 705's deck are also available in a
+Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705. A
+similar figure but for Young's modulus of the deck of bridge 705 is available in
+the Appendix as Figure [[fig:bridge-705-youngs]]. Note that for both of these plots
+the material properties are symmetric across the longitudinal center of the
+bridge. The material properties of bridge 705's deck are also available in a
 more digestable format in Table [[tbl:bridge-705-props]] in the Appendix.
 
 #+CAPTION: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.

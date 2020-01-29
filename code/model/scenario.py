@@ -135,7 +135,7 @@ class TrafficScenario:
         full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
 
         # Increase simulation by time taken to warm up.
-        warmed_up_at = first_vehicle.leaves_bridge(bridge)
+        warmed_up_at = first_vehicle.time_left_bridge(bridge)
         max_time += warmed_up_at
 
         # Time vehicles will leave the bridge, in order.
@@ -143,36 +143,37 @@ class TrafficScenario:
 
         # Until maximum time is reached, see below..
         while True:
-            vehicle, min_time, enter = None, np.inf, True
+            # The next event's vehicle, time, and event type (enter/leave).
+            vehicle, event_time, enter = None, np.inf, True
 
             # Find next enter/leave event.
             for v in next_vehicles:
                 t = v.enters_bridge(bridge)
-                if t < min_time:
-                    vehicle, min_time = v, t
+                if t < event_time:
+                    vehicle, event_time = v, t
             for v, t in time_leave:
-                if t < min_time:
-                    vehicle, min_time, enter = v, t, False
-
-            # Until maximum time is reached.
-            if min_time > max_time:
-                break
-            time = min_time
-            print_i(f"Generating 'TrafficSequence', time = {time} s", end="\r")
+                if t < event_time:
+                    vehicle, event_time, enter = v, t, False
 
             # Add the enter/leave event to the sequence.
-            result.append((vehicle, min_time, enter))
+            result.append((vehicle, event_time, enter))
+
+            # If maximum time is reached.
+            if event_time > max_time:
+                break
+            time = event_time
+            print_i(f"Generating 'TrafficSequence', time = {time:.3f} s", end="\r")
 
             # Update vehicles entering/leaving the bridge.
             if enter:
-                time_leave.append((vehicle, vehicle.leaves_bridge(bridge)))
+                time_leave.append((vehicle, vehicle.time_left_bridge(bridge)))
                 next_vehicles[vehicle.lane] = next(mv_vehicle_gens[vehicle.lane])(
                     time=time, full_lanes=full_lanes()
                 )
             else:
                 time_leave.popleft()
 
-        print_i(f"Generated {time} s of 'TrafficSequence'")
+        print_i(f"Generated {time:.3f} s of 'TrafficSequence'")
         return result, warmed_up_at
 
 

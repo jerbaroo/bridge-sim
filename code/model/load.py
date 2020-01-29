@@ -16,7 +16,7 @@ D: bool = False
 
 
 class PierSettlement:
-    """Apply a load to a pier until the displacement is reached.
+    """Apply a load to a pier until a displacement is reached.
 
     Args:
         displacement: float, displacement in meters.
@@ -33,7 +33,7 @@ class PierSettlement:
 
 
 class PointLoad:
-    """A load concentrated at a point.
+    """A load concentrated at a point on the deck.
 
     Args:
         x_frac: float, fraction of x position on bridge in [0 1].
@@ -284,13 +284,13 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x)) / self.mps
 
-    def leaves_bridge(self, bridge: Bridge):
+    def time_leaving_bridge(self, bridge: Bridge):
         """Time the vehicle begins to leave the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
-    def left_bridge(self, bridge: Bridge):
+    def time_left_bridge(self, bridge: Bridge):
         """Time the vehicle has left the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0

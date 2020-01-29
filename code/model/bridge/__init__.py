@@ -681,9 +681,7 @@ class Bridge:
         )
 
     def x(self, x_frac: float):
-        return float(
-            interp1d([0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac)
-        )
+        return float(interp1d([0, 1], [self.x_min, self.x_max], fill_value="extrapolate")(x_frac))
 
     def y_frac(self, y: float):
         assert self.y_min <= y <= self.y_max
