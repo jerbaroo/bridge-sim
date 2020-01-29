@@ -46,7 +46,7 @@ def test_to_traffic_array():
         c=c,
         traffic_sequence=traffic_sequence,
         warmed_up_at=warmed_up_at,
-        max_time=max_time
+        max_time=max_time,
     )
 
 

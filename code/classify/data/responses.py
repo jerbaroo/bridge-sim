@@ -101,12 +101,14 @@ def x_to_wheel_track_index(c: Config):
     print_d(D, f"sml_bin_length = {sml_bin_length}")
     print_d(D, f"end first bin = {end_first_bin}")
     print_d(D, f"start last bin = {start_last_bin}")
+
     def wheel_track_index(x):
         if x < end_first_bin:
             return 0
         if x > start_last_bin:
             return c.il_num_loads - 1
         return int(np.around(interp(x), 0))
+
     return wheel_track_index
 
 
@@ -151,7 +153,9 @@ def responses_to_traffic(
 
     """
     print_w("Deprecated 'responses_to_traffic': no need to be using this function")
-    import sys; sys.exit()
+    import sys
+
+    sys.exit()
     for t in range(len(traffic)):
         traffic[t] = list(chain.from_iterable(traffic[t]))
 

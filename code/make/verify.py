@@ -2,7 +2,11 @@ from copy import deepcopy
 
 import numpy as np
 
-from classify.data.responses import loads_to_traffic_array, responses_to_traffic_array, responses_to_vehicles_d
+from classify.data.responses import (
+    loads_to_traffic_array,
+    responses_to_traffic_array,
+    responses_to_vehicles_d,
+)
 from classify.vehicle import wagen1
 from config import Config
 from fem.build import BuildContext

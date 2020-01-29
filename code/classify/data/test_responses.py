@@ -27,7 +27,10 @@ def test_x_to_wheel_track_index():
         else:
             assert wti not in [0, c.il_num_loads - 1]
     assert wheel_track_index(c.bridge.x_min + sml_bin_width + 0.001) == 1
-    assert wheel_track_index(c.bridge.x_max - sml_bin_width - 0.001) == c.il_num_loads - 2
+    assert (
+        wheel_track_index(c.bridge.x_max - sml_bin_width - 0.001) == c.il_num_loads - 2
+    )
+
 
 # def test_response_to_mv_vehicles():
 
