@@ -21,7 +21,7 @@ from util import flatten, print_d, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"
-# D: bool = False
+D: bool = False
 
 ############################
 ##### Via wheel tracks #####
@@ -87,21 +87,16 @@ def responses_to_traffic_array(
 
 def x_to_wheel_track_index(c: Config):
     """Return a function from x position to wheel track index."""
-    sml_bin_length = (c.bridge.length / (c.il_num_loads - 1)) / 2
-    end_first_bin = c.bridge.x_min + sml_bin_length
-    start_last_bin = c.bridge.x_max - sml_bin_length
-    interp = interp1d([end_first_bin, start_last_bin], [1, c.il_num_loads - 2])
-    print_d(D, f"sml_bin_length = {sml_bin_length}")
-    print_d(D, f"end first bin = {end_first_bin}")
-    print_d(D, f"start last bin = {start_last_bin}")
-
-    def wheel_track_index(x):
-        if x < end_first_bin:
-            return 0
-        if x > start_last_bin:
-            return c.il_num_loads - 1
-        return int(np.around(interp(x), 0))
-
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+    def wheel_track_index(x: float):
+        wheel_x_ind = np.searchsorted(wheel_track_xs, x)
+        if wheel_x_ind == 0:
+            return wheel_x_ind
+        wheel_x = wheel_track_xs[wheel_x_ind]
+        wheel_x_lo = wheel_track_xs[wheel_x_ind - 1]
+        if abs(x - wheel_x_lo) < abs(x - wheel_x):
+            return wheel_x_ind - 1
+        return wheel_x_ind
     return wheel_track_index
 
 
@@ -111,18 +106,18 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
     wheel_track_zs = c.bridge.wheel_track_zs(c)
     num_load_positions = c.il_num_loads * len(wheel_track_zs)
     traffic_array = np.zeros((times, num_load_positions))
-    wheel_track_index = x_to_wheel_track_index(c)
+    wheel_track_index_f = x_to_wheel_track_index(c)
     for time, time_loads in enumerate(loads):
         for load in time_loads:
             wheel_track_found = False
             load_z = c.bridge.z(load.z_frac)
-            load_x = c.bridge.x(load.x_frac)
             for w, wheel_track_z in enumerate(wheel_track_zs):
                 if not wheel_track_found and np.isclose(wheel_track_z, load_z):
                     wheel_track_found = True
+                    load_x = c.bridge.x(load.x_frac)
                     print_d(D, f"load z = {load_z}")
                     print_d(D, f"load x = {load_x}")
-                    x_ind = wheel_track_index(load_x)
+                    x_ind = wheel_track_index_f(load_x)
                     j = (w * c.il_num_loads) + x_ind
                     print_d(D, f"x_ind = {x_ind}")
                     print_d(D, f"j = {j}")
@@ -290,7 +285,7 @@ def responses_to_vehicles_d(
     if binned:
         print("binned")
         loads = [
-            [v.to_point_loads_binned(c=c, time=time) for v in mv_vehicles]
+            [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
             for time in times
         ]
     else:

@@ -10,14 +10,13 @@ c = bridge_705_config(bridge_705_3d)
 c.il_num_loads = 10
 
 
-def test_wheel_track_buckets():
-    buckets = c.bridge.wheel_track_buckets(c)
-    assert buckets[0] == c.bridge.x_min
-    assert buckets[-1] == c.bridge.x_max
-    assert len(buckets) == c.il_num_loads + 1
-    sml_bucket_width = (c.bridge.length / (c.il_num_loads - 1)) / 2
-    assert buckets[1] == np.around(c.bridge.x_min + sml_bucket_width, 3)
-    assert buckets[-2] == np.around(c.bridge.x_max - sml_bucket_width, 3)
+def test_wheel_track_xs():
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+    delta_x = c.bridge.length / (c.il_num_loads - 1)
+    assert wheel_track_xs[0] == c.bridge.x_min
+    assert wheel_track_xs[1] == np.around(c.bridge.x_min + delta_x, 3)
+    assert wheel_track_xs[-1] == c.bridge.x_max
+    assert wheel_track_xs[-2] == np.around(c.bridge.x_max - delta_x, 3)
 
 
 # from model.bridge import (

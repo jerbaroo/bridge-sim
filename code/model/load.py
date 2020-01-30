@@ -79,7 +79,7 @@ class Vehicle:
         total_kn: Callable[[], float], total load intensity in kilo Newton.
         kn_per_axle: Callable[[], [List[float]]], load intensity per axle in
             kilo Newton.
-        wheel_length: float, length of each wheel in meters, default 0.31 m.
+        # wheel_length: float, length of each wheel in meters, default 0.31 m.
 
     """
 
@@ -95,7 +95,7 @@ class Vehicle:
         self.num_axles = len(self.axle_distances) + 1
         self.num_wheels = self.num_axles * 2
         self.kn = kn
-        self.wheel_length = 0.31
+        # self.wheel_length = 0.31
 
         def total_kn():
             if isinstance(self.kn, list):
@@ -187,7 +187,7 @@ class MvVehicle(Vehicle):
         if self.init_x_frac is not None:
             assert self.init_x_frac <= 1
 
-    def wheel_tracks(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
+    def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
         """Positions of the vehicle's wheels in transverse direction.
 
         Args:
@@ -223,9 +223,7 @@ class MvVehicle(Vehicle):
             return init_x_frac - delta_x_frac
 
     def x_at(self, time: float, bridge: Bridge):
-        """X position of bridge in meters at given time.
-
-        Returns a list of x position for each axle.
+        """X position of front axle on bridge at given time, in meters.
 
         Args:
             time: float, time passed from initial position, in seconds.
@@ -302,74 +300,29 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length + self.length) / self.mps
 
-    def frac_in_bin(self, wheel_x, bin_x_lo, bin_x_hi) -> float:
-        """Fraction of current wheel in given bin."""
-        wheel_x_lo, wheel_x_hi = [
-            wheel_x - (self.wheel_length / 2),
-            wheel_x + (self.wheel_length / 2),
-        ]
-        # Fully out.
-        if wheel_x_hi < bin_x_lo or wheel_x_lo > bin_x_hi:
-            return 0
-        # Fully in.
-        if wheel_x_lo >= bin_x_lo and wheel_x_hi <= bin_x_hi:
-            return 1
-        # Middle in.
-        if wheel_x_hi > bin_x_hi and wheel_x_lo < bin_x_lo:
-            return (bin_x_hi - bin_x_lo) / self.wheel_length
-        # Lower half in.
-        if wheel_x_hi > bin_x_hi:
-            return (bin_x_hi - wheel_x_lo) / self.wheel_length
-        # Lower half in.
-        if wheel_x_lo < bin_x_lo:
-            return (wheel_x_hi - bin_x_lo) / self.wheel_length
-        raise ValueError("Unknown state")
+    def wheel_to_wheel_track_xs(
+            self, c: Config, wheel_load: PointLoad
+    ) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+        """X positions (and weighting) of unit loads for a given point load."""
+        wheel_load_x = np.around(c.bridge.x(wheel_load.x_frac), 3)
+        wheel_track_xs = c.bridge.wheel_track_xs(c)
+        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_load_x)
+        unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
+        if unit_load_x() > wheel_load_x:
+            unit_load_x_ind -= 1
+        assert unit_load_x() <= wheel_load_x
+        # If the unit load is an exact match just return it.
+        if np.isclose(wheel_load_x, unit_load_x()):
+            return ((wheel_load_x, 1), (0, 0))
+        # Otherwise, return a combination of two unit loads.
+        unit_load_x_lo = unit_load_x()
+        unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
+        dist_lo = abs(unit_load_x_lo - wheel_load_x)
+        dist_hi = abs(unit_load_x_hi - wheel_load_x)
+        dist = dist_lo + dist_hi
+        return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
 
-    def bucket_loads(self, c: Config, wheel_load: PointLoad) -> List[Tuple[float, float]]:
-        """The bins the vehicle is in at current time."""
-        wheel_track_bins = c.bridge.wheel_track_bins(c)
-        assert_sorted(wheel_track_bins)
-        wheel_x_center = c.bridge.x(wheel_load.x_frac)
-        wheel_x_lo, wheel_x_hi = [
-            wheel_x_center - (self.wheel_length / 2),
-            wheel_x_center + (self.wheel_length / 2),
-        ]
-        print(f"wheel load x lo hi = {wheel_x_lo} {wheel_x_hi}")
-        # Move up collecting any bins, break when done.
-        bins = []
-        bin_x_index_lo = np.searchsorted(wheel_track_bins, wheel_x_lo)
-        if bin_x_index_lo > 0 and wheel_x_lo > wheel_track_bins[bin_x_index_lo - 1]:
-            bin_x_index_lo -= 1
-        print(f"bin_x_lo = {wheel_track_bins[bin_x_index_lo]}")
-        while bin_x_index_lo < len(wheel_track_bins) - 1:
-            bin_x_lo = wheel_track_bins[bin_x_index_lo]
-            bin_x_hi = wheel_track_bins[bin_x_index_lo + 1]
-            print(f"bin_x_hi")
-            bins.append((bin_x_lo, bin_x_hi))
-            if bin_x_hi > wheel_x_hi:
-                break
-            bin_x_index_lo += 1
-        print(f"wheel_track_bins = {wheel_track_bins}")
-        print(f"bin xs = {bins}")
-
-        # Asserting correctness!
-
-        bin_fracs = [
-            self.frac_in_bin(
-                wheel_x=c.bridge.x(wheel_load.x_frac), bin_x_lo=b_[0], bin_x_hi=b_[1],
-            )
-            for b_ in bins
-        ]
-        print(f"bin fracs = {bin_fracs}")
-        assert (
-            bins[0][0] == 0
-            or bins[-1][-1] == c.bridge.x_max
-            or np.isclose(sum(bin_fracs), 1)
-        )
-
-        return bins
-
-    def to_point_loads_buckets(
+    def to_wheel_track_loads(
         self, c: Config, time: float
     ) -> List[Tuple[Tuple[PointLoad, PointLoad], Tuple[PointLoad, PointLoad]]]:
         """Point loads per wheel, per axle. "Bucketed" based on unit loads.
@@ -386,26 +339,35 @@ class MvVehicle(Vehicle):
             for wheel_load in axle_loads:
                 result[-1].append([])
                 # Split that wheel load up, into one load per bin.
-                for bin_ in self.bins(c=c, wheel_load=wheel_load):
-                    result[-1][-1].append(
-                        PointLoad(
-                            x_frac=c.bridge.x_frac(c.bridge.bin_load_x(*bin_)),
-                            z_frac=c.bridge.z_frac(c.bridge.z(wheel_load.z_frac)),
-                            kn=wheel_load.kn
-                            * self.frac_in_bin(
-                                wheel_x=c.bridge.x(wheel_load.x_frac),
-                                bin_x_lo=bin_[0],
-                                bin_x_hi=bin_[1],
-                            ),
+                for (load_x, load_frac) in self.wheel_to_wheel_track_xs(
+                        c=c, wheel_load=wheel_load
+                ):
+                    if load_frac > 0:
+                        result[-1][-1].append(
+                            PointLoad(
+                                x_frac=c.bridge.x_frac(load_x),
+                                z_frac=wheel_load.z_frac,
+                                kn=wheel_load.kn * load_frac,
+                            )
                         )
-                    )
         return result
 
     def to_point_load_pw(
         self, time: float, bridge: Bridge
     ) -> List[Tuple[PointLoad, PointLoad]]:
-        """A tuple of point load per axle, one point load per wheel."""
-        z0, z1 = self.wheel_tracks(bridge=bridge, meters=False)
+        """A tuple of point load per axle, one point load per wheel.
+
+        TODO: Multiply wheel by amount on the bridge. Or maybe just ignore the
+        wheel print altogether?
+
+        wheel_x_center = c.bridge.x(wheel_load.x_frac)
+        wheel_x_lo, wheel_x_hi = [
+            wheel_x_center - (self.wheel_length / 2),
+            wheel_x_center + (self.wheel_length / 2),
+        ]
+
+        """
+        z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=False)
         assert z0 < z1
         if bridge.lanes[self.lane].ltr:
             z0, z1 = z1, z0
@@ -425,10 +387,11 @@ class MvVehicle(Vehicle):
                 continue
             # ..two wheel load intensities.
             kn0, kn1 = next_kn(), next_kn()
+            x_frac = bridge.x_frac(x)
             result.append(
                 (
-                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z0, kn=kn0),
-                    PointLoad(x_frac=bridge.x_frac(x), z_frac=z1, kn=kn1),
+                    PointLoad(x_frac=x_frac, z_frac=z0, kn=kn0),
+                    PointLoad(x_frac=x_frac, z_frac=z1, kn=kn1),
                 )
             )
         return result

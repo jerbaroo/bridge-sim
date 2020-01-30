@@ -630,41 +630,9 @@ class Bridge:
             )
         )
 
-    def wheel_track_buckets(self, c: "Config"):
-        """Wheel track buckets for this bridge (start and end x positions)."""
-        if not hasattr(c, "_wheel_track_buckets"):
-            c._wheel_track_buckets: Dict[int, List[float]] = dict()
-        # Create the list of buckets (start and end x positions), if necessary.
-        # Each list of buckets is indexed by the ULS parameter.
-        if c.il_num_loads not in c._wheel_track_buckets:
-            sml_bin_width = (self.length / (c.il_num_loads - 1)) / 2
-            buckets = [self.x_min]
-            buckets += list(
-                np.linspace(
-                    self.x_min + sml_bin_width,
-                    self.x_max - sml_bin_width,
-                    c.il_num_loads - 1,
-                )
-            )
-            buckets += [c.bridge.x_max]
-            c._wheel_track_buckets[c.il_num_loads] = [np.around(b, 3) for b in buckets]
-        buckets = c._wheel_track_buckets[c.il_num_loads]
-        print_d(D, f"Buckets = {buckets}")
-        return buckets
-
-    def bin_load_x(self, bin_x_lo, bin_x_hi):
-        """The x position for the load of a bin.
-
-        NOTE to @barischrooneyj: recall that bins are spread equidistant, to
-        capture the behaviour at the abuments, so interpolation of responses
-        works correctly near the abuments. See the function above.
-
-        """
-        if np.isclose(bin_x_lo, 0):
-            return 0
-        if np.isclose(bin_x_hi, self.x_max):
-            return self.x_max
-        return bin_x_hi - ((bin_x_hi - bin_x_lo) / 2)
+    def wheel_track_xs(self, c: "Config"):
+        """Unit load x positions for wheel tracks on this bridge."""
+        return np.around(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads), 3)
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

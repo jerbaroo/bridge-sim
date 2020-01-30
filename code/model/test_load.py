@@ -63,29 +63,66 @@ def test_to_point_load_pw():
         assert total_kn < wagen1.total_kn()
 
 
-def test_to_point_loads_buckets():
+def test_wheel_to_wheel_track_xs():
+    og_il_num_loads = c.il_num_loads
+    c.il_num_loads = 10
+    # Very beginning.
+    load = PointLoad(x_frac=0, z_frac=None, kn=100)
+    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    assert x0 == c.bridge.x_min
+    assert f0 == 1
+    assert f1 == 0
+    # Very end.
+    load = PointLoad(x_frac=1, z_frac=None, kn=100)
+    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    assert x0 == c.bridge.x_max
+    assert f0 == 1
+    assert f1 == 0
+    # In the middle.
+    load = PointLoad(x_frac=0.5, z_frac=None, kn=100)
+    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    assert f0 == 0.5
+    assert f1 == 0.5
+    bucket_width = c.bridge.length / (c.il_num_loads - 1)
+    assert x0 == np.around(bucket_width * 4, 3)
+    assert x1 == np.around(bucket_width * 5, 3)
+    # Near the beginning (exact match).
+    load = PointLoad(x_frac=1 / (c.il_num_loads - 1), z_frac=None, kn=100)
+    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    assert f0 == 1
+    assert f1 == 0
+    assert x0 == np.around(bucket_width, 3)
+    # Near the beginning (a little more).
+    load = PointLoad(x_frac=(1 / (c.il_num_loads - 1)) + 0.001, z_frac=None, kn=100)
+    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    assert f0 != 0
+    assert f0 != 1
+    assert f0 + f1 == 1
+    assert f0 > f1
+    assert x0 == np.around(bucket_width, 3)
+    assert x1 == np.around(bucket_width * 2, 3)
+    c.il_num_loads = og_il_num_loads
+
+
+def test_to_wheel_track_loads():
     # As Truck 1 enters the bridge.
-    return
     wagen1_times = np.linspace(entering_time, entered_time - 0.001, 100)
     for time in wagen1_times:
-        loads = wagen1.to_point_loads_buckets(c=c, time=time)
+        loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
         assert total_kn < wagen1.total_kn()
     # As Truck 1 is fully on the bridge.
     wagen1_times = np.linspace(entered_time, leaving_time, 100)
     for time in wagen1_times:
-        loads = wagen1.to_point_loads_buckets(c=c, time=time)
+        loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
-        print(time)
-        print(total_kn)
-        print(wagen1.total_kn())
         assert np.isclose(total_kn, wagen1.total_kn())
     # As Truck 1 is leaving the bridge.
     wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
     for time in wagen1_times:
-        loads = wagen1.to_point_loads_buckets(c=c, time=time)
+        loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
         assert total_kn < wagen1.total_kn()
