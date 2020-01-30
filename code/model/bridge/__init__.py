@@ -6,7 +6,12 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import interp1d
 
-from util import print_i, print_s, round_m, safe_str
+from util import print_d, print_i, print_s, round_m, safe_str
+
+# Comment/uncomment to print debug statements for this file.
+D: str = "model.bridge"
+D: bool = False
+
 
 # ID for all fiber commands.
 _fiber_cmd_id = 1
@@ -625,25 +630,27 @@ class Bridge:
             )
         )
 
-    def wheel_track_bins(self, c: "Config"):
-        """Wheel track bins (start and end x positions)."""
-        if not hasattr(c, "wheel_track_bins"):
-            c.wheel_track_bins: Dict[int, List[float]] = dict()
-        # Create the list of bins (start and end x positions), if necessary.
-        # There is one per Config.num_ils parameter.
-        if c.il_num_loads not in c.wheel_track_bins:
+    def wheel_track_buckets(self, c: "Config"):
+        """Wheel track buckets for this bridge (start and end x positions)."""
+        if not hasattr(c, "_wheel_track_buckets"):
+            c._wheel_track_buckets: Dict[int, List[float]] = dict()
+        # Create the list of buckets (start and end x positions), if necessary.
+        # Each list of buckets is indexed by the ULS parameter.
+        if c.il_num_loads not in c._wheel_track_buckets:
             sml_bin_width = (self.length / (c.il_num_loads - 1)) / 2
-            bins = [0]
-            bins += list(
+            buckets = [self.x_min]
+            buckets += list(
                 np.linspace(
-                    sml_bin_width, self.x_max - sml_bin_width, c.il_num_loads - 1
+                    self.x_min + sml_bin_width,
+                    self.x_max - sml_bin_width,
+                    c.il_num_loads - 1,
                 )
             )
-            bins += [c.bridge.x_max]
-            c.wheel_track_bins[c.il_num_loads] = [np.around(b, 3) for b in bins]
-        bins = c.wheel_track_bins[c.il_num_loads]
-        print_i(f"Bins = {bins}")
-        return bins
+            buckets += [c.bridge.x_max]
+            c._wheel_track_buckets[c.il_num_loads] = [np.around(b, 3) for b in buckets]
+        buckets = c._wheel_track_buckets[c.il_num_loads]
+        print_d(D, f"Buckets = {buckets}")
+        return buckets
 
     def bin_load_x(self, bin_x_lo, bin_x_hi):
         """The x position for the load of a bin.

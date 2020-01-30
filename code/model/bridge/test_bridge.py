@@ -1,8 +1,24 @@
 # """Test model.bridge."""
 # from typing import Optional, List
 
-# import numpy as np
+import numpy as np
 # import pytest
+
+from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
+
+c = bridge_705_config(bridge_705_3d)
+c.il_num_loads = 10
+
+
+def test_wheel_track_buckets():
+    buckets = c.bridge.wheel_track_buckets(c)
+    assert buckets[0] == c.bridge.x_min
+    assert buckets[-1] == c.bridge.x_max
+    assert len(buckets) == c.il_num_loads + 1
+    sml_bucket_width = (c.bridge.length / (c.il_num_loads - 1)) / 2
+    assert buckets[1] == np.around(c.bridge.x_min + sml_bucket_width, 3)
+    assert buckets[-2] == np.around(c.bridge.x_max - sml_bucket_width, 3)
+
 
 # from model.bridge import (
 #     Bridge,

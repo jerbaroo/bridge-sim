@@ -42,30 +42,6 @@ def test_x_to_wheel_track_index():
     )
 
 
-def test_to_point_load_pw():
-    # As Truck 1 enters the bridge.
-    wagen1_times = np.linspace(entering_time, entered_time - 0.001, 100)
-    for time in wagen1_times:
-        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
-        flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
-        assert total_kn < wagen1.total_kn()
-    # As Truck 1 is fully on the bridge.
-    wagen1_times = np.linspace(entered_time, leaving_time, 100)
-    for time in wagen1_times:
-        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
-        flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
-        assert total_kn == wagen1.total_kn()
-    # As Truck 1 is leaving the bridge.
-    wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
-    for time in wagen1_times:
-        loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
-        flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
-        assert total_kn < wagen1.total_kn()
-
-
 def test_loads_to_traffic_array():
     wagen1_loads = [
         flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)

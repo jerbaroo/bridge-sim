@@ -83,7 +83,7 @@ def compare_responses(c: Config):
     """Compare responses to Truck 1, direct simulation and matmul."""
     assert c.il_num_loads == 400
     num_times = 50
-    close_times = 200
+    close_times = 800
     # Running time:
     # responses_to_vehicles_d: num_times * 8
     # responses_to_vehicles_d: 4 * il_num_loads
@@ -95,8 +95,8 @@ def compare_responses(c: Config):
     wagen1_times = list(np.linspace(0, end_time, num_times))
     more_wagen1_times = list(
         np.linspace(
-            wagen1.time_at(x=point.x - 10, bridge=c.bridge),
-            wagen1.time_at(x=point.x + 10, bridge=c.bridge),
+            wagen1.time_at(x=point.x - 15, bridge=c.bridge),
+            wagen1.time_at(x=point.x + 15, bridge=c.bridge),
             close_times,
         )
     )

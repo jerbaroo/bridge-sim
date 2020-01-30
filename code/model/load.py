@@ -325,7 +325,7 @@ class MvVehicle(Vehicle):
             return (wheel_x_hi - bin_x_lo) / self.wheel_length
         raise ValueError("Unknown state")
 
-    def bins(self, c: Config, wheel_load: PointLoad) -> List[Tuple[float, float]]:
+    def bucket_loads(self, c: Config, wheel_load: PointLoad) -> List[Tuple[float, float]]:
         """The bins the vehicle is in at current time."""
         wheel_track_bins = c.bridge.wheel_track_bins(c)
         assert_sorted(wheel_track_bins)
@@ -369,20 +369,20 @@ class MvVehicle(Vehicle):
 
         return bins
 
-    def to_point_loads_binned(
+    def to_point_loads_buckets(
         self, c: Config, time: float
-    ) -> List[Tuple[List[PointLoad], List[PointLoad]]]:
-        """Two lists of point loads per axle, one list per wheel.
+    ) -> List[Tuple[Tuple[PointLoad, PointLoad], Tuple[PointLoad, PointLoad]]]:
+        """Point loads per wheel, per axle. "Bucketed" based on unit loads.
 
-        NOTE: In each list of point loads, one list per wheel, each point load
-        is for a bucket in the wheel track. Each point load is weighted by the
-        fraction of the wheel in that bucket.
+        NOTE: In each tuple of two point loads, one tuple per wheel, each point
+        load is for a unit load position in the wheel track. Each point load is
+        weighted by the distance to the unit load.
 
         """
         result = []
         for axle_loads in self.to_point_load_pw(time=time, bridge=c.bridge):
             result.append([])
-            # Each wheel_loads is a point load directly under the wheel center.
+            # Each 'wheel_load' is directly under the wheel center.
             for wheel_load in axle_loads:
                 result[-1].append([])
                 # Split that wheel load up, into one load per bin.
