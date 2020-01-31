@@ -77,29 +77,30 @@ class ILMatrix(ResponsesMatrix):
 
     @staticmethod
     def load_ulm(
-            c: Config,
-            response_type: ResponseType,
-            points: List[Point],
-            sim_runner: FEMRunner,
+        c: Config,
+        response_type: ResponseType,
+        points: List[Point],
+        sim_runner: FEMRunner,
     ):
         wheel_zs = c.bridge.wheel_track_zs(c)
         # A unique path for this unit load matrix.
-        result_path = ILMatrix.id_str(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
-        ) + str([str(point) for point in points]) + "-ulm"
+        result_path = (
+            ILMatrix.id_str(
+                c=c,
+                response_type=response_type,
+                sim_runner=sim_runner,
+                wheel_zs=wheel_zs,
+            )
+            + str([str(point) for point in points])
+            + "-ulm"
+        )
         # If the unit load matrix is available, return it.
         if result_path in c.resp_matrices:
             print_i(f"Unit load matrix {wheel_zs} already calculated!")
             return c.resp_matrices[result_path]
         # Otherwise load each wheel track..
         wheel_tracks = ILMatrix.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
+            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
         )
         # ..and calculate the unit load matrix.
         # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
@@ -130,12 +131,15 @@ class ILMatrix(ResponsesMatrix):
         save_all: bool = True,
     ):
         # A unique path these wheel tracks.
-        result_path = ILMatrix.id_str(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
-        ) + "-uls"
+        result_path = (
+            ILMatrix.id_str(
+                c=c,
+                response_type=response_type,
+                sim_runner=sim_runner,
+                wheel_zs=wheel_zs,
+            )
+            + "-uls"
+        )
         # Return if these wheel tracks are already in memory.
         if result_path in c.resp_matrices:
             print_i(f"Wheel tracks {wheel_zs} already calculated!")

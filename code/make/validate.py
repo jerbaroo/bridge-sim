@@ -1,9 +1,6 @@
 import numpy as np
 
-from classify.data.responses import (
-    loads_to_traffic_array,
-    responses_to_traffic_array
-)
+from classify.data.responses import loads_to_traffic_array, responses_to_traffic_array
 from classify.noise import add_displa_noise
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
@@ -73,7 +70,9 @@ def truck_1_time_series(c: Config):
     assert wagen1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
     end_time = wagen1.time_left_bridge(c.bridge)
-    wagen1_times = np.linspace(-end_time, end_time* 2, int((end_time * 3) / c.sensor_hz))
+    wagen1_times = np.linspace(
+        -end_time, end_time * 2, int((end_time * 3) / c.sensor_hz)
+    )
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
@@ -96,7 +95,7 @@ def truck_1_time_series(c: Config):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
         sensor_responses = add_displa_noise(sensor_responses) * 1000
-        plt.plot(sensor_responses[data_center - side:data_center + side])
+        plt.plot(sensor_responses[data_center - side : data_center + side])
         plt.ylim(-0.8, 0.3)
         plt.title(f"{displa_labels[s_i]} in simulation")
     # Results from experiment.
@@ -111,7 +110,7 @@ def truck_1_time_series(c: Config):
         for i in range(15000):
             if data[i] < data[data_center]:
                 data_center = i
-        plt.plot(data[data_center - side:data_center + side])
+        plt.plot(data[data_center - side : data_center + side])
         plt.ylim(-0.8, 0.3)
         plt.title(f"{displa_label} in dynamic test")
     plt.tight_layout()

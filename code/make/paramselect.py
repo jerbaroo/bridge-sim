@@ -144,7 +144,7 @@ def experiment_noise(c: Config):
         for i in range(15000):
             if data[i] < data[data_center]:
                 data_center = i
-        data = data[data_center - side:data_center + side]
+        data = data[data_center - side : data_center + side]
         smooth = savgol_filter(data, 21, 3)
         plt.plot(data, linewidth=1)
         plt.plot(smooth, linewidth=1)

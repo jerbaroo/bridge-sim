@@ -272,7 +272,9 @@ def compare_load_positions(c: Config):
     plt.portrait()
 
     pw_loads = [
-        flatten(uni_axle_vehicle.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
+        flatten(
+            uni_axle_vehicle.to_point_load_pw(time=time, bridge=c.bridge), PointLoad
+        )
         for time in vehicle_times
     ]
     pw_load_xs = [
@@ -299,8 +301,7 @@ def compare_load_positions(c: Config):
     plt.legend()
 
     wt_load_kn = [
-        [l.kn for l in wt_loads[time_ind]]
-        for time_ind in range(len(wt_loads))
+        [l.kn for l in wt_loads[time_ind]] for time_ind in range(len(wt_loads))
     ]
     plt.subplot(3, 1, 3)
     for l in wt_load_kn:

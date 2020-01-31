@@ -101,11 +101,13 @@ class TrafficScenario:
             dist += mv_vehicle.length
 
     def traffic_sequence(
-        self, bridge: Bridge, max_time: float
-    ) -> Tuple[Traffic, float]:
+        self, bridge: Bridge, max_time: float, adjust: bool = True
+    ) -> TrafficSequence:
         """Generate a 'TrafficSequence' under this traffic scenario.
 
-        Returns a tuple of 'Traffic' and time the simulation warmed up at.
+        Returns a sequence of traffic events such that there is at least
+        'max_time' of traffic from when the traffic sequence has warmed up.
+        There is one additional event after 'max_time' is reached.
 
         Args:
             bridge: Bridge, bridge the vehicles drive on.
@@ -157,11 +159,11 @@ class TrafficScenario:
 
             # Add the enter/leave event to the sequence.
             result.append((vehicle, event_time, enter))
+            time = event_time
 
-            # If maximum time is reached.
+            # Stop if maximum time is reached.
             if event_time > max_time:
                 break
-            time = event_time
             print_i(f"Generating 'TrafficSequence', time = {time:.3f} s", end="\r")
 
             # Update vehicles entering/leaving the bridge.
@@ -173,8 +175,10 @@ class TrafficScenario:
             else:
                 time_leave.popleft()
 
-        print_i(f"Generated {time:.3f} s of 'TrafficSequence'")
-        return result, warmed_up_at
+        print_i(
+            f"Generated {time:.3f} - {warmed_up_at:.3f} = {time - warmed_up_at:.3f} s of 'TrafficSequence'"
+        )
+        return result
 
 
 def to_traffic(
@@ -216,15 +220,24 @@ def to_traffic(
 
 
 def to_traffic_array(
-    c: Config, traffic_sequence: TrafficSequence, warmed_up_at: float, max_time: float,
+    c: Config, traffic_sequence: TrafficSequence, max_time: float, warm_up: bool = True
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'.
+
+    Args:
+        c: Config, global configuration object.
+        traffic_sequence: TrafficSequence, the sequence of traffic to convert
+            into a 'TrafficArray'.
+        max_time: float, maximum time of 'TrafficArray' to generate.
+        warm_up: bool, if true then begin generating the 'TrafficArray' once the
+            first vehicle has passed over the bridge (traffic has warmed up).
+
 
     NOTE: If you are going to try understand the code in this function then
     start with looking at 'to_traffic', as that is almost a subset of this code.
 
     """
-    print_i("Converting to 'TrafficArray")
+    print_i("Converting 'TrafficSequence' to 'TrafficArray'")
     time_step = c.sensor_hz
     # Initial traffic array, to be filled in.
     result = np.zeros(
@@ -251,13 +264,21 @@ def to_traffic_array(
         for l, _ in enumerate(current)
     ]
 
+    # If the traffic is required to warm up, then maximum time is increased.
+    # Note that until time 'warmed_up_at' is reached, nothing will be added to
+    # the 'TrafficArray'.
+    if warm_up:
+        warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+        max_time += warmed_up_at
+
     last_print_time = -np.inf
     while time <= max_time:
+        # Print an update when at least 1 second has passed.
         if time - last_print_time > 1:
             print_i(f"Generating 'TrafficArray', time = {time:.3f} s", end="\r")
             last_print_time = time
 
-        # While events have occurred update current traffic.
+        # While events have occurred, update current traffic.
         while time >= next_event_time:
             vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
@@ -271,27 +292,28 @@ def to_traffic_array(
             except IndexError:
                 next_event_time = np.inf
 
-        # This bottom part of the loop can be parallelized.
-
-        # For each lane.
-        for (j0, j1), vehicles in zip(j_indices, current):
-            # For each vehicle.
-            for vehicle in vehicles:
-                xs = vehicle.xs_at(time=time, bridge=c.bridge)
-                kns = vehicle.kn_per_axle()
-                # assert len(xs) == len(kns)
-                # For each axle currently on the bridge.
-                for x, kn in zip(xs, kns):
-                    if x >= 0 and x <= bridge_length:
-                        x_ind = int(interp(x))
-                        # For each wheel.
-                        for j in [j0, j1]:
-                            # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
-                            result[time_i][j + x_ind] = kn
-
+        # Only add to the 'TrafficArray' if the traffic is not required to warm
+        # up, or the traffic has already warmed up. TODO: This bottom part of
+        # the loop could be parallelized.
+        if not warm_up or time >= warmed_up_at:
+            # For each lane.
+            for (j0, j1), vehicles in zip(j_indices, current):
+                # For each vehicle.
+                for vehicle in vehicles:
+                    xs = vehicle.xs_at(time=time, bridge=c.bridge)
+                    kns = vehicle.kn_per_axle()
+                    # assert len(xs) == len(kns)
+                    # For each axle currently on the bridge.
+                    for x, kn in zip(xs, kns):
+                        if x >= 0 and x <= bridge_length:
+                            x_ind = int(interp(x))
+                            # For each wheel.
+                            for j in [j0, j1]:
+                                # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
+                                result[time_i][j + x_ind] = kn
+            time_i += 1
         time += time_step
-        time_i += 1
 
-    print_i(f"Generated 'TrafficArray', time = {time:.3f} s")
+    print_i(f"Generated {time:.3f} s of 'TrafficArray' from 'TrafficSequence'")
     # We divide by 2 because the load per axle is shared by 2 wheels.
     return result / 2

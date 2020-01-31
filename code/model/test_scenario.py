@@ -12,17 +12,25 @@ from vehicles.sample import sample_vehicle
 c = bridge_705_config(bridge_705_3d)
 
 
-def test_traffic_sequence():
+def test_traffic_sequence_not_adjusted():
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
-    traffic_sequence, warmed_up_at = traffic_scenario.traffic_sequence(
+    traffic_sequence = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
+    # Total time of the simulation should be greater than max_time.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    end_time = traffic_sequence[-1][1]
+    assert end_time > warmed_up_at + max_time
+    # The first vehicle should enter at x=0 at time t=0.
+    assert traffic_sequence[0][0].init_x_frac == 0
+    assert traffic_sequence[0][1] == 0
+    assert traffic_sequence[0][2] == True
     # Time the simulation has warmed up at should be when the first vehicle has
     # left the bridge. Since all vehicles have the same speed, this should at
     # least be greater than the time any vehicle takes until it has begun to
     # leave the bridge (first axle leaving), but depending on vehicle length the
-    # time to have entirely have left will be a little different per vehicle.
+    # time to have entirely left will be a little different per vehicle.
     vehicle = next(traffic_scenario.mv_vehicles(bridge=c.bridge, lane=0))(0, 0)
     assert warmed_up_at > vehicle.time_leaving_bridge(c.bridge)
     first_vehicle, first_time, first_event = traffic_sequence[0]
@@ -32,22 +40,25 @@ def test_traffic_sequence():
     final_vehicle, final_time, final_event = traffic_sequence[-1]
     # Time of the last event should be greater than the requested 'max_time' +
     # the time the simulation has 'warmed_up_at', and the second last event
-    # should be before less than.
+    # should be less than.
     assert penul_time < max_time + warmed_up_at < final_time
 
 
 def test_to_traffic_array():
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
-    traffic_sequence, warmed_up_at = traffic_scenario.traffic_sequence(
+    traffic_sequence = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
     traffic_array = to_traffic_array(
-        c=c,
-        traffic_sequence=traffic_sequence,
-        warmed_up_at=warmed_up_at,
-        max_time=max_time,
+        c=c, traffic_sequence=traffic_sequence, max_time=max_time, warm_up=False
     )
+    assert len(traffic_array) == max_time * (1 / c.sensor_hz) + 1
+    traffic_array_warm = to_traffic_array(
+        c=c, traffic_sequence=traffic_sequence, max_time=max_time, warm_up=True
+    )
+    assert len(traffic_array_warm) == max_time * (1 / c.sensor_hz) + 1
+    assert sum(traffic_array[0]) < sum(traffic_array_warm[0])
 
 
 # def test_scenario():

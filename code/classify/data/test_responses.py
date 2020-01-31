@@ -41,9 +41,7 @@ def test_x_to_wheel_track_index():
         else:
             assert wti not in [0, 1, c.il_num_loads - 2, c.il_num_loads - 1]
     assert wheel_track_index_f(c.bridge.x_min + bin_width + 0.001) == 1
-    assert (
-        wheel_track_index_f(c.bridge.x_max - bin_width - 0.001) == c.il_num_loads - 2
-    )
+    assert wheel_track_index_f(c.bridge.x_max - bin_width - 0.001) == c.il_num_loads - 2
 
 
 def test_loads_to_traffic_array():

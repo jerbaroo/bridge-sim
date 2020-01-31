@@ -301,7 +301,7 @@ class MvVehicle(Vehicle):
         return float(abs(init_x) + bridge.length + self.length) / self.mps
 
     def wheel_to_wheel_track_xs(
-            self, c: Config, wheel_load: PointLoad
+        self, c: Config, wheel_load: PointLoad
     ) -> Tuple[Tuple[float, float], Tuple[float, float]]:
         """X positions (and weighting) of unit loads for a given point load."""
         wheel_load_x = np.around(c.bridge.x(wheel_load.x_frac), 3)
@@ -340,7 +340,7 @@ class MvVehicle(Vehicle):
                 result[-1].append([])
                 # Split that wheel load up, into one load per bin.
                 for (load_x, load_frac) in self.wheel_to_wheel_track_xs(
-                        c=c, wheel_load=wheel_load
+                    c=c, wheel_load=wheel_load
                 ):
                     if load_frac > 0:
                         result[-1][-1].append(

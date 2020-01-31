@@ -2,6 +2,7 @@
 # from typing import Optional, List
 
 import numpy as np
+
 # import pytest
 
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config

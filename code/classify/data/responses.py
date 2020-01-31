@@ -51,15 +51,11 @@ def responses_to_traffic_array(
     """
     if np.count_nonzero(traffic_array) == 0:
         unit_load_matrix = np.zeros(
-            len(c.bridge.wheel_tracks(c)) * c.il_num_loads,
-            len(points),
+            len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
         )
     else:
         unit_load_matrix = ILMatrix.load_ulm(
-            c=c,
-            response_type=response_type,
-            points=points,
-            sim_runner=sim_runner,
+            c=c, response_type=response_type, points=points, sim_runner=sim_runner,
         )
     responses = np.matmul(traffic_array, unit_load_matrix)
 
@@ -88,6 +84,7 @@ def responses_to_traffic_array(
 def x_to_wheel_track_index(c: Config):
     """Return a function from x position to wheel track index."""
     wheel_track_xs = c.bridge.wheel_track_xs(c)
+
     def wheel_track_index(x: float):
         wheel_x_ind = np.searchsorted(wheel_track_xs, x)
         if wheel_x_ind == 0:
@@ -97,6 +94,7 @@ def x_to_wheel_track_index(c: Config):
         if abs(x - wheel_x_lo) < abs(x - wheel_x):
             return wheel_x_ind - 1
         return wheel_x_ind
+
     return wheel_track_index
 
 
