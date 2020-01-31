@@ -7,6 +7,7 @@ from sklearn.svm import OneClassSVM
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import HealthyDamage
+from classify.scenario.traffic import normal_traffic
 from classify.scenarios import healthy_and_cracked_scenarios
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
@@ -14,6 +15,7 @@ from make.plot.distribution import load_normal_traffic_array
 from classify.scenarios import each_pier_scenarios
 from model.bridge import Point
 from model.response import ResponseType
+from model.scenario import to_traffic_array
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
@@ -22,6 +24,15 @@ from util import print_i
 
 def events(c: Config):
     """Plot events due to normal traffic."""
+    # First create 10s of 'TrafficSequence' and 'TrafficArray'.
+    max_time = 10
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence = traffic_scenario.traffic_sequence(
+        bridge=c.bridge, max_time=max_time
+    )
+    traffic_array = to_traffic_array(
+        c=c, traffic_sequence=traffic_sequence, max_time=max_time
+    )
     pass
 
 

@@ -256,26 +256,22 @@ def to_traffic_array(
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
     # Interpolate from x position to wheel track bucket.
-    bridge_length = c.bridge.length
-    interp = interp1d([0, bridge_length], [0, c.il_num_loads - 1])
+    interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
     # Column index where each wheel track starts.
     j_indices = [
         (l * 2 * c.il_num_loads, ((l * 2) + 1) * c.il_num_loads)
         for l, _ in enumerate(current)
     ]
 
-    # If the traffic is required to warm up, then maximum time is increased.
-    # Note that until time 'warmed_up_at' is reached, nothing will be added to
-    # the 'TrafficArray'.
-    if warm_up:
-        warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
-        max_time += warmed_up_at
+    # If it is requested that traffic warm up first, then until time
+    # 'warmed_up_at' is reached, nothing will be added to the 'TrafficArray'.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
 
-    last_print_time = -np.inf
-    while time <= max_time:
+    last_print_time, start_time = -np.inf, None
+    while time_i < result.shape[0]:
         # Print an update when at least 1 second has passed.
         if time - last_print_time > 1:
-            print_i(f"Generating 'TrafficArray', time = {time:.3f} s", end="\r")
+            print_i(f"Generating 'TrafficArray', time = {time:.4f} s", end="\r")
             last_print_time = time
 
         # While events have occurred, update current traffic.
@@ -296,6 +292,8 @@ def to_traffic_array(
         # up, or the traffic has already warmed up. TODO: This bottom part of
         # the loop could be parallelized.
         if not warm_up or time >= warmed_up_at:
+            if start_time is None:
+                start_time = time
             # For each lane.
             for (j0, j1), vehicles in zip(j_indices, current):
                 # For each vehicle.
@@ -305,7 +303,7 @@ def to_traffic_array(
                     # assert len(xs) == len(kns)
                     # For each axle currently on the bridge.
                     for x, kn in zip(xs, kns):
-                        if x >= 0 and x <= bridge_length:
+                        if x >= c.bridge.x_min and x <= c.bridge.x_max:
                             x_ind = int(interp(x))
                             # For each wheel.
                             for j in [j0, j1]:
@@ -314,6 +312,6 @@ def to_traffic_array(
             time_i += 1
         time += time_step
 
-    print_i(f"Generated {time:.3f} s of 'TrafficArray' from 'TrafficSequence'")
+    print_i(f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'")
     # We divide by 2 because the load per axle is shared by 2 wheels.
     return result / 2

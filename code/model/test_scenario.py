@@ -50,15 +50,23 @@ def test_to_traffic_array():
     traffic_sequence = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
+
+    # 'TrafficArray', traffic not allowed to warm up.
     traffic_array = to_traffic_array(
         c=c, traffic_sequence=traffic_sequence, max_time=max_time, warm_up=False
     )
     assert len(traffic_array) == max_time * (1 / c.sensor_hz) + 1
+    for traffic_at_time in traffic_array:
+        assert sum(traffic_at_time) > 0
+
+    # 'TrafficArray', traffic warmed up.
     traffic_array_warm = to_traffic_array(
         c=c, traffic_sequence=traffic_sequence, max_time=max_time, warm_up=True
     )
     assert len(traffic_array_warm) == max_time * (1 / c.sensor_hz) + 1
     assert sum(traffic_array[0]) < sum(traffic_array_warm[0])
+    for traffic_at_time in traffic_array_warm:
+        assert sum(traffic_at_time) > 0
 
 
 # def test_scenario():
