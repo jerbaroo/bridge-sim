@@ -6,17 +6,23 @@ from typing import Callable, List, NewType, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import interp1d
 
+from classify.data.responses.convert import loads_to_traffic_array
 from config import Config
 from fem.params import SimParams
 from model.bridge import Bridge
-from model.load import MvVehicle
-from util import print_i
+from model.load import MvVehicle, PointLoad
+from util import flatten, print_i
 
 
 class DamageScenario:
     """Base class for bridge scenarios. Do not construct directly."""
 
-    def __init__(self, name: str, mod_bridge=lambda b: b, mod_sim_params=lambda s: s):
+    def __init__(
+            self,
+            name: str,
+            mod_bridge=lambda b: Callable[[Bridge], Bridge],
+            mod_sim_params=lambda s: Callable[[SimParams], SimParams],
+    ):
         self.name = name
         self.mod_bridge = mod_bridge
         self.mod_sim_params = mod_sim_params
@@ -39,7 +45,7 @@ class DamageScenario:
 TrafficSequence = NewType("TrafficSequence", List[Tuple[MvVehicle, float, bool]])
 
 # A list of vehicles per lane per time step. This representation naturally fits
-# the semantics of real life traffic on a bridge.
+# the semantics of real life traffic on a bridge. Useful for plotting.
 Traffic = NewType("Traffic", List[List[List[MvVehicle]]])
 
 # An array of time step (rows) * wheel position (columns). Each cell value is
@@ -288,27 +294,55 @@ def to_traffic_array(
             except IndexError:
                 next_event_time = np.inf
 
+        # TODO: Remove.
+        # Switch between the new "bucketing" and old method.
+        NEW = False
+
         # Only add to the 'TrafficArray' if the traffic is not required to warm
         # up, or the traffic has already warmed up. TODO: This bottom part of
         # the loop could be parallelized.
         if not warm_up or time > warmed_up_at or np.isclose(time, warmed_up_at):
             if start_time is None:
                 start_time = time
+            # all_loads = flatten(
+            #     [v.to_wheel_track_loads(c=c, time=time)
+            #      for v in flatten(current, MvVehicle)],
+            #     PointLoad,
+            # )
+            # print(loads_to_traffic_array(c=c, loads=[all_loads])[0].shape)
+            # print(result[time_i].shape)
+            # result[time_i] = loads_to_traffic_array(c=c, loads=[all_loads])[0]
+            # For each vehicle, find the lane it's on, and indices into the ULM.
+            if NEW:
+                for js, vehicles in zip(j_indices, current):
+                    for vehicle in vehicles:
+                        # Here the wheel track bucketing is implemented.
+                        for axle_loads in vehicle.to_wheel_track_loads(c=c, time=time):
+                            for j, wheel_loads in zip(js, axle_loads):
+                                for wheel_load in wheel_loads:
+                                    x_ind = int(np.around(
+                                        interp(c.bridge.x(wheel_load.x_frac)),
+                                        0
+                                    ))
+                                    result[time_i][j + x_ind] = wheel_load.kn
+
+            # The old method.
+            if not NEW:
             # For each lane.
-            for (j0, j1), vehicles in zip(j_indices, current):
-                # For each vehicle.
-                for vehicle in vehicles:
-                    xs = vehicle.xs_at(time=time, bridge=c.bridge)
-                    kns = vehicle.kn_per_axle()
-                    # assert len(xs) == len(kns)
-                    # For each axle currently on the bridge.
-                    for x, kn in zip(xs, kns):
-                        if x >= c.bridge.x_min and x <= c.bridge.x_max:
-                            x_ind = int(np.around(interp(x), 0))
-                            # For each wheel.
-                            for j in [j0, j1]:
-                                # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
-                                result[time_i][j + x_ind] = kn
+                for (j0, j1), vehicles in zip(j_indices, current):
+                    # For each vehicle.
+                    for vehicle in vehicles:
+                        xs = vehicle.xs_at(time=time, bridge=c.bridge)
+                        kns = vehicle.kn_per_axle()
+                        # assert len(xs) == len(kns)
+                        # For each axle currently on the bridge.
+                        for x, kn in zip(xs, kns):
+                            if x >= c.bridge.x_min and x <= c.bridge.x_max:
+                                x_ind = int(np.around(interp(x), 0))
+                                # For each wheel.
+                                for j in [j0, j1]:
+                                    # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
+                                    result[time_i][j + x_ind] = kn
             time_i += 1
         time += time_step
 

@@ -6,6 +6,8 @@ from sklearn.svm import OneClassSVM
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
+from classify.noise import add_displa_noise
+from classify.temperature import load_temperature_month
 from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
 from classify.scenarios import each_pier_scenarios, healthy_and_cracked_scenarios, healthy_scenario
@@ -71,6 +73,7 @@ def events(c: Config, x: float, z: float):
         points=[point],
         sim_runner=OSRunner(c),
     ) * 1000
+    # responses = add_displa_noise(responses)
     print(responses.shape)
     plt.portrait()
     for event_ind, (event_start, event_end) in enumerate(event_indices):
@@ -78,6 +81,31 @@ def events(c: Config, x: float, z: float):
         plt.plot(responses[event_start:event_end + 1])
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/events", "events.pdf"))
+    plt.close()
+
+
+def temperature_effect_month(c: Config, month: str):
+    times, temperatures = load_temperature_month(month)
+    plt.landscape()
+    # Plot the temperature.
+    plt.subplot(2, 1, 1)
+    label_set = False
+    for i, time in enumerate(times):
+        if np.isclose(time, 0):
+            label = None
+            if not label_set:
+                label = "Time at vertical line = 00:00"
+                label_set = True
+            plt.axvline(x=i, linewidth=1, color="black", label=label)
+    plt.scatter(range(len(temperatures)), temperatures, s=1)
+    plt.ylabel("Temperature (°C)")
+    plt.xlabel("Day")
+    plt.title(f"Temperature in {str(month[0]).upper()}{month[1:]}")
+    plt.legend()
+    # Plot the effect a point.
+    # Save.
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("classify/temperature", f"{month}.pdf"))
     plt.close()
 
 

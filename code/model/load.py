@@ -303,7 +303,11 @@ class MvVehicle(Vehicle):
     def wheel_to_wheel_track_xs(
         self, c: Config, wheel_load: PointLoad
     ) -> Tuple[Tuple[float, float], Tuple[float, float]]:
-        """X positions (and weighting) of unit loads for a given point load."""
+        """X positions (and weighting) of unit loads for a given point load.
+
+        This implements wheel track bucketing!
+
+        """
         wheel_load_x = np.around(c.bridge.x(wheel_load.x_frac), 3)
         wheel_track_xs = c.bridge.wheel_track_xs(c)
         unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_load_x)

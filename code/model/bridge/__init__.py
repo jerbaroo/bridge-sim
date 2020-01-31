@@ -643,7 +643,11 @@ class Bridge:
 
     def wheel_track_xs(self, c: "Config"):
         """Unit load x positions for wheel tracks on this bridge."""
-        return np.around(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads), 3)
+        try:
+            return self._wheel_track_xs
+        except:
+            self._wheel_track_xs = np.around(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads), 3)
+            return self._wheel_track_xs
 
     def y_min_max(self):
         """The min and max values in y direction from supports and sections."""

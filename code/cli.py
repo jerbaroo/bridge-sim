@@ -493,6 +493,12 @@ def events(x, z):
     classification_.events(c=c(), x=x, z=z)
 
 
+@classify.command(help="Temperature effect over one month.")
+@click.option("--month", type=str, default="may", help="Month to plot effect")
+def temp_month(month):
+    classification_.temperature_effect_month(c=c(), month=month)
+
+
 @classify.command()
 def oneclass():
     classification_.oneclass(c())
