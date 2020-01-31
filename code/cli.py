@@ -452,7 +452,7 @@ def comp_responses():
     verify.compare_responses(c())
 
 
-@verify.command(help="Compare uni-axle vehicle and Truck 1.")
+@verify.command(help="Compare vehicles with different amount of axles.")
 def comp_axles():
     from make import verify
 

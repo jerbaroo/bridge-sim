@@ -45,8 +45,6 @@ bridge_705_piers = [0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
-# for _i in range(len(bridge_705_spans)):
-#     print(sum(bridge_705_spans[:_i + 1]))
 bridge_705_supports_2d = [Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
 bridge_705_supports_2d[0].x = True
 
@@ -105,7 +103,7 @@ def bridge_705_2d(
 ############################
 
 
-def load_bridge_705_deck_sections():
+def bridge_705_deck_sections():
     with open("bridge705/bridge-705.org") as f:
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
@@ -128,9 +126,6 @@ def load_bridge_705_deck_sections():
     for i in range(len(_deck_sections) - 1):
         _deck_sections[i].end_z_frac = _deck_sections[i + 1].start_z_frac
     return _deck_sections
-
-
-bridge_705_sections_3d = load_bridge_705_deck_sections()
 
 
 ############################
@@ -156,14 +151,16 @@ pier_section_f = lambda start_frac_len: Section3DPier(
 ##################################
 
 
-bridge_705_single_sections = (
-    deepcopy(bridge_705_sections_3d[len(bridge_705_sections_3d) // 2]),
-    deepcopy(pier_section_f(0.5)),
-)
-for section in bridge_705_single_sections:
-    section.start_x_frac = 0
-    section.start_z_frac = 0
-    section.start_frac_len = 0
+def bridge_705_single_sections():
+    result = (
+        deepcopy(bridge_705_deck_sections()[len(bridge_705_deck_sections()) // 2]),
+        deepcopy(pier_section_f(0.5)),
+    )
+    for section in result:
+        section.start_x_frac = 0
+        section.start_z_frac = 0
+        section.start_frac_len = 0
+    return result
 
 
 #######################
@@ -212,7 +209,7 @@ def bridge_705_3d(
     length: float = bridge_705_length,
     width: float = bridge_705_width,
     lanes: List[Lane] = bridge_705_lanes,
-    sections: Optional[List[Section3D]] = bridge_705_sections_3d,
+    sections: Optional[List[Section3D]] = None,
     supports: List[Support3D] = bridge_705_supports_3d,
     base_mesh_deck_max_x: int = 0.5,
     base_mesh_deck_max_z: int = 0.5,
@@ -226,6 +223,8 @@ def bridge_705_3d(
     piers etc.. For documentation of the arguments see the 'Bridge' class.
 
     """
+    if sections is None:
+        sections = bridge_705_deck_sections()
     return Bridge(
         name=name,
         accuracy=accuracy,

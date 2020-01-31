@@ -22,6 +22,7 @@ sklearn = "*"
 termcolor = "*"
 filelock = "*"
 portalocker = "*"
+sphinx = "*"
 
 [pipenv]
 allow_prereleases = true

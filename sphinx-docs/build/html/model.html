@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>model package &#8212; Bridge Sim  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="model-package">
+<h1>model package<a class="headerlink" href="#model-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="model.bridge.html">model.bridge package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="model.bridge.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.bridge.html#module-model.bridge.bridge_705">model.bridge.bridge_705 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.bridge.html#module-model.bridge.util">model.bridge.util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.bridge.html#module-model.bridge">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-model.load">
+<span id="model-load-module"></span><h2>model.load module<a class="headerlink" href="#module-model.load" title="Permalink to this headline">¶</a></h2>
+<p>Loads and vehicles</p>
+<dl class="class">
+<dt id="model.load.MvVehicle">
+<em class="property">class </em><code class="sig-prename descclassname">model.load.</code><code class="sig-name descname">MvVehicle</code><span class="sig-paren">(</span><em class="sig-param">kn: Union[float, List[float], List[Tuple[float, float]]], axle_distances: List[float], axle_width: float, kmph: float, lane: Optional[Lane] = None, init_x_frac: Optional[float] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#model.load.Vehicle" title="model.load.Vehicle"><code class="xref py py-class docutils literal notranslate"><span class="pre">model.load.Vehicle</span></code></a></p>
+<p>A moving vehicle, has a speed and position on a bridge.</p>
+<p>Position is determined by an initial position in the longitudinal direction
+of the bridge, by an index to a lane on that bridge and by a constant speed.</p>
+<dl>
+<dt>NOTE: Arguments that determine initial position, ‘lane’ and ‘init_x_frac’,</dt><dd><p>are optional and may be set later.</p>
+</dd>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>kn: Union[float, List[float], List[Tuple[float, float]]], load</dt><dd><p>intensity, either for the entire vehicle or per axle, or as a list
+of tuple (per wheel, each tuple is left then right wheel), in kilo
+Newton.</p>
+</dd>
+</dl>
+<p>axle_distances: List[float], distance between axles in meters.
+axle_width: float, width of the vehicle’s axles in meters.
+kmph: float, speed of the vehicle in kmph.
+lane: Optional[int], index of a lane on a bridge.
+init_x_frac: Optional[float], initial position on the lane as a fraction</p>
+<blockquote>
+<div><p>of x position of the bridge, may be negative but not greater than 1.
+Regardless of the direction of traffic on the lane, the position at
+0 is just as the vehicle is about to move onto the bridge.</p>
+</div></blockquote>
+</dd>
+<dt>Attrs:</dt><dd><p>mps: float, speed of the vehicle in mps.
+length: float, length of the vehicle in meters.
+num_axles: int, number of axles.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.load.MvVehicle.full_lanes">
+<code class="sig-name descname">full_lanes</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#model.load.MvVehicle.full_lanes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of bridge lanes travelled by this vehicle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.on_bridge">
+<code class="sig-name descname">on_bridge</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#model.load.MvVehicle.on_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether a moving load is on a bridge at a given time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.passed_bridge">
+<code class="sig-name descname">passed_bridge</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#model.load.MvVehicle.passed_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the current vehicle has travelled over the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.time_at">
+<code class="sig-name descname">time_at</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.time_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time the front axle is at the given x position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.time_entered_bridge">
+<code class="sig-name descname">time_entered_bridge</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.time_entered_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time the vehicle has entered the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.time_entering_bridge">
+<code class="sig-name descname">time_entering_bridge</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.time_entering_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time the vehicle begins to enter the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.time_leaving_bridge">
+<code class="sig-name descname">time_leaving_bridge</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.time_leaving_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time the vehicle begins to leave the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.time_left_bridge">
+<code class="sig-name descname">time_left_bridge</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.time_left_bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time the vehicle has left the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.to_point_load_pw">
+<code class="sig-name descname">to_point_load_pw</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; List[Tuple[model.load.PointLoad, model.load.PointLoad]]<a class="headerlink" href="#model.load.MvVehicle.to_point_load_pw" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple of point load per axle, one point load per wheel.</p>
+<p>TODO: Multiply wheel by amount on the bridge. Or maybe just ignore the
+wheel print altogether?</p>
+<p>wheel_x_center = c.bridge.x(wheel_load.x_frac)
+wheel_x_lo, wheel_x_hi = [</p>
+<blockquote>
+<div><p>wheel_x_center - (self.wheel_length / 2),
+wheel_x_center + (self.wheel_length / 2),</p>
+</div></blockquote>
+<p>]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.to_wheel_track_loads">
+<code class="sig-name descname">to_wheel_track_loads</code><span class="sig-paren">(</span><em class="sig-param">c: config.Config</em>, <em class="sig-param">time: float</em><span class="sig-paren">)</span> &#x2192; List[Tuple[Tuple[model.load.PointLoad, model.load.PointLoad], Tuple[model.load.PointLoad, model.load.PointLoad]]]<a class="headerlink" href="#model.load.MvVehicle.to_wheel_track_loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Point loads per wheel, per axle. “Bucketed” based on unit loads.</p>
+<p>NOTE: In each tuple of two point loads, one tuple per wheel, each point
+load is for a unit load position in the wheel track. Each point load is
+weighted by the distance to the unit load.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.wheel_to_wheel_track_xs">
+<code class="sig-name descname">wheel_to_wheel_track_xs</code><span class="sig-paren">(</span><em class="sig-param">c: config.Config</em>, <em class="sig-param">wheel_load: model.load.PointLoad</em><span class="sig-paren">)</span> &#x2192; Tuple[Tuple[float, float], Tuple[float, float]]<a class="headerlink" href="#model.load.MvVehicle.wheel_to_wheel_track_xs" title="Permalink to this definition">¶</a></dt>
+<dd><p>X positions (and weighting) of unit loads for a given point load.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.wheel_tracks_zs">
+<code class="sig-name descname">wheel_tracks_zs</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em>, <em class="sig-param">meters: bool</em><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.load.MvVehicle.wheel_tracks_zs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions of the vehicle’s wheels in transverse direction.</p>
+<dl>
+<dt>Args:</dt><dd><p>bridge: Bridge, the bridge on which the vehicle is moving.
+meters: bool, whether to return positions in meters (True) or</p>
+<blockquote>
+<div><p>fractions (False) of the bridge width in [0 1].</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.x_at">
+<code class="sig-name descname">x_at</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.x_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>X position of front axle on bridge at given time, in meters.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>time: float, time passed from initial position, in seconds.
+bridge: Bridge, bridge the vehicle is moving on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.x_frac_at">
+<code class="sig-name descname">x_frac_at</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; List[float]<a class="headerlink" href="#model.load.MvVehicle.x_frac_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fraction of x position of bridge in meters at given time.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>time: float, time passed from initial position, in seconds.
+bridge: Bridge, bridge the vehicle is moving on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.x_fracs_at">
+<code class="sig-name descname">x_fracs_at</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.x_fracs_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fraction of x position of bridge for each axle at given time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.MvVehicle.xs_at">
+<code class="sig-name descname">xs_at</code><span class="sig-paren">(</span><em class="sig-param">time: float</em>, <em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.MvVehicle.xs_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>X position of bridge for each axle in meters at given time.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.load.PierSettlement">
+<em class="property">class </em><code class="sig-prename descclassname">model.load.</code><code class="sig-name descname">PierSettlement</code><span class="sig-paren">(</span><em class="sig-param">displacement: float</em>, <em class="sig-param">pier: int</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.PierSettlement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Apply a load to a pier until a displacement is reached.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>displacement: float, displacement in meters.
+pier: int, index of a pier on a bridge.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.load.PierSettlement.id_str">
+<code class="sig-name descname">id_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.load.PierSettlement.id_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.load.PointLoad">
+<em class="property">class </em><code class="sig-prename descclassname">model.load.</code><code class="sig-name descname">PointLoad</code><span class="sig-paren">(</span><em class="sig-param">x_frac: float</em>, <em class="sig-param">z_frac: float</em>, <em class="sig-param">kn: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.PointLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A load concentrated at a point on the deck.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>x_frac: float, fraction of x position on bridge in [0 1].
+z_frac: float, fraction of z position on bridge in [0 1].
+kn: float, load intensity in kilo Newton.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.load.PointLoad.id_str">
+<code class="sig-name descname">id_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.load.PointLoad.id_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>String uniquely representing this load.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.PointLoad.point">
+<code class="sig-name descname">point</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span> &#x2192; model.bridge.Point<a class="headerlink" href="#model.load.PointLoad.point" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ‘Point’ on the deck from this ‘PointLoad’.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.PointLoad.repr">
+<code class="sig-name descname">repr</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.PointLoad.repr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.load.Vehicle">
+<em class="property">class </em><code class="sig-prename descclassname">model.load.</code><code class="sig-name descname">Vehicle</code><span class="sig-paren">(</span><em class="sig-param">kn: Union[float, List[float], List[Tuple[float, float]]], axle_distances: List[float], axle_width: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.Vehicle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A vehicle’s geometry.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>kn: Union[float, List[float], List[Tuple[float, float]]], load</dt><dd><p>intensity, either for the entire vehicle or per axle, or as a list
+of tuple (per wheel, each tuple is left then right wheel), in kilo
+Newton.</p>
+</dd>
+</dl>
+<p>axle_distances: List[float], distance between axles in meters.
+axle_width: float, width of the vehicle’s axles in meters.</p>
+</dd>
+</dl>
+<p>Attrs:</p>
+<blockquote>
+<div><p>length: float, length of the vehicle in meters.
+num_axles: int, number of axles.
+total_kn: Callable[[], float], total load intensity in kilo Newton.
+kn_per_axle: Callable[[], [List[float]]], load intensity per axle in</p>
+<blockquote>
+<div><p>kilo Newton.</p>
+</div></blockquote>
+<p># wheel_length: float, length of each wheel in meters, default 0.31 m.</p>
+</div></blockquote>
+<dl class="method">
+<dt id="model.load.Vehicle.cmap_norm">
+<code class="sig-name descname">cmap_norm</code><span class="sig-paren">(</span><em class="sig-param">all_vehicles: List[Vehicle], cmin=0, cmax=1</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.Vehicle.cmap_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The colormap and norm for coloring vehicles.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.load.Vehicle.color">
+<code class="sig-name descname">color</code><span class="sig-paren">(</span><em class="sig-param">all_vehicles: List[Vehicle]</em><span class="sig-paren">)</span><a class="headerlink" href="#model.load.Vehicle.color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color of this vehicle scaled based on given vehicles.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-model.response">
+<span id="model-response-module"></span><h2>model.response module<a class="headerlink" href="#module-model.response" title="Permalink to this headline">¶</a></h2>
+<p>A recorded time series of responses.</p>
+<dl class="class">
+<dt id="model.response.ResponseType">
+<em class="property">class </em><code class="sig-prename descclassname">model.response.</code><code class="sig-name descname">ResponseType</code><a class="headerlink" href="#model.response.ResponseType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>The type of a response or sensor.</p>
+<dl class="attribute">
+<dt id="model.response.ResponseType.Strain">
+<code class="sig-name descname">Strain</code><em class="property"> = 'strain'</em><a class="headerlink" href="#model.response.ResponseType.Strain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.response.ResponseType.Stress">
+<code class="sig-name descname">Stress</code><em class="property"> = 'stress'</em><a class="headerlink" href="#model.response.ResponseType.Stress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.response.ResponseType.XTranslation">
+<code class="sig-name descname">XTranslation</code><em class="property"> = 'xtrans'</em><a class="headerlink" href="#model.response.ResponseType.XTranslation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.response.ResponseType.YTranslation">
+<code class="sig-name descname">YTranslation</code><em class="property"> = 'ytrans'</em><a class="headerlink" href="#model.response.ResponseType.YTranslation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.response.ResponseType.ZTranslation">
+<code class="sig-name descname">ZTranslation</code><em class="property"> = 'ztrans'</em><a class="headerlink" href="#model.response.ResponseType.ZTranslation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.response.ResponseType.d2">
+<code class="sig-name descname">d2</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#model.response.ResponseType.d2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this response type supported by 2D models?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.response.ResponseType.units">
+<code class="sig-name descname">units</code><span class="sig-paren">(</span><em class="sig-param">short: bool = True</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#model.response.ResponseType.units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Human readable units (long or short) for a response type.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="model.response.resize_and_units">
+<code class="sig-prename descclassname">model.response.</code><code class="sig-name descname">resize_and_units</code><span class="sig-paren">(</span><em class="sig-param">responses</em>, <em class="sig-param">response_type: model.response.ResponseType</em><span class="sig-paren">)</span><a class="headerlink" href="#model.response.resize_and_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple of the resized data and the units string.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-model.scenario">
+<span id="model-scenario-module"></span><h2>model.scenario module<a class="headerlink" href="#module-model.scenario" title="Permalink to this headline">¶</a></h2>
+<p>Scenarios for the traffic and bridge.</p>
+<dl class="class">
+<dt id="model.scenario.DamageScenario">
+<em class="property">class </em><code class="sig-prename descclassname">model.scenario.</code><code class="sig-name descname">DamageScenario</code><span class="sig-paren">(</span><em class="sig-param">name: str</em>, <em class="sig-param">mod_bridge=&lt;function DamageScenario.&lt;lambda&gt;&gt;</em>, <em class="sig-param">mod_sim_params=&lt;function DamageScenario.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#model.scenario.DamageScenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for bridge scenarios. Do not construct directly.</p>
+<dl class="method">
+<dt id="model.scenario.DamageScenario.use">
+<code class="sig-name descname">use</code><span class="sig-paren">(</span><em class="sig-param">c: config.Config</em>, <em class="sig-param">sim_params: Optional[fem.params.SimParams] = None</em><span class="sig-paren">)</span> &#x2192; Union[config.Config, Tuple[config.Config, fem.params.SimParams]]<a class="headerlink" href="#model.scenario.DamageScenario.use" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies of the given arguments modified for this damage scenario.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.scenario.TrafficScenario">
+<em class="property">class </em><code class="sig-prename descclassname">model.scenario.</code><code class="sig-name descname">TrafficScenario</code><span class="sig-paren">(</span><em class="sig-param">name: str, mv_vehicle_f: Callable[[...], Tuple[model.load.MvVehicle, float]]</em><span class="sig-paren">)</span><a class="headerlink" href="#model.scenario.TrafficScenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A named traffic scenario that generates moving vehicles.</p>
+<dl>
+<dt>Args:</dt><dd><p>name: str, the name of this traffic scenario.</p>
+<dl class="simple">
+<dt>mv_vehicle_f: Callable[…, Tuple[MvVehicle, float]], function that</dt><dd><p>returns a tuple of ‘MvVehicle’ and the distance in meters to the
+vehicle in front at time t = 0, note that the position (‘lane’ and
+‘init_x_frac’) of this ‘MvVehicle’ will be overridden. A number of
+keyword arguments will be passed to this function, for details see
+the implementation of ‘mv_vehicles’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.scenario.TrafficScenario.mv_vehicles">
+<code class="sig-name descname">mv_vehicles</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em>, <em class="sig-param">lane: int</em><span class="sig-paren">)</span><a class="headerlink" href="#model.scenario.TrafficScenario.mv_vehicles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moving vehicles on one lane at time t = 0.</p>
+<p>This generator yields a function which returns the next vehicle on given
+lane, at time t = 0, from the current time and full lanes traveled.</p>
+<p>Remember that regardless of lane direction ‘init_x_frac’ of 0 indicates
+the point where the vehicles will enter on that lane.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bridge: Bridge, the bridge the vehicles drive on.
+lane: int, index of the lane on the bridge the vehicles drive on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.scenario.TrafficScenario.traffic_sequence">
+<code class="sig-name descname">traffic_sequence</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em>, <em class="sig-param">max_time: float</em><span class="sig-paren">)</span> &#x2192; Tuple[NewType.&lt;locals&gt;.new_type, float]<a class="headerlink" href="#model.scenario.TrafficScenario.traffic_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a ‘TrafficSequence’ under this traffic scenario.</p>
+<p>Returns a tuple of ‘Traffic’ and time the simulation warmed up at.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bridge: Bridge, bridge the vehicles drive on.
+max_time: float, simulation time after warm up, in seconds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="model.scenario.to_traffic">
+<code class="sig-prename descclassname">model.scenario.</code><code class="sig-name descname">to_traffic</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em>, <em class="sig-param">traffic_sequence: NewType.&lt;locals&gt;.new_type</em>, <em class="sig-param">max_time: float</em>, <em class="sig-param">time_step: float</em><span class="sig-paren">)</span> &#x2192; NewType.&lt;locals&gt;.new_type<a class="headerlink" href="#model.scenario.to_traffic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a ‘TrafficSequence’ to ‘Traffic’.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.scenario.to_traffic_array">
+<code class="sig-prename descclassname">model.scenario.</code><code class="sig-name descname">to_traffic_array</code><span class="sig-paren">(</span><em class="sig-param">c: config.Config</em>, <em class="sig-param">traffic_sequence: NewType.&lt;locals&gt;.new_type</em>, <em class="sig-param">warmed_up_at: float</em>, <em class="sig-param">max_time: float</em><span class="sig-paren">)</span> &#x2192; NewType.&lt;locals&gt;.new_type<a class="headerlink" href="#model.scenario.to_traffic_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a ‘TrafficSequence’ to ‘Traffic’.</p>
+<p>NOTE: If you are going to try understand the code in this function then
+start with looking at ‘to_traffic’, as that is almost a subset of this code.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-model" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Bridge Sim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Jeremy Barisch-Rooney.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/model.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

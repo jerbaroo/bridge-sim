@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>model.bridge package &#8212; Bridge Sim  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="model-bridge-package">
+<h1>model.bridge package<a class="headerlink" href="#model-bridge-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-model.bridge.bridge_705">
+<span id="model-bridge-bridge-705-module"></span><h2>model.bridge.bridge_705 module<a class="headerlink" href="#module-model.bridge.bridge_705" title="Permalink to this headline">¶</a></h2>
+<p>Specification and Config for bridge 705 in Amsterdam.</p>
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_2d">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_2d</code><span class="sig-paren">(</span><em class="sig-param">name: str = 'Bridge 705', length: float = 102.75, width: float = 33.2, lanes: List[model.bridge.Lane] = [&lt;model.bridge.Lane object&gt;, &lt;model.bridge.Lane object&gt;], piers: List[float] = [0, 13.125, 28.425, 43.725, 59.025000000000006, 74.325, 89.625, 102.75], layers: List[model.bridge.Layer] = [&lt;model.bridge.Layer object&gt;, &lt;model.bridge.Layer object&gt;, &lt;model.bridge.Layer object&gt;], patches: List[model.bridge.Patch] = [&lt;model.bridge.Patch object&gt;, &lt;model.bridge.Patch object&gt;], sections: Optional[List[model.bridge.Section2D]] = None, supports: List[model.bridge.Fix] = [&lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;, &lt;model.bridge.Fix object&gt;], base_mesh_deck_nodes_x: int = 412, base_mesh_deck_nodes_z: int = None, base_mesh_pier_nodes_y: int = None, base_mesh_pier_nodes_z: int = None</em><span class="sig-paren">)</span> &#x2192; model.bridge.Bridge<a class="headerlink" href="#model.bridge.bridge_705.bridge_705_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 2D model of bridge 705 in Amsterdam.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_3d">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_3d</code><span class="sig-paren">(</span><em class="sig-param">name: str = 'bridge-705', accuracy: str = 'full', length: float = 102.75, width: float = 33.2, lanes: List[model.bridge.Lane] = [&lt;model.bridge.Lane object&gt;, &lt;model.bridge.Lane object&gt;], sections: Optional[List[model.bridge.Section3D]] = None, supports: List[model.bridge.Support3D] = [&lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;, &lt;model.bridge.Support3D object&gt;], base_mesh_deck_max_x: int = 0.5, base_mesh_deck_max_z: int = 0.5, base_mesh_pier_max_long: int = 0.5, **kwargs</em><span class="sig-paren">)</span> &#x2192; model.bridge.Bridge<a class="headerlink" href="#model.bridge.bridge_705.bridge_705_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>A constructor for a 3D model of bridge 705 in Amsterdam.</p>
+<p>The arguments have default values that come from a Diana model, but allow
+for being overridden if you want to change the mesh density or number of
+piers etc.. For documentation of the arguments see the ‘Bridge’ class.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_config">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_config</code><span class="sig-paren">(</span><em class="sig-param">bridge: Callable[[...], model.bridge.Bridge]</em><span class="sig-paren">)</span> &#x2192; config.Config<a class="headerlink" href="#model.bridge.bridge_705.bridge_705_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ‘Config’ for bridge 705 in Amsterdam.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_deck_sections">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_deck_sections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.bridge_705.bridge_705_deck_sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_low_config">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_low_config</code><span class="sig-paren">(</span><em class="sig-param">bridge: Callable[[...], model.bridge.Bridge]</em><span class="sig-paren">)</span> &#x2192; config.Config<a class="headerlink" href="#model.bridge.bridge_705.bridge_705_low_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>A low accuracy ‘Config’ for bridge 705 in Amsterdam.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_med_config">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_med_config</code><span class="sig-paren">(</span><em class="sig-param">bridge: Callable[[...], model.bridge.Bridge]</em><span class="sig-paren">)</span> &#x2192; config.Config<a class="headerlink" href="#model.bridge.bridge_705.bridge_705_med_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>A less accurate ‘Config’ for bridge 705 in Amsterdam.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.bridge_705_single_sections">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">bridge_705_single_sections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.bridge_705.bridge_705_single_sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="model.bridge.bridge_705.pier_section_f">
+<code class="sig-prename descclassname">model.bridge.bridge_705.</code><code class="sig-name descname">pier_section_f</code><span class="sig-paren">(</span><em class="sig-param">start_frac_len</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.bridge_705.pier_section_f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-model.bridge.util">
+<span id="model-bridge-util-module"></span><h2>model.bridge.util module<a class="headerlink" href="#module-model.bridge.util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="model.bridge.util.wheel_tracks">
+<code class="sig-prename descclassname">model.bridge.util.</code><code class="sig-name descname">wheel_tracks</code><span class="sig-paren">(</span><em class="sig-param">c: config.Config</em><span class="sig-paren">)</span> &#x2192; List[float]<a class="headerlink" href="#model.bridge.util.wheel_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Z positions of each wheel track on the bridge.</p>
+<p>This assumes that all vehicles drive along the center of a lane and have
+equal axis widths.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-model.bridge">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-model.bridge" title="Permalink to this headline">¶</a></h2>
+<p>Model of a bridge.</p>
+<dl class="class">
+<dt id="model.bridge.Bridge">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Bridge</code><span class="sig-paren">(</span><em class="sig-param">name: str, accuracy: str, length: float, width: float, supports: List[Union[model.bridge.Fix, model.bridge.Support3D]], sections: List[Union[model.bridge.Section2D, model.bridge.Section3D]], lanes: List[model.bridge.Lane], dimensions: model.bridge.Dimensions, base_mesh_deck_max_x: int, base_mesh_deck_max_z: int, base_mesh_pier_max_long: int, single_sections: Optional[Tuple[Union[model.bridge.Section2D, model.bridge.Section3D], Union[model.bridge.Section2D, model.bridge.Section3D]]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A bridge specification.</p>
+<dl>
+<dt>Args:</dt><dd><p>name: str, the name of the bridge.
+length: float, length of the bridge in meters.
+width: float, width of the bridge in meters.
+supports: List[Support], a list of supports in 2D or 3D.
+sections: List[Section], the bridge’s cross section in 2D or 3D.
+lanes: List[Lane], lanes that span the bridge, where to place loads.
+dimensions: Dimensions, whether the model is 2D or 3D.
+base_mesh_deck_nodes_x: int, number of nodes of the base mesh in</p>
+<blockquote>
+<div><p>longitudinal direction of the bridge deck, minimum is 2.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>base_mesh_deck_nodes_z: Optional[int], number of nodes of the base mesh</dt><dd><p>in transverse direction of the bridge deck, minimum is 2.</p>
+</dd>
+<dt>base_mesh_pier_nodes_y: Optional[int], number of nodes of the base mesh</dt><dd><p>in vertical direction of the piers, minimum is 2.</p>
+</dd>
+<dt>base_mesh_pier_nodes_z: Optional[int], number of nodes of the base mesh</dt><dd><p>in transverse direction of the piers, minimum is 2.</p>
+</dd>
+<dt>single_sections: Optional[Tuple[Section, Section]], if given then</dt><dd><p>override the bridge’s deck and each pier sections with the given
+values respectively in the tuple, only applies to a 3D model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.bridge.Bridge.deck_section_at">
+<code class="sig-name descname">deck_section_at</code><span class="sig-paren">(</span><em class="sig-param">x: float</em>, <em class="sig-param">z: float</em><span class="sig-paren">)</span> &#x2192; model.bridge.Section3D<a class="headerlink" href="#model.bridge.Bridge.deck_section_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the deck section at given position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.id_str">
+<code class="sig-name descname">id_str</code><span class="sig-paren">(</span><em class="sig-param">acc: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.id_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name with dimensions attached.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>acc: bool, whether to include (True) or ignore bridge accuracy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.pier_section_at_len">
+<code class="sig-name descname">pier_section_at_len</code><span class="sig-paren">(</span><em class="sig-param">p_i: int</em>, <em class="sig-param">section_frac_len: float</em><span class="sig-paren">)</span> &#x2192; model.bridge.Section3D<a class="headerlink" href="#model.bridge.Bridge.pier_section_at_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the section at a fraction of a pier’s length</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.print_info">
+<code class="sig-name descname">print_info</code><span class="sig-paren">(</span><em class="sig-param">c: Config</em>, <em class="sig-param">pier_fix_info: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.print_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print summary information about this bridge.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>fix_info: print information on pier’s fixed nodes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.wheel_track_xs">
+<code class="sig-name descname">wheel_track_xs</code><span class="sig-paren">(</span><em class="sig-param">c: Config</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.wheel_track_xs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit load x positions for wheel tracks on this bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.wheel_track_zs">
+<code class="sig-name descname">wheel_track_zs</code><span class="sig-paren">(</span><em class="sig-param">c: Config</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.wheel_track_zs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Z positions of wheel track on the bridge.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.x">
+<code class="sig-name descname">x</code><span class="sig-paren">(</span><em class="sig-param">x_frac: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.x_axis">
+<code class="sig-name descname">x_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[float]<a class="headerlink" href="#model.bridge.Bridge.x_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position of supports in meters along the bridge’s x-axis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.x_axis_equi">
+<code class="sig-name descname">x_axis_equi</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span> &#x2192; List[float]<a class="headerlink" href="#model.bridge.Bridge.x_axis_equi" title="Permalink to this definition">¶</a></dt>
+<dd><p>n equidistant values along the bridge’s x-axis, in meters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.x_frac">
+<code class="sig-name descname">x_frac</code><span class="sig-paren">(</span><em class="sig-param">x: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.x_frac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.y">
+<code class="sig-name descname">y</code><span class="sig-paren">(</span><em class="sig-param">y_frac: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.y_frac">
+<code class="sig-name descname">y_frac</code><span class="sig-paren">(</span><em class="sig-param">y: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.y_frac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.y_min_max">
+<code class="sig-name descname">y_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.y_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in y direction from supports and sections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.z">
+<code class="sig-name descname">z</code><span class="sig-paren">(</span><em class="sig-param">z_frac: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.z_frac">
+<code class="sig-name descname">z_frac</code><span class="sig-paren">(</span><em class="sig-param">z: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.z_frac" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Bridge.z_min_max">
+<code class="sig-name descname">z_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Bridge.z_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in z direction from supports and sections.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Dimensions">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Dimensions</code><a class="headerlink" href="#model.bridge.Dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Whether modeling in 2D or 3D.</p>
+<dl class="attribute">
+<dt id="model.bridge.Dimensions.D2">
+<code class="sig-name descname">D2</code><em class="property"> = '2D'</em><a class="headerlink" href="#model.bridge.Dimensions.D2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.bridge.Dimensions.D3">
+<code class="sig-name descname">D3</code><em class="property"> = '3D'</em><a class="headerlink" href="#model.bridge.Dimensions.D3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Fix">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Fix</code><span class="sig-paren">(</span><em class="sig-param">x_frac: float</em>, <em class="sig-param">x: bool = False</em>, <em class="sig-param">y: bool = False</em>, <em class="sig-param">z: bool = False</em>, <em class="sig-param">rot: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Fix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A node fixed in some degrees of freedom, when 2D modeling.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>x_frac: float, fraction of x position in [0 1].
+x: bool, whether to fix x translation.
+y: bool, whether to fix y translation.
+rot: bool, whether to fix rotation.</p>
+</dd>
+</dl>
+<p>TODO: Rename to Support2D and move to absolute position.</p>
+<dl class="method">
+<dt id="model.bridge.Fix.y_min_max">
+<code class="sig-name descname">y_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[None, None]<a class="headerlink" href="#model.bridge.Fix.y_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in y direction for this support.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Fix.z_min_max">
+<code class="sig-name descname">z_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[None, None]<a class="headerlink" href="#model.bridge.Fix.z_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in z direction for this support.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Lane">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Lane</code><span class="sig-paren">(</span><em class="sig-param">z0: float</em>, <em class="sig-param">z1: float</em>, <em class="sig-param">ltr: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Lane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A traffic lane spanning the length of a bridge.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>z0: float, z ordinate of one edge of the lane in meters.
+z1: float, z ordinate of the other edge of the lane in meters.
+ltr: bool, whether traffic moves left to right, or opposite.</p>
+</dd>
+<dt>Attrs:</dt><dd><p>z_min, float, lower z position of the bridge in meters.
+z_min, float, upper z position of the bridge in meters.
+width, float, Width of the lane in meters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Layer">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Layer</code><span class="sig-paren">(</span><em class="sig-param">y_min: float</em>, <em class="sig-param">z_min: float</em>, <em class="sig-param">y_max: float</em>, <em class="sig-param">z_max: float</em>, <em class="sig-param">num_fibers: int</em>, <em class="sig-param">area_fiber: float = 0.00049</em>, <em class="sig-param">material: model.bridge.Material = &lt;Material.Steel: 2&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A straight line of fibers when describing a Section, when 2D modeling.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>y_i, z_i: float, y and z positions in meters of the first fiber.
+y_j, z_j: float, y and z positions in meters of the last fiber.
+num_fibers: int, number of fibers along the line.
+area_fiber: float, area of each fiber.
+material: Material, material of the fibers.</p>
+</dd>
+</dl>
+<p>TODO: Avoid default argument of area_fiber.</p>
+<dl class="method">
+<dt id="model.bridge.Layer.points">
+<code class="sig-name descname">points</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[model.bridge.Point]<a class="headerlink" href="#model.bridge.Layer.points" title="Permalink to this definition">¶</a></dt>
+<dd><p>The points representing each fiber.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Material">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Material</code><a class="headerlink" href="#model.bridge.Material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="model.bridge.Material.Concrete">
+<code class="sig-name descname">Concrete</code><em class="property"> = 1</em><a class="headerlink" href="#model.bridge.Material.Concrete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="model.bridge.Material.Steel">
+<code class="sig-name descname">Steel</code><em class="property"> = 2</em><a class="headerlink" href="#model.bridge.Material.Steel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Patch">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Patch</code><span class="sig-paren">(</span><em class="sig-param">y_min: float</em>, <em class="sig-param">z_min: float</em>, <em class="sig-param">y_max: float</em>, <em class="sig-param">z_max: float</em>, <em class="sig-param">num_sub_div_z: int = 30</em>, <em class="sig-param">material: model.bridge.Material = &lt;Material.Concrete: 1&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A rectangular patch when describing a Section, when 2D modeling.</p>
+<dl class="method">
+<dt id="model.bridge.Patch.points">
+<code class="sig-name descname">points</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[model.bridge.Point]<a class="headerlink" href="#model.bridge.Patch.points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Points for the center of each subdivision, starting at min z.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Point">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Point</code><span class="sig-paren">(</span><em class="sig-param">x: float = 0</em>, <em class="sig-param">y: float = 0</em>, <em class="sig-param">z: float = 0</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A point described by three positions in meters: (x, y, z).</p>
+<p>X is along the deck, y is the height, and z is across the deck.</p>
+<p>TODO: Change default arguments to None.</p>
+<dl class="method">
+<dt id="model.bridge.Point.distance">
+<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Point.distance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Section2D">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Section2D</code><span class="sig-paren">(</span><em class="sig-param">patches: List[model.bridge.Patch] = []</em>, <em class="sig-param">layers: List[model.bridge.Layer] = []</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A section when 2D modeling, composed of fibers (Patch and Layer).</p>
+<dl class="attribute">
+<dt id="model.bridge.Section2D.next_id">
+<code class="sig-name descname">next_id</code><em class="property"> = 1</em><a class="headerlink" href="#model.bridge.Section2D.next_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Section2D.y_min_max">
+<code class="sig-name descname">y_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Section2D.y_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in y for this section.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Section2D.z_min_max">
+<code class="sig-name descname">z_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Section2D.z_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in z for this section.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Section3D">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Section3D</code><span class="sig-paren">(</span><em class="sig-param">density: float</em>, <em class="sig-param">thickness: float</em>, <em class="sig-param">youngs: float</em>, <em class="sig-param">poissons: float</em>, <em class="sig-param">start_x_frac: float</em>, <em class="sig-param">start_z_frac: float</em>, <em class="sig-param">end_x_frac: float</em>, <em class="sig-param">end_z_frac: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A section for describing the deck when 3D modeling.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>density: float, section density in kg/m.
+thickness: float, section thickness in m.
+youngs: float, Young’s modulus of the section in MPa.
+poisson: float, Poisson’s ratio.
+start_x_frac: float, start of the section as a fraction of x position.
+start_z_frac: float, start of the section as a fraction of z position.
+end_x_frac: float, end of the section as a fraction of x position.
+end_z_frac: float, end of the section as a fraction of z position.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.bridge.Section3D.contains">
+<code class="sig-name descname">contains</code><span class="sig-paren">(</span><em class="sig-param">bridge: model.bridge.Bridge</em>, <em class="sig-param">x: float</em>, <em class="sig-param">z: float</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#model.bridge.Section3D.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this section contains the given point.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Section3D.mat_id_str">
+<code class="sig-name descname">mat_id_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section3D.mat_id_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of this section by material properties.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="model.bridge.Section3D.next_id">
+<code class="sig-name descname">next_id</code><em class="property"> = 1</em><a class="headerlink" href="#model.bridge.Section3D.next_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Section3D.prop_str">
+<code class="sig-name descname">prop_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section3D.prop_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Textual representation of material properties.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Section3D.y_min_max">
+<code class="sig-name descname">y_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Section3D.y_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max values in y for this section.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Section3DPier">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Section3DPier</code><span class="sig-paren">(</span><em class="sig-param">density: float</em>, <em class="sig-param">thickness: float</em>, <em class="sig-param">youngs: float</em>, <em class="sig-param">poissons: float</em>, <em class="sig-param">start_frac_len: float</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section3DPier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#model.bridge.Section3D" title="model.bridge.Section3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">model.bridge.Section3D</span></code></a></p>
+<p>Like Section3D but intended for describing piers.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>density: float, section density in kg/m.
+thickness: float, section thickness in m.
+youngs: float, Young’s modulus of the section in MPa.
+poisson: float, Poisson’s ratio.
+start_frac_len: start of the section as a fraction of pier length.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.bridge.Section3DPier.prop_str">
+<code class="sig-name descname">prop_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Section3DPier.prop_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Textual representation of material properties.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="model.bridge.Support3D">
+<em class="property">class </em><code class="sig-prename descclassname">model.bridge.</code><code class="sig-name descname">Support3D</code><span class="sig-paren">(</span><em class="sig-param">x: float, z: float, length: float, height: float, width_top: float, width_bottom: float, sections: Union[List[Section3DPier], Callable[[float], Section3DPier]], fix_x_translation: bool, fix_y_translation: bool, fix_z_translation: bool, fix_x_rotation: bool, fix_y_rotation: bool, fix_z_rotation: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#model.bridge.Support3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A support of the bridge deck, when 3D modeling.</p>
+<blockquote>
+<div><p>SIDE_VIEW:
+&lt;————x———–&gt;</p>
+<blockquote>
+<div><p>&lt;—length–&gt;</p>
+</div></blockquote>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">|------------------|</span></a>———–<a href="#id3"><span class="problematic" id="id4">|----------------------|</span></a> ↑ h</dt><dd><dl class="simple">
+<dt>        /                         | e</dt><dd><dl class="simple">
+<dt>      /                          | i</dt><dd><dl class="simple">
+<dt>    /                           | g</dt><dd><dl class="simple">
+<dt>  /                            | h</dt><dd><p>/                             ↓ t</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>TOP_VIEW:
+<a href="#id5"><span class="problematic" id="id6">|-----------------------------------------------------|</span></a> ↑+
+<a href="#id7"><span class="problematic" id="id8">|-----------------------------------------------------|</span></a> |
+<a href="#id9"><span class="problematic" id="id10">|-----------------------------------------------------|</span></a> |
+<a href="#id11"><span class="problematic" id="id12">|-----------------------------------------------------|</span></a> |
+<a href="#id13"><span class="problematic" id="id14">|-----------------------------------------------------|</span></a> 0
+<a href="#id15"><span class="problematic" id="id16">|------------------|</span></a>———–<a href="#id17"><span class="problematic" id="id18">|----------------------|</span></a> |
+<a href="#id19"><span class="problematic" id="id20">|------------------|</span></a>———–<a href="#id21"><span class="problematic" id="id22">|----------------------|</span></a> | z = -2
+<a href="#id23"><span class="problematic" id="id24">|------------------|</span></a>———–<a href="#id25"><span class="problematic" id="id26">|----------------------|</span></a> |
+<a href="#id27"><span class="problematic" id="id28">|-----------------------------------------------------|</span></a> ↓-</p>
+<dl>
+<dt>FRONT_VIEW:</dt><dd><p>&lt;—width-top—-&gt;
+<a href="#id29"><span class="problematic" id="id30">|----------------|</span></a></p>
+<blockquote>
+<div><dl>
+<dt>             /</dt><dd><dl>
+<dt>           /</dt><dd><dl class="simple">
+<dt>         /</dt><dd><dl class="simple">
+<dt>       /</dt><dd><p>______/
+&lt;——&gt;</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>width-bottom</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Args:</dt><dd><p>x: float, x position of center of the support in meters.
+z: float, z position of center of the support in meters.
+length: float, length of the support in meters.
+height: float, height of the support in meters.
+width_top: float, width of the top of the support in meters.
+width_bottom: float, width of the bottom of the support in meters.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.bridge.Support3D.x_min_max_top">
+<code class="sig-name descname">x_min_max_top</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Support3D.x_min_max_top" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max x positions for the top of this pier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Support3D.y_min_max">
+<code class="sig-name descname">y_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Support3D.y_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max y positions for this pier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Support3D.z_min_max_bottom">
+<code class="sig-name descname">z_min_max_bottom</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Support3D.z_min_max_bottom" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max z positions for the bottom of this pier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.bridge.Support3D.z_min_max_top">
+<code class="sig-name descname">z_min_max_top</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple[float, float]<a class="headerlink" href="#model.bridge.Support3D.z_min_max_top" title="Permalink to this definition">¶</a></dt>
+<dd><p>The min and max z positions for the top of this pier.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Bridge Sim</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Jeremy Barisch-Rooney.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/model.bridge.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

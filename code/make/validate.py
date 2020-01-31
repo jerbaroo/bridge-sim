@@ -1,6 +1,10 @@
 import numpy as np
 
-from classify.data.responses import responses_to_vehicles_d
+from classify.data.responses import (
+    loads_to_traffic_array,
+    responses_to_traffic_array
+)
+from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
 from config import Config
 from model.bridge import Point
@@ -10,7 +14,7 @@ from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from plot import plt
-from util import clean_generated, print_s
+from util import clean_generated, flatten, print_s
 from validate.campaign import displa_sensor_xz
 
 
@@ -62,24 +66,31 @@ def truck_1_time_series(c: Config):
     for displa_label in displa_labels:
         sensor_x, sensor_z = displa_sensor_xz(displa_label)
         displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
-    # Get times to record truck movements.
+    # Ensure points and truck are on the same lane.
+    assert all(p.z < 0 for p in displa_points)
+    assert wagen1.x_at(time=0, bridge=c.bridge) == 0
+    # Get times and loads for Truck 1.
     end_time = wagen1.time_at(x=c.bridge.x_max, bridge=c.bridge)
-    # wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
-    wagen1_times = np.linspace(0, end_time, 200)
+    wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
+    wagen1_loads = [
+        flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
+        for time in wagen1_times
+    ]
+    # wagen1_times = np.linspace(0, end_time, 200)
     # Calculate responses at points.
-    responses = responses_to_vehicles_d(
+    responses_ulm = responses_to_traffic_array(
         c=c,
+        traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
         response_type=ResponseType.YTranslation,
+        damage_scenario=healthy_scenario,
         points=displa_points,
-        mv_vehicles=[wagen1],
-        times=wagen1_times,
         sim_runner=OSRunner(c),
-        binned=True,
     ).T
     plt.portrait()
-    for s_i, sensor_responses in enumerate(responses):
+    for s_i, sensor_responses in enumerate(responses_ulm):
         plt.subplot(len(displa_points), 1, s_i + 1)
         plt.plot(sensor_responses)
         plt.title(displa_labels[s_i])
-    plt.savefig(c.get_image_path("truck-1-time-series", "time-series.pdf"))
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("validation/truck-1", "time-series.pdf"))
     plt.close()
