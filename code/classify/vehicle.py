@@ -13,7 +13,8 @@ wagen1 = MvVehicle(
     ],
     axle_distances=[3.6, 1.32, 1.45],
     axle_width=2.5,
-    kmph=40,
+    # In dynamic test 'D1a' the speed was 20 kmph.
+    kmph=20,
     lane=0,
     init_x_frac=0,
 )

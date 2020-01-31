@@ -60,6 +60,7 @@ def density_no_effect(c: Config):
 
 def truck_1_time_series(c: Config):
     """Time series of 3 sensors to Truck 1's movement."""
+    plt.portrait()
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
     displa_points = []
@@ -70,14 +71,13 @@ def truck_1_time_series(c: Config):
     assert all(p.z < 0 for p in displa_points)
     assert wagen1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
-    end_time = wagen1.time_at(x=c.bridge.x_max, bridge=c.bridge)
-    wagen1_times = np.linspace(0, end_time, int(end_time / c.sensor_hz))
+    end_time = wagen1.time_left_bridge(c.bridge)
+    wagen1_times = np.linspace(-end_time, end_time* 2, int((end_time * 3)/ c.sensor_hz))
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
     ]
-    # wagen1_times = np.linspace(0, end_time, 200)
-    # Calculate responses at points.
+    # Results from simulation.
     responses_ulm = responses_to_traffic_array(
         c=c,
         traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
@@ -85,12 +85,32 @@ def truck_1_time_series(c: Config):
         damage_scenario=healthy_scenario,
         points=displa_points,
         sim_runner=OSRunner(c),
-    ).T
-    plt.portrait()
+    ).T * 1000  # Convert to meters.
+    side = 2800
     for s_i, sensor_responses in enumerate(responses_ulm):
-        plt.subplot(len(displa_points), 1, s_i + 1)
-        plt.plot(sensor_responses)
-        plt.title(displa_labels[s_i])
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
+        # Find the center of the plot, minimum point in the data.
+        data_center = 0
+        for i in range(len(sensor_responses)):
+            if sensor_responses[i] < sensor_responses[data_center]:
+                data_center = i
+        plt.plot(sensor_responses[data_center - side:data_center + side])
+        plt.ylim(-0.8, 0.3)
+        plt.title(f"{displa_labels[s_i]} in simulation")
+    # Results from experiment.
+    side = int(side / ((1 / c.sensor_hz) / 100))
+    for s_i, displa_label in enumerate(displa_labels):
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 2)
+        with open(f"validation/experiment/D1a-{displa_label}.txt") as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] < data[data_center]:
+                data_center = i
+        plt.plot(data[data_center - side:data_center + side])
+        plt.ylim(-0.8, 0.3)
+        plt.title(f"{displa_label} in dynamic test")
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/truck-1", "time-series.pdf"))
     plt.close()
