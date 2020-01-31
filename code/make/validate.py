@@ -99,6 +99,7 @@ def truck_1_time_series(c: Config):
         plt.title(f"{displa_labels[s_i]} in simulation")
     # Results from experiment.
     side = int(side / ((1 / c.sensor_hz) / 100))
+    print_i(f"{side} points each side of center")
     for s_i, displa_label in enumerate(displa_labels):
         plt.subplot(len(displa_points), 2, (s_i * 2) + 2)
         with open(f"validation/experiment/D1a-{displa_label}.txt") as f:

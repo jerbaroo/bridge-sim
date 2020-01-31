@@ -373,9 +373,19 @@ def truck_1_ts():
 #################
 
 
-@cli.command(help="Plot for parameter selection of #ULS.")
+@cli.group(help="Information for parameter selection.")
+def params():
+    pass
+
+
+@params.command(help="Plot to select the amount of ULS.")
 def param_uls():
     paramselect.number_of_uls_plot(c())
+
+
+@params.command(help="Plot noise from dynamic test 1.")
+def noise():
+    paramselect.experiment_noise(c())
 
 
 ####################
