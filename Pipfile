@@ -23,6 +23,7 @@ termcolor = "*"
 filelock = "*"
 portalocker = "*"
 sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [pipenv]
 allow_prereleases = true
