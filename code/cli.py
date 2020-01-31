@@ -251,9 +251,9 @@ def converge():
     verification.make_convergence_data(c())
 
 
-######################
-##### Validation #####
-######################
+####################
+##### Validate #####
+####################
 
 
 @cli.group(help="Validate the generated FEM of bridge 705.")
@@ -476,14 +476,20 @@ def comp_load_positions():
     verify.compare_load_positions(c())
 
 
-##########################
-##### Classification #####
-##########################
+####################
+##### Classify #####
+####################
 
 
 @cli.group(help="Run classification experiments.")
 def classify():
     pass
+
+
+@classify.command(help="Plot events due to normal traffic.")
+@click.option("--x", type=float, default=51.375)
+def events():
+    classification_.events(c())
 
 
 @classify.command()

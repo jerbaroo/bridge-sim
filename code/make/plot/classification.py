@@ -20,6 +20,11 @@ from plot.responses import plot_contour_deck
 from util import print_i
 
 
+def events(c: Config):
+    """Plot events due to normal traffic."""
+    pass
+
+
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
     bridge_scenarios = [HealthyDamage()] + each_pier_scenarios(c)

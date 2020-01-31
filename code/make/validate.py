@@ -73,7 +73,7 @@ def truck_1_time_series(c: Config):
     assert wagen1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
     end_time = wagen1.time_left_bridge(c.bridge)
-    wagen1_times = np.linspace(-end_time, end_time* 2, int((end_time * 3)/ c.sensor_hz))
+    wagen1_times = np.linspace(-end_time, end_time* 2, int((end_time * 3) / c.sensor_hz))
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
