@@ -4,6 +4,7 @@ from classify.data.responses import (
     loads_to_traffic_array,
     responses_to_traffic_array
 )
+from classify.noise import add_displa_noise
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
 from config import Config
@@ -14,7 +15,7 @@ from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from plot import plt
-from util import clean_generated, flatten, print_s
+from util import clean_generated, flatten, print_i, print_s
 from validate.campaign import displa_sensor_xz
 
 
@@ -85,7 +86,7 @@ def truck_1_time_series(c: Config):
         damage_scenario=healthy_scenario,
         points=displa_points,
         sim_runner=OSRunner(c),
-    ).T * 1000  # Convert to meters.
+    ).T
     side = 2800
     for s_i, sensor_responses in enumerate(responses_ulm):
         plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
@@ -94,6 +95,7 @@ def truck_1_time_series(c: Config):
         for i in range(len(sensor_responses)):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
+        sensor_responses = add_displa_noise(sensor_responses) * 1000
         plt.plot(sensor_responses[data_center - side:data_center + side])
         plt.ylim(-0.8, 0.3)
         plt.title(f"{displa_labels[s_i]} in simulation")

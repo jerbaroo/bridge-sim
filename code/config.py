@@ -80,7 +80,7 @@ class Config:
 
         # Responses & events.
         self.sensor_hz: float = 1 / 400
-        self.time_end: float = 2  # Seconds.
+        self.event_time_s: float = 2  # Seconds.
 
         # Vehicles.
         self.perturb_stddev: float = 0.1
