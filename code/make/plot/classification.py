@@ -8,11 +8,10 @@ from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
-from classify.scenarios import healthy_and_cracked_scenarios
+from classify.scenarios import each_pier_scenarios, healthy_and_cracked_scenarios, healthy_scenario
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
-from classify.scenarios import each_pier_scenarios
 from model.bridge import Point
 from model.response import ResponseType
 from model.scenario import to_traffic_array
@@ -22,18 +21,64 @@ from plot.responses import plot_contour_deck
 from util import print_i
 
 
-def events(c: Config):
+def events(c: Config, x: float, z: float):
     """Plot events due to normal traffic."""
-    # First create 10s of 'TrafficSequence' and 'TrafficArray'.
+    point = Point(x=x, y=0, z=z)
+    # 10 seconds of 'normal' traffic.
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    # Create the 'TrafficSequence' and 'TrafficArray'.
     traffic_sequence = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
     traffic_array = to_traffic_array(
         c=c, traffic_sequence=traffic_sequence, max_time=max_time
     )
-    pass
+    # Find when the simulation has warmed up, and when 'TrafficArray' begins.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    traffic_array_starts = (int(warmed_up_at / c.sensor_hz) + 1) * c.sensor_hz
+    print(f"warmed up at = {warmed_up_at}")
+    print(f"traffic_array_starts = {traffic_array_starts}")
+    traffic_array_ends = traffic_array_starts + (len(traffic_array) * c.sensor_hz)
+    print(f"traffic_array_ends = {traffic_array_ends}")
+    point_lane_ind = c.bridge.closest_lane(z)
+    vehicles = list(set(ts[0] for ts in traffic_sequence))
+    print(len(vehicles))
+    print(vehicles[0])
+    vehicles = sorted(set(ts[0] for ts in traffic_sequence if ts[0].lane == point_lane_ind), key=lambda v: -v.init_x_frac)
+    print(len(vehicles))
+    print(vehicles[0])
+    event_indices = []
+    vehicle_times = [v.time_at(x=x - 2, bridge=c.bridge) for v in vehicles]
+    for v, t in zip(vehicles, vehicle_times):
+        print(f"Vehicle {v.init_x_frac} {v.mps} at time {t}")
+        start_time = int(t / c.sensor_hz) * c.sensor_hz
+        print(f"start_time = {start_time}")
+        ta_start_time = np.around(start_time - traffic_array_starts, 8)
+        print(f"ta start time = {ta_start_time}")
+        ta_start_index = int(ta_start_time / c.sensor_hz)
+        print(f"ta start index = {ta_start_index}")
+        ta_end_index = ta_start_index + int(c.event_time_s / c.sensor_hz)
+        print(f"ta end index = {ta_end_index}")
+        if ta_start_index >= 0 and ta_end_index < len(traffic_array):
+            event_indices.append((ta_start_index, ta_end_index))
+    print(event_indices)
+    responses = responses_to_traffic_array(
+        c=c,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTranslation,
+        damage_scenario=healthy_scenario,
+        points=[point],
+        sim_runner=OSRunner(c),
+    ) * 1000
+    print(responses.shape)
+    plt.portrait()
+    for event_ind, (event_start, event_end) in enumerate(event_indices):
+        plt.subplot(len(event_indices), 1, event_ind + 1)
+        plt.plot(responses[event_start:event_end + 1])
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("classify/events", "events.pdf"))
+    plt.close()
 
 
 def oneclass(c: Config):

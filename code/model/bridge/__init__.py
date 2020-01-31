@@ -620,6 +620,17 @@ class Bridge:
         acc_str = f"-{self.accuracy}" if acc else ""
         return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
 
+    def closest_lane(self, z: float):
+        """Index of the lane closest to the point."""
+        result = None
+        lane_dist = np.inf
+        for lane_ind, lane in enumerate(self.lanes):
+            this_dist = abs(lane.z_center - z)
+            if this_dist < lane_dist:
+                result = lane_ind
+                lane_dist = this_dist
+        return result
+
     def wheel_track_zs(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
         half_axle = c.axle_width / 2

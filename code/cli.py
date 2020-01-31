@@ -489,8 +489,8 @@ def classify():
 @classify.command(help="Plot events due to normal traffic.")
 @click.option("--x", type=float, default=51.375)
 @click.option("--z", type=float, default=-8.4)
-def events():
-    classification_.events(c())
+def events(x, z):
+    classification_.events(c=c(), x=x, z=z)
 
 
 @classify.command()

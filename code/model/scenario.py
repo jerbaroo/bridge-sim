@@ -275,7 +275,7 @@ def to_traffic_array(
             last_print_time = time
 
         # While events have occurred, update current traffic.
-        while time >= next_event_time:
+        while time > next_event_time or np.isclose(time, next_event_time):
             vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
                 current[vehicle.lane].append(vehicle)
@@ -291,7 +291,7 @@ def to_traffic_array(
         # Only add to the 'TrafficArray' if the traffic is not required to warm
         # up, or the traffic has already warmed up. TODO: This bottom part of
         # the loop could be parallelized.
-        if not warm_up or time >= warmed_up_at:
+        if not warm_up or time > warmed_up_at or np.isclose(time, warmed_up_at):
             if start_time is None:
                 start_time = time
             # For each lane.
@@ -304,7 +304,7 @@ def to_traffic_array(
                     # For each axle currently on the bridge.
                     for x, kn in zip(xs, kns):
                         if x >= c.bridge.x_min and x <= c.bridge.x_max:
-                            x_ind = int(interp(x))
+                            x_ind = int(np.around(interp(x), 0))
                             # For each wheel.
                             for j in [j0, j1]:
                                 # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
