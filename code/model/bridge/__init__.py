@@ -511,6 +511,7 @@ class Bridge:
         self.sections = sections
         self.lanes = lanes
         self.dimensions = dimensions
+        self.ref_temp_c = 15
         # Mesh.
         self.base_mesh_deck_max_x = base_mesh_deck_max_x
         self.base_mesh_deck_max_z = base_mesh_deck_max_z

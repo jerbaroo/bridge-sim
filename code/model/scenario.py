@@ -20,8 +20,8 @@ class DamageScenario:
     def __init__(
             self,
             name: str,
-            mod_bridge=lambda b: Callable[[Bridge], Bridge],
-            mod_sim_params=lambda s: Callable[[SimParams], SimParams],
+            mod_bridge: Callable[[Bridge], Bridge] = lambda b: b,
+            mod_sim_params: Callable[[SimParams], SimParams] = lambda s: s,
     ):
         self.name = name
         self.mod_bridge = mod_bridge

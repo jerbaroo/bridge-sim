@@ -58,6 +58,7 @@ def load_fem_responses(
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in FEMParams")
     for rt in sim_params.response_types:
+        print(c.bridge)
         if rt not in sim_runner.supported_response_types(c.bridge):
             raise ValueError(f"{rt} not supported by {sim_runner}")
 

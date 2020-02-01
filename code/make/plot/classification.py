@@ -1,5 +1,6 @@
 import itertools
 
+import matplotlib as mpl
 import numpy as np
 from scipy import stats
 from sklearn.svm import OneClassSVM
@@ -7,7 +8,7 @@ from sklearn.svm import OneClassSVM
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.noise import add_displa_noise
-from classify.temperature import load_temperature_month
+from classify.temperature import load_temperature_month, temperature_effect
 from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
 from classify.scenarios import each_pier_scenarios, healthy_and_cracked_scenarios, healthy_scenario
@@ -85,24 +86,37 @@ def events(c: Config, x: float, z: float):
 
 
 def temperature_effect_month(c: Config, month: str):
-    times, temperatures = load_temperature_month(month)
+    temp = load_temperature_month(month)
     plt.landscape()
+    def plot_hours():
+        label_set = False
+        for dt in temp["datetime"]:
+            if np.isclose(float(dt.hour + dt.minute), 0):
+                label = None
+                if not label_set:
+                    label = "Time at vertical line = 00:00"
+                    label_set = True
+                plt.axvline(x=dt, linewidth=1, color="black", label=label)
     # Plot the temperature.
     plt.subplot(2, 1, 1)
-    label_set = False
-    for i, time in enumerate(times):
-        if np.isclose(time, 0):
-            label = None
-            if not label_set:
-                label = "Time at vertical line = 00:00"
-                label_set = True
-            plt.axvline(x=i, linewidth=1, color="black", label=label)
-    plt.scatter(range(len(temperatures)), temperatures, s=1)
+    plot_hours()
+    plt.scatter(temp["datetime"], temp["temp"], c=temp["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
     plt.ylabel("Temperature (°C)")
-    plt.xlabel("Day")
+    plt.xlabel("Date")
+    plt.gcf().autofmt_xdate()
     plt.title(f"Temperature in {str(month[0]).upper()}{month[1:]}")
     plt.legend()
-    # Plot the effect a point.
+    # Plot the effect at a point.
+    response_type = ResponseType.YTranslation
+    plt.subplot(2, 1, 2)
+    plot_hours()
+    effect = temperature_effect(c=c, response_type=response_type, temps=temp["temp"])
+    effect *= 1000
+    plt.scatter(temp["datetime"], effect, c=temp["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+    plt.ylabel(f"{response_type.name()} (m)")
+    plt.xlabel("Date")
+    plt.gcf().autofmt_xdate()
+    plt.title(f"{response_type.name()} to unit thermal loading")
     # Save.
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/temperature", f"{month}.pdf"))
