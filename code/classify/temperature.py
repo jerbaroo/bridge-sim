@@ -112,26 +112,41 @@ def get_len_per_min(c: Config, speed_up: float):
     return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
 
 
-def add_temperature_effect(
+def get_temperature_effect(
         c: Config,
         response_type: ResponseType,
         point: Point,
         temps: List[float],
         responses: List[float],
         speed_up: int,
+        repeat_responses: bool = False,
 ) -> List[float]:
-    from scipy.signal import savgol_filter
     # Convert the temperatures into a temperature effect at a point.
     effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps)
     # A temperature is recorded per minute, calculate the number of responses
     # between each pair of recorded temperatures.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
     # The number of temperatures required for the amount of given responses.
-    num_temps = math.ceil(len(responses) / len_per_min)
-    if num_temps + 1 > len(effect):
-        raise ValueError(f"Not enough temperatures ({len(effect)}) for data (requires {num_temps + 1})")
-    result = np.array(responses, copy=True)
-    for i in range(num_temps):
+    num_temps_req = math.ceil(len(responses) / len_per_min) + 1
+    if num_temps_req > len(effect):
+        raise ValueError(f"Not enough temperatures ({len(effect)}) for data (requires {num_temps_req})")
+    # If additional temperature data is available, then use it if requested.
+    avail_len = (len(effect) - 1) * len_per_min
+    if repeat_responses and (avail_len > len(responses)):
+        print_i(
+            f"Increasing length of responses from {len(responses)} to"
+            f" {len(effect) * len_per_min}"
+        )
+        num_temps_req = len(effect)
+        new_responses = np.empty(avail_len)
+        for i in range(math.ceil(avail_len / len(responses))):
+            start = i * len(responses)
+            end = min(avail_len - 1, start + len(responses))
+            new_responses[start:end] = responses[:end - start]
+        responses = new_responses
+    # Fill in the responses array with the temperature effect.
+    result = np.zeros(len(responses))
+    for i in range(num_temps_req - 1):
         start = i * len_per_min
         end = min(len(result) - 1, start + len_per_min)
         print_d(D, f"start = {start}")
@@ -139,7 +154,9 @@ def add_temperature_effect(
         print_d(D, f"end - start = {end - start}")
         print_d(D, f"temp = {temps[i]}")
         # Instead of
-        result[start:end] += np.linspace(effect[i], effect[i + 1], end - start)
+        result[start:end] = np.linspace(effect[i], effect[i + 1], end - start)
+    if repeat_responses:
+        return responses, result
     return result
 
 
@@ -156,7 +173,7 @@ def estimate_temp_effect(c: Config, responses: List[float], speed_up: float) -> 
     print(f"temp points = {temp_points}")
     f = interp1d(xs, temp_points)
     return f(np.arange(len(responses)))
-    import numpy.polynomial.polynomial as poly
+    # import numpy.polynomial.polynomial as poly
     # coefs = poly.polyfit(xs, temp_points, 6)
     # print(f"coefs")
     # return poly.polyval(np.arange(len(responses)), coefs)

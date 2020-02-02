@@ -8,7 +8,7 @@ from sklearn.svm import OneClassSVM
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.noise import add_displa_noise
-from classify.temperature import add_temperature_effect, estimate_temp_effect, load_temperature_month, temperature_effect
+from classify.temperature import get_temperature_effect, estimate_temp_effect, load_temperature_month, temperature_effect
 from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
 from classify.scenarios import each_pier_scenarios, healthy_and_cracked_scenarios, healthy_scenario
@@ -129,6 +129,7 @@ def temperature_removal_month(c: Config, month: str):
     point = Point(x=51, y=0, z=-8.4)
     mins = 5
     speed_up_temp = 60
+    down = lambda a: a[::100]
     plt.landscape()
     # Responses to normal traffic.
     normal_traffic_array = load_normal_traffic_array(c, mins=mins)
@@ -141,21 +142,24 @@ def temperature_removal_month(c: Config, month: str):
         sim_runner=OSRunner(c),
     ).flatten()
     print(f"responses.shape = {responses.shape}")
-    x_mins = c.sensor_hz * np.arange(len(responses)) / 60
-    plt.subplot(3, 1, 1)
-    plt.plot(x_mins, responses * 1000, color="b")
-    plt.ylabel(f"{response_type.name()} (mm)")
-    plt.title(f"{response_type.name()} due to {mins} minutes of traffic")
     # Add temperature and noise.
     print("Adding effect")
-    responses_w_temp = add_temperature_effect(
+    responses, temp_effect = get_temperature_effect(
         c=c,
         response_type=response_type,
         point=point,
         temps=temp["temp"],
         responses=responses,
         speed_up=speed_up_temp,
+        repeat_responses=True,
     )
+    print(f"responses.shape = {responses.shape}")
+    x_mins = c.sensor_hz * np.arange(len(responses)) / 60
+    plt.subplot(3, 1, 1)
+    plt.scatter(down(x_mins), down(responses * 1000), color="b", label="Response to traffic", s=1)
+    plt.ylabel(f"{response_type.name()} (mm)")
+    plt.title(f"{response_type.name()} in {month}")
+    responses_w_temp = responses + temp_effect
     print(f"responses_w_temp = {responses_w_temp.shape}")
     print("Adding noise")
     responses_w_noise = add_displa_noise(responses_w_temp)
@@ -164,13 +168,18 @@ def temperature_removal_month(c: Config, month: str):
     print(responses.shape)
     plt.subplot(3, 1, 2)
     print("plotting")
-    plt.scatter(x_mins, responses_w_noise * 1000, color="b", label=f"Response to traffic and temperature", s=1)
-    plt.scatter(x_mins, temp_effect * 1000, color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
+    plt.scatter(down(x_mins), down(responses_w_noise * 1000), color="b", label=f"Response to traffic, temperature effect, and noise", s=1)
+    plt.scatter(down(x_mins), down(temp_effect * 1000), color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
     plt.ylabel(f"{response_type.name()} (mm)")
     plt.xlabel("Time (m)")
     plt.title(f"Sensor noise and temperature effect added")
     legend = plt.legend()
     #change the marker size manually for both lines
+    legend.legendHandles[0]._sizes = [50]
+    legend.legendHandles[1]._sizes = [50]
+    plt.subplot(3, 1, 1)
+    plt.scatter(down(x_mins), down(temp_effect * 1000), color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
+    legend = plt.legend()
     legend.legendHandles[0]._sizes = [50]
     legend.legendHandles[1]._sizes = [50]
     # Equalize y limits.
@@ -182,9 +191,9 @@ def temperature_removal_month(c: Config, month: str):
         plt.subplot(3, 1, p)
         plt.ylim(ylim)
     # Remove effect of temperature.
-    temp_fit = estimate_temp_effect(c=c, responses=responses_w_noise, speed_up=speed_up_temp)
-    print(len(temp_fit))
-    print(len(responses_w_noise))
+    # temp_fit = estimate_temp_effect(c=c, responses=responses_w_noise, speed_up=speed_up_temp)
+    # print(len(temp_fit))
+    # print(len(responses_w_noise))
     plt.subplot(3, 1, 3)
     plt.plot([0], [0], label="TODO: Estimate & remove temp effect")
     # plt.plot(temp_fit * 1000, label="estimate")
@@ -194,6 +203,7 @@ def temperature_removal_month(c: Config, month: str):
     # Save.
     print("tight")
     plt.tight_layout()
+    plt.savefig(c.get_image_path("classify/temperature", f"{month}-removal.png"))
     plt.savefig(c.get_image_path("classify/temperature", f"{month}-removal.pdf"))
     plt.close()
 
