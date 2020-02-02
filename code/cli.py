@@ -493,10 +493,17 @@ def events(x, z):
     classification_.events(c=c(), x=x, z=z)
 
 
-@classify.command(help="Temperature effect over one month.")
-@click.option("--month", type=str, default="may", help="Month to plot effect")
-def temp_month(month):
+@classify.command(help="Plot temperature effect.")
+@click.option("--month", type=str, default="may", help="Month to plot effect.")
+def temp_effect_month(month):
     classification_.temperature_effect_month(c=c(), month=month)
+    # TODO: Add year option.
+
+
+@classify.command(help="Plot removal of temperature effect.")
+@click.option("--month", type=str, default="may", help="Month to plot effect.")
+def temp_rm_month(month):
+    classification_.temperature_removal_month(c=c(), month=month)
 
 
 @classify.command()

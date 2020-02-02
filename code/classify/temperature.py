@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime, timedelta
 from typing import List
@@ -13,9 +14,11 @@ from fem.responses import load_fem_responses
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.response import ResponseType
-from util import print_i
+from util import print_d, print_i
 
 temperatures = dict()
+
+D: bool = True
 
 
 def load_temperature_month(month: str) -> pd.DataFrame:
@@ -89,7 +92,7 @@ def load_temperature_month(month: str) -> pd.DataFrame:
     return temperatures[month]
 
 
-def temperature_effect(c: Config, response_type: ResponseType, temps: List[float]) -> List[float]:
+def temperature_effect(c: Config, response_type: ResponseType, point: Point, temps: List[float]) -> List[float]:
     unit_thermal = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_thermal.use(
         c=c, sim_params=SimParams(response_types=[response_type])
@@ -100,6 +103,60 @@ def temperature_effect(c: Config, response_type: ResponseType, temps: List[float
         response_type=response_type,
         sim_params=sim_params,
     )
-    point = Point(x=51, y=0, z=-8.4)
     unit_response = sim_responses.at_deck(point, interp=True)
     return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
+
+
+def get_len_per_min(c: Config, speed_up: float):
+    """Length of time series corresponding to 1 minute."""
+    return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
+
+
+def add_temperature_effect(
+        c: Config,
+        response_type: ResponseType,
+        point: Point,
+        temps: List[float],
+        responses: List[float],
+        speed_up: int,
+) -> List[float]:
+    from scipy.signal import savgol_filter
+    # Convert the temperatures into a temperature effect at a point.
+    effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps)
+    # A temperature is recorded per minute, calculate the number of responses
+    # between each pair of recorded temperatures.
+    len_per_min = get_len_per_min(c=c, speed_up=speed_up)
+    # The number of temperatures required for the amount of given responses.
+    num_temps = math.ceil(len(responses) / len_per_min)
+    if num_temps + 1 > len(effect):
+        raise ValueError(f"Not enough temperatures ({len(effect)}) for data (requires {num_temps + 1})")
+    result = np.array(responses, copy=True)
+    for i in range(num_temps):
+        start = i * len_per_min
+        end = min(len(result) - 1, start + len_per_min)
+        print_d(D, f"start = {start}")
+        print_d(D, f"end = {end}")
+        print_d(D, f"end - start = {end - start}")
+        print_d(D, f"temp = {temps[i]}")
+        # Instead of
+        result[start:end] += np.linspace(effect[i], effect[i + 1], end - start)
+    return result
+
+
+def estimate_temp_effect(c: Config, responses: List[float], speed_up: float) -> List[float]:
+    from scipy.interpolate import interp1d
+    len_per_min = get_len_per_min(c=c, speed_up=speed_up)
+    len_per_hr = len_per_min * 60
+    temp_points = responses[::len_per_hr]
+    assert temp_points[0] == responses[0]
+    xs = len_per_hr * np.arange(len(temp_points))
+    temp_points = [np.mean(responses[i - len_per_hr:i + 1]) for i in xs]
+    print(f"len_per_hr = {len_per_hr}")
+    print(f"xs = {xs}")
+    print(f"temp points = {temp_points}")
+    f = interp1d(xs, temp_points)
+    return f(np.arange(len(responses)))
+    import numpy.polynomial.polynomial as poly
+    # coefs = poly.polyfit(xs, temp_points, 6)
+    # print(f"coefs")
+    # return poly.polyval(np.arange(len(responses)), coefs)

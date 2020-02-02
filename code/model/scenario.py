@@ -1,6 +1,6 @@
 """Scenarios for the traffic and bridge."""
 from collections import deque
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Callable, List, NewType, Optional, Tuple, Union
 
 import numpy as np
@@ -31,7 +31,7 @@ class DamageScenario:
         self, c: Config, sim_params: Optional[SimParams] = None
     ) -> Union[Config, Tuple[Config, SimParams]]:
         """Copies of the given arguments modified for this damage scenario."""
-        config_copy = deepcopy(c)
+        config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(config_copy.bridge)
         if sim_params is None:
             return config_copy
@@ -285,8 +285,10 @@ def to_traffic_array(
             vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
                 current[vehicle.lane].append(vehicle)
+                print(f"Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}")
             else:
                 current[vehicle.lane].popleft()
+                print(f"Vehicle left {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}")
             # Find the next event, if there is one.
             next_event_index += 1
             try:

@@ -32,19 +32,18 @@ def load_traffic_array(
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path):
         print_i(f"Generating {max_time:.3f} of 'TrafficSequence' at {c.sensor_hz}Hz")
-        traffic_sequence, start_time = traffic_scenario.traffic_sequence(
+        traffic_sequence = traffic_scenario.traffic_sequence(
             bridge=c.bridge, max_time=max_time
         )
-        total_time = start_time + max_time
         start = timer()
         traffic_array = to_traffic_array(
-            c=c, traffic_sequence=traffic_sequence, max_time=total_time
+            c=c, traffic_sequence=traffic_sequence, max_time=max_time
         )
         np.save(path, traffic_array)
         print_i(
-            f"Generated {start_time:.3f} + {max_time:.3f} = {total_time:.3f}s"
+            f"Generated{max_time:.3f} s"
             + f" traffic of type {traffic_scenario.name} at {c.sensor_hz}Hz"
-            + f" in {timer() - start:.3f}s ({c.il_num_loads} lane steps)"
+            + f" in {timer() - start:.3f}s (ULS = {c.il_num_loads})"
         )
 
     return np.load(path)
