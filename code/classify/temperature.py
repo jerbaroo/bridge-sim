@@ -18,7 +18,8 @@ from util import print_d, print_i
 
 temperatures = dict()
 
-D: bool = True
+# D: str = "classify.temperature"
+D: bool = False
 
 
 def load_temperature_month(month: str) -> pd.DataFrame:
@@ -162,16 +163,18 @@ def get_temperature_effect(
 
 def estimate_temp_effect(c: Config, responses: List[float], speed_up: float) -> List[float]:
     from scipy.interpolate import interp1d
+    # First get the length of the time series that corresponds to a minute, and
+    # also to an hour, of temperature time.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
     len_per_hr = len_per_min * 60
-    temp_points = responses[::len_per_hr]
-    assert temp_points[0] == responses[0]
-    xs = len_per_hr * np.arange(len(temp_points))
-    temp_points = [np.mean(responses[i - len_per_hr:i + 1]) for i in xs]
-    print(f"len_per_hr = {len_per_hr}")
-    print(f"xs = {xs}")
-    print(f"temp points = {temp_points}")
-    f = interp1d(xs, temp_points)
+    # Determine indices of the readings in the given time series of responses.
+    # And determine the reading, as the average response over the period.
+    xs = np.arange(len(responses), 0, -len_per_hr)
+    # print(f"xs = {xs}")
+    temp_points = [np.mean(responses[max(0, i - len_per_hr):i]) for i in xs]
+    # print(f"len_per_hr = {len_per_hr}")
+    # print(f"temp points = {temp_points}")
+    f = interp1d(xs, temp_points, kind="cubic", fill_value="extrapolate")
     return f(np.arange(len(responses)))
     # import numpy.polynomial.polynomial as poly
     # coefs = poly.polyfit(xs, temp_points, 6)

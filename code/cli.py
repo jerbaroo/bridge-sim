@@ -494,16 +494,16 @@ def events(x, z):
 
 
 @classify.command(help="Plot temperature effect.")
-@click.option("--month", type=str, default="may", help="Month to plot effect.")
-def temp_effect_month(month):
-    classification_.temperature_effect_month(c=c(), month=month)
-    # TODO: Add year option.
+@click.option("--name", type=str, default="may", help="Filename to plot effect for.")
+@click.option("--vert", type=bool, default=True, help="Vertical lines every 24 hours.")
+def temp_effect(name, vert):
+    classification_.temperature_effect_month(c=c(), month=name, vert=vert)
 
 
 @classify.command(help="Plot removal of temperature effect.")
-@click.option("--month", type=str, default="may", help="Month to plot effect.")
-def temp_rm_month(month):
-    classification_.temperature_removal_month(c=c(), month=month)
+@click.option("--name", type=str, default="may", help="Filename to plot effect for.")
+def temp_rm(name):
+    classification_.temperature_removal_month(c=c(), month=name)
 
 
 @classify.command()

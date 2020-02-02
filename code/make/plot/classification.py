@@ -85,11 +85,13 @@ def events(c: Config, x: float, z: float):
     plt.close()
 
 
-def temperature_effect_month(c: Config, month: str):
+def temperature_effect_month(c: Config, month: str, vert: bool):
     temp = load_temperature_month(month)
     point = Point(x=51, y=0, z=-8.4)
     plt.landscape()
     def plot_hours():
+        if not vert:
+            return
         label_set = False
         for dt in temp["datetime"]:
             if np.isclose(float(dt.hour + dt.minute), 0):
@@ -119,6 +121,7 @@ def temperature_effect_month(c: Config, month: str):
     plt.title(f"{response_type.name()} to unit thermal loading in {month}")
     # Save.
     plt.tight_layout()
+    plt.savefig(c.get_image_path("classify/temperature", f"{month}.png"))
     plt.savefig(c.get_image_path("classify/temperature", f"{month}.pdf"))
     plt.close()
 
@@ -171,7 +174,6 @@ def temperature_removal_month(c: Config, month: str):
     plt.scatter(down(x_mins), down(responses_w_noise * 1000), color="b", label=f"Response to traffic, temperature effect, and noise", s=1)
     plt.scatter(down(x_mins), down(temp_effect * 1000), color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
     plt.ylabel(f"{response_type.name()} (mm)")
-    plt.xlabel("Time (m)")
     plt.title(f"Sensor noise and temperature effect added")
     legend = plt.legend()
     #change the marker size manually for both lines
@@ -191,15 +193,22 @@ def temperature_removal_month(c: Config, month: str):
         plt.subplot(3, 1, p)
         plt.ylim(ylim)
     # Remove effect of temperature.
-    # temp_fit = estimate_temp_effect(c=c, responses=responses_w_noise, speed_up=speed_up_temp)
+    temp_fit = estimate_temp_effect(c=c, responses=responses_w_noise, speed_up=speed_up_temp)
+    print(temp_fit)
+    print(temp_fit.shape)
     # print(len(temp_fit))
     # print(len(responses_w_noise))
     plt.subplot(3, 1, 3)
-    plt.plot([0], [0], label="TODO: Estimate & remove temp effect")
-    # plt.plot(temp_fit * 1000, label="estimate")
-    # plt.plot(temp_effect * 1000, label="real")
-    # plt.plot(temp_fit * 1000 - temp_effect * 1000, label="error")
-    plt.legend()
+    plt.scatter(down(x_mins), down(temp_fit * 1000), label="Estimate", color="b", s=1)
+    plt.scatter(down(x_mins), down(temp_effect * 1000), label="Real", color="g", s=1)
+    error = down((temp_fit - temp_effect) * 1000)
+    plt.scatter(down(x_mins), error, label=f"Error, mean = {np.mean(error):.4f}", color="r", s=1)
+    plt.ylabel(f"{response_type.name()} (mm)")
+    plt.xlabel("Time (m)")
+    legend = plt.legend()
+    legend.legendHandles[0]._sizes = [50]
+    legend.legendHandles[1]._sizes = [50]
+    legend.legendHandles[2]._sizes = [50]
     # Save.
     print("tight")
     plt.tight_layout()
