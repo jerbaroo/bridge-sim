@@ -27,7 +27,7 @@ class SimParams:
 
     def __init__(
         self,
-        response_types: List[ResponseType],
+        response_types: List[ResponseType] = ResponseType.all(),
         ploads: List[PointLoad] = [],
         displacement_ctrl: Optional[PierSettlement] = None,
         axial_delta_temp: Optional[float] = None,

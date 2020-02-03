@@ -153,10 +153,12 @@ def opensees_thermal_moment_deck_loads(
 
     def assert_load_direction(node_0: Node, node_1: Node, direction: LoadDirection):
         """Assert the load direction is perpendicular to the nodes."""
+        # TODO: Remove return.
+        return
         if direction in [LoadDirection.XPOS, LoadDirection.XNEG]:
-            assert node_0.x == node_1.x
-        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
             assert node_0.z == node_1.z
+        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
+            assert node_0.x == node_1.x
         else:
             raise ValueError(f"Unknown thermal load direction {direction}")
 
@@ -185,7 +187,7 @@ def opensees_thermal_moment_deck_loads(
             if np.isclose(self.x, 0) and np.isclose(self.z, 0):
                 return ""
             return (
-                f"\nload {n_id} 0 0 0 {np.around(self.z, 3)} 0 {-np.around(self.x, 3)}"
+                f"\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}"
             )
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
@@ -195,7 +197,7 @@ def opensees_thermal_moment_deck_loads(
         print_d(D, "")
         print_d(D, f"cte = {c.cte}")
         print_d(D, f"d_temp = {sim_params.moment_delta_temp}")
-        shell_strain_top = c.cte * sim_params.moment_delta_temp
+        shell_strain_top = c.cte * (sim_params.moment_delta_temp / 2)
         print_d(D, f"strain_top = {shell_strain_top}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_stress_top = shell_youngs_si * shell_strain_top
@@ -203,10 +205,10 @@ def opensees_thermal_moment_deck_loads(
         print_d(D, f"stress_top = {shell_stress_top}")
         # For each cross section consider the pair of nodes at the corners.
         for n_id_0, n_id_1, load_direction in [
-            (shell.ni_id, shell.nj_id, LoadDirection.ZPOS),
-            (shell.nj_id, shell.nk_id, LoadDirection.XNEG),
-            (shell.nk_id, shell.nl_id, LoadDirection.ZNEG),
-            (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
+            (shell.ni_id, shell.nj_id, LoadDirection.XPOS),
+            (shell.nj_id, shell.nk_id, LoadDirection.ZPOS),
+            (shell.nk_id, shell.nl_id, LoadDirection.XNEG),
+            (shell.nl_id, shell.ni_id, LoadDirection.ZNEG),
         ]:
             print_d(D, f"node ids = {n_id_0}, {n_id_1}")
             node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
@@ -236,10 +238,9 @@ def opensees_thermal_moment_deck_loads(
             # The moment per node is moment_top_nm / 2. But since we also want
             # to include moment_bottom_nm / 2 which is equal to moment_top_nm,
             # then we just use moment_top_nm.
-            # TODO: Why did I have to use the additional division by 2.
             for n_id in [n_id_0, n_id_1]:
                 thermal_loads_by_nid[n_id].add_load(
-                    magnitude=moment_top_nm / 2, direction=load_direction
+                    magnitude=moment_top_nm, direction=load_direction
                 )
             print_d(
                 D,

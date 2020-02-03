@@ -17,42 +17,6 @@ from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 
 
-def damage_scenario_plot(
-    c: Config,
-    response_types: List[ResponseType],
-    damage_scenario: DamageScenario,
-    titles: List[str],
-    saves: List[str],
-    run: bool,
-    levels: int,
-    map_responses: Optional[Tuple[Callable[[Responses], Responses], str]] = None,
-):
-    """Save a contour plot of a damage scenario under direct simulation."""
-    c, sim_params = damage_scenario.use(
-        c=c, sim_params=SimParams(response_types=response_types)
-    )
-    for i, (response_type, title, save) in enumerate(
-        zip(response_types, titles, saves)
-    ):
-        sim_responses = load_fem_responses(
-            c=c,
-            sim_runner=OSRunner(c),
-            response_type=response_type,
-            sim_params=sim_params,
-            run=run,
-        )
-        units = None
-        if map_responses is not None:
-            sim_responses = map_responses[i][0](sim_responses)
-            units = map_responses[i][1]
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=levels, units=units)
-        plt.title(title)
-        plt.tight_layout()
-        plt.savefig(save)
-        plt.close()
-
-
 def damage_scenario_traffic_plot(
     c: Config,
     response_types: List[ResponseType],

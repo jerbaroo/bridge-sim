@@ -44,8 +44,8 @@ def load_fem_responses(
 
     Args:
         c: Config, global configuration object.
-        sim_params: FEMParams, simulation parameters. Note that these decide
-            which responses are generated and saved to disk.
+        sim_params: SimParams, simulation parameters. Response types are
+            overridden, set to all supported response types.
         response_type: ResponseType, responses to load from disk and return.
         sim_runner: FEMRunner, FE program to run the simulation with.
         run: bool, run the simulation even if results are already saved.
@@ -55,12 +55,12 @@ def load_fem_responses(
     'fem' module of this package should be separate from that abstraction.
 
     """
+    sim_params.response_types = [
+        rt for rt in sim_params.response_types
+        if rt in sim_runner.supported_response_types(c.bridge)
+    ]
     if response_type not in sim_params.response_types:
-        raise ValueError(f"Can't load {response_type} if not in FEMParams")
-    for rt in sim_params.response_types:
-        print(c.bridge)
-        if rt not in sim_runner.supported_response_types(c.bridge):
-            raise ValueError(f"{rt} not supported by {sim_runner}")
+        raise ValueError(f"Can't load {response_type} if not in SimParams")
 
     prog_str = "1/1: "
     if index is not None:
@@ -165,17 +165,14 @@ class Responses:
                     # if abs(p.distance(of)) > radius:
         return Responses(response_type=self.response_type, responses=responses)
 
-    def strain_to_real_strain(self, strain_1: float):
-        self.map(lambda r: r - strain_1)
-        return self
-
-    def deck_strain_to_stress(self, bridge: Bridge, times: float = 1):
-        """Convert strains on the deck to stresses."""
+    def to_stress(self, bridge: Bridge, times: float = 1):
+        """Convert strains to stresses."""
         if self.response_type != ResponseType.Strain:
             raise ValueError(f"Responses are not {response_type.Strain}")
         if len(bridge.sections) > 1:
             raise ValueError("Currently only single deck section supported")
         youngs = bridge.sections[0].youngs
+        self.response_type = ResponseType.Stress
         self.map(lambda r: r * youngs * times)
         return self
 

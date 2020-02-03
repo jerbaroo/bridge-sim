@@ -33,7 +33,7 @@ def bridge_705_3d_overload(*args, **kwargs):
     new_c = bridge_705_3d(
         *args,
         **kwargs,
-        single_sections=(bridge_705_single_sections if two_materials_ else None),
+        single_sections=(bridge_705_single_sections() if two_materials_ else None),
     )
     return new_c
 
@@ -338,9 +338,8 @@ def thermal(run):
     if not two_materials_:
         raise ValueError("You need the --two-materials option!")
     thermal.make_axis_plots(c())
-    thermal.unit_axial_thermal_deck_load(c=c(), run=run)
     thermal.unit_moment_thermal_deck_load(c(), run=run)
-    thermal.unit_thermal_deck_load(c(), run=run)
+    thermal.unit_axial_thermal_deck_load(c=c(), run=run)
 
 
 @validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")

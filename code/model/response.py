@@ -25,6 +25,10 @@ class ResponseType(Enum):
     Stress = "stress"
     Strain = "strain"
 
+    @staticmethod
+    def all() -> List["ResponseType"]:
+        return [rt for rt in ResponseType]
+
     def d2(self) -> bool:
         """Is this response type supported by 2D models?"""
         return self != ResponseType.ZTranslation

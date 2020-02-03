@@ -3,139 +3,72 @@ import numpy as np
 import pandas as pd
 from matplotlib.cm import get_cmap
 
-from classify.scenario.bridge import ThermalDamage
+from classify.scenario.bridge import thermal_damage
 from config import Config
-from make.plot.contour.common import damage_scenario_plot
+from fem.params import SimParams
+from fem.responses import load_fem_responses
+from fem.run.opensees import OSRunner
 from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
+from plot.responses import plot_contour_deck
 from util import safe_str
 
 
 def unit_axial_thermal_deck_load(c: Config, run: bool):
     """Response to unit axial thermal deck loading."""
-    # Raw responses being collected.
-    response_types = [
-        ResponseType.XTranslation,
-        ResponseType.YTranslation,
-        ResponseType.ZTranslation,
-        ResponseType.Strain,
-        ResponseType.Strain,
-    ]
-    # Response types being plotted.
-    final_response_types = response_types[:]
-    final_response_types[-1] = ResponseType.Stress
-    # Map from raw responses to responses and units for plotting. The
-    # displacements are converted from meter to millimeter, and the strains are
-    # converted to real strains and then converted to stresses.
-    map_responses = [(lambda x: x, rt.units()) for rt in response_types]
-    for i in [0, 1, 2]:
-        map_responses[i] = ((lambda r: r.map(lambda v: v * 1000)), "mm")
-
-    def to_stress(s):
-        s = s.strain_to_real_strain(c.cte * 1e6)
-        s = s.deck_strain_to_stress(bridge=c.bridge, times=1e-6)
-        return s
-
-    map_responses[-1] = (to_stress, ResponseType.Stress.units())
-    # Put it all together for plotting purposes.
-    damage_scenario_plot(
-        c=c,
-        response_types=response_types,
-        damage_scenario=ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c),
-        titles=[
-            f"{rt.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees"
-            for rt in final_response_types
-        ],
-        saves=[
-            c.get_image_path(
-                "validation/thermal",
-                safe_str(f"thermal-deck-unit-axial_load-{rt.name()})") + ".pdf",
-            )
-            for rt in final_response_types
-        ],
-        run=run,
-        levels=14,
-        map_responses=map_responses,
-    )
+    damage_scenario = thermal_damage(axial_delta_temp=c.unit_axial_delta_temp_c)
+    c, sim_params = damage_scenario.use(c)
+    response_types = ResponseType.all()
+    for i, response_type in enumerate(response_types):
+        is_stress = response_type == ResponseType.Stress
+        sim_responses = load_fem_responses(
+            c=c,
+            sim_runner=OSRunner(c),
+            response_type=ResponseType.Strain if is_stress else response_type,
+            sim_params=sim_params,
+            run=run and i == 0,
+        )
+        if is_stress:
+            response_type = ResponseType.Stress
+            sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
+        top_view_bridge(c.bridge, abutments=True, piers=True)
+        plot_contour_deck(c=c, responses=sim_responses, levels=100, units=response_type.units())
+        plt.title(f"{response_type.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees")
+        plt.tight_layout()
+        plt.savefig(c.get_image_path(
+            "validation/thermal",
+            safe_str(f"thermal-deck-unit-axial_load-{response_type.name()})") + ".pdf",
+        ))
+        plt.close()
 
 
 def unit_moment_thermal_deck_load(c: Config, run: bool):
     """Response to unit moment thermal deck loading."""
-    # Raw responses being collected.
-    response_types = [
-        ResponseType.XTranslation,
-        ResponseType.YTranslation,
-        ResponseType.ZTranslation,
-        ResponseType.Strain,
-        ResponseType.Strain,
-    ]
-    # Response types being plotted.
-    final_response_types = response_types[:]
-    final_response_types[-1] = ResponseType.Stress
-    # Map from raw responses to responses and units for plotting. The
-    # displacements are converted from meter to millimeter, and the strains are
-    # converted to real strains and then converted to stresses.
-    map_responses = [(lambda x: x, rt.units()) for rt in response_types]
-    for i in [0, 1, 2]:
-        map_responses[i] = ((lambda r: r.map(lambda v: v * 1000)), "mm")
-
-    def to_stress(s):
-        s = s.strain_to_real_strain((c.cte / 2) * 1e6)
-        s = s.deck_strain_to_stress(bridge=c.bridge, times=1e-6)
-        return s
-
-    map_responses[-1] = (to_stress, ResponseType.Stress.units())
-    # Put it all together for plotting purposes.
-    damage_scenario_plot(
-        c=c,
-        response_types=response_types,
-        damage_scenario=ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c),
-        titles=[
-            f"{rt.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees"
-            for rt in final_response_types
-        ],
-        saves=[
-            c.get_image_path(
-                "validation/thermal",
-                safe_str(f"thermal-deck-unit-moment_load-{rt.name()})") + ".pdf",
-            )
-            for rt in final_response_types
-        ],
-        run=run,
-        levels=14,
-        map_responses=map_responses,
-    )
-
-
-def unit_thermal_deck_load(c: Config, run: bool):
-    """Response to unit thermal deck loading."""
-    response_types = [
-        ResponseType.XTranslation,
-        ResponseType.YTranslation,
-        ResponseType.ZTranslation,
-    ]
-    damage_scenario_plot(
-        c=c,
-        response_types=response_types,
-        damage_scenario=ThermalDamage(
-            axial_delta_temp=c.unit_axial_delta_temp_c,
-            moment_delta_temp=c.unit_moment_delta_temp_c,
-        ),
-        titles=[
-            f"{rt.name()} from {c.unit_axial_delta_temp_c}‎°C axial and \n {c.unit_moment_delta_temp_c}C moment thermal loading of the deck"
-            for rt in response_types
-        ],
-        saves=[
-            c.get_image_path(
-                "validation/thermal",
-                safe_str(f"thermal-unit-load-{rt.name()})") + ".pdf",
-            )
-            for rt in response_types
-        ],
-        run=run,
-        levels=14,
-    )
+    damage_scenario = thermal_damage(moment_delta_temp=c.unit_moment_delta_temp_c)
+    c, sim_params = damage_scenario.use(c)
+    response_types = ResponseType.all()
+    for i, response_type in enumerate(response_types):
+        is_stress = response_type == ResponseType.Stress
+        sim_responses = load_fem_responses(
+            c=c,
+            sim_runner=OSRunner(c),
+            response_type=ResponseType.Strain if is_stress else response_type,
+            sim_params=sim_params,
+            run=run and i == 0,
+        )
+        if is_stress:
+            response_type = ResponseType.Stress
+            sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
+        top_view_bridge(c.bridge, abutments=True, piers=True)
+        plot_contour_deck(c=c, responses=sim_responses, levels=100, units=response_type.units())
+        plt.title(f"{response_type.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees")
+        plt.tight_layout()
+        plt.savefig(c.get_image_path(
+            "validation/thermal",
+            safe_str(f"thermal-deck-unit-moment_load-{response_type.name()})") + ".pdf",
+        ))
+        plt.close()
 
 
 def make_axis_plots(c: Config):

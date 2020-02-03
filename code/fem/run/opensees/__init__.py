@@ -27,7 +27,6 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
             ResponseType.YTranslation,
             ResponseType.ZTranslation,
             ResponseType.Strain,
-            ResponseType.Stress,
         ]
     else:
         raise ValueError(f"{bridge.dimensions} not supported by OSRunner")
