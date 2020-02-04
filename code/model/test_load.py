@@ -84,14 +84,16 @@ def test_wheel_to_wheel_track_xs():
     assert f0 == 0.5
     assert f1 == 0.5
     bucket_width = c.bridge.length / (c.il_num_loads - 1)
-    assert x0 == np.around(bucket_width * 4, 3)
-    assert x1 == np.around(bucket_width * 5, 3)
+    assert x0 == np.around(bucket_width * 4, 6)
+    assert x1 == np.around(bucket_width * 5, 6)
     # Near the beginning (exact match).
     load = PointLoad(x_frac=1 / (c.il_num_loads - 1), z_frac=None, kn=100)
     (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
-    assert f0 == 1
-    assert f1 == 0
-    assert x0 == np.around(bucket_width, 3)
+    # The fraction might not be exactly 1, because of rounding of the wheel
+    # track positions.
+    assert np.around(f0, 4) == 1
+    assert np.around(f1, 4) == 0
+    assert x0 == np.around(bucket_width, 6)
     # Near the beginning (a little more).
     load = PointLoad(x_frac=(1 / (c.il_num_loads - 1)) + 0.001, z_frac=None, kn=100)
     (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
@@ -99,8 +101,8 @@ def test_wheel_to_wheel_track_xs():
     assert f0 != 1
     assert f0 + f1 == 1
     assert f0 > f1
-    assert x0 == np.around(bucket_width, 3)
-    assert x1 == np.around(bucket_width * 2, 3)
+    assert x0 == np.around(bucket_width, 6)
+    assert x1 == np.around(bucket_width * 2, 6)
     c.il_num_loads = og_il_num_loads
 
 
@@ -114,6 +116,9 @@ def test_to_wheel_track_loads():
         assert total_kn < wagen1.total_kn()
     # As Truck 1 is fully on the bridge.
     wagen1_times = np.linspace(entered_time, leaving_time, 100)
+    truck_front_x = np.arange(8, 102)
+    more_times = np.array([wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x])
+    wagen1_times = np.concatenate((wagen1_times, more_times))
     for time in wagen1_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
