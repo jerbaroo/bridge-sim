@@ -19,11 +19,23 @@ def number_of_uls_plot(c: Config):
     if not c.shorten_paths:
         raise ValueError("This plot requires --shorten-paths true")
     response_type = ResponseType.YTranslation
-    num_ulss = np.arange(100, 1500, 10)
-    chosen_uls = 100
+    num_ulss = np.arange(100, 2000, 10)
+    chosen_uls = 600
     point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
     wagen1_time = wagen1.time_at(x=point.x, bridge=c.bridge)
     print_i(f"Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}")
+
+    # Determine the reference value.
+    truck_loads = flatten(wagen1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad)
+    print_i(f"Truck loads = {truck_loads}")
+    sim_responses = load_fem_responses(
+        c=c,
+        response_type=response_type,
+        sim_runner=OSRunner(c),
+        sim_params=SimParams(ploads=truck_loads, response_types=[response_type])
+    )
+    ref_value = sim_responses.at_deck(point, interp=True) * 1000
+    print_i(f"Reference value = {ref_value}")
 
     # Collect the data.
     total_load = []
@@ -45,36 +57,38 @@ def number_of_uls_plot(c: Config):
         )
         responses.append(sim_responses.at_deck(point, interp=True) * 1000)
 
-    # Plot the data.
+    # Plot the raw responses, then error on the second axis.
     plt.landscape()
-    # Determine the min and max after chosen number of ULS.
-    min_after_chosen, max_after_chosen = np.inf, -np.inf
-    for i, (num_uls, response) in enumerate(zip(num_ulss, responses)):
-        if num_uls >= chosen_uls:
-            if responses[i] < min_after_chosen:
-                min_after_chosen = responses[i]
-            if responses[i] > max_after_chosen:
-                max_after_chosen = responses[i]
-    difference = np.around(max_after_chosen - min_after_chosen, 3)
-    print_i(f"Difference in responses = {difference}")
-    plt.plot(num_ulss, responses)
-    plt.title(f"Displacement to Truck 1 as a function of ULS")
-    plt.ylabel("Displacement (m)")
+    plt.plot(num_ulss, np.abs(responses))
+    plt.ylabel(f"Absolute {response_type.name().lower()} (mm)")
     plt.xlabel("ULS")
+    error = np.abs(np.array(responses) - ref_value).T[0] * 100
+    ax2 = plt.twinx()
+    ax2.plot(num_ulss, error)
+    ax2.set_ylabel("Error (%)")
+    plt.title(f"{response_type.name()} to Truck 1 as a function of ULS")
+    # Plot the chosen number of ULS.
+    print(np.array([chosen_uls]).shape)
+    print(np.array(num_ulss).shape)
+    print(np.array(error).shape)
+    chosen_error = np.interp([chosen_uls], num_ulss, error)[0]
+    plt.axvline(
+        chosen_uls,
+        label=f"At {chosen_uls} ULS, error = {np.around(chosen_error, 2)} %",
+        color="black",
+    )
+    plt.axhline(chosen_error, color="black")
+    plt.legend()
     plt.tight_layout()
     plt.savefig(c.get_image_path("paramselection", "uls.pdf"))
     plt.close()
+    # Additional verification plots.
     plt.plot(num_ulss, total_load)
     plt.savefig(c.get_image_path("paramselection", "uls-verify-total-load.pdf"))
     plt.close()
     plt.plot(num_ulss, num_loads)
     plt.savefig(c.get_image_path("paramselection", "uls-verify-num-loads.pdf"))
     plt.close()
-    #         plt.axvline(
-    #             chosen_uls,
-    #             label=f"Max. difference after {chosen_uls} ULS = {difference} {units_str}",
-    #             color="black",
-    #         )
     #         plt.axhline(min_after_chosen, color="black")
     #         plt.axhline(max_after_chosen, color="black")
     #         plt.legend()
