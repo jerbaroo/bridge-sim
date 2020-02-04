@@ -16,7 +16,7 @@ from fem.responses import Responses
 from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import PointLoad
-from model.response import Response, ResponseType, resize_and_units
+from model.response import Response, ResponseType
 from plot import default_cmap, plt
 from util import flatten, print_w
 
@@ -81,7 +81,7 @@ def plot_distributions(
 ):
     # Transpose so points are indexed first.
     response_array = response_array.T
-    response_array, unit_str = resize_and_units(response_array, response_type)
+    # response_array, unit_str = resize_and_units(response_array, response_type)
     num_points = response_array.shape[0]
     amax, amin = np.amax(response_array), np.amin(response_array)
 
@@ -122,8 +122,6 @@ def plot_contour_deck(
     norm=None,
     scatter: bool = False,
     levels: int = 14,
-    resize: bool = False,
-    units: Optional[str] = None,
     show_legend: bool = True,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -148,15 +146,6 @@ def plot_contour_deck(
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
 
-    # Resize all responses.
-    unit_str = responses.response_type.units()
-    if units is not None:
-        unit_str = units
-    # if resize:
-    #     H, _ = resize_and_units(np.array(H), responses.response_type)
-    #     amin, _ = resize_and_units(amin, responses.response_type)
-    #     amax, unit_str = resize_and_units(amax, responses.response_type)
-
     # Plot responses and colorbar.
     if scatter:
         cs = plt.scatter(
@@ -170,9 +159,7 @@ def plot_contour_deck(
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
     clb = plt.colorbar(cs, norm=norm)
-    print(units)
-    print(unit_str)
-    clb.ax.set_title(unit_str)
+    clb.ax.set_title(responses.units)
 
     # Plot point loads.
     for pload in ploads:
@@ -184,9 +171,9 @@ def plot_contour_deck(
 
     # Plot min and max responses.
     for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin:.4f} {unit_str}", "orange", 0),
-        ((amax_x, amax_z), f"max = {amax:.4f} {unit_str}", "green", 0),
-        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} {unit_str}", "red", 0),
+        ((amin_x, amin_z), f"min = {amin:.4f} {responses.units}", "orange", 0),
+        ((amax_x, amax_z), f"max = {amax:.4f} {responses.units}", "green", 0),
+        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} {responses.units}", "red", 0),
     ]:
         plt.scatter(
             [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,

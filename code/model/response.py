@@ -10,7 +10,7 @@ from model.bridge import Point
 # A single response at a point.
 Response = NewType("Response", Tuple[float, Point])
 
-# A NumPy array of responses at points.
+# A NumPy array of responses at times and points.
 #
 # Each row is a timestep and each column a response point.
 ResponseArray = NewType("ResponseArray", np.ndarray)
@@ -37,7 +37,7 @@ class ResponseType(Enum):
         """Human readable name for a response type."""
         return {
             ResponseType.XTranslation: "X translation",
-            ResponseType.YTranslation: "Displacement",
+            ResponseType.YTranslation: "Y translation",
             ResponseType.ZTranslation: "Z translation",
             ResponseType.Stress: "Stress",
             ResponseType.Strain: "Strain",
@@ -50,13 +50,5 @@ class ResponseType(Enum):
             ResponseType.YTranslation: ("meters", "m"),
             ResponseType.ZTranslation: ("meters", "m"),
             ResponseType.Stress: ("kilo Newton", "N/mm²"),
-            ResponseType.Strain: ("kilo Newton", "m/m"),
+            ResponseType.Strain: ("kilo Newton", ""),
         }[self][int(short)]
-
-
-def resize_and_units(responses, response_type: ResponseType):
-    """Returns a tuple of the resized data and the units string."""
-    # If in meters resize to millimeters.
-    if response_type.units(short=True) == "m":
-        return responses * 1000, "mm"
-    return responses, response_type.units()

@@ -126,6 +126,7 @@ class Responses:
             raise ValueError("No responses found")
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
+        self.units = response_type.units()
         self.raw_responses = responses
         self.num_sensors = len(responses)
         # Nested dictionaries for indexing responses by position.
@@ -154,6 +155,14 @@ class Responses:
                     self.responses[self.times[0]][x][y][z] = f(response)
         return self
 
+    def resize(self):
+        """Returns the same responses, possibly resized."""
+        responses = self
+        if responses.units == "m":
+            responses = responses.map(lambda r: r * 1000)
+            responses.units = "mm"
+        return responses
+
     def without(self, remove: Callable[[Point], bool]) -> "Responses":
         responses = []
         for x, y_dict in self.responses[self.times[0]].items():
@@ -173,6 +182,7 @@ class Responses:
             raise ValueError("Currently only single deck section supported")
         youngs = bridge.sections[0].youngs
         self.response_type = ResponseType.Stress
+        self.units = self.response_type.units()
         self.map(lambda r: r * youngs * times)
         return self
 

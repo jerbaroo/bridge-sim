@@ -19,8 +19,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
     """Response to unit axial thermal deck loading."""
     damage_scenario = thermal_damage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = damage_scenario.use(c)
-    response_types = ResponseType.all()
-    for i, response_type in enumerate(response_types):
+    for i, response_type in enumerate(ResponseType.all()):
         is_stress = response_type == ResponseType.Stress
         sim_responses = load_fem_responses(
             c=c,
@@ -30,15 +29,15 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             run=run and i == 0,
         )
         if is_stress:
-            response_type = ResponseType.Stress
             sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=100, units=response_type.units())
-        plt.title(f"{response_type.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees")
+        sim_responses = sim_responses.resize()
+        top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+        plot_contour_deck(c=c, responses=sim_responses, levels=14)
+        plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
             "validation/thermal",
-            safe_str(f"thermal-deck-unit-axial_load-{response_type.name()})") + ".pdf",
+            safe_str(f"thermal-deck-unit-axial_load-{sim_responses.response_type.name()})") + ".pdf",
         ))
         plt.close()
 
@@ -47,8 +46,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
     """Response to unit moment thermal deck loading."""
     damage_scenario = thermal_damage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = damage_scenario.use(c)
-    response_types = ResponseType.all()
-    for i, response_type in enumerate(response_types):
+    for i, response_type in enumerate(ResponseType.all()):
         is_stress = response_type == ResponseType.Stress
         sim_responses = load_fem_responses(
             c=c,
@@ -58,15 +56,15 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
             run=run and i == 0,
         )
         if is_stress:
-            response_type = ResponseType.Stress
             sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=100, units=response_type.units())
-        plt.title(f"{response_type.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees")
+        sim_responses = sim_responses.resize()
+        top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+        plot_contour_deck(c=c, responses=sim_responses, levels=14)
+        plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
             "validation/thermal",
-            safe_str(f"thermal-deck-unit-moment_load-{response_type.name()})") + ".pdf",
+            safe_str(f"thermal-deck-unit-moment_load-{sim_responses.response_type.name()})") + ".pdf",
         ))
         plt.close()
 

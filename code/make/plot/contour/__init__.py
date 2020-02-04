@@ -30,7 +30,7 @@ from model.response import ResponseType
 from plot import axis_colors, diana_cmap, diana_r_cmap, parula_cmap, plt
 from plot.contour import contour_responses_3d
 from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck, resize_and_units
+from plot.responses import plot_contour_deck
 from util import print_d, print_i, safe_str
 
 # Print debug information for this file.
