@@ -25,21 +25,31 @@ D: bool = False
 def load_temperature_month(month: str) -> pd.DataFrame:
     if month in temperatures:
         return temperatures[month]
+
     def parse_line(line):
         line = line.split()  # 79J 2019 05 31 2330 0530
         ds = line[1]  # Date string.
-        year, mon, day, hr, mn = ds[-16:-12], ds[-12:-10], ds[-10:-8], ds[-8:-6], ds[-6:-4]
+        year, mon, day, hr, mn = (
+            ds[-16:-12],
+            ds[-12:-10],
+            ds[-10:-8],
+            ds[-8:-6],
+            ds[-6:-4],
+        )
         # 2011-11-04T00:05
         dt = datetime.fromisoformat(f"{year}-{mon}-{day}T{hr}:{mn}")
         try:
             return [dt, float(line[-1])]
         except Exception as e:
             return [dt, np.nan]
+
     # Read the file in from disk.
     month_path = os.path.join("data/temperature", month + ".txt")
     saved_path = month_path + ".parsed"
     if os.path.exists(saved_path):
-        temperatures[month] = pd.read_csv(saved_path, index_col=0, parse_dates=["datetime"])
+        temperatures[month] = pd.read_csv(
+            saved_path, index_col=0, parse_dates=["datetime"]
+        )
         return temperatures[month]
     with open(month_path) as f:
         temperatures[month] = list(map(parse_line, f.readlines()))
@@ -67,16 +77,20 @@ def load_temperature_month(month: str) -> pd.DataFrame:
         while curr < dt:
             delta_mins += 1
             if delta_mins > 1:
-                to_append = pd.Series({
-                    "datetime": curr,
-                    "temp": float(df[df["datetime"] == dt]["temp"]),
-                    "missing": True,
-                })
+                to_append = pd.Series(
+                    {
+                        "datetime": curr,
+                        "temp": float(df[df["datetime"] == dt]["temp"]),
+                        "missing": True,
+                    }
+                )
                 df = df.append(to_append, ignore_index=True)
             curr = curr + timedelta(minutes=1)
             if not isinstance(curr, datetime):
                 print(type(curr))
-                import sys; sys.exit()
+                import sys
+
+                sys.exit()
         if delta_mins > 1:
             print(f"Missing {delta_mins - 1} minutes before {dt}")
         missing += delta_mins - 1
@@ -86,23 +100,22 @@ def load_temperature_month(month: str) -> pd.DataFrame:
     # Add timestamp row.
     df["ts"] = df["datetime"].apply(lambda d: datetime.timestamp(d))
     # Smooth.
-    df["temp"] = savgol_filter(df["temp"], 51, 3) # window size 51, polynomial order 3
+    df["temp"] = savgol_filter(df["temp"], 51, 3)  # window size 51, polynomial order 3
     # Save.
     temperatures[month] = df
     df.to_csv(saved_path)
     return temperatures[month]
 
 
-def temperature_effect(c: Config, response_type: ResponseType, point: Point, temps: List[float]) -> List[float]:
+def temperature_effect(
+    c: Config, response_type: ResponseType, point: Point, temps: List[float]
+) -> List[float]:
     unit_thermal = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_thermal.use(
         c=c, sim_params=SimParams(response_types=[response_type])
     )
     sim_responses = load_fem_responses(
-        c=c,
-        sim_runner=OSRunner(c),
-        response_type=response_type,
-        sim_params=sim_params,
+        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
     unit_response = sim_responses.at_deck(point, interp=True)
     return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
@@ -114,23 +127,27 @@ def get_len_per_min(c: Config, speed_up: float):
 
 
 def get_temperature_effect(
-        c: Config,
-        response_type: ResponseType,
-        point: Point,
-        temps: List[float],
-        responses: List[float],
-        speed_up: int,
-        repeat_responses: bool = False,
+    c: Config,
+    response_type: ResponseType,
+    point: Point,
+    temps: List[float],
+    responses: List[float],
+    speed_up: int,
+    repeat_responses: bool = False,
 ) -> List[float]:
     # Convert the temperatures into a temperature effect at a point.
-    effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps)
+    effect = temperature_effect(
+        c=c, response_type=response_type, point=point, temps=temps
+    )
     # A temperature is recorded per minute, calculate the number of responses
     # between each pair of recorded temperatures.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
     # The number of temperatures required for the amount of given responses.
     num_temps_req = math.ceil(len(responses) / len_per_min) + 1
     if num_temps_req > len(effect):
-        raise ValueError(f"Not enough temperatures ({len(effect)}) for data (requires {num_temps_req})")
+        raise ValueError(
+            f"Not enough temperatures ({len(effect)}) for data (requires {num_temps_req})"
+        )
     # If additional temperature data is available, then use it if requested.
     avail_len = (len(effect) - 1) * len_per_min
     if repeat_responses and (avail_len > len(responses)):
@@ -143,7 +160,7 @@ def get_temperature_effect(
         for i in range(math.ceil(avail_len / len(responses))):
             start = i * len(responses)
             end = min(avail_len - 1, start + len(responses))
-            new_responses[start:end] = responses[:end - start]
+            new_responses[start:end] = responses[: end - start]
         responses = new_responses
     # Fill in the responses array with the temperature effect.
     result = np.zeros(len(responses))
@@ -161,8 +178,11 @@ def get_temperature_effect(
     return result
 
 
-def estimate_temp_effect(c: Config, responses: List[float], speed_up: float) -> List[float]:
+def estimate_temp_effect(
+    c: Config, responses: List[float], speed_up: float
+) -> List[float]:
     from scipy.interpolate import interp1d
+
     # First get the length of the time series that corresponds to a minute, and
     # also to an hour, of temperature time.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
@@ -171,7 +191,7 @@ def estimate_temp_effect(c: Config, responses: List[float], speed_up: float) -> 
     # And determine the reading, as the average response over the period.
     xs = np.arange(len(responses), 0, -len_per_hr)
     # print(f"xs = {xs}")
-    temp_points = [np.mean(responses[max(0, i - len_per_hr):i]) for i in xs]
+    temp_points = [np.mean(responses[max(0, i - len_per_hr) : i]) for i in xs]
     # print(f"len_per_hr = {len_per_hr}")
     # print(f"temp points = {temp_points}")
     f = interp1d(xs, temp_points, kind="cubic", fill_value="extrapolate")

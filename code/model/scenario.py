@@ -6,7 +6,7 @@ from typing import Callable, List, NewType, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import interp1d
 
-from classify.data.responses.convert import loads_to_traffic_array
+# from classify.data.responses.convert import loads_to_traffic_array
 from config import Config
 from fem.params import SimParams
 from model.bridge import Bridge
@@ -18,10 +18,10 @@ class DamageScenario:
     """Base class for bridge scenarios. Do not construct directly."""
 
     def __init__(
-            self,
-            name: str,
-            mod_bridge: Callable[[Bridge], Bridge] = lambda b: b,
-            mod_sim_params: Callable[[SimParams], SimParams] = lambda s: s,
+        self,
+        name: str,
+        mod_bridge: Callable[[Bridge], Bridge] = lambda b: b,
+        mod_sim_params: Callable[[SimParams], SimParams] = lambda s: s,
     ):
         self.name = name
         self.mod_bridge = mod_bridge
@@ -285,10 +285,14 @@ def to_traffic_array(
             vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
                 current[vehicle.lane].append(vehicle)
-                print(f"Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}")
+                print(
+                    f"Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}"
+                )
             else:
                 current[vehicle.lane].popleft()
-                print(f"Vehicle left {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}")
+                print(
+                    f"Vehicle left {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}"
+                )
             # Find the next event, if there is one.
             next_event_index += 1
             try:
@@ -322,15 +326,16 @@ def to_traffic_array(
                         for axle_loads in vehicle.to_wheel_track_loads(c=c, time=time):
                             for j, wheel_loads in zip(js, axle_loads):
                                 for wheel_load in wheel_loads:
-                                    x_ind = int(np.around(
-                                        interp(c.bridge.x(wheel_load.x_frac)),
-                                        0
-                                    ))
+                                    x_ind = int(
+                                        np.around(
+                                            interp(c.bridge.x(wheel_load.x_frac)), 0
+                                        )
+                                    )
                                     result[time_i][j + x_ind] = wheel_load.kn
 
             # The old method.
             if not NEW:
-            # For each lane.
+                # For each lane.
                 for (j0, j1), vehicles in zip(j_indices, current):
                     # For each vehicle.
                     for vehicle in vehicles:
@@ -348,6 +353,8 @@ def to_traffic_array(
             time_i += 1
         time += time_step
 
-    print_i(f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'")
+    print_i(
+        f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'"
+    )
     # We divide by 2 because the load per axle is shared by 2 wheels.
     return result / 2
