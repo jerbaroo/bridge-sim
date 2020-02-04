@@ -45,6 +45,7 @@ from util import (
     safe_str,
     scalar,
 )
+from validate.campaign import meas, displa_sensors, strain_sensors, strain_sensor_xz, displa_sensor_xz
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -188,6 +189,7 @@ def per_sensor_plots(
         plt.subplot(rows, 1, subplot_i + 1)
         plot(sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
+            plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
                     "validation/sensors",
@@ -205,6 +207,7 @@ def per_sensor_plots(
         if sensor_label in individual_sensors:
             plt.landscape()
             plot(sensor_label, meas_group)
+            plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
                     "validation/sensors", f"strain-sensor-{sensor_label}.pdf"
@@ -291,6 +294,7 @@ def per_sensor_plots(
         plt.subplot(rows, 1, subplot_i + 1)
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
+            plt.tight_layout()
             plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}"))
             plt.close()
             subplot_i = 0
@@ -303,6 +307,7 @@ def per_sensor_plots(
     for i, (sensor_label, meas_group) in enumerate(displa_groupby):
         if sensor_label in individual_sensors:
             plot(i, sensor_label, meas_group)
+            plt.tight_layout()
             plt.savefig(
                 c.get_image_path("validation/sensors", f"displa-sensor-{sensor_label}",)
             )
