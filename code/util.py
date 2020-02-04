@@ -42,7 +42,7 @@ def flatten(container, t):
 
 def round_m(x):
     """Round meters to an accuracy that avoids machine error."""
-    return np.round(x, decimals=6)
+    return np.around(x, decimals=6)
 
 
 # TODO: Debug argument only needs to be of type bool, we can get the calling

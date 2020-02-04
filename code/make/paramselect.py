@@ -16,77 +16,60 @@ from validate.campaign import displa_sensor_xz
 
 def number_of_uls_plot(c: Config):
     """Plot error as a function of number of unit load simulations."""
-    # response_type = ResponseType.YTranslation
-    # num_ulss = np.arange(50, 600, 1)
-    # chosen_uls = 400
+    if not c.shorten_paths:
+        raise ValueError("This plot requires --shorten-paths true")
+    response_type = ResponseType.YTranslation
+    num_ulss = np.arange(100, 1500, 10)
+    chosen_uls = 100
+    point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
+    wagen1_time = wagen1.time_at(x=point.x, bridge=c.bridge)
+    print_i(f"Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}")
 
-    # # Point load for each wheel of truck 1 in the experimental campaign.
-    # # wagen1_times = [wagen1.time_at(x=x, bridge=c.bridge) for x in wagen1_x_pos()]
+    # Collect the data.
+    total_load = []
+    num_loads = []
+    responses = []
+    for num_uls in num_ulss:
+        c.il_num_loads = num_uls
+        print_i(f"Number of ULS = {num_uls}")
+        # Nested in here because it depends on the setting of 'il_num_loads'.
+        truck_loads = flatten(wagen1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad)
+        print_i(f"Truck loads = {truck_loads}")
+        num_loads.append(len(truck_loads))
+        total_load.append(sum(map(lambda l: l.kn, truck_loads)))
+        sim_responses = load_fem_responses(
+            c=c,
+            response_type=response_type,
+            sim_runner=OSRunner(c),
+            sim_params=SimParams(ploads=truck_loads, response_types=[response_type])
+        )
+        responses.append(sim_responses.at_deck(point, interp=True) * 1000)
 
-    # wagen1_time = wagen1.time_at(x=c.bridge.x_max - (c.bridge.length / 2), bridge=c.bridge)
-
-    # # For each amount of unit load simulations, collect a function. The function
-    # # will calculate the response at a given point based on the amount of unit
-    # # load simulations/bins.
-    # response_to_trucks = []
-    # for num_uls in num_ulss:
-    #     c.il_num_loads = num_uls
-    #     print_i(f"Number of ULS = {num_uls}")
-    #     # A list of loads. This is nested in here because it depends on the
-    #     # setting of 'il_num_loads'.
-    #     truck_loads = flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
-    #     print_i(f"Truck loads = {truck_loads}")
-    #     responses = []
-    #     for wheel_track_load in truck_loads:
-    #         sim_responses = load_fem_responses(
-    #             c=c,
-    #             response_type=response_type,
-    #             sim_runner=OSRunner(c),
-    #             sim_params=SimParams(
-    #                 ploads=[wheel_bin_load], response_types=[response_type],
-    #             ),
-    #         )
-    #         responses.append(sim_responses)
-
-    #     def response_to_truck(_responses):
-    #         def _response_to_truck(point: Point):
-    #             response = 0
-    #             for sim_responses, frac in _responses:
-    #                     response += sim_responses.at_deck(point, interp=True)
-    #             return response
-
-    #         return _response_to_truck
-
-    #     response_to_trucks[-1].append(response_to_truck(responses))
-
-    # # Create a plot for each truck position.
-    # plt.landscape()
-    # point = [
-    #         Point(x=x, y=0, z=c.bridge.z(wheel_load.z_frac))
-    #         for x in np.linspace(
-    #             max(truck_x_pos, c.bridge.x_min),
-    #             min(truck_x_pos, c.bridge.x_max),
-    #             num_points,
-    #         )
-    #     ]
-    #     # for p_i, point in enumerate(points):
-    #         plt.subplot(num_points, 1, p_i + 1)
-    #         responses = []
-    #         min_after_chosen, max_after_chosen = np.inf, -np.inf
-    #         for num_uls, response_func in zip(num_ulss, response_funcs):
-    #             responses.append(response_func(point))
-    #             if num_uls >= chosen_uls:
-    #                 if responses[-1] < min_after_chosen:
-    #                     min_after_chosen = responses[-1]
-    #                 if responses[-1] > max_after_chosen:
-    #                     max_after_chosen = responses[-1]
-    #         units_str = response_type.units()
-    #         if response_type == ResponseType.YTranslation:
-    #             responses = np.array(responses) * 1000
-    #             min_after_chosen *= 1000
-    #             max_after_chosen *= 1000
-    #             units_str = "mm"
-    #         difference = np.around(max_after_chosen - min_after_chosen, 3)[0]
+    # Plot the data.
+    plt.landscape()
+    # Determine the min and max after chosen number of ULS.
+    min_after_chosen, max_after_chosen = np.inf, -np.inf
+    for i, (num_uls, response) in enumerate(zip(num_ulss, responses)):
+        if num_uls >= chosen_uls:
+            if responses[i] < min_after_chosen:
+                min_after_chosen = responses[i]
+            if responses[i] > max_after_chosen:
+                max_after_chosen = responses[i]
+    difference = np.around(max_after_chosen - min_after_chosen, 3)
+    print_i(f"Difference in responses = {difference}")
+    plt.plot(num_ulss, responses)
+    plt.title(f"Displacement to Truck 1 as a function of ULS")
+    plt.ylabel("Displacement (m)")
+    plt.xlabel("ULS")
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("paramselection", "uls.pdf"))
+    plt.close()
+    plt.plot(num_ulss, total_load)
+    plt.savefig(c.get_image_path("paramselection", "uls-verify-total-load.pdf"))
+    plt.close()
+    plt.plot(num_ulss, num_loads)
+    plt.savefig(c.get_image_path("paramselection", "uls-verify-num-loads.pdf"))
+    plt.close()
     #         plt.axvline(
     #             chosen_uls,
     #             label=f"Max. difference after {chosen_uls} ULS = {difference} {units_str}",
@@ -102,13 +85,6 @@ def number_of_uls_plot(c: Config):
     #             f"{response_type.name()} at x = {np.around(point.x, 2)} m, z = {np.around(point.z, 2)} m."
     #             f"\nTruck 1's front axle at x = {np.around(truck_x_pos, 2)} m, on the south lane of Bridge 705."
     #         )
-    #     plt.tight_layout()
-    #     plt.savefig(
-    #         c.get_image_path(
-    #             "paramselection", safe_str(f"uls-truck-x-{truck_x_pos:.2f}") + ".pdf"
-    #         )
-    #     )
-    #     plt.close()
 
 
 def experiment_noise(c: Config):
