@@ -158,6 +158,7 @@ def plot_contour_deck(
         )
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(responses.units)
 

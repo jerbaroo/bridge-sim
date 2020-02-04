@@ -77,7 +77,6 @@ def opensees_thermal_axial_deck_loads(
         print_d(D, f"cte = {c.cte}")
         print_d(D, f"d_temp = {sim_params.axial_delta_temp}")
         shell_thermal_strain = c.cte * sim_params.axial_delta_temp
-        print(D, f"thermal strain = {shell_thermal_strain}")
         shell_youngs_si = shell.section.youngs * 1e6
         shell_thermal_stress = shell_youngs_si * shell_thermal_strain
         print_d(D, f"shell youngs SI = {shell_youngs_si}")
@@ -186,9 +185,7 @@ def opensees_thermal_moment_deck_loads(
             """Return a string with 0, 1, or 2 OpenSees load commands."""
             if np.isclose(self.x, 0) and np.isclose(self.z, 0):
                 return ""
-            return (
-                f"\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}"
-            )
+            return f"\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}"
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):

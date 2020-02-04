@@ -179,22 +179,34 @@ diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
 )
 
 # Colourbar from Axis.
+axis_colors = np.array([
+    [118, 2, 6],
+    [185, 6, 17],
+    [218, 10, 22],
+    [253, 112, 34],
+    [253, 186, 44],
+    [255, 253, 56],
+    [109, 253, 48],
+    [58, 254, 188],
+    [40, 230, 253],
+    [31, 180, 252],
+    [15, 85, 251],
+    [10, 33, 236],
+    [3, 17, 150],
+    [1, 5, 183],
+])  # R -> G -> B
+axis_colors = axis_colors / 255
+axis_r = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[0])
+axis_g = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[1])
+axis_b = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[2])
 axis_colors = [
-    np.array([118, 2, 6]) / 255,
-    np.array([185, 6, 17]) / 255,
-    np.array([218, 10, 22]) / 255,
-    np.array([253, 112, 34]) / 255,
-    np.array([253, 186, 44]) / 255,
-    np.array([255, 253, 56]) / 255,
-    np.array([109, 253, 48]) / 255,
-    np.array([58, 254, 188]) / 255,
-    np.array([40, 230, 253]) / 255,
-    np.array([31, 180, 252]) / 255,
-    np.array([15, 85, 251]) / 255,
-    np.array([10, 33, 236]) / 255,
-    np.array([3, 17, 150]) / 255,
-    np.array([1, 5, 183]) / 255,
-]  # R -> G -> B
+    (axis_r[i], axis_g[i], axis_b[i])
+    for i in range(len(axis_r))
+]
+axis_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+    "axis", axis_colors)
+axis_cmap_r = matplotlib.colors.LinearSegmentedColormap.from_list(
+    "axis_r", axis_colors[::-1])
 
 
 class Color:
