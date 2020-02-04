@@ -149,10 +149,11 @@ class Responses:
 
     def map(self, f):
         """Map a function over the values of responses."""
-        for x, y_dict in self.responses[self.times[0]].items():
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
-                    self.responses[self.times[0]][x][y][z] = f(response)
+                    self.responses[time][x][y][z] = f(response)
         return self
 
     def resize(self):
@@ -174,7 +175,7 @@ class Responses:
                     # if abs(p.distance(of)) > radius:
         return Responses(response_type=self.response_type, responses=responses)
 
-    def to_stress(self, bridge: Bridge, times: float = 1):
+    def to_stress(self, bridge: Bridge):
         """Convert strains to stresses."""
         if self.response_type != ResponseType.Strain:
             raise ValueError(f"Responses are not {response_type.Strain}")
@@ -183,15 +184,19 @@ class Responses:
         youngs = bridge.sections[0].youngs
         self.response_type = ResponseType.Stress
         self.units = self.response_type.units()
-        self.map(lambda r: r * youngs * times)
+        self.map(lambda r: r * youngs)
         return self
 
-    def values(self):
+    def values(self, point: bool = False):
         """Yield each response value."""
-        for y_dict in self.responses[self.times[0]].values():
-            for z_dict in y_dict.values():
-                for response in z_dict.values():
-                    yield response
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if point:
+                        yield response, (x, y, z)
+                    else:
+                        yield response
 
     def at_deck(self, point: Point, interp: bool):
         """Response at the deck (y = 0) with optional interpolation."""

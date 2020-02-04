@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import matplotlib.image as mpimg
 import numpy as np
 import pandas as pd
@@ -29,10 +31,16 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             run=run and i == 0,
         )
         if is_stress:
+            og_sim_responses = deepcopy(sim_responses)
             sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
+            for response, (x, y, z) in og_sim_responses.values(point=True):
+                assert np.isclose(
+                    (response * 1E-6 - (c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
+                    sim_responses.responses[0][x][y][z]
+                )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=14)
+        plot_contour_deck(c=c, responses=sim_responses, levels=25)
         plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
@@ -56,10 +64,16 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
             run=run and i == 0,
         )
         if is_stress:
+            og_sim_responses = deepcopy(sim_responses)
             sim_responses = damage_scenario.to_stress(c=c, sim_responses=sim_responses)
+            for response, (x, y, z) in og_sim_responses.values(point=True):
+                assert np.isclose(
+                    (response * 1E-6 + (0.5 * c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
+                    sim_responses.responses[0][x][y][z]
+                )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, levels=14)
+        plot_contour_deck(c=c, responses=sim_responses, levels=25)
         plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(

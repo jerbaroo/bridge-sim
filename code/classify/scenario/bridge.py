@@ -165,12 +165,14 @@ class ThermalDamage(DamageScenario):
             raise ValueError("Can only convert Strain not {sim_responses.response_type}")
         if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
             raise ValueError("Must be only axial or moment loading")
-        if self.moment_delta_temp == 0:
-            sim_responses = sim_responses.map(lambda r: r - (c.cte * c.unit_axial_delta_temp_c * 1E+6))
-            sim_responses = sim_responses.to_stress(bridge=c.bridge, times=1e-6)
+        if self.axial_delta_temp != 0:
+            sim_responses = sim_responses.map(lambda r: r * 1E-6 - (c.cte * c.unit_axial_delta_temp_c))
+            sim_responses = sim_responses.to_stress(c.bridge)
+        elif self.moment_delta_temp != 0:
+            sim_responses = sim_responses.map(lambda r: r * 1E-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c))
+            sim_responses = sim_responses.to_stress(c.bridge)
         else:
-            sim_responses = sim_responses.map(lambda r: r + (0.5 * (c.cte * c.unit_moment_delta_temp_c) * 1E+6))
-            sim_responses = sim_responses.to_stress(bridge=c.bridge, times=1e-6)
+            raise ValueError("Dont know how to convert to stress")
         return sim_responses
 
 
