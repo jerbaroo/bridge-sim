@@ -62,7 +62,7 @@ def number_of_uls_plot(c: Config):
     plt.plot(num_ulss, np.abs(responses))
     plt.ylabel(f"Absolute {response_type.name().lower()} (mm)")
     plt.xlabel("ULS")
-    error = np.abs(np.array(responses) - ref_value).T[0] * 100
+    error = np.abs(np.array(responses) - ref_value).flatten() * 100
     ax2 = plt.twinx()
     ax2.plot(num_ulss, error)
     ax2.set_ylabel("Error (%)")
