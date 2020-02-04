@@ -266,8 +266,8 @@ class Responses:
     def _at_deck_snap(self, x: float, z: float):
         """Deck response from nearest available sensor."""
         y = 0
-        x_ind = nearest_index(self.xs, x)
-        x_near = self.xs[x_ind]
+        x_ind = nearest_index(self.deck_xs, x)
+        x_near = self.deck_xs[x_ind]
         z_ind = nearest_index(self.zs[x_near][y], z)
         z_near = self.zs[x_near][y][z_ind]
         return self.responses[0][x_near][y][z_near]
