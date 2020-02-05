@@ -122,6 +122,7 @@ def per_sensor_plots(
     strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
     strain_sensor_labels = [sensor_label for sensor_label, _ in strain_groupby]
     strain_sensor_xzs = list(map(strain_sensor_xz, strain_sensor_labels))
+    print(f"strain sensor xsz = {strain_sensor_xzs}")
 
     # Find the min and max responses.
     amin, amax = np.inf, -np.inf
@@ -164,7 +165,11 @@ def per_sensor_plots(
         # Plot values from OpenSees.
         print(np.array(os_strain[i]).shape)
         print(np.array(truck_front_x).shape)
-        plt.scatter(truck_front_x, os_strain[i], s=size, label="OpenSees")
+        os_strain_i = os_strain[i]
+        os_strain_i_shape = np.array(os_strain[i]).shape
+        if len(os_strain_i_shape) == 3 and os_strain_i_shape[0] == 1:
+            os_strain_i = os_strain_i[0]
+        plt.scatter(truck_front_x, os_strain_i, s=size, label="OpenSees")
 
         # Plot measured values against truck position.
         plt.scatter(
