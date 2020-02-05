@@ -208,7 +208,7 @@ def responses_to_loads_d(
         c=c,
         expt_params=ExptParams(
             [
-                SimParams(response_types=[response_type], ploads=loads_)
+                SimParams(response_types=ResponseType.all(), ploads=loads_)
                 for loads_ in loads
             ]
         ),
