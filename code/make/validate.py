@@ -1,6 +1,7 @@
 import numpy as np
 
-from classify.data.responses import loads_to_traffic_array, responses_to_traffic_array
+from classify.data.responses import responses_to_traffic_array
+from classify.data.responses.convert import loads_to_traffic_array
 from classify.noise import add_displa_noise
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
@@ -75,6 +76,7 @@ def truck_1_time_series(c: Config):
     )
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
+        # flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
         for time in wagen1_times
     ]
     # Results from simulation.

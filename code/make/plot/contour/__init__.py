@@ -491,7 +491,8 @@ def comparison_plots_705(c: Config, run_only: bool):
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
             top_view_bridge(c.bridge, piers=True, abutments=True)
-            plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap)
+            fem_responses = fem_responses.resize()
+            plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap, levels=100)
             plt.title(title)
             plt.tight_layout()
             plt.savefig(save(f"{label}-"))

@@ -49,7 +49,7 @@ class PointLoad:
 
     def id_str(self):
         """String uniquely representing this load."""
-        return f"({self.x_frac:.3f}, {self.z_frac:.3f}, {self.kn:.3f})"
+        return f"({self.x_frac:.4f}, {self.z_frac:.4f}, {self.kn:.3f})"
 
     def repr(self, bridge: Bridge):
         x = round_m(bridge.x(self.x_frac))
@@ -308,7 +308,7 @@ class MvVehicle(Vehicle):
         This implements wheel track bucketing!
 
         """
-        wheel_load_x = np.around(c.bridge.x(wheel_load.x_frac), 3)
+        wheel_load_x = round_m(c.bridge.x(wheel_load.x_frac))
         wheel_track_xs = c.bridge.wheel_track_xs(c)
         unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_load_x)
         unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
@@ -318,9 +318,11 @@ class MvVehicle(Vehicle):
         # If the unit load is an exact match just return it.
         if np.isclose(wheel_load_x, unit_load_x()):
             return ((wheel_load_x, 1), (0, 0))
-        # Otherwise, return a combination of two unit loads.
+        # Otherwise, return a combination of two unit loads. In this case the
+        # unit load's position is less than the wheel.
         unit_load_x_lo = unit_load_x()
         unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
+        assert unit_load_x_hi > wheel_load_x
         dist_lo = abs(unit_load_x_lo - wheel_load_x)
         dist_hi = abs(unit_load_x_hi - wheel_load_x)
         dist = dist_lo + dist_hi

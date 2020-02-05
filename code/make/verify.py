@@ -2,8 +2,8 @@ from copy import deepcopy
 
 import numpy as np
 
+from classify.data.responses.convert import loads_to_traffic_array
 from classify.data.responses import (
-    loads_to_traffic_array,
     responses_to_traffic_array,
     responses_to_vehicles_d,
 )

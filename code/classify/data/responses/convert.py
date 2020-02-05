@@ -20,6 +20,8 @@ def x_to_wheel_track_index(c: Config):
             return wheel_x_ind
         wheel_x = wheel_track_xs[wheel_x_ind]
         wheel_x_lo = wheel_track_xs[wheel_x_ind - 1]
+        if wheel_x_ind < len(wheel_track_xs) - 1:
+            assert abs(x - wheel_track_xs[wheel_x_ind + 1]) > abs(x - wheel_x)
         if abs(x - wheel_x_lo) < abs(x - wheel_x):
             return wheel_x_ind - 1
         return wheel_x_ind

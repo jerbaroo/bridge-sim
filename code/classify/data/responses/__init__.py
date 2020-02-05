@@ -56,7 +56,10 @@ def responses_to_traffic_array(
         )
     else:
         unit_load_matrix = ILMatrix.load_ulm(
-            c=c, response_type=response_type, points=points, sim_runner=sim_runner,
+            c=c,
+            response_type=response_type,
+            points=points,
+            sim_runner=sim_runner,
         )
     responses = np.matmul(traffic_array, unit_load_matrix)
 
@@ -243,6 +246,7 @@ def responses_to_vehicles_d(
             [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
             for time in times
         ]
+        print(loads[4])
     else:
         print_w(f"Not using fractions of wheel track bins in simulation")
         loads = [

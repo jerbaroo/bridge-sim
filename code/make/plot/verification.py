@@ -269,10 +269,11 @@ def per_sensor_plots(
 
         # Plot values from OpenSees.
         plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
-        print(f"Printing os_displacement")
-        print(os_displacement[i])
-        print(f"Truck front (head) = {truck_front_x[:7]}")
-        print(f"Printed os_displacement")
+        print(f"Printing os_displacement i = {i}")
+        if i == 0:
+            print(os_displacement[i])
+            print(f"Truck front (head) = {truck_front_x[:7]}")
+            print(f"Printed os_displacement")
 
         # Plot measured values sorted by truck position.
         plt.scatter(

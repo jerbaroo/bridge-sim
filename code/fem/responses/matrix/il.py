@@ -100,7 +100,10 @@ class ILMatrix(ResponsesMatrix):
             return c.resp_matrices[result_path]
         # Otherwise load each wheel track..
         wheel_tracks = ILMatrix.load_wheel_tracks(
-            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
         )
         # ..and calculate the unit load matrix.
         # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
@@ -170,7 +173,8 @@ class ILMatrix(ResponsesMatrix):
                 print_i(f"Wheel track {wheel_z} already calculated!")
 
         # For each wheel track, generate it if doesn't exists.
-        processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
+        # processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
+        processes = 1
         with multiprocessing.Pool(processes=processes) as pool:
             pool.map(create_wheel_track, wheel_zs)
         # Load all wheel tracks from disk into the resulting dictionary.
@@ -219,12 +223,14 @@ class ILMatrix(ResponsesMatrix):
                 SimParams(
                     ploads=[
                         PointLoad(
-                            x_frac=x_frac, z_frac=load_z_frac, kn=c.il_unit_load_kn,
+                            x_frac=c.bridge.x_frac(x),
+                            z_frac=load_z_frac,
+                            kn=c.il_unit_load_kn,
                         )
                     ],
                     response_types=[response_type],
                 )
-                for x_frac in np.linspace(0, 1, c.il_num_loads)
+                for x in c.bridge.wheel_track_xs(c)
             ]
         )
 

@@ -133,6 +133,55 @@ def test_to_wheel_track_loads():
         assert total_kn < wagen1.total_kn()
 
 
+def test_compare_to_wheel_track_and_to_point_load():
+    truck_front_x = np.arange(1, 116.1, 1)
+    times = [wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x]
+    loads_wt = [
+        [v.to_wheel_track_loads(c=c, time=time) for v in [wagen1]]
+        for time in times
+    ]
+    # print_w(f"Not using fractions of wheel track bins in simulation")
+    loads_pw = [
+        [v.to_point_load_pw(time=time, bridge=c.bridge) for v in [wagen1]]
+        for time in times
+    ]
+    def sum_loads(loads):
+        """Sum of the load intensity (kn) of all given loads."""
+        return sum(map(lambda l: l.kn, flatten(loads, PointLoad)))
+    for i in range(len(times)):
+        # Assert that the total load intensity is equal for both functions.
+        wt, pw = np.array(loads_wt[i]), np.array(loads_pw[i])
+        sum_wt = np.around(sum_loads(wt), 5)
+        sum_pw = np.around(sum_loads(pw), 5)
+        assert sum_wt == sum_pw
+        # Assert the shape of responses is as expected.
+        assert wt.shape[0] == 1  # One vehicle.
+        assert pw.shape[0] == 1  # One vehicle.
+        # Assert that both loads have equal amount of axles.
+        assert wt.shape[1] == pw.shape[1]
+        # Assert that at each time, the shape of loads is as expected.
+        if wt.shape[1] >= 1:
+            assert len(wt.shape) >= 3
+            assert len(pw.shape) == 3
+            assert wt.shape[2] == 2
+            assert pw.shape[2] == 2
+            if len(wt.shape) == 4:
+                assert wt.shape[3] == 2
+            # Assert that x positions of loads match up.
+            for axle_i in range(wt.shape[1]):
+                for wt_load, pw_load in zip(wt[0][axle_i], pw[0][axle_i]):
+                    # Total kn should be equal betwwen both functions..
+                    wt_kn = sum_loads(wt_load)
+                    assert np.isclose(wt_kn, pw_load.kn)
+                    # ..x positions should match up too.
+                    if len(wt_load) == 1:
+                        assert np.isclose(wt_load[0].x_frac, pw_load.x_frac)
+                    elif len(wt_load) == 2:
+                        assert wt_load[0].x_frac < pw_load.x_frac < wt_load[1].x_frac
+                    else:
+                        assert False
+
+
 # def test_mv_vehicle_to_point_loads():
 #     wagen1 = get_wagen1()
 #     loads = wagen1.to_point_loads(time=2, bridge=c.bridge)
