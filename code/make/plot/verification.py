@@ -162,6 +162,8 @@ def per_sensor_plots(
         )
 
         # Plot values from OpenSees.
+        print(np.array(os_strain[i]).shape)
+        print(np.array(truck_front_x).shape)
         plt.scatter(truck_front_x, os_strain[i], s=size, label="OpenSees")
 
         # Plot measured values against truck position.
