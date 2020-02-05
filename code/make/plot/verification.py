@@ -176,7 +176,7 @@ def per_sensor_plots(
             meas_group["inflinedata"],
             marker="o",
             s=size,
-            label="measurement",
+            label=f"Sensor {sensor_label}",
         )
 
         plt.legend()
