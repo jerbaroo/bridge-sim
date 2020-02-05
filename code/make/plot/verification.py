@@ -182,7 +182,8 @@ def per_sensor_plots(
         plt.legend()
         sensor_x, sensor_z = strain_sensor_xzs[i]
         plt.title(
-            f"Strain at sensor {sensor_label} x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"Strain at sensor {sensor_label}"
+            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
             f"\n due to Truck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
@@ -292,7 +293,8 @@ def per_sensor_plots(
         plt.legend()
         sensor_x, sensor_z = displa_sensor_xzs[i]
         plt.title(
-            f"{ResponseType.YTranslation.name()} at sensor {sensor_label}, x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"{ResponseType.YTranslation.name()} at sensor {sensor_label}"
+            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
             f"\n due to Truck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
