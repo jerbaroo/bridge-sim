@@ -26,6 +26,8 @@ I would like to thank...
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
+# ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
+
 * Introduction
 
 # Motivation of the research question.

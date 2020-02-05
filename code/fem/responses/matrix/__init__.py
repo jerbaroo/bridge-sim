@@ -135,28 +135,33 @@ def load_expt_responses(
     sim_runner: FEMRunner,
     run_only: bool = False,
 ) -> List[SimResponses]:
-    """Load responses of one sensor type for related simulations."""
-    indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
+    """Load responses of one sensor type for related simulations.
 
-    def process(index_and_params):
+    The simulations will be run in parallel if 'Config.parallel > 1'. If the
+    'run_only' option is passed, then the simulations will run but nothing will
+    be loaded into memory.
+
+    """
+    indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
+    def process(index_and_params, _run_only: bool = True):
         i, sim_params = index_and_params
         return load_fem_responses(
             c=c,
             sim_params=sim_params,
             response_type=response_type,
             sim_runner=sim_runner,
-            run_only=run_only,
+            run_only=_run_only,
             index=(i + 1, len(expt_params.sim_params)),
         )
-
-    if c.parallel:
-        raise ValueError("fem.responses.matrix.__init__.py")
-        with Pool() as pool:
-            results = pool.map(process, indices_and_params)
+    # First run the simulations (if necessary), in parallel if requested.
+    if c.parallel > 1:
+        with Pool(processes=c.parallel) as pool:
+            pool.map(process, indices_and_params)
     else:
-        results = []
-        for index_params in indices_and_params:
-            results.append(process(index_params))
-
+        map(process, indices_and_params)
+    # Then collect all of the results.
+    results = []
+    for index_params in indices_and_params:
+        results.append(process(index_params, _run_only=False))
     print()  # Add a newline to fix cursor position.
     return results

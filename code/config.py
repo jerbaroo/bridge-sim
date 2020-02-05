@@ -64,7 +64,7 @@ class Config:
         self.os_3d_model_template_path: str = "code/model-template-3d.tcl"
 
         # Simulation performance.
-        self.parallel = False
+        self.parallel = 1
         self.parallel_ulm = True
         self.shorten_paths = False
         self.resp_matrices = dict()
