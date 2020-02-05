@@ -157,7 +157,7 @@ class ILMatrix(ResponsesMatrix):
             with multiprocessing.Pool(processes=processes) as pool:
                 pool.map(create_or_load_wheel_track, wheel_zs)
         else:
-            map(create_or_load_wheel_track, wheel_zs)
+            list(map(create_or_load_wheel_track, wheel_zs))
         if run_only:
             return
         # Load all wheel tracks from disk into the resulting dictionary.
