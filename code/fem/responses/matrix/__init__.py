@@ -23,7 +23,6 @@ class ResponsesMatrix:
         expt_params: ExptParams,
         fem_runner: FEMRunner,
         expt_responses: List[SimResponses],
-        save_all: bool,
     ):
         self.c = c
         self.response_type = response_type
@@ -31,7 +30,6 @@ class ResponsesMatrix:
         self.fem_runner = fem_runner
         self.expt_responses = expt_responses
         self.num_expts = len(expt_responses)
-        self.save_all = save_all
 
     # def file_paths(self):
     #     """A unique file path for each simulation's responses."""
@@ -97,13 +95,12 @@ class ResponsesMatrix:
         return response
 
     @staticmethod
-    def load(
+    def _load(
         c: Config,
         id_str: str,
         expt_params: ExptParams,
         load_func: Callable[[ExptParams], "ResponsesMatrix"],
         fem_runner: FEMRunner,
-        save_all: bool,
     ) -> "ResponsesMatrix":
         """Load and return a ResponsesMatrix.
 
@@ -119,20 +116,13 @@ class ResponsesMatrix:
                 given simulation parameters runs simulations and returns a
                 ResponsesMatrix.
             fem_runner: FEMRunner, program to run finite element simulations.
-            save_all: bool, whether to save responses from all sensor types when
-                running simulations, this is useful if simulations take a long
-                time to run and you anticipate needing other sensor types.
 
         """
-        # Load ResponsesMatrix if already in memory.
         if id_str in c.resp_matrices:
             return c.resp_matrices[id_str]
-        # If save_all then set each FEMParams to all ResponseTypes, which
-        # depends on the combination of FEMRunner and bridge.
-        if save_all:
-            all_response_types = fem_runner.supported_response_types(c.bridge)
-            for fem_params in expt_params.sim_params:
-                fem_params.response_types = all_response_types
+        all_response_types = fem_runner.supported_response_types(c.bridge)
+        for fem_params in expt_params.sim_params:
+            fem_params.response_types = all_response_types
         resp_matrix = load_func(expt_params)
         c.resp_matrices[id_str] = resp_matrix
         return resp_matrix
@@ -143,6 +133,7 @@ def load_expt_responses(
     expt_params: ExptParams,
     response_type: ResponseType,
     sim_runner: FEMRunner,
+    run_only: bool = False,
 ) -> List[SimResponses]:
     """Load responses of one sensor type for related simulations."""
     indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
@@ -154,6 +145,7 @@ def load_expt_responses(
             sim_params=sim_params,
             response_type=response_type,
             sim_runner=sim_runner,
+            run_only=run_only,
             index=(i + 1, len(expt_params.sim_params)),
         )
 

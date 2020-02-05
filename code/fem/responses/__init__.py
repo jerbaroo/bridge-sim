@@ -36,6 +36,7 @@ def load_fem_responses(
     response_type: ResponseType,
     sim_runner: "FEMRunner",
     run: bool = False,
+    run_only: bool = False,
     index: Optional[Tuple[int, int]] = None,
 ) -> FEMResponses:
     """Load responses of one sensor type from a FE simulation.
@@ -82,12 +83,13 @@ def load_fem_responses(
     )
 
     # Run an experiment with a single FEM simulation.
-    print(path)
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         sim_runner.run(ExptParams([sim_params]))
     else:
         print_prog(f"Not running simulation")
+    if run_only:
+        return None
 
     # And set the node as fixed again after running.
     if c.bridge.dimensions == Dimensions.D2:

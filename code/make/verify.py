@@ -171,13 +171,13 @@ def compare_responses(c: Config):
     # responses_to_loads_m: 0 (4 * il_num_loads)
     # Wagen 1 from the experimental campaign.
 
-    point = Point(x=c.bridge.x_max / 2, y=0, z=-8.4)
+    point = Point(x=c.bridge.x_max  - (c.bridge.length / 2), y=0, z=-8.4)
     end_time = wagen1.time_left_bridge(bridge=c.bridge)
     wagen1_times = list(np.linspace(0, end_time, num_times))
     more_wagen1_times = list(
         np.linspace(
-            wagen1.time_at(x=point.x - 15, bridge=c.bridge),
-            wagen1.time_at(x=point.x + 15, bridge=c.bridge),
+            wagen1.time_at(x=point.x - 2, bridge=c.bridge),
+            wagen1.time_at(x=point.x + 2, bridge=c.bridge),
             close_times,
         )
     )

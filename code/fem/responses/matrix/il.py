@@ -132,69 +132,34 @@ class ILMatrix(ResponsesMatrix):
         response_type: ResponseType.YTranslation,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
-        save_all: bool = True,
     ):
-        # A unique path these wheel tracks.
-        result_path = (
-            ILMatrix.id_str(
+        def create_or_load_wheel_track(wheel_z, run_only: bool = True):
+            ILMatrix.load_wheel_track(
                 c=c,
                 response_type=response_type,
-                sim_runner=sim_runner,
-                wheel_zs=wheel_zs,
+                fem_runner=sim_runner,
+                load_z_frac=c.bridge.z_frac(wheel_z),
+                run_only=run_only,
             )
-            + "-uls"
-        )
-        # Return if these wheel tracks are already in memory.
-        if result_path in c.resp_matrices:
-            print_i(f"Wheel tracks {wheel_zs} already calculated!")
-            return c.resp_matrices[result_path]
-
-        def wheel_track_path(wheel_z):
-            id_str = ILMatrix.id_str(
-                c=c,
-                response_type=response_type,
-                sim_runner=sim_runner,
-                wheel_zs=[wheel_z],
-            )
-            return c.get_data_path("uls", safe_str(id_str) + ".uls")
-
-        def create_wheel_track(wheel_z):
-            if not os.path.exists(wheel_track_path(wheel_z)):
-                wheel_track = ILMatrix.load(
-                    c=c,
-                    response_type=response_type,
-                    fem_runner=sim_runner,
-                    load_z_frac=c.bridge.z_frac(wheel_z),
-                )
-                with open(wheel_track_path(wheel_z), "wb") as f:
-                    print_i(f"Saving wheel track {wheel_z} to disk!")
-                    dill.dump(wheel_track, f)
-                    print_i(f"Saved wheel track {wheel_z} to disk!")
-            else:
-                print_i(f"Wheel track {wheel_z} already calculated!")
-
         # For each wheel track, generate it if doesn't exists.
-        # processes = multiprocessing.cpu_count() if c.parallel_ulm else 1
-        processes = 1
+        processes = min(multiprocessing.cpu_count(), len(wheel_zs)) if c.parallel_ulm else 1
         with multiprocessing.Pool(processes=processes) as pool:
-            pool.map(create_wheel_track, wheel_zs)
+            pool.map(create_or_load_wheel_track, wheel_zs)
         # Load all wheel tracks from disk into the resulting dictionary.
         result = dict()
         for wheel_z in wheel_zs:
-            with open(wheel_track_path(wheel_z), "rb") as f:
-                result[wheel_z] = dill.load(f)
-        c.resp_matrices[result_path] = result
+            result[wheel_z] = create_or_load_wheel_track(wheel_z=wheel_z, run_only=False)
         return result
 
     @staticmethod
-    def load(
+    def load_wheel_track(
         c: Config,
         response_type: ResponseType,
         fem_runner: FEMRunner,
         load_z_frac: float,
-        save_all: bool = True,
+        run_only: bool,
     ) -> "ILMatrix":
-        """Load an ILMatrix from disk, running simulations first if necessary.
+        """Load a wheel track from disk, running simulations first if necessary.
 
         Args:
             c: Config, global configuration object.
@@ -202,9 +167,7 @@ class ILMatrix(ResponsesMatrix):
             fem_runner: FEMRunner, program to run finite element simulations.
             load_z_frac: float, load position as a fraction of the transverse
                 direction in [0 1].
-            save_all: bool, whether to save responses from all sensor types when
-                running simulations, this is useful if simulations take a long
-                time to run and you anticipate needing other sensor types.
+            run_only: bool, only run the simulation, do not load results.
 
         """
         assert 0 <= load_z_frac <= 1
@@ -229,7 +192,6 @@ class ILMatrix(ResponsesMatrix):
                             kn=c.il_unit_load_kn,
                         )
                     ],
-                    response_types=[response_type],
                 )
                 for x in c.bridge.wheel_track_xs(c)
             ]
@@ -242,22 +204,21 @@ class ILMatrix(ResponsesMatrix):
                 response_type=response_type,
                 expt_params=expt_params,
                 fem_runner=fem_runner,
-                save_all=save_all,
                 expt_responses=load_expt_responses(
                     c=c,
                     expt_params=expt_params,
                     response_type=response_type,
                     sim_runner=fem_runner,
+                    run_only=run_only,
                 ),
             )
             il_matrix.load_z_frac = load_z_frac
             return il_matrix
 
-        return ResponsesMatrix.load(
+        return ResponsesMatrix._load(
             c=c,
             id_str=id_str,
             expt_params=_expt_params,
             load_func=load_func,
             fem_runner=fem_runner,
-            save_all=save_all,
         )
