@@ -1,5 +1,6 @@
 import os
 import pathos.multiprocessing as multiprocessing
+from copy import deepcopy
 from typing import List, Optional
 
 import dill
@@ -143,10 +144,10 @@ class ILMatrix(ResponsesMatrix):
         """
         def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
             ILMatrix.load_wheel_track(
-                c=c,
-                response_type=response_type,
-                fem_runner=sim_runner,
-                load_z_frac=c.bridge.z_frac(wheel_z),
+                c=deepcopy(c),
+                response_type=deepcopy(response_type),
+                fem_runner=deepcopy(sim_runner),
+                load_z_frac=deepcopy(c.bridge.z_frac(wheel_z)),
                 run_only=_run_only,
             )
         # For each wheel track, generate it if doesn't exists.
