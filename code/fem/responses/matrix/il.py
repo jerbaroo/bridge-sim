@@ -132,23 +132,26 @@ class ILMatrix(ResponsesMatrix):
         response_type: ResponseType.YTranslation,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
+        run_only: bool = False
     ):
-        def create_or_load_wheel_track(wheel_z, run_only: bool = True):
+        def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
             ILMatrix.load_wheel_track(
                 c=c,
                 response_type=response_type,
                 fem_runner=sim_runner,
                 load_z_frac=c.bridge.z_frac(wheel_z),
-                run_only=run_only,
+                run_only=_run_only,
             )
         # For each wheel track, generate it if doesn't exists.
         processes = min(multiprocessing.cpu_count(), len(wheel_zs)) if c.parallel_ulm else 1
         with multiprocessing.Pool(processes=processes) as pool:
             pool.map(create_or_load_wheel_track, wheel_zs)
+        if run_only:
+            return
         # Load all wheel tracks from disk into the resulting dictionary.
         result = dict()
         for wheel_z in wheel_zs:
-            result[wheel_z] = create_or_load_wheel_track(wheel_z=wheel_z, run_only=False)
+            result[wheel_z] = create_or_load_wheel_track(wheel_z=wheel_z, _run_only=False)
         return result
 
     @staticmethod
