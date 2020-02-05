@@ -184,7 +184,7 @@ def per_sensor_plots(
         plt.title(
             f"Strain at sensor {sensor_label}"
             f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
-            f"\n due to Truck 1 moving across bridge 705"
+            f"\n Truck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
         plt.ylabel("Strain")
@@ -295,7 +295,7 @@ def per_sensor_plots(
         plt.title(
             f"{ResponseType.YTranslation.name()} at sensor {sensor_label}"
             f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
-            f"\n due to Truck 1 moving across bridge 705"
+            f"\n Truck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
         plt.ylabel(f"{ResponseType.YTranslation.name()} (mm)")
