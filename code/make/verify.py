@@ -99,7 +99,7 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
 
 def compare_axles(c: Config):
     """Compare responses between uniaxle vehicle and Truck 1."""
-    assert c.il_num_loads == 400
+    assert c.il_num_loads == 600
 
     point = Point(x=c.bridge.x_max / 2, y=0, z=-8.4)
     end_time = wagen1.time_left_bridge(bridge=c.bridge)
