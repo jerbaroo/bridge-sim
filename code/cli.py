@@ -27,6 +27,7 @@ two_materials_ = None
 parallel_ulm_ = None
 save_to_ = None
 shorten_paths_ = None
+il_num_loads_ = None
 
 
 def bridge_705_3d_overload(*args, **kwargs):
@@ -42,6 +43,7 @@ def c():
     new_c = c_func(b_func)
     new_c.parallel_ulm = parallel_ulm_
     new_c.shorten_paths = shorten_paths_
+    new_c.il_num_loads = il_num_loads_
     new_c.root_generated_data_dir = os.path.join(
         save_to_, new_c.root_generated_data_dir
     )
@@ -51,6 +53,9 @@ def c():
 @click.group()
 @click.option(
     "--dimensions", type=click.Choice(["2", "3"]), default="3", help="2D or 3D bridge.",
+)
+@click.option(
+    "--uls", type=int, default=600, help="Unit load simulations per wheel track",
 )
 @click.option(
     "--mesh",
@@ -80,6 +85,7 @@ def c():
 )
 def cli(
     dimensions: str,
+    uls: int,
     mesh: str,
     two_materials: bool,
     parallel_ulm: bool,
@@ -94,10 +100,12 @@ def cli(
     global save_to_
     global parallel_ulm_
     global shorten_paths_
+    global il_num_loads_
     two_materials_ = two_materials
     save_to_ = save_to
     parallel_ulm_ = parallel_ulm
     shorten_paths_ = shorten_paths
+    il_num_loads_ = uls
 
     click.echo(f"Dimensions: {dimensions}")
     click.echo(f"Mesh density: {mesh}")
@@ -105,6 +113,7 @@ def cli(
     click.echo(f"Save to: {save_to_}")
     click.echo(f"Parallel wheel tracks: {parallel_ulm_}")
     click.echo(f"Shorten paths: {shorten_paths_}")
+    click.echo(f"ULS: {il_num_loads_}")
 
     if mesh == "low":
         c_func = bridge_705_low_config

@@ -70,7 +70,7 @@ class Config:
         self.resp_matrices = dict()
 
         # Unit loads.
-        self.il_num_loads: int = 400
+        self.il_num_loads: int = 600
         self.il_unit_load_kn: float = 1000
         self.pd_unit_disp: float = 1.0
         self.pd_unit_load_kn: int = 10
