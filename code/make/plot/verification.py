@@ -182,11 +182,11 @@ def per_sensor_plots(
         plt.legend()
         sensor_x, sensor_z = strain_sensor_xzs[i]
         plt.title(
-            f"Strain at sensor {sensor_label}"
-            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"Strain at sensor {sensor_label} x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"\n due to Truck 1 moving across bridge 705"
         )
-        plt.xlabel("x position of truck front axle (m)")
-        plt.ylabel("strain (m/m)")
+        plt.xlabel("X position of Truck 1's front axle (m)")
+        plt.ylabel("Strain")
         plt.ylim((amin, amax))
 
     # Create a subplot for each strain sensor.
