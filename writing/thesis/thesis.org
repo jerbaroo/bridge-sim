@@ -28,6 +28,7 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /z/saved-med simulate uls
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
+# ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
 
 * Introduction
 
@@ -2078,16 +2079,22 @@ For each displacement and strain sensor that was considered for validation
 (listed in Table [[tbl:sensor-pos]]), the responses from that sensor measured in the
 experimental campaign are compared to responses in simulation with OpenSees and
 Diana. One of the plots which is considered representative of the results for a
-displacement sensor is shown in Figure [[fig:sensor-strain]], and in Figure
-[[fig:sensor-strain]] for a representative result of the strain sensors.
+set of three displacement sensors is shown in Figure [[fig:sensors-displa]], and in
+Figure [[fig:sensors-strain]] for a representative result of the strain sensors. The
+displacement plots show excellent agreement with the measurements in all cases.
+Of the strain sensors O1 - O12 most are in very good agreement, however for some
+of the plots with low strain values recorded there are differences, and in
+sensor O7 there is clearly a difference worth investigating
+\textcolor{red}{TODO}. Of the strain sensors T1 - T20 all are in very good
+agreement between measurements, OpenSees and Diana.
 
-# ./cli.sh --shorten-paths true --save-to /z/saved-sensors-med --mesh med validate sensors
+#+NAME: fig:sensors-displa
+#+CAPTION[Responses of sensors U25-U27 to Truck 1]: Responses of displacement sensors U25-U27 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
+[[./saved-images/sensors/displa-8.pdf]]
 
-#+NAME: fig:sensor-strain
-#+CAPTION[Responses of sensor O9 to Truck 1]: Responses of sensor O9 to Truck 1. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
-
-# TODO: Update sensor plots and references.
+#+NAME: fig:sensors-strain
+#+CAPTION[Responses of sensors O1, O10 and O11 to Truck 1]: Responses of strain sensors O1, O10 and O11 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
+[[./saved-images/sensors/strain-O-0.pdf]]
 
 **** Convergence
 
