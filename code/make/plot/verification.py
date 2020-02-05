@@ -148,6 +148,9 @@ def per_sensor_plots(
         ],
         sim_runner=OSRunner(c),
     ).T
+    os_strain_shape = np.array(os_strain).shape
+    if len(os_strain_shape) == 3 and os_strain_shape[0] == 1:
+        os_strain = os_strain[0]
     amin = min(amin, np.amin(os_strain))
     amax = max(amax, np.amax(os_strain))
 
@@ -165,11 +168,7 @@ def per_sensor_plots(
         # Plot values from OpenSees.
         print(np.array(os_strain[i]).shape)
         print(np.array(truck_front_x).shape)
-        os_strain_i = os_strain[i]
-        os_strain_i_shape = np.array(os_strain[i]).shape
-        if len(os_strain_i_shape) == 3 and os_strain_i_shape[0] == 1:
-            os_strain_i = os_strain_i[0]
-        plt.scatter(truck_front_x, os_strain_i, s=size, label="OpenSees")
+        plt.scatter(truck_front_x, os_strain[i], s=size, label="OpenSees")
 
         # Plot measured values against truck position.
         plt.scatter(
