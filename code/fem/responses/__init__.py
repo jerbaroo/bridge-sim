@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-import pickle
+import dill
 from collections import defaultdict
 from timeit import default_timer as timer
 from typing import List, NewType, Optional, Tuple
@@ -96,7 +96,7 @@ def load_fem_responses(
 
     start = timer()
     with open(path, "rb") as f:
-        responses = pickle.load(f)
+        responses = dill.load(f)
     print_prog(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
 
     start = timer()
@@ -297,5 +297,10 @@ class SimResponses(Responses):
             sim_params=self.sim_params,
             response_type=self.response_type,
         )
-        with open(path, "wb") as f:
-            pickle.dump(self.raw_responses, f)
+        try:
+            print("About to save raw responses")
+            with open(path, "wb") as f:
+                dill.dump(self.raw_responses, f)
+        except:
+            print("Could not save raw responses")
+            import sys; sys.exit()

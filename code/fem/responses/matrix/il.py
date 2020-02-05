@@ -109,9 +109,10 @@ class ILMatrix(ResponsesMatrix):
         # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
         print_i(f"Calculating unit load matrix...")
         unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-        for w, wheel_z in enumerate(wheel_tracks.keys()):
+        for w, wheel_z in enumerate(wheel_zs):
             i = w * c.il_num_loads  # Row index.
             wheel_track = wheel_tracks[wheel_z]
+            assert len(wheel_track.expt_responses) == c.il_num_loads
             # For each unit load simulation.
             for sim_responses in wheel_track.expt_responses:
                 for j, point in enumerate(points):
