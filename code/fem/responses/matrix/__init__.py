@@ -155,6 +155,8 @@ def load_expt_responses(
         )
     # First run the simulations (if necessary), in parallel if requested.
     if c.parallel > 1:
+        print("Exiting from fem.responses.matrix.__init__.py")
+        import sys; sys.exit()
         with Pool(processes=c.parallel) as pool:
             pool.map(process, indices_and_params)
     else:
