@@ -360,8 +360,6 @@ class Section3D:
 
     """
 
-    next_id = 1
-
     def __init__(
         self,
         density: float,
@@ -373,8 +371,6 @@ class Section3D:
         end_x_frac: float,
         end_z_frac: float,
     ):
-        self.id = Section3D.next_id
-        Section3D.next_id += 1
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
@@ -512,6 +508,7 @@ class Bridge:
         self.lanes = lanes
         self.dimensions = dimensions
         self.ref_temp_c = 15
+        self._next_section_id = 1
         # Mesh.
         self.base_mesh_deck_max_x = base_mesh_deck_max_x
         self.base_mesh_deck_max_z = base_mesh_deck_max_z
@@ -546,11 +543,15 @@ class Bridge:
 
     def _get_section(self, section: Section3D) -> Section3D:
         """An equivalent section if exists, else the given one."""
+        def with_id(s: Section3D) -> Section3D:
+            s.id = self._next_section_id
+            self._next_section_id += 1
+            return s
         section_prop_str = section.prop_str()
         if section_prop_str in self._sections_dict:
-            return self._sections_dict[section_prop_str]
+            return with_id(self._sections_dict[section_prop_str])
         self._sections_dict[section_prop_str] = section
-        return self._sections_dict[section_prop_str]
+        return with_id(self._sections_dict[section_prop_str])
 
     def deck_section_at(self, x: float, z: float) -> Section3D:
         """Return the deck section at given position."""
@@ -848,9 +849,9 @@ class Bridge:
                 )
 
 
-def _reset_model_ids():
-    """Gets called for you when constructing a Config."""
-    global _fiber_cmd_id
-    _fiber_cmd_id = 1
-    Section2D.next_id = 1
-    Section3D.next_id = 1
+# def _reset_model_ids():
+#     """Gets called for you when constructing a Config."""
+#     global _fiber_cmd_id
+#     _fiber_cmd_id = 1
+#     Section2D.next_id = 1
+#     Section3D.next_id = 1
