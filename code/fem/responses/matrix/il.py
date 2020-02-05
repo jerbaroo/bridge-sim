@@ -150,9 +150,13 @@ class ILMatrix(ResponsesMatrix):
                 run_only=_run_only,
             )
         # For each wheel track, generate it if doesn't exists.
-        processes = min(multiprocessing.cpu_count(), len(wheel_zs)) if c.parallel_ulm else 1
-        with multiprocessing.Pool(processes=processes) as pool:
-            pool.map(create_or_load_wheel_track, wheel_zs)
+        if c.parallel_ulm:
+            processes = min(multiprocessing.cpu_count(), len(wheel_zs))
+            print_i(f"Running with {processes} processes")
+            with multiprocessing.Pool(processes=processes) as pool:
+                pool.map(create_or_load_wheel_track, wheel_zs)
+        else:
+            map(create_or_load_wheel_track, wheel_zs)
         if run_only:
             return
         # Load all wheel tracks from disk into the resulting dictionary.
