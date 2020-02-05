@@ -308,7 +308,7 @@ def per_sensor_plots(
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
             plt.tight_layout()
-            plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}"))
+            plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}.pdf"))
             plt.close()
             subplot_i = 0
             plot_i += 1
@@ -322,7 +322,7 @@ def per_sensor_plots(
             plot(i, sensor_label, meas_group)
             plt.tight_layout()
             plt.savefig(
-                c.get_image_path("validation/sensors", f"displa-sensor-{sensor_label}",)
+                c.get_image_path("validation/sensors", f"displa-sensor-{sensor_label}.pdf",)
             )
             plt.close()
 
