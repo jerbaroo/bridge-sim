@@ -10,6 +10,6 @@ def run_uls(c: Config):
         c=c,
         response_type=ResponseType.YTranslation,
         sim_runner=OSRunner(c),
-        wheel_zs=c.bridge.wheel_track_xs(c),
+        wheel_zs=c.bridge.wheel_track_zs(c),
         run_only=True,
     )
