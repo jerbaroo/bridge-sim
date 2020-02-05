@@ -134,6 +134,13 @@ class ILMatrix(ResponsesMatrix):
         wheel_zs: List[float],
         run_only: bool = False
     ):
+        """Return a dictionary of unit loads per wheel track.
+
+        Each wheel track will be calculated in parallel if the
+        'Config.parallel_ulm' is set. If the 'run_only' option is given, then
+        the simulations will run but the results will not be loaded into memory.
+
+        """
         def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
             ILMatrix.load_wheel_track(
                 c=c,
