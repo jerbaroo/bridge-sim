@@ -292,11 +292,11 @@ def per_sensor_plots(
         plt.legend()
         sensor_x, sensor_z = displa_sensor_xzs[i]
         plt.title(
-            f"Displacement at sensor {sensor_label}"
-            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"{ResponseType.YTranslation.name()} at sensor {sensor_label}, x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
+            f"\n due to Truck 1 moving across bridge 705"
         )
-        plt.xlabel("x position of truck front axle (m)")
-        plt.ylabel("displacement (mm)")
+        plt.xlabel("X position of Truck 1's front axle (m)")
+        plt.ylabel(f"{ResponseType.YTranslation.name()} (mm)")
         plt.ylim((amin, amax))
 
     # Create a subplot for each displacement sensor.
