@@ -161,7 +161,7 @@ def compare_axles(c: Config):
 
 def compare_responses(c: Config):
     """Compare responses to Truck 1, direct simulation and matmul."""
-    assert c.il_num_loads == 400
+    assert c.il_num_loads == 600
     num_times = 50
     close_times = 200
     # Running time:
