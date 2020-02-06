@@ -288,7 +288,6 @@ def piers_displaced(c: Config):
                 sim_params=sim_params,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                run=r_i == 0,  # Only need to run it once.
             ).resize()
             # Mapping simulation from 1m to 1mm requires dividing by 1000.
             # However since we also want to convert from meter to millimeter
