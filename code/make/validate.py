@@ -74,11 +74,13 @@ def truck_1_time_series(c: Config):
     wagen1_times = np.linspace(
         -end_time, end_time * 2, int((end_time * 3) / c.sensor_hz)
     )
+    print_i("Calculating Truck 1 loads")
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
         # flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
         for time in wagen1_times
     ]
+    print_i("Calculated Truck 1 loads")
     # Results from simulation.
     responses_ulm = responses_to_traffic_array(
         c=c,

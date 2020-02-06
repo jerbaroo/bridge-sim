@@ -327,7 +327,6 @@ def piers_displaced(c: Config):
                 # norm=norm,
                 responses=sim_responses,
                 levels=levels,
-                units=units,
                 show_legend=response_type == ResponseType.YTranslation,
             )
             plt.tight_layout()
