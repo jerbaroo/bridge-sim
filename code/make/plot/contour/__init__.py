@@ -283,7 +283,6 @@ def piers_displaced(c: Config):
                 response_type=response_type,
                 sim_runner=OSRunner(c),
                 sim_params = SimParams(
-                    response_types=response_types,
                     displacement_ctrl=PierSettlement(
                         displacement=c.pd_unit_disp,
                         pier=p
