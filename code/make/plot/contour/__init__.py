@@ -315,10 +315,6 @@ def piers_displaced(c: Config):
                 )
             if response_type == ResponseType.YTranslation:
                 plt.legend()
-            # Add the Axis colorbar.
-            plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
-            clb = plt.colorbar()
-            clb.ax.set_title(sim_responses.units)
             # Title and save.
             plt.title(f"{response_type.name()} from 1mm pier settlement with AxisVM")
             plt.xlabel("X position (m)")
