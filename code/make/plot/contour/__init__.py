@@ -278,16 +278,17 @@ def piers_displaced(c: Config):
     for r_i, response_type in enumerate(response_types):
         for p in pier_indices:
             # Run the simulation and collect responses.
-            pier = c.bridge.supports[p]
-            pier_disp = PierSettlement(displacement=c.pd_unit_disp, pier=p)
-            sim_params = SimParams(
-                response_types=response_types, displacement_ctrl=pier_disp,
-            )
             sim_responses = load_fem_responses(
                 c=c,
-                sim_params=sim_params,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
+                sim_params = SimParams(
+                    response_types=response_types,
+                    displacement_ctrl=PierSettlement(
+                        displacement=c.pd_unit_disp,
+                        pier=p
+                    ),
+                )
             ).resize()
             # Mapping simulation from 1m to 1mm requires dividing by 1000.
             # However since we also want to convert from meter to millimeter
