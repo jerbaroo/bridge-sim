@@ -235,44 +235,6 @@ def cracked_concrete_plots(c: Config):
 def piers_displaced(c: Config):
     """Contour plots of pier displacement for the given pier indices."""
     pier_indices = [4, 5]
-    y = 0
-    levels = 14
-    # color_bins = {
-    #     4: [
-    #         1.19,
-    #         0.8,
-    #         0.7,
-    #         0.6,
-    #         0.5,
-    #         0.4,
-    #         0.3,
-    #         0.2,
-    #         0.1,
-    #         0,
-    #         -0.1,
-    #         -0.2,
-    #         -0.3,
-    #         -0.4,
-    #         -0.61,
-    #     ],
-    #     5: [
-    #         1.36,
-    #         1.05,
-    #         0.9,
-    #         0.75,
-    #         0.6,
-    #         0.45,
-    #         0.3,
-    #         0.15,
-    #         0,
-    #         -0.15,
-    #         -0.3,
-    #         -0.45,
-    #         -0.6,
-    #         -0.75,
-    #         -1.1,
-    #     ],
-    # }
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
     for r_i, response_type in enumerate(response_types):
@@ -288,11 +250,8 @@ def piers_displaced(c: Config):
                         pier=p
                     ),
                 )
-            ).resize()
-            # Mapping simulation from 1m to 1mm requires dividing by 1000.
-            # However since we also want to convert from meter to millimeter
-            # this cancels out for displacement.
-           
+            )
+          
             # In the case of stress we map from kn/m2 to kn/mm2 (E-6) and then
             # divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
@@ -302,7 +261,9 @@ def piers_displaced(c: Config):
             # Get min and max values for both Axis and OpenSees.
             rt_str = "displa" if response_type == ResponseType.YTranslation else "stress"
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
-            amin, amax = float(row["dmin"]), float(row["dmax"])
+            dmin, dmax = float(row["dmin"]), float(row["dmax"])
+            omin, omax = float(row["omin"]), float(row["omax"])
+            amin, amax = max(dmin, omin), min(dmax, omax)
             levels = np.linspace(amin, amax, 16)
 
             # Plot and save the image. If plotting strains use Axis values for
@@ -311,15 +272,8 @@ def piers_displaced(c: Config):
             from plot import axis_cmap_r
 
             cmap = axis_cmap_r
-            #     plt.scatter(x=[0, 0], y=[0, 0], c=[bins[0], bins[-1]], alpha=0)
             top_view_bridge(c.bridge, abutments=True, piers=True)
-            plot_contour_deck(
-                c=c,
-                y=y,
-                cmap=cmap,
-                responses=sim_responses,
-                levels=levels,
-            )
+            plot_contour_deck(c=c, cmap=cmap, responses=sim_responses, levels=levels)
             plt.tight_layout()
             plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees")
             plt.savefig(
@@ -330,6 +284,9 @@ def piers_displaced(c: Config):
             )
             plt.close()
 
+            # First plot and clear, just to have the same colorbar.
+            plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=levels)
+            plt.cla()
             # Save the axis plots.
             axis_img = mpimg.imread(f"validation/axis-screenshots/{p}-{rt_str}.png")
             top_view_bridge(c.bridge, abutments=True)
