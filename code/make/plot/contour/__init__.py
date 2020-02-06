@@ -301,9 +301,9 @@ def piers_displaced(c: Config):
             )
             # Plot the load and min, max values.
             for point, leg_label, color in [
-                ((0, 0), f"min = {np.around(amin, 3)} {sim_responses.units}", "r"),
-                ((0, 0), f"max = {np.around(amax, 3)} {sim_responses.units}", "r"),
-                ((0, 0), f"|min-max| = {np.around(abs(amax - amin), 3)} {sim_responses.units}", "r",),
+                ((0, 0), f"min = {np.around(dmin, 3)} {sim_responses.units}", "r"),
+                ((0, 0), f"max = {np.around(dmax, 3)} {sim_responses.units}", "r"),
+                ((0, 0), f"|min-max| = {np.around(abs(dmax - dmin), 3)} {sim_responses.units}", "r",),
             ]:
                 plt.scatter(
                     [point[0]],
