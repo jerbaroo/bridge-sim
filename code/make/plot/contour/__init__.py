@@ -310,12 +310,7 @@ def piers_displaced(c: Config):
             from plot import axis_cmap_r
 
             cmap = axis_cmap_r
-            # if response_type == ResponseType.Strain:
-            #     bins = color_bins[p]
-            #     assert len(bins) == 15
-            #     norm = colors.BoundaryNorm(list(reversed(bins)), len(bins))
             #     plt.scatter(x=[0, 0], y=[0, 0], c=[bins[0], bins[-1]], alpha=0)
-            #     sim_response_values = list(sim_responses.values())
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(
                 c=c,
@@ -323,7 +318,6 @@ def piers_displaced(c: Config):
                 cmap=cmap,
                 responses=sim_responses,
                 levels=levels,
-                show_legend=response_type == ResponseType.YTranslation,
             )
             plt.tight_layout()
             plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees")
