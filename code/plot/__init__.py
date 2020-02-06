@@ -161,22 +161,23 @@ default_cmap = matplotlib.cm.get_cmap("jet")
 
 
 # Colourbar from Diana.
-diana_colors = [
-    np.array([252, 13, 27]) / 255,
-    np.array([253, 144, 38]) / 255,
-    np.array([219, 253, 53]) / 255,
-    np.array([82, 253, 47]) / 255,
-    np.array([42, 253, 85]) / 255,
-    np.array([44, 254, 218]) / 255,
-    np.array([25, 148, 252]) / 255,
-    np.array([11, 36, 251]) / 255,
-]  # R -> G -> B
-diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-    "diana", diana_colors, N=len(diana_colors)
-)
-diana_r_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-    "diana_r", diana_colors[::-1], N=len(diana_colors)
-)
+diana_colors = np.array([
+    [252, 13, 27],
+    [253, 144, 38],
+    [219, 253, 53],
+    [82, 253, 47],
+    [42, 253, 85],
+    [44, 254, 218],
+    [25, 148, 252],
+    [11, 36, 251],
+])  # R -> G -> B
+diana_colors = diana_colors / 255
+diana_r = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(diana_colors)), diana_colors.T[0])
+diana_g = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(diana_colors)), diana_colors.T[1])
+diana_b = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(diana_colors)), diana_colors.T[2])
+diana_colors = [(diana_r[i], diana_g[i], diana_b[i]) for i in range(len(diana_r))]
+diana_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("diana", diana_colors)
+diana_cmap_r = matplotlib.colors.LinearSegmentedColormap.from_list("diana_r", diana_colors[::-1])
 
 # Colourbar from Axis.
 axis_colors = np.array([
@@ -199,14 +200,9 @@ axis_colors = axis_colors / 255
 axis_r = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[0])
 axis_g = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[1])
 axis_b = np.interp(np.linspace(0, 1, 256), np.linspace(0, 1, len(axis_colors)), axis_colors.T[2])
-axis_colors = [
-    (axis_r[i], axis_g[i], axis_b[i])
-    for i in range(len(axis_r))
-]
-axis_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-    "axis", axis_colors)
-axis_cmap_r = matplotlib.colors.LinearSegmentedColormap.from_list(
-    "axis_r", axis_colors[::-1])
+axis_colors = [(axis_r[i], axis_g[i], axis_b[i]) for i in range(len(axis_r))]
+axis_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("axis", axis_colors)
+axis_cmap_r = matplotlib.colors.LinearSegmentedColormap.from_list("axis_r", axis_colors[::-1])
 
 
 class Color:

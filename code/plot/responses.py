@@ -123,6 +123,7 @@ def plot_contour_deck(
     scatter: bool = False,
     levels: int = 14,
     show_legend: bool = True,
+    sci_format: bool = False,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -171,10 +172,13 @@ def plot_contour_deck(
         )
 
     # Plot min and max responses.
+    amin_s = f"{amin:.4e}" if sci_format else f"{amin:.4f}"
+    amax_s = f"{amax:.4e}" if sci_format else f"{amax:.4f}"
+    aabs_s = f"{abs(amin - amax):.4e}" if sci_format else f"{abs(amin - amax):.4f}"
     for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin:.4f} {responses.units}", "orange", 0),
-        ((amax_x, amax_z), f"max = {amax:.4f} {responses.units}", "green", 0),
-        ((amin_x, amin_z), f"|min-max| = {abs(amax - amin):.4f} {responses.units}", "red", 0),
+        ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),
+        ((amax_x, amax_z), f"max = {amax_s} {responses.units}", "green", 0),
+        ((amin_x, amin_z), f"|min-max| = {aabs_s} {responses.units}", "red", 0),
     ]:
         plt.scatter(
             [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,

@@ -28,7 +28,9 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /z/saved-med simulate uls
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
+# ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
+# ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
 * Introduction
 
@@ -1941,8 +1943,6 @@ and [[tbl:min-displacement]].
 
 \textcolor{red}{TODO: Align color bars, will match a bit better}
 
-# ./cli.sh --save-to /z/saved-diana-comp --mesh full validate diana-comp
-
 #+NAME: fig:comp-diana-a-y
 #+ATTR_LaTeX: :placement [!p]
 #+CAPTION[Displacement in Diana from a point load (A)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-y]] from simulation with OpenSees.
@@ -2249,8 +2249,6 @@ bridge 705 for OpenSees is $\approx 24,000$. Figures [[fig:converge-displa]] and
 [[fig:converge-strain]] show convergence of displacement and strains respectively
 and justify the selection of $MSL = 0.5$. At this value the run time of a
 simulation is approximatley three minutes on a TODO machine.
-
-# ./cli.sh --shorten-paths true --mesh full --save-to /z/param-uls params param-uls
 
 #+NAME: fig:param-uls
 #+CAPTION[Convergence as a function of ULS] Convergence of vertical translationas the number of ULS is increased. For each value of ULS the loads of Truck 1are decomposed into loads that are placed in the "buckets" of the wheel tracks,then a simulation is run and the response recorded. The reference value tocalculate error is based on using the wheel tracks, but simulating Truck 1directly with a point load per wheel. This figure shows that the error isalready a low percentage.
