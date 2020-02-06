@@ -297,11 +297,13 @@ def piers_displaced(c: Config):
             # divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
             if response_type == ResponseType.Strain:
-                sim_responses.to_stress(c.bridge)
+                sim_responses.to_stress(c.bridge).map(lambda r: r * 1E-9)
 
             # Get min and max values for both Axis and OpenSees.
             rt_str = "displa" if response_type == ResponseType.YTranslation else "stress"
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
+            amin, amax = float(row["dmin"]), float(row["dmax"])
+            levels = np.linspace(amin, amax, 16)
 
             # Plot and save the image. If plotting strains use Axis values for
             # colour normalization.
@@ -341,7 +343,6 @@ def piers_displaced(c: Config):
                 ),
             )
             # Plot the load and min, max values.
-            amin, amax = float(row["dmin"]), float(row["dmax"])
             for point, leg_label, color in [
                 ((0, 0), f"min = {np.around(amin, 3)} {sim_responses.units}", "r"),
                 ((0, 0), f"max = {np.around(amax, 3)} {sim_responses.units}", "r"),
