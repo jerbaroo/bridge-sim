@@ -289,30 +289,27 @@ def piers_displaced(c: Config):
                 response_type=response_type,
                 sim_runner=OSRunner(c),
                 run=r_i == 0,  # Only need to run it once.
-            )
+            ).resize()
             # Mapping simulation from 1m to 1mm requires dividing by 1000.
             # However since we also want to convert from meter to millimeter
-            # this cancels out for displacement. In the case of stress we map
-            # from kn/m2 to kn/mm2 (E-6) and then divide by 1000, so (E-9).
+            # this cancels out for displacement.
+           
+            # In the case of stress we map from kn/m2 to kn/mm2 (E-6) and then
+            # divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
-            # Construct unit string and get Axis values.
-            if response_type == ResponseType.YTranslation:
-                rt_str = "displa"
-                units = "mm"
-            elif response_type == ResponseType.Strain:
-                rt_str = "strain"
-                units = "kN/mm²"
-                sim_responses.deck_strain_to_stress(bridge=c.bridge, times=1e-9)
-            else:
-                raise ValueError("Unsupported response type")
+            if response_type == ResponseType.Strain:
+                sim_responses.to_stress(c.bridge)
+
+            # Get min and max values for both Axis and OpenSees.
+            rt_str = "displa" if response_type == ResponseType.YTranslation else "stress"
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
 
             # Plot and save the image. If plotting strains use Axis values for
             # colour normalization.
             # norm = None
-            cmap = colors.LinearSegmentedColormap.from_list(
-                "axis", list(reversed(axis_colors)), N=levels
-            )
+            from plot import axis_cmap_r
+
+            cmap = axis_cmap_r
             # if response_type == ResponseType.Strain:
             #     bins = color_bins[p]
             #     assert len(bins) == 15
@@ -324,17 +321,16 @@ def piers_displaced(c: Config):
                 c=c,
                 y=y,
                 cmap=cmap,
-                # norm=norm,
                 responses=sim_responses,
                 levels=levels,
                 show_legend=response_type == ResponseType.YTranslation,
             )
             plt.tight_layout()
-            plt.title(f"{response_type.name()} from 1mm pier settlement")
+            plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees")
             plt.savefig(
                 c.get_image_path(
                     "validation/pier-displacement",
-                    safe_str(f"pier-{p}-{response_type.name()}") + ".pdf",
+                    safe_str(f"pier-{p}-{sim_responses.response_type.name()}") + ".pdf",
                 )
             )
             plt.close()
@@ -352,11 +348,11 @@ def piers_displaced(c: Config):
                 ),
             )
             # Plot the load and min, max values.
-            amin, amax = float(row["min"]), float(row["max"])
+            amin, amax = float(row["dmin"]), float(row["dmax"])
             for point, leg_label, color in [
-                ((0, 0), f"min = {np.around(amin, 3)} {units}", "r"),
-                ((0, 0), f"max = {np.around(amax, 3)} {units}", "r"),
-                ((0, 0), f"|min-max| = {np.around(abs(amax - amin), 3)} {units}", "r",),
+                ((0, 0), f"min = {np.around(amin, 3)} {sim_responses.units}", "r"),
+                ((0, 0), f"max = {np.around(amax, 3)} {sim_responses.units}", "r"),
+                ((0, 0), f"|min-max| = {np.around(abs(amax - amin), 3)} {sim_responses.units}", "r",),
             ]:
                 plt.scatter(
                     [point[0]],
@@ -371,9 +367,9 @@ def piers_displaced(c: Config):
             # Add the Axis colorbar.
             plt.imshow(np.array([[amin, amax]]), cmap=cmap, extent=(0, 0, 0, 0))
             clb = plt.colorbar()
-            clb.ax.set_title(units)
+            clb.ax.set_title(sim_responses.units)
             # Title and save.
-            plt.title(f"{response_type.name()} from 1mm pier settlement")
+            plt.title(f"{response_type.name()} from 1mm pier settlement with AxisVM")
             plt.xlabel("X position (m)")
             plt.ylabel("Z position (m)")
             plt.tight_layout()

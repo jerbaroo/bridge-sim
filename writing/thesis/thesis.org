@@ -30,7 +30,7 @@ I would like to thank...
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
 # ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
-# ./cli.sh --mesh full --save-to /z/saved-piers validate pier-disp
+# ./cli.sh --mesh full --save-to /z/saved-piers --two-materials validate pier-disp
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
 * Introduction
