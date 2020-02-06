@@ -43,10 +43,8 @@ def number_of_uls_plot(c: Config):
     responses = []
     for num_uls in num_ulss:
         c.il_num_loads = num_uls
-        print_i(f"Number of ULS = {num_uls}")
         # Nested in here because it depends on the setting of 'il_num_loads'.
         truck_loads = flatten(wagen1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad)
-        print_i(f"Truck loads = {truck_loads}")
         num_loads.append(len(truck_loads))
         total_load.append(sum(map(lambda l: l.kn, truck_loads)))
         sim_responses = load_fem_responses(
@@ -59,25 +57,22 @@ def number_of_uls_plot(c: Config):
 
     # Plot the raw responses, then error on the second axis.
     plt.landscape()
-    plt.plot(num_ulss, np.abs(responses))
-    plt.ylabel(f"Absolute {response_type.name().lower()} (mm)")
+    # plt.plot(num_ulss, responses)
+    # plt.ylabel(f"{response_type.name().lower()} (mm)")
     plt.xlabel("ULS")
     error = np.abs(np.array(responses) - ref_value).flatten() * 100
-    ax2 = plt.twinx()
-    ax2.plot(num_ulss, error)
-    ax2.set_ylabel("Error (%)")
-    plt.title(f"{response_type.name()} to Truck 1 as a function of ULS")
+    # ax2 = plt.twinx()
+    plt.plot(num_ulss, error)
+    plt.ylabel("Error (%)")
+    plt.title(f"Error in {response_type.name()} to Truck 1 as a function of ULS")
     # Plot the chosen number of ULS.
-    print(np.array([chosen_uls]).shape)
-    print(np.array(num_ulss).shape)
-    print(np.array(error).shape)
     chosen_error = np.interp([chosen_uls], num_ulss, error)[0]
-    plt.axvline(
-        chosen_uls,
+    plt.axhline(
+        chosen_error,
         label=f"At {chosen_uls} ULS, error = {np.around(chosen_error, 2)} %",
         color="black",
     )
-    plt.axhline(chosen_error, color="black")
+    plt.axhline(0, color="red", label="Response from direct simulation (no wheel tracks)")
     plt.legend()
     plt.tight_layout()
     plt.savefig(c.get_image_path("paramselection", "uls.pdf"))
