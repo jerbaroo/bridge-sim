@@ -41,7 +41,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
         cmap = mpl.colors.LinearSegmentedColormap.from_list("axis", axis_colors[::-1], N=25)
         plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=25)
-        plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C axial thermal deck loading in OpenSees")
+        plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C uniform temp. deck loading with OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
             "validation/thermal",
@@ -75,7 +75,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
         cmap = mpl.colors.LinearSegmentedColormap.from_list("axis", axis_colors[::-1], N=25)
         plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=25)
-        plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C moment thermal deck loading in OpenSees")
+        plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C linear temp. deck loading with OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
             "validation/thermal",

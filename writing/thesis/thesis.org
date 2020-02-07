@@ -31,6 +31,7 @@ I would like to thank...
 # ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
 # ./cli.sh --mesh full --save-to /z/saved-piers --two-materials validate pier-disp
+# ./cli.sh --mesh low --save-to saved-but-rm --two-materials validate thermal
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
 * Introduction
@@ -2184,24 +2185,30 @@ the remaining piers between them. Thus one pier near the southern edge of the
 bridge and one pier just north of that pier are chosen for comparison, these are
 piers 4 and 5 in Figure TODO. Both of these piers are displaced by
 $\SI{1}{\meter}$ with AxisVM and also with OpenSees. Contour plots of the
-displacement and strain are shown in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for
-the settlement of pier 4 and in Appendix [[sec:app:pier]] for pier 5.
+displacement and stress are shown in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for
+the settlement of pier 4 and in Appendix [[sec:app:pier]] for pier 5. The reason
+that stress is compared with AxisVM instead of strain is that the AxisVM
+software only provides a visualization of the stress, therefore the strains
+collected from simulation with OpenSees are converted to stresses via Young's
+modulus.
 
+#+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:pd-4d-axis
-#+CAPTION[Displacement from settlement of pier 4 with AxisVM]: Displacement recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-displa.png]]
+#+CAPTION[Displacement from settlement of pier 4 with AxisVM]: Displacement recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+[[./saved-images/piers/4-axis-displa.pdf]]
 
+#+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:pd-4d-os
-#+CAPTION[Displacement from settlement of pier 4 with OpenSees]: Displacement recorded with OpenSees when a pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-displacement.pdf]]
+#+CAPTION[Displacement from settlement of pier 4 with OpenSees]: Displacement recorded with OpenSees when a pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+[[./saved-images/piers/pier-4-y-translation.pdf]]
 
 #+NAME: fig:pd-4s-axis
-#+CAPTION[Strain from settlement of pier 4 with AxisVM]: Strain recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/4-axis-strain.png]]
+#+CAPTION[Stress from settlement of pier 4 with AxisVM]: Stress recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
+[[./saved-images/piers/4-axis-stress.pdf]]
 
 #+NAME: fig:pd-4s-os
-#+CAPTION[Strain from settlement of pier 4 with OpenSees]: Strain recorded with OpenSees when pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-4-strain.pdf]]
+#+CAPTION[Stress from settlement of pier 4 with OpenSees]: Stress recorded with OpenSees when pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
+[[./saved-images/piers/pier-4-stress.pdf]]
 
 The contour plots of pier settlement show that the displacements collected with
 OpenSees are in very close agreement with those collected with AxisVM. However
@@ -2472,20 +2479,20 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 <<sec:app:pier>>
 
 #+NAME: fig:pd-5d-axis
-#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-displa.png]]
+#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+[[./saved-images/piers/5-axis-displa.pdf]]
 
 #+NAME: fig:pd-5d-os
-#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum. The pier that is displaced can be identified by the blue area surrounding it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-displacement.pdf]]
+#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+[[./saved-images/piers/pier-5-y-translation.pdf]]
 
 #+NAME: fig:pd-5s-axis
-#+CAPTION[Strain from pier (5) settlement with AxisVM]: Strain recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the maximum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/5-axis-strain.png]]
+#+CAPTION[Stress from pier (5) settlement with AxisVM]: Stress recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
+[[./saved-images/piers/5-axis-stress.pdf]]
 
 #+NAME: fig:pd-5s-os
-#+CAPTION[Strain from pier (5) settlement with OpenSees]: Strain recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum strain recorded and dark blue the minimum. The pier that is displaced can be identified by the red area around it.
-[[../../saved-generated-data-images/bridge-705-single-sections-full-3d/healthy/validation/pier-displacement/pier-5-strain.pdf]]
+#+CAPTION[Stress from pier (5) settlement with OpenSees]: Stress recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
+[[./saved-images/piers/pier-5-stress.pdf]]
 
 
 # ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
