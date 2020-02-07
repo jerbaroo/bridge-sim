@@ -442,8 +442,8 @@ def comparison_plots_705(c: Config, run_only: bool):
             if run_only:
                 continue
             title = (
-                f"{response_type.name()} from a {loads[0].kn} kN point load"
-                + f"\nat x = {load_x:.3f}m, z = {load_z:.3f}m"
+                f"{response_type.name()} from a {loads[0].kn} kN point load at {label},"
+                + f"\nx = {load_x:.3f}m, z = {load_z:.3f}m, with "
             )
             save = lambda prefix: c.get_image_path(
                 "validation/diana-comp",
@@ -455,7 +455,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                 fem_responses = fem_responses.map(lambda r: r * 1E-6)
             sci_format = response_type == ResponseType.Strain
             plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap, levels=levels, sci_format=sci_format)
-            plt.title(title)
+            plt.title(title + "OpenSees")
             plt.tight_layout()
             plt.savefig(save(f"{label}-"))
             plt.close()
@@ -494,7 +494,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                         alpha=alpha,
                     )
                 plt.legend()
-                plt.title(title)
+                plt.title(title + "Diana")
                 plt.xlabel("X position (m)")
                 plt.ylabel("Z position (m)")
                 plt.tight_layout()
