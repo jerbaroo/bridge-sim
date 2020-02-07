@@ -358,7 +358,6 @@ def thermal(run):
 
     if not two_materials_:
         raise ValueError("You need the --two-materials option!")
-    thermal.make_axis_plots(c())
     thermal.unit_moment_thermal_deck_load(c=c(), run=run)
     thermal.unit_axial_thermal_deck_load(c=c(), run=run)
 

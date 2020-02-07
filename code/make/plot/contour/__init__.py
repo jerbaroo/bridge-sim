@@ -454,7 +454,14 @@ def comparison_plots_705(c: Config, run_only: bool):
             if response_type == ResponseType.Strain:
                 fem_responses = fem_responses.map(lambda r: r * 1E-6)
             sci_format = response_type == ResponseType.Strain
-            plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap, levels=levels, sci_format=sci_format)
+            plot_contour_deck(
+                c=c,
+                responses=fem_responses,
+                ploads=loads,
+                cmap=cmap,
+                levels=levels,
+                sci_format=sci_format
+            )
             plt.title(title + "OpenSees")
             plt.tight_layout()
             plt.savefig(save(f"{label}-"))

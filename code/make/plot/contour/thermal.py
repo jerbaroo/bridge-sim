@@ -20,7 +20,18 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
     """Response to unit axial thermal deck loading."""
     damage_scenario = thermal_damage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = damage_scenario.use(c)
-    for i, response_type in enumerate(ResponseType.all()):
+    axis_values = pd.read_csv("validation/axis-screenshots/thermal-min-max.csv")
+    for i, response_type in enumerate([ResponseType.Stress, ResponseType.YTranslation]):
+        # Get min and max values for both Axis and OpenSees.
+        rt_name = "stress" if response_type == ResponseType.Stress else "ytrans"
+        row = axis_values[axis_values["name"] == f"{rt_name}-axial"]
+        print(axis_values)
+        print(row)
+        dmin, dmax = float(row["dmin"]), float(row["dmax"])
+        omin, omax = float(row["omin"]), float(row["omax"])
+        amin, amax = max(dmin, omin), min(dmax, omax)
+        levels = np.linspace(amin, amax, 16)
+        # Load responses, strain in case of stress.
         is_stress = response_type == ResponseType.Stress
         sim_responses = load_fem_responses(
             c=c,
@@ -39,8 +50,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             #     )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-        cmap = mpl.colors.LinearSegmentedColormap.from_list("axis", axis_colors[::-1], N=25)
-        plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=25)
+        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
         plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C uniform temp. deck loading with OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
@@ -49,12 +59,70 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         ))
         plt.close()
 
+        # Load the axis image.
+        axis_img = mpl.image.imread(
+            f"validation/axis-screenshots/thermal-{rt_name}-axial.png"
+        )
+        # First plot and clear, just to have the same colorbar.
+        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+        plt.cla()
+        # Then imshow the axis image.
+        top_view_bridge(bridge=c.bridge, abutments=True)
+        plt.imshow(
+            axis_img,
+            extent=(
+                c.bridge.x_min,
+                c.bridge.x_max,
+                c.bridge.z_min,
+                c.bridge.z_max,
+            ),
+        )
+        # Plot the min and max values.
+        for leg_label, color in [
+            (f"min = {dmin:.3f} {sim_responses.units}", "r"),
+            (f"max = {dmax:.3f} {sim_responses.units}", "r"),
+            (f"|min-max| = {abs(dmax - dmin):.3f} {sim_responses.units}", "r"),
+        ]:
+            plt.scatter(
+                [0],
+                [0],
+                label=leg_label,
+                marker="o",
+                color=color,
+                alpha=0,
+            )
+        plt.legend()
+        # Title and save.
+        plt.title(
+            f"{response_type.name()} from 1‎°C uniform temp. deck"
+            f" loading with AxisVM"
+        )
+        plt.xlabel("X position (m)")
+        plt.ylabel("Z position (m)")
+        plt.tight_layout()
+        plt.savefig(
+            c.get_image_path(
+                "validation/thermal", f"axis-{rt_name}-axial.pdf",
+            )
+        )
+        plt.close()
 
 def unit_moment_thermal_deck_load(c: Config, run: bool):
     """Response to unit moment thermal deck loading."""
     damage_scenario = thermal_damage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = damage_scenario.use(c)
-    for i, response_type in enumerate(ResponseType.all()):
+    axis_values = pd.read_csv("validation/axis-screenshots/thermal-min-max.csv")
+    for i, response_type in enumerate([ResponseType.Stress, ResponseType.YTranslation]):
+        # Get min and max values for both Axis and OpenSees.
+        rt_name = "stress" if response_type == ResponseType.Stress else "ytrans"
+        row = axis_values[axis_values["name"] == f"{rt_name}-moment"]
+        print(axis_values)
+        print(row)
+        dmin, dmax = float(row["dmin"]), float(row["dmax"])
+        omin, omax = float(row["omin"]), float(row["omax"])
+        amin, amax = max(dmin, omin), min(dmax, omax)
+        levels = np.linspace(amin, amax, 16)
+        # Load responses, strain in case of stress.
         is_stress = response_type == ResponseType.Stress
         sim_responses = load_fem_responses(
             c=c,
@@ -73,8 +141,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
             #     )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-        cmap = mpl.colors.LinearSegmentedColormap.from_list("axis", axis_colors[::-1], N=25)
-        plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=25)
+        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
         plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C linear temp. deck loading with OpenSees")
         plt.tight_layout()
         plt.savefig(c.get_image_path(
@@ -83,67 +150,50 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         ))
         plt.close()
 
-
-def make_axis_plots(c: Config):
-    """Create AxisVM plots for thermal loading."""
-    axis_values = pd.read_csv("validation/axis-screenshots/thermal-min-max.csv")
-    for response_type, rt_name, rt_units in [
-        # (ResponseType.XTranslation, "xtrans", "mm"),
-        (ResponseType.YTranslation, "ytrans", "mm"),
-        # (ResponseType.ZTranslation, "ztrans", "mm"),
-        (ResponseType.Stress, "stress", "N/mm²"),
-    ]:
-        for thermal_type in ["axial", "moment"]:
-            axis_img = mpl.image.imread(
-                f"validation/axis-screenshots/thermal-{rt_name}-{thermal_type}.png"
+        # Load the axis image.
+        axis_img = mpl.image.imread(
+            f"validation/axis-screenshots/thermal-{rt_name}-moment.png"
+        )
+        # First plot and clear, just to have the same colorbar.
+        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+        plt.cla()
+        # Then imshow the axis image.
+        top_view_bridge(bridge=c.bridge, abutments=True)
+        plt.imshow(
+            axis_img,
+            extent=(
+                c.bridge.x_min,
+                c.bridge.x_max,
+                c.bridge.z_min,
+                c.bridge.z_max,
+            ),
+        )
+        # Plot the min and max values.
+        for leg_label, color in [
+            (f"min = {dmin:.3f} {sim_responses.units}", "r"),
+            (f"max = {dmax:.3f} {sim_responses.units}", "r"),
+            (f"|min-max| = {abs(dmax - dmin):.3f} {sim_responses.units}", "r"),
+        ]:
+            plt.scatter(
+                [0],
+                [0],
+                label=leg_label,
+                marker="o",
+                color=color,
+                alpha=0,
             )
-            top_view_bridge(bridge=c.bridge, abutments=True)
-            plt.imshow(
-                axis_img,
-                extent=(
-                    c.bridge.x_min,
-                    c.bridge.x_max,
-                    c.bridge.z_min,
-                    c.bridge.z_max,
-                ),
+        plt.legend()
+        # Title and save.
+        plt.title(
+            f"{response_type.name()} from 1‎°C linear temp. deck"
+            f" loading with AxisVM"
+        )
+        plt.xlabel("X position (m)")
+        plt.ylabel("Z position (m)")
+        plt.tight_layout()
+        plt.savefig(
+            c.get_image_path(
+                "validation/thermal", f"axis-{rt_name}-moment.pdf",
             )
-            # Plot the load and min, max values.
-            row = axis_values[axis_values["name"] == f"{rt_name}-{thermal_type}"]
-            amin, amax = float(row["min"]), float(row["max"])
-            for point, leg_label, color in [
-                ((0, 0), f"min = {amin:.3f} {rt_units}", "r"),
-                ((0, 0), f"max = {amax:.3f} {rt_units}", "r"),
-                ((0, 0), f"|min-max| = {abs(amax - amin):.3f} {rt_units}", "r"),
-            ]:
-                plt.scatter(
-                    [point[0]],
-                    [point[1]],
-                    label=leg_label,
-                    marker="o",
-                    color=color,
-                    alpha=0,
-                )
-            plt.legend()
-            # Add the Axis colorbar.
-            cmin, cmax, clevels = float(row["cmin"]), float(row["cmax"]), int(row["clevels"])
-            plt.imshow(
-                np.array([[cmin, cmax]]),
-                cmap=mpl.colors.LinearSegmentedColormap.from_list("axis", axis_colors[::-1], N=clevels),
-                extent=(0, 0, 0, 0),
-            )
-            clb = plt.colorbar()
-            clb.ax.set_title(rt_units)
-            # Title and save.
-            plt.title(
-                f"{response_type.name()} from 1‎°C {thermal_type} thermal deck"
-                f" loading in AxisVM"
-            )
-            plt.xlabel("X position (m)")
-            plt.ylabel("Z position (m)")
-            plt.tight_layout()
-            plt.savefig(
-                c.get_image_path(
-                    "validation/thermal", f"axis-{rt_name}-{thermal_type}.pdf",
-                )
-            )
-            plt.close()
+        )
+        plt.close()

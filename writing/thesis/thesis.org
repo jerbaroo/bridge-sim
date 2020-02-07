@@ -31,7 +31,7 @@ I would like to thank...
 # ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
 # ./cli.sh --mesh full --save-to /z/saved-piers --two-materials validate pier-disp
-# ./cli.sh --mesh low --save-to saved-but-rm --two-materials validate thermal
+# ./cli.sh --mesh low --save-to /z/throwaway --two-materials validate thermal
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
 * Introduction
