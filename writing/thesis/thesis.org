@@ -27,11 +27,21 @@ I would like to thank...
 #+LATEX: \newpage
 
 # ./cli.sh --mesh med --save-to /z/saved-med simulate uls
+
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
+
 # ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
+
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
+
 # ./cli.sh --mesh full --save-to /z/saved-piers --two-materials validate pier-disp
+
+# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
+# validate pier-conv --pier 5 --max-nodes 100000 --without-radius 2 --nesw-loc 0
+# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
+
 # ./cli.sh --mesh low --save-to /z/throwaway --two-materials validate thermal
+
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
 * Introduction
@@ -2228,24 +2238,39 @@ increasing distance from pier 4 in Figure [[fig:pier-4-nesw]] and in Figure
 #+CAPTION[Strain convergence at distances from pier 4]: Strain convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 4. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 4.
 [[./saved-images/piers/nesw-pier-4.pdf]]
 
-***** Thermal Loading
+***** Temperature Load
 
-In order to validate the implementation of thermal loading, as discussed in
-Subsection [[Noise Model]], simulations of unit thermal loading were run using the
+In order to validate the temperature load implementation, as discussed in
+Subsection [[Noise Model]], simulations of unit temperature load were run using the
 FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
-each of these FE applications, one simulation of unit axial thermal loading and
-one simulation of unit moment thermal loading. Thermal loading is explained in
-Subsection [[Noise]]. Figures [[fig:thermal-axial-y-axis]] and [[fig:thermal-axial-y-os]]
-show displacement from unit axial thermal loading applied to FEMs of bridge 705
-for AxisVM and OpenSees respectively.
+each of these FE applications, one simulation for unform temperature load and
+one simulation for unit linear temperature load. The explanation of temperature
+load is provided in Subsection [[Noise]]. Figures [[fig:thermal-uniform-y-axis]] and
+[[fig:thermal-uniform-s-os]] show vertical translation and stress from simulations
+of unit uniform temperature load applied to FEMs of bridge 705 with AxisVM and
+OpenSees. These plots show that vertical translation is in very good agreement
+while the stresses are shifted to higher values in the simulation with OpenSees.
+The Figures [[fig:thermal-linear-y-os]] - [[fig:thermal-linear-s-os]] also show vertical
+translation to be in very good agreement, and show the stress component to be in
+good agreement.
 
-#+NAME: fig:thermal-axial-y-axis
-#+CAPTION[Displacement from axial thermal loading in AxisVM]: Displacement from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 in AxisVM.
+#+ATTR_LaTeX: :placement [!p]
+#+NAME: fig:thermal-uniform-y-axis
+#+CAPTION[Vert. trans. from uniform temperature loading in AxisVM]: Vertical translation from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 with AxisVM.
 [[./saved-images/thermal/axis-ytrans-axial.pdf]]
 
-#+NAME: fig:thermal-axial-y-os
-#+CAPTION[Displacement from axial thermal loading in OpenSees]: Displacement from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 in OpenSees.
-[[./saved-images/thermal/thermal-deck-unit-axial_load-displacement.pdf]]
+#+NAME: fig:thermal-uniform-y-os
+#+CAPTION[Vert. trans. from uniform temperature loading in OpenSees]: Vertical translation from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 with OpenSees.
+[[./saved-images/thermal/thermal-deck-unit-axial_load-y-translation.pdf]]
+
+#+ATTR_LaTeX: :placement [!p]
+#+NAME: fig:thermal-uniform-s-axis
+#+CAPTION[Stress from uniform temperature loading in AxisVM]: Stress from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 with AxisVM.
+[[./saved-images/thermal/axis-stress-axial.pdf]]
+
+#+NAME: fig:thermal-uniform-s-os
+#+CAPTION[Stress from uniform temperature loading in OpenSees]: Stress from $\SI{+1}{\celsius}$ axial thermal loading of the deck of bridge 705 with OpenSees.
+[[./saved-images/thermal/thermal-deck-unit-axial_load-stress.pdf]]
 
 *** Parameter Selection
 
@@ -2494,16 +2519,30 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 #+CAPTION[Stress from pier (5) settlement with OpenSees]: Stress recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
 [[./saved-images/piers/pier-5-stress.pdf]]
 
-
-# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-5-convergence
-# validate pier-conv --pier 5 --max-nodes 100000 --without-radius 2 --nesw-loc 0
-# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
-
 #+NAME: fig:pier-5-nesw
 #+CAPTION[Strain convergence at distances from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
 [[./saved-images/piers/nesw-pier-5.pdf]]
 
+** Temperature Load
+
+#+ATTR_LaTeX: :placement [!p]
+#+NAME: fig:thermal-linear-y-axis
+#+CAPTION[Displacement from linear temperature loading with AxisVM]: Displacement from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
+[[./saved-images/thermal/axis-ytrans-moment.pdf]]
+
+#+NAME: fig:thermal-linear-y-os
+#+CAPTION[Displacement from linear temperature loading with OpenSees]: Displacement from $\SI{+1}{\celsius}$ linear tempearature loading of the deck of bridge 705 with OpenSees.
+[[./saved-images/thermal/thermal-deck-unit-moment_load-y-translation.pdf]]
+
+#+ATTR_LaTeX: :placement [!p]
+#+NAME: fig:thermal-linear-s-axis
+#+CAPTION[Stress from linear temperature loading with AxisVM]: Stress from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
+[[./saved-images/thermal/axis-stress-moment.pdf]]
+
+#+NAME: fig:thermal-linear-s-os
+#+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with OpenSees.
+[[./saved-images/thermal/thermal-deck-unit-axial_load-stress.pdf]]
+
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
-
 bibliography:myrefs.bib
