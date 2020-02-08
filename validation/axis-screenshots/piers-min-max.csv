@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e28db79753ed8e61a9c25c01e9fae294582a79c7cc0bbadb029c66d7df7cf383
-size 169
+name,dmin,dmax,omin,omax
+5-displa,-1.019,0.088,-1.0256,0.0859
+5-stress,-1.10,1.36,-0.5067,0.7795
+4-displa,-1.074,0.141,-1.1077,0.1292
+4-stress,-0.61,1.19,-0.4570,0.7919
