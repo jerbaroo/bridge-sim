@@ -2541,7 +2541,7 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+NAME: fig:thermal-linear-s-os
 #+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with OpenSees.
-[[./saved-images/thermal/thermal-deck-unit-axial_load-stress.pdf]]
+[[./saved-images/thermal/thermal-deck-unit-moment_load-stress.pdf]]
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
