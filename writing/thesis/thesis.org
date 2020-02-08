@@ -4,6 +4,7 @@
 #+LATEX_HEADER: \usepackage{commath}
 #+LATEX_HEADER: \usemintedstyle{emacs}
 #+LATEX_HEADER: \usepackage[margin=1in=]{geometry}
+#+LATEX_HEADER: \usepackage{placeins}
 #+LATEX_HEADER: \usepackage{siunitx}
 #+LATEX_HEADER: \usepackage[square, numbers]{natbib}
 #+LATEX_HEADER: \usepackage{xcolor}
@@ -2028,7 +2029,7 @@ available from TNO in a ready-to-consume format. The 13 loading positions of
 truck 1 are certainly sufficient.
 
 # Truck 1 and the static load test.
-The specification of Truck 1 is shown in the plot on the left of Figure
+The specification of Truck 1 is shown in the plot on the left side of Figure
 [[fig:truck-1]]. The plot shows the size of each of the truck's wheel prints
 ($\SI{0.31}{meter} \cdot \SI{0.25}{meter}$), in simulation however the force
 from each wheel is represented by a point load as shown in the plot on the right
@@ -2037,25 +2038,19 @@ in contact with the ground.
 
 #+NAME: fig:truck-1
 #+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each side of an axle is annotated with the load intensity of the wheel at that side of the axle. The plot on the right depicts the model of truck used in simulation, here the force from each wheel is represented by a point load.
-#+ATTR_LATEX: :float sideways
+#+ATTR_LATEX: :placement [!t]
 [[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
 
 # Truck 1 positions.
 In the experimental campaign measurements were taken in a static load. Truck 1
 was parked at 13 positions on the deck of bridge 705 and the responses from a
-number of sensors measured. The positions of the truck are shown in Figure
-[[fig:truck-pos]] and the sensors considered for validation are listed in Table
-[[tbl:sensor-pos]], along with the company who installed them and their positions on
-bridge 705.
+number of sensors measured. The positions of the truck and the sensors
+considered for validation are available in Appendix [[sec:app:expt]] in Figure
+[[fig:truck-pos]] Table [[tbl:sensor-pos]].
 
 # TODO: Sensor positions table linked above.
 
 # TODO: Is the 375mm also to the right.
-
-#+NAME: fig:truck-pos
-#+CAPTION[Truck 1]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
-#+ATTR_LATEX: :float sideways
-[[./images/truck-pos.png]]
 
 # FEMs make perfect health assumption.
 An important point is that the FEM of bridge 705 for Diana and the generated FEM
@@ -2080,10 +2075,12 @@ responses from the Diana model are.
 
 #+NAME: fig:regress-displa
 #+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+ATTR_LaTeX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
 #+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+ATTR_LaTeX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
 
 # Sensor plots.
@@ -2102,10 +2099,12 @@ agreement between measurements, OpenSees and Diana.
 
 #+NAME: fig:sensors-displa
 #+CAPTION[Responses of sensors U25-U27 to Truck 1]: Responses of displacement sensors U25-U27 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
+#+ATTR_LaTeX: :height 1\textwidth
 [[./saved-images/sensors/displa-8.pdf]]
 
 #+NAME: fig:sensors-strain
 #+CAPTION[Responses of sensors O1, O10 and O11 to Truck 1]: Responses of strain sensors O1, O10 and O11 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
+#+ATTR_LaTeX: :height 1\textwidth
 [[./saved-images/sensors/strain-O-0.pdf]]
 
 **** Convergence
@@ -2285,6 +2284,7 @@ simulation is approximatley three minutes on a TODO machine.
 
 #+NAME: fig:param-uls
 #+CAPTION[Convergence as a function of ULS] Convergence of vertical translationas the number of ULS is increased. For each value of ULS the loads of Truck 1are decomposed into loads that are placed in the "buckets" of the wheel tracks,then a simulation is run and the response recorded. The reference value tocalculate error is based on using the wheel tracks, but simulating Truck 1directly with a point load per wheel. This figure shows that the error isalready a low percentage.
+#+ATTR_LATEX: :float wrap :width 0.5\textwidth
 [[./saved-images/params/uls.pdf]]
 
 # Non convergence of strains -> ignroed sensors.
@@ -2441,6 +2441,7 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+NAME: fig:comp-diana-b-y
 #+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b-y]] from simulation with OpenSees.
+#+ATTR_LaTeX: :placement [!p]
 [[./saved-images/diana-comp/b-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-b-y
@@ -2489,6 +2490,12 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+LATEX: \clearpage
 ** Experimental Campaign
+<<sec:app:expt>>
+
+#+NAME: fig:truck-pos
+#+CAPTION[Truck 1 positions in campaign]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
+#+ATTR_LATEX: :float sideways
+[[./images/truck-pos.png]]
 
 #+NAME: tbl:sensor-pos
 #+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
