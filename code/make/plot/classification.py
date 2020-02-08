@@ -155,11 +155,11 @@ def temperature_effect_dates(c: Config, months: Tuple[str, str, str], verts: Tup
         elif i == 2:
             ax = fig.add_subplot(gs[1, 2])
         plot_hours(i)
-        plt.gcf().autofmt_xdate()
         effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps[i]["temp"])
         ax.scatter(temps[i]["datetime"], effect * 1000, c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        plt.gcf().autofmt_xdate()
         ax.set_ylabel(f"{response_type.name()} (mm)")
-        ax.set_title(f"Temperature in {str(months[i]).upper()}{months[i][1:]}")
+        ax.set_title(f"{response_type.name()} in {str(months[i][0]).upper()}{months[i][1:]}")
     # Save.
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".png"))
