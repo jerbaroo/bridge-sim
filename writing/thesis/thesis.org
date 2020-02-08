@@ -2505,4 +2505,5 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
+
 bibliography:myrefs.bib

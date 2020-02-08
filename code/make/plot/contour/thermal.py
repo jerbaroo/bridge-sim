@@ -30,6 +30,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         dmin, dmax = float(row["dmin"]), float(row["dmax"])
         omin, omax = float(row["omin"]), float(row["omax"])
         amin, amax = max(dmin, omin), min(dmax, omax)
+        amin, amax = np.around(max(dmin, omin), 2), np.around(min(dmax, omax), 2)
         levels = np.linspace(amin, amax, 16)
         # Load responses, strain in case of stress.
         is_stress = response_type == ResponseType.Stress
@@ -120,7 +121,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         print(row)
         dmin, dmax = float(row["dmin"]), float(row["dmax"])
         omin, omax = float(row["omin"]), float(row["omax"])
-        amin, amax = max(dmin, omin), min(dmax, omax)
+        amin, amax = np.around(max(dmin, omin), 2), np.around(min(dmax, omax), 2)
         levels = np.linspace(amin, amax, 16)
         # Load responses, strain in case of stress.
         is_stress = response_type == ResponseType.Stress
