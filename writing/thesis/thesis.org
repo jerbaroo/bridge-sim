@@ -2527,11 +2527,11 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:thermal-linear-y-axis
-#+CAPTION[Displacement from linear temperature loading with AxisVM]: Displacement from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
+#+CAPTION[Vert. trans. from linear temperature loading with AxisVM]: Vertical translation from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
 [[./saved-images/thermal/axis-ytrans-moment.pdf]]
 
 #+NAME: fig:thermal-linear-y-os
-#+CAPTION[Displacement from linear temperature loading with OpenSees]: Displacement from $\SI{+1}{\celsius}$ linear tempearature loading of the deck of bridge 705 with OpenSees.
+#+CAPTION[Vert. trans. from linear temperature loading with OpenSees]: Vertical translation from $\SI{+1}{\celsius}$ linear tempearature loading of the deck of bridge 705 with OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-moment_load-y-translation.pdf]]
 
 #+ATTR_LaTeX: :placement [!p]
