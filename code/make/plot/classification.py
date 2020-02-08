@@ -1,7 +1,9 @@
 import itertools
+from typing import Tuple
 
 import matplotlib as mpl
 import numpy as np
+from matplotlib.gridspec import GridSpec
 from scipy import stats
 from sklearn.svm import OneClassSVM
 
@@ -21,7 +23,7 @@ from model.scenario import to_traffic_array
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import print_i
+from util import print_i, safe_str
 
 
 def events(c: Config, x: float, z: float):
@@ -85,7 +87,7 @@ def events(c: Config, x: float, z: float):
     plt.close()
 
 
-def temperature_effect_month(c: Config, month: str, vert: bool):
+def temperature_effect_date(c: Config, month: str, vert: bool):
     temp = load_temperature_month(month)
     point = Point(x=51, y=0, z=-8.4)
     plt.landscape()
@@ -123,6 +125,45 @@ def temperature_effect_month(c: Config, month: str, vert: bool):
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/temperature", f"{month}.png"))
     plt.savefig(c.get_image_path("classify/temperature", f"{month}.pdf"))
+    plt.close()
+
+
+def temperature_effect_dates(c: Config, months: Tuple[str, str, str], verts: Tuple[bool, bool, bool]):
+    temps = [load_temperature_month(month) for month in months]
+    response_type = ResponseType.YTranslation
+    point = Point(x=51, y=0, z=-8.4)
+    plt.landscape()
+    def plot_hours(i):
+        if not verts[i]:
+            return
+        label_set = False
+        for dt in temps[i]["datetime"]:
+            if np.isclose(float(dt.hour + dt.minute), 0):
+                label = None
+                if not label_set:
+                    label = "Time at vertical line = 00:00"
+                    label_set = True
+                plt.axvline(x=dt, linewidth=1, color="black", label=label)
+        plt.legend()
+    fig = plt.gcf()
+    gs = GridSpec(2, 3, fig)
+    for i in [0, 1, 2]:
+        if i == 0:
+            ax = fig.add_subplot(gs[0, :3])
+        elif i == 1:
+            ax = fig.add_subplot(gs[1, :2])
+        elif i == 2:
+            ax = fig.add_subplot(gs[1, 2])
+        plot_hours(i)
+        plt.gcf().autofmt_xdate()
+        effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps[i]["temp"])
+        ax.scatter(temps[i]["datetime"], effect * 1000, c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        ax.set_ylabel(f"{response_type.name()} (mm)")
+        ax.set_title(f"Temperature in {str(months[i]).upper()}{months[i][1:]}")
+    # Save.
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".png"))
+    plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".pdf"))
     plt.close()
 
 

@@ -110,15 +110,35 @@ def load_temperature_month(month: str) -> pd.DataFrame:
 def temperature_effect(
     c: Config, response_type: ResponseType, point: Point, temps: List[float]
 ) -> List[float]:
-    unit_thermal = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
-    c, sim_params = unit_thermal.use(
-        c=c, sim_params=SimParams(response_types=[response_type])
+    # Unit effect from uniform temperature loading.
+    unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
+    c, sim_params = unit_uniform.use(c)
+    uniform_responses = load_fem_responses(
+        c=c,
+        sim_runner=OSRunner(c),
+        response_type=response_type,
+        sim_params=sim_params,
     )
-    sim_responses = load_fem_responses(
-        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
+    unit_uniform = uniform_responses.at_deck(point, interp=True)
+    # Unit effect from linear temperature loading.
+    unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
+    c, sim_params = unit_linear.use(c)
+    linear_responses = load_fem_responses(
+        c=c,
+        sim_runner=OSRunner(c),
+        response_type=response_type,
+        sim_params=sim_params,
     )
-    unit_response = sim_responses.at_deck(point, interp=True)
-    return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
+    unit_linear = linear_responses.at_deck(point, interp=True)
+    # Combine uniform and linear.
+    temps_bottom = np.array(temps) - c.bridge.ref_temp_c
+    temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    temps_half = (temps_bottom + temps_top) / 2
+    uniform_responses = unit_uniform * temps_half
+    temps_delta = temps_top - temps_bottom
+    linear_responses = unit_linear * temps_delta
+    return uniform_responses + linear_responses
+    # return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
 
 
 def get_len_per_min(c: Config, speed_up: float):

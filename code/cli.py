@@ -1,6 +1,7 @@
 """Command line interface to bridge-sim."""
 import os
 import pathos.multiprocessing as multiprocessing
+from typing import List
 
 import click
 
@@ -513,10 +514,17 @@ def events(x, z):
 
 
 @classify.command(help="Plot temperature effect.")
-@click.option("--name", type=str, default="may", help="Filename to plot effect for.")
+@click.option("--date", type=str, default="may", help="Filename to plot effect for.")
 @click.option("--vert", type=bool, default=True, help="Vertical lines every 24 hours.")
-def temp_effect(name, vert):
-    classification_.temperature_effect_month(c=c(), month=name, vert=vert)
+def temp_effect_date(date, vert):
+    classification_.temperature_effect_date(c=c(), month=date, vert=vert)
+
+
+@classify.command(help="Plot temperature effects at 3 dates.")
+@click.option("--dates", type=click.Tuple([str, str, str]), default=("2019", "may", "may-1"), help="Filenames to plot effect for.")
+@click.option("--verts", type=click.Tuple([bool, bool, bool]), default=[False, True, False], help="Vertical lines every 24 hours.")
+def temp_effect_3(dates, verts):
+    classification_.temperature_effect_dates(c=c(), months=dates, verts=verts)
 
 
 @classify.command(help="Plot removal of temperature effect.")

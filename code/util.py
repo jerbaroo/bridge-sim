@@ -173,7 +173,7 @@ def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
 
 def safe_str(s: str) -> str:
     """A lowercase string with some special characters replaced."""
-    for char in "[]()":
+    for char in "[]()'":
         s = s.replace(char, "")
     s = s.replace(" ", "-")
     s = s.replace(".", ",")
