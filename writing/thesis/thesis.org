@@ -1276,6 +1276,8 @@ cases, which was true in this case.
 * Theory
 * Methods
 ** Simulation
+[[<<sec:meth:sim>>]]
+
 # Section overview.
 This section describes the data collection system which was created to model a
 bridge in software and to collect data from simulating the bridge's response
@@ -1990,15 +1992,15 @@ An experimental campaign was carried out by TNO where two trucks were driven on
 bridge 705 in Amsterdam and sensor responses measured. Both static and dynamic
 load tests were executed. Sensors were installed by TNO as-well as by other
 companies. The sensors measured longitudinal strain, vertical translation and
-acceleration. The measured responses allow the FEMs of bridge 705 for OpenSees
-and for Diana to be validated by comparing the responses in simulation with
-Diana against the measured responses.
+acceleration. The measured responses from the campaign allow the FEMs of bridge
+705 for OpenSees and for Diana to be validated by comparing the responses in
+simulation with Diana against the measurements.
 
 # Only truck 1 staic load tests is considered.
 All responses for classification in this thesis are calculated from a
 superposition of static load simulations, thus the static load tests are
 required for validation of the generated FEM of bridge 705 for OpenSees. Only
-measurements from the load tests of truck 1 are considered. This is because the
+measurements from the load tests of Truck 1 are considered. This is because the
 measured responses, and the responses from Diana for Truck 1 were available from
 TNO in a ready-to-consume format. The 13 loading positions of truck 1 are
 considered sufficient. The positions of the truck and the sensors considered for
@@ -2007,16 +2009,16 @@ Table [[tbl:sensor-pos]].
 
 # Truck 1 and the static load test.
 The specification of Truck 1 which was used in the experimental campaign is
-shown in the plot on the left side of Figure [[fig:truck-1]]. The plot shows the
-size of each of the truck's wheel prints ($\SI{0.31}{meter} \cdot
-\SI{0.25}{meter}$), the wheel print being the area of the wheel which is in
-contact with the ground. In simulation the force from each wheel is represented
-by a point load, rather than a distributed load, which is an acceptable modeling
-decision according to TODO:REF, as shown in the plot on the right of the same
-Figure.
+given in the plot on the left side of Figure [[fig:truck-1]]. This plot shows the
+area of each of Truck 1's wheel prints ($\SI{0.31}{meter} \cdot
+\SI{0.25}{meter}$), and the load intensity at each end of each of the four
+axles. The wheel print is the area of the wheel which is in contact with the
+ground. In simulation the force from each wheel is represented by a point load,
+rather than a distributed load, as shown in the plot on the right of Figure
+[[fig:truck-1]], this is an acceptable modeling decision according to TODO:REF.
 
 #+NAME: fig:truck-1
-#+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each side of an axle is annotated with the load intensity of the wheel at that side of the axle. The plot on the right depicts the model of truck used in simulation, here the force from each wheel is represented by a point load.
+#+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each end of each axle is annotated with the load intensity of the wheels at that end of the axle. The plot on the right depicts the model of the truck in simulation, here the force at each axle's end is represented by a point load.
 #+ATTR_LATEX: :placement [!t]
 [[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
 
@@ -2036,8 +2038,8 @@ For each of the 13 static load tests the measurements from the vertical
 translation sensors and strain sensors listed in Table [[tbl:sensor-pos]] are
 compared to the responses from the Diana model of bridge 705 and to the
 generated FEM for OpenSees, furthermore the responses from the Diana model are
-compared to the OpenSees model. This comparison is presented as regression plots
-and time series plots.
+compared to the OpenSees model. This comparison is presented through regression
+plots and time series plots.
 
 # Regression plots.
 Regression plots comparing measurements from the experimental campaign and
@@ -2045,8 +2047,8 @@ responses from OpenSees and Diana are presented in Figure [[fig:regress-displa]]
 vertical translation, and in Figure [[fig:regress-strain]] for longitudinal strain.
 Somewhat surprisingly the responses from the OpenSees model are in better
 agreement with the measurements from the experimental campaign, than the
-responses from the Diana model. The vertical translation responses are in better
-agreemeent than strain for all combinations of models.
+responses from the Diana model. The vertical translation responses are in
+slightly better agreemeent than strain for all combinations of models.
 
 # TODO: Another comment in paragraph above.
 
@@ -2061,82 +2063,109 @@ show excellent agreement with the measurements in all cases. Of the strain
 sensors O1 - O12 most are in very good agreement, however for some of the plots
 where low strain values are recorded there are differences, and in sensor O7
 there is clearly a difference worth further investigation \textcolor{red}{TODO}.
-Of the twenty strain sensors installed by TNO, T1 - T20, all are in very good
-agreement between the measurements, OpenSees and Diana.
+Of the twenty strain sensors installed by TNO, T1 - T20, all of them are in very
+good agreement between the measurements, OpenSees and Diana.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Linear regression of vert. trans. responses]: Regression lines comparing measured vertical translation from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
-#+ATTR_LaTeX: :height 1\textwidth
+#+CAPTION[Linear regression of vert. trans. responses]: Linear regression of vertical translation responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the vertical translation at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Sensors and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
+#+ATTR_LATEX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
-#+CAPTION[Lienar regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
-#+ATTR_LaTeX: :height 1\textwidth
+#+CAPTION[Linear regression of strain responses]: Linear regression of longitudinal strain responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the strain at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Sensors and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
+#+ATTR_LATEX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
 
 #+NAME: fig:sensors-displa
-#+CAPTION[Responses of sensors U25-U27 to Truck 1]: Responses of displacement sensors U25-U27 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
-#+ATTR_LaTeX: :height 1\textwidth
+#+CAPTION[Time series of vert. trans. sensors U25-U27]: Responses of vertical translation at sensors U25-U27 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the vertical translation at sensor O9 due to the truck's loading. The green points are measurements from the experimental campaign, the orange points are from simulation with Diana and the blue points are from simulation with the generated FEM for OpenSees.
+#+ATTR_LATEX: :height 1\textwidth
 [[./saved-images/sensors/displa-8.pdf]]
 
 #+NAME: fig:sensors-strain
-#+CAPTION[Responses of sensors O1, O10 and O11 to Truck 1]: Responses of strain sensors O1, O10 and O11 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
-#+ATTR_LaTeX: :height 1\textwidth
+#+CAPTION[Time series of strain sensors O1, O10 and O11]: Responses of longitudinal strain at sensors U25-U27 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at sensor O9 due to the truck's loading. The green points are measurements from the experimental campaign, the orange points are from simulation with Diana and the blue points are from simulation with the generated FEM for OpenSees.
+#+ATTR_LATEX: :height 1\textwidth
 [[./saved-images/sensors/strain-O-0.pdf]]
 
 **** Convergence
 
-# Convergence figure.
-The density of the generated FEM's mesh is controlled by a parameter
-$max\_shell\_len$ or ~MSL~ as discussed in Subsection [[Meshing]]. As ~MSL~ is
-decreased, the length and area of all shells in the FEM in question are reduced,
-heading steadily toward 0. Figure [[fig:converge-displa]] shows the minimum, maximum
-and mean displacement from a simulation where a point load is placed at point A
-from Table [[tbl:loading-positions]], which is at $x = 34.955$ and $z = 29.226$
-meters. In Figure [[fig:converge-strain]] a similar plot is shown but for strain
-instead of displacement. The Figures show that displacement converges and that
-the minimum and mean strain converges, however TODO
+# Why is convergence necessary.
+The interface provided by OpenSees to build a FEM is quite a low-level
+interface. There is no GUI with OpenSees, instead the FEM and simulation
+parameters are built-up by writing commands in the TCL programming language into
+a ~.tcl~ file which is then read and executed by OpenSees. OpenSees cannot
+perform a test of convergence of a FEM with respect to mesh density, let alone
+even build a mesh by itself, therefore a test of model convergence in terms of
+mesh density must be performed.
 
-# Computation on a grid: 1.
+# How mesh density is controlled.
+The density of the generated FEM's mesh is controlled by the parameter ~MSL~ as
+discussed in Subsection [[Meshing]]. As the value of ~MSL~ is decreased, the area of
+all shells in the generated FEM for OpenSees decreases, heading to a limit of 0.
+
+# Computation on a grid: why it's necessary.
 The positions of nodes will change as ~MSL~ is varied. Consider the transverse
-direction of the bridge, 33.2 meters in width. If ~MSL~ is set to $33.2 / 3 =
+direction of the bridge, 33.2 meters in width. If ~MSL~ is set to $33.2 / 2 =
 16.6$ then the number of nodes in that direction will, ignoring additional nodes
 from piers or mesh refinement, be set to 3. When ~MSL~ is decreased to a value
 less than 16.6 the number of nodes will jump to 4. The nodes are equidistantly
-placed and thus do not line up with the original 3 nodes. Displacement from a
-simulation is given at the positions of nodes, and strain is given at positions
-$\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height from a shell
-element's center, as discussed in Subsection [[Collected Data]].
+placed and thus do not line up with the original 3 nodes. Vertical translation
+from a simulation is recorded at the positions of nodes, and strain is recorded
+at positions $\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height
+from the shell element's center, as discussed in Subsection [[Collected Data]]. Due
+to the variation of the position of nodes as ~MSL~ is increased, the convergence
+of responses is based on responses calculated on a $100 \cdot 30$ grid that does
+not change. The response at each point on this grid is calculated as the
+interpolation of the responses from nearby points collected from simulation.
 
-# Computation on a grid: 1.
-The positions of nodes vary as ~MSL~ is increased, thus the maximum and mean
-displacement and minimum and mean strain are calculated from responses on a
-pre-determined grid of positions. To caculate the response at one of these grid
-positions, the responses from the closest positions from the simulation are
-interpolated. The minimum displacement values and the maximum strain values are
-not calculated from a grid, as they are likely to come from the node that the
-load is applied on. Furthermore, due to the heavy refinement of the mesh around
-the load, the mesh should be dense enough if the response is not exactly at the
-load.
+# Computation on a grid: min, max, mean.
+# thus the maximum and mean displacement and minimum and mean strain are
+# calculated from responses on a pre-determined grid of positions. To calculate
+# the response at one of these grid positions, the responses from the closest
+# positions from the simulation are interpolated. The minimum displacement
+# values and the maximum strain values are not calculated from a grid, as they
+# are likely to come from the node that the load is applied on. Furthermore, due
+# to the heavy refinement of the mesh around the load, the mesh should be dense
+# enough if the response is not exactly at the load.
+
+# Figures of convergence of vert. trans. and strain.
+Figure [[fig:converge-displa]] shows the minimum, maximum and mean of the vertical
+translation responses calculated on a grid, from a simulation where a point load
+is placed at point A (defined in Table [[tbl:loading-positions]]) at $x = 34.955$
+and $z = 29.226$ meters. In Figure [[fig:converge-strain]] a similar plot is shown
+but for longitudinal strain instead of vertical translation. The two figures
+show that vertical translation converges and that the minimum and mean strain
+converges, however TODO
+
 # TODO: Rerun convergence test.
+
+# TODO: Update values when re-run.
 
 #+NAME: fig:converge-displa
 #+CAPTION[Convergence of displacement]: Minimum, maximum and mean displacement, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the displacement normalized to the mean of the final 5 values of that plotted response line. The minimum and mean displacement are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. Maximum, minimum and mean displacement are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the maximum, minimum and mean have reached at least 99.5% of the value being normalized to.
+#+ATTR_LATEX: :float wrap :width 0.5\textwidth
 [[../../saved-generated-data-images/convergence/min-max-displacement.pdf]]
-# TODO: Update values when re-run.
 
 #+NAME: fig:converge-strain
 #+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The minimum and mean strain are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the TODO, minimum and mean are within 0.58% of the value being normalized to.
+#+ATTR_LATEX: :float wrap :width 0.5\textwidth
 [[../../saved-generated-data-images/convergence/min-max-strain.pdf]]
-# TODO: Update values when re-run.
+
+# Convergence at NESW.
+The maximum longitudinal strain per simulation does not appear to converge as
+$MSL$ is decreased. In order to examine the lack of convergence, the convergence
+of strain responses is investigated at points at increasing distance from point
+A where a point load is applied in simulation. This Figure TODO shows that the
+strains converge within $\SI{1}{\meter}$ TODO of the point load. The remaining
+positions in Table [[tbl:loading-positions]] were also tested for convergence of the
+strains and the results were TODO.
 
 **** AxisVM
 
-Pier settlement and thermal loading are validated against a FEM built for the
+Pier settlement and temperature load are validated against a FEM built for the
 program AxisVM. The AxisVM model was built using a graphical user interface
 (GUI) rather than programmatically. Building a model in this manner allows for
-verification of the model by visual inspection of the dimensions and material
-properties in the GUI.
+verification of the AxisVM model by visual inspection of the dimensions and
+material properties in the GUI.
 
 # Simple AxisVM model.
 The model built in AxisVM has the same dimensions as bridge 705 however the
@@ -2163,72 +2192,93 @@ material properties of both FEMs are given in Table [[tbl:single-section]].
 
 ***** Pier Settlement
 
+# What piers are compared.
 Simulations were run, both with OpenSees and AxisVM, where a displacement load
 was applied to the central node at the bottom of each pier of bridge 705, one
-simulation per pier. The pattern of responses is similar for all of the piers
-close to the northern and southern edges of the bridge, and similar for each of
-the remaining piers between them. Thus one pier near the southern edge of the
-bridge and one pier just north of that pier are chosen for comparison, these are
-piers 4 and 5 in Figure TODO. Both of these piers are displaced by
-$\SI{1}{\meter}$ with AxisVM and also with OpenSees. Contour plots of the
-displacement and stress are shown in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] for
-the settlement of pier 4 and in Appendix [[sec:app:pier]] for pier 5. The reason
-that stress is compared with AxisVM instead of strain is that the AxisVM
-software only provides a visualization of the stress, therefore the strains
-collected from simulation with OpenSees are converted to stresses via Young's
-modulus.
+simulation is executed per pier. The pattern of responses is very similar for
+each of the piers close to the northern and southern edges of the bridge, and
+similar for each of the remaining piers between them. Thus one pier near the
+southern edge of the bridge and one pier just north of that pier are chosen for
+comparison, these are piers 4 and 5 which are clearly identifiable in Figures
+[[fig:pd-4d-axis]] and [[fig:p-5d-axis]].
+
+# Contour plots of responses.
+Simulations were run where piers 4 and 5 are displaced vertically with AxisVM
+and OpenSees. Contour plots of the vertical translation and longitudinal stress
+along the bottom of the bridge deck are shown in Figures [[fig:pd-4d-axis]] -
+[[fig:pd-4s-os]] for $\SI{1}{\millimeter}$ settlement of pier 4 and in Appendix
+[[sec:app:pier]] for pier 5. The reason that stress is compared with AxisVM instead
+of strain is that the AxisVM software only provides a visualization of the
+stress, therefore the strains collected from simulation with OpenSees are
+converted to stresses via Young's modulus.
+
+# TODO: Talk about range of colourbars, and cut off.
+
+# TODO: Mention which is greater, Axis vs OpenSees.
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:pd-4d-axis
-#+CAPTION[Displacement from settlement of pier 4 with AxisVM]: Displacement recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+#+CAPTION[Vert. trans. from settlement of pier 4 with AxisVM]: Vertical translation recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, the minimum is close to 0.
 [[./saved-images/piers/4-axis-displa.pdf]]
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:pd-4d-os
-#+CAPTION[Displacement from settlement of pier 4 with OpenSees]: Displacement recorded with OpenSees when a pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+#+CAPTION[Vert. trans. from settlement of pier 4 with OpenSees]: Vertical translation recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, the minimum is close to 0.
 [[./saved-images/piers/pier-4-y-translation.pdf]]
 
 #+NAME: fig:pd-4s-axis
-#+CAPTION[Stress from settlement of pier 4 with AxisVM]: Stress recorded in AxisVM when a pier 4 of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
+#+CAPTION[Stress from settlement of pier 4 with AxisVm]: Longitudinal stress recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum and minimum stresses occur around the piers.
 [[./saved-images/piers/4-axis-stress.pdf]]
 
 #+NAME: fig:pd-4s-os
-#+CAPTION[Stress from settlement of pier 4 with OpenSees]: Stress recorded with OpenSees when pier 4 of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
+#+CAPTION[Stress from settlement of pier 4 with OpenSees]: Longitudinal stress recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum and minimum stresses occur around the piers.
 [[./saved-images/piers/pier-4-stress.pdf]]
 
-The contour plots of pier settlement show that the displacements collected with
-OpenSees are in very close agreement with those collected with AxisVM. However
-the range of strains collected with AxisVM and OpenSees are clearly different,
-which can be seen if the colourbars in Figures [[fig:pd-4s-axis]] and [[fig:pd-4s-os]]
-are compared. The range of strains are different likely due to non-convergence
-where the solution tends to infinity cite:timoshenko1959theory. In order to
-investigate this claim, convergence of strains is investigated at points at
-increasing distance from pier 4 in Figure [[fig:pier-4-nesw]] and in Figure
-[[fig:pier-5-nesw]] in Appendix [[sec:app:pier]].
+# Agreement between AxisVM and OpenSees.
+The contour plots of pier settlement show that the vertical translation
+responses generated with OpenSees are in very close agreement with those
+collected with AxisVM. However the range of stresses collected with AxisVM and
+OpenSees are clearly different, note the maximum and minimum values in the
+legends of Figures [[fig:pd-4s-axis]] and [[fig:pd-4s-os]]. The range of stresses are
+different likely due to non-convergence where the solution tends to infinity
+cite:timoshenko1959theory. In order to investigate this claim (similar to how it
+was accomplished for point load A in Figure TODO) convergence of stresses is
+investigated at points at increasing distance from the north-western point of
+pier 4 in Figure [[fig:pier-4-nesw]], and in Figure [[fig:pier-5-nesw]] in Appendix
+[[sec:app:pier]] for pier 5.
 
 # ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-4-convergence
 # validate pier-conv --pier 4 --max-nodes 100000 --without-radius 2 --nesw-loc 0
 # --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
 
 #+NAME: fig:pier-4-nesw
-#+CAPTION[Strain convergence at distances from pier 4]: Strain convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 4. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 4.
+#+CAPTION[Stress convergence at distance from pier 4]: Stress convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the stress response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from the north-western point of the pier, in one of the 4 cardinal directions.
 [[./saved-images/piers/nesw-pier-4.pdf]]
 
 ***** Temperature Load
 
-In order to validate the temperature load implementation, as discussed in
-Subsection [[Noise Model]], simulations of unit temperature load were run using the
-FEMs of bridge 705 for both OpenSees and AxisVM. Two simulations were run with
-each of these FE applications, one simulation for unform temperature load and
-one simulation for unit linear temperature load. The explanation of temperature
-load is provided in Subsection [[Noise]]. Figures [[fig:thermal-uniform-y-axis]] and
-[[fig:thermal-uniform-s-os]] show vertical translation and stress from simulations
-of unit uniform temperature load applied to FEMs of bridge 705 with AxisVM and
-OpenSees. These plots show that vertical translation is in very good agreement
-while the stresses are shifted to higher values in the simulation with OpenSees.
-The Figures [[fig:thermal-linear-y-os]] - [[fig:thermal-linear-s-os]] also show vertical
-translation to be in very good agreement, and show the stress component to be in
-good agreement.
+# Introduction to what is being compared.
+In order to validate the temperature load which was implemented, as discussed in
+Subsection [[Noise Model]], simulations of unit uniform and unit linear temperature
+load were run using the FEMs of bridge 705 for both OpenSees and AxisVM. Two
+simulations were run with each of these FE applications, one simulation for
+unform temperature load and one simulation for unit linear temperature load.
+
+# Uniform temperature load.
+Figures [[fig:thermal-uniform-y-axis]] and [[fig:thermal-uniform-s-os]] show vertical
+translation and stress from simulations of unit uniform temperature load applied
+to FEMs of bridge 705 with AxisVM and OpenSees respectively. These plots show
+that vertical translation is in very good agreement between the two models while
+the stresses are shifted to higher values in the simulation with OpenSees.
+
+\textcolor{red}{Investigate stress in uniform temperature load}
+
+# Linear temperature load.
+Figures [[fig:thermal-linear-y-os]] - [[fig:thermal-linear-s-os]] show vertical
+translation and stress from simulations of unit linear temperature load applied
+to FEMS of bridge 705 with AxisVM and OpenSees respectively. Theses figures show
+that vertical translation is in very good agreement between the two models, and
+that the stress recorded is in good agreement.
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:thermal-uniform-y-axis
@@ -2252,19 +2302,20 @@ good agreement.
 
 # max_shell_len.
 Increasing mesh density increases the accuracy of responses but also increases
-run time of the FE simulation. A value of $MSL = 0.5$ was chosen to run point
-load simulations, at $MSL = 0.5$ the number of nodes in the generated FEM of
+run time of the FE simulation. A value of $MSL = 0.49$ was chosen to run point
+load simulations, at $MSL = 0.49$ the number of nodes in the generated FEM of
 bridge 705 for OpenSees is $\approx 24,000$. Figures [[fig:converge-displa]] and
-[[fig:converge-strain]] show convergence of displacement and strains respectively
-and justify the selection of $MSL = 0.5$. At this value the run time of a
-simulation is approximatley three minutes on a TODO machine.
+[[fig:converge-strain]] show convergence of vertical translation and strains
+respectively and justify the selection of $MSL = 0.49$. At this value of $MSL$
+the run time of a simulation is approximatley three minutes on a
+\textcolor{red}{Workhorse specs} machine.
 
 #+NAME: fig:param-uls
-#+CAPTION[Convergence as a function of ULS] Convergence of vertical translationas the number of ULS is increased. For each value of ULS the loads of Truck 1are decomposed into loads that are placed in the "buckets" of the wheel tracks,then a simulation is run and the response recorded. The reference value tocalculate error is based on using the wheel tracks, but simulating Truck 1directly with a point load per wheel. This figure shows that the error isalready a low percentage.
+#+CAPTION[Convergence as a function of ULS] Convergence of vertical translation as the value of ULS is increased. For each value of ULS the loads of Truck 1 are decomposed into loads that are placed in the "buckets" of the wheel tracks,then a simulation is run and the response recorded. The reference value to calculate error is not based on wheel tracks, instead Truck 1 is simulated directly with a point load per wheel. Even at low values of MSL the error is already a very low percentage.
 #+ATTR_LATEX: :float wrap :width 0.5\textwidth
 [[./saved-images/params/uls.pdf]]
 
-# Non convergence of strains -> ignroed sensors.
+# Non convergence of strains -> ignored sensors.
 The generated strain responses are not converging close to the point loads that
 are applied on the wheel tracks, and also not converging close to the piers in
 the pier settlement simulations. Under elastic plate theory, the stresses (and
@@ -2288,6 +2339,11 @@ realistic set of sensor positions that are being ignored. TODO: Reference.
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/sensors/unavailable-sensors.pdf]]
 
 *** Model Assumptions
+
+# Assumptions are made.
+A number of assumptions were made during the modeling process. These modeling
+assumptions are listed here at the end of this section on simulation methods,
+along with a justification accompanying each assumption.
 
 - All vehicles drive at the same speed.
 - All vehicles drive along the center of a lane.
