@@ -1940,72 +1940,46 @@ the experimental campaign.
 **** Comparison with Diana
 
 Four point-load simulations were run using the generated FEM of bridge 705 for
-OpenSees, and simulation with the same loading parameters were run on the model
+OpenSees, and simulations with the same loading parameters were run on the model
 of bridge 705 for Diana. The positions which were chosen for each point-load are
-given in Table [[tbl:loading-positions]]. Contour plots of displacement from these
-simulations are given in Figures [[fig:comp-diana-a-y]] - [[fig:comp-os-a-y]] for point
-A, and a comparison of strains collected at the bottom of the deck in Figures
-[[fig:comp-diana-a-s]] - [[fig:comp-os-a-s]]. It makes sense to compare simulations with
-only a single point load applied because the traffic responses used for
-classification are generated based on a superposition of responses from
-simulations where a single point is applied. In Appendix [[sec:app:diana]] the
-remaining Figures [[fig:comp-diana-b-y]] - [[fig:comp-os-d-s]] for points B - D are
-given. A comparison of the maximum and minimum displacements and strains from
-these simulations is also given in the Appendix in Tables [[tbl:max-displacement]]
-and [[tbl:min-displacement]].
-
-\textcolor{red}{TODO: Align color bars, will match a bit better}
+given in Table [[tbl:loading-positions]]. Contour plots of vertical translation from
+these simulations are given in Figures [[fig:comp-diana-a-y]] - [[fig:comp-os-a-y]] for
+point A, and a comparison of strains in longitudinal direction, collected at the
+bottom of the deck, in Figures [[fig:comp-diana-a-s]] - [[fig:comp-os-a-s]]. It makes
+sense to compare simulations with only a single point load applied because the
+traffic responses used for classification are generated based on a superposition
+of responses from simulations where a single point is applied. In Appendix
+[[sec:app:diana]] the remaining Figures [[fig:comp-diana-b-y]] - [[fig:comp-os-d-s]] for
+points B - D are given. A comparison of the maximum and minimum strains and
+vertical translations from these simulations is also given in the Appendix in
+Tables [[tbl:max-displacement]] and [[tbl:min-displacement]].
 
 #+NAME: fig:comp-diana-a-y
 #+ATTR_LaTeX: :placement [!p]
-#+CAPTION[Displacement in Diana from a point load (A)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-y]] from simulation with OpenSees.
+#+CAPTION[Vert. trans. from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-y]] from simulation with OpenSees.
 [[./saved-images/diana-comp/a-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-a-y
 #+ATTR_LaTeX: :placement [!p]
-#+CAPTION[Displacement in OpenSees from point load (A)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-y]] from simulation with Diana.
+#+CAPTION[Vert. tranfrom from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-y]] from simulation with Diana.
 [[./saved-images/diana-comp/a-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-a-s
-#+CAPTION[Strain in Diana from a point load (A)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-s]] from simulation with OpenSees.
+#+CAPTION[Strain in Diana from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-s]] from simulation with OpenSees.
 [[./saved-images/diana-comp/a-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-a-s
-#+CAPTION[Strain in OpenSees from point load (A)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-s]] from simulation with Diana.
+#+CAPTION[Strain in OpenSees from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-s]] from simulation with Diana.
 [[./saved-images/diana-comp/a-strain.pdf]]
 
 #+NAME: tbl:loading-positions
-#+CAPTION[Loading positions comparison with Diana]: Loading positions chosen for the comparison of the FEM of bridge 705 generated for OpenSees and the previously validated Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each loading position is assigned a unique label so it can be referred to, and a reason why that position was chosen. The exact position chosen is the position of a node in the Diana model which fulfils the reason in the "Reason" column.
+#+CAPTION[Loading positions for comparison with Diana]: Loading positions chosen for the comparison of the FEM of bridge 705 generated for OpenSees and the previously validated Diana model. Each point is given in meters along the longitudinal (x) and transverse (z) directions of the bridge. Each loading position is assigned a unique label so it can be referred to, and a reason why that position was chosen. The exact position chosen is the position of a node in the Diana model which fulfils the reason in the "Reason" column.
 |   X (m) |  Z (m) | Label | Reason                                             |
 |---------+--------+-------+----------------------------------------------------|
 |  34.955 | 29.226 | A     | On a wheel track, between piers                    |
 |  51.251 |   16.6 | B     | At center of bridge, symmetry expected in response |
 |  92.406 | 12.405 | C     | On a wheel track, close to pier                    |
 | 101.765 |  3.974 | D     | On a wheel track, close to abutment                |
-
-#+NAME: tbl:max-displacement
-#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
-| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
-|-------+------------+---------------+------------+---------------|
-| A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
-| B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
-| C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
-| D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
-|-------+------------+---------------+------------+---------------|
-|       |            |          Mean |     0.0021 |        0.0784 |
-#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
-
-#+NAME: tbl:min-displacement
-#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
-| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
-|-------+------------+---------------+------------+---------------|
-| A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
-| B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
-| C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
-| D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
-|-------+------------+---------------+------------+---------------|
-|       |            |          Mean |     0.0181 |        0.2165 |
-#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 **** Experimental Measurements
 
@@ -2015,87 +1989,90 @@ and [[tbl:min-displacement]].
 An experimental campaign was carried out by TNO where two trucks were driven on
 bridge 705 in Amsterdam and sensor responses measured. Both static and dynamic
 load tests were executed. Sensors were installed by TNO as-well as by other
-companies. The sensors measured strain, displacement and acceleration. The
-measured responses allowed the FEM of bridge 705 for Diana to be validated by
-comparing the responses in simulation with Diana against the measured responses.
+companies. The sensors measured longitudinal strain, vertical translation and
+acceleration. The measured responses allow the FEMs of bridge 705 for OpenSees
+and for Diana to be validated by comparing the responses in simulation with
+Diana against the measured responses.
 
 # Only truck 1 staic load tests is considered.
 All responses for classification in this thesis are calculated from a
-superposition of static load simulations, thus only measurements from the static
-load tests are required for validation of the generated FEM of bridge 705 for
-OpenSees. Only measurements from the load tests of truck 1 are considered. This
-is because the measured responses, and the responses from Diana for Truck 1 were
-available from TNO in a ready-to-consume format. The 13 loading positions of
-truck 1 are certainly sufficient.
+superposition of static load simulations, thus the static load tests are
+required for validation of the generated FEM of bridge 705 for OpenSees. Only
+measurements from the load tests of truck 1 are considered. This is because the
+measured responses, and the responses from Diana for Truck 1 were available from
+TNO in a ready-to-consume format. The 13 loading positions of truck 1 are
+considered sufficient. The positions of the truck and the sensors considered for
+validation are available in Appendix [[sec:app:expt]], in Figure [[fig:truck-pos]] and
+Table [[tbl:sensor-pos]].
 
 # Truck 1 and the static load test.
-The specification of Truck 1 is shown in the plot on the left side of Figure
-[[fig:truck-1]]. The plot shows the size of each of the truck's wheel prints
-($\SI{0.31}{meter} \cdot \SI{0.25}{meter}$), in simulation however the force
-from each wheel is represented by a point load as shown in the plot on the right
-of the same Figure. A wheel print is TODO the dimensions of the wheel which are
-in contact with the ground.
+The specification of Truck 1 which was used in the experimental campaign is
+shown in the plot on the left side of Figure [[fig:truck-1]]. The plot shows the
+size of each of the truck's wheel prints ($\SI{0.31}{meter} \cdot
+\SI{0.25}{meter}$), the wheel print being the area of the wheel which is in
+contact with the ground. In simulation the force from each wheel is represented
+by a point load, rather than a distributed load, which is an acceptable modeling
+decision according to TODO:REF, as shown in the plot on the right of the same
+Figure.
 
 #+NAME: fig:truck-1
 #+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each side of an axle is annotated with the load intensity of the wheel at that side of the axle. The plot on the right depicts the model of truck used in simulation, here the force from each wheel is represented by a point load.
 #+ATTR_LATEX: :placement [!t]
 [[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
 
-# Truck 1 positions.
-In the experimental campaign measurements were taken in a static load. Truck 1
-was parked at 13 positions on the deck of bridge 705 and the responses from a
-number of sensors measured. The positions of the truck and the sensors
-considered for validation are available in Appendix [[sec:app:expt]] in Figure
-[[fig:truck-pos]] Table [[tbl:sensor-pos]].
-
-# TODO: Sensor positions table linked above.
-
 # TODO: Is the 375mm also to the right.
 
 # FEMs make perfect health assumption.
-An important point is that the FEM of bridge 705 for Diana and the generated FEM
-are based on a blueprint of the bridge and make the assumption that bridge 705
-is in perfect healthy condition. However since bridge 705 was built in 1962, it
-is more likely that some imperfections now exist in the structure. Both the
-generated FEM and the FEM for Diana are based on the assumption of perfect
-health and thus the measured responses are not expected to match exactly.
+An important point to note is that the FEM of bridge 705 for Diana and the
+generated FEM for OpenSees are based on a blueprint of the bridge and make the
+assumption that bridge 705 is in a perfectly healthy condition. However since
+bridge 705 was built in 1962, it is more likely that some imperfections now
+exist in the structure. Both the generated FEM and the FEM for Diana are based
+on the assumption of perfect health and thus the measured responses are not
+expected to match exactly.
+
+# Regression plots and time series plots.
+For each of the 13 static load tests the measurements from the vertical
+translation sensors and strain sensors listed in Table [[tbl:sensor-pos]] are
+compared to the responses from the Diana model of bridge 705 and to the
+generated FEM for OpenSees, furthermore the responses from the Diana model are
+compared to the OpenSees model. This comparison is presented as regression plots
+and time series plots.
 
 # Regression plots.
-For each of the 13 static load tests the measurements from the displacement and
-strain sensors listed in Table [[tbl:sensor-pos]] are compared to the responses from
-the Diana model of bridge 705 and to the generated FEM for OpenSees, furthermore
-the responses from the Diana model are compared to the OpenSees model. This
-comparison takes the form of a number of regression plots shown in Figure
-[[fig:regress-displa]] for displacement, and in Figure [[fig:regress-strain]] for
-strain. Somewhat surprisingly the responses from the OpenSees model are in
-better agreement with the measurements from the experimental campaign than the
-responses from the Diana model are.
+Regression plots comparing measurements from the experimental campaign and
+responses from OpenSees and Diana are presented in Figure [[fig:regress-displa]] for
+vertical translation, and in Figure [[fig:regress-strain]] for longitudinal strain.
+Somewhat surprisingly the responses from the OpenSees model are in better
+agreement with the measurements from the experimental campaign, than the
+responses from the Diana model. The vertical translation responses are in better
+agreemeent than strain for all combinations of models.
 
-# TODO: Check after re-running.
+# TODO: Another comment in paragraph above.
+
+# Sensor plots.
+Time series plots comparing measurements from the experimental campaign and
+responses from OpenSees and Diana were generated for each vertical translation
+and strain sensor considered for validation (listed in Table [[tbl:sensor-pos]]). A
+figure which is considered representative of the vertical translation sensors is
+given in Figure [[fig:sensors-displa]], and a representative result for the strain
+sensors is given in Figure [[fig:sensors-strain]]. The vertical translation plots
+show excellent agreement with the measurements in all cases. Of the strain
+sensors O1 - O12 most are in very good agreement, however for some of the plots
+where low strain values are recorded there are differences, and in sensor O7
+there is clearly a difference worth further investigation \textcolor{red}{TODO}.
+Of the twenty strain sensors installed by TNO, T1 - T20, all are in very good
+agreement between the measurements, OpenSees and Diana.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Regression of displacement responses]: Regression lines comparing measured displacements from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+CAPTION[Linear regression of vert. trans. responses]: Regression lines comparing measured vertical translation from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the displacement from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 #+ATTR_LaTeX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
-#+CAPTION[Regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
+#+CAPTION[Lienar regression of strain responses]: Regression lines comparing measured strains from the experimental campaign (X) against responses from simulation with OpenSees (O) and with Diana (D). Each plot is for a combination of two data sources from X, O and D. Each blue point in a plot compares the strain from 1 sensor and 1 loading position, from 1 data source to another data source. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. Each point in a plot is the response from a sensor listed in Table [[tbl:sensor-pos]] due to Truck 1 (see Figure [[fig:truck-1]]) at one of 13 loading positions shown in Figure [[fig:truck-pos]].
 #+ATTR_LaTeX: :height 1\textwidth
 [[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
-
-# Sensor plots.
-For each displacement and strain sensor that was considered for validation
-(listed in Table [[tbl:sensor-pos]]), the responses from that sensor measured in the
-experimental campaign are compared to responses in simulation with OpenSees and
-Diana. One of the plots which is considered representative of the results for a
-set of three displacement sensors is shown in Figure [[fig:sensors-displa]], and in
-Figure [[fig:sensors-strain]] for a representative result of the strain sensors. The
-displacement plots show excellent agreement with the measurements in all cases.
-Of the strain sensors O1 - O12 most are in very good agreement, however for some
-of the plots with low strain values recorded there are differences, and in
-sensor O7 there is clearly a difference worth investigating
-\textcolor{red}{TODO}. Of the strain sensors T1 - T20 all are in very good
-agreement between measurements, OpenSees and Diana.
 
 #+NAME: fig:sensors-displa
 #+CAPTION[Responses of sensors U25-U27 to Truck 1]: Responses of displacement sensors U25-U27 to Truck 1 across bridge 705. The x-axis indicates the x position of the front axle of Truck 1 on bridge 705 and the y-axis indicates the displacement at sensor O9 due to the truck's loading. The green responses are those measured in the experimental campaign, the orange responses are from simulation with Diana and the blue responses are from simulation with the generated FEM for OpenSees.
@@ -2438,6 +2415,30 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 | B     | 87'125          | 51.25051 |     16.6 |
 | C     | 53'166          | 89.98269 | 9.445789 |
 | D     | 54'603          | 102.5037 | 6.954211 |
+
+#+NAME: tbl:max-displacement
+#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+|-------+------------+---------------+------------+---------------|
+| A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
+| B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
+| C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
+| D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
+|-------+------------+---------------+------------+---------------|
+|       |            |          Mean |     0.0021 |        0.0784 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
+
+#+NAME: tbl:min-displacement
+#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+|-------+------------+---------------+------------+---------------|
+| A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
+| B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
+| C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
+| D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
+|-------+------------+---------------+------------+---------------|
+|       |            |          Mean |     0.0181 |        0.2165 |
+#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 #+NAME: fig:comp-diana-b-y
 #+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b-y]] from simulation with OpenSees.

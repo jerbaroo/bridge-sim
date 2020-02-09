@@ -22,9 +22,11 @@ temperatures = dict()
 D: bool = False
 
 
-def load_temperature_month(month: str) -> pd.DataFrame:
+def load_temperature_month(month: str, offset: int = 5) -> pd.DataFrame:
     if month in temperatures:
-        return temperatures[month]
+        result = temperatures[month]
+        result["temp"] = result["temp"] + offset
+        return result
 
     def parse_line(line):
         line = line.split()  # 79J 2019 05 31 2330 0530
@@ -50,7 +52,7 @@ def load_temperature_month(month: str) -> pd.DataFrame:
         temperatures[month] = pd.read_csv(
             saved_path, index_col=0, parse_dates=["datetime"]
         )
-        return temperatures[month]
+        return load_temperature_month(month=month, offset=offset)
     with open(month_path) as f:
         temperatures[month] = list(map(parse_line, f.readlines()))
     # Remove NANs.
@@ -104,7 +106,7 @@ def load_temperature_month(month: str) -> pd.DataFrame:
     # Save.
     temperatures[month] = df
     df.to_csv(saved_path)
-    return temperatures[month]
+    return load_temperature_month(month=month, offset=offset)
 
 
 def temperature_effect(

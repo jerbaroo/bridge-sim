@@ -99,7 +99,7 @@ def responses_to_traffic(
     """The 'Responses' to 'Traffic' at each simulation step.
 
     """
-    print_w("Deprecated 'responses_to_traffic': no need to be using this function")
+    print_w("Deprecated 'responses_to_traffic': no need to be using this function", flush=True)
     import sys
 
     sys.exit()
