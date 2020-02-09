@@ -1276,7 +1276,7 @@ cases, which was true in this case.
 * Theory
 * Methods
 ** Simulation
-[[<<sec:meth:sim>>]]
+<<sec:meth:sim>>
 
 # Section overview.
 This section describes the data collection system which was created to model a
@@ -2145,6 +2145,8 @@ converges, however TODO
 #+ATTR_LATEX: :float wrap :width 0.5\textwidth
 [[../../saved-generated-data-images/convergence/min-max-displacement.pdf]]
 
+\textcolor{red}{Fix word wrap around convergence Figures [[fig:converge-displa]] - [[fig:converge-strain]]}
+
 #+NAME: fig:converge-strain
 #+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 where a point load is applied at $x = 34.955$ and $z = 29.226$ meters. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The minimum and mean strain are calculated by interpolating the simulation responses onto a pre-determined grid. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 25'000 nodes, each of the TODO, minimum and mean are within 0.58% of the value being normalized to.
 #+ATTR_LATEX: :float wrap :width 0.5\textwidth
@@ -2200,7 +2202,7 @@ each of the piers close to the northern and southern edges of the bridge, and
 similar for each of the remaining piers between them. Thus one pier near the
 southern edge of the bridge and one pier just north of that pier are chosen for
 comparison, these are piers 4 and 5 which are clearly identifiable in Figures
-[[fig:pd-4d-axis]] and [[fig:p-5d-axis]].
+[[fig:pd-4d-axis]] and [[fig:pd-5d-axis]].
 
 # Contour plots of responses.
 Simulations were run where piers 4 and 5 are displaced vertically with AxisVM
@@ -2331,8 +2333,9 @@ Figures [[fig:pier-4-nesw]] and [[fig:pier-5-nesw]] show how the collected strai
 converge at increasing distance from each pier, thus a value of $\SI{2}{\meter}$
 was chosen where strains are not collected around each pier for the purpose of
 classification. Around each pier it will be more difficult to install sensors on
-the bottom of the bridge deck due to the presence of the piers, thus this is a
-realistic set of sensor positions that are being ignored. TODO: Reference.
+the bottom of the bridge deck due to the presence of the piers, thus this is at
+least a somewhat realistic set of sensor positions that are being ignored.
+\textcolor{red}{Reference}.
 
 #+NAME: fig:strain-sensors
 #+CAPTION[Positions of available strain sensors]: Available positions in simulation to place strain sensors on the deck of bridge 705 for the purpose of classification. The blue dots indicate positions where strain sensors are available while the red sensors indicate positions where data from strain sensors cannot be used due to a lack of convergence.
@@ -2341,41 +2344,74 @@ realistic set of sensor positions that are being ignored. TODO: Reference.
 *** Model Assumptions
 
 # Assumptions are made.
-A number of assumptions were made during the modeling process. These modeling
-assumptions are listed here at the end of this section on simulation methods,
-along with a justification accompanying each assumption.
+A number of assumptions were made during the modeling process. The modeling
+assumptions are listed here, at the end of this Section [[sec:meth:sim]] on
+simulation methods, along with a justification accompanying each assumption.
 
-- All vehicles drive at the same speed.
-- All vehicles drive along the center of a lane.
-- All vehicles have the same axle-width.
-- Vehicles arrive at a bridge according to a poisson process.
-- measurements from the verified campaign only for a small subset (positions and
-  existing healthy/damage state/)
-- the model is linear elastic
-- bridge scenarios
-- The behaviour of a bridge captured in FE simulation is sufficiently close to
-  the real behaviour of a real bridge that the analysis techniques explored on
-  the simulated data can also work on real data.
+# Vehicles drive at the same speed.
+All vehicles drive at the same speed. The speed of vehicles is not expected to
+change much as a vehicle crosses the $\SI{102.75}{\meter}$ bridge 705. Having a
+constant speed for all vehicles simplifies the calculation of the movement of
+traffic.
 
-  This assumption is verified by (A) applying the analysis techniques explored
-  on real data in addition to the simulated data and (B) verifying the collected
-  responses against sensor measurements collected in real life.
+# Vehicles drive along the center of a lane with equal axle widths.
+All vehicles drive along the center of a lane and all vehicles have the same
+axle-width. The reason for these two modeling assumptions is that they reduce
+the computational time required to generate data from passing vehicles. The
+computation time is reduced because all vehicles travel along the same "wheel
+tracks". $ULS$ number of unit load simulation are required per wheel track,
+allowing movement in the transverse direction of the bridge would require
+additional wheel tracks.
 
-  Note that the accuracy of the responses depends on the discretization density
-  of the FEM. This is a trade-off of time versus accuracy which can be chosen by
-  the user. Discretization of the FEM is covered in Section [[Discretization]]. The
-  accuracy of the FEM is shown to converge for bridge 705 in
-  \textcolor{red}{TODO: Convergence plot}.
+# Poisson process.
+Vehicles arrive at a bridge according to a truncated poisson process, truncated
+so no inter-vehicle distances are less than $\SI{2}{\meter}$ and with mean
+inter-vehicle distance of $\SI{7}{\meter}$. The poisson process is used for
+modeling events that are independent. In reality, the arrival times of vehicles
+to a bridge will be correlated to some extent. Classifying damage scenarios
+using methods that would be affected by the rate of traffic are avoided.
 
-- The simulated noise that is applied to responses from FE simulation is
-  sufficiently close to noise from sensors in real life that the analysis
-  techniques explored on the simulated data can also work on real data.
+# Damage scenarios not from validated.
+The models of pier settlement and cracked concrete produce a change in responses
+in reality similar to that in simulation, data is not available for bridge 705
+in damaged state for obvious reasons. The response to pier settlement as shown
+in Figures [[fig:pd-4d-axis]] - [[fig:pd-4s-os]] makes some intuitive sense, vertical
+translation on the order of the applied displacement, and stresses building up
+where the piers join the deck. Cracked concrete will in reality will have more
+complex behaviour than modeling a reduction in stiffness by reducing Young's
+modulus. What is assumed is that the additional complex effects from cracking
+concrete in reality will not be too different from the response in simulation
+that classification will no longer work.
 
-  This assumption is verified by (A) applying the analysis techniques explored
-  on real data in addition to the simulated data with varying levels of noise
-  and (B) verifying the simulated noise is comparable to the noise from
-  measurements collected in real life as shown in \textcolor{red}{noise}.
+# Linear elastic assumption.
+Simulations are run under linear elastic assumption. This is certainly the
+largest asumption that is made in modeling of the problem domain. Running
+simulations under this assumption allows the simulation to run very fast, as it
+is ultimately a linear calculation. Introducing non-linear simulations will
+increase computational time, but also provide more realistic behaviour of a
+bridge.
 
+# Assumption that the model is good enough.
+All of the assumptions can be summarized with the following assumption: the
+behaviour of a bridge captured in this thesis via simulation is sufficiently
+close to the real behaviour of a real bridge that the damage detection explored
+on the simulated data can also work on real data. Responses of the bridge were
+validated against measurements from the experimental campaign, however at badly
+damaged states, the bridge will not obey the linear elastic assumption. To
+re-iterate, the linear elastic assumption is the largest assumption made and
+should be made the focus of future work.
+
+# This assumption is verified by (A) applying the analysis techniques explored on
+# real data in addition to the simulated data and (B) verifying the collected
+# responses against sensor measurements collected in real life.
+
+# Note that the accuracy of the responses depends on the discretization density of
+# the FEM. This is a trade-off of time versus accuracy which can be chosen by the
+# user. Discretization of the FEM is covered in Section [[Discretization]]. The
+# accuracy of the FEM is shown to converge for bridge 705 in \textcolor{red}{TODO:
+# Convergence plot}.
+
+\clearpage
 ** Damage Identification
 <<sec:methods:di>>
 
