@@ -131,7 +131,7 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
 def temperature_effect_dates(c: Config, months: Tuple[str, str], verts: Tuple[bool, bool]):
     temps = [load_temperature_month(month, offset=10) for month in months]
     response_type = ResponseType.YTranslation
-    point = Point(x=51, y=0, z=-8.4)
+    point = Point(x=51.375, y=0, z=-8.4)
     plt.landscape()
     def plot_hours(i):
         if not verts[i]:
