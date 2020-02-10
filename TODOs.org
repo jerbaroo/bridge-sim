@@ -1,43 +1,45 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
-* Safe List
-** ABORT Rigid links experiment :axis:local:
-CLOSED: [2020-01-16 Thu 10:55]
-** ABORT Distributed load experiment :axis:local:
-CLOSED: [2020-01-16 Thu 10:55]
-** TODO Publish on Pypi :software:local:
-- Write about the interface
-** TODO Validated strain [0/3] :validation:
-*** TODO Check strain at radius of point A
-*** TODO Check strain at radius of points B - D
-*** TODO
-** TODO Validated pier displacement :validation:
-*** TODO Show convergence without
-** TODO Literature review submitted [0/3] :writing:
-*** TODO Address Arpi's feedback
-*** TODO Address peer feedback
-*** TODO Write about anomaly detection
-** TODO First classifier :classifier:
-*** TODO Collect data, before strain validation
-** TODO Write about density :writing:
-- Density should have no affect.
-- Write about affect of density for Monday.
-** TODO Comparison with real time series :validation:
-*** TODO Meeting with Arthur to go over Matlab script
-** WAIT Comparison of 2D and 3D data :software:
-** TODO Validated thermal load :validation:
-** TODO Noise :parameters:local:
-- reference value from bridge 705
-*** TODO Set noise based on stddev method in paper
-** TODO Light vehicles :parameters:local:
+* Todo List
+** TODO Send methods section for review
+*** TODO Write about density
+** TODO Validate temperature load
+** TODO Traffic top view plot
+- Memory error
+** TODO Light vehicles
 *** TODO Find paper from TNO
 *** TODO Add vehicles per class
-** DONE ULS experiment :parameters:local:
-CLOSED: [2020-01-16 Thu 10:58]
-** TODO Plot annual temperature effect :plot:temperature:
-** TODO Plot of each loading type :plot:validation:
+** TODO Dynamic pier settlement
+** TODO Classify difference in responses
+** TODO Sub-question A
+** TODO Sub-question B
+** TODO Publish on Pypi
+- Write about the interface
+** TODO Validate strain
+*** TODO Cleanup NESW plot
+*** TODO Regenerate convergence plot
+** TODO Compare with real time series
+*** DONE Meeting with Arthur to go over Matlab script
+CLOSED: [2020-02-10 Mon 10:23]
+*** TODO Fix verification bug
+*** TODO Plot strain in addition to vert trans
+** TODO Noise
+*** TODO Determine noise for strain
+** WAIT Comparison of 2D and 3D data
 ** WAIT Mesh refinement
-** DONE Validated Displacement
+** ABORT Rigid links experiment
+CLOSED: [2020-01-16 Thu 10:55]
+** ABORT Distributed load experiment
+CLOSED: [2020-01-16 Thu 10:55]
+** DONE Validate pier settlement
+CLOSED: [2020-02-10 Mon 10:22]
+** DONE Literature review submitted
+CLOSED: [2020-02-10 Mon 10:21]
+** DONE ULS experiment
+CLOSED: [2020-01-16 Thu 10:58]
+** DONE Plot annual temperature effect
+CLOSED: [2020-02-10 Mon 10:21]
+** DONE Validate displacement
 CLOSED: [2020-01-09 Thu 12:37]
 ** DONE Early literature review submitted
 CLOSED: [2020-01-09 Thu 12:34]
@@ -74,13 +76,18 @@ CLOSED: [2020-01-09 Thu 12:34]
   - Why step 3 for strain but not for displacement
   - What is that compatibility equation, specifically
   - Setting boundary conditions for multiple line supports in Axis
+** February 10
+*** TODO Show annual temperature effect plot
+- Fixup, 3x day
+*** TODO Uniform temperature stress
+*** TODO Per-sensor plots, strain sensor is off
+*** TODO Week plan
+- Top view of traffic plot (verification!)
+- Clustering plot
+  - Response over 2min @ P under each damage scenario
+  - Cluster responses, labeled, and one-class
+*** TODO Pier model improvement (Henco's suggestion)
 * Todos
-** TODO <2020-01-09 Thu> [0/5]
-*** TODO 250 words
-*** TODO Arpi meeting
-*** TODO Pier validation plots
-*** TODO Collect strain at multiple radii
-*** TODO Start thermal correlation plot
 ** DONE [#A] Contour plot in 3D
 CLOSED: [2019-11-05 Tue 17:13]
 ** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
