@@ -128,8 +128,8 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
     plt.close()
 
 
-def temperature_effect_dates(c: Config, months: Tuple[str, str, str], verts: Tuple[bool, bool, bool]):
-    temps = [load_temperature_month(month) for month in months]
+def temperature_effect_dates(c: Config, months: Tuple[str, str], verts: Tuple[bool, bool]):
+    temps = [load_temperature_month(month, offset=10) for month in months]
     response_type = ResponseType.YTranslation
     point = Point(x=51, y=0, z=-8.4)
     plt.landscape()
@@ -146,20 +146,23 @@ def temperature_effect_dates(c: Config, months: Tuple[str, str, str], verts: Tup
                 plt.axvline(x=dt, linewidth=1, color="black", label=label)
         plt.legend()
     fig = plt.gcf()
-    gs = GridSpec(2, 3, fig)
-    for i in [0, 1, 2]:
+    gs = GridSpec(2, 2, fig)
+    for i in [0, 1]:
+        effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps[i]["temp"])
         if i == 0:
-            ax = fig.add_subplot(gs[0, :3])
+            ax = fig.add_subplot(gs[0, :2])
         elif i == 1:
             ax = fig.add_subplot(gs[1, :2])
-        elif i == 2:
-            ax = fig.add_subplot(gs[1, 2])
+        ax.scatter(temps[i]["datetime"], temps[i]["temp"], c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        ax.set_ylabel("Temperature (°C)")
         plot_hours(i)
-        effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps[i]["temp"])
-        ax.scatter(temps[i]["datetime"], effect * 1000, c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
-        plt.gcf().autofmt_xdate()
-        ax.set_ylabel(f"{response_type.name()} (mm)")
-        ax.set_title(f"{response_type.name()} in {str(months[i][0]).upper()}{months[i][1:]}")
+        if i != 0:
+            plt.setp(plt.xticks()[1], rotation=30, ha="right")
+        titlecase_name = (str(months[i][0]).upper() + months[i][1:]).replace("-", " ")
+        ax.set_title(f"Temperature and {response_type.name()} in {titlecase_name}")
+        ax2 = ax.twinx()
+        ax2.scatter(temps[i]["datetime"], effect * 1000, c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        ax2.set_ylabel(f"{response_type.name()} (mm)")
     # Save.
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".png"))

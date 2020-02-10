@@ -18,15 +18,13 @@ from util import print_d, print_i
 
 temperatures = dict()
 
-# D: str = "classify.temperature"
-D: bool = False
+D: str = "classify.temperature"
+# D: bool = False
 
 
-def load_temperature_month(month: str, offset: int = 5) -> pd.DataFrame:
+def load_temperature_month(month: str, offset: int = 15) -> pd.DataFrame:
     if month in temperatures:
-        result = temperatures[month]
-        result["temp"] = result["temp"] + offset
-        return result
+        return temperatures[month]
 
     def parse_line(line):
         line = line.split()  # 79J 2019 05 31 2330 0530
@@ -52,6 +50,7 @@ def load_temperature_month(month: str, offset: int = 5) -> pd.DataFrame:
         temperatures[month] = pd.read_csv(
             saved_path, index_col=0, parse_dates=["datetime"]
         )
+        temperatures[month]["temp"] = temperatures[month]["temp"].add(offset)
         return load_temperature_month(month=month, offset=offset)
     with open(month_path) as f:
         temperatures[month] = list(map(parse_line, f.readlines()))
@@ -104,7 +103,6 @@ def load_temperature_month(month: str, offset: int = 5) -> pd.DataFrame:
     # Smooth.
     df["temp"] = savgol_filter(df["temp"], 51, 3)  # window size 51, polynomial order 3
     # Save.
-    temperatures[month] = df
     df.to_csv(saved_path)
     return load_temperature_month(month=month, offset=offset)
 
@@ -132,13 +130,20 @@ def temperature_effect(
         sim_params=sim_params,
     )
     unit_linear = linear_responses.at_deck(point, interp=True)
+    print_d(D, "unit uniform and linear = {unit_uniform} {unit_linear}")
     # Combine uniform and linear.
     temps_bottom = np.array(temps) - c.bridge.ref_temp_c
     temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
     temps_half = (temps_bottom + temps_top) / 2
+    print_d(D, f"tb = {temps_bottom[:3]}")
+    print_d(D, f"tt = {temps_top[:3]}")
+    print_d(D, f"th = {temps_half[:3]}")
     uniform_responses = unit_uniform * temps_half
     temps_delta = temps_top - temps_bottom
     linear_responses = unit_linear * temps_delta
+    print_d(D, f"temps_delta = {temps_delta[:3]}")
+    print_d(D, f"uniform responses = {uniform_responses[:3]}")
+    print_d(D, f"linear responses = {linear_responses[:3]}")
     return uniform_responses + linear_responses
     # return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
 

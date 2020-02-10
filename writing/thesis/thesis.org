@@ -48,6 +48,8 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
+# ./cli.sh classify temp-effect-4
+
 * Introduction
 
 # Motivation of the research question.
@@ -1548,6 +1550,19 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
   F_{thermal} &= \sigma_{thermal} \cdot A
 \end{split}
 \end{equation}
+
+Temperature data is taken from the National Climatic Data Center branch of the
+National Oceanic and Atmospheric Administration, which provides temperature data
+at a resolution of one data point every 1 minute. Temperature data was used from
+the weather station at Spingfield in Masachussets USA with a constant offset
+applied in order to bring the data in closer line with expected Netherlands
+temperatures, the resulting temperature and the vertical translation at $x =
+\SI{51.375}{\meter}$ and $z = \SI{-8.4}{\meter}$ are given in Figure [[fig:temp]].
+
+#+NAME: fig:temp
+#+ATTR_LATEX: :float wrap :width 0.5\textwidth
+#+CAPTION[Effect of temperature]: Effect of temperature at \SI{51.375}{\meter}$ and $z = \SI{-8.4}{\meter}$ during the year of 2018 and also on May 1 2018. Each plot has two vertical axes, one for temperature and one for vertical translation.
+[[./saved-images/thermal/2018,-may-1.png]]
 
 *** Traffic Model
 

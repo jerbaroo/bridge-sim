@@ -521,9 +521,9 @@ def temp_effect_date(date, vert):
 
 
 @classify.command(help="Plot temperature effect at 3 dates.")
-@click.option("--dates", type=click.Tuple([str, str, str]), default=("2018", "may", "may-1"), help="Filenames to plot effect for.")
-@click.option("--verts", type=click.Tuple([bool, bool, bool]), default=[False, True, False], help="Vertical lines every 24 hours.")
-def temp_effect_3(dates, verts):
+@click.option("--dates", type=click.Tuple([str, str]), default=("2018", "may-1"), help="Filenames to plot effect for.")
+@click.option("--verts", type=click.Tuple([bool, bool]), default=(False, False), help="Vertical lines every 24 hours.")
+def temp_effect_2(dates, verts):
     classification_.temperature_effect_dates(c=c(), months=dates, verts=verts)
 
 

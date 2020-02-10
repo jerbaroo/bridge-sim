@@ -87,62 +87,62 @@ CLOSED: [2020-01-09 Thu 12:34]
   - Response over 2min @ P under each damage scenario
   - Cluster responses, labeled, and one-class
 *** TODO Pier model improvement (Henco's suggestion)
-* Todos
-** DONE [#A] Contour plot in 3D
+* Deprecated
+** Todos
+*** DONE [#A] Contour plot in 3D
 CLOSED: [2019-11-05 Tue 17:13]
-** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
-** TODO [#A] Verification: plot of OpenSees/Diana/Measurements
+*** TODO [#A] Make ExptParams a NewType, and move is_mobile_load to diana code
+*** TODO [#A] Verification: plot of OpenSees/Diana/Measurements
 This will be along the track where the measurement campaign took place.
-** TODO [#A] Write about assumptions of external factors
-** TODO [#A] Verification: 1-dimensional plot of responses
+*** TODO [#A] Write about assumptions of external factors
+*** TODO [#A] Verification: 1-dimensional plot of responses
 One plot for each wheel track
-** TODO [#A] Fix 2D model
-** TODO [#A] Assert that sections are sorted by position
-** TODO [#A] Remove default fix values to Support3D
-** TODO [#A] Fix max_shell_area for piers
+*** TODO [#A] Fix 2D model
+*** TODO [#A] Assert that sections are sorted by position
+*** TODO [#A] Remove default fix values to Support3D
+*** TODO [#A] Fix max_shell_area for piers
 - Maybe create Point.helper_functions
-** TODO [#A] Write about amount and value of bridges in Hungary
-** DONE [#A] Attach section reference to each node and plot in 3D
+*** TODO [#A] Write about amount and value of bridges in Hungary
+*** DONE [#A] Attach section reference to each node and plot in 3D
 CLOSED: [2019-11-05 Tue 17:12]
-** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
-** DONE [#A] Restructure loads
+*** TODO [#A] Generate timing plots, Diana, Axis, OpenSees
+*** DONE [#A] Restructure loads
 CLOSED: [2019-11-05 Tue 17:12]
-** TODO [#A] Ensure not multiplying z_frac by c.bridge.width, use c.bridge.z
-** TODO [#A] Rename Fix to Support2D
-** TODO [#A] Collect stress and strain responses from 3D model
-** TODO [#A] Make contour plots for other response types
-** TODO [#A] Write about Python model
-** TODO [#A] Write down and ensure fem_responses_path etc. are correct
-** TODO [#A] Refine mesh in Axis to check response has converged
-** TODO [#A] Refine mesh in Diana to check response has converged
-** TODO [#B] Rename support to pier
-** TODO [#B] Add mesh points where material properties change
-** TODO [#B] Put real and simulated time signals next to each other
+*** TODO [#A] Ensure not multiplying z_frac by c.bridge.width, use c.bridge.z
+*** TODO [#A] Rename Fix to Support2D
+*** TODO [#A] Collect stress and strain responses from 3D model
+*** TODO [#A] Make contour plots for other response types
+*** TODO [#A] Write about Python model
+*** TODO [#A] Write down and ensure fem_responses_path etc. are correct
+*** TODO [#A] Refine mesh in Axis to check response has converged
+*** TODO [#A] Refine mesh in Diana to check response has converged
+*** TODO [#B] Rename support to pier
+*** TODO [#B] Add mesh points where material properties change
+*** TODO [#B] Put real and simulated time signals next to each other
 Decided after seeing the shorter repeating intervals.
-** TODO [#B] Interpolate only for nodes where y=0
-** TODO [#B] Use click library for python command line interface
-** TODO [#B] Section order in generated TCL file is not deterministic
-** TODO [#C] Factor build/d3.py into submodules, it's a ~900 line file
-** TODO [#C] Consider how third party OpenSees model could be integrated
-** TODO [#C] Use Python units library
-** DONE [#C] Rename Config.os_node_step to node_step_x
+*** TODO [#B] Interpolate only for nodes where y=0
+*** TODO [#B] Use click library for python command line interface
+*** TODO [#B] Section order in generated TCL file is not deterministic
+*** TODO [#C] Factor build/d3.py into submodules, it's a ~900 line file
+*** TODO [#C] Consider how third party OpenSees model could be integrated
+*** TODO [#C] Use Python units library
+*** DONE [#C] Rename Config.os_node_step to node_step_x
 CLOSED: [2019-10-22 Tue 19:32]
 Moved to bash mesh.
-** DONE [#C] Rename Config.os_node_step_z to node_step_z
+*** DONE [#C] Rename Config.os_node_step_z to node_step_z
 CLOSED: [2019-10-22 Tue 19:32]
 Moved to bash mesh.
-** DONE [#C] Rename Config.os_support_num_nodes_y to support_num_nodes_y
+*** DONE [#C] Rename Config.os_support_num_nodes_y to support_num_nodes_y
 CLOSED: [2019-10-22 Tue 19:32]
 Moved to bash mesh.
-** DONE [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
+*** DONE [#C] Rename Config.os_support_num_nodes_z to support_num_nodes_z
 CLOSED: [2019-10-22 Tue 19:32]
 Moved to bash mesh.
-** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
-** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
-** DONE [#C] Use num_deck_nodes instead of manual calculation
+*** TODO [#C] Move classes in model.bridge to submodules and re-export in model.bridge
+*** TODO [#C] In d3.opensees_deck_elements rename i_node etc. to i_node_id
+*** DONE [#C] Use num_deck_nodes instead of manual calculation
 CLOSED: [2019-10-22 Tue 19:33]
 No longer using step size to it's easy to do directly.
-* Deprecated
 ** Meetings
 - Item marked as DONE when it is covered in a meeting.
 - Can create additional item in week's work or general TODOs.
