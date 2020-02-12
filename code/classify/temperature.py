@@ -88,7 +88,8 @@ def load_temperature_month(month: str, offset: int = 15) -> pd.DataFrame:
                 df = df.append(to_append, ignore_index=True)
             curr = curr + timedelta(minutes=1)
             if not isinstance(curr, datetime):
-                print(type(curr))
+                print("classify/temperature", flush=True)
+                print(type(curr), flush=True)
                 import sys
 
                 sys.exit()

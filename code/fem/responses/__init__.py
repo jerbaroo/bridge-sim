@@ -305,7 +305,7 @@ class SimResponses(Responses):
             with open(path, "wb") as f:
                 dill.dump(self.raw_responses, f)
         except:
-            print("Could not save raw responses")
+            print("Could not save raw responses", flush=True)
             import sys
 
             sys.exit()

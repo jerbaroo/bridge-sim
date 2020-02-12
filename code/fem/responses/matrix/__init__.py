@@ -157,7 +157,7 @@ def load_expt_responses(
 
     # First run the simulations (if necessary), in parallel if requested.
     if c.parallel > 1:
-        print("Exiting from fem.responses.matrix.__init__.py")
+        print("Exiting from fem.responses.matrix.__init__.py", flush=True)
         import sys
 
         sys.exit()

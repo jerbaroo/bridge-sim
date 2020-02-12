@@ -36,7 +36,7 @@ I would like to thank...
 # Move folder up one level.
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
 
-# ./cli.sh --mesh full --save-to /z/jeremy-per-sensors-full --shorten-paths true validate sensors
+# ./cli.sh --mesh full --save-to /z/jeremy/per-sensors-full --shorten-paths true validate sensors
 
 # ./cli.sh --mesh full --save-to /z/saved-piers --two-materials validate pier-disp
 

@@ -48,9 +48,11 @@ CLOSED: [2020-02-12 Wed 14:41]
 *** DONE Connect dots
 CLOSED: [2020-02-12 Wed 14:54]
 *** TODO Full mesh
-*** TODO Fix titles
+*** DONE Fix titles
+CLOSED: [2020-02-12 Wed 15:07]
 *** TODO Check for jaggedness
 - See if it makes sense from contour plot.
+- Maybe this is when an axle crosses a pier?
 ** TODO Check linear assumption
 - Calculate if stress > strength
   - Tensile stress is defined as the force per unit area induced in the body in
