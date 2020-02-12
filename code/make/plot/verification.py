@@ -172,22 +172,23 @@ def per_sensor_plots(
         plt.plot(truck_front_x, os_strain[i], lw=lw, label="OpenSees")
 
         # Plot measured values against truck position.
+        sensor_x, sensor_z = strain_sensor_xzs[i]
         plt.scatter(
             meas_group["xpostruck"],
             meas_group["inflinedata"],
             marker="o",
             s=size,
-            label=f"Sensor {sensor_label}",
+            label="Measurement",
             zorder=3,
             color="tab:green",
         )
 
+        plt.scatter([0], [0], label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m", alpha=0, zorder=4)
+
         plt.legend()
-        sensor_x, sensor_z = strain_sensor_xzs[i]
         plt.title(
-            f"Strain at sensor {sensor_label}"
-            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
-            f"\n Truck 1 moving across bridge 705"
+            f"Strain at sensor {sensor_label} due to"
+            f"\nTruck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
         plt.ylabel("Strain")
@@ -286,21 +287,22 @@ def per_sensor_plots(
             print(f"Printed os_displacement")
 
         # Plot measured values sorted by truck position.
+        sensor_x, sensor_z = displa_sensor_xzs[i]
         plt.scatter(
             meas_group["xpostruck"],
             meas_group["inflinedata"],
             s=size,
-            label=f"Sensor {sensor_label}",
+            label="Measurement",
             zorder=3,
             color="tab:green",
         )
 
+        plt.scatter([0], [0], label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m", alpha=0)
+
         plt.legend()
-        sensor_x, sensor_z = displa_sensor_xzs[i]
         plt.title(
-            f"{ResponseType.YTranslation.name()} at sensor {sensor_label}"
-            f"\nx = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m"
-            f"\n Truck 1 moving across bridge 705"
+            f"{ResponseType.YTranslation.name()} at sensor {sensor_label} due to"
+            f"\nTruck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
         plt.ylabel(f"{ResponseType.YTranslation.name()} (mm)")

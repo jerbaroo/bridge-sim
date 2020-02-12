@@ -50,7 +50,7 @@ CLOSED: [2020-02-12 Wed 14:54]
 *** TODO Full mesh
 *** TODO Fix titles
 *** TODO Check for jaggedness
-- See if it makes sense in contour plot.
+- See if it makes sense from contour plot.
 ** TODO Check linear assumption
 - Calculate if stress > strength
   - Tensile stress is defined as the force per unit area induced in the body in
