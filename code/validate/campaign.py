@@ -2,8 +2,8 @@ import pandas as pd
 
 # TNO provided files.
 meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
-displa_sensors = pd.read_csv("data/verification/displasensors.txt")
-strain_sensors = pd.read_csv("data/verification/strainsensors.txt")
+displa_sensors = pd.read_csv("data/verification/displasensors.txt", index_col=0)
+strain_sensors = pd.read_csv("data/verification/strainsensors.txt", index_col=0)
 
 
 def truck_1_expt_xs():

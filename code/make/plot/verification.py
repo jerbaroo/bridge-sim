@@ -105,7 +105,7 @@ def per_sensor_plots(
     print_i(f"Strain sensors ignored = {labels_ignored}")
 
     # Ignore sensors with missing positions.
-    positions_available = set(strain_sensors["label"])
+    positions_available = set(strain_sensors[strain_sensors["direction"] == "X"]["label"])
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
     tno_strain_meas = tno_strain_meas.loc[
         tno_strain_meas["sensorlabel"].isin(positions_available)

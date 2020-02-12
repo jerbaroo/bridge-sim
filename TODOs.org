@@ -12,20 +12,21 @@ CLOSED: [2020-02-10 Mon 10:23]
 *** TODO Find out frequency of measurements
 *** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
-** TODO [#A] Investigate sensor O7 plot
+** DONE [#A] Investigate sensor O7 plot
+CLOSED: [2020-02-12 Wed 14:16]
 *** DONE Contour plot of the deck at that position.
 CLOSED: [2020-02-12 Wed 12:02]
 [[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
 - Contour plot agrees with sensor plot.
-*** TODO Check positions and response type of O sensors.
+*** DONE Check positions and response type of O sensors.
+CLOSED: [2020-02-12 Wed 14:16]
 - Perhaps they are top strains.
 - Perhaps position is not as labeled.
   - Original position:
     36075 16600 3590 XY Y 1 O7 2000
   - Looks like this is transverse strain!
     [[./data/verification/strainsensors.txt]]
-*** TODO Remove transverse strain plots
-** TODO Send methods section for review
+** TODO [#A] Send methods section for review
 *** TODO Write about density
 ** TODO Light vehicles
 - Based on  paper from TNO
@@ -38,15 +39,27 @@ CLOSED: [2020-02-12 Wed 12:02]
 ** TODO Convergence plots
 *** TODO Horizontal lines in point load A NESE plot
 *** TODO Regenerate convergence plots
-** TODO Cleanup per-sensor plots
+** TODO [#A] Cleanup per-sensor plots
+*** DONE Remove transverse strain plots
+CLOSED: [2020-02-12 Wed 14:21]
+*** TODO Alphabetical plots
 *** TODO Connect dots
 *** TODO Full mesh
 *** TODO Fix titles
 *** TODO Check for jaggedness
-- See if it makes sense in:
-[[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
+- See if it makes sense in contour plot.
 ** TODO Check linear assumption
 - Calculate if stress > strength
+  - Tensile stress is defined as the force per unit area induced in the body in
+    response to externally applied force, which tends to elongate or stretch the
+    body.
+  - Concrete is weak in tension but strong in compression.
+  - The range for the tensile strength of concrete is about 2.2 - 4.2 MPa. For
+    low strength class concrete, as mentioned by Saber, the tensile strength of
+    unreinforced concrete equals 1/10 the compressive strength, and for higher
+    class, it is about 1/15. A good reference where this is mentioned is the
+    book by S U Pillai "Reinforced Concrete Design" (ISBN: 9780070141100).
+  - https://eurocodeapplied.com/design/en1992/concrete-design-properties
 ** WAIT Comparison of 2D and 3D data
 ** WAIT Mesh refinement
 ** ABORT Dynamic pier settlement

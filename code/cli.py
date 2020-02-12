@@ -120,7 +120,7 @@ def cli(
     click.echo(f"Mesh density: {mesh}")
     click.echo(f"Two materials: {two_materials_}")
     click.echo(f"Save to: {save_to_}")
-    click.echo(f"Parallel : {parallel_}")
+    click.echo(f"Parallel: {parallel_}")
     click.echo(f"Parallel wheel tracks: {parallel_ulm_}")
     click.echo(f"Shorten paths: {shorten_paths_}")
     click.echo(f"ULS: {il_num_loads_}")
