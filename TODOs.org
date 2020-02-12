@@ -12,8 +12,14 @@ CLOSED: [2020-02-10 Mon 10:23]
 *** TODO Find out frequency of measurements
 *** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
-** TODO [#A] Investigate strange per-sensor
-- Contour plot of the deck at that position
+** TODO [#A] Investigate sensor O7 plot
+*** DONE Contour plot of the deck at that position.
+CLOSED: [2020-02-12 Wed 12:02]
+[[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
+- Contour plot agrees with sensor plot.
+*** TODO Check positions and response type of O sensors.
+- Perhaps positions is not as labeled.
+- Perhaps they are top strains.
 ** TODO Send methods section for review
 *** TODO Write about density
 ** TODO Light vehicles

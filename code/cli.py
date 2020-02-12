@@ -491,9 +491,17 @@ def comp_axles():
 
 @verify.command(help="Compare load positions (normal vs. buckets).")
 def comp_load_positions():
-    from make import verify
+    from make.verify import compare_load_positions
 
-    verify.compare_load_positions(c())
+    compare_load_positions(c())
+
+
+@verify.command(help="Contour plot of Truck 1 at given x position.")
+@click.option("--x", type=float, default=40, help="X positions of Truck 1.")
+def truck1_contour(x: float):
+    from make.verify import truck1_contour
+
+    truck1_contour(c=c(), x=x)
 
 
 ####################

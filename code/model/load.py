@@ -8,7 +8,7 @@ import matplotlib.colors as colors
 
 from config import Config
 from model.bridge import Bridge, Point
-from util import assert_sorted, round_m, safe_str
+from util import assert_sorted, flatten, round_m, safe_str
 
 # Comment/uncomment to print debug statements for this file.
 # D: str = "model.load"
@@ -329,7 +329,7 @@ class MvVehicle(Vehicle):
         return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
 
     def to_wheel_track_loads(
-        self, c: Config, time: float
+        self, c: Config, time: float, flat: bool = False
     ) -> List[Tuple[Tuple[PointLoad, PointLoad], Tuple[PointLoad, PointLoad]]]:
         """Point loads per wheel, per axle. "Bucketed" based on unit loads.
 
@@ -356,10 +356,12 @@ class MvVehicle(Vehicle):
                                 kn=wheel_load.kn * load_frac,
                             )
                         )
+        if flat:
+            return flatten(result, PointLoad)
         return result
 
     def to_point_load_pw(
-        self, time: float, bridge: Bridge
+        self, time: float, bridge: Bridge, flat: bool = False
     ) -> List[Tuple[PointLoad, PointLoad]]:
         """A tuple of point load per axle, one point load per wheel.
 
@@ -400,4 +402,6 @@ class MvVehicle(Vehicle):
                     PointLoad(x_frac=x_frac, z_frac=z1, kn=kn1),
                 )
             )
+        if flat:
+            return flatten(result, PointLoad)
         return result

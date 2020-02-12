@@ -122,7 +122,7 @@ def plot_contour_deck(
     norm=None,
     scatter: bool = False,
     levels: int = 14,
-    show_legend: bool = True,
+    mm_legend: bool = True,
     sci_format: bool = False,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
@@ -146,7 +146,6 @@ def plot_contour_deck(
                     amin_x, amin_z = X[-1], Z[-1]
     if len(X) == 0:
         raise ValueError(f"No responses for contour plot")
-
     # Plot responses and colorbar.
     if scatter:
         cs = plt.scatter(
@@ -159,10 +158,9 @@ def plot_contour_deck(
         )
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
-
+    # Colourbar.
     clb = plt.colorbar(cs, norm=norm)
     clb.ax.set_title(responses.units)
-
     # Plot point loads.
     for pload in ploads:
         x = pload.x_frac * c.bridge.length
@@ -170,21 +168,20 @@ def plot_contour_deck(
         plt.scatter(
             [x], [z], label=f"{pload.kn} kN load", marker="o", color="red",
         )
-
     # Plot min and max responses.
     amin_s = f"{amin:.4e}" if sci_format else f"{amin:.4f}"
     amax_s = f"{amax:.4e}" if sci_format else f"{amax:.4f}"
     aabs_s = f"{abs(amin - amax):.4e}" if sci_format else f"{abs(amin - amax):.4f}"
-    for point, label, color, alpha in [
-        ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),
-        ((amax_x, amax_z), f"max = {amax_s} {responses.units}", "green", 0),
-        ((amin_x, amin_z), f"|min-max| = {aabs_s} {responses.units}", "red", 0),
-    ]:
-        plt.scatter(
-            [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
-        )
-    if show_legend:
-        plt.legend()
-
+    if mm_legend:
+        for point, label, color, alpha in [
+            ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),
+            ((amax_x, amax_z), f"max = {amax_s} {responses.units}", "green", 0),
+            ((amin_x, amin_z), f"|min-max| = {aabs_s} {responses.units}", "red", 0),
+        ]:
+            plt.scatter(
+                [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
+            )
+    if mm_legend or len(ploads) > 0:
+            plt.legend()
     plt.xlabel("X position (m)")
     plt.ylabel("Z position (m)")

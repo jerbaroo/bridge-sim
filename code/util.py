@@ -31,12 +31,11 @@ st = lambda n: "%s" % (
 def flatten(container, t):
     def _flatten(container, t):
         for i in container:
-            if not isinstance(i, t):
+            if isinstance(i, t):
+                yield i
+            else:
                 for j in _flatten(i, t):
                     yield j
-            else:
-                yield i
-
     return list(_flatten(container, t))
 
 

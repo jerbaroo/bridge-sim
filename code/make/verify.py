@@ -311,4 +311,23 @@ def compare_load_positions(c: Config):
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig(c.get_image_path("system-verification", "compare-load-positions.pdf"))
+    plt.savefig(c.get_image_path("verification", "compare-load-positions.pdf"))
+    plt.close()
+
+
+def truck1_contour(c: Config, x: float):
+    """Contour plot of Truck 1 at given x position."""
+    time = wagen1.time_at(x=x, bridge=c.bridge)
+    loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
+    # loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
+    sim_responses = load_fem_responses(
+        c=c,
+        sim_params=SimParams(ploads=loads),
+        response_type=ResponseType.Strain,
+        sim_runner=OSRunner(c),
+    )
+    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=sim_responses, ploads=loads, scatter=True)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf"))
+    plt.close()
