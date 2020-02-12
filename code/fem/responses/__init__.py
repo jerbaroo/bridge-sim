@@ -103,7 +103,7 @@ def load_fem_responses(
         with open(path, "rb") as f:
             responses = dill.load(f)
     except EOFError:
-        print_i(f"EOFError, removing and re-running {path}")
+        print_i(f"EOFError, removing and re-running sim. {i} at {path}")
         os.remove(path)
         return load_fem_responses(
             c=c,
