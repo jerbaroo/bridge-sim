@@ -100,7 +100,21 @@ def load_fem_responses(
 
     start = timer()
     with open(path, "rb") as f:
-        responses = dill.load(f)
+        try:
+            responses = dill.load(f)
+        except EOFError:
+            print_i(f"EOFError, removing and re-running {path}")
+            os.remove(path)
+            return load_fem_responses(
+                c=c,
+                sim_params=sim_params,
+                response_type=response_type,
+                sim_runner=sim_runner,
+                run=run,
+                run_only=run_only,
+                index=index,
+            )
+
     print_prog(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
 
     start = timer()
