@@ -165,11 +165,12 @@ def load_expt_responses(
             pool.map(process, indices_and_params)
     else:
         map(process, indices_and_params)
+    # Return after generating results if requested...
     if run_only:
         return
-    # Then collect all of the results.
+    # ...otherwise collect all of the results.
     results = []
     for index_params in indices_and_params:
-        results.append(process(index_params))
+        results.append(process(index_params, _run_only=False))
     print()  # Add a newline to fix cursor position.
     return results
