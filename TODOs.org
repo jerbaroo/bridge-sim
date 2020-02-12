@@ -18,8 +18,13 @@ CLOSED: [2020-02-12 Wed 12:02]
 [[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
 - Contour plot agrees with sensor plot.
 *** TODO Check positions and response type of O sensors.
-- Perhaps positions is not as labeled.
 - Perhaps they are top strains.
+- Perhaps position is not as labeled.
+  - Original position:
+    36075 16600 3590 XY Y 1 O7 2000
+  - Looks like this is transverse strain!
+    [[./data/verification/strainsensors.txt]]
+*** TODO Remove transverse strain plots
 ** TODO Send methods section for review
 *** TODO Write about density
 ** TODO Light vehicles
@@ -37,6 +42,9 @@ CLOSED: [2020-02-12 Wed 12:02]
 *** TODO Connect dots
 *** TODO Full mesh
 *** TODO Fix titles
+*** TODO Check for jaggedness
+- See if it makes sense in:
+[[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
 ** TODO Check linear assumption
 - Calculate if stress > strength
 ** WAIT Comparison of 2D and 3D data
