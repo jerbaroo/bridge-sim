@@ -11,7 +11,7 @@ from model.load import PointLoad
 from model.response import ResponseType
 from plot import plt
 from util import clean_generated, flatten, print_i, safe_str
-from validate.campaign import displa_sensor_xz
+from validate.campaign import displa_sensor_xz, strain_sensor_xz
 
 
 def number_of_uls_plot(c: Config):
@@ -97,7 +97,10 @@ def number_of_uls_plot(c: Config):
 
 
 def experiment_noise(c: Config):
-    """Plot noise from dynamic test 1"""
+    """Plot displacement and strain noise from dynamic test 1"""
+    ################
+    # Displacement #
+    ################
     plt.portrait()
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
@@ -118,7 +121,7 @@ def experiment_noise(c: Config):
             if data[i] < data[data_center]:
                 data_center = i
         data = data[data_center - side : data_center + side]
-        smooth = savgol_filter(data, 21, 3)
+        smooth = savgol_filter(data, 31, 3)
         plt.plot(data, linewidth=1)
         plt.plot(smooth, linewidth=1)
         plt.ylim(-0.8, 0.3)
@@ -130,5 +133,42 @@ def experiment_noise(c: Config):
         plt.legend()
         plt.title(f"Noise from {displa_label}")
     plt.tight_layout()
-    plt.savefig(c.get_image_path("params", "noise.pdf"))
+    plt.savefig(c.get_image_path("params", "noise-displa.pdf"))
+    plt.close()
+    ##########
+    # Strain #
+    ##########
+    plt.portrait()
+    # Find points of each sensor.
+    strain_labels = ["T1", "T10", "T11"]
+    strain_points = []
+    for strain_label in strain_labels:
+        sensor_x, sensor_z = strain_sensor_xz(strain_label)
+        strain_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # For each sensor plot and estimate noise.
+    side = 700
+    xmin, xmax = np.inf, -np.inf
+    for s_i, strain_label in enumerate(strain_labels):
+        # First plot the signal, and smoothed signal.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 1)
+        with open(f"validation/experiment/D1a-{strain_label}.txt") as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] < data[data_center]:
+                data_center = i
+        data = data[data_center - side : data_center + side]
+        smooth = savgol_filter(data, 31, 3)
+        plt.plot(data, linewidth=1)
+        plt.plot(smooth, linewidth=1)
+        plt.title(f"{strain_label} in dynamic test")
+        # Then plot subtraction of smoothed from noisey.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 2)
+        noise = data - smooth
+        plt.plot(noise, label=f"σ = {np.around(np.std(noise), 4)}")
+        plt.legend()
+        plt.title(f"Noise from {strain_label}")
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("params", "noise-strain.pdf"))
     plt.close()

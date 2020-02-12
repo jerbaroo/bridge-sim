@@ -1,36 +1,50 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Todo List
-** TODO Send methods section for review
-*** TODO Write about density
-** TODO Validate temperature load
-** TODO Traffic top view plot
-- Memory error
-** TODO Light vehicles
-*** TODO Find paper from TNO
-*** TODO Add vehicles per class
-** TODO Dynamic pier settlement
-** TODO Classify difference in responses
-** TODO Sub-question A
-** TODO Sub-question B
-** TODO Publish on Pypi
-- Write about the interface
-** TODO Validate strain
-*** TODO Cleanup NESW plot
-*** TODO Regenerate convergence plot
-** TODO Compare with real time series
+** TODO [#A] Validate temperature load
+** TODO [#A] Verify matrix multiplication
+** TODO [#A] Traffic top view plot
+*** TODO Memory error
+** TODO [#A] Classify damage
+** TODO [#A] Truck 1 time series plots
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
+*** TODO Find out frequency of measurements
 *** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
-** TODO Noise
-*** TODO Determine noise for strain
+** TODO [#A] Investigate strange per-sensor
+- Contour plot of the deck at that position
+** TODO Send methods section for review
+*** TODO Write about density
+** TODO Light vehicles
+- Based on  paper from TNO
+- Add vehicles per class
+** TODO Temperature gradient references
+** TODO Sub-question A
+** TODO Sub-question B
+** TODO Publish on PyPI
+- Write about the interface
+** TODO Convergence plots
+*** TODO Horizontal lines in point load A NESE plot
+*** TODO Regenerate convergence plots
+** TODO Cleanup per-sensor plots
+*** TODO Connect dots
+*** TODO Full mesh
+*** TODO Fix titles
+** TODO Check linear assumption
+- Calculate if stress > strength
 ** WAIT Comparison of 2D and 3D data
 ** WAIT Mesh refinement
+** ABORT Dynamic pier settlement
+CLOSED: [2020-02-10 Mon 17:27]
+Not going to happen as it requires a lot of work.
 ** ABORT Rigid links experiment
 CLOSED: [2020-01-16 Thu 10:55]
 ** ABORT Distributed load experiment
 CLOSED: [2020-01-16 Thu 10:55]
+** DONE Noise
+CLOSED: [2020-02-10 Mon 17:27]
+- Determine noise for strain
 ** DONE Validate pier settlement
 CLOSED: [2020-02-10 Mon 10:22]
 ** DONE Literature review submitted
@@ -78,7 +92,6 @@ CLOSED: [2020-01-09 Thu 12:34]
   - Setting boundary conditions for multiple line supports in Axis
 ** February 10
 *** TODO Show annual temperature effect plot
-- Fixup, 3x day
 *** TODO Uniform temperature stress
 *** TODO Per-sensor plots, strain sensor is off
 *** TODO Week plan

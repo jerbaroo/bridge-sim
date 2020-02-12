@@ -48,6 +48,8 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /z/param-uls --shorten-paths true params param-uls
 
+# On MBP.
+# ./cli.sh params noise
 # ./cli.sh classify temp-effect-4
 
 * Introduction
@@ -1551,22 +1553,34 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 \end{split}
 \end{equation}
 
-Temperature data is taken from the National Climatic Data Center branch of the
-National Oceanic and Atmospheric Administration, which provides temperature data
-at a resolution of one data point every 1 minute. Temperature data was used from
-the weather station at Spingfield in Masachussets USA with a constant offset
-applied in order to bring the data in closer line with expected Netherlands
-temperatures, the resulting temperature and the vertical translation at $x =
-\SI{51.375}{\meter}$ and $z = \SI{-8.4}{\meter}$ are given in Figure [[fig:temp]].
-
 #+NAME: fig:temp
 #+ATTR_LATEX: :float wrap :width 0.5\textwidth
 #+CAPTION[Effect of temperature]: Effect of temperature at \SI{51.375}{\meter}$ and $z = \SI{-8.4}{\meter}$ during the year of 2018 and also on May 1 2018. Each plot has two vertical axes, one for temperature and one for vertical translation.
 [[./saved-images/thermal/2018,-may-1.png]]
 
+# Temperature effect.
+Temperature data is taken from the National Climatic Data Center
+cite:data2001national branch of the National Oceanic and Atmospheric
+Administration, which provides temperature data at a resolution of one data
+point every 1 minute. Temperature data was used from the weather station at
+Spingfield in Masachussets USA with a constant offset applied in order to bring
+the data in closer line with expected Netherlands temperatures, the resulting
+temperature and the vertical translation at $x = \SI{51.375}{\meter}$ and $z =
+\SI{-8.4}{\meter}$ are given in Figure [[fig:temp]].
+
+# Noise estimate.
+To estimate the amount of noise to apply to generated data, the responses from
+three vertical translation sensors and three strain sensors are examined from
+the experimental campaign are considered. A Savgol filter with window size of 31
+and degree 3 is fit to the data, and then the unprocessed signal subtracted. The
+standard deviation of the remainder for vertical translation is $\approx
+\SI{0.001}{\millimeter}$, and $\approx 0.001$ for strain. Plots of these
+calculations are presented in Figures [[fig:noise-displa]] - [[fig:noise-strain]].
+Because the values of noise are so low, there is no need to add noise to the
+signals, but also there is no reason not to, and in order to remain
 *** Traffic Model
 
-\textcolor{red}{Distribution of passenger vehicles}
+\textcolor{red}{TODO: Distribution of passenger vehicles}
 
 https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
 
@@ -2626,7 +2640,7 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+NAME: fig:comp-diana-d-y
 #+CAPTION[Displacement in Diana from a point load (D)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d-y]] from simulation with OpenSees.
-[[./saved-images/diana-comp/c-diana-y-translation.pdf]]
+[[./saved-images/diana-comp/d-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-d-y
 #+CAPTION[Displacement in OpenSees from point load (D)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d-y]] from simulation with Diana.
@@ -2634,7 +2648,7 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+NAME: fig:comp-diana-d-s
 #+CAPTION[Strain in Diana from a point load (D)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d-s]] from simulation with OpenSees.
-[[./saved-images/diana-comp/c-diana-strain.pdf]]
+[[./saved-images/diana-comp/d-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-d-s
 #+CAPTION[Displacement in OpenSees from point load (D)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d-s]] from simulation with Diana.
@@ -2643,6 +2657,16 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 #+LATEX: \clearpage
 ** Experimental Campaign
 <<sec:app:expt>>
+
+#+NAME: fig:noise-displa
+#+CAPTION[Noise for vert. trans. sensors]: Unprocessed responses, and estimated noise, from vertical translation sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting a Savgol filter with window size 31 and degree 3 to the unprocessed data.
+#+ATTR_LATEX: :height 1\textwidth
+[[./saved-images/noise/noise-displa.pdf]]
+
+#+NAME: fig:noise-strain
+#+CAPTION[Noise for strain sensors]: Unprocessed responses, and estimated noise, from strain sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting Savgol filter with window size 31 and degree 3 to the unprocessed data.
+#+ATTR_LATEX: :height 1\textwidth
+[[./saved-images/noise/noise-strain.pdf]]
 
 #+NAME: fig:truck-pos
 #+CAPTION[Truck 1 positions in campaign]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
@@ -2759,18 +2783,22 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 
 #+NAME: fig:pd-5d-axis
 #+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+#+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 [[./saved-images/piers/5-axis-displa.pdf]]
 
 #+NAME: fig:pd-5d-os
 #+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
+#+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 [[./saved-images/piers/pier-5-y-translation.pdf]]
 
 #+NAME: fig:pd-5s-axis
 #+CAPTION[Stress from pier (5) settlement with AxisVM]: Stress recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
+#+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 [[./saved-images/piers/5-axis-stress.pdf]]
 
 #+NAME: fig:pd-5s-os
 #+CAPTION[Stress from pier (5) settlement with OpenSees]: Stress recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
+#+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 [[./saved-images/piers/pier-5-stress.pdf]]
 
 #+NAME: fig:pier-5-nesw
