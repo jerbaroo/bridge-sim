@@ -83,12 +83,13 @@ def load_fem_responses(
         sim_runner=sim_runner, sim_params=sim_params, response_type=response_type,
     )
 
-    # Run an experiment with a single FEM simulation.
+    # Run the FEM simulation if necessary.
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         sim_runner.run(ExptParams([sim_params]))
     else:
         print_prog(f"Not running simulation")
+    # If only running was requested then we are done.
     if run_only:
         return None
 
@@ -306,6 +307,7 @@ class SimResponses(Responses):
                 dill.dump(self.raw_responses, f)
         except:
             print("Could not save raw responses", flush=True)
-            import sys
-
-            sys.exit()
+            print("Could not save raw responses", flush=True)
+            print("Could not save raw responses", flush=True)
+            print("Could not save raw responses", flush=True)
+            print("Could not save raw responses", flush=True)
