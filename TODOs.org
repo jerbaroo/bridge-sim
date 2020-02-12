@@ -12,6 +12,7 @@ CLOSED: [2020-02-10 Mon 10:23]
 *** TODO Find out frequency of measurements
 *** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
+** TODO [#B] Close noise issue.
 ** DONE [#A] Investigate sensor O7 plot
 CLOSED: [2020-02-12 Wed 14:16]
 *** DONE Contour plot of the deck at that position.
@@ -44,7 +45,8 @@ CLOSED: [2020-02-12 Wed 14:16]
 CLOSED: [2020-02-12 Wed 14:21]
 *** DONE Alphabetical plots
 CLOSED: [2020-02-12 Wed 14:41]
-*** TODO Connect dots
+*** DONE Connect dots
+CLOSED: [2020-02-12 Wed 14:54]
 *** TODO Full mesh
 *** TODO Fix titles
 *** TODO Check for jaggedness

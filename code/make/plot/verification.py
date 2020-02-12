@@ -81,7 +81,8 @@ def per_sensor_plots(
 ):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
     plt.portrait()
-    size = 25  # Size of scatter plot points.
+    size = 30  # Size of scatter plot points.
+    lw = 4  # Line width of plots.
 
     ####################
     ###### Strain ######
@@ -160,18 +161,15 @@ def per_sensor_plots(
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.scatter(
+        plt.plot(
             diana_group["xpostruck"],
             diana_group["infline1"],
-            marker="o",
-            s=size,
+            lw=lw,
             label="Diana",
         )
 
         # Plot values from OpenSees.
-        print(np.array(os_strain[i]).shape)
-        print(np.array(truck_front_x).shape)
-        plt.scatter(truck_front_x, os_strain[i], s=size, label="OpenSees")
+        plt.plot(truck_front_x, os_strain[i], lw=lw, label="OpenSees")
 
         # Plot measured values against truck position.
         plt.scatter(
@@ -180,6 +178,8 @@ def per_sensor_plots(
             marker="o",
             s=size,
             label=f"Sensor {sensor_label}",
+            zorder=3,
+            color="tab:green",
         )
 
         plt.legend()
@@ -273,12 +273,12 @@ def per_sensor_plots(
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.scatter(
-            diana_group["xpostruck"], diana_group["infline1"], s=size, label="Diana",
+        plt.plot(
+            diana_group["xpostruck"], diana_group["infline1"], lw=lw, label="Diana",
         )
 
         # Plot values from OpenSees.
-        plt.scatter(truck_front_x, os_displacement[i], s=size, label="OpenSees")
+        plt.plot(truck_front_x, os_displacement[i], lw=lw, label="OpenSees")
         print(f"Printing os_displacement i = {i}")
         if i == 0:
             print(os_displacement[i])
@@ -291,6 +291,8 @@ def per_sensor_plots(
             meas_group["inflinedata"],
             s=size,
             label=f"Sensor {sensor_label}",
+            zorder=3,
+            color="tab:green",
         )
 
         plt.legend()
