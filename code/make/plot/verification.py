@@ -117,10 +117,7 @@ def per_sensor_plots(
     print_i(f"Strain sensors with missing positions = {labels_ignored}")
 
     # Sort by sensor number and setup groupby sensor label.
-    str_digits = lambda string: "".join(
-        map(str, [int(s) for s in string if s.isdigit()])
-    )
-    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(str_digits)
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     print_i(f"Filtered strain sensors starting with {strain_sensors_startwith} =")
     print_i(f"  {sorted(set(map(int, tno_strain_meas['sort'])))}")
 
@@ -160,7 +157,7 @@ def per_sensor_plots(
     amin = min(amin, np.amin(os_strain))
     amax = max(amax, np.amax(os_strain))
 
-    def plot(sensor_label, meas_group):
+    def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.scatter(
@@ -200,7 +197,7 @@ def per_sensor_plots(
     plot_i, subplot_i = 0, 0
     for i, (sensor_label, meas_group) in enumerate(strain_groupby):
         plt.subplot(rows, 1, subplot_i + 1)
-        plot(sensor_label, meas_group)
+        plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
             plt.tight_layout()
             plt.savefig(
@@ -215,11 +212,11 @@ def per_sensor_plots(
         else:
             subplot_i += 1
 
-    # Create any plots for individual sensors.
-    for sensor_label, meas_group in strain_groupby:
+    # Create any plots for individual strain sensors.
+    for i, (sensor_label, meas_group) in enumerate(strain_groupby):
         if sensor_label in individual_sensors:
             plt.landscape()
-            plot(sensor_label, meas_group)
+            plot(i, sensor_label, meas_group)
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
@@ -230,7 +227,7 @@ def per_sensor_plots(
             plt.portrait()
 
     ##########################
-    ###### Displacement ######
+    ###### Vert. trans. ######
     ##########################
 
     # All displacement measurements.

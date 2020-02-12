@@ -42,7 +42,8 @@ CLOSED: [2020-02-12 Wed 14:16]
 ** TODO [#A] Cleanup per-sensor plots
 *** DONE Remove transverse strain plots
 CLOSED: [2020-02-12 Wed 14:21]
-*** TODO Alphabetical plots
+*** DONE Alphabetical plots
+CLOSED: [2020-02-12 Wed 14:41]
 *** TODO Connect dots
 *** TODO Full mesh
 *** TODO Fix titles
