@@ -1,6 +1,9 @@
 """Command line interface to bridge-sim."""
 import os
+import pdb
 import pathos.multiprocessing as multiprocessing
+import sys
+import traceback
 from typing import List
 
 import click
@@ -567,4 +570,9 @@ def pairwise_sensors():
 
 
 if __name__ == "__main__":
-    cli()
+    try:
+        cli()
+    except:
+        extype, value, tb = sys.exc_info()
+        traceback.print_exc()
+        pdb.post_mortem(tb)
