@@ -113,8 +113,6 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         # Get min and max values for both Axis and OpenSees.
         rt_name = "stress" if response_type == ResponseType.Stress else "ytrans"
         row = axis_values[axis_values["name"] == f"{rt_name}-moment"]
-        print(axis_values)
-        print(row)
         dmin, dmax = float(row["dmin"]), float(row["dmax"])
         omin, omax = float(row["omin"]), float(row["omax"])
         amin, amax = np.around(max(dmin, omin), 2), np.around(min(dmax, omax), 2)

@@ -141,9 +141,11 @@ def experiment_noise(c: Config):
     plt.tight_layout()
     plt.savefig(c.get_image_path("params", "noise-displa.pdf"))
     plt.close()
+
     ##########
     # Strain #
     ##########
+
     plt.portrait()
     # Find points of each sensor.
     strain_labels = ["T1", "T10", "T11"]

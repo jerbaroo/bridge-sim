@@ -5,11 +5,13 @@
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
 *** TODO Memory error
+- Maybe writing to file was interrupted, resulting in "bad data".
 ** TODO [#A] Classify damage
 ** TODO [#A] Truck 1 time series plots
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
 *** TODO Find out frequency of measurements
+- It's 4 minutes, so just divide.
 *** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
 ** TODO [#B] Close noise issue.
