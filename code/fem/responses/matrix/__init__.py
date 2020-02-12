@@ -164,9 +164,6 @@ def load_expt_responses(
     # Return after generating results if requested...
     if run_only:
         return
-    # ...otherwise collect all of the results.
-    results = []
+    # ...otherwise yield all of the results.
     for index_params in indices_and_params:
-        results.append(process(index_params, _run_only=False))
-    print()  # Add a newline to fix cursor position.
-    return results
+        yield process(index_params, _run_only=False)

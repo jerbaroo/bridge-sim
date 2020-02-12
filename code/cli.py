@@ -25,6 +25,7 @@ from model.bridge.bridge_705 import (
 )
 from util import clean_generated, print_i
 
+pdb_ = False
 b_func = None
 c_func = None
 two_materials_ = None
@@ -92,6 +93,9 @@ def c():
     default=False,
     help="Save responses at shorter filepaths.",
 )
+@click.option(
+    "--pdb", is_flag=True, help="Jump into the debugger on exception.",
+)
 def cli(
     dimensions: str,
     uls: int,
@@ -101,9 +105,11 @@ def cli(
     parallel_ulm: bool,
     save_to: bool,
     shorten_paths: bool,
+    pdb: bool,
 ):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
+    global pdb_
     global c_func
     global b_func
     global two_materials_
@@ -112,6 +118,8 @@ def cli(
     global parallel_ulm_
     global shorten_paths_
     global il_num_loads_
+    if pdb == True:
+        pdb_ = True
     two_materials_ = two_materials
     save_to_ = save_to
     parallel_ = parallel
@@ -408,9 +416,9 @@ def noise():
     paramselect.experiment_noise(c())
 
 
-####################
+###################
 ##### Contour #####
-####################
+###################
 
 
 @cli.group(help="Contour plots for loading & damage scenarios.")
@@ -570,9 +578,12 @@ def pairwise_sensors():
 
 
 if __name__ == "__main__":
-    try:
+    if pdb_:
+        try:
+            cli()
+        except:
+            extype, value, tb = sys.exc_info()
+            traceback.print_exc()
+            pdb.post_mortem(tb)
+    else:
         cli()
-    except:
-        extype, value, tb = sys.exc_info()
-        traceback.print_exc()
-        pdb.post_mortem(tb)

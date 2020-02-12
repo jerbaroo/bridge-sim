@@ -51,7 +51,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             #     )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+        plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=14)
         plt.title(
             f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C uniform temp. deck loading with OpenSees"
         )
