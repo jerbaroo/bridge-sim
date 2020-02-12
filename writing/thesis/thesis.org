@@ -2767,16 +2767,6 @@ shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
 #+CAPTION[Time series of strain sensors O12, O2 & O3]: Responses of longitudinal strain at sensors O12, O2 and O3 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
 [[./saved-images/sensors/strain-O-1.pdf]]
 
-#+NAME: fig:sensors-strain-o2
-#+ATTR_LATEX: :height 1\textwidth :placement [!p]
-#+CAPTION[Time series of strain sensors O4-O6]: Responses of longitudinal strain at sensors O4-O6 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
-[[./saved-images/sensors/strain-O-2.pdf]]
-
-#+NAME: fig:sensors-strain-o3
-#+ATTR_LATEX: :height 1\textwidth :placement [!p]
-#+CAPTION[Time series of strain sensors O7-O9]: Responses of longitudinal strain at sensors O7-O9 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
-[[./saved-images/sensors/strain-O-3.pdf]]
-
 #+LATEX: \clearpage
 ** Pier Settlement
 <<sec:app:pier>>

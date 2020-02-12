@@ -180,12 +180,12 @@ class ThermalDamage(DamageScenario):
             )
             sim_responses = sim_responses.to_stress(c.bridge)
         else:
-            raise ValueError("Dont know how to convert to stress")
+            raise ValueError("Don't know how to convert to stress")
         return sim_responses
 
 
 def thermal_damage(
-    axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.8
+    axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6
 ):
     """Like ThermalDamage, but also modifies the bridge's MSL parameter."""
     td = ThermalDamage(

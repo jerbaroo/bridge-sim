@@ -2,19 +2,25 @@
 
 * Todo List
 ** TODO [#A] Validate temperature load
+- Try with higher amount of nodes.
+  - Difference in max and min might increase.
+  - Difference was 0.5579 for 0.8 * MSL (full mesh).
+- Results:
+  - AxisVM: min -0.26 max 0.34
+** TODO [#A] Fix traffic generation bug
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
-*** TODO Memory error
 - Maybe writing to file was interrupted, resulting in "bad data".
 ** TODO [#A] Classify damage
-** TODO [#A] Truck 1 time series plots
+** TODO [#A] Truck 1 time series plots [1/4]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
 *** TODO Find out frequency of measurements
 - It's 4 minutes, so just divide.
-*** TODO Fix verification bug
 *** TODO Plot strain in addition to vert trans
-** TODO [#B] Close noise issue.
+*** TODO Run with full mesh
+** DONE [#B] Close noise issue.
+CLOSED: [2020-02-12 Wed 19:54]
 ** DONE [#A] Investigate sensor O7 plot
 CLOSED: [2020-02-12 Wed 14:16]
 *** DONE Contour plot of the deck at that position.
@@ -42,17 +48,18 @@ CLOSED: [2020-02-12 Wed 14:16]
 ** TODO Convergence plots
 *** TODO Horizontal lines in point load A NESE plot
 *** TODO Regenerate convergence plots
-** TODO [#A] Cleanup per-sensor plots
+** TODO [#A] Cleanup per-sensor plots [5/6]
 *** DONE Remove transverse strain plots
 CLOSED: [2020-02-12 Wed 14:21]
 *** DONE Alphabetical plots
 CLOSED: [2020-02-12 Wed 14:41]
 *** DONE Connect dots
 CLOSED: [2020-02-12 Wed 14:54]
-*** TODO Full mesh
+*** DONE Full mesh
+CLOSED: [2020-02-12 Wed 18:38]
 *** DONE Fix titles
 CLOSED: [2020-02-12 Wed 15:07]
-*** TODO Check for jaggedness
+*** TODO Check strain jaggedness
 - See if it makes sense from contour plot.
 - Maybe this is when an axle crosses a pier?
 ** TODO [#B] Add README to project
