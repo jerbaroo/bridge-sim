@@ -101,10 +101,7 @@ class ILMatrix(ResponsesMatrix):
             return c.resp_matrices[result_path]
         # Otherwise load each wheel track..
         wheel_tracks = ILMatrix.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
+            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
         )
         # ..and calculate the unit load matrix.
         # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
@@ -133,7 +130,7 @@ class ILMatrix(ResponsesMatrix):
         response_type: ResponseType.YTranslation,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
-        run_only: bool = False
+        run_only: bool = False,
     ):
         """Return a dictionary of unit loads per wheel track.
 
@@ -142,6 +139,7 @@ class ILMatrix(ResponsesMatrix):
         the simulations will run but the results will not be loaded into memory.
 
         """
+
         def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
             ILMatrix.load_wheel_track(
                 c=deepcopy(c),
@@ -150,6 +148,7 @@ class ILMatrix(ResponsesMatrix):
                 load_z_frac=deepcopy(c.bridge.z_frac(wheel_z)),
                 run_only=_run_only,
             )
+
         # For each wheel track, generate it if doesn't exists.
         if c.parallel_ulm:
             processes = min(multiprocessing.cpu_count(), len(wheel_zs))
@@ -163,7 +162,9 @@ class ILMatrix(ResponsesMatrix):
         # Load all wheel tracks from disk into the resulting dictionary.
         result = dict()
         for wheel_z in wheel_zs:
-            result[wheel_z] = create_or_load_wheel_track(wheel_z=wheel_z, _run_only=False)
+            result[wheel_z] = create_or_load_wheel_track(
+                wheel_z=wheel_z, _run_only=False
+            )
         return result
 
     @staticmethod

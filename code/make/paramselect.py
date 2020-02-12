@@ -26,13 +26,15 @@ def number_of_uls_plot(c: Config):
     print_i(f"Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}")
 
     # Determine the reference value.
-    truck_loads = flatten(wagen1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad)
+    truck_loads = flatten(
+        wagen1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad
+    )
     print_i(f"Truck loads = {truck_loads}")
     sim_responses = load_fem_responses(
         c=c,
         response_type=response_type,
         sim_runner=OSRunner(c),
-        sim_params=SimParams(ploads=truck_loads, response_types=[response_type])
+        sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
     )
     ref_value = sim_responses.at_deck(point, interp=True) * 1000
     print_i(f"Reference value = {ref_value}")
@@ -44,14 +46,16 @@ def number_of_uls_plot(c: Config):
     for num_uls in num_ulss:
         c.il_num_loads = num_uls
         # Nested in here because it depends on the setting of 'il_num_loads'.
-        truck_loads = flatten(wagen1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad)
+        truck_loads = flatten(
+            wagen1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad
+        )
         num_loads.append(len(truck_loads))
         total_load.append(sum(map(lambda l: l.kn, truck_loads)))
         sim_responses = load_fem_responses(
             c=c,
             response_type=response_type,
             sim_runner=OSRunner(c),
-            sim_params=SimParams(ploads=truck_loads, response_types=[response_type])
+            sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
         )
         responses.append(sim_responses.at_deck(point, interp=True) * 1000)
 
@@ -72,7 +76,9 @@ def number_of_uls_plot(c: Config):
         label=f"At {chosen_uls} ULS, error = {np.around(chosen_error, 2)} %",
         color="black",
     )
-    plt.axhline(0, color="red", label="Response from direct simulation (no wheel tracks)")
+    plt.axhline(
+        0, color="red", label="Response from direct simulation (no wheel tracks)"
+    )
     plt.legend()
     plt.tight_layout()
     plt.savefig(c.get_image_path("paramselection", "uls.pdf"))

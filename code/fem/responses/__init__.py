@@ -57,7 +57,8 @@ def load_fem_responses(
 
     """
     sim_params.response_types = [
-        rt for rt in sim_params.response_types
+        rt
+        for rt in sim_params.response_types
         if rt in sim_runner.supported_response_types(c.bridge)
     ]
     if response_type not in sim_params.response_types:
@@ -305,4 +306,6 @@ class SimResponses(Responses):
                 dill.dump(self.raw_responses, f)
         except:
             print("Could not save raw responses")
-            import sys; sys.exit()
+            import sys
+
+            sys.exit()

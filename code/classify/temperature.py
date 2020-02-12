@@ -114,20 +114,14 @@ def temperature_effect(
     unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_uniform.use(c)
     uniform_responses = load_fem_responses(
-        c=c,
-        sim_runner=OSRunner(c),
-        response_type=response_type,
-        sim_params=sim_params,
+        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
     unit_uniform = uniform_responses.at_deck(point, interp=True)
     # Unit effect from linear temperature loading.
     unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = unit_linear.use(c)
     linear_responses = load_fem_responses(
-        c=c,
-        sim_runner=OSRunner(c),
-        response_type=response_type,
-        sim_params=sim_params,
+        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
     unit_linear = linear_responses.at_deck(point, interp=True)
     print_d(D, "unit uniform and linear = {unit_uniform} {unit_linear}")

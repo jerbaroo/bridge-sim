@@ -171,7 +171,7 @@ def compare_responses(c: Config):
     # responses_to_loads_m: 0 (4 * il_num_loads)
     # Wagen 1 from the experimental campaign.
 
-    point = Point(x=c.bridge.x_max  - (c.bridge.length / 2), y=0, z=-8.4)
+    point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
     end_time = wagen1.time_left_bridge(bridge=c.bridge)
     wagen1_times = list(np.linspace(0, end_time, num_times))
     more_wagen1_times = list(
@@ -329,5 +329,7 @@ def truck1_contour(c: Config, x: float):
     top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=sim_responses, ploads=loads, scatter=True)
     plt.tight_layout()
-    plt.savefig(c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf"))
+    plt.savefig(
+        c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")
+    )
     plt.close()

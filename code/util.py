@@ -36,6 +36,7 @@ def flatten(container, t):
             else:
                 for j in _flatten(i, t):
                     yield j
+
     return list(_flatten(container, t))
 
 

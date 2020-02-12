@@ -45,7 +45,13 @@ from util import (
     safe_str,
     scalar,
 )
-from validate.campaign import meas, displa_sensors, strain_sensors, strain_sensor_xz, displa_sensor_xz
+from validate.campaign import (
+    meas,
+    displa_sensors,
+    strain_sensors,
+    strain_sensor_xz,
+    displa_sensor_xz,
+)
 
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
@@ -322,7 +328,9 @@ def per_sensor_plots(
             plot(i, sensor_label, meas_group)
             plt.tight_layout()
             plt.savefig(
-                c.get_image_path("validation/sensors", f"displa-sensor-{sensor_label}.pdf",)
+                c.get_image_path(
+                    "validation/sensors", f"displa-sensor-{sensor_label}.pdf",
+                )
             )
             plt.close()
 

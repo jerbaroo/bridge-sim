@@ -137,17 +137,18 @@ def test_compare_to_wheel_track_and_to_point_load():
     truck_front_x = np.arange(1, 116.1, 1)
     times = [wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x]
     loads_wt = [
-        [v.to_wheel_track_loads(c=c, time=time) for v in [wagen1]]
-        for time in times
+        [v.to_wheel_track_loads(c=c, time=time) for v in [wagen1]] for time in times
     ]
     # print_w(f"Not using fractions of wheel track bins in simulation")
     loads_pw = [
         [v.to_point_load_pw(time=time, bridge=c.bridge) for v in [wagen1]]
         for time in times
     ]
+
     def sum_loads(loads):
         """Sum of the load intensity (kn) of all given loads."""
         return sum(map(lambda l: l.kn, flatten(loads, PointLoad)))
+
     for i in range(len(times)):
         # Assert that the total load intensity is equal for both functions.
         wt, pw = np.array(loads_wt[i]), np.array(loads_pw[i])

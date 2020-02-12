@@ -544,10 +544,12 @@ class Bridge:
 
     def _get_section(self, section: Section3D) -> Section3D:
         """An equivalent section if exists, else the given one."""
+
         def with_id(s: Section3D) -> Section3D:
             s.id = self._next_section_id
             self._next_section_id += 1
             return s
+
         section_prop_str = section.prop_str()
         if section_prop_str in self._sections_dict:
             return with_id(self._sections_dict[section_prop_str])

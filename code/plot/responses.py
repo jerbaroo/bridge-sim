@@ -179,9 +179,14 @@ def plot_contour_deck(
             ((amin_x, amin_z), f"|min-max| = {aabs_s} {responses.units}", "red", 0),
         ]:
             plt.scatter(
-                [point[0]], [point[1]], label=label, marker="o", color=color, alpha=alpha,
+                [point[0]],
+                [point[1]],
+                label=label,
+                marker="o",
+                color=color,
+                alpha=alpha,
             )
     if mm_legend or len(ploads) > 0:
-            plt.legend()
+        plt.legend()
     plt.xlabel("X position (m)")
     plt.ylabel("Z position (m)")

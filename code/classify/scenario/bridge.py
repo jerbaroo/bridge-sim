@@ -162,29 +162,41 @@ class ThermalDamage(DamageScenario):
 
     def to_stress(self, c: Config, sim_responses: SimResponses):
         if sim_responses.response_type != ResponseType.Strain:
-            raise ValueError("Can only convert Strain not {sim_responses.response_type}")
+            raise ValueError(
+                "Can only convert Strain not {sim_responses.response_type}"
+            )
         if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
             raise ValueError("Must be only axial or moment loading")
         if self.axial_delta_temp != 0:
-            sim_responses = sim_responses.map(lambda r: r * 1E-6 - (c.cte * c.unit_axial_delta_temp_c))
+            sim_responses = sim_responses.map(
+                lambda r: r * 1e-6 - (c.cte * c.unit_axial_delta_temp_c)
+            )
             sim_responses = sim_responses.to_stress(c.bridge)
         elif self.moment_delta_temp != 0:
-            sim_responses = sim_responses.map(lambda r: r * 1E-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c))
+            sim_responses = sim_responses.map(
+                lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
+            )
             sim_responses = sim_responses.to_stress(c.bridge)
         else:
             raise ValueError("Dont know how to convert to stress")
         return sim_responses
 
 
-def thermal_damage(axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.8):
+def thermal_damage(
+    axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.8
+):
     """Like ThermalDamage, but also modifies the bridge's MSL parameter."""
-    td = ThermalDamage(axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp)
+    td = ThermalDamage(
+        axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp
+    )
     og_mod_bridge = td.mod_bridge
+
     def mod_bridge(b: Bridge):
         b = og_mod_bridge(b)
         b.base_mesh_deck_max_x *= mod_msl
         b.base_mesh_deck_max_z *= mod_msl
         b.base_mesh_pier_max_long *= mod_msl
         return b
+
     td.mod_bridge = mod_bridge
     return td

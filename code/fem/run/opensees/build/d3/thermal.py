@@ -185,7 +185,9 @@ def opensees_thermal_moment_deck_loads(
             """Return a string with 0, 1, or 2 OpenSees load commands."""
             if np.isclose(self.x, 0) and np.isclose(self.z, 0):
                 return ""
-            return f"\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}"
+            return (
+                f"\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}"
+            )
 
     thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
     for shell in det_shells(deck_elements):

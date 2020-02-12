@@ -52,12 +52,19 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
         plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
-        plt.title(f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C uniform temp. deck loading with OpenSees")
+        plt.title(
+            f"{sim_responses.response_type.name()} from {c.unit_axial_delta_temp_c}‎°C uniform temp. deck loading with OpenSees"
+        )
         plt.tight_layout()
-        plt.savefig(c.get_image_path(
-            "validation/thermal",
-            safe_str(f"thermal-deck-unit-axial_load-{sim_responses.response_type.name()})") + ".pdf",
-        ))
+        plt.savefig(
+            c.get_image_path(
+                "validation/thermal",
+                safe_str(
+                    f"thermal-deck-unit-axial_load-{sim_responses.response_type.name()})"
+                )
+                + ".pdf",
+            )
+        )
         plt.close()
 
         # Load the axis image.
@@ -71,12 +78,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         top_view_bridge(bridge=c.bridge, abutments=True)
         plt.imshow(
             axis_img,
-            extent=(
-                c.bridge.x_min,
-                c.bridge.x_max,
-                c.bridge.z_min,
-                c.bridge.z_max,
-            ),
+            extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
         )
         # Plot the min and max values.
         for leg_label, color in [
@@ -85,12 +87,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             (f"|min-max| = {abs(dmax - dmin):.3f} {sim_responses.units}", "r"),
         ]:
             plt.scatter(
-                [0],
-                [0],
-                label=leg_label,
-                marker="o",
-                color=color,
-                alpha=0,
+                [0], [0], label=leg_label, marker="o", color=color, alpha=0,
             )
         plt.legend()
         # Title and save.
@@ -102,11 +99,10 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         plt.ylabel("Z position (m)")
         plt.tight_layout()
         plt.savefig(
-            c.get_image_path(
-                "validation/thermal", f"axis-{rt_name}-axial.pdf",
-            )
+            c.get_image_path("validation/thermal", f"axis-{rt_name}-axial.pdf",)
         )
         plt.close()
+
 
 def unit_moment_thermal_deck_load(c: Config, run: bool):
     """Response to unit moment thermal deck loading."""
@@ -143,12 +139,19 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
         plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
-        plt.title(f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C linear temp. deck loading with OpenSees")
+        plt.title(
+            f"{sim_responses.response_type.name()} from {c.unit_moment_delta_temp_c}‎°C linear temp. deck loading with OpenSees"
+        )
         plt.tight_layout()
-        plt.savefig(c.get_image_path(
-            "validation/thermal",
-            safe_str(f"thermal-deck-unit-moment_load-{sim_responses.response_type.name()})") + ".pdf",
-        ))
+        plt.savefig(
+            c.get_image_path(
+                "validation/thermal",
+                safe_str(
+                    f"thermal-deck-unit-moment_load-{sim_responses.response_type.name()})"
+                )
+                + ".pdf",
+            )
+        )
         plt.close()
 
         # Load the axis image.
@@ -162,12 +165,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         top_view_bridge(bridge=c.bridge, abutments=True)
         plt.imshow(
             axis_img,
-            extent=(
-                c.bridge.x_min,
-                c.bridge.x_max,
-                c.bridge.z_min,
-                c.bridge.z_max,
-            ),
+            extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
         )
         # Plot the min and max values.
         for leg_label, color in [
@@ -176,12 +174,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
             (f"|min-max| = {abs(dmax - dmin):.3f} {sim_responses.units}", "r"),
         ]:
             plt.scatter(
-                [0],
-                [0],
-                label=leg_label,
-                marker="o",
-                color=color,
-                alpha=0,
+                [0], [0], label=leg_label, marker="o", color=color, alpha=0,
             )
         plt.legend()
         # Title and save.
@@ -193,8 +186,6 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         plt.ylabel("Z position (m)")
         plt.tight_layout()
         plt.savefig(
-            c.get_image_path(
-                "validation/thermal", f"axis-{rt_name}-moment.pdf",
-            )
+            c.get_image_path("validation/thermal", f"axis-{rt_name}-moment.pdf",)
         )
         plt.close()

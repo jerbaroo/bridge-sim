@@ -2,7 +2,10 @@
 import numpy as np
 import pytest
 
-from classify.data.responses.convert import loads_to_traffic_array, x_to_wheel_track_index
+from classify.data.responses.convert import (
+    loads_to_traffic_array,
+    x_to_wheel_track_index,
+)
 from classify.vehicle import wagen1
 from fem.run.opensees import OSRunner
 from model.bridge import Point

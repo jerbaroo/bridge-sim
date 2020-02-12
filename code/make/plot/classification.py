@@ -10,10 +10,19 @@ from sklearn.svm import OneClassSVM
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.noise import add_displa_noise
-from classify.temperature import get_temperature_effect, estimate_temp_effect, load_temperature_month, temperature_effect
+from classify.temperature import (
+    get_temperature_effect,
+    estimate_temp_effect,
+    load_temperature_month,
+    temperature_effect,
+)
 from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
-from classify.scenarios import each_pier_scenarios, healthy_and_cracked_scenarios, healthy_scenario
+from classify.scenarios import (
+    each_pier_scenarios,
+    healthy_and_cracked_scenarios,
+    healthy_scenario,
+)
 from fem.responses import Responses
 from fem.run.opensees import OSRunner
 from make.plot.distribution import load_normal_traffic_array
@@ -50,7 +59,10 @@ def events(c: Config, x: float, z: float):
     vehicles = list(set(ts[0] for ts in traffic_sequence))
     print(len(vehicles))
     print(vehicles[0])
-    vehicles = sorted(set(ts[0] for ts in traffic_sequence if ts[0].lane == point_lane_ind), key=lambda v: -v.init_x_frac)
+    vehicles = sorted(
+        set(ts[0] for ts in traffic_sequence if ts[0].lane == point_lane_ind),
+        key=lambda v: -v.init_x_frac,
+    )
     print(len(vehicles))
     print(vehicles[0])
     event_indices = []
@@ -68,20 +80,23 @@ def events(c: Config, x: float, z: float):
         if ta_start_index >= 0 and ta_end_index < len(traffic_array):
             event_indices.append((ta_start_index, ta_end_index))
     print(event_indices)
-    responses = responses_to_traffic_array(
-        c=c,
-        traffic_array=traffic_array,
-        response_type=ResponseType.YTranslation,
-        damage_scenario=healthy_scenario,
-        points=[point],
-        sim_runner=OSRunner(c),
-    ) * 1000
+    responses = (
+        responses_to_traffic_array(
+            c=c,
+            traffic_array=traffic_array,
+            response_type=ResponseType.YTranslation,
+            damage_scenario=healthy_scenario,
+            points=[point],
+            sim_runner=OSRunner(c),
+        )
+        * 1000
+    )
     # responses = add_displa_noise(responses)
     print(responses.shape)
     plt.portrait()
     for event_ind, (event_start, event_end) in enumerate(event_indices):
         plt.subplot(len(event_indices), 1, event_ind + 1)
-        plt.plot(responses[event_start:event_end + 1])
+        plt.plot(responses[event_start : event_end + 1])
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify/events", "events.pdf"))
     plt.close()
@@ -91,6 +106,7 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
     temp = load_temperature_month(month)
     point = Point(x=51, y=0, z=-8.4)
     plt.landscape()
+
     def plot_hours():
         if not vert:
             return
@@ -102,10 +118,17 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
                     label = "Time at vertical line = 00:00"
                     label_set = True
                 plt.axvline(x=dt, linewidth=1, color="black", label=label)
+
     # Plot the temperature.
     plt.subplot(2, 1, 1)
     plot_hours()
-    plt.scatter(temp["datetime"], temp["temp"], c=temp["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+    plt.scatter(
+        temp["datetime"],
+        temp["temp"],
+        c=temp["missing"],
+        cmap=mpl.cm.get_cmap("bwr"),
+        s=1,
+    )
     plt.ylabel("Temperature (°C)")
     plt.xlabel("Date")
     plt.gcf().autofmt_xdate()
@@ -115,8 +138,16 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
     response_type = ResponseType.YTranslation
     plt.subplot(2, 1, 2)
     plot_hours()
-    effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temp["temp"])
-    plt.scatter(temp["datetime"], effect * 1000, c=temp["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+    effect = temperature_effect(
+        c=c, response_type=response_type, point=point, temps=temp["temp"]
+    )
+    plt.scatter(
+        temp["datetime"],
+        effect * 1000,
+        c=temp["missing"],
+        cmap=mpl.cm.get_cmap("bwr"),
+        s=1,
+    )
     plt.ylabel(f"{response_type.name()} (mm)")
     plt.xlabel("Date")
     plt.gcf().autofmt_xdate()
@@ -128,11 +159,14 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
     plt.close()
 
 
-def temperature_effect_dates(c: Config, months: Tuple[str, str], verts: Tuple[bool, bool]):
+def temperature_effect_dates(
+    c: Config, months: Tuple[str, str], verts: Tuple[bool, bool]
+):
     temps = [load_temperature_month(month, offset=10) for month in months]
     response_type = ResponseType.YTranslation
     point = Point(x=51.375, y=0, z=-8.4)
     plt.landscape()
+
     def plot_hours(i):
         if not verts[i]:
             return
@@ -145,15 +179,24 @@ def temperature_effect_dates(c: Config, months: Tuple[str, str], verts: Tuple[bo
                     label_set = True
                 plt.axvline(x=dt, linewidth=1, color="black", label=label)
         plt.legend()
+
     fig = plt.gcf()
     gs = GridSpec(2, 2, fig)
     for i in [0, 1]:
-        effect = temperature_effect(c=c, response_type=response_type, point=point, temps=temps[i]["temp"])
+        effect = temperature_effect(
+            c=c, response_type=response_type, point=point, temps=temps[i]["temp"]
+        )
         if i == 0:
             ax = fig.add_subplot(gs[0, :2])
         elif i == 1:
             ax = fig.add_subplot(gs[1, :2])
-        ax.scatter(temps[i]["datetime"], temps[i]["temp"], c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        ax.scatter(
+            temps[i]["datetime"],
+            temps[i]["temp"],
+            c=temps[i]["missing"],
+            cmap=mpl.cm.get_cmap("bwr"),
+            s=1,
+        )
         ax.set_ylabel("Temperature (°C)")
         plot_hours(i)
         if i != 0:
@@ -161,12 +204,22 @@ def temperature_effect_dates(c: Config, months: Tuple[str, str], verts: Tuple[bo
         titlecase_name = (str(months[i][0]).upper() + months[i][1:]).replace("-", " ")
         ax.set_title(f"Temperature and {response_type.name()} in {titlecase_name}")
         ax2 = ax.twinx()
-        ax2.scatter(temps[i]["datetime"], effect * 1000, c=temps[i]["missing"], cmap=mpl.cm.get_cmap("bwr"), s=1)
+        ax2.scatter(
+            temps[i]["datetime"],
+            effect * 1000,
+            c=temps[i]["missing"],
+            cmap=mpl.cm.get_cmap("bwr"),
+            s=1,
+        )
         ax2.set_ylabel(f"{response_type.name()} (mm)")
     # Save.
     plt.tight_layout()
-    plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".png"))
-    plt.savefig(c.get_image_path("classify/temperature", safe_str(f"{months}") + ".pdf"))
+    plt.savefig(
+        c.get_image_path("classify/temperature", safe_str(f"{months}") + ".png")
+    )
+    plt.savefig(
+        c.get_image_path("classify/temperature", safe_str(f"{months}") + ".pdf")
+    )
     plt.close()
 
 
@@ -203,7 +256,13 @@ def temperature_removal_month(c: Config, month: str):
     print(f"responses.shape = {responses.shape}")
     x_mins = c.sensor_hz * np.arange(len(responses)) / 60
     plt.subplot(3, 1, 1)
-    plt.scatter(down(x_mins), down(responses * 1000), color="b", label="Response to traffic", s=1)
+    plt.scatter(
+        down(x_mins),
+        down(responses * 1000),
+        color="b",
+        label="Response to traffic",
+        s=1,
+    )
     plt.ylabel(f"{response_type.name()} (mm)")
     plt.title(f"{response_type.name()} in {month}")
     responses_w_temp = responses + temp_effect
@@ -215,16 +274,34 @@ def temperature_removal_month(c: Config, month: str):
     print(responses.shape)
     plt.subplot(3, 1, 2)
     print("plotting")
-    plt.scatter(down(x_mins), down(responses_w_noise * 1000), color="b", label=f"Response to traffic, temperature effect, and noise", s=1)
-    plt.scatter(down(x_mins), down(temp_effect * 1000), color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
+    plt.scatter(
+        down(x_mins),
+        down(responses_w_noise * 1000),
+        color="b",
+        label=f"Response to traffic, temperature effect, and noise",
+        s=1,
+    )
+    plt.scatter(
+        down(x_mins),
+        down(temp_effect * 1000),
+        color="r",
+        label=f"Temperature effect ({speed_up_temp} x speedup)",
+        s=1,
+    )
     plt.ylabel(f"{response_type.name()} (mm)")
     plt.title(f"Sensor noise and temperature effect added")
     legend = plt.legend()
-    #change the marker size manually for both lines
+    # change the marker size manually for both lines
     legend.legendHandles[0]._sizes = [50]
     legend.legendHandles[1]._sizes = [50]
     plt.subplot(3, 1, 1)
-    plt.scatter(down(x_mins), down(temp_effect * 1000), color="r", label=f"Temperature effect ({speed_up_temp} x speedup)", s=1)
+    plt.scatter(
+        down(x_mins),
+        down(temp_effect * 1000),
+        color="r",
+        label=f"Temperature effect ({speed_up_temp} x speedup)",
+        s=1,
+    )
     legend = plt.legend()
     legend.legendHandles[0]._sizes = [50]
     legend.legendHandles[1]._sizes = [50]
@@ -237,7 +314,9 @@ def temperature_removal_month(c: Config, month: str):
         plt.subplot(3, 1, p)
         plt.ylim(ylim)
     # Remove effect of temperature.
-    temp_fit = estimate_temp_effect(c=c, responses=responses_w_noise, speed_up=speed_up_temp)
+    temp_fit = estimate_temp_effect(
+        c=c, responses=responses_w_noise, speed_up=speed_up_temp
+    )
     print(temp_fit)
     print(temp_fit.shape)
     # print(len(temp_fit))
@@ -246,7 +325,9 @@ def temperature_removal_month(c: Config, month: str):
     plt.scatter(down(x_mins), down(temp_fit * 1000), label="Estimate", color="b", s=1)
     plt.scatter(down(x_mins), down(temp_effect * 1000), label="Real", color="g", s=1)
     error = down((temp_fit - temp_effect) * 1000)
-    plt.scatter(down(x_mins), error, label=f"Error, mean = {np.mean(error):.4f}", color="r", s=1)
+    plt.scatter(
+        down(x_mins), error, label=f"Error, mean = {np.mean(error):.4f}", color="r", s=1
+    )
     plt.ylabel(f"{response_type.name()} (mm)")
     plt.xlabel("Time (m)")
     legend = plt.legend()

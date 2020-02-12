@@ -29,7 +29,9 @@ from util import print_i, safe_str
 def load_normal_traffic_array(c: Config, mins: float):
     """Distribution plots currently use this for normal traffic."""
     traffic_scenario = normal_traffic(c, 5, 2)
-    return load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * mins)
+    return load_traffic_array(
+        c=c, traffic_scenario=traffic_scenario, max_time=60 * mins
+    )
 
 
 def distribution_plots(c: Config):

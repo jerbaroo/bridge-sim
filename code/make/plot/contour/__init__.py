@@ -244,22 +244,23 @@ def piers_displaced(c: Config):
                 c=c,
                 response_type=response_type,
                 sim_runner=OSRunner(c),
-                sim_params = SimParams(
+                sim_params=SimParams(
                     displacement_ctrl=PierSettlement(
-                        displacement=c.pd_unit_disp,
-                        pier=p
+                        displacement=c.pd_unit_disp, pier=p
                     ),
-                )
+                ),
             )
-          
+
             # In the case of stress we map from kn/m2 to kn/mm2 (E-6) and then
             # divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
             if response_type == ResponseType.Strain:
-                sim_responses.to_stress(c.bridge).map(lambda r: r * 1E-9)
+                sim_responses.to_stress(c.bridge).map(lambda r: r * 1e-9)
 
             # Get min and max values for both Axis and OpenSees.
-            rt_str = "displa" if response_type == ResponseType.YTranslation else "stress"
+            rt_str = (
+                "displa" if response_type == ResponseType.YTranslation else "stress"
+            )
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
             dmin, dmax = float(row["dmin"]), float(row["dmax"])
             omin, omax = float(row["omin"]), float(row["omax"])
@@ -275,7 +276,9 @@ def piers_displaced(c: Config):
             top_view_bridge(c.bridge, abutments=True, piers=True)
             plot_contour_deck(c=c, cmap=cmap, responses=sim_responses, levels=levels)
             plt.tight_layout()
-            plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees")
+            plt.title(
+                f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees"
+            )
             plt.savefig(
                 c.get_image_path(
                     "validation/pier-displacement",
@@ -303,7 +306,11 @@ def piers_displaced(c: Config):
             for point, leg_label, color in [
                 ((0, 0), f"min = {np.around(dmin, 3)} {sim_responses.units}", "r"),
                 ((0, 0), f"max = {np.around(dmax, 3)} {sim_responses.units}", "r"),
-                ((0, 0), f"|min-max| = {np.around(abs(dmax - dmin), 3)} {sim_responses.units}", "r",),
+                (
+                    (0, 0),
+                    f"|min-max| = {np.around(abs(dmax - dmin), 3)} {sim_responses.units}",
+                    "r",
+                ),
             ]:
                 plt.scatter(
                     [point[0]],
@@ -452,7 +459,7 @@ def comparison_plots_705(c: Config, run_only: bool):
             top_view_bridge(c.bridge, piers=True, abutments=True)
             fem_responses = fem_responses.resize()
             if response_type == ResponseType.Strain:
-                fem_responses = fem_responses.map(lambda r: r * 1E-6)
+                fem_responses = fem_responses.map(lambda r: r * 1e-6)
             sci_format = response_type == ResponseType.Strain
             plot_contour_deck(
                 c=c,
@@ -460,7 +467,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                 ploads=loads,
                 cmap=cmap,
                 levels=levels,
-                sci_format=sci_format
+                sci_format=sci_format,
             )
             plt.title(title + "OpenSees")
             plt.tight_layout()
@@ -470,7 +477,9 @@ def comparison_plots_705(c: Config, run_only: bool):
             # Finally create label/title the Diana plot.
             if label is not None:
                 # First plot and clear, just to have the same colorbar.
-                plot_contour_deck(c=c, responses=fem_responses, ploads=loads, cmap=cmap, levels=levels)
+                plot_contour_deck(
+                    c=c, responses=fem_responses, ploads=loads, cmap=cmap, levels=levels
+                )
                 plt.cla()
                 # Then plot the bridge and
                 top_view_bridge(c.bridge, piers=True, abutments=True)
@@ -485,7 +494,11 @@ def comparison_plots_705(c: Config, run_only: bool):
                 )
                 dmin_s = f"{dmin:.4e}" if sci_format else f"{dmin:.4f}"
                 dmax_s = f"{dmax:.4e}" if sci_format else f"{dmax:.4f}"
-                dabs_s = f"{abs(dmin - dmax):.4e}" if sci_format else f"{abs(dmin - dmax):.4f}"
+                dabs_s = (
+                    f"{abs(dmin - dmax):.4e}"
+                    if sci_format
+                    else f"{abs(dmin - dmax):.4f}"
+                )
                 for point, leg_label, color, alpha in [
                     ((load_x, load_z), f"{loads[0].kn} kN load", "r", 1),
                     ((0, 0), f"min = {dmin_s} {fem_responses.units}", "r", 0),
