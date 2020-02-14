@@ -129,7 +129,7 @@ class ILMatrix(ResponsesMatrix):
         # cell is the response to 1 kN. Then multiple the traffic and unit load
         # matrices to get the responses.
         unit_load_matrix /= c.il_unit_load_kn
-        c.resp_matrices[result_path] = unit_load_matrix
+        # c.resp_matrices[result_path] = unit_load_matrix
         return unit_load_matrix
 
     @staticmethod
