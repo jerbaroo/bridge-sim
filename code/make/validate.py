@@ -188,7 +188,8 @@ def truck_1_time_series(c: Config):
         for i in range(15000):
             if data[i] < data[data_center]:
                 data_center = i
-        plt.plot(data[data_center - side_expt : data_center + side_expt])
+        plt.plot(data)
+        # plt.plot(data[data_center - side_expt : data_center + side_expt])
         plt.title(f"{strain_label} in dynamic test")
     set_labels("Strain", "Time")
     plt.tight_layout()
