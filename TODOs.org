@@ -2,7 +2,9 @@
 
 * Todo List
 ** TODO [#A] Validate temperature load
-- Try with higher amount of nodes.
+- For the same simulation, the vertical translation is in excellent agreement.
+- Therefore the error must be in the post-processing?
+- Still, can try with higher amount of nodes.
   - Difference in max and min might increase.
   - Difference was 0.5579 for 0.8 * MSL (full mesh).
 - Results:
@@ -10,7 +12,6 @@
 ** TODO [#A] Fix traffic generation bug
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
-- Maybe writing to file was interrupted, resulting in "bad data".
 ** TODO [#A] Classify damage
 ** TODO [#A] Truck 1 time series plots [1/4]
 *** DONE Meeting with Arthur to go over Matlab script
@@ -19,35 +20,6 @@ CLOSED: [2020-02-10 Mon 10:23]
 - It's 4 minutes, so just divide.
 *** TODO Plot strain in addition to vert trans
 *** TODO Run with full mesh
-** DONE [#B] Close noise issue.
-CLOSED: [2020-02-12 Wed 19:54]
-** DONE [#A] Investigate sensor O7 plot
-CLOSED: [2020-02-12 Wed 14:16]
-*** DONE Contour plot of the deck at that position.
-CLOSED: [2020-02-12 Wed 12:02]
-[[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
-- Contour plot agrees with sensor plot.
-*** DONE Check positions and response type of O sensors.
-CLOSED: [2020-02-12 Wed 14:16]
-- Perhaps they are top strains.
-- Perhaps position is not as labeled.
-  - Original position:
-    36075 16600 3590 XY Y 1 O7 2000
-  - Looks like this is transverse strain!
-    [[./data/verification/strainsensors.txt]]
-** TODO [#A] Send methods section for review
-*** TODO Write about density
-** TODO Light vehicles
-- Based on  paper from TNO
-- Add vehicles per class
-** TODO Temperature gradient references
-** TODO Sub-question A
-** TODO Sub-question B
-** TODO Publish on PyPI
-- Write about the interface
-** TODO Convergence plots
-*** TODO Horizontal lines in point load A NESE plot
-*** TODO Regenerate convergence plots
 ** TODO [#A] Cleanup per-sensor plots [5/6]
 *** DONE Remove transverse strain plots
 CLOSED: [2020-02-12 Wed 14:21]
@@ -62,8 +34,24 @@ CLOSED: [2020-02-12 Wed 15:07]
 *** TODO Check strain jaggedness
 - See if it makes sense from contour plot.
 - Maybe this is when an axle crosses a pier?
+** TODO [#B] Send methods section for review
+*** TODO Write about density
+** TODO [#B] Light vehicles
+- Based on  paper from TNO
+- Add vehicles per class
+** TODO [#B] Temperature gradient references
+** TODO [#B] Sub-question A
 ** TODO [#B] Add README to project
-** TODO Check linear assumption
+** TODO [#C] Improve cracked concrete model
+** TODO [#C] Improve pier settlement model
+- Henco's suggestion
+** TODO [#C] Sub-question B
+** TODO [#C] Publish on PyPI
+- Write about the interface
+** TODO [#C] Convergence plots
+*** TODO Horizontal lines in point load A NESW plot
+*** TODO Regenerate convergence plots
+** TODO [#C] Check linear assumption
 - Calculate if stress > strength
   - Tensile stress is defined as the force per unit area induced in the body in
     response to externally applied force, which tends to elongate or stretch the
@@ -75,8 +63,9 @@ CLOSED: [2020-02-12 Wed 15:07]
     class, it is about 1/15. A good reference where this is mentioned is the
     book by S U Pillai "Reinforced Concrete Design" (ISBN: 9780070141100).
   - https://eurocodeapplied.com/design/en1992/concrete-design-properties
-** WAIT Comparison of 2D and 3D data
 ** WAIT Mesh refinement
+** ABORT Comparison of 2D and 3D data
+CLOSED: [2020-02-12 Wed 23:16]
 ** ABORT Dynamic pier settlement
 CLOSED: [2020-02-10 Mon 17:27]
 Not going to happen as it requires a lot of work.
@@ -84,6 +73,22 @@ Not going to happen as it requires a lot of work.
 CLOSED: [2020-01-16 Thu 10:55]
 ** ABORT Distributed load experiment
 CLOSED: [2020-01-16 Thu 10:55]
+** DONE [#A] Investigate sensor O7 plot
+CLOSED: [2020-02-12 Wed 14:16]
+*** DONE Contour plot of the deck at that position.
+CLOSED: [2020-02-12 Wed 12:02]
+[[./generated-data-images/bridge-705-full-3d/healthy/verification/truck1-contour-x-40,0.pdf]]
+- Contour plot agrees with sensor plot.
+*** DONE Check positions and response type of O sensors.
+CLOSED: [2020-02-12 Wed 14:16]
+- Perhaps they are top strains.
+- Perhaps position is not as labeled.
+  - Original position:
+    36075 16600 3590 XY Y 1 O7 2000
+  - Looks like this is transverse strain!
+    [[./data/verification/strainsensors.txt]]
+** DONE [#B] Close noise issue.
+CLOSED: [2020-02-12 Wed 19:54]
 ** DONE Noise
 CLOSED: [2020-02-10 Mon 17:27]
 - Determine noise for strain

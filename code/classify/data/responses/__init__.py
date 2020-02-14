@@ -56,7 +56,10 @@ def responses_to_traffic_array(
         )
     else:
         unit_load_matrix = ILMatrix.load_ulm(
-            c=c, response_type=response_type, points=points, sim_runner=sim_runner,
+            c=c,
+            response_type=response_type,
+            points=points,
+            sim_runner=sim_runner,
         )
     responses = np.matmul(traffic_array, unit_load_matrix)
 

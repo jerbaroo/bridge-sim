@@ -159,6 +159,7 @@ class TrafficScenario:
                 t = v.time_entering_bridge(bridge)
                 if t < event_time:
                     vehicle, event_time = v, t
+            assert enter == True
             for v, t in time_leave:
                 if t < event_time:
                     vehicle, event_time, enter = v, t, False

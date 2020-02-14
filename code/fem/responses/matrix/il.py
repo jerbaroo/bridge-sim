@@ -85,23 +85,26 @@ class ILMatrix(ResponsesMatrix):
     ):
         wheel_zs = c.bridge.wheel_track_zs(c)
         # A unique path for this unit load matrix.
-        result_path = (
-            ILMatrix.id_str(
-                c=c,
-                response_type=response_type,
-                sim_runner=sim_runner,
-                wheel_zs=wheel_zs,
-            )
-            + str([str(point) for point in points])
-            + "-ulm"
-        )
+        # result_path = (
+        #     ILMatrix.id_str(
+        #         c=c,
+        #         response_type=response_type,
+        #         sim_runner=sim_runner,
+        #         wheel_zs=wheel_zs,
+        #     )
+        #     + str([str(point) for point in points])
+        #     + "-ulm"
+        # )
         # If the unit load matrix is available, return it.
-        if result_path in c.resp_matrices:
-            print_i(f"Unit load matrix {wheel_zs} already calculated!")
-            return c.resp_matrices[result_path]
+        # if result_path in c.resp_matrices:
+        #     print_i(f"Unit load matrix {wheel_zs} already calculated!")
+        #     return c.resp_matrices[result_path]
         # Otherwise load each wheel track..
         wheel_tracks = ILMatrix.load_wheel_tracks(
-            c=c, response_type=response_type, sim_runner=sim_runner, wheel_zs=wheel_zs,
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
         )
         # ..and calculate the unit load matrix.
         # Dimensions: (lanes * 2 * ULS) (rows) * point (columns).
@@ -110,12 +113,17 @@ class ILMatrix(ResponsesMatrix):
         for w, wheel_z in enumerate(wheel_zs):
             i = w * c.il_num_loads  # Row index.
             wheel_track = wheel_tracks[wheel_z]
-            assert len(wheel_track.expt_responses) == c.il_num_loads
             # For each unit load simulation.
-            for sim_responses in wheel_track.expt_responses:
+            count_responses = 0
+            for sim_responses in wheel_track:
+                count_responses += 1
                 for j, point in enumerate(points):
-                    unit_load_matrix[i][j] = sim_responses.at_deck(point, interp=True)
+                    unit_load_matrix[i][j] = sim_responses.at_deck(
+                        point,
+                        interp=response_type not in [ResponseType.Strain, ResponseType.Stress],
+                    )
                 i += 1
+            assert count_responses == c.il_num_loads
             print_i(f"Calculated unit load matrix for wheel track {w}")
         # Divide by the load of the unit load simulations, so the value at a
         # cell is the response to 1 kN. Then multiple the traffic and unit load
@@ -132,23 +140,27 @@ class ILMatrix(ResponsesMatrix):
         wheel_zs: List[float],
         run_only: bool = False,
     ):
-        """Return a dictionary of unit loads per wheel track.
+        """Return a dictionary of wheel tracks indexed by z position.
 
         Each wheel track will be calculated in parallel if the
         'Config.parallel_ulm' is set. If the 'run_only' option is given, then
         the simulations will run but the results will not be loaded into memory.
 
         """
-
         def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
-            ILMatrix.load_wheel_track(
+            results = ILMatrix.load_wheel_track(
                 c=deepcopy(c),
                 response_type=deepcopy(response_type),
                 fem_runner=deepcopy(sim_runner),
                 load_z_frac=deepcopy(c.bridge.z_frac(wheel_z)),
                 run_only=_run_only,
             )
-
+            # If results are only being generated, then evaluate the generator.
+            # Otherwise leave the generator to be used by the caller.
+            if _run_only:
+                list(results)
+            else:
+                return results
         # For each wheel track, generate it if doesn't exists.
         if c.parallel_ulm:
             processes = min(multiprocessing.cpu_count(), len(wheel_zs))
@@ -175,11 +187,13 @@ class ILMatrix(ResponsesMatrix):
         load_z_frac: float,
         run_only: bool,
     ) -> "ILMatrix":
-        """Load a wheel track from disk, running simulations first if necessary.
+        """Load a wheel track from disk, running simulations if necessary.
+
+        NOTE: The result is a generator, not a list.
 
         Args:
             c: Config, global configuration object.
-            response_type: ResponseType, type of sensor response to load.
+            response_type: ResponseType, type of sensor response to return.
             fem_runner: FEMRunner, program to run finite element simulations.
             load_z_frac: float, load position as a fraction of the transverse
                 direction in [0 1].
@@ -187,18 +201,8 @@ class ILMatrix(ResponsesMatrix):
 
         """
         assert 0 <= load_z_frac <= 1
-        id_str = (
-            ILMatrix.id_str(
-                c=c,
-                response_type=response_type,
-                sim_runner=fem_runner,
-                wheel_zs=[c.bridge.z(load_z_frac)],
-            )
-            + "-matrix"
-        )
-
         # Determine experiment simulation parameters.
-        _expt_params = ExptParams(
+        expt_params = ExptParams(
             [
                 SimParams(
                     ploads=[
@@ -212,29 +216,10 @@ class ILMatrix(ResponsesMatrix):
                 for x in c.bridge.wheel_track_xs(c)
             ]
         )
-
-        def load_func(expt_params):
-            """Load a ResponsesMatrix from given simulation parameters."""
-            il_matrix = ILMatrix(
-                c=c,
-                response_type=response_type,
-                expt_params=expt_params,
-                fem_runner=fem_runner,
-                expt_responses=load_expt_responses(
-                    c=c,
-                    expt_params=expt_params,
-                    response_type=response_type,
-                    sim_runner=fem_runner,
-                    run_only=run_only,
-                ),
-            )
-            il_matrix.load_z_frac = load_z_frac
-            return il_matrix
-
-        return ResponsesMatrix._load(
+        return load_expt_responses(
             c=c,
-            id_str=id_str,
-            expt_params=_expt_params,
-            load_func=load_func,
-            fem_runner=fem_runner,
+            expt_params=expt_params,
+            response_type=response_type,
+            sim_runner=fem_runner,
+            run_only=run_only,
         )
