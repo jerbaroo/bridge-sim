@@ -103,7 +103,7 @@ def load_fem_responses(
         with open(path, "rb") as f:
             responses = dill.load(f)
     except EOFError:
-        print_i(f"EOFError, removing and re-running sim. {i} at {path}")
+        print_i(f"EOFError, removing and re-running sim. {index} at {path}")
         os.remove(path)
         return load_fem_responses(
             c=c,
@@ -220,7 +220,6 @@ class Responses:
         """Response at the deck (y = 0) with optional interpolation."""
         assert point.y == 0
         if not interp:
-            print_w("Not interpolating response!")
             return self._at_deck_snap(x=point.x, z=point.z)
         return self._at_deck_interp(x=point.x, z=point.z)
 
@@ -235,15 +234,15 @@ class Responses:
         # values collected are not at the nodes but at the integration points.
         # Thus at the perimeter of the bridge no values will be collected and
         # extrapolation is necessary.
-        if x_lo == x_hi:
-            if z_lo_x_lo == z_hi_x_lo:
+        if np.isclose(x_lo, x_hi):
+            if np.isclose(z_lo_x_lo, z_hi_x_lo):
                 # print("interp1d, x == x, z == z")
                 return vs[0]
             # print("interp1d, x == x")
             return interp1d(
                 [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value="extrapolate"
             )(z)
-        if z_lo_x_lo == z_hi_x_lo:
+        if np.isclose(z_lo_x_lo, z_hi_x_lo):
             # print("interp1d, z == z")
             return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value="extrapolate")(x)
         # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)

@@ -118,10 +118,7 @@ class ILMatrix(ResponsesMatrix):
             for sim_responses in wheel_track:
                 count_responses += 1
                 for j, point in enumerate(points):
-                    unit_load_matrix[i][j] = sim_responses.at_deck(
-                        point,
-                        interp=response_type not in [ResponseType.Strain, ResponseType.Stress],
-                    )
+                    unit_load_matrix[i][j] = sim_responses.at_deck(point, interp=False)
                 i += 1
             assert count_responses == c.il_num_loads
             print_i(f"Calculated unit load matrix for wheel track {w}")

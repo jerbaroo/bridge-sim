@@ -14,11 +14,14 @@
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
 ** TODO [#A] Classify damage
-** TODO [#A] Truck 1 time series plots [2/5]
+** TODO [#A] Truck 1 time series plots [3/6]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
 *** DONE Fix memory error when calculating ULM
 CLOSED: [2020-02-14 Fri 10:51]
+*** DONE Check interpolation is cause of error
+CLOSED: [2020-02-14 Fri 12:32]
+- Removing interpolation removes 90+% of jaggedness
 *** TODO Find out frequency of measurements
 - It's 4 minutes, so just divide.
 *** TODO Plot strain in addition to vert trans
