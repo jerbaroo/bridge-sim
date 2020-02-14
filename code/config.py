@@ -79,7 +79,7 @@ class Config:
         self.cte = 12e-6
 
         # Responses & events.
-        self.sensor_hz: float = 1 / 200
+        self.sensor_hz: float = 1 / 400
         self.event_time_s: float = 2  # Seconds.
 
         # Vehicles.

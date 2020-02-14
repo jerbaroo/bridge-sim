@@ -14,7 +14,7 @@
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
 ** TODO [#A] Classify damage
-** TODO [#A] Truck 1 time series plots [3/6]
+** TODO [#A] Truck 1 time series plots [5/7]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
 *** DONE Fix memory error when calculating ULM
@@ -22,10 +22,14 @@ CLOSED: [2020-02-14 Fri 10:51]
 *** DONE Check interpolation is cause of error
 CLOSED: [2020-02-14 Fri 12:32]
 - Removing interpolation removes 90+% of jaggedness
-*** TODO Find out frequency of measurements
+*** DONE Find out frequency of measurements
+CLOSED: [2020-02-14 Fri 12:54]
 - It's 4 minutes, so just divide.
+*** DONE Fix labels and titles
+CLOSED: [2020-02-14 Fri 14:48]
 *** TODO Plot strain in addition to vert trans
 *** TODO Run with full mesh
+- Running on workhorse
 ** TODO [#A] Cleanup per-sensor plots [5/6]
 *** DONE Remove transverse strain plots
 CLOSED: [2020-02-12 Wed 14:21]
@@ -69,6 +73,9 @@ CLOSED: [2020-02-12 Wed 15:07]
     class, it is about 1/15. A good reference where this is mentioned is the
     book by S U Pillai "Reinforced Concrete Design" (ISBN: 9780070141100).
   - https://eurocodeapplied.com/design/en1992/concrete-design-properties
+** TODO Investigate interpolation
+- Truck 1 time series should not error with interpolation.
+** TODO Calculate ULM in parallel
 ** WAIT Mesh refinement
 ** ABORT Comparison of 2D and 3D data
 CLOSED: [2020-02-12 Wed 23:16]

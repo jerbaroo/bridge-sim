@@ -6,7 +6,7 @@ from util import print_i
 
 
 def add_displa_noise(a, std: float = 0.0012 / 1000, mean: float = 0):
-    """Add noise to a time series of displacements in meters.
+    """Add noise to a time series of vert. trans. in meters.
 
     Default standard deviation of noise is 0.0012mm with a mean of 0.
 
@@ -18,3 +18,8 @@ def add_displa_noise(a, std: float = 0.0012 / 1000, mean: float = 0):
     result = np.add(a, noise)
     print_i(f"Shapes = {a.shape} {noise.shape} {result.shape}")
     return result
+
+
+def add_strain_noise(a, std: float = 2E-6, mean: float = 0):
+    """Add noise to a time series of strain."""
+    return add_displa_noise(a=a, std=std, mean=mean)
