@@ -5,17 +5,20 @@
 - For the same simulation, the vertical translation is in excellent agreement.
 - Therefore the error must be in the post-processing?
 - Still, can try with higher amount of nodes.
-  - Difference in max and min might increase.
-  - Difference was 0.5579 for 0.8 * MSL (full mesh).
+  - Abs. diff. in max and min might increase.
+  - Abs. diff. was 0.5579 for MSL = 0.4 (full mesh).
+  - Abs. diff. in AxisVM is 0.6
 - Results:
   - AxisVM: min -0.26 max 0.34
 ** TODO [#A] Fix traffic generation bug
 ** TODO [#A] Verify matrix multiplication
 ** TODO [#A] Traffic top view plot
 ** TODO [#A] Classify damage
-** TODO [#A] Truck 1 time series plots [1/4]
+** TODO [#A] Truck 1 time series plots [2/5]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
+*** DONE Fix memory error when calculating ULM
+CLOSED: [2020-02-14 Fri 10:51]
 *** TODO Find out frequency of measurements
 - It's 4 minutes, so just divide.
 *** TODO Plot strain in addition to vert trans

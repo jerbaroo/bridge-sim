@@ -158,7 +158,7 @@ def load_expt_responses(
         with Pool(processes=c.parallel) as pool:
             pool.map(process, indices_and_params)
     else:
-        map(process, indices_and_params)
+        list(map(process, indices_and_params))
     # Return after generating results if requested...
     if run_only:
         return

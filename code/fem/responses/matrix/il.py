@@ -155,8 +155,9 @@ class ILMatrix(ResponsesMatrix):
                 load_z_frac=deepcopy(c.bridge.z_frac(wheel_z)),
                 run_only=_run_only,
             )
-            # If results are only being generated, then evaluate the generator.
-            # Otherwise leave the generator to be used by the caller.
+            # If results are only being generated, then evaluate the generator,
+            # such that the results are generated. Otherwise leave the generator
+            # to be used by the caller.
             if _run_only:
                 list(results)
             else:
