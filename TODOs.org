@@ -12,8 +12,8 @@
   - AxisVM: min -0.26 max 0.34
 ** TODO [#A] Fix traffic generation bug
 ** TODO [#A] Verify matrix multiplication
-- Switching off interpolation seems to have fixed some jaggedness. Just to sort
-  out strain now.
+- Removing interpolation has fixed some jaggedness.
+- Just to sort out strain now.
 ** TODO [#A] Traffic top view plot
 ** TODO [#A] Classify damage
 ** TODO [#A] Truck 1 time series plots [5/7]
@@ -77,7 +77,7 @@ CLOSED: [2020-02-12 Wed 15:07]
   - https://eurocodeapplied.com/design/en1992/concrete-design-properties
 ** TODO Investigate interpolation
 - Truck 1 time series should not error with interpolation.
-*** TODO Check if
+*** TODO Check if point is direct match.
 ** TODO Calculate ULM in parallel
 ** WAIT Mesh refinement
 ** ABORT Comparison of 2D and 3D data
