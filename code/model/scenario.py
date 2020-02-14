@@ -144,7 +144,9 @@ class TrafficScenario:
 
         # Increase simulation by time taken to warm up.
         warmed_up_at = first_vehicle.time_left_bridge(bridge)
+        print(f"Trafic warmed up at = {warmed_up_at}")
         max_time += warmed_up_at
+        print(f"max_time = {max_time}")
 
         # Time vehicles will leave the bridge, in order.
         time_leave: List[Tuple[MvVehicle, float]] = deque([])
@@ -189,14 +191,13 @@ class TrafficScenario:
 
 
 def to_traffic(
-    bridge: Bridge,
+    c: Config,
     traffic_sequence: TrafficSequence,
     max_time: float,
-    time_step: float,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'."""
     result = deque([])
-    current = [deque([]) for _ in bridge.lanes]
+    current = [deque([]) for _ in c.bridge.lanes]
     time = 0
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
@@ -206,7 +207,7 @@ def to_traffic(
         current = [current_lane.copy() for current_lane in current]
 
         # While events have occurred update current traffic.
-        while time >= next_event_time:
+        while time > next_event_time or np.isclose(time, next_event_time):
             vehicle, _, enter = traffic_sequence[next_event_index]
             if enter:
                 current[vehicle.lane].append(vehicle)
@@ -221,7 +222,7 @@ def to_traffic(
 
         # Append current traffic and update time.
         result.append(current)
-        time += time_step
+        time += c.sensor_hz
 
     return list(result)
 

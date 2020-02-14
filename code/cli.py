@@ -522,6 +522,15 @@ def classify():
     pass
 
 
+@classify.command(help="Responses to traffic with a top view.")
+@click.option("--mins", type=float, default=0.1)
+@click.option("--skip", type=int, default=50)
+def top_view(mins, skip):
+    from make.classify.top_view import top_view_plot
+
+    top_view_plot(c=c(), max_time=int(60 * mins), skip=skip)
+
+
 @classify.command(help="Plot events due to normal traffic.")
 @click.option("--x", type=float, default=51.375)
 @click.option("--z", type=float, default=-8.4)

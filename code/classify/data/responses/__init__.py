@@ -61,6 +61,8 @@ def responses_to_traffic_array(
             points=points,
             sim_runner=sim_runner,
         )
+    print(traffic_array.shape)
+    print(unit_load_matrix.shape)
     responses = np.matmul(traffic_array, unit_load_matrix)
 
     pd_responses = np.zeros(responses.shape)

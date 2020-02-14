@@ -10,6 +10,7 @@
   - Abs. diff. in AxisVM is 0.6
 - Results:
   - AxisVM: min -0.26 max 0.34
+*** TODO Record temperature without strain
 ** TODO [#A] Fix traffic generation bug
 ** TODO [#A] Verify matrix multiplication
 - Removing interpolation has fixed some jaggedness.
@@ -79,6 +80,7 @@ CLOSED: [2020-02-12 Wed 15:07]
 - Truck 1 time series should not error with interpolation.
 *** TODO Check if point is direct match.
 ** TODO Calculate ULM in parallel
+** TODO Save ULM to disk
 ** WAIT Mesh refinement
 ** ABORT Comparison of 2D and 3D data
 CLOSED: [2020-02-12 Wed 23:16]

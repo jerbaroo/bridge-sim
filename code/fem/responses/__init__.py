@@ -320,7 +320,3 @@ class SimResponses(Responses):
                 dill.dump(self.raw_responses, f)
         except:
             print("Could not save raw responses", flush=True)
-            print("Could not save raw responses", flush=True)
-            print("Could not save raw responses", flush=True)
-            print("Could not save raw responses", flush=True)
-            print("Could not save raw responses", flush=True)

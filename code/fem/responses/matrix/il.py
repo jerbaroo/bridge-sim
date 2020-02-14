@@ -1,5 +1,6 @@
 import os
 import pathos.multiprocessing as multiprocessing
+from collections import deque
 from copy import deepcopy
 from typing import List, Optional
 
@@ -158,7 +159,9 @@ class ILMatrix(ResponsesMatrix):
             # such that the results are generated. Otherwise leave the generator
             # to be used by the caller.
             if _run_only:
-                list(results)
+                # This forces the generator to be consumed without keeping the
+                # contents in memory. https://stackoverflow.com/a/47456679
+                deque(results, maxlen=0)
             else:
                 return results
         # For each wheel track, generate it if doesn't exists.

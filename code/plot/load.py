@@ -31,7 +31,7 @@ def top_view_vehicles(
         # Left-most position of each vehicle axle.
         xl = min(mv_vehicle.xs_at(time=time, bridge=bridge))
         # Center of the lane.
-        z_center = bridge.lanes[mv_vehicle.lane].z_center()
+        z_center = bridge.lanes[mv_vehicle.lane].z_center
         # Bottom position on z-axis of vehicle.
         zb = z_center - (mv_vehicle.axle_width / 2)
         plt.gca().add_patch(
