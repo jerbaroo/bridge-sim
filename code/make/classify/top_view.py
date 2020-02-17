@@ -15,7 +15,7 @@ from plot import plt
 from plot.geometry import top_view_bridge
 from plot.load import top_view_vehicles
 from plot.responses import plot_contour_deck
-from util import flatten
+from util import flatten, resize_units
 
 
 def top_view_plot(c: Config, max_time: int, skip: int):
@@ -46,8 +46,13 @@ def top_view_plot(c: Config, max_time: int, skip: int):
         response_type=response_type,
         sim_runner=OSRunner(c),
     )
+    # Resize responses if applicable to response type.
+    resize_f, units = resize_units(response_type.units())
+    if resize_f is not None:
+        responses_array = resize_f(responses_array)
+    # Determine levels of the colourbar.
     amin, amax = np.amin(responses_array), np.amax(responses_array)
-    amin = min(amin, -amax), max(-amin, amax)
+    amin, amax = min(amin, -amax), max(-amin, amax)
     levels = np.linspace(amin, amax, 50)
     # All vehicles, for colour reference.
     all_vehicles = flatten(traffic, Vehicle)
@@ -67,6 +72,7 @@ def top_view_plot(c: Config, max_time: int, skip: int):
                 (responses_array[t_ind][i], deck_points[i])
                 for i in range(len(deck_points))
             ],
+            units=units,
         )
         plot_contour_deck(c=c, responses=responses, levels=levels)
         plt.title(f"{response_type.name()} at time {np.around(t_ind * c.sensor_hz, 4)} s")

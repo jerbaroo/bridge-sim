@@ -18,6 +18,12 @@ init()
 DEBUG = True
 
 
+def resize_units(units):
+    if units == "m":
+        return (lambda r: r * 1000), "mm"
+    return None, units
+
+
 def assert_sorted(l):
     assert all(l[i] <= l[i + 1] for i in range(len(l) - 1))
 
@@ -36,7 +42,6 @@ def flatten(container, t):
             else:
                 for j in _flatten(i, t):
                     yield j
-
     return list(_flatten(container, t))
 
 

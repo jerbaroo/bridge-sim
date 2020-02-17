@@ -14,7 +14,7 @@ from config import Config
 from fem.params import ExptParams, SimParams
 from model.bridge import Bridge, Dimensions, Point
 from model.response import Response, ResponseType
-from util import nearest_index, print_i, print_w
+from util import nearest_index, print_i, print_w, resize_units
 
 # Print debug information for this file.
 D: str = "fem.responses"
@@ -138,13 +138,14 @@ class Responses:
         response_type: ResponseType,
         responses: List[Response],
         build: bool = True,
+        units: Optional[str] = None,
     ):
         assert isinstance(responses, list)
         if len(responses) == 0:
             raise ValueError("No responses found")
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
-        self.units = response_type.units()
+        self.units = response_type.units() if units is None else units
         self.raw_responses = responses
         self.num_sensors = len(responses)
         # Nested dictionaries for indexing responses by position.
@@ -177,9 +178,10 @@ class Responses:
     def resize(self):
         """Returns the same responses, possibly resized."""
         responses = self
-        if responses.units == "m":
-            responses = responses.map(lambda r: r * 1000)
-            responses.units = "mm"
+        resize_f, units = resize_units(self.units)
+        if resize_f is not None:
+            responses = responses.map(resize_f)
+            responses.units = units
         return responses
 
     def without(self, remove: Callable[[Point], bool]) -> "Responses":
