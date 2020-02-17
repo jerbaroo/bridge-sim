@@ -93,6 +93,14 @@ def truck_1_time_series(c: Config):
             if x:
                 plt.xlabel(xlabel)
             ax.axes.xaxis.set_ticklabels([])
+        ymin, ymax = np.inf, -np.inf
+        for i in range(1, 6 + 1):
+            plt.subplot(3, 2, i)
+            ymin = min(ymin, plt.ylim()[0])
+            ymax = max(ymax, plt.ylim()[1])
+        for i in range(1, 6 + 1):
+            plt.subplot(3, 2, i)
+            plt.ylim((ymin, ymax))
 
     ################
     # Vert. trans. #
@@ -128,7 +136,6 @@ def truck_1_time_series(c: Config):
         # sensor_responses = add_displa_noise(sensor_responses) * 1000
         sensor_responses = sensor_responses * 1000
         plt.plot(sensor_responses[data_center - side : data_center + side])
-        plt.ylim(-0.8, 0.3)
         plt.title(f"{displa_labels[s_i]} in simulation")
     # Results from experiment.
     side = int(side / ((1 / c.sensor_hz) / 100))
@@ -144,7 +151,6 @@ def truck_1_time_series(c: Config):
             if data[i] < data[data_center]:
                 data_center = i
         plt.plot(data[data_center - side_expt : data_center + side_expt])
-        plt.ylim(-0.8, 0.3)
         plt.title(f"{displa_label} in dynamic test")
     set_labels("Y translation", "Time")
     plt.tight_layout()
