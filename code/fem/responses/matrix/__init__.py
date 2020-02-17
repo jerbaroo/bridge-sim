@@ -124,11 +124,11 @@ def load_expt_responses(
         )
 
     # First run the simulations (if necessary), in parallel if requested.
-    if c.parallel > 1:
-        with Pool(processes=c.parallel) as pool:
-            pool.map(process, indices_and_params)
-    else:
-        deque(map(process, indices_and_params), maxlen=0)
+    # if c.parallel > 1:
+    with Pool(processes=c.parallel, maxtasksperchild=5) as pool:
+        pool.map(process, indices_and_params)
+    # else:
+    #     deque(map(process, indices_and_params), maxlen=0)
     # Return after generating results if requested...
     if run_only:
         return

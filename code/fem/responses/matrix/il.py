@@ -147,6 +147,7 @@ class ILMatrix(ResponsesMatrix):
                 # This forces the generator to be consumed without keeping the
                 # contents in memory. https://stackoverflow.com/a/47456679
                 deque(results, maxlen=0)
+                return
             # Otherwise return the generator, to be evaluated.
             else:
                 return results
