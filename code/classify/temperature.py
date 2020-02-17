@@ -144,7 +144,7 @@ def temperature_effect(
 
 
 def get_len_per_min(c: Config, speed_up: float):
-    """Length of time series corresponding to 1 minute."""
+    """Length of time series corresponding to 1 minute of temperature."""
     return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
 
 
@@ -157,7 +157,7 @@ def get_temperature_effect(
     speed_up: int,
     repeat_responses: bool = False,
 ) -> List[float]:
-    # Convert the temperatures into a temperature effect at a point.
+    # Convert the temperature data into a temperature effect at a point.
     effect = temperature_effect(
         c=c, response_type=response_type, point=point, temps=temps
     )
@@ -188,11 +188,12 @@ def get_temperature_effect(
     result = np.zeros(len(responses))
     for i in range(num_temps_req - 1):
         start = i * len_per_min
-        end = min(len(result) - 1, start + len_per_min)
+        end = min(len(result), start + len_per_min)
         print_d(D, f"start = {start}")
         print_d(D, f"end = {end}")
         print_d(D, f"end - start = {end - start}")
-        print_d(D, f"temp = {temps[i]}")
+        print_d(D, f"temp_start, temp_end = {temps[i]}, {temps[i + 1]}")
+        print_d(D, f"effect_start, effect_end = {effect[i]}, {effect[i + 1]}")
         # Instead of
         result[start:end] = np.linspace(effect[i], effect[i + 1], end - start)
     if repeat_responses:

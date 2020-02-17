@@ -522,8 +522,8 @@ def classify():
 
 
 @classify.command(help="Responses to traffic with a top view.")
-@click.option("--mins", type=float, default=0.1)
-@click.option("--skip", type=int, default=50)
+@click.option("--mins", type=float, default=1)
+@click.option("--skip", type=int, default=200)
 def top_view(mins, skip):
     from make.classify.top_view import top_view_plot
 
