@@ -1,5 +1,6 @@
 """Responses of one type for a number of related simulations."""
 import itertools
+from collections import deque
 from pathos.multiprocessing import Pool
 from typing import Callable, List
 
@@ -127,7 +128,7 @@ def load_expt_responses(
         with Pool(processes=c.parallel) as pool:
             pool.map(process, indices_and_params)
     else:
-        list(map(process, indices_and_params))
+        deque(map(process, indices_and_params), max_len=0)
     # Return after generating results if requested...
     if run_only:
         return
