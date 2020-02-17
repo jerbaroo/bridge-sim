@@ -33,10 +33,10 @@ def top_view_plot(c: Config, max_time: int, skip: int):
     # Points on the deck to collect responses.
     deck_points = [
         Point(x=x, y=0, z=z)
-        for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=10)
-        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)
+        for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2))
+        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2))
     ]
-    point = Point(x=c.bridge.length / 2, y=0, z=-8.4)  # Point to plot
+    point = Point(x=21, y=0, z=-8.4)  # Point to plot
     deck_points.append(point)
     # Traffic array to responses array.
     responses_array = responses_to_traffic_array(
@@ -54,7 +54,7 @@ def top_view_plot(c: Config, max_time: int, skip: int):
     # Determine levels of the colourbar.
     amin, amax = np.amin(responses_array), np.amax(responses_array)
     amin, amax = min(amin, -amax), max(-amin, amax)
-    levels = np.linspace(amin, amax, 50)
+    levels = np.linspace(amin, amax, 25)
     # All vehicles, for colour reference.
     all_vehicles = flatten(traffic, Vehicle)
     # Iterate through each time index and plot results.
@@ -78,7 +78,7 @@ def top_view_plot(c: Config, max_time: int, skip: int):
             ],
             units=units,
         )
-        plot_contour_deck(c=c, responses=responses, levels=levels)
+        plot_contour_deck(c=c, responses=responses, levels=levels, mm_legend=False)
         plt.scatter(
             [point.x],
             [point.z],
@@ -103,4 +103,5 @@ def top_view_plot(c: Config, max_time: int, skip: int):
         # Finally save the image.
         plt.tight_layout()
         plt.savefig(c.get_image_path("classify/top-view", f"{t_ind}.pdf"))
+        plt.savefig(c.get_image_path("classify/top-view/jpg", f"{t_ind}.png"))
         plt.close()
