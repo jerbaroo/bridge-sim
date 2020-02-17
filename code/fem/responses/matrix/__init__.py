@@ -128,7 +128,7 @@ def load_expt_responses(
         with Pool(processes=c.parallel) as pool:
             pool.map(process, indices_and_params)
     else:
-        deque(map(process, indices_and_params), max_len=0)
+        deque(map(process, indices_and_params), maxlen=0)
     # Return after generating results if requested...
     if run_only:
         return
