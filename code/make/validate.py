@@ -187,8 +187,8 @@ def truck_1_time_series(c: Config):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
         # sensor_responses = add_strain_noise(sensor_responses)
-        # plt.plot(sensor_responses)
-        plt.plot(sensor_responses[data_center - side : data_center + side])
+        plt.plot(sensor_responses)
+        # plt.plot(sensor_responses[data_center - side : data_center + side])
         plt.title(f"{strain_labels[s_i]} in simulation")
     # Results from experiment.
     print_i(f"{side} points each side of center")
