@@ -191,10 +191,7 @@ class TrafficScenario:
 
 
 def to_traffic(
-    c: Config,
-    traffic_sequence: TrafficSequence,
-    max_time: float,
-    warm_up: bool = True,
+    c: Config, traffic_sequence: TrafficSequence, max_time: float, warm_up: bool = True,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'."""
     result = deque([])

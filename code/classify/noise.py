@@ -20,6 +20,6 @@ def add_displa_noise(a, std: float = 0.0012 / 1000, mean: float = 0):
     return result
 
 
-def add_strain_noise(a, std: float = 2E-6, mean: float = 0):
+def add_strain_noise(a, std: float = 2e-6, mean: float = 0):
     """Add noise to a time series of strain."""
     return add_displa_noise(a=a, std=std, mean=mean)

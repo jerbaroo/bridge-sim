@@ -143,6 +143,7 @@ def load_expt_responses(
 
     """
     indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
+
     def process(index_and_params, _run_only: bool = True):
         i, sim_params = index_and_params
         return load_fem_responses(
@@ -153,6 +154,7 @@ def load_expt_responses(
             run_only=_run_only,
             index=(i + 1, len(expt_params.sim_params)),
         )
+
     # First run the simulations (if necessary), in parallel if requested.
     if c.parallel > 1:
         with Pool(processes=c.parallel) as pool:

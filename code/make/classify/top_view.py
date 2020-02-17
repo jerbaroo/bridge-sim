@@ -25,8 +25,7 @@ def top_view_plot(c: Config, max_time: int, skip: int):
     traffic_sequence = traffic_scenario.traffic_sequence(
         bridge=c.bridge, max_time=max_time
     )
-    traffic = to_traffic(
-        c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+    traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
     traffic_array = to_traffic_array(
         c=c, traffic_sequence=traffic_sequence, max_time=max_time
     )
@@ -75,7 +74,9 @@ def top_view_plot(c: Config, max_time: int, skip: int):
             units=units,
         )
         plot_contour_deck(c=c, responses=responses, levels=levels)
-        plt.title(f"{response_type.name()} at time {np.around(t_ind * c.sensor_hz, 4)} s")
+        plt.title(
+            f"{response_type.name()} at time {np.around(t_ind * c.sensor_hz, 4)} s"
+        )
         plt.tight_layout()
         plt.savefig(c.get_image_path("classify/top-view", f"{t_ind}.pdf"))
         plt.close()

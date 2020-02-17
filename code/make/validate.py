@@ -77,8 +77,12 @@ def truck_1_time_series(c: Config):
 
     def set_labels(ylabel: str, xlabel: str):
         for i, y, x in [
-            (1, True, False), (2, False, False), (3, True, False),
-            (4, False, False), (5, True, True), (6, False, True)
+            (1, True, False),
+            (2, False, False),
+            (3, True, False),
+            (4, False, False),
+            (5, True, True),
+            (6, False, True),
         ]:
             plt.subplot(3, 2, i)
             ax = plt.gca()
@@ -98,8 +102,10 @@ def truck_1_time_series(c: Config):
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
     displa_points = [
-        Point(x=sensor_x, y=0, z=sensor_z) for sensor_x, sensor_z
-        in [displa_sensor_xz(displa_label) for displa_label in displa_labels]
+        Point(x=sensor_x, y=0, z=sensor_z)
+        for sensor_x, sensor_z in [
+            displa_sensor_xz(displa_label) for displa_label in displa_labels
+        ]
     ]
     # Ensure points and truck are on the same lane.
     assert all(p.z < 0 for p in displa_points)
@@ -153,8 +159,10 @@ def truck_1_time_series(c: Config):
     # Find points of each sensor.
     strain_labels = ["T1", "T10", "T11"]
     strain_points = [
-        Point(x=sensor_x, y=0, z=sensor_z) for sensor_x, sensor_z
-        in [strain_sensor_xz(strain_label) for strain_label in strain_labels]
+        Point(x=sensor_x, y=0, z=sensor_z)
+        for sensor_x, sensor_z in [
+            strain_sensor_xz(strain_label) for strain_label in strain_labels
+        ]
     ]
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(

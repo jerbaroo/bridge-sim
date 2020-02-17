@@ -170,13 +170,13 @@ class ThermalDamage(DamageScenario):
         # Uniform temperature load.
         if self.axial_delta_temp != 0:
             sim_responses = sim_responses.map(
-                lambda r: (r * 1E-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
+                lambda r: (r * 1e-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
             )
             sim_responses = sim_responses.to_stress(c.bridge)
         # Linear temperature load.
         elif self.moment_delta_temp != 0:
             sim_responses = sim_responses.map(
-                lambda r: r * 1E-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
+                lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
             )
             sim_responses = sim_responses.to_stress(c.bridge)
         else:

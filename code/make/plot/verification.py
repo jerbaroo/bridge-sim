@@ -106,7 +106,9 @@ def per_sensor_plots(
     print_i(f"Strain sensors ignored = {labels_ignored}")
 
     # Ignore sensors with missing positions.
-    positions_available = set(strain_sensors[strain_sensors["direction"] == "X"]["label"])
+    positions_available = set(
+        strain_sensors[strain_sensors["direction"] == "X"]["label"]
+    )
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
     tno_strain_meas = tno_strain_meas.loc[
         tno_strain_meas["sensorlabel"].isin(positions_available)
@@ -162,10 +164,7 @@ def per_sensor_plots(
         # Plot Diana predictions for the given sensor.
         diana_group = diana[diana["sensorlabel"] == sensor_label]
         plt.plot(
-            diana_group["xpostruck"],
-            diana_group["infline1"],
-            lw=lw,
-            label="Diana",
+            diana_group["xpostruck"], diana_group["infline1"], lw=lw, label="Diana",
         )
 
         # Plot values from OpenSees.
@@ -183,7 +182,13 @@ def per_sensor_plots(
             color="tab:green",
         )
 
-        plt.scatter([0], [0], label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m", alpha=0, zorder=4)
+        plt.scatter(
+            [0],
+            [0],
+            label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m",
+            alpha=0,
+            zorder=4,
+        )
 
         plt.legend()
         plt.title(
@@ -297,7 +302,12 @@ def per_sensor_plots(
             color="tab:green",
         )
 
-        plt.scatter([0], [0], label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m", alpha=0)
+        plt.scatter(
+            [0],
+            [0],
+            label=f"{sensor_label}: x = {np.around(sensor_x, 3)} m, z = {np.around(sensor_z, 3)} m",
+            alpha=0,
+        )
 
         plt.legend()
         plt.title(
