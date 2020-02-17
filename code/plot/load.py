@@ -34,10 +34,21 @@ def top_view_vehicles(
         z_center = bridge.lanes[mv_vehicle.lane].z_center
         # Bottom position on z-axis of vehicle.
         zb = z_center - (mv_vehicle.axle_width / 2)
+        # Length, not allowed to extend beyond the bridge.
+        length = mv_vehicle.length
+        if xl + length <= bridge.x_min:
+            continue
+        if xl >= bridge.x_max:
+            continue
+        if xl < bridge.x_min:
+            length -= abs(bridge.x_min - xl)
+            xl = bridge.x_min
+        if xl + length > bridge.x_max:
+            length -= abs(xl + length - bridge.x_max)
         plt.gca().add_patch(
             patches.Rectangle(
                 (xl, zb),
-                mv_vehicle.length,
+                length,
                 mv_vehicle.axle_width,
                 facecolor=mv_vehicle.color(all_vehicles),
             )

@@ -10,12 +10,20 @@
   - Abs. diff. in AxisVM is 0.6
 - Results:
   - AxisVM: min -0.26 max 0.34
-*** TODO Record temperature without strain
+*** TODO Record temperature without piers
 ** TODO [#A] Fix traffic generation bug
-** TODO [#A] Verify matrix multiplication
+** DONE [#A] Verify matrix multiplication
+CLOSED: [2020-02-14 Fri 19:41]
 - Removing interpolation has fixed some jaggedness.
 - Just to sort out strain now.
 ** TODO [#A] Traffic top view plot
+*** DONE Save figure every n frames
+CLOSED: [2020-02-14 Fri 18:47]
+*** TODO Consistent colours
+*** TODO Medium quality mesh
+*** DONE Cut-off vehicles off bridge
+CLOSED: [2020-02-14 Fri 19:10]
+*** TODO Subplot with responses at point
 ** TODO [#A] Classify damage
 ** TODO [#A] Truck 1 time series plots [5/7]
 *** DONE Meeting with Arthur to go over Matlab script
@@ -55,7 +63,8 @@ CLOSED: [2020-02-12 Wed 15:07]
 ** TODO [#B] Temperature gradient references
 ** TODO [#B] Sub-question A
 ** TODO [#B] Add README to project
-** TODO [#C] Improve cracked concrete model
+** ABORT [#C] Improve cracked concrete model
+CLOSED: [2020-02-14 Fri 19:48]
 ** TODO [#C] Improve pier settlement model
 - Henco's suggestion
 ** TODO [#C] Sub-question B

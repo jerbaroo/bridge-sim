@@ -194,6 +194,7 @@ def to_traffic(
     c: Config,
     traffic_sequence: TrafficSequence,
     max_time: float,
+    warm_up: bool = True,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'."""
     result = deque([])
@@ -202,7 +203,12 @@ def to_traffic(
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
 
-    while time <= max_time:
+    # If it is requested that traffic warm up first, then until time
+    # 'warmed_up_at' is reached, nothing will be added to the 'TrafficArray'.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    print(f"warmed up at = {warmed_up_at}")
+
+    while len(result) < int(max_time / c.sensor_hz) + 1:
         # Make a copy of the current traffic.
         current = [current_lane.copy() for current_lane in current]
 
@@ -221,7 +227,8 @@ def to_traffic(
                 next_event_time = np.inf
 
         # Append current traffic and update time.
-        result.append(current)
+        if not warm_up or time > warmed_up_at or np.isclose(time, warmed_up_at):
+            result.append(current)
         time += c.sensor_hz
 
     return list(result)
