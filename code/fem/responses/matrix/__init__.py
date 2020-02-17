@@ -1,6 +1,7 @@
 """Responses of one type for a number of related simulations."""
 import itertools
 from collections import deque
+from copy import deepcopy
 from pathos.multiprocessing import Pool
 from typing import Callable, List
 
@@ -115,10 +116,10 @@ def load_expt_responses(
     def process(index_and_params, _run_only: bool = True):
         i, sim_params = index_and_params
         return load_fem_responses(
-            c=c,
-            sim_params=sim_params,
+            c=deepcopy(c),
+            sim_params=deepcopy(sim_params),
             response_type=response_type,
-            sim_runner=sim_runner,
+            sim_runner=deepcopy(sim_runner),
             run_only=_run_only,
             index=(i + 1, len(expt_params.sim_params)),
         )
