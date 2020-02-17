@@ -36,6 +36,8 @@ def top_view_plot(c: Config, max_time: int, skip: int):
         for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=10)
         for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)
     ]
+    point = Point(x=c.bridge.length / 2, y=0, z=-8.4)  # Point to plot
+    deck_points.append(point)
     # Traffic array to responses array.
     responses_array = responses_to_traffic_array(
         c=c,
@@ -58,7 +60,10 @@ def top_view_plot(c: Config, max_time: int, skip: int):
     # Iterate through each time index and plot results.
     warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
     for t_ind in range(len(responses_array))[::skip]:
-        top_view_bridge(c.bridge, lane_fill=False, piers=True)
+        plt.landscape()
+        # Plot the bridge top view.
+        plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+        top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
         top_view_vehicles(
             bridge=c.bridge,
             mv_vehicles=flatten(traffic[t_ind], Vehicle),
@@ -68,15 +73,34 @@ def top_view_plot(c: Config, max_time: int, skip: int):
         responses = Responses(
             response_type=response_type,
             responses=[
-                (responses_array[t_ind][i], deck_points[i])
-                for i in range(len(deck_points))
+                (responses_array[t_ind][p_ind], deck_points[p_ind])
+                for p_ind in range(len(deck_points))
             ],
             units=units,
         )
         plot_contour_deck(c=c, responses=responses, levels=levels)
+        plt.scatter(
+            [point.x],
+            [point.z],
+            label=f"Sensor in bottom plot",
+            marker="o",
+            color="red",
+            zorder=10,
+        )
+        plt.legend(loc="upper right")
         plt.title(
             f"{response_type.name()} at time {np.around(t_ind * c.sensor_hz, 4)} s"
         )
+        # Plot the responses at a point.
+        plt.subplot2grid((3, 1), (2, 0))
+        plt.plot(np.arange(len(responses_array)) * c.sensor_hz, responses_array.T[-1])
+        time = t_ind * c.sensor_hz
+        plt.axvline(x=time, color="red", label=f"Current time = {np.around(time, 4)} s")
+        plt.ylabel(f"{response_type.name()} ({responses.units})")
+        plt.xlabel("Time (s)")
+        plt.title(f"{response_type.name()} at sensor in top plot")
+        plt.legend(loc="upper right")
+        # Finally save the image.
         plt.tight_layout()
         plt.savefig(c.get_image_path("classify/top-view", f"{t_ind}.pdf"))
         plt.close()
