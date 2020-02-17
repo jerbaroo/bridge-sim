@@ -33,6 +33,7 @@ class SimParams:
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
         refinement_radii: List[float] = [],
+        clean_build: bool = False,
     ):
         self.response_types = response_types
         self.ploads = ploads
@@ -40,6 +41,7 @@ class SimParams:
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
         self.refinement_radii = refinement_radii
+        self.clean_build = clean_build
         self._assert()
 
     def build_ctx(self, bridge: Bridge) -> BuildContext:

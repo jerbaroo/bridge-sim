@@ -94,39 +94,6 @@ class ResponsesMatrix:
         # print(f"response = {response}, response_lo = {response_lo}, response_hi = {response_hi}")
         return response
 
-    @staticmethod
-    def _load(
-        c: Config,
-        id_str: str,
-        expt_params: ExptParams,
-        load_func: Callable[[ExptParams], "ResponsesMatrix"],
-        fem_runner: FEMRunner,
-    ) -> "ResponsesMatrix":
-        """Load and return a ResponsesMatrix.
-
-        If a ResponsesMatrix is already available in memory with ID 'id_str'
-        then that will be returned, otherwise a new ResponsesMatrix will be
-        created by running simulations based on 'expt_params'.
-
-        Args:
-            c: Config, global configuration object.
-            id_str: str, string uniquely identifying the ResponsesMatrix.
-            expt_params: ExptParams, parameters for the simulations to run.
-            load_func: Callable[[ExptParams], ResponsesMatrix], function that
-                given simulation parameters runs simulations and returns a
-                ResponsesMatrix.
-            fem_runner: FEMRunner, program to run finite element simulations.
-
-        """
-        if id_str in c.resp_matrices:
-            return c.resp_matrices[id_str]
-        all_response_types = fem_runner.supported_response_types(c.bridge)
-        for fem_params in expt_params.sim_params:
-            fem_params.response_types = all_response_types
-        resp_matrix = load_func(expt_params)
-        c.resp_matrices[id_str] = resp_matrix
-        return resp_matrix
-
 
 def load_expt_responses(
     c: Config,

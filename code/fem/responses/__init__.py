@@ -43,6 +43,11 @@ def load_fem_responses(
 
     Responses are loaded from disk, the simulation is only run if necessary
 
+    NOTE: Running simulations attaches objects to the given 'SimParams'. If
+    attribute 'clean_params' of the respective 'SimParams' is 'True' then these
+    objects will be removed after running the simulation, this can avoid a
+    memory error when running many simulations.
+
     Args:
         c: Config, global configuration object.
         sim_params: SimParams, simulation parameters. Response types are
@@ -83,10 +88,18 @@ def load_fem_responses(
         sim_runner=sim_runner, sim_params=sim_params, response_type=response_type,
     )
 
-    # Run the FEM simulation if necessary.
+    # Run the FEM simulation, and/or clean build artefacts, if requested.
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         sim_runner.run(ExptParams([sim_params]))
+        if sim_params.clean_build:
+            print_i("Cleaning SimParams of build artefacts")
+            del sim_params.bridge_shells
+            del sim_params.deck_shells
+            del sim_params.pier_shells
+            del sim_params.bridge_nodes
+            del sim_params.deck_nodes
+            del sim_params.pier_nodes
     else:
         print_prog(f"Not running simulation")
     # If only running was requested then we are done.

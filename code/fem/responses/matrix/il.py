@@ -146,9 +146,9 @@ class ILMatrix(ResponsesMatrix):
         def create_or_load_wheel_track(wheel_z, _run_only: bool = True):
             results = ILMatrix.load_wheel_track(
                 c=deepcopy(c),
-                response_type=deepcopy(response_type),
+                response_type=response_type,
                 fem_runner=deepcopy(sim_runner),
-                load_z_frac=deepcopy(c.bridge.z_frac(wheel_z)),
+                load_z_frac=c.bridge.z_frac(wheel_z),
                 run_only=_run_only,
             )
             # If results are only being generated, then evaluate the generator,
@@ -158,6 +158,7 @@ class ILMatrix(ResponsesMatrix):
                 # This forces the generator to be consumed without keeping the
                 # contents in memory. https://stackoverflow.com/a/47456679
                 deque(results, maxlen=0)
+            # Otherwise return the generator, to be evaluated.
             else:
                 return results
 
@@ -212,6 +213,7 @@ class ILMatrix(ResponsesMatrix):
                             kn=c.il_unit_load_kn,
                         )
                     ],
+                    clean_build=True,
                 )
                 for x in c.bridge.wheel_track_xs(c)
             ]

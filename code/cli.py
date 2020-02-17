@@ -160,7 +160,6 @@ def cli(
 
 @cli.command(help="Remove simulation data for the selected bridge.")
 def clean():
-    """TODO: Require confirmation."""
     clean_generated(c())
 
 
