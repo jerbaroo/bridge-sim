@@ -12,20 +12,33 @@
   - AxisVM: min -0.26 max 0.34
 *** TODO Record temperature without piers
 ** TODO [#A] Fix traffic generation bug
-** DONE [#A] Verify matrix multiplication
-CLOSED: [2020-02-14 Fri 19:41]
-- Removing interpolation has fixed some jaggedness.
-- Just to sort out strain now.
-** TODO [#A] Traffic top view plot
+** TODO [#A] First pass of methods section
+** TODO [#A] Second pass of validation section
+** TODO [#A] First pass of results section
+** TODO [#A] Second pass of literature review
+** TODO [#A] Traffic top view plot [5/10]
 *** DONE Save figure every n frames
 CLOSED: [2020-02-14 Fri 18:47]
-*** TODO Consistent colours
-*** TODO Medium quality mesh
+*** DONE Consistent colours
+CLOSED: [2020-02-18 Tue 16:54]
+*** DONE Medium quality mesh
+CLOSED: [2020-02-18 Tue 16:54]
 *** DONE Cut-off vehicles off bridge
 CLOSED: [2020-02-14 Fri 19:10]
-*** TODO Subplot with responses at point
-** TODO [#A] Classify damage
-** TODO [#A] Truck 1 time series plots [5/7]
+*** DONE Subplot with responses at point
+CLOSED: [2020-02-18 Tue 16:54]
+*** TODO Same line colour as in sensor
+*** TODO Add pier settlement line
+*** TODO Show it's changes, not absolute
+*** TODO Add temperature effect to contour
+*** TODO Investigate temperature & assert
+** TODO [#A] Classify damage [0/5]
+*** TODO Iterate over features
+*** TODO Show convergence of distribution over time
+*** TODO Investigate dimensionality reduction
+*** TODO Train on healthy only (1 class)
+*** TODO Remove temperature effect
+** TODO [#A] Truck 1 time series plots [6/8]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
 *** DONE Fix memory error when calculating ULM
@@ -38,7 +51,9 @@ CLOSED: [2020-02-14 Fri 12:54]
 - It's 4 minutes, so just divide.
 *** DONE Fix labels and titles
 CLOSED: [2020-02-14 Fri 14:48]
-*** TODO Plot strain in addition to vert trans
+*** DONE Plot strain in addition to vert trans
+CLOSED: [2020-02-18 Tue 17:46]
+*** TODO Align based on frequency
 *** TODO Run with full mesh
 - Running on workhorse
 ** TODO [#A] Cleanup per-sensor plots [5/6]
@@ -55,25 +70,24 @@ CLOSED: [2020-02-12 Wed 15:07]
 *** TODO Check strain jaggedness
 - See if it makes sense from contour plot.
 - Maybe this is when an axle crosses a pier?
-** TODO [#B] Send methods section for review
-*** TODO Write about density
+** TODO [#A] Save ULM to disk
 ** TODO [#B] Light vehicles
 - Based on  paper from TNO
 - Add vehicles per class
 ** TODO [#B] Temperature gradient references
-** TODO [#B] Sub-question A
+- Gather references and check with Arpi.
+** TODO [#B] Sub-question A (distance from damage)
+- Show accuracy as a function of distance.
+- Contour plot of the accuracy.
 ** TODO [#B] Add README to project
-** ABORT [#C] Improve cracked concrete model
-CLOSED: [2020-02-14 Fri 19:48]
-** TODO [#C] Improve pier settlement model
-- Henco's suggestion
 ** TODO [#C] Sub-question B
 ** TODO [#C] Publish on PyPI
 - Write about the interface
 ** TODO [#C] Convergence plots
 *** TODO Horizontal lines in point load A NESW plot
 *** TODO Regenerate convergence plots
-** TODO [#C] Check linear assumption
+** TODO [#C] Add table for extending system
+** TODO [#C] Stress vs. tensile strength
 - Calculate if stress > strength
   - Tensile stress is defined as the force per unit area induced in the body in
     response to externally applied force, which tends to elongate or stretch the
@@ -85,23 +99,27 @@ CLOSED: [2020-02-14 Fri 19:48]
     class, it is about 1/15. A good reference where this is mentioned is the
     book by S U Pillai "Reinforced Concrete Design" (ISBN: 9780070141100).
   - https://eurocodeapplied.com/design/en1992/concrete-design-properties
-** TODO Investigate interpolation
+*** TODO Tensile strength of concrete on bridge 705
+*** TODO Plot difference from stress in simulation
+** TODO [#C] Investigate interpolation
 - Truck 1 time series should not error with interpolation.
 *** TODO Check if point is direct match.
-** DONE Calculate ULM in parallel
-CLOSED: [2020-02-18 Tue 11:23]
-** ABORT Save ULM to disk
-CLOSED: [2020-02-18 Tue 11:23]
-** WAIT Mesh refinement
+** TODO [#C] Non-linear pier settlement
+** WAIT [#C] Mesh refinement
+** WAIT [#C] Improve pier settlement model
+- Henco's suggestion
 ** ABORT Comparison of 2D and 3D data
 CLOSED: [2020-02-12 Wed 23:16]
-** ABORT Dynamic pier settlement
-CLOSED: [2020-02-10 Mon 17:27]
-Not going to happen as it requires a lot of work.
 ** ABORT Rigid links experiment
 CLOSED: [2020-01-16 Thu 10:55]
 ** ABORT Distributed load experiment
 CLOSED: [2020-01-16 Thu 10:55]
+** ABORT [#C] Improve cracked concrete model
+CLOSED: [2020-02-14 Fri 19:48]
+** DONE [#A] Verify matrix multiplication
+CLOSED: [2020-02-14 Fri 19:41]
+- Removing interpolation has fixed some jaggedness.
+- Just to sort out strain now.
 ** DONE [#A] Investigate sensor O7 plot
 CLOSED: [2020-02-12 Wed 14:16]
 *** DONE Contour plot of the deck at that position.
@@ -116,6 +134,8 @@ CLOSED: [2020-02-12 Wed 14:16]
     36075 16600 3590 XY Y 1 O7 2000
   - Looks like this is transverse strain!
     [[./data/verification/strainsensors.txt]]
+** DONE Calculate ULM in parallel
+CLOSED: [2020-02-18 Tue 11:23]
 ** DONE [#B] Close noise issue.
 CLOSED: [2020-02-12 Wed 19:54]
 ** DONE Noise

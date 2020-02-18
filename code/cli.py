@@ -537,6 +537,14 @@ def top_view(mins, skip, damage):
     top_view_plot(c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario)
 
 
+@classify.command(help="")
+@click.option("--mins", type=float, default=1, help="Minutes of traffic.")
+def cluster(mins):
+    from make.classify.cluster import cluster_damage
+
+    cluster_damage(c=c(), mins=mins)
+
+
 @classify.command(help="Plot events due to normal traffic.")
 @click.option("--x", type=float, default=51.375)
 @click.option("--z", type=float, default=-8.4)
