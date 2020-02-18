@@ -3,7 +3,6 @@ import numpy as np
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
-from classify.scenario.bridge import HealthyDamage
 from classify.scenario.traffic import normal_traffic
 from classify.temperature import get_temperature_effect, load_temperature_month
 from fem.responses import Responses
@@ -19,7 +18,7 @@ from plot.responses import plot_contour_deck
 from util import flatten, resize_units
 
 
-def top_view_plot(c: Config, max_time: int, skip: int):
+def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     response_type = ResponseType.YTranslation
     # Create the 'TrafficSequence' and 'TrafficArray'.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
@@ -45,7 +44,7 @@ def top_view_plot(c: Config, max_time: int, skip: int):
     responses_array = responses_to_traffic_array(
         c=c,
         traffic_array=traffic_array,
-        damage_scenario=HealthyDamage(),
+        damage_scenario=damage_scenario,
         points=deck_points,
         response_type=response_type,
         sim_runner=OSRunner(c),

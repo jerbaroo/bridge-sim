@@ -522,12 +522,19 @@ def classify():
 
 
 @classify.command(help="Responses to traffic with a top view.")
-@click.option("--mins", type=float, default=1)
-@click.option("--skip", type=int, default=200)
-def top_view(mins, skip):
+@click.option("--mins", type=float, default=1, help="Minutes of traffic.")
+@click.option("--skip", type=int, default=200, help="Skip every n recorded responses.")
+@click.option("--damage", type=click.Choice(["healthy", "pier"]), default="healthy", help="Damage scenario.")
+def top_view(mins, skip, damage):
+    from classify.scenario.bridge import healthy_damage, pier_disp_damage
     from make.classify.top_view import top_view_plot
 
-    top_view_plot(c=c(), max_time=int(60 * mins), skip=skip)
+    if damage == "healthy":
+        damage_scenario = healthy_damage
+    elif damage == "pier":
+        damage_scenario = pier_disp_damage([(5, 0.5 / 1000)])
+
+    top_view_plot(c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario)
 
 
 @classify.command(help="Plot events due to normal traffic.")

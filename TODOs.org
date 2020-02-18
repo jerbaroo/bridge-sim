@@ -88,8 +88,10 @@ CLOSED: [2020-02-14 Fri 19:48]
 ** TODO Investigate interpolation
 - Truck 1 time series should not error with interpolation.
 *** TODO Check if point is direct match.
-** TODO Calculate ULM in parallel
-** TODO Save ULM to disk
+** DONE Calculate ULM in parallel
+CLOSED: [2020-02-18 Tue 11:23]
+** ABORT Save ULM to disk
+CLOSED: [2020-02-18 Tue 11:23]
 ** WAIT Mesh refinement
 ** ABORT Comparison of 2D and 3D data
 CLOSED: [2020-02-12 Wed 23:16]

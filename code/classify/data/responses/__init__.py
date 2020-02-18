@@ -50,38 +50,33 @@ def responses_to_traffic_array(
     TODO: Make 'TrafficArray' optional.
 
     """
-    if np.count_nonzero(traffic_array) == 0:
-        unit_load_matrix = np.zeros(
-            len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
-        )
-    else:
-        unit_load_matrix = ILMatrix.load_ulm(
-            c=c, response_type=response_type, points=points, sim_runner=sim_runner,
-        )
+    # if np.count_nonzero(traffic_array) == 0:
+    #     unit_load_matrix = np.zeros(
+    #         len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
+    #     )
+    unit_load_matrix = ILMatrix.load_ulm(
+        c=c, response_type=response_type, points=points, sim_runner=sim_runner,
+    )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)
     responses = np.matmul(traffic_array, unit_load_matrix)
 
-    pd_responses = np.zeros(responses.shape)
+    # Calculate the response at each point due to pier settlement.
+    pd_responses = np.zeros(responses.shape).T
+    assert len(pd_responses) == len(points)
     if isinstance(damage_scenario, PierDispDamage):
-        pd_responses = pd_responses.T  # Transpose so indexed by point first.
-        pd_matrix = DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=sim_runner(c)
-        )
-        assert len(pd_responses) == len(points)
-        for p, point in enumerate(points):
+        pd_expt = list(DCMatrix.load(
+            c=c, response_type=response_type, fem_runner=sim_runner
+        ))
+        for point_i, point in enumerate(points):
             for pier_displacement in damage_scenario.pier_disps:
-                pd_responses[p] += pd_matrix.sim_response(
-                    expt_frac=np.interp(
-                        pier_displacement.pier, [0, len(c.bridge.supports) - 1], [0, 1],
-                    ),
-                    x_frac=c.bridge.x_frac(point.x),
-                    y_frac=c.bridge.y_frac(point.y),
-                    z_frac=c.bridge.z_frac(point.z),
-                ) * (pier_displacement.displacement / c.pd_unit_disp)
-        pd_responses = pd_responses.T
+                pd_sim_responses = pd_expt[pier_displacement.pier]
+                pd_responses[point_i] += (
+                    pd_sim_responses.at_deck(point, interp=False)
+                    * (pier_displacement.displacement / c.pd_unit_disp)
+                )
 
-    return responses + pd_responses
+    return responses + pd_responses.T
 
 
 def responses_to_traffic(

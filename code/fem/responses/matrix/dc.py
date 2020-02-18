@@ -27,39 +27,36 @@ class DCMatrix(ResponsesMatrix):
             save_all: bool, save all response types when running a simulation.
 
         """
-        id_str = f"dc-{response_type.name()}-{fem_runner.name}"
+        # id_str = f"dc-{response_type.name()}-{fem_runner.name}"
 
         # Determine experiment simulation parameters.
-        _expt_params = ExptParams(
+        expt_params = ExptParams(
             [
-                SimParams(
-                    displacement_ctrl=PierSettlement(c.pd_unit_disp, i),
-                    response_types=[response_type],
-                )
+                SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
                 for i in range(len(c.bridge.supports))
             ]
         )
 
-        def load_func(expt_params):
-            return DCMatrix(
-                c=c,
-                response_type=response_type,
-                expt_params=expt_params,
-                fem_runner=fem_runner,
-                save_all=save_all,
-                expt_responses=load_expt_responses(
-                    c=c,
-                    expt_params=expt_params,
-                    response_type=response_type,
-                    sim_runner=fem_runner,
-                ),
-            )
-
-        return ResponsesMatrix.load(
+        return load_expt_responses(
             c=c,
-            id_str=id_str,
-            expt_params=_expt_params,
-            load_func=load_func,
-            fem_runner=fem_runner,
-            save_all=save_all,
+            expt_params=expt_params,
+            response_type=response_type,
+            sim_runner=fem_runner,
         )
+
+        # def load_func(expt_params):
+        #     return DCMatrix(
+        #         c=c,
+        #         response_type=response_type,
+        #         expt_params=expt_params,
+        #         fem_runner=fem_runner,
+        #         save_all=save_all,
+        #     )
+        # return ResponsesMatrix.load(
+        #     c=c,
+        #     id_str=id_str,
+        #     expt_params=_expt_params,
+        #     load_func=load_func,
+        #     fem_runner=fem_runner,
+        #     save_all=save_all,
+        # )

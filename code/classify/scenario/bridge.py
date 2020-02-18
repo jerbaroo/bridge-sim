@@ -1,6 +1,6 @@
 """Bridge scenarios."""
 from copy import deepcopy
-from typing import Callable, NewType, Tuple
+from typing import Callable, List, NewType, Tuple
 
 from config import Config
 from fem.params import SimParams
@@ -15,6 +15,9 @@ from util import round_m
 class HealthyDamage(DamageScenario):
     def __init__(self):
         super().__init__(name="normal")
+
+
+healthy_damage = HealthyDamage()
 
 
 CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
@@ -120,6 +123,16 @@ class PierDispDamage(DamageScenario):
         self.pier_disps = pier_disps
 
 
+def pier_disp_damage(pier_disps: List[Tuple[int, float]]) -> PierDispDamage:
+    """All piers with equal given displacement."""
+    return PierDispDamage(
+        pier_disps=[
+            PierSettlement(pier=p_ind, displacement=displacement)
+            for p_ind, displacement in pier_disps
+        ],
+    )
+
+
 def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispDamage:
     """All piers with equal given displacement."""
     return PierDispDamage(
@@ -140,7 +153,7 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
         if p != 0 and p % increase_every == 0:
             displacement += step
         pier_disps.append(PierSettlement(displacement=displacement, pier=p))
-    return PierDispDamage(pier_disps=pier_disps, name_prefix="longitudinal")
+    return PierDispDamage(pier_disps=pier_disps, name_prefix="long-piers")
 
 
 class ThermalDamage(DamageScenario):
