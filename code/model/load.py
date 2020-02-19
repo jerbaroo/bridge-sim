@@ -16,7 +16,7 @@ D: bool = False
 
 
 class PierSettlement:
-    """Apply a load to a pier until a displacement is reached.
+    """Apply a load to a pier until a vertical translation is reached.
 
     Args:
         displacement: float, displacement in meters.

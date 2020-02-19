@@ -6,7 +6,7 @@ from scipy.stats import chisquare
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
-from classify.data.traffic import load_traffic_array
+from classify.data.traffic import load_traffic
 from classify.scenarios import all_scenarios
 from classify.scenario.bridge import (
     HealthyDamage,

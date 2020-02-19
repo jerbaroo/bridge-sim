@@ -3,10 +3,10 @@ import os
 import pickle
 from timeit import default_timer as timer
 
-import numpy as np
+import dill
 
 from config import Config
-from model.scenario import TrafficScenario, to_traffic_array
+from model.scenario import TrafficScenario, to_traffic, to_traffic_array
 from util import print_i, safe_str
 
 
@@ -16,10 +16,10 @@ def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float)
     )
 
 
-def load_traffic_array(
+def load_traffic(
     c: Config, traffic_scenario: TrafficScenario, max_time: float,
 ):
-    """Load a 'TrafficArray' from disk, it is generated if necessary."""
+    """Load traffic from disk, generated if necessary."""
     path = (
         c.get_data_path(
             "traffic",
@@ -28,25 +28,15 @@ def load_traffic_array(
         )
         + ".npy"
     )
-
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path):
-        print_i(f"Generating {max_time:.3f} of 'TrafficSequence' at {c.sensor_hz}Hz")
-        traffic_sequence = traffic_scenario.traffic_sequence(
-            bridge=c.bridge, max_time=max_time
-        )
-        start = timer()
-        traffic_array = to_traffic_array(
-            c=c, traffic_sequence=traffic_sequence, max_time=max_time
-        )
-        np.save(path, traffic_array)
-        print_i(
-            f"Generated{max_time:.3f} s"
-            + f" traffic of type {traffic_scenario.name} at {c.sensor_hz}Hz"
-            + f" in {timer() - start:.3f}s (ULS = {c.il_num_loads})"
-        )
-
-    return np.load(path)
+        traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)
+        traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+        traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+        with open(path, "wb") as f:
+            dill.dump((traffic_sequence, traffic, traffic_array), f)
+    with open(path, "rb") as f:
+        return dill.load(f)
 
 
 if __name__ == "__main__":

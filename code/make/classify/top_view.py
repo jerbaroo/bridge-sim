@@ -3,6 +3,7 @@ import numpy as np
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
+from classify.data.traffic import load_traffic
 from classify.scenario.traffic import normal_traffic
 from classify.temperature import get_temperature_effect, load_temperature_month
 from fem.responses import Responses
@@ -20,11 +21,13 @@ from util import flatten, resize_units
 
 def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     response_type = ResponseType.YTranslation
-    # Create the 'TrafficSequence' and 'TrafficArray'.
+    # Create the traffic.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
-    traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)
-    traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
-    traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+    traffic_sequence, traffic, traffic_array = load_traffic(
+        c=c,
+        traffic_scenario=traffic_scenario,
+        max_time=max_time,
+    )
     assert len(traffic) == traffic_array.shape[0]
     # Points on the deck to collect responses.
     deck_points = [
