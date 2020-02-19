@@ -22,9 +22,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     response_type = ResponseType.YTranslation
     # Create the 'TrafficSequence' and 'TrafficArray'.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
-    traffic_sequence = traffic_scenario.traffic_sequence(
-        bridge=c.bridge, max_time=max_time
-    )
+    traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)
     traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
     traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
     assert len(traffic) == traffic_array.shape[0]
@@ -49,21 +47,23 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     )
     # Temperature effect.
     temps = load_temperature_month("may", offset=10)["temp"]
-    print("Temps = ")
-    print(temps)
-    temp_effect_at_point = get_temperature_effect(
+    # print(f"Temps = {temps}")
+    temp_effect = get_temperature_effect(
         c=c,
         response_type=response_type,
-        point=point,
+        points=deck_points,
         temps=temps,
-        responses=responses_array.T[-1],
+        responses=responses_array.T,
         speed_up=60,
     )
+    print(temp_effect.shape)
+    print(responses_array.shape)
+    responses_array = responses_array + temp_effect.T
     # Resize responses if applicable to response type.
     resize_f, units = resize_units(response_type.units())
     if resize_f is not None:
         responses_array = resize_f(responses_array)
-        temp_effect_at_point = resize_f(temp_effect_at_point)
+        temp_effect = resize_f(temp_effect)
     # Determine levels of the colourbar.
     amin, amax = np.amin(responses_array), np.amax(responses_array)
     # amin, amax = min(amin, -amax), max(-amin, amax)
@@ -106,24 +106,26 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         )
         # Plot the responses at a point.
         plt.subplot2grid((3, 1), (2, 0))
-        plt.plot(
-            np.arange(len(responses_array)) * c.sensor_hz,
-            responses_array.T[-1] + temp_effect_at_point
-        )
         time = t_ind * c.sensor_hz
-        plt.axvline(x=time, color="red", label=f"Current time = {np.around(time, 4)} s")
+        plt.axvline(x=time, color="black", label=f"Current time = {np.around(time, 4)} s")
         plt.plot(
             np.arange(len(responses_array)) * c.sensor_hz,
-            temp_effect_at_point,
-            color="tab:orange",
+            temp_effect[-1],
+            color="blue",
             label="Temperature effect",
+        )
+        plt.plot(
+            np.arange(len(responses_array)) * c.sensor_hz,
+            responses_array.T[-1],
+            color="red",
+            label="Temp. + traffic effect"
         )
         plt.ylabel(f"{response_type.name()} ({responses.units})")
         plt.xlabel("Time (s)")
         plt.title(f"{response_type.name()} at sensor in top plot")
-        plt.legend(loc="upper right")
+        plt.legend(loc="upper right", framealpha=1)
         # Finally save the image.
         plt.tight_layout()
         plt.savefig(c.get_image_path("classify/top-view", f"{t_ind}.pdf"))
-        plt.savefig(c.get_image_path("classify/top-view/jpg", f"{t_ind}.png"))
+        plt.savefig(c.get_image_path("classify/top-view/png", f"{t_ind}.png"))
         plt.close()

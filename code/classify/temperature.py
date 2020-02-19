@@ -109,7 +109,7 @@ def load_temperature_month(month: str, offset: int = 15) -> pd.DataFrame:
 
 
 def temperature_effect(
-    c: Config, response_type: ResponseType, point: Point, temps: List[float]
+    c: Config, response_type: ResponseType, points: List[Point], temps: List[float]
 ) -> List[float]:
     # Unit effect from uniform temperature loading.
     unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
@@ -117,14 +117,14 @@ def temperature_effect(
     uniform_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
-    unit_uniform = uniform_responses.at_deck(point, interp=True)
+    unit_uniforms = np.array([uniform_responses.at_deck(point, interp=True) for point in points])
     # Unit effect from linear temperature loading.
     unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = unit_linear.use(c)
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
-    unit_linear = linear_responses.at_deck(point, interp=True)
+    unit_linears = np.array([linear_responses.at_deck(point, interp=True) for point in points])
     print_d(D, "unit uniform and linear = {unit_uniform} {unit_linear}")
     # Combine uniform and linear.
     temps_bottom = np.array(temps) - c.bridge.ref_temp_c
@@ -133,9 +133,13 @@ def temperature_effect(
     print_d(D, f"tb = {temps_bottom[:3]}")
     print_d(D, f"tt = {temps_top[:3]}")
     print_d(D, f"th = {temps_half[:3]}")
-    uniform_responses = unit_uniform * temps_half
+    uniform_responses = np.array([
+        unit_uniform * temps_half for unit_uniform in unit_uniforms
+    ])
     temps_delta = temps_top - temps_bottom
-    linear_responses = unit_linear * temps_delta
+    linear_responses = np.array([
+        unit_linear * temps_delta for unit_linear in unit_linears
+    ])
     print_d(D, f"temps_delta = {temps_delta[:3]}")
     print_d(D, f"uniform responses = {uniform_responses[:3]}")
     print_d(D, f"linear responses = {linear_responses[:3]}")
@@ -151,51 +155,54 @@ def get_len_per_min(c: Config, speed_up: float):
 def get_temperature_effect(
     c: Config,
     response_type: ResponseType,
-    point: Point,
+    points: List[Point],
+    responses: List[List[float]],
     temps: List[float],
-    responses: List[float],
     speed_up: int,
     repeat_responses: bool = False,
 ) -> List[float]:
-    # Convert the temperature data into a temperature effect at a point.
+    assert len(responses) == len(points)
+    # Convert the temperature data into temperature effect at each point.
     effect = temperature_effect(
-        c=c, response_type=response_type, point=point, temps=temps
+        c=c, response_type=response_type, points=points, temps=temps
     )
-    # A temperature is recorded per minute, calculate the number of responses
-    # between each pair of recorded temperatures.
+    assert len(effect) == len(points)
+    # A temperature sample is available per minute. Here we calculate the number
+    # of responses between each pair of recorded temperatures and the number of
+    # temperature samples required for the given responses.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
-    # The number of temperatures required for the amount of given responses.
-    num_temps_req = math.ceil(len(responses) / len_per_min) + 1
-    if num_temps_req > len(effect):
+    num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
+    if num_temps_req > len(effect[0]):
         raise ValueError(
-            f"Not enough temperatures ({len(effect)}) for data (requires {num_temps_req})"
+            f"Not enough temperatures ({len(effect[0])}) for data"
+            f" (requires {num_temps_req})"
         )
-    # If additional temperature data is available, then use it if requested.
-    avail_len = (len(effect) - 1) * len_per_min
-    if repeat_responses and (avail_len > len(responses)):
-        print_i(
-            f"Increasing length of responses from {len(responses)} to"
-            f" {len(effect) * len_per_min}"
-        )
-        num_temps_req = len(effect)
-        new_responses = np.empty(avail_len)
-        for i in range(math.ceil(avail_len / len(responses))):
-            start = i * len(responses)
-            end = min(avail_len - 1, start + len(responses))
-            new_responses[start:end] = responses[: end - start]
+    # If additional temperature data is available, then use it if requested and
+    # repeat the given responses. Here we calculate length, in terms of the
+    # sample frequency, recall that temperature is sampled every minute.
+    avail_len = (len(effect[0]) - 1) * len_per_min
+    if repeat_responses and (avail_len > len(responses[0])):
+        print_i(f"Increasing length of responses from {len(responses[0])} to {avail_len}")
+        num_temps_req = len(effect[0])
+        new_responses = np.empty((len(responses), avail_len))
+        for i in range(len(responses)):
+            for j in range(math.ceil(avail_len / len(responses[0]))):
+                start = j * len(responses[0])
+                end = min(avail_len - 1, start + len(responses[0]))
+                new_responses[i][start:end] = responses[i][: end - start]
         responses = new_responses
     # Fill in the responses array with the temperature effect.
-    result = np.zeros(len(responses))
-    for i in range(num_temps_req - 1):
-        start = i * len_per_min
-        end = min(len(result), start + len_per_min)
-        print_d(D, f"start = {start}")
-        print_d(D, f"end = {end}")
-        print_d(D, f"end - start = {end - start}")
-        print_d(D, f"temp_start, temp_end = {temps[i]}, {temps[i + 1]}")
-        print_d(D, f"effect_start, effect_end = {effect[i]}, {effect[i + 1]}")
-        # Instead of
-        result[start:end] = np.linspace(effect[i], effect[i + 1], end - start)
+    result = np.zeros((len(responses), len(responses[0])))
+    for i in range(len(responses)):
+        for j in range(num_temps_req - 1):
+            start = j * len_per_min
+            end = min(len(result[i]), start + len_per_min)
+            print_d(D, f"start = {start}")
+            print_d(D, f"end = {end}")
+            print_d(D, f"end - start = {end - start}")
+            print_d(D, f"temp_start, temp_end = {temps[j]}, {temps[j + 1]}")
+            print_d(D, f"effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}")
+            result[i][start:end] = np.linspace(effect[i][j], effect[i][j + 1], end - start)
     if repeat_responses:
         return responses, result
     return result
