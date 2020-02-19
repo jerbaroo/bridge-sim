@@ -67,36 +67,37 @@ def test_wheel_to_wheel_track_xs():
     og_il_num_loads = c.il_num_loads
     c.il_num_loads = 10
     # Very beginning.
-    load = PointLoad(x_frac=0, z_frac=None, kn=100)
-    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(c=c, wheel_x=0)
     assert x0 == c.bridge.x_min
     assert f0 == 1
     assert f1 == 0
     # Very end.
-    load = PointLoad(x_frac=1, z_frac=None, kn=100)
-    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(c=c, wheel_x=c.bridge.x_max)
     assert x0 == c.bridge.x_max
     assert f0 == 1
     assert f1 == 0
     # In the middle.
-    load = PointLoad(x_frac=0.5, z_frac=None, kn=100)
-    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(c=c, wheel_x=c.bridge.length / 2)
     assert f0 == 0.5
     assert f1 == 0.5
     bucket_width = c.bridge.length / (c.il_num_loads - 1)
     assert x0 == np.around(bucket_width * 4, 6)
     assert x1 == np.around(bucket_width * 5, 6)
     # Near the beginning (exact match).
-    load = PointLoad(x_frac=1 / (c.il_num_loads - 1), z_frac=None, kn=100)
-    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(
+        c=c,
+        wheel_x=c.bridge.length / (c.il_num_loads - 1),
+    )
     # The fraction might not be exactly 1, because of rounding of the wheel
     # track positions.
     assert np.around(f0, 4) == 1
     assert np.around(f1, 4) == 0
     assert x0 == np.around(bucket_width, 6)
     # Near the beginning (a little more).
-    load = PointLoad(x_frac=(1 / (c.il_num_loads - 1)) + 0.001, z_frac=None, kn=100)
-    (x0, f0), (x1, f1) = wagen1.wheel_to_wheel_track_xs(c=c, wheel_load=load)
+    (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(
+        c=c,
+        wheel_x=c.bridge.length / (c.il_num_loads - 1) + 0.001,
+    )
     assert f0 != 0
     assert f0 != 1
     assert f0 + f1 == 1

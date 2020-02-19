@@ -234,14 +234,18 @@ class MvVehicle(Vehicle):
 
     def xs_at(self, time: float, bridge: Bridge):
         """X position of bridge for each axle in meters at given time."""
-        xs = [self.x_at(time=time, bridge=bridge)]
-        if not hasattr(self, "_delta_xs"):
-            self._delta_xs = np.array(self.axle_distances)
+        if not hasattr(self, "_xs_at_time"):
+            xs = [self.x_at(time=time, bridge=bridge)]
+            # Determine the distance between each pair of axles.
+            delta_xs = np.array(self.axle_distances)
             if bridge.lanes[self.lane].ltr:
-                self._delta_xs *= -1
-        for delta_x in self._delta_xs:
-            xs.append(xs[-1] + delta_x)
-        return xs
+                delta_xs *= -1
+            # Add the distance for each axle, after the front axle.
+            for delta_x in delta_xs:
+                xs.append(xs[-1] + delta_x)
+            self._xs_at_time = np.array(xs)
+        delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
+        return self._xs_at_time + delta_x_time
 
     def x_fracs_at(self, time: float, bridge: Bridge):
         """Fraction of x position of bridge for each axle at given time."""
@@ -300,62 +304,97 @@ class MvVehicle(Vehicle):
         assert init_x <= 0
         return float(abs(init_x) + bridge.length + self.length) / self.mps
 
-    def wheel_to_wheel_track_xs(
-        self, c: Config, wheel_load: PointLoad
+    def to_wheel_track_xs(
+        self, c: Config, wheel_x: float, wheel_track_xs: Optional[List[float]] = None
     ) -> Tuple[Tuple[float, float], Tuple[float, float]]:
-        """X positions (and weighting) of unit loads for a given point load.
+        """X positions (and weighting) of unit loads for a x position.
 
         This implements wheel track bucketing!
 
         """
-        wheel_load_x = round_m(c.bridge.x(wheel_load.x_frac))
-        wheel_track_xs = c.bridge.wheel_track_xs(c)
-        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_load_x)
+        wheel_x = round_m(wheel_x)
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_x)
         unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
-        if unit_load_x() > wheel_load_x:
+        if unit_load_x() > wheel_x:
             unit_load_x_ind -= 1
-        assert unit_load_x() <= wheel_load_x
+        assert unit_load_x() <= wheel_x
         # If the unit load is an exact match just return it.
-        if np.isclose(wheel_load_x, unit_load_x()):
-            return ((wheel_load_x, 1), (0, 0))
+        if np.isclose(wheel_x, unit_load_x()):
+            return ((wheel_x, 1), (0, 0))
         # Otherwise, return a combination of two unit loads. In this case the
         # unit load's position is less than the wheel.
         unit_load_x_lo = unit_load_x()
         unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
-        assert unit_load_x_hi > wheel_load_x
-        dist_lo = abs(unit_load_x_lo - wheel_load_x)
-        dist_hi = abs(unit_load_x_hi - wheel_load_x)
+        assert unit_load_x_hi > wheel_x
+        dist_lo = abs(unit_load_x_lo - wheel_x)
+        dist_hi = abs(unit_load_x_hi - wheel_x)
         dist = dist_lo + dist_hi
         return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
 
-    def to_wheel_track_loads(
-        self, c: Config, time: float, flat: bool = False
-    ) -> List[Tuple[Tuple[PointLoad, PointLoad], Tuple[PointLoad, PointLoad]]]:
-        """Point loads per wheel, per axle. "Bucketed" based on unit loads.
+    def to_wheel_track_loads_(
+        self, c: Config, time: float, flat: bool = False, wheel_track_xs: Optional[List[float]] = None
+    ):
+        """Load intensities and positions per axle, per wheel.
+
+        "Bucketed" to fit onto wheel tracks.
 
         NOTE: In each tuple of two point loads, one tuple per wheel, each point
         load is for a unit load position in the wheel track. Each point load is
         weighted by the distance to the unit load.
 
         """
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        xs = self.xs_at(time=time, bridge=c.bridge)
+        kns = self.kn_per_axle()
         result = []
-        for axle_loads in self.to_point_load_pw(time=time, bridge=c.bridge):
-            result.append([])
-            # Each 'wheel_load' is directly under the wheel center.
-            for wheel_load in axle_loads:
-                result[-1].append([])
-                # Split that wheel load up, into one load per bin.
-                for (load_x, load_frac) in self.wheel_to_wheel_track_xs(
-                    c=c, wheel_load=wheel_load
-                ):
-                    if load_frac > 0:
-                        result[-1][-1].append(
-                            PointLoad(
-                                x_frac=c.bridge.x_frac(load_x),
-                                z_frac=wheel_load.z_frac,
-                                kn=wheel_load.kn * load_frac,
-                            )
-                        )
+        assert len(xs) == len(kns)
+        # For each axle.
+        for x, kn in zip(xs, kns):
+            # Skip axle if not on the bridge.
+            if x < c.bridge.x_min or x > c.bridge.x_max:
+                continue
+            left, right = [], []
+            for (load_x, load_frac) in self.to_wheel_track_xs(
+                c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
+            ):
+                if load_frac > 0:
+                    bucket_kn = kn / 2 * load_frac
+                    left.append((load_x, bucket_kn))
+                    right.append((load_x, bucket_kn))
+            result.append((left, right))
+        if flat:
+            return flatten(result, PointLoad)
+        return result
+
+    def to_wheel_track_loads(
+        self, c: Config, time: float, flat: bool = False
+    ) -> List[Tuple[List[PointLoad], List[PointLoad]]]:
+        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=False)
+        assert z0 < z1
+        result = []
+        for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
+            left, right = [], []
+            left_loads, right_loads = axle_loads
+            for load_x, load_kn in left_loads:
+                left.append(
+                    PointLoad(
+                        x_frac=c.bridge.x_frac(load_x),
+                        z_frac=z0,
+                        kn=load_kn,
+                    )
+                )
+            for load_x, load_kn in right_loads:
+                right.append(
+                    PointLoad(
+                        x_frac=c.bridge.x_frac(load_x),
+                        z_frac=z1,
+                        kn=load_kn,
+                    )
+                )
+            result.append((left, right))
         if flat:
             return flatten(result, PointLoad)
         return result
@@ -366,14 +405,11 @@ class MvVehicle(Vehicle):
         """A tuple of point load per axle, one point load per wheel."""
         z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=False)
         assert z0 < z1
-        if bridge.lanes[self.lane].ltr:
-            z0, z1 = z1, z0
         kn_per_axle = self.kn_per_axle()
-
         result = []
         # For each axle.
         for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
-            # Skip if off the bridge.
+            # Skip axle if not on the bridge.
             if x < bridge.x_min or x > bridge.x_max:
                 continue
             # Two wheel load intensities.

@@ -236,7 +236,7 @@ def to_traffic_array(
     traffic_sequence: TrafficSequence,
     max_time: float,
     warm_up: bool = True,
-    new: bool = False,
+    new: bool = True,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'.
 
@@ -247,7 +247,7 @@ def to_traffic_array(
         max_time: float, maximum time of 'TrafficArray' to generate.
         warm_up: bool, if true then begin generating the 'TrafficArray' once the
             first vehicle has passed over the bridge (traffic has warmed up).
-        new: bool, use the new "bucketing" method instead of the old.
+        new: bool, use the new "bucketing" method instead of the old method.
 
     """
 
@@ -274,7 +274,10 @@ def to_traffic_array(
     next_event_index = 0
     next_event_time = traffic_sequence[next_event_index][1]
     # Interpolate from x position to wheel track bucket.
-    interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
+    _interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
+    def interp(x):
+        return int(np.around(_interp(x), 0))
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
     # Column index where each wheel track starts.
     j_indices = [
         (l * 2 * c.il_num_loads, ((l * 2) + 1) * c.il_num_loads)
@@ -323,15 +326,14 @@ def to_traffic_array(
                 for js, vehicles in zip(j_indices, current):
                     for vehicle in vehicles:
                         # Here the wheel track bucketing is implemented.
-                        for axle_loads in vehicle.to_wheel_track_loads(c=c, time=time):
+                        for axle_loads in vehicle.to_wheel_track_loads_(
+                            c=c, time=time, wheel_track_xs=wheel_track_xs,
+                        ):
+                            # The x indices are equal per axle.
+                            x_inds = [interp(x) for x, _ in axle_loads[0]]
                             for j, wheel_loads in zip(js, axle_loads):
-                                for wheel_load in wheel_loads:
-                                    x_ind = int(
-                                        np.around(
-                                            interp(c.bridge.x(wheel_load.x_frac)), 0
-                                        )
-                                    )
-                                    result[time_i][j + x_ind] += wheel_load.kn
+                                for x_ind, (load_x, load_kn) in zip(x_inds, wheel_loads):
+                                    result[time_i][j + x_ind] += load_kn
             # The old method.
             else:
                 # For each lane.
@@ -344,7 +346,7 @@ def to_traffic_array(
                         # For each axle currently on the bridge.
                         for x, kn in zip(xs, kns):
                             if x >= c.bridge.x_min and x <= c.bridge.x_max:
-                                x_ind = int(np.around(interp(x), 0))
+                                x_ind = interp(x)
                                 # For each wheel.
                                 for j in [j0, j1]:
                                     # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
@@ -355,5 +357,4 @@ def to_traffic_array(
     print_i(
         f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'"
     )
-    # We divide by 2 because the load per axle is shared by 2 wheels.
     return result

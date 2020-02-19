@@ -523,7 +523,7 @@ def classify():
 
 @classify.command(help="Responses to traffic with a top view.")
 @click.option("--mins", type=float, default=1, help="Minutes of traffic.")
-@click.option("--skip", type=int, default=200, help="Skip every n recorded responses.")
+@click.option("--skip", type=int, default=50, help="Skip every n recorded responses.")
 @click.option("--damage", type=click.Choice(["healthy", "pier"]), default="healthy", help="Damage scenario.")
 def top_view(mins, skip, damage):
     from classify.scenario.bridge import healthy_damage, pier_disp_damage

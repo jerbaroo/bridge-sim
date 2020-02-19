@@ -26,9 +26,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         bridge=c.bridge, max_time=max_time
     )
     traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
-    traffic_array = to_traffic_array(
-        c=c, traffic_sequence=traffic_sequence, max_time=max_time
-    )
+    traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
     assert len(traffic) == traffic_array.shape[0]
     # Points on the deck to collect responses.
     deck_points = [
