@@ -363,43 +363,26 @@ class MvVehicle(Vehicle):
     def to_point_load_pw(
         self, time: float, bridge: Bridge, flat: bool = False
     ) -> List[Tuple[PointLoad, PointLoad]]:
-        """A tuple of point load per axle, one point load per wheel.
-
-        TODO: Multiply wheel by amount on the bridge. Or maybe just ignore the
-        wheel print altogether?
-
-        wheel_x_center = c.bridge.x(wheel_load.x_frac)
-        wheel_x_lo, wheel_x_hi = [
-            wheel_x_center - (self.wheel_length / 2),
-            wheel_x_center + (self.wheel_length / 2),
-        ]
-
-        """
+        """A tuple of point load per axle, one point load per wheel."""
         z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=False)
         assert z0 < z1
         if bridge.lanes[self.lane].ltr:
             z0, z1 = z1, z0
-        kn_per_wheel = list(chain.from_iterable(self.kn_per_wheel()))
-
-        i = 0
-
-        def next_kn():
-            nonlocal i
-            i += 1
-            return kn_per_wheel[i - 1]
+        kn_per_axle = self.kn_per_axle()
 
         result = []
-        # For each axle..
-        for x in self.xs_at(time=time, bridge=bridge):
+        # For each axle.
+        for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
+            # Skip if off the bridge.
             if x < bridge.x_min or x > bridge.x_max:
                 continue
-            # ..two wheel load intensities.
-            kn0, kn1 = next_kn(), next_kn()
+            # Two wheel load intensities.
+            kn_wheel = kn_per_axle[x_i] / 2
             x_frac = bridge.x_frac(x)
             result.append(
                 (
-                    PointLoad(x_frac=x_frac, z_frac=z0, kn=kn0),
-                    PointLoad(x_frac=x_frac, z_frac=z1, kn=kn1),
+                    PointLoad(x_frac=x_frac, z_frac=z0, kn=kn_wheel),
+                    PointLoad(x_frac=x_frac, z_frac=z1, kn=kn_wheel),
                 )
             )
         if flat:

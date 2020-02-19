@@ -1,6 +1,8 @@
 """Test model.scenario and classify.data.scenarios."""
 from timeit import default_timer as timer
 
+import numpy as np
+
 from classify.scenario.bridge import HealthyDamage, PierDispDamage
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from model.load import PierSettlement, MvVehicle
@@ -67,6 +69,26 @@ def test_to_traffic_array():
     assert sum(traffic_array[0]) < sum(traffic_array_warm[0])
     for traffic_at_time in traffic_array_warm:
         assert sum(traffic_at_time) > 0
+
+
+def test_to_traffic_array_methods():
+    max_time = 1
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence = traffic_scenario.traffic_sequence(
+        bridge=c.bridge, max_time=max_time
+    )
+    traffic_array_new = to_traffic_array(
+        c=c, traffic_sequence=traffic_sequence, max_time=max_time, new=True
+    )
+    traffic_array_old = to_traffic_array(
+        c=c, traffic_sequence=traffic_sequence, max_time=max_time, new=False
+    )
+    assert traffic_array_new.shape == traffic_array_old.shape
+    for time in range(len(traffic_array_new)):
+        assert np.isclose(
+            sum(traffic_array_new[time]),
+            sum(traffic_array_old[time])
+        )
 
 
 # def test_scenario():

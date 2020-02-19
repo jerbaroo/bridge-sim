@@ -232,7 +232,11 @@ def to_traffic(
 
 
 def to_traffic_array(
-    c: Config, traffic_sequence: TrafficSequence, max_time: float, warm_up: bool = True
+    c: Config,
+    traffic_sequence: TrafficSequence,
+    max_time: float,
+    warm_up: bool = True,
+    new: bool = False,
 ) -> Traffic:
     """Convert a 'TrafficSequence' to 'Traffic'.
 
@@ -243,12 +247,14 @@ def to_traffic_array(
         max_time: float, maximum time of 'TrafficArray' to generate.
         warm_up: bool, if true then begin generating the 'TrafficArray' once the
             first vehicle has passed over the bridge (traffic has warmed up).
-
-
-    NOTE: If you are going to try understand the code in this function then
-    start with looking at 'to_traffic', as that is almost a subset of this code.
+        new: bool, use the new "bucketing" method instead of the old.
 
     """
+
+    # NOTE: If you are going to try understand the code in this function then
+    # start with looking at 'to_traffic', as that is almost a subset of this
+    # code.
+
     print_i("Converting 'TrafficSequence' to 'TrafficArray'")
     time_step = c.sensor_hz
     # Initial traffic array, to be filled in.
@@ -306,26 +312,14 @@ def to_traffic_array(
             except IndexError:
                 next_event_time = np.inf
 
-        # TODO: Remove.
-        # Switch between the new "bucketing" and old method.
-        NEW = False
-
         # Only add to the 'TrafficArray' if the traffic is not required to warm
-        # up, or the traffic has already warmed up. TODO: This bottom part of
-        # the loop could be parallelized.
+        # up, or the traffic has already warmed up.
         if not warm_up or time > warmed_up_at or np.isclose(time, warmed_up_at):
+            # TODO: This bottom part of the loop should be parallelized!
             if start_time is None:
                 start_time = time
-            # all_loads = flatten(
-            #     [v.to_wheel_track_loads(c=c, time=time)
-            #      for v in flatten(current, MvVehicle)],
-            #     PointLoad,
-            # )
-            # print(loads_to_traffic_array(c=c, loads=[all_loads])[0].shape)
-            # print(result[time_i].shape)
-            # result[time_i] = loads_to_traffic_array(c=c, loads=[all_loads])[0]
             # For each vehicle, find the lane it's on, and indices into the ULM.
-            if NEW:
+            if new:
                 for js, vehicles in zip(j_indices, current):
                     for vehicle in vehicles:
                         # Here the wheel track bucketing is implemented.
@@ -337,10 +331,9 @@ def to_traffic_array(
                                             interp(c.bridge.x(wheel_load.x_frac)), 0
                                         )
                                     )
-                                    result[time_i][j + x_ind] = wheel_load.kn
-
+                                    result[time_i][j + x_ind] += wheel_load.kn
             # The old method.
-            if not NEW:
+            else:
                 # For each lane.
                 for (j0, j1), vehicles in zip(j_indices, current):
                     # For each vehicle.
@@ -355,7 +348,7 @@ def to_traffic_array(
                                 # For each wheel.
                                 for j in [j0, j1]:
                                     # print(f"lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}")
-                                    result[time_i][j + x_ind] = kn
+                                    result[time_i][j + x_ind] = kn / 2
             time_i += 1
         time += time_step
 
@@ -363,4 +356,4 @@ def to_traffic_array(
         f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'"
     )
     # We divide by 2 because the load per axle is shared by 2 wheels.
-    return result / 2
+    return result

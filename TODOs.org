@@ -14,8 +14,10 @@
 ** TODO [#A] Fix traffic generation bug
 ** TODO [#A] First pass of methods section
 ** TODO [#A] Second pass of validation section
+** TODO [#A] Save high quality data
 ** TODO [#A] First pass of results section
 ** TODO [#A] Second pass of literature review
+*** TODO Go over Arpi's papers
 ** TODO [#A] Traffic top view plot [5/10]
 *** DONE Save figure every n frames
 CLOSED: [2020-02-14 Fri 18:47]

@@ -107,30 +107,42 @@ def test_wheel_to_wheel_track_xs():
 
 
 def test_to_wheel_track_loads():
-    # As Truck 1 enters the bridge.
-    wagen1_times = np.linspace(entering_time, entered_time - 0.001, 100)
-    for time in wagen1_times:
+    # As Truck 1 enters the bridge, total load is less than Truck 1.
+    enter_times = np.linspace(entering_time, entered_time - 0.001, 100)
+    for time in enter_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
         assert total_kn < wagen1.total_kn()
-    # As Truck 1 is fully on the bridge.
-    wagen1_times = np.linspace(entered_time, leaving_time, 100)
+    # As Truck 1 is fully on the bridge, total load equals that of Truck 1.
+    on_times = np.linspace(entered_time, leaving_time, 100)
     truck_front_x = np.arange(8, 102)
     more_times = np.array([wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x])
-    wagen1_times = np.concatenate((wagen1_times, more_times))
-    for time in wagen1_times:
+    on_times = np.concatenate((on_times, more_times))
+    for time in on_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
         assert np.isclose(total_kn, wagen1.total_kn())
-    # As Truck 1 is leaving the bridge.
-    wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
-    for time in wagen1_times:
+    # As Truck 1 is leaving the bridge, total load is less than Truck 1.
+    leave_times = np.linspace(leaving_time + 0.001, left_time, 100)
+    for time in leave_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
         total_kn = sum(map(lambda l: l.kn, flat_loads))
         assert total_kn < wagen1.total_kn()
+
+
+def test_wheel_track_loads_on_track():
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+    enter_times = np.linspace(entering_time, entered_time - 0.001, 100)
+    on_times = np.linspace(entered_time, leaving_time, 100)
+    leave_times = np.linspace(leaving_time + 0.001, left_time, 100)
+    for time in np.concatenate((enter_times, on_times, leave_times)):
+        loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
+        for load in loads:
+            load_x = c.bridge.x(load.x_frac)
+            assert any(np.isclose(load_x, x) for x in wheel_track_xs)
 
 
 def test_compare_to_wheel_track_and_to_point_load():
