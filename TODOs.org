@@ -6,10 +6,11 @@
 - Speed up to_traffic_array
 - Temp. responses in top view plot
 ** Day 2 (Thur 20 Feb)
-- Plot temperature effect
+- Contour plot of temperature effect
 - Temperature gradient references
-- Pier settlement green line in top view plot
+- Pier settlement effect line in "top view" plot
 - Fix traffic generation bug
+- Save/load ULM & traffic from disk
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.

@@ -124,6 +124,12 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         plt.subplot2grid((3, 1), (2, 0))
         time = t_ind * c.sensor_hz
         plt.axvline(x=time, color="black", label=f"Current time = {np.around(time, 4)} s")
+        plt.plot(
+            np.arange(len(responses_array)) * c.sensor_hz,
+            responses_w_temp.T[-1],
+            color="red",
+            label="Total effect"
+        )
         if isinstance(damage_scenario, PierDispDamage):
             plt.plot(
                 np.arange(len(responses_array)) * c.sensor_hz,
@@ -136,12 +142,6 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
             temp_effect[-1],
             color="blue",
             label="Temperature effect",
-        )
-        plt.plot(
-            np.arange(len(responses_array)) * c.sensor_hz,
-            responses_w_temp.T[-1],
-            color="red",
-            label="Total effect"
         )
         plt.ylabel(f"{response_type.name()} ({responses.units})")
         plt.xlabel("Time (s)")

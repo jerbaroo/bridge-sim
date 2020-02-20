@@ -91,9 +91,9 @@ def nearest_index(array, value):
         return i
 
 
-def shorten_path(c: Config, filepath: str) -> str:
+def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -> str:
     """Shorten path by mapping to shorter filepath saved on disk."""
-    if not c.shorten_paths:
+    if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path("metadata", "filepath-shortening-map.txt")
     lock_path = df_path + ".lock"

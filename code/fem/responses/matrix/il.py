@@ -14,7 +14,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
-from util import print_d, print_i, print_w, round_m, safe_str
+from util import print_d, print_i, print_w, round_m, safe_str, shorten_path
 
 # Print debug information for this file.
 D: bool = False
@@ -84,6 +84,19 @@ class ILMatrix(ResponsesMatrix):
         points: List[Point],
         sim_runner: FEMRunner,
     ):
+        wheel_zs = c.bridge.wheel_track_zs(c)
+        filepath = c.get_data_path("ulms", (ILMatrix.id_str(
+            c=c,
+            response_type=response_type,
+            sim_runner=sim_runner,
+            wheel_zs=wheel_zs,
+        ) + str([str(point) for point in points])) + ".ulm")
+        filepath = shorten_path(c=c, bypass_config=True, filepath=filepath)
+
+        if os.path.exists(filepath):
+            with open(filepath, "rb") as f:
+                return np.load(f)
+
         def ulm_partial(wheel_z):
             """Slice of unit load matrix for one wheel track."""
             wheel_track = ILMatrix.load_wheel_track(
@@ -104,7 +117,6 @@ class ILMatrix(ResponsesMatrix):
             return partial
         # Calculate results in parallel.
         print_i(f"Calculating unit load matrix...")
-        wheel_zs = c.bridge.wheel_track_zs(c)
         with multiprocessing.Pool(processes=len(wheel_zs)) as pool:
             partial_results = pool.map(ulm_partial, wheel_zs)
         # And insert into the unit load matrix.
@@ -114,6 +126,8 @@ class ILMatrix(ResponsesMatrix):
             unit_load_matrix[row_ind:row_ind + c.il_num_loads] = partial_results[w_ind]
         # Divide by unit load, so the value at a cell is the response to 1 kN.
         unit_load_matrix /= c.il_unit_load_kn
+        with open(filepath, "wb") as f:
+            np.save(f, unit_load_matrix)
         return unit_load_matrix
 
     @staticmethod
