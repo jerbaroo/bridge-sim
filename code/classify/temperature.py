@@ -125,7 +125,7 @@ def temperature_effect(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
     unit_linears = np.array([linear_responses.at_deck(point, interp=True) for point in points])
-    print_d(D, "unit uniform and linear = {unit_uniform} {unit_linear}")
+    print_d(D, f"unit uniform and linear = {unit_uniforms} {unit_linears}")
     # Combine uniform and linear.
     temps_bottom = np.array(temps) - c.bridge.ref_temp_c
     temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
@@ -161,6 +161,7 @@ def get_temperature_effect(
     speed_up: int,
     repeat_responses: bool = False,
 ) -> List[float]:
+    """Temperature effect corresponding to time series at a number of points."""
     assert len(responses) == len(points)
     # Convert the temperature data into temperature effect at each point.
     effect = temperature_effect(

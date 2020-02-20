@@ -20,7 +20,7 @@ from util import flatten, resize_units
 
 
 def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
-    response_type = ResponseType.YTranslation
+    response_type = ResponseType.Strain
     # Create the traffic.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence, traffic, traffic_array = load_traffic(

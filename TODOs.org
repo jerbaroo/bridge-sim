@@ -85,6 +85,7 @@ CLOSED: [2020-02-12 Wed 15:07]
 ** TODO [#B] Light vehicles
 - Based on  paper from TNO
 - Add vehicles per class
+** TODO [#B] Asphalt references
 ** TODO [#B] Temperature gradient references
 - Gather references and check with Arpi.
 ** TODO [#B] Sub-question A (distance from damage)
@@ -115,10 +116,11 @@ CLOSED: [2020-02-12 Wed 15:07]
 ** TODO [#C] Investigate interpolation
 - Truck 1 time series should not error with interpolation.
 *** TODO Check if point is direct match.
-** TODO [#C] Non-linear pier settlement
 ** WAIT [#C] Mesh refinement
 ** WAIT [#C] Improve pier settlement model
 - Henco's suggestion
+** ABORT [#C] Non-linear pier settlement
+CLOSED: [2020-02-20 Thu 11:11]
 ** ABORT Comparison of 2D and 3D data
 CLOSED: [2020-02-12 Wed 23:16]
 ** ABORT Rigid links experiment

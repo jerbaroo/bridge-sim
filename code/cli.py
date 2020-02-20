@@ -118,7 +118,7 @@ def cli(
     global parallel_ulm_
     global shorten_paths_
     global il_num_loads_
-    if pdb == True:
+    if pdb:
         pdb_ = True
     two_materials_ = two_materials
     save_to_ = save_to
@@ -559,7 +559,7 @@ def temp_effect_date(date, vert):
     classification_.temperature_effect_date(c=c(), month=date, vert=vert)
 
 
-@classify.command(help="Plot temperature effect at 3 dates.")
+@classify.command(help="Plot temperature effect at 2 dates.")
 @click.option(
     "--dates",
     type=click.Tuple([str, str]),
@@ -574,6 +574,14 @@ def temp_effect_date(date, vert):
 )
 def temp_effect_2(dates, verts):
     classification_.temperature_effect_dates(c=c(), months=dates, verts=verts)
+
+
+@classify.command(help="Contour plot of temperature effect.")
+@click.option("--temp", type=int, default=20, help="Temperature in celcius.")
+def temp_contour(temp):
+    from make.classify.temp import temp_contour_plot
+
+    temp_contour_plot(c=c(), temp=temp)
 
 
 @classify.command(help="Plot removal of temperature effect.")
