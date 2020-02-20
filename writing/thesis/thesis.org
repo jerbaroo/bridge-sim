@@ -1467,39 +1467,65 @@ Noise in a signal is considered to be the response from unwanted or unknown
 sources. In the case of bridges the following can be considered as noise:
 fluctuations in response caused by vehicles on another lane, random fluctuations
 caused by the sensor instrument itself, the effect of a change in temperature or
-indeed any other environmental effect.
-\textcolor{red}{TODO: RED: Noise in sensors}
+indeed any other environmental or operational effect.
 
 # Robust to noise.
 A model is considered robust if its outputs are consistently accurate when input
-variables, whether foreseen or not, are changed. A damage identification model
-must be robust to noise in order for it to be considered usable in a real-life
-setting. In the damage identification experiments, that are laid out later in
-Subsection [[sec:methods:di]], the ability to identify damage in the presence of
-noise is considered.
+variables, whether foreseen or not, are changed. A damage detection model must
+be robust to noise in order for it to be considered usable in a real-life
+setting. In the damage detection experiments, laid out later in Subsection
+[[sec:methods:di]], the ability to detect damage in the presence of noise is
+considered.
 
 # Two forms of noise.
-Two forms of noise are modeled which we will refer to as background noise and
-thermal noise. Background noise is a catch-all term for short-term fluctuations
-and is modeled with a white noise process. For each sensor type a mean value and
-standard deviation of background noise is set. Thermal noise is modeled as a
-load that is applied in FE simulation. Thermal noise is considered sufficient to
-investigate the robustness of the damage identification model to long-term
-variations in response, whether these have daily or annual periods.
+Two forms of noise are modeled which we will refer to as sensor noise and
+thermal noise. Sensor noise is modeled with a white noise process, for each
+sensor type a standard deviation of background noise is set. Thermal noise is
+modeled by running simulations of unit ($\SI{+1}{\celcius}$) uniform and linear
+temperature load, and then combining the responses from these simulations
+depending on the air temperature being considered. Thermal noise is considered
+sufficient to investigate the robustness of the damage identification model to
+long-term variations in response, whether these have daily or annual periods.
 
 # Linear thermal expansion.
-OpenSees does not directly support the application of a thermal load based on
-user-input changes in temperature, therefore thermal load is calculated based on
-the theory of linear thermal expansion. Under the assumption of linear thermal
-expansion, the strain due to a change in temperature ($\varepsilon_{thermal}$)
-is linearly proportional to the change in temperature, $\varepsilon_thermal
-\propto \delta{T}$. These calculation
+OpenSees does not directly support the application of a temperature load based
+on user-input changes in temperature, therefore temperature load is calculated
+based on the theory of linear thermal expansion. Under the assumption of linear
+thermal expansion, the strains (and stresses) due to a change in temperature
+($\varepsilon_{thermal}$) are linearly proportional to the change in
+temperature, $\varepsilon_thermal \propto \delta{T}$.
 
-# Temperature decomposed into: axial and bending moment load.
-The equivalent force applied to a beam can be decomposed into an axial force and
-a bending moment as is shown in Figure \textcolor{red}{TODO
-fig:thermal-loading}.
+# Temperature decomposed: EuroCode.
+According to European design code Eurocode 1 cite:gulvanessian2001en1991 the
+temperature distribution in a concrete bridge deck can be modeled as a linear
+function. Therefore the force due to a change in temperature, that is applied to
+a structure, can be decomposed into a uniform and linear component. While this
+assumption is made in modeling, the temperature gradient can vary throughout the
+day, for example a uniform gradient can exist just before sunrise when air
+temperature can remain close to constant for several hours
+cite:reynolds1972thermal. Furthermore the asphalt on the bridge deck can have an
+effect on the temperature throughout the bridge deck, the darker surface can
+cause greater heat absoption. In a test in Southern England $\approx
+\SI{5}{\centimeter}$ of asphalt was required before the insulation matched the
+greater heat absorption cite:hendry1960thermal.
 
+# Temperature decomposed: example, time from when concrete was set.
+The change in temperature that must be considered is the change from the time
+when the concrete was set, during construction of the bridge. If the change in
+temperature at the bottom of the bridge deck is $\SI{+2}{\celcius}$ and the
+change at the top of the bridge deck is $\SI{+10}{\celcius}$, this can be
+decomposed into a $\SI{+6}{\celcius}$ uniform temperature component and a
+$\SI{+8}{\celcius}$ linear component, as depicted in Figure
+\textcolor{red}{TODO fig:thermal-loading}.
+
+# Temperature difference of concrete bridge deck.
+According to Eurocode 1 cite:gulvanessian2001en1991 a difference of
+$\SI{+8}{\celcius}$ between the shade air temperature and the uniform bridge
+temperature component can be used for concrete deck bridges. The same document
+specifies a maximum linear temperature difference component of
+$\SI{+15}{\celcius}$ for concrete deck bridges.
+
+# Should transverse DOF be set?
 The degrees of freedom in transverse direction must also be set. According to
 the expertise of a colleague at TNO who built the FEM of bridge 705 for the
 Diana software package, the wide bridge deck would allow for minimal translation
@@ -1512,6 +1538,7 @@ load. This calculation takes the form of comparing the force in transverse
 direction due to axial thermal loading $F_{z\_temp}$ to the force in transverse
 direction necessary to move the structure at one of the piers.
 
+# Calculation of should transverse DOF be set.
 The force necessary to move the structure at one of the piers is the force due
 the self weight of the structure multiplied by the coefficient of friction
 between steel (the support at the bottom of the pier) and concrete (the body of
@@ -1524,6 +1551,7 @@ temperature of only a few degrees $\frac{2088}{3000} \cdot \SI{15}{celcius}
 \approx \SI{4.6}{\celcius}$ the force due to temperature in transverse direction
 will overcome the resistance of the piers.
 
+# Result of: calculation of should transverse DOF be set.
 This result complicates modeling, as the piers will not move in transverse
 direction below a change of $\SI{4.6}{\celcius}$ from the temperature that the
 concrete was set at. However beyond this temperature range the piers will move.
@@ -1531,7 +1559,7 @@ In order to simplify modeling, only the case where the piers will not move is
 considered, thus the supporting nodes of the piers are fixed against movement
 in transverse direction.
 
-# Calculating the axial thermal load.
+# Calculating the uniform temperature load.
 The combination of a change in temperature and a known coefficient of thermal
 expansion (CTE or $\alpha$) of a material can be used to calculate the axial
 thermal load to be applied to a material as shown in Equation [[eqn:thermal]]. First
@@ -1575,9 +1603,11 @@ the experimental campaign are considered. A Savgol filter with window size of 31
 and degree 3 is fit to the data, and then the unprocessed signal subtracted. The
 standard deviation of the remainder for vertical translation is $\approx
 \SI{0.001}{\millimeter}$, and $\approx 0.001$ for strain. Plots of these
-calculations are presented in Figures [[fig:noise-displa]] - [[fig:noise-strain]].
-Because the values of noise are so low, there is no need to add noise to the
-signals, but also there is no reason not to, and in order to remain
+calculations are presented in Figures [[fig:noise-displa]] - [[fig:noise-strain]] in
+Appendix. Because the sensor noise is so low, there does not appear much need to
+add sensor noise to the signals, but neither is there much of a reason not to,
+therefore this low amount of white noise is added to the generated signals.
+
 *** Traffic Model
 
 \textcolor{red}{TODO: Distribution of passenger vehicles}

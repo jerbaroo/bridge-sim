@@ -25,7 +25,7 @@ from model.bridge.bridge_705 import (
 )
 from util import clean_generated, print_i
 
-pdb_ = False
+pdb_ = "--pdb" in sys.argv
 b_func = None
 c_func = None
 two_materials_ = None
@@ -109,7 +109,6 @@ def cli(
 ):
     if dimensions == 2 and two_materials:
         raise ValueError("--two-materials option only valid for a 3D bridge")
-    global pdb_
     global c_func
     global b_func
     global two_materials_
@@ -118,8 +117,6 @@ def cli(
     global parallel_ulm_
     global shorten_paths_
     global il_num_loads_
-    if pdb:
-        pdb_ = True
     two_materials_ = two_materials
     save_to_ = save_to
     parallel_ = parallel
