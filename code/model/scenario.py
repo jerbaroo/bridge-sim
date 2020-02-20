@@ -162,9 +162,10 @@ class TrafficScenario:
                 if t < event_time:
                     vehicle, event_time = v, t
             assert enter == True
-            for v, t in time_leave:
-                if t < event_time:
-                    vehicle, event_time, enter = v, t, False
+            # for v, t in time_leave:
+            # Check if the next leave event is ready.
+            if len(time_leave) > 0 and time_leave[0][1] < event_time:
+                vehicle, event_time, enter = time_leave[0][0], time_leave[0][1], False
 
             # Add the enter/leave event to the sequence.
             result.append((vehicle, event_time, enter))

@@ -19,7 +19,7 @@ from util import print_d, print_i
 temperatures = dict()
 
 D: str = "classify.temperature"
-# D: bool = False
+D: bool = False
 
 
 def load_temperature_month(month: str, offset: int = 15) -> pd.DataFrame:

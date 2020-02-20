@@ -5,6 +5,11 @@
 - Test to_traffic_array
 - Speed up to_traffic_array
 - Temp. responses in top view plot
+** Day 2 (Thur 20 Feb)
+- Plot temperature effect
+- Temperature gradient references
+- Pier settlement green line in top view plot
+- Fix traffic generation bug
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
@@ -86,8 +91,7 @@ CLOSED: [2020-02-12 Wed 15:07]
 - Based on  paper from TNO
 - Add vehicles per class
 ** TODO [#B] Asphalt references
-** TODO [#B] Temperature gradient references
-- Gather references and check with Arpi.
+** TODO [#B] Temperature gradient
 ** TODO [#B] Sub-question A (distance from damage)
 - Show accuracy as a function of distance.
 - Contour plot of the accuracy.

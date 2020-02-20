@@ -4,6 +4,7 @@ import pickle
 from timeit import default_timer as timer
 
 import dill
+import numpy as np
 
 from config import Config
 from model.scenario import TrafficScenario, to_traffic, to_traffic_array
@@ -29,14 +30,23 @@ def load_traffic(
         + ".npy"
     )
     # Create the traffic if it doesn't exist.
-    if not os.path.exists(path):
+    if not os.path.exists(path + ".arr"):
         traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)
         traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
         traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
-        with open(path, "wb") as f:
-            dill.dump((traffic_sequence, traffic, traffic_array), f)
-    with open(path, "rb") as f:
-        return dill.load(f)
+        with open(path + ".seq", "wb") as f:
+            dill.dump(traffic_sequence, f)
+        with open(path + ".tra", "wb") as f:
+            dill.dump(traffic, f)
+        with open(path + ".arr", "wb") as f:
+            np.save(f, traffic_array)
+    with open(path + ".seq", "rb") as f:
+        traffic_sequence = dill.load(f)
+    with open(path + ".tra", "rb") as f:
+        traffic = dill.load(f)
+    with open(path + ".arr", "rb") as f:
+        traffic_array = np.load(f)
+    return traffic_sequence, traffic, traffic_array
 
 
 if __name__ == "__main__":

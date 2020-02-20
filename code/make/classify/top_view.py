@@ -4,9 +4,11 @@ import numpy as np
 from config import Config
 from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic
+from classify.scenario.bridge import PierDispDamage
 from classify.scenario.traffic import normal_traffic
 from classify.temperature import get_temperature_effect, load_temperature_month
 from fem.responses import Responses
+from fem.responses.matrix.dc import DCMatrix
 from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.load import Vehicle
@@ -20,7 +22,7 @@ from util import flatten, resize_units
 
 
 def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
-    response_type = ResponseType.Strain
+    response_type = ResponseType.YTranslation
     # Create the traffic.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence, traffic, traffic_array = load_traffic(
@@ -50,7 +52,6 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     )
     # Temperature effect.
     temps = load_temperature_month("may", offset=10)["temp"]
-    # print(f"Temps = {temps}")
     temp_effect = get_temperature_effect(
         c=c,
         response_type=response_type,
@@ -59,14 +60,25 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         responses=responses_array.T,
         speed_up=60,
     )
-    print(temp_effect.shape)
-    print(responses_array.shape)
-    responses_array = responses_array + temp_effect.T
+    # Determine response due to pier settlement.
+    pd_response_at_point = 0
+    if isinstance(damage_scenario, PierDispDamage):
+        pd_expt = list(DCMatrix.load(
+            c=c, response_type=response_type, fem_runner=OSRunner(c)
+        ))
+        for pier_displacement in damage_scenario.pier_disps:
+            pd_sim_responses = pd_expt[pier_displacement.pier]
+            pd_response_at_point += (
+                pd_sim_responses.at_deck(point, interp=False)
+                * (pier_displacement.displacement / c.pd_unit_disp)
+            )
     # Resize responses if applicable to response type.
     resize_f, units = resize_units(response_type.units())
     if resize_f is not None:
         responses_array = resize_f(responses_array)
         temp_effect = resize_f(temp_effect)
+        pd_response_at_point = resize_f(pd_response_at_point)
+    responses_w_temp = responses_array + temp_effect.T
     # Determine levels of the colourbar.
     amin, amax = np.amin(responses_array), np.amax(responses_array)
     # amin, amax = min(amin, -amax), max(-amin, amax)
@@ -75,6 +87,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     all_vehicles = flatten(traffic, Vehicle)
     # Iterate through each time index and plot results.
     warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    # Plot for each time step.
     for t_ind in range(len(responses_array))[::skip]:
         plt.landscape()
         # Plot the bridge top view.
@@ -105,12 +118,19 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         )
         plt.legend(loc="upper right")
         plt.title(
-            f"{response_type.name()} at time {np.around(t_ind * c.sensor_hz, 4)} s"
+            f"{response_type.name()} after {np.around(t_ind * c.sensor_hz, 4)} seconds"
         )
         # Plot the responses at a point.
         plt.subplot2grid((3, 1), (2, 0))
         time = t_ind * c.sensor_hz
         plt.axvline(x=time, color="black", label=f"Current time = {np.around(time, 4)} s")
+        if isinstance(damage_scenario, PierDispDamage):
+            plt.plot(
+                np.arange(len(responses_array)) * c.sensor_hz,
+                np.ones(temp_effect[-1].shape) * pd_response_at_point,
+                color="green",
+                label="Pier settlement effect",
+            )
         plt.plot(
             np.arange(len(responses_array)) * c.sensor_hz,
             temp_effect[-1],
@@ -119,16 +139,17 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         )
         plt.plot(
             np.arange(len(responses_array)) * c.sensor_hz,
-            responses_array.T[-1],
+            responses_w_temp.T[-1],
             color="red",
-            label="Temp. + traffic effect"
+            label="Total effect"
         )
         plt.ylabel(f"{response_type.name()} ({responses.units})")
         plt.xlabel("Time (s)")
         plt.title(f"{response_type.name()} at sensor in top plot")
         plt.legend(loc="upper right", framealpha=1)
         # Finally save the image.
+        name = f"{damage_scenario.name}-{response_type.name()}-{t_ind}"
         plt.tight_layout()
-        plt.savefig(c.get_image_path("classify/top-view", f"{t_ind}.pdf"))
-        plt.savefig(c.get_image_path("classify/top-view/png", f"{t_ind}.png"))
+        plt.savefig(c.get_image_path("classify/top-view", f"{name}.pdf"))
+        plt.savefig(c.get_image_path("classify/top-view/png", f"{name}.png"))
         plt.close()
