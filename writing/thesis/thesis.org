@@ -290,18 +290,19 @@ finally a conclusion of the work and results is presented.
 
 ** Abbreviations
 
-| ANN      | Artificial neural network                               |
-| CTE      | Coefficient of thermal expansion                        |
-| DSS      | Decision support software                               |
-| FEM      | Finite element model                                    |
-| NDE      | Non-disruptive evaluation                               |
-| NDW      | National Data Warehouse for Traffic Information (Dutch) |
-| OCSVM    | One-class Support Vector Machine                        |
-| OpenSees | Open System for Earthquake Engineering Simulation       |
-| RNN      | Recurrent Neural Network                                |
-| SHB      | Sydney Harbour Bridge                                   |
-| SVM      | Support Vector Machine                                  |
-| PyPI     | Python Package Index                                    |
+| ANN      | Artificial neural network                                     |
+| CTE      | Coefficient of thermal expansion                              |
+| DSS      | Decision support software                                     |
+| FEM      | Finite element model                                          |
+| NDE      | Non-disruptive evaluation                                     |
+| NDW      | National Data Warehouse for Traffic Information (Netherlands) |
+| NOAA     | National Oceanic and Atmospheric (USA)                        |
+| OCSVM    | One-class Support Vector Machine                              |
+| OpenSees | Open System for Earthquake Engineering Simulation             |
+| RNN      | Recurrent Neural Network                                      |
+| SHB      | Sydney Harbour Bridge                                         |
+| SVM      | Support Vector Machine                                        |
+| PyPI     | Python Package Index                                          |
 
 #+LATEX: \newpage
 ** Definitions
@@ -1583,18 +1584,22 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 
 #+NAME: fig:temp
 #+ATTR_LATEX: :float wrap :width 0.5\textwidth
-#+CAPTION[Effect of temperature]: Effect of temperature at \SI{51.375}{\meter}$ and $z = \SI{-8.4}{\meter}$ during the year of 2018 and also on May 1 2018. Each plot has two vertical axes, one for temperature and one for vertical translation.
-[[./saved-images/thermal/2018,-may-1.png]]
+#+CAPTION[Effect of temperature]: Effect of temperature at point A (see Table [[tbl:loading-poisitions]]) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range $\SI{-5}{\celcius}$ to $\SI{35}{\celcius}$. Each plot has two vertical axes, one for temperature and one for vertical translation.
+[[./saved-images/thermal/temperature.pdf]]
 
 # Temperature effect.
 Temperature data is taken from the National Climatic Data Center
 cite:data2001national branch of the National Oceanic and Atmospheric
-Administration, which provides temperature data at a resolution of one data
-point every 1 minute. Temperature data was used from the weather station at
-Spingfield in Masachussets USA with a constant offset applied in order to bring
-the data in closer line with expected Netherlands temperatures, the resulting
-temperature and the vertical translation at $x = \SI{51.375}{\meter}$ and $z =
-\SI{-8.4}{\meter}$ are given in Figure [[fig:temp]].
+Administration (NOAA), which provides temperature data at a resolution of one data
+point every 1 minute. Air temperature data was used from a weather station in
+Holly Springs in North Carolina, USA. Because the range of temperatures in the
+data is greater than what is expected in the Netherlands, the data was
+interpolated form the original range to the smaller range of $\SI{-5}{\celcius}$
+to $\SI{35}{\celcius}$. The resulting temperature and the vertical translation
+at point A (defined in Table [[tbl:loading-positions]]) are given in Figure
+[[fig:temp]]. The data provides a temperature value every 5 minutes, a linear
+interpolation is used both in Figure [[fig:temp]] and when performing classification
+in order to have more data points available.
 
 # Noise estimate.
 To estimate the amount of noise to apply to generated data, the responses from

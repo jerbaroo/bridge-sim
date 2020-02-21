@@ -6,6 +6,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
+from scipy.interpolate import interp1d
 
 from classify.scenario.bridge import ThermalDamage
 from config import Config
@@ -16,101 +17,87 @@ from model.bridge import Point
 from model.response import ResponseType
 from util import print_d, print_i
 
-temperatures = dict()
-
 D: str = "classify.temperature"
 D: bool = False
 
+# https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 
-def load_temperature_month(month: str, offset: int = 15) -> pd.DataFrame:
-    if month in temperatures:
-        return temperatures[month]
 
-    def parse_line(line):
-        line = line.split()  # 79J 2019 05 31 2330 0530
-        ds = line[1]  # Date string.
-        year, mon, day, hr, mn = (
-            ds[-16:-12],
-            ds[-12:-10],
-            ds[-10:-8],
-            ds[-8:-6],
-            ds[-6:-4],
-        )
-        # 2011-11-04T00:05
-        dt = datetime.fromisoformat(f"{year}-{mon}-{day}T{hr}:{mn}")
-        try:
-            return [dt, float(line[-1])]
-        except Exception as e:
-            return [dt, np.nan]
+def parse_line(line):
+    # 23803 20190101 0005 20181231 1805      3  -89.43   34.82    12.4
+    # 0.0      0 0    10.9 C 0    88 0 -99.000 -9999.0  1115 0   0.79 0
+    line = line.split()
+    ds = line[1]  # Date string.
+    ts = line[2]  # Time string.
+    year, mon, day, hr, mn = (ds[0:4], ds[4:6], ds[6:8], ts[0:2], ts[2:4])
+    # 2011-11-04T00:05
+    dt = datetime.fromisoformat(f"{year}-{mon}-{day}T{hr}:{mn}")
+    return [dt, float(line[-11])]
 
-    # Read the file in from disk.
-    month_path = os.path.join("data/temperature", month + ".txt")
-    saved_path = month_path + ".parsed"
+
+def load(name: str, offset: int = 0) -> pd.DataFrame:
+    # If the file is already parsed, return it..
+    name_path = os.path.join("data/temperature", name + ".txt")
+    saved_path = name_path + ".parsed"
     if os.path.exists(saved_path):
-        temperatures[month] = pd.read_csv(
-            saved_path, index_col=0, parse_dates=["datetime"]
-        )
-        temperatures[month]["temp"] = temperatures[month]["temp"].add(offset)
-        return load_temperature_month(month=month, offset=offset)
-    with open(month_path) as f:
-        temperatures[month] = list(map(parse_line, f.readlines()))
+        temps = pd.read_csv(saved_path, index_col=0, parse_dates=["datetime"])
+        temps["temp"] = temps["temp"].add(offset)
+        return temps
+    # ..otherwise read and parse the data.
+    with open(name_path) as f:
+        temps = list(map(parse_line, f.readlines()))
     # Remove NANs.
-    for line_ind, [dt, temp] in enumerate(temperatures[month]):
+    for line_ind, [dt, temp] in enumerate(temps):
         if np.isnan(temp):
-            print_i(f"NAN in {month} temperature")
-            temperatures[month][line_ind][-1] = temperatures[month][line_ind - 1][-1]
-    # Unpack.
-    df = pd.DataFrame(temperatures[month], columns=["datetime", "temp"])
+            print_i(f"NAN in {name} temperature")
+            temps[line_ind][-1] = temps[line_ind - 1][-1]
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(temps, columns=["datetime", "temp"])
     # Convert to celcius.
-    df["temp"] = (df["temp"] - 32) * (5 / 9)
+    # df["temp"] = (df["temp"] - 32) * (5 / 9)
     # Remove duplicate times.
     len_before = len(df)
     df = df.drop_duplicates(subset=["datetime"], keep="first")
     len_after = len(df)
     print_i(f"Removed {len_before - len_after} duplicates, now {len_after} rows")
-    # Add missing times.
-    df["missing"] = False
-    first, last = min(df["datetime"]), max(df["datetime"])
-    curr = (first - timedelta(minutes=1)).to_pydatetime()
-    missing = 0
-    for dt in sorted(df["datetime"][:]):
-        delta_mins = 0
-        while curr < dt:
-            delta_mins += 1
-            if delta_mins > 1:
-                to_append = pd.Series(
-                    {
-                        "datetime": curr,
-                        "temp": float(df[df["datetime"] == dt]["temp"]),
-                        "missing": True,
-                    }
-                )
-                df = df.append(to_append, ignore_index=True)
-            curr = curr + timedelta(minutes=1)
-            if not isinstance(curr, datetime):
-                print("classify/temperature", flush=True)
-                print(type(curr), flush=True)
-                import sys
-
-                sys.exit()
-        if delta_mins > 1:
-            print(f"Missing {delta_mins - 1} minutes before {dt}")
-        missing += delta_mins - 1
-    print_i(f"Added {missing} minutes")
     # Sort.
     df = df.sort_values(by=["datetime"])
-    # Add timestamp row.
-    df["ts"] = df["datetime"].apply(lambda d: datetime.timestamp(d))
-    # Smooth.
-    df["temp"] = savgol_filter(df["temp"], 51, 3)  # window size 51, polynomial order 3
     # Save.
     df.to_csv(saved_path)
-    return load_temperature_month(month=month, offset=offset)
+    return load_temperature(name=name, offset=offset)
 
 
-def temperature_effect(
+def from_to_mins(df, from_, to, smooth: bool = False):
+    # Create times and temperatures from given data.
+    dates, temps = df["datetime"], df["temp"]
+    times = dates.apply(lambda d: datetime.timestamp(d))
+    # Create times that are expected to return.
+    result_dates, result_times = [], []
+    curr = from_
+    while curr <= to:
+        result_dates.append(curr)
+        result_times.append(datetime.timestamp(curr))
+        curr += timedelta(minutes=1)
+    # Interpolate to get result temps.
+    result_temps = interp1d(times, temps, fill_value="extrapolate")(result_times)
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(np.array([result_dates, result_temps]).T, columns=["datetime", "temp"])
+    # Sort.
+    df = df.sort_values(by=["datetime"])
+    # Smooth.
+    if smooth:
+        df["temp"] = savgol_filter(df["temp"], 20, 3)
+    return df
+
+
+def effect(
     c: Config, response_type: ResponseType, points: List[Point], temps: List[float]
-) -> List[float]:
+) -> List[List[float]]:
+    """Temperature effect at given points for a number of given temperatures.
+
+    The result is of shape (number of points, number of temperatures).
+
+    """
     # Unit effect from uniform temperature loading.
     unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_uniform.use(c)
@@ -152,7 +139,7 @@ def get_len_per_min(c: Config, speed_up: float):
     return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
 
 
-def get_temperature_effect(
+def get_effect(
     c: Config,
     response_type: ResponseType,
     points: List[Point],

@@ -550,27 +550,10 @@ def events(x, z):
 
 
 @classify.command(help="Plot temperature effect.")
-@click.option("--date", type=str, default="may", help="Filename to plot effect for.")
+@click.option("--date", type=str, default="holly-springs", help="Filename to plot effect for.")
 @click.option("--vert", type=bool, default=True, help="Vertical lines every 24 hours.")
 def temp_effect_date(date, vert):
     classification_.temperature_effect_date(c=c(), month=date, vert=vert)
-
-
-@classify.command(help="Plot temperature effect at 2 dates.")
-@click.option(
-    "--dates",
-    type=click.Tuple([str, str]),
-    default=("2018", "may-1"),
-    help="Filenames to plot effect for.",
-)
-@click.option(
-    "--verts",
-    type=click.Tuple([bool, bool]),
-    default=(False, False),
-    help="Vertical lines every 24 hours.",
-)
-def temp_effect_2(dates, verts):
-    classification_.temperature_effect_dates(c=c(), months=dates, verts=verts)
 
 
 @classify.command(help="Contour plot of temperature effect.")
