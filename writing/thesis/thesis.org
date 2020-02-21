@@ -1478,22 +1478,22 @@ setting. In the damage detection experiments, laid out later in Subsection
 considered.
 
 # Two forms of noise.
-Two forms of noise are modeled which we will refer to as sensor noise and
-thermal noise. Sensor noise is modeled with a white noise process, for each
-sensor type a standard deviation of background noise is set. Thermal noise is
-modeled by running simulations of unit ($\SI{+1}{\celcius}$) uniform and linear
-temperature load, and then combining the responses from these simulations
-depending on the air temperature being considered. Thermal noise is considered
-sufficient to investigate the robustness of the damage identification model to
-long-term variations in response, whether these have daily or annual periods.
+Two forms of noise are modeled, sensor noise and thermal noise. Sensor noise is
+modeled with a white noise process, for each sensor type a standard deviation of
+sensor noise is set. Thermal noise is modeled by running simulations of unit
+($\SI{+1}{\celcius}$) uniform and linear temperature load, and then combining
+the responses from these simulations depending on the air temperature being
+modeled. Thermal noise is considered sufficient to investigate the robustness of
+the damage identification model to long-term variations in response.
 
 # Linear thermal expansion.
-OpenSees does not directly support the application of a temperature load based
-on user-input changes in temperature, therefore temperature load is calculated
-based on the theory of linear thermal expansion. Under the assumption of linear
-thermal expansion, the strains (and stresses) due to a change in temperature
-($\varepsilon_{thermal}$) are linearly proportional to the change in
-temperature, $\varepsilon_thermal \propto \delta{T}$.
+OpenSees does not directly support the application of thermal load based on a
+user-input change in temperature, therefore temperature load is calculated based
+on the assumption of linear thermal expansion. Under this assumption the strains
+(and stresses) due to a change in temperature ($\varepsilon_{thermal}$) are
+linearly proportional to the change in temperature, $\varepsilon_thermal \propto
+\alpha \delta{T}$, where $\alpha$ is the coefficient of thermal expansion, which
+is a property of the material being considered e.g. concrete.
 
 # Temperature decomposed: EuroCode.
 According to European design code Eurocode 1 cite:gulvanessian2001en1991 the
@@ -1504,10 +1504,10 @@ assumption is made in modeling, the temperature gradient can vary throughout the
 day, for example a uniform gradient can exist just before sunrise when air
 temperature can remain close to constant for several hours
 cite:reynolds1972thermal. Furthermore the asphalt on the bridge deck can have an
-effect on the temperature throughout the bridge deck, the darker surface can
-cause greater heat absoption. In a test in Southern England $\approx
-\SI{5}{\centimeter}$ of asphalt was required before the insulation matched the
-greater heat absorption cite:hendry1960thermal.
+effect on the temperature because the darker surface can cause greater heat
+absorption, and the asphalt can also have an insulating effect. In a test in
+Southern England $\approx \SI{5}{\centimeter}$ of asphalt was required before
+the insulation matched the greater heat absorption cite:hendry1960thermal.
 
 # Temperature decomposed: example, time from when concrete was set.
 The change in temperature that must be considered is the change from the time

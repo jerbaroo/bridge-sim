@@ -9,7 +9,7 @@
 - Contour plot of temperature effect
 - Temperature gradient references
 - Pier settlement effect line in "top view" plot
-- Fix traffic generation bug
+- Fix traffic generation bug, 48mins of traffic!
 - Save/load ULM & traffic from disk
 * Todo List
 ** TODO [#A] Validate temperature load
