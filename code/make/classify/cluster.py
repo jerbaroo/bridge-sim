@@ -5,9 +5,10 @@ import numpy as np
 from config import Config
 from classify.util import flip
 from classify.data.responses import responses_to_traffic_array
+from classify.data.traffic import load_traffic
+from classify.scenario.traffic import normal_traffic
 from classify.scenario.bridge import healthy_damage, pier_disp_damage
 from fem.run.opensees import OSRunner
-from make.plot.distribution import load_normal_traffic_array
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
@@ -15,7 +16,13 @@ from util import print_i
 
 
 def cluster_damage(c: Config, mins: float):
-    traffic_array = load_normal_traffic_array(c, mins=mins, lam=5, min_d=2)
+    # Create the traffic.
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence, traffic, traffic_array = load_traffic(
+        c=c,
+        traffic_scenario=traffic_scenario,
+        max_time=mins * 60,
+    )
     point = Point(x=21, y=0, z=-8.4)  # Point to investigate.
     # Collect vertical translation and strain for all damage scenarios.
     responses_y = []

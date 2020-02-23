@@ -11,6 +11,13 @@
 - Pier settlement effect line in "top view" plot
 - Fix traffic generation bug, 48mins of traffic!
 - Save/load ULM & traffic from disk
+** Day 3 (Fri 21 Feb)
+- Start using Jupyter notebook
+- Much better temperature data
+** Day 4 (Sat 22 Feb)
+- Collect responses in Jupyter
+** Day 5 (Sun 23 Feb)
+-
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
@@ -22,7 +29,8 @@
 - Results:
   - AxisVM: min -0.26 max 0.34
 *** TODO Record temperature without piers
-** TODO [#A] Fix traffic generation bug
+** DONE [#A] Fix traffic generation bug
+CLOSED: [2020-02-22 Sat 12:23]
 ** TODO [#A] First pass of methods section
 ** TODO [#A] Second pass of validation section
 ** TODO [#A] Save high quality data [0/2]
@@ -31,7 +39,7 @@
 ** TODO [#A] First pass of results section
 ** TODO [#A] Second pass of literature review
 *** TODO Go over Arpi's papers
-** TODO [#A] Traffic top view plot [7/10]
+** TODO [#A] Traffic top view plot [8/11]
 *** DONE Save figure every n frames
 CLOSED: [2020-02-14 Fri 18:47]
 *** DONE Consistent colours
@@ -44,7 +52,9 @@ CLOSED: [2020-02-14 Fri 19:10]
 CLOSED: [2020-02-18 Tue 16:54]
 *** DONE Same line colour as in sensor
 CLOSED: [2020-02-19 Wed 16:36]
-*** TODO Add pier settlement line
+*** DONE Add pier settlement line
+CLOSED: [2020-02-22 Sat 12:23]
+*** TODO Generate high quality plots
 *** WAIT Show it's changes, not absolute
 *** DONE Add temperature effect to contour
 CLOSED: [2020-02-19 Wed 17:41]
@@ -87,7 +97,8 @@ CLOSED: [2020-02-12 Wed 15:07]
 *** TODO Check strain jaggedness
 - See if it makes sense from contour plot.
 - Maybe this is when an axle crosses a pier?
-** TODO [#A] Save ULM to disk
+** DONE [#A] Save ULM to disk
+CLOSED: [2020-02-22 Sat 12:23]
 ** TODO [#B] Light vehicles
 - Based on  paper from TNO
 - Add vehicles per class

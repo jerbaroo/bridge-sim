@@ -1583,8 +1583,8 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 \end{equation}
 
 #+NAME: fig:temp
-#+ATTR_LATEX: :float wrap :width 0.5\textwidth
-#+CAPTION[Effect of temperature]: Effect of temperature at point A (see Table [[tbl:loading-poisitions]]) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range $\SI{-5}{\celcius}$ to $\SI{35}{\celcius}$. Each plot has two vertical axes, one for temperature and one for vertical translation.
+#+ATTR_LATEX: :placement [t]
+#+CAPTION[Effect of temperature]: Effect of temperature at point A (see Table [[tbl:loading-positions]]) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range $\SI{-5}{\celcius}$ to $\SI{35}{\celcius}$. Each plot has two vertical axes, one for temperature and one for vertical translation.
 [[./saved-images/thermal/temperature.pdf]]
 
 # Temperature effect.
@@ -2062,6 +2062,8 @@ small areas.
 |  51.251 |   16.6 | B     | At center of bridge, symmetry expected in response |
 |  92.406 | 12.405 | C     | On a wheel track, close to pier                    |
 | 101.765 |  3.974 | D     | On a wheel track, close to abutment                |
+
+\textcolor{red}{TODO: Update values in table, see Diana plots}
 
 **** Experimental Measurements
 

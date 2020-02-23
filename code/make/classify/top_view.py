@@ -6,7 +6,7 @@ from classify.data.responses import responses_to_traffic_array
 from classify.data.traffic import load_traffic
 from classify.scenario.bridge import PierDispDamage
 from classify.scenario.traffic import normal_traffic
-from classify.temperature import get_temperature_effect, load_temperature_month
+from classify import temperature
 from fem.responses import Responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.run.opensees import OSRunner
@@ -51,8 +51,8 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         sim_runner=OSRunner(c),
     )
     # Temperature effect.
-    temps = load_temperature_month("may", offset=10)["temp"]
-    temp_effect = get_temperature_effect(
+    temps = temperature.load("may", offset=10)["temp"]
+    temp_effect = temperature.get_effect(
         c=c,
         response_type=response_type,
         points=deck_points,

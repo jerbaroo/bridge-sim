@@ -29,6 +29,7 @@ def load_traffic(
         )
         + ".npy"
     )
+    print(path)
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path + ".arr"):
         traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)

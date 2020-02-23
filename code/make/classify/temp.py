@@ -1,7 +1,7 @@
 import numpy as np
 
 from config import Config
-from classify.temperature import temperature_effect
+from classify import temperature
 from fem.responses import Responses
 from model.bridge import Point
 from model.response import ResponseType
@@ -21,7 +21,7 @@ def temp_contour_plot(c: Config, temp: int):
     ]
     def plot_response_type(response_type: ResponseType):
         # Temperature effect.
-        temp_effect = temperature_effect(
+        temp_effect = temperature.effect(
             c=c, response_type=response_type, points=deck_points, temps=[temp],
         ).T[0]
         # Resize responses if applicable to response type.

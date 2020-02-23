@@ -151,27 +151,27 @@ def get_effect(
     """Temperature effect corresponding to time series at a number of points."""
     assert len(responses) == len(points)
     # Convert the temperature data into temperature effect at each point.
-    effect = temperature_effect(
+    effect_ = effect(
         c=c, response_type=response_type, points=points, temps=temps
     )
-    assert len(effect) == len(points)
+    assert len(effect_) == len(points)
     # A temperature sample is available per minute. Here we calculate the number
     # of responses between each pair of recorded temperatures and the number of
     # temperature samples required for the given responses.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
     num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
-    if num_temps_req > len(effect[0]):
+    if num_temps_req > len(effect_[0]):
         raise ValueError(
-            f"Not enough temperatures ({len(effect[0])}) for data"
+            f"Not enough temperatures ({len(effect_[0])}) for data"
             f" (requires {num_temps_req})"
         )
     # If additional temperature data is available, then use it if requested and
     # repeat the given responses. Here we calculate length, in terms of the
     # sample frequency, recall that temperature is sampled every minute.
-    avail_len = (len(effect[0]) - 1) * len_per_min
+    avail_len = (len(effect_[0]) - 1) * len_per_min
     if repeat_responses and (avail_len > len(responses[0])):
         print_i(f"Increasing length of responses from {len(responses[0])} to {avail_len}")
-        num_temps_req = len(effect[0])
+        num_temps_req = len(effect_[0])
         new_responses = np.empty((len(responses), avail_len))
         for i in range(len(responses)):
             for j in range(math.ceil(avail_len / len(responses[0]))):
@@ -189,8 +189,8 @@ def get_effect(
             print_d(D, f"end = {end}")
             print_d(D, f"end - start = {end - start}")
             print_d(D, f"temp_start, temp_end = {temps[j]}, {temps[j + 1]}")
-            print_d(D, f"effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}")
-            result[i][start:end] = np.linspace(effect[i][j], effect[i][j + 1], end - start)
+            print_d(D, f"effect_start, effect_end = {effect_[i][j]}, {effect_[i][j + 1]}")
+            result[i][start:end] = np.linspace(effect_[i][j], effect_[i][j + 1], end - start)
     if repeat_responses:
         return responses, result
     return result
