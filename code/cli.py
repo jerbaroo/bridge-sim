@@ -170,8 +170,8 @@ def remove():
 def clean(keep):
     remove_except_npy(c=c(), keep=keep)
     from classify.scenario.bridge import transverse_crack
-    c = transverse_crack().use(c())[0]
-    remove_except_npy(c=c, keep=keep)
+    c_ = transverse_crack().use(c())[0]
+    remove_except_npy(c=c_, keep=keep)
 
 
 ################
