@@ -17,7 +17,14 @@
 ** Day 4 (Sat 22 Feb)
 - Collect responses in Jupyter
 ** Day 5 (Sun 23 Feb)
--
+- Accuracy of distance from pier settlement plot
+- Plot combined effect in July and December
+- Show failure to detect annual change
+** Day 6 (Mon 24 Feb)
+- Isolation forest for damage detection model
+- Only show allowed sensors in pier settlement accuracy plot
+- Plot boundary decision in damage detection plots
+** Day 7 (Tue 25 Feb)
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.

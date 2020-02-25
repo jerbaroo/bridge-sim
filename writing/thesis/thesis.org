@@ -304,32 +304,40 @@ finally a conclusion of the work and results is presented.
 | SVM      | Support Vector Machine                                        |
 | PyPI     | Python Package Index                                          |
 
-#+LATEX: \newpage
 ** Definitions
 
-| =Bridge=            | Model of a concrete slab bridge's geometry          |
-| Damage scenario     | Healthy or specific damage state of a bridge        |
-| Simulation scenario | Combination of damage scenario and traffic scenario |
-| Traffic scenario    | Defines the traffic that flows over a bridge        |
+| Crack zone          | An area of the bridge deck where cracks have occured |
+| Normal condition    | The bridge in expected or healthy state              |
+| =Bridge=            | Model of a concrete slab bridge's geometry           |
+| Damage scenario     | Healthy or specific damage state of a bridge         |
+| Simulation scenario | Combination of damage scenario and traffic scenario  |
+| Traffic scenario    | Defines the traffic that flows over a bridge         |
 
 #+LATEX: \newpage
 ** Pseudocode
 
 # Imperative and declarative.
-Pseudocode in this thesis is given in two formats. For code written in an
-imperative style the pseudocode will closely resemble the syntax of Python. For
-type declarations the pseudocode will resemble the syntax of Haskell. For most
-people the syntax of Python, or a similar imperative style language, will
-already be familiar. The syntax for data declarations used in this thesis is
-presented below in Listing [[lst:haskell]].
+Pseudocode in this thesis is given in two formats. Some of the psuedocode will
+be presented in an imperative-style, that resembles the syntax of the Python
+programming language. For code that represents data types rather a series of
+operations, the pseudocode will resemble the syntax of Haskell. For most people
+the syntax of Python, or a similar imperative style language, will already be
+familiar. The syntax for data types used in this thesis is presented below in
+Listing [[lst:haskell]].
+
+# Type signatures.
+Sometimes the reader will be presented with a type signature that looks like
+=foo :: A -> B -> C=. A type signature describes the input and output types of a
+function, the previous type signature can be read as "a function =foo= that
+takes an argument of type =A=, an argument of type =B=, and returns a value of
+type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
+function =bar= which takes a list of =Float= as input and returns a value of
+type =Int=". A type signature for a value si given as the generalization of a
+fucntion with 0 arguments, for example =truck_1 :: Vehicle= simply informs the
+reader that the variable =truck_1= is of type =Person=.
 
 #+NAME: lst:haskell
-#+CAPTION[Pseudocode example for type declarations]: Pseudocode example for type
-declarations used in this thesis. This pseudocode declares a type for describing
-a vehicle in terms of two pieces of data, a list of axle distance and a list of
-loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type
-=bar=. The square brackets represent the list type and the curly brackets
-represent a tuple type.
+#+CAPTION[Pseudocode example for a data type]: Pseudocode example for a data type declaration as used in this thesis. This pseudocode declares a type that describes a vehicle in terms of two pieces of data, a list of axle distance and a list of loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type =bar=. The square brackets represent the list type and the curly brackets represent a tuple type.
 #+BEGIN_SRC haskell
 -- A vehicle as a list of axle distances and wheel loads.
 data Vehicle {
@@ -339,15 +347,6 @@ data Vehicle {
     wheelLoads    :: [(Float, Float)]
   }
 #+END_SRC
-
-# Type signatures.
-Sometimes the reader will be presented with a type signature that looks like
-=foo :: A -> B -> C=. A type signature describes the input and output types of a
-function, the previous type signature can be read as "a function =foo= that
-takes an argument of type =A=, an argument of type =B=, and returns a value of
-type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
-function =bar= which takes a list of =Float= as input and returns a value of
-type =Int=".
 
 #+LATEX: \clearpage
 * Literature Review
@@ -806,44 +805,14 @@ at 37€ million.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
 ** Damage Types
-Damage scenarios can be classified as short-term or long-term. Short-term damage
-scenarios are defined as a change of the properties of structural materials and
-elements, and of the behaviour of the whole structure, due to effects that occur
-during a very short period of time. Long-term scenarios are time-dependent and
-may not only be related to external factors but also due to a change of state of
-materials with time. Tables [[table:short-term-events]] and [[table:long-term-events]]
-cite:sousa2019tool outline some of the predominant types of damage due to
-short-term and long-term scenarios respectively.
 
-\textcolor{red}{TODO: Factor examples/consequences out of table}
-#+NAME: table:short-term-events
-#+CAPTION: Types of damage due to short-term events.
-| Event                       | Examples/Consequences                                                        | Critical component |
-|-----------------------------+------------------------------------------------------------------------------+--------------------|
-| Collision                   | Impact by overweight vehicle or boat in the river                            | Pier               |
-| Blast                       | Impact by vehicle followed by explosion                                      | Pier               |
-| Fire                        | Impact by vehicle followed by explosion and fire                             | All                |
-| Prestress loss              | Sudden failure of a prestress tendon                                         | Deck girder        |
-| Abnormal loading conditions | Loading concentration and/or overloading in a specific site along the bridge | Deck girder        |
-| Excessive vibration         | Earthquake                                                                   | Pier               |
-| Impact                      | Impact pressure by water and debris during floods                            | Substructure       |
-
-#+NAME: table:long-term-events
-#+CAPTION: Types of damage due to long-term events.
-| Event                        | Examples/Consequences                                  | Critical component |
-|------------------------------+--------------------------------------------------------+--------------------|
-| Corrosion                    | Degradation of the bearings                            | Deck               |
-|                              | Loss of cross-section area in the prestressing tendons | Deck               |
-| Time-dependent properties of | Excessive creep & shrinkage deformations               | Deck               |
-| the structural materials     | Concrete deterioration                                 | All                |
-| Low stress - high frequency  | High frequency and magnitude of traffic loads          | Deck               |
-| fatigue                      |                                                        |                    |
-| High stress - low frequency  | Temperature induced cyclic loading                     | Abutment           |
-| fatigue                      |                                                        |                    |
-| Environmental effects        | Freezing water leading to concrete expansion           | All                |
-| Water infiltration/Leaking   | Deterioration of the expansion joints; concrete        |                    |
-|                              | degradation in the zone of the tendon anchorages       | Deck               |
-| Pier settlement              | Change in the soil properties                          | Deck               |
+Damage to a bridge can be classified as short-term or long-term. Short-term
+damage events are defined as a change of the properties of structural materials
+and elements, and of the behaviour of the whole structure, due to effects that
+occur during a very short period of time such as a collision or fire. Long-term
+damage events are those that occur gradually over a longer period of time. Table
+[[tbl:damage-events]] cite:sousa2019tool outlines some of the predominant types of
+damage due to short-term and long-term scenarios respectively.
 
 # Detecting faulty sensors is an important scenario.
 When damage is detected based on sensor measurements another possibility is of
@@ -853,7 +822,36 @@ etc. cite:ni2009sensor. Maintaining a healthy sensor network is important
 because faulty sensors can cause not only permanent loss of data but also
 inaccurate damage detection, if for example the detection system is being
 trained on the faulty sensor data.
+
+#+NAME: tbl:damage-events
+#+CAPTION[Types of damage]: Types of damage due to short-term and long-term events. The first column gives the name of the damage type, and whether it is a short-term or long-term damage event. The second column gives examples of the type of damage and the third column indicates the part of the bridge that would be affected under such an event.
+#+ATTR_LATEX: :float sidewaystable
+|---------------------------------------+------------------------------------------------------+--------------|
+| Short tem event                       | Examples                                             | Component    |
+|---------------------------------------+------------------------------------------------------+--------------|
+| Collision                             | Impact by overweight vehicle or boat in the river    | Pier         |
+| Blast                                 | Impact by vehicle followed by explosion              | Pier         |
+| Fire                                  | Impact by vehicle followed by explosion and fire     | All          |
+| Prestress loss                        | Sudden failure of a prestress tendon                 | Deck girder  |
+| Abnormal loading conditions           | Loading concentration and/or overloading             | Deck girder  |
+| Excessive vibration                   | Earthquake                                           | Pier         |
+| Impact                                | Impact pressure by water and debris during floods    | Substructure |
+|---------------------------------------+------------------------------------------------------+--------------|
+| Long term event                       | Examples                                             | Component    |
+|---------------------------------------+------------------------------------------------------+--------------|
+| Corrosion                             | Degradation of bearings                              | Deck         |
+|                                       | Loss of cross-sectional area in prestressing tendons | Deck         |
+| Time-dependent properties of          | Excessive creep & shrinkage deformations             | Deck         |
+| the structural materials              | Concrete deterioration                               | All          |
+| Fatique (low stress - high frequency) | High frequency and magnitude of traffic loads        | Deck         |
+| Fatigue (high stress - low frequency) | Temperature induced cyclic loading                   | Abutment     |
+| Environmental effects                 | Freezing water leading to concrete expansion         | All          |
+| Water infiltration/Leaking            | Deterioration of the expansion joints; concrete      | Deck         |
+|                                       | degradation in the zone of the tendon anchorages     | Deck         |
+| Pier settlement                       | Change in soil properties                            | Deck         |
+
 ** Health Monitoring
+
 # Damage localization and assessment (levels 2 and 3): have limitations.
 The most basic form of damage identification is determining whether damage has
 occured or not (detection). More sophisticated SHM methods attempt to determine
@@ -2522,30 +2520,70 @@ should be made the focus of future work.
 # Convergence plot}.
 
 \clearpage
-** Damage Identification
+** Damage Detection
 <<sec:methods:di>>
-
-Damage detection is based on the collected data as discussed very thoroughly in
-Subsection [[Simulation]]. Two types of damage to the bridge are considered. A crack
-zone is simulated by reducing Young's modulus in an area of the bridge deck, and
-a pier is displaced through a superposition of the pier displacement simulations
-that have been discussed in Subsection [[Superposition]].
 
 *** Damage Scenarios
 
-Two cracked concrete damage scenarios are considered. In both cases the crack
-zone is $\SI{20.55}{meters}$ long, or $20%$ of the length of bridge 705, and the
-crack zone occurs along the southern lane of the bridge and is the full width of
-the lane. The deck of bridge 705 in the cracked concrete damage scenarios are
-shown in Figures [[fig:crack-1]] and [[fig:crack-2]].
+# Damage detection and cracked concrete.
+Damage detection is based on the collected data as discussed thoroughly in
+Section [[Simulation]] on simulation. Two types of damage are considered for
+detection, pier settlement and crack zones. A crack zone is simulated by
+reducing Young's modulus in an area of the bridge deck in order to simulate the
+reduction in stiffness that will accompany a cracked area of concrete. In
+cite:gilbert2013time it is stated that "When a primary crack develops, there is
+a sudden change in the local stiffness at and immediately adjacent to each
+crack".
+
+# What value of Young's modulus.
+According to cite:gilbert2013time an upper limit of the second moment of area of
+cracked concrete is given as $0.61$ of the value of uncracked concrete, this
+value is suggested in the same paper as a design guideline. Is is stated in
+cite:li2010predicting that in practice in the design of reinforcements,
+$\frac{1}{3}$ of the uncracked stiffness is used when taking into account
+cracking and other effects, though again this is a design guideline which will
+attempt to err on the side of safety, and overestimate the reduction in
+stiffness. In Eurocode 8 cite:fardis2009seismic if a more accurate model of
+cracking is not performed, then it is permitted to take the stiffness properties
+as $0.5$ of the uncracked values.
+
+# Crack size and area.
+According to cite:elsafty2013investigation transverse cracking is one of the
+biggest problems affecting concrete bridge decks, and most of the cracking
+occurs around mid‐span between piers and not over the piers. For these reasons
+the cracking that will be modeled for damage detection is a transverse crack
+zone at mid-span of bridge 705's central span. The crack zone extends from the
+edge bridge 705 to the center and is 0.5 m wide. The decision to use 0.5 m is
+based on the visual inspection of photos of a number of cracked concrete bridge
+decks. The crack zone occurs across the southern lane, the deck of bridge 705 in
+the cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
 
 #+NAME: fig:crack-1
-#+CAPTION[Cracked concrete damage scenario 1]: One of the cracked concrete damage scenarios. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{3}$ of its original value.
+#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenarios. This plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
 [[../../saved-generated-data-images/bridge-705-full-3d/crack-lane-0-center-20/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
 
-#+NAME: fig:crack-2
-#+CAPTION[Cracked concrete damage scenario 1]: One of the cracked concrete damage scenarios. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{3}$ of its original value.
-[[../../saved-generated-data-images/bridge-705-full-3d/crack-lane-0-center-20/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
+# Non-linear crack behaviour.
+It is noted that in reality the cracking of concrete will introduce non-linear
+behaviour that is not modeled, instead in the damage detection experiments the
+goal is to detect the reduction of stiffness. It has been suggested to the
+author that the non-linear behaviour which is not modeled could cause the
+responses in the crack zone to "fall back down" into the range of responses that
+are recorded under normal condition. Figure [[fig:crack-moment]], which is from
+cite:gilbert2013time, shows the non-linear behaviour that is expected due to
+uniform bending of a reinforced concrete slab, according to this work the "fall
+back down" is not expected.
+
+#+NAME: fig:crack-moment
+#+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment $M_{cr}$ is reached the response, as shown in the black line, is non-linear. This image is from cite:gilbert2013time.
+[[./saved-images/crack/crack-moment.png]]
+
+# Pier settlement damage.
+The second type of damage that is considered is the settlement of a pier, which
+can occur due to a change in soil properties, perhaps due to climatic conditions
+such as the drying of the soil which is a problem for clay soils in particular
+that can become very dense as moisture is removed. Pier settlement is modeled at
+a number of different severities, in order to determine at what severity of
+settlement the pier settlement can be detected.
 
 * Results
 
