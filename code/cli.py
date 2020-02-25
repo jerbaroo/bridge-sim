@@ -23,7 +23,7 @@ from model.bridge.bridge_705 import (
     bridge_705_med_config,
     bridge_705_single_sections,
 )
-from util import clean_generated, print_i
+from util import clean_generated, print_i, remove_except_npy
 
 pdb_ = "--pdb" in sys.argv
 b_func = None
@@ -155,9 +155,15 @@ def cli(
 ################
 
 
-@cli.command(help="Remove simulation data for the selected bridge.")
-def clean():
+@cli.command(help="Remove all simulation data for a bridge.")
+def remove():
     clean_generated(c())
+
+
+@cli.command(help="Remove simulation data except for result files.")
+@click.option("--keep", type=str, default="y-translation strain", help="Words required in the filename.")
+def clean(keep):
+    remove_except_npy(c=c(), keep=keep)
 
 
 ################

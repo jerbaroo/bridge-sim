@@ -25,6 +25,10 @@
 - Only show allowed sensors in pier settlement accuracy plot
 - Plot boundary decision in damage detection plots
 ** Day 7 (Tue 25 Feb)
+- Fix cracked concrete plot
+- Add cracked concrete references
+- Run cracked concrete simulations (med)
+- Add clean command to remove uneeded files
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.

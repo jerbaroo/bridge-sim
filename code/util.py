@@ -142,6 +142,26 @@ def clean_generated(c: "Config"):
     clean_dir(c.generated_data_dir())
 
 
+def remove_except_npy(c: "Config", keep: str):
+    """Remove files except keep .npy files with a given word in the filename."""
+    keep = keep.split()
+    print_w(f"Removing all files in: {c.generated_data_dir}")
+    print_w(f"Except files containing one of: {keep}")
+
+    def clean_dir(dir_path):
+        for root, dir_names, file_names in os.walk(dir_path):
+            for file_name in file_names:
+                if not (any(k in file_name for k in keep) and file_name.endswith("npy")):
+                    print_i(f"Removing {file_name}")
+                    os.remove(os.path.join(root, file_name))
+                else:
+                    print_w(f"Keeping {file_name}")
+            for dir_name in dir_names:
+                clean_dir(os.path.join(root, dir_name))
+
+    clean_dir(c.generated_data_dir())
+
+
 def scalar(input):
     try:
         if len(input) == 1:
