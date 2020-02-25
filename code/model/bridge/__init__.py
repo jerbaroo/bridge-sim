@@ -382,8 +382,12 @@ class Section3D:
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
         """Whether this section contains the given point."""
-        return (self.start_x_frac <= bridge.x_frac(x) <= self.end_x_frac) and (
-            self.start_z_frac <= bridge.z_frac(z) <= self.end_z_frac
+        x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+        return (
+            (self.start_x_frac < x_frac or np.isclose(self.start_x_frac, x_frac)) and
+            (self.end_x_frac > x_frac or np.isclose(self.end_x_frac, x_frac)) and
+            (self.start_z_frac < z_frac or np.isclose(self.start_z_frac, z_frac)) and
+            (self.end_z_frac > z_frac or np.isclose(self.end_z_frac, z_frac))
         )
 
     def mat_id_str(self):

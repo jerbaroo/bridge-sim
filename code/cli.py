@@ -229,8 +229,16 @@ def shells_3d():
 
 
 @geometry.command(help="Top view of shells coloured by material properties.")
-def shells_top():
-    geometry_.make_shell_properties_top_view(c())
+@click.option("--shells", type=click.Choice(["deck", "pier"]), default="deck")
+@click.option("--prop", type=click.Choice(["mesh", "thickness", "density", "poisson", "young"]), required=True)
+@click.option("--refined", is_flag=True)
+@click.option("--outline", is_flag=True)
+@click.option("--lanes", is_flag=True)
+def shells_top(shells, prop, refined, outline, lanes):
+    geometry_.make_shell_properties_top_view(
+        c=c(), shells_name_=shells, prop_name_=prop, refined_=refined,
+        outline=outline, lanes=lanes
+    )
 
 
 @geometry.command(help="3D scatter plot of FEM nodes.")

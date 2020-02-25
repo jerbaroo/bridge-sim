@@ -4,17 +4,14 @@ from classify.scenario.bridge import (
     HealthyDamage,
     PierDispDamage,
     ThermalDamage,
-    center_lane_crack,
     equal_pier_disp,
     longitudinal_pier_disp,
-    start_lane_crack,
+    transverse_crack,
 )
 from model.load import PierSettlement
 
 healthy_scenario = HealthyDamage()
-
-cracked_scenario = center_lane_crack()
-cracked_scenario2 = start_lane_crack()
+cracked_scenario = transverse_crack()
 
 # Each pier displaced by 1mm.
 each_pier_scenarios = lambda c: [
@@ -32,9 +29,7 @@ gradient_pier_scenarios = lambda c: [
     for start, step in itertools.product([0.01, 0.02, 0.05], [0.01, 0.02, 0.05])
 ]
 
-healthy_and_cracked_scenarios = (
-    [healthy_scenario] + [cracked_scenario] + [cracked_scenario2]
-)
+healthy_and_cracked_scenarios = [healthy_scenario, cracked_scenario]
 
 unit_temp_scenario = ThermalDamage(axial_delta_temp=1, moment_delta_temp=1)
 

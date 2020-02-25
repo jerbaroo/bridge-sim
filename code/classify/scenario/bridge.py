@@ -1,6 +1,8 @@
 """Bridge scenarios."""
 from copy import deepcopy
-from typing import Callable, List, NewType, Tuple
+from typing import Callable, List, NewType, Optional, Tuple
+
+import numpy as np
 
 from config import Config
 from fem.params import SimParams
@@ -30,6 +32,7 @@ class CrackedDamage(DamageScenario):
         self, name: str, crack_area: Callable[[Bridge], CrackArea],
     ):
         def mod_bridge(bridge: Bridge):
+            bridge = bridge
             bridge.type = self.name
             self._crack_deck(bridge)
             return bridge
@@ -42,6 +45,8 @@ class CrackedDamage(DamageScenario):
         c_x_start, c_z_start, c_x_end, c_z_end = list(
             map(round_m, self.crack_area(bridge))
         )
+        # print(f"crack x: (start, end) = ({c_x_start}, {c_x_end})")
+        # print(f"crack z: (start, end) = ({c_z_start}, {c_z_end})")
 
         if callable(bridge.sections):
             raise NotImplementedError()
@@ -54,29 +59,43 @@ class CrackedDamage(DamageScenario):
             s_x_end = round_m(bridge.x(section.end_x_frac))
             s_z_end = round_m(bridge.z(section.end_z_frac))
 
+            # print()
+            # print(f"section x: (start, end) = ({s_x_start}, {s_x_end})")
+            # print(f"section z: (start, end) = ({s_z_start}, {s_z_end})")
+
             overlap_x_start = max(c_x_start, s_x_start)
             overlap_z_start = max(c_z_start, s_z_start)
             overlap_x_end = min(c_x_end, s_x_end)
             overlap_z_end = min(c_z_end, s_z_end)
 
-            if overlap_x_end - overlap_x_start > 0:
-                if overlap_z_end - overlap_z_start > 0:
-                    overlaps.append(
-                        (
-                            section,
-                            overlap_x_start,
-                            overlap_z_start,
-                            overlap_x_end,
-                            overlap_z_end,
-                        )
+            # print(f"overlap x (start, end) = ({overlap_x_start}, {overlap_x_end})")
+            # print(f"overlap z (start, end) = ({overlap_z_start}, {overlap_z_end})")
+
+            overlap_x = overlap_x_end - overlap_x_start
+            overlap_z = overlap_z_end - overlap_z_start
+
+            # print(f"overlap x = {overlap_x}")
+            # print(f"overlap z = {overlap_z}")
+
+            if overlap_x > 0 and overlap_z > 0:
+                overlaps.append(
+                    (
+                        section,
+                        overlap_x_start,
+                        overlap_z_start,
+                        overlap_x_end,
+                        overlap_z_end,
                     )
+                )
 
         # Create new cracked sections for each of these overlaps.
-        cracked_sections, max_id = [], bridge.sections[-1].id
+        cracked_sections, max_id = [], 1000000
         for i, (section, x_start, z_start, x_end, z_end) in enumerate(overlaps):
+            # print(f"x (start, end) = ({x_start}, {x_end})")
+            # print(f"z (start, end) = ({z_start}, {z_end})")
             cracked_section = deepcopy(section)
             cracked_section.id = max_id + i + 1
-            cracked_section.youngs *= 1 / 3
+            cracked_section.youngs *= 0.5
             cracked_section.start_x_frac = bridge.x_frac(x_start)
             cracked_section.start_z_frac = bridge.z_frac(z_start)
             cracked_section.end_x_frac = bridge.x_frac(x_end)
@@ -84,6 +103,29 @@ class CrackedDamage(DamageScenario):
             cracked_sections.append(cracked_section)
 
         bridge.sections = cracked_sections + bridge.sections
+
+
+def transverse_crack(
+        length: float = 1,
+        width: Optional[float] = None,
+        at_x: Optional[float] = None,
+        at_z: Optional[float] = None,
+) -> CrackedDamage:
+    """A bridge with a transverse crack."""
+
+    def crack_area(bridge: Bridge) -> CrackArea:
+        nonlocal width
+        nonlocal at_x
+        nonlocal at_z
+        if width is None:
+            width = bridge.width / 2
+        if at_x is None:
+            at_x = bridge.x_min + (bridge.length / 2)
+        if at_z is None:
+            at_z = bridge.z_min
+        return at_x, at_z, at_x + length, at_z + width
+
+    return CrackedDamage(name="transverse", crack_area=crack_area)
 
 
 def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:

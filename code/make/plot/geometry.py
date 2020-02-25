@@ -67,22 +67,29 @@ def make_shell_properties_3d(original_c: Config):
                             plt.close()
 
 
-def make_shell_properties_top_view(original_c: Config):
+def make_shell_properties_top_view(
+        c: Config, shells_name_: str, prop_name_: str, refined_: bool,
+        outline: bool, lanes: bool,
+):
     """Make plots of the shells in top view, coloured by material property."""
+    original_c = c
     # For each damage scenario build the model and extract the shells.
-    for damage_scenario in healthy_and_cracked_scenarios:
+    for damage_scenario, damage_name in zip(healthy_and_cracked_scenarios, [None, "cracked"]):
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
         # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
         bridge_name = c.bridge.name
-        for ctx, ctx_name in [
+        for ctx, ctx_name, refined, in [
             (
                 BuildContext(
                     add_loads=[Point(x=85, y=0, z=0)], refinement_radii=[2, 1, 0.5],
                 ),
                 "refined",
+                True,
             ),
-            (None, "unrefined"),
+            (None, "unrefined", False),
         ]:
+            if refined != refined_:
+                continue
             bridge_shells = get_bridge_shells(bridge=c.bridge, ctx=ctx)
             deck_shells = flatten(bridge_shells[0], Shell)
             pier_shells = flatten(bridge_shells[1], Shell)
@@ -91,6 +98,8 @@ def make_shell_properties_top_view(original_c: Config):
                 ("piers", pier_shells),
                 ("deck", deck_shells),
             ]:
+                if shells_name != shells_name_:
+                    continue
                 for prop_name, prop_units, prop_f in [
                     ("Mesh", "", None),
                     ("Thickness", "m", lambda s: np.around(s.thickness, 3)),
@@ -98,46 +107,43 @@ def make_shell_properties_top_view(original_c: Config):
                     ("Poisson's ratio", "m/m", lambda s: s.poissons),
                     ("Young's modulus", "MPa", lambda s: np.around(s.youngs, 1)),
                 ]:
-                    for cmap in [parula_cmap, default_cmap, get_cmap("tab10")]:
-                        for outline, lanes in itertools.product(
-                            [True, False], [False, True]
-                        ):
+                    if prop_name_ not in prop_name.lower():
+                        continue
+                    for cmap in [parula_cmap, default_cmap]:
+                        def top_view():
+                            top_view_bridge(
+                                bridge=c.bridge,
+                                abutments=True,
+                                piers=True,
+                                lanes=lanes,
+                                compass=prop_f is not None,
+                            )
 
-                            def top_view():
-                                top_view_bridge(
-                                    bridge=c.bridge,
-                                    abutments=True,
-                                    piers=True,
-                                    lanes=lanes,
-                                    compass=prop_f is not None,
+                        top_view()
+                        shell_properties_top_view(
+                            shells=shells,
+                            prop_f=prop_f,
+                            prop_units=prop_units,
+                            cmap=cmap,
+                            colorbar=prop_f is not None,
+                            # label=prop_f is not None,
+                            outline=outline,
+                        )
+                        top_view()
+                        damage_str = "" if damage_name is None else f" ({damage_name})"
+                        plt.title(
+                            f"{prop_name} of {bridge_name}'s {shells_name}{damage_str}"
+                        )
+                        plt.savefig(
+                            c.get_image_path(
+                                f"geometry/{shells_name}-shells-{ctx_name}-top-view",
+                                safe_str(
+                                    f"{prop_name}-{cmap.name}-outline-{outline}-lanes-{lanes}"
                                 )
-
-                            top_view()
-                            shell_properties_top_view(
-                                shells=shells,
-                                prop_f=prop_f,
-                                prop_units=prop_units,
-                                cmap=cmap,
-                                colorbar=prop_f is not None,
-                                label=prop_f is not None,
-                                outline=outline,
+                                + ".pdf",
                             )
-                            top_view()
-                            plt.title(
-                                f"{prop_name} of {bridge_name}'s {shells_name} ({ctx_name})"
-                            )
-                            plt.savefig(
-                                c.get_image_path(
-                                    f"geometry/{shells_name}-shells-{ctx_name}-top-view",
-                                    safe_str(
-                                        f"{prop_name}-{cmap.name}-outline-{outline}-lanes-{lanes}"
-                                    )
-                                    + ".pdf",
-                                )
-                            )
-                            plt.close()
-                            if prop_f is None:
-                                break
+                        )
+                        plt.close()
                         if prop_f is None:
                             break
 

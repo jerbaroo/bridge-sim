@@ -2559,8 +2559,8 @@ decks. The crack zone occurs across the southern lane, the deck of bridge 705 in
 the cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
 
 #+NAME: fig:crack-1
-#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenarios. This plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The purple area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
-[[../../saved-generated-data-images/bridge-705-full-3d/crack-lane-0-center-20/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-true-lanes-true.pdf]]
+#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 1 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
+[[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
 
 # Non-linear crack behaviour.
 It is noted that in reality the cracking of concrete will introduce non-linear

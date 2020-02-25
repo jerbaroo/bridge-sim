@@ -23,7 +23,9 @@ def get_deck_section_grid(bridge: Bridge) -> DeckGrid:
     xs, zs = set(), set()
     for section in bridge.sections:
         xs.add(round_m(bridge.x(section.start_x_frac)))
+        xs.add(round_m(bridge.x(section.end_x_frac)))
         zs.add(round_m(bridge.z(section.start_z_frac)))
+        zs.add(round_m(bridge.z(section.end_z_frac)))
     return sorted(xs), sorted(zs)
 
 
