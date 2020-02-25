@@ -449,14 +449,11 @@ def scenarios_traffic():
     contour_.traffic_response_plots(c())
 
 
-@contour.command(help="Response to point loads per scenario.")
-def scenarios_point_load():
-    contour_.point_load_response_plots(c())
-
-
-@contour.command(help="Cracked concrete under normal traffic.")
-def traffic_concrete():
-    pass
+@contour.command(help="Response to a 100 kN point load per scenario.")
+@click.option("--x", type=float, default=51.375, help="X position of the point load.")
+@click.option("--z", type=float, default=0, help="Z position of the point load.")
+def point_load(x, z):
+    contour_.point_load_response_plots(c=c(), x=x, z=z)
 
 
 @contour.command(help="Unit thermal deck load under normal traffic.")
