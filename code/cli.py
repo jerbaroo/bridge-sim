@@ -276,8 +276,11 @@ def simulate():
 
 
 @simulate.command(help="Run all unit load simulations.")
-def uls():
-    simulations.run_uls(c())
+@click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
+@click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
+@click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
+def uls(piers, healthy, cracked):
+    simulations.run_uls(c=c(), piers=piers, healthy=healthy, cracked=cracked)
 
 
 @simulate.command(help="Record information for convergence plots.")

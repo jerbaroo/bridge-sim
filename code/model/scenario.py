@@ -29,12 +29,10 @@ class DamageScenario:
 
     def use(
         self, c: Config, sim_params: SimParams = SimParams(),
-    ) -> Union[Config, Tuple[Config, SimParams]]:
+    ) -> Tuple[Config, SimParams]:
         """Copies of the given arguments modified for this damage scenario."""
         config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
-        if sim_params is None:
-            return config_copy
         sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
         return config_copy, sim_params_copy
 
