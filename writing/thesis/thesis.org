@@ -2543,7 +2543,7 @@ cite:li2010predicting that in practice in the design of reinforcements,
 $\frac{1}{3}$ of the uncracked stiffness is used when taking into account
 cracking and other effects, though again this is a design guideline which will
 attempt to err on the side of safety, and overestimate the reduction in
-stiffness. In Eurocode 8 cite:fardis2009seismic if a more accurate model of
+stiffness. In Eurocode 8 cite:fardis2009seismic, if a more accurate model of
 cracking is not performed, then it is permitted to take the stiffness properties
 as $0.5$ of the uncracked values.
 
@@ -2555,8 +2555,9 @@ the cracking that will be modeled for damage detection is a transverse crack
 zone at mid-span of bridge 705's central span. The crack zone extends from the
 edge bridge 705 to the center and is 0.5 m wide. The decision to use 0.5 m is
 based on the visual inspection of photos of a number of cracked concrete bridge
-decks. The crack zone occurs across the southern lane, the deck of bridge 705 in
-the cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
+decks, and from the bridge deck cracking investigation cite:vargas2012bridge.
+The crack zone occurs across the southern lane, the deck of bridge 705 in the
+cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
 
 #+NAME: fig:crack-1
 #+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 1 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
