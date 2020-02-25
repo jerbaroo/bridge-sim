@@ -26,9 +26,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     # Create the traffic.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence, traffic, traffic_array = load_traffic(
-        c=c,
-        traffic_scenario=traffic_scenario,
-        max_time=max_time,
+        c=c, traffic_scenario=traffic_scenario, max_time=max_time,
     )
     assert len(traffic) == traffic_array.shape[0]
     # Points on the deck to collect responses.
@@ -63,14 +61,13 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     # Determine response due to pier settlement.
     pd_response_at_point = 0
     if isinstance(damage_scenario, PierDispDamage):
-        pd_expt = list(DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=OSRunner(c)
-        ))
+        pd_expt = list(
+            DCMatrix.load(c=c, response_type=response_type, fem_runner=OSRunner(c))
+        )
         for pier_displacement in damage_scenario.pier_disps:
             pd_sim_responses = pd_expt[pier_displacement.pier]
-            pd_response_at_point += (
-                pd_sim_responses.at_deck(point, interp=False)
-                * (pier_displacement.displacement / c.pd_unit_disp)
+            pd_response_at_point += pd_sim_responses.at_deck(point, interp=False) * (
+                pier_displacement.displacement / c.pd_unit_disp
             )
     # Resize responses if applicable to response type.
     resize_f, units = resize_units(response_type.units())
@@ -123,12 +120,14 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         # Plot the responses at a point.
         plt.subplot2grid((3, 1), (2, 0))
         time = t_ind * c.sensor_hz
-        plt.axvline(x=time, color="black", label=f"Current time = {np.around(time, 4)} s")
+        plt.axvline(
+            x=time, color="black", label=f"Current time = {np.around(time, 4)} s"
+        )
         plt.plot(
             np.arange(len(responses_array)) * c.sensor_hz,
             responses_w_temp.T[-1],
             color="red",
-            label="Total effect"
+            label="Total effect",
         )
         if isinstance(damage_scenario, PierDispDamage):
             plt.plot(

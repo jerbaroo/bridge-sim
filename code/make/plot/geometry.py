@@ -68,13 +68,19 @@ def make_shell_properties_3d(original_c: Config):
 
 
 def make_shell_properties_top_view(
-        c: Config, shells_name_: str, prop_name_: str, refined_: bool,
-        outline: bool, lanes: bool,
+    c: Config,
+    shells_name_: str,
+    prop_name_: str,
+    refined_: bool,
+    outline: bool,
+    lanes: bool,
 ):
     """Make plots of the shells in top view, coloured by material property."""
     original_c = c
     # For each damage scenario build the model and extract the shells.
-    for damage_scenario, damage_name in zip(healthy_and_cracked_scenarios, [None, "cracked"]):
+    for damage_scenario, damage_name in zip(
+        healthy_and_cracked_scenarios, [None, "cracked"]
+    ):
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
         # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
         bridge_name = c.bridge.name
@@ -110,6 +116,7 @@ def make_shell_properties_top_view(
                     if prop_name_ not in prop_name.lower():
                         continue
                     for cmap in [parula_cmap, default_cmap]:
+
                         def top_view():
                             top_view_bridge(
                                 bridge=c.bridge,

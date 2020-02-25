@@ -85,12 +85,19 @@ class ILMatrix(ResponsesMatrix):
         sim_runner: FEMRunner,
     ):
         wheel_zs = c.bridge.wheel_track_zs(c)
-        filepath = c.get_data_path("ulms", (ILMatrix.id_str(
-            c=c,
-            response_type=response_type,
-            sim_runner=sim_runner,
-            wheel_zs=wheel_zs,
-        ) + str([str(point) for point in points])) + ".ulm")
+        filepath = c.get_data_path(
+            "ulms",
+            (
+                ILMatrix.id_str(
+                    c=c,
+                    response_type=response_type,
+                    sim_runner=sim_runner,
+                    wheel_zs=wheel_zs,
+                )
+                + str([str(point) for point in points])
+            )
+            + ".ulm",
+        )
         filepath = shorten_path(c=c, bypass_config=True, filepath=filepath)
 
         if os.path.exists(filepath):
@@ -115,6 +122,7 @@ class ILMatrix(ResponsesMatrix):
             assert i == c.il_num_loads
             print_i(f"Calculated unit load matrix for wheel track {wheel_z}")
             return partial
+
         # Calculate results in parallel.
         print_i(f"Calculating unit load matrix...")
         with multiprocessing.Pool(processes=len(wheel_zs)) as pool:
@@ -123,7 +131,9 @@ class ILMatrix(ResponsesMatrix):
         unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
         for w_ind in range(len(wheel_zs)):
             row_ind = w_ind * c.il_num_loads
-            unit_load_matrix[row_ind:row_ind + c.il_num_loads] = partial_results[w_ind]
+            unit_load_matrix[row_ind : row_ind + c.il_num_loads] = partial_results[
+                w_ind
+            ]
         # Divide by unit load, so the value at a cell is the response to 1 kN.
         unit_load_matrix /= c.il_unit_load_kn
         with open(filepath, "wb") as f:

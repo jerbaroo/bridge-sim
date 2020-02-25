@@ -16,9 +16,14 @@ def temp_contour_plot(c: Config, temp: int):
     # Points on the deck to collect responses.
     deck_points = [
         Point(x=x, y=0, z=z)
-        for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2))
-        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2))
+        for x in np.linspace(
+            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2)
+        )
+        for z in np.linspace(
+            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2)
+        )
     ]
+
     def plot_response_type(response_type: ResponseType):
         # Temperature effect.
         temp_effect = temperature.effect(
@@ -39,6 +44,7 @@ def temp_contour_plot(c: Config, temp: int):
         top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
         plot_contour_deck(c=c, responses=responses)
         plt.title(f"{response_type.name()} at {temp} °C")
+
     plt.landscape()
     plt.subplot(2, 1, 1)
     plot_response_type(ResponseType.YTranslation)

@@ -11,9 +11,7 @@ def run_uls(c: Config, piers: bool, healthy: bool, cracked: bool):
     response_type = ResponseType.YTranslation
     if piers:
         # Pier settlement.
-        list(DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=OSRunner(c)
-        ))
+        list(DCMatrix.load(c=c, response_type=response_type, fem_runner=OSRunner(c)))
     if healthy:
         # Unit load simulations (healthy bridge).
         ILMatrix.load_wheel_tracks(

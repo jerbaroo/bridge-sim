@@ -136,9 +136,7 @@ def traffic_response_plots(c: Config, times: int = 3):
             plt.close()
 
 
-def point_load_response_plots(
-    c: Config, x: float, z: float, kn: int = 1000
-):
+def point_load_response_plots(c: Config, x: float, z: float, kn: int = 1000):
     """Response to a point load per damage scenario."""
     response_type = ResponseType.YTranslation
     # scenarios = all_scenarios(c)

@@ -65,16 +65,15 @@ def responses_to_traffic_array(
     pd_responses = np.zeros(responses.shape).T
     assert len(pd_responses) == len(points)
     if isinstance(damage_scenario, PierDispDamage):
-        pd_expt = list(DCMatrix.load(
-            c=c, response_type=response_type, fem_runner=sim_runner
-        ))
+        pd_expt = list(
+            DCMatrix.load(c=c, response_type=response_type, fem_runner=sim_runner)
+        )
         for point_i, point in enumerate(points):
             for pier_displacement in damage_scenario.pier_disps:
                 pd_sim_responses = pd_expt[pier_displacement.pier]
-                pd_responses[point_i] += (
-                    pd_sim_responses.at_deck(point, interp=False)
-                    * (pier_displacement.displacement / c.pd_unit_disp)
-                )
+                pd_responses[point_i] += pd_sim_responses.at_deck(
+                    point, interp=False
+                ) * (pier_displacement.displacement / c.pd_unit_disp)
 
     return responses + pd_responses.T
 

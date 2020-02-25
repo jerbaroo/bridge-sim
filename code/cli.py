@@ -161,7 +161,12 @@ def remove():
 
 
 @cli.command(help="Remove simulation data except for result files.")
-@click.option("--keep", type=str, default="y-translation strain", help="Words required in the filename.")
+@click.option(
+    "--keep",
+    type=str,
+    default="y-translation strain",
+    help="Words required in the filename.",
+)
 def clean(keep):
     remove_except_npy(c=c(), keep=keep)
 
@@ -236,14 +241,22 @@ def shells_3d():
 
 @geometry.command(help="Top view of shells coloured by material properties.")
 @click.option("--shells", type=click.Choice(["deck", "pier"]), default="deck")
-@click.option("--prop", type=click.Choice(["mesh", "thickness", "density", "poisson", "young"]), required=True)
+@click.option(
+    "--prop",
+    type=click.Choice(["mesh", "thickness", "density", "poisson", "young"]),
+    required=True,
+)
 @click.option("--refined", is_flag=True)
 @click.option("--outline", is_flag=True)
 @click.option("--lanes", is_flag=True)
 def shells_top(shells, prop, refined, outline, lanes):
     geometry_.make_shell_properties_top_view(
-        c=c(), shells_name_=shells, prop_name_=prop, refined_=refined,
-        outline=outline, lanes=lanes
+        c=c(),
+        shells_name_=shells,
+        prop_name_=prop,
+        refined_=refined,
+        outline=outline,
+        lanes=lanes,
     )
 
 
@@ -535,7 +548,12 @@ def classify():
 @classify.command(help="Responses to traffic with a top view.")
 @click.option("--mins", type=float, default=1, help="Minutes of traffic.")
 @click.option("--skip", type=int, default=50, help="Skip every n recorded responses.")
-@click.option("--damage", type=click.Choice(["healthy", "pier"]), default="healthy", help="Damage scenario.")
+@click.option(
+    "--damage",
+    type=click.Choice(["healthy", "pier"]),
+    default="healthy",
+    help="Damage scenario.",
+)
 def top_view(mins, skip, damage):
     from classify.scenario.bridge import healthy_damage, pier_disp_damage
     from make.classify.top_view import top_view_plot
@@ -545,7 +563,9 @@ def top_view(mins, skip, damage):
     elif damage == "pier":
         damage_scenario = pier_disp_damage([(5, 0.5 / 1000)])
 
-    top_view_plot(c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario)
+    top_view_plot(
+        c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario
+    )
 
 
 @classify.command(help="")
@@ -564,7 +584,9 @@ def events(x, z):
 
 
 @classify.command(help="Plot temperature effect.")
-@click.option("--date", type=str, default="holly-springs", help="Filename to plot effect for.")
+@click.option(
+    "--date", type=str, default="holly-springs", help="Filename to plot effect for."
+)
 @click.option("--vert", type=bool, default=True, help="Vertical lines every 24 hours.")
 def temp_effect_date(date, vert):
     classification_.temperature_effect_date(c=c(), month=date, vert=vert)

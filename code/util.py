@@ -151,7 +151,9 @@ def remove_except_npy(c: "Config", keep: str):
     def clean_dir(dir_path):
         for root, dir_names, file_names in os.walk(dir_path):
             for file_name in file_names:
-                if not (any(k in file_name for k in keep) and file_name.endswith("npy")):
+                if not (
+                    any(k in file_name for k in keep) and file_name.endswith("npy")
+                ):
                     print_i(f"Removing {file_name}")
                     os.remove(os.path.join(root, file_name))
                 else:

@@ -468,9 +468,7 @@ def opensees_test(pier_disp: Optional[PierSettlement]):
 ##### End recorders #####
 
 
-def build_model_3d(
-    c: Config, expt_params: ExptParams, os_runner: "OSRunner"
-):
+def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """Build OpenSees 3D model files.
 
     TODO: ExptParams -> SimParams.

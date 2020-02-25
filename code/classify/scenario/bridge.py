@@ -106,10 +106,10 @@ class CrackedDamage(DamageScenario):
 
 
 def transverse_crack(
-        length: float = 1,
-        width: Optional[float] = None,
-        at_x: Optional[float] = None,
-        at_z: Optional[float] = None,
+    length: float = 1,
+    width: Optional[float] = None,
+    at_x: Optional[float] = None,
+    at_z: Optional[float] = None,
 ) -> CrackedDamage:
     """A bridge with a transverse crack."""
 

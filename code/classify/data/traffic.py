@@ -32,9 +32,13 @@ def load_traffic(
     print(path)
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path + ".arr"):
-        traffic_sequence = traffic_scenario.traffic_sequence(bridge=c.bridge, max_time=max_time)
+        traffic_sequence = traffic_scenario.traffic_sequence(
+            bridge=c.bridge, max_time=max_time
+        )
         traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
-        traffic_array = to_traffic_array(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+        traffic_array = to_traffic_array(
+            c=c, traffic_sequence=traffic_sequence, max_time=max_time
+        )
         with open(path + ".seq", "wb") as f:
             dill.dump(traffic_sequence, f)
         with open(path + ".tra", "wb") as f:

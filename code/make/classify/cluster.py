@@ -19,32 +19,35 @@ def cluster_damage(c: Config, mins: float):
     # Create the traffic.
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence, traffic, traffic_array = load_traffic(
-        c=c,
-        traffic_scenario=traffic_scenario,
-        max_time=mins * 60,
+        c=c, traffic_scenario=traffic_scenario, max_time=mins * 60,
     )
     point = Point(x=21, y=0, z=-8.4)  # Point to investigate.
     # Collect vertical translation and strain for all damage scenarios.
     responses_y = []
     responses_s = []
     for damage_scenario in [healthy_damage, pier_disp_damage([(5, 0.5 / 1000)])]:
-        responses_y.append(responses_to_traffic_array(
-            c=c,
-            traffic_array=traffic_array,
-            response_type=ResponseType.YTranslation,
-            damage_scenario=damage_scenario,
-            points=[point],
-            sim_runner=OSRunner(c),
-        ).T[0] * 1000)
+        responses_y.append(
+            responses_to_traffic_array(
+                c=c,
+                traffic_array=traffic_array,
+                response_type=ResponseType.YTranslation,
+                damage_scenario=damage_scenario,
+                points=[point],
+                sim_runner=OSRunner(c),
+            ).T[0]
+            * 1000
+        )
         assert len(responses_y[-1]) == len(traffic_array)
-        responses_s.append(responses_to_traffic_array(
-            c=c,
-            traffic_array=traffic_array,
-            response_type=ResponseType.Strain,
-            damage_scenario=damage_scenario,
-            points=[point],
-            sim_runner=OSRunner(c),
-        ).T[0])
+        responses_s.append(
+            responses_to_traffic_array(
+                c=c,
+                traffic_array=traffic_array,
+                response_type=ResponseType.Strain,
+                damage_scenario=damage_scenario,
+                points=[point],
+                sim_runner=OSRunner(c),
+            ).T[0]
+        )
         assert len(responses_s[-1]) == len(traffic_array)
     # Calculate features per damage.
     damage_features = []
