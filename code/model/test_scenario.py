@@ -85,10 +85,7 @@ def test_to_traffic_array_methods():
     )
     assert traffic_array_new.shape == traffic_array_old.shape
     for time in range(len(traffic_array_new)):
-        assert np.isclose(
-            sum(traffic_array_new[time]),
-            sum(traffic_array_old[time])
-        )
+        assert np.isclose(sum(traffic_array_new[time]), sum(traffic_array_old[time]))
 
 
 # def test_scenario():

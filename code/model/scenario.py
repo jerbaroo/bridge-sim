@@ -276,8 +276,10 @@ def to_traffic_array(
     next_event_time = traffic_sequence[next_event_index][1]
     # Interpolate from x position to wheel track bucket.
     _interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
+
     def interp(x):
         return int(np.around(_interp(x), 0))
+
     wheel_track_xs = c.bridge.wheel_track_xs(c)
     # Column index where each wheel track starts.
     j_indices = [
@@ -333,7 +335,9 @@ def to_traffic_array(
                             # The x indices are equal per axle.
                             x_inds = [interp(x) for x, _ in axle_loads[0]]
                             for j, wheel_loads in zip(js, axle_loads):
-                                for x_ind, (load_x, load_kn) in zip(x_inds, wheel_loads):
+                                for x_ind, (load_x, load_kn) in zip(
+                                    x_inds, wheel_loads
+                                ):
                                     result[time_i][j + x_ind] += load_kn
             # The old method.
             else:

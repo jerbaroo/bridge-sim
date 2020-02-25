@@ -334,7 +334,11 @@ class MvVehicle(Vehicle):
         return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
 
     def to_wheel_track_loads_(
-        self, c: Config, time: float, flat: bool = False, wheel_track_xs: Optional[List[float]] = None
+        self,
+        c: Config,
+        time: float,
+        flat: bool = False,
+        wheel_track_xs: Optional[List[float]] = None,
     ):
         """Load intensities and positions per axle, per wheel.
 
@@ -380,19 +384,11 @@ class MvVehicle(Vehicle):
             left_loads, right_loads = axle_loads
             for load_x, load_kn in left_loads:
                 left.append(
-                    PointLoad(
-                        x_frac=c.bridge.x_frac(load_x),
-                        z_frac=z0,
-                        kn=load_kn,
-                    )
+                    PointLoad(x_frac=c.bridge.x_frac(load_x), z_frac=z0, kn=load_kn,)
                 )
             for load_x, load_kn in right_loads:
                 right.append(
-                    PointLoad(
-                        x_frac=c.bridge.x_frac(load_x),
-                        z_frac=z1,
-                        kn=load_kn,
-                    )
+                    PointLoad(x_frac=c.bridge.x_frac(load_x), z_frac=z1, kn=load_kn,)
                 )
             result.append((left, right))
         if flat:

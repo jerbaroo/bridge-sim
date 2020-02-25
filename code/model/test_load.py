@@ -85,8 +85,7 @@ def test_wheel_to_wheel_track_xs():
     assert x1 == np.around(bucket_width * 5, 6)
     # Near the beginning (exact match).
     (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(
-        c=c,
-        wheel_x=c.bridge.length / (c.il_num_loads - 1),
+        c=c, wheel_x=c.bridge.length / (c.il_num_loads - 1),
     )
     # The fraction might not be exactly 1, because of rounding of the wheel
     # track positions.
@@ -95,8 +94,7 @@ def test_wheel_to_wheel_track_xs():
     assert x0 == np.around(bucket_width, 6)
     # Near the beginning (a little more).
     (x0, f0), (x1, f1) = wagen1.to_wheel_track_xs(
-        c=c,
-        wheel_x=c.bridge.length / (c.il_num_loads - 1) + 0.001,
+        c=c, wheel_x=c.bridge.length / (c.il_num_loads - 1) + 0.001,
     )
     assert f0 != 0
     assert f0 != 1

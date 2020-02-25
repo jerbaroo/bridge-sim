@@ -77,6 +77,8 @@ def without_wheel_tracks(c: Config, radius: float):
 def without_sensors(c: Config, pier_radius: float, track_radius: float):
     without_p = without_pier_lines(c=c, radius=pier_radius)
     without_t = without_wheel_tracks(c=c, radius=track_radius)
+
     def without(point: Point) -> bool:
         return without_t(point) or without_p(point)
+
     return without

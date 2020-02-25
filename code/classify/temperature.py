@@ -81,7 +81,9 @@ def from_to_mins(df, from_, to, smooth: bool = False):
     # Interpolate to get result temps.
     result_temps = interp1d(times, temps, fill_value="extrapolate")(result_times)
     # Pack it into a DataFrame.
-    df = pd.DataFrame(np.array([result_dates, result_temps]).T, columns=["datetime", "temp"])
+    df = pd.DataFrame(
+        np.array([result_dates, result_temps]).T, columns=["datetime", "temp"]
+    )
     # Sort.
     df = df.sort_values(by=["datetime"])
     # Smooth.
@@ -104,14 +106,18 @@ def effect(
     uniform_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
-    unit_uniforms = np.array([uniform_responses.at_deck(point, interp=True) for point in points])
+    unit_uniforms = np.array(
+        [uniform_responses.at_deck(point, interp=True) for point in points]
+    )
     # Unit effect from linear temperature loading.
     unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = unit_linear.use(c)
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
-    unit_linears = np.array([linear_responses.at_deck(point, interp=True) for point in points])
+    unit_linears = np.array(
+        [linear_responses.at_deck(point, interp=True) for point in points]
+    )
     print_d(D, f"unit uniform and linear = {unit_uniforms} {unit_linears}")
     # Combine uniform and linear.
     temps_bottom = np.array(temps) - c.bridge.ref_temp_c
@@ -120,13 +126,13 @@ def effect(
     print_d(D, f"tb = {temps_bottom[:3]}")
     print_d(D, f"tt = {temps_top[:3]}")
     print_d(D, f"th = {temps_half[:3]}")
-    uniform_responses = np.array([
-        unit_uniform * temps_half for unit_uniform in unit_uniforms
-    ])
+    uniform_responses = np.array(
+        [unit_uniform * temps_half for unit_uniform in unit_uniforms]
+    )
     temps_delta = temps_top - temps_bottom
-    linear_responses = np.array([
-        unit_linear * temps_delta for unit_linear in unit_linears
-    ])
+    linear_responses = np.array(
+        [unit_linear * temps_delta for unit_linear in unit_linears]
+    )
     print_d(D, f"temps_delta = {temps_delta[:3]}")
     print_d(D, f"uniform responses = {uniform_responses[:3]}")
     print_d(D, f"linear responses = {linear_responses[:3]}")
@@ -151,9 +157,7 @@ def get_effect(
     """Temperature effect corresponding to time series at a number of points."""
     assert len(responses) == len(points)
     # Convert the temperature data into temperature effect at each point.
-    effect_ = effect(
-        c=c, response_type=response_type, points=points, temps=temps
-    )
+    effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
     assert len(effect_) == len(points)
     # A temperature sample is available per minute. Here we calculate the number
     # of responses between each pair of recorded temperatures and the number of
@@ -170,7 +174,9 @@ def get_effect(
     # sample frequency, recall that temperature is sampled every minute.
     avail_len = (len(effect_[0]) - 1) * len_per_min
     if repeat_responses and (avail_len > len(responses[0])):
-        print_i(f"Increasing length of responses from {len(responses[0])} to {avail_len}")
+        print_i(
+            f"Increasing length of responses from {len(responses[0])} to {avail_len}"
+        )
         num_temps_req = len(effect_[0])
         new_responses = np.empty((len(responses), avail_len))
         for i in range(len(responses)):
@@ -189,8 +195,12 @@ def get_effect(
             print_d(D, f"end = {end}")
             print_d(D, f"end - start = {end - start}")
             print_d(D, f"temp_start, temp_end = {temps[j]}, {temps[j + 1]}")
-            print_d(D, f"effect_start, effect_end = {effect_[i][j]}, {effect_[i][j + 1]}")
-            result[i][start:end] = np.linspace(effect_[i][j], effect_[i][j + 1], end - start)
+            print_d(
+                D, f"effect_start, effect_end = {effect_[i][j]}, {effect_[i][j + 1]}"
+            )
+            result[i][start:end] = np.linspace(
+                effect_[i][j], effect_[i][j + 1], end - start
+            )
     if repeat_responses:
         return responses, result
     return result
