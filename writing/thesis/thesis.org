@@ -959,326 +959,326 @@ also provides transparency to anyone wishing to investigate the software and may
 produce more reliable software due to more people having eyes on it.
 
 \textcolor{red}{extending to other types of bridges}
-** Existing Work
-:PROPERTIES:
-:UNNUMBERED: t
-:END:
-This section contains a review of the most relevant material studied during
-this thesis work. The section begins with an overview of related works
-followed by a more in-depth look at the most relevant material. The aim of
-this section is to place the thesis in context and to provide background
-information to the reader on employed techniques. The section concludes by
-relating the reviewed material back to this thesis.
-*** An overview
-\textcolor{red}{TODO: overview of related works}
-*** The application of machine learning to structural health monitoring
-# Introduction.
-cite:worden2006application illustrates the utility of a data-driven approach to
-structural health monitoring (SHM) by a number of case studies attempting to
-identify damage on an aircraft wing. In particular the paper focuses on pattern
-recognition and machine learning (ML) algorithms that are applicable to damage
-identification problems.
+# ** Existing Work
+# :PROPERTIES:
+# :UNNUMBERED: t
+# :END:
+# This section contains a review of the most relevant material studied during
+# this thesis work. The section begins with an overview of related works
+# followed by a more in-depth look at the most relevant material. The aim of
+# this section is to place the thesis in context and to provide background
+# information to the reader on employed techniques. The section concludes by
+# relating the reviewed material back to this thesis.
+# *** An overview
+# \textcolor{red}{TODO: overview of related works}
+# *** The application of machine learning to structural health monitoring
+# # Introduction.
+# cite:worden2006application illustrates the utility of a data-driven approach to
+# structural health monitoring (SHM) by a number of case studies attempting to
+# identify damage on an aircraft wing. In particular the paper focuses on pattern
+# recognition and machine learning (ML) algorithms that are applicable to damage
+# identification problems.
 
-# Hierarchy of levels.
-The question of /damage detection/ is to identify if a system has departed from
-normal (i.e. undamaged) condition, simple "is there damage or not?". The more
-sophisticated problem of /damage identification/ seeks to determine a greater
-level of information on the damage status, even to predict the future of the
-situation. The problem of damage identification can be considered as a hierarchy
-of levels as described in cite:rytter1993vibrational.
+# # Hierarchy of levels.
+# The question of /damage detection/ is to identify if a system has departed from
+# normal (i.e. undamaged) condition, simple "is there damage or not?". The more
+# sophisticated problem of /damage identification/ seeks to determine a greater
+# level of information on the damage status, even to predict the future of the
+# situation. The problem of damage identification can be considered as a hierarchy
+# of levels as described in cite:rytter1993vibrational.
 
- - Level 1. (Detection) indication that damage might be present in the
-   structure.
- - Level 2. (Localization) information about the probable position of the
-   damage.
- - Level 3. (Assessment) an estimate of the extend of the damage.
- - Level 4. (Prediction) information about the safety of the structure.
+#  - Level 1. (Detection) indication that damage might be present in the
+#    structure.
+#  - Level 2. (Localization) information about the probable position of the
+#    damage.
+#  - Level 3. (Assessment) an estimate of the extend of the damage.
+#  - Level 4. (Prediction) information about the safety of the structure.
   
-cite:worden2006application argues that ML can provide solutions to these
-problems upto level 3, but that in general level 4 cannot be addressed by ML
-methods.
+# cite:worden2006application argues that ML can provide solutions to these
+# problems upto level 3, but that in general level 4 cannot be addressed by ML
+# methods.
 
-# Waterfall model. (ML is only a step).
-Applying ML for the purpose of SHM is usually only a single step in a broader
-framework of analysis. Figure [[fig:waterfall-model]] shows the waterfall model
-(cite:bedworth2000omnibus) which begins with sensing (when to record responses)
-and ends with decision making. ML methods are only step four in this model. An
-important part of this entire process is feature extraction, step three, which
-can be regarded as a process of amplification, transforming the data to keep
-only information that is useful for the ML analysis. Another aim of feature
-extraction is to reduce the dimensionality of the data, to avoid the explosive
-growth of the data requirements for training with the data dimensions, known as
-the /curse of dimensionality/ TODO:REF.
+# # Waterfall model. (ML is only a step).
+# Applying ML for the purpose of SHM is usually only a single step in a broader
+# framework of analysis. Figure [[fig:waterfall-model]] shows the waterfall model
+# (cite:bedworth2000omnibus) which begins with sensing (when to record responses)
+# and ends with decision making. ML methods are only step four in this model. An
+# important part of this entire process is feature extraction, step three, which
+# can be regarded as a process of amplification, transforming the data to keep
+# only information that is useful for the ML analysis. Another aim of feature
+# extraction is to reduce the dimensionality of the data, to avoid the explosive
+# growth of the data requirements for training with the data dimensions, known as
+# the /curse of dimensionality/ TODO:REF.
 
-#+CAPTION: The /waterfall/ model.
-#+NAME: fig:waterfall-model
-#+ATTR_LATEX: :width 150pt
-[[../images/waterfall-model.png]]
+# #+CAPTION: The /waterfall/ model.
+# #+NAME: fig:waterfall-model
+# #+ATTR_LATEX: :width 150pt
+# [[../images/waterfall-model.png]]
 
-# Experiment setup and features.
-An experiment was setup to identify damage on the wing of a Gnat artefact.
-Damage scenarios for testing were created by making a number of cuts into copies
-of the wing panel. Transmissibility between two points was chosen as a
-measurement based on success in a previous study TODO:REF, it is the ratio of
-the acceleration spectra between two points $A_j(\omega)/A_i(\omega)$. This was
-measured for two pairs of perpendicular points on each wing; in the frequency
-range 1-2kHz, which was found to be sensitive to the type of damage
-investigated. The measurements were transformed into features for novelty
-detection by manual investigation of 128-average transmissibilities from the
-faulted and unfaulted panels, selecting for each feature a range of spectral
-lines as shown in TODO:FIG. 18 features were chosen.
+# # Experiment setup and features.
+# An experiment was setup to identify damage on the wing of a Gnat artefact.
+# Damage scenarios for testing were created by making a number of cuts into copies
+# of the wing panel. Transmissibility between two points was chosen as a
+# measurement based on success in a previous study TODO:REF, it is the ratio of
+# the acceleration spectra between two points $A_j(\omega)/A_i(\omega)$. This was
+# measured for two pairs of perpendicular points on each wing; in the frequency
+# range 1-2kHz, which was found to be sensitive to the type of damage
+# investigated. The measurements were transformed into features for novelty
+# detection by manual investigation of 128-average transmissibilities from the
+# faulted and unfaulted panels, selecting for each feature a range of spectral
+# lines as shown in TODO:FIG. 18 features were chosen.
 
-# Damage detection.
-To address the first level of Rytter's hierarchy, damage detection, an outlier
-analysis was applied. This outlier analysis calculates a distance measure (the
-squared Mahalanobis distance) for each testing observation from the training
-set. 4 of the 18 features could detect some of the damaged scenarios and could
-detect all of the unfaulted scenarios, other features produced false positives
-and were discarded. Two combined features managed to detect all damage types and
-raised no false positives.
+# # Damage detection.
+# To address the first level of Rytter's hierarchy, damage detection, an outlier
+# analysis was applied. This outlier analysis calculates a distance measure (the
+# squared Mahalanobis distance) for each testing observation from the training
+# set. 4 of the 18 features could detect some of the damaged scenarios and could
+# detect all of the unfaulted scenarios, other features produced false positives
+# and were discarded. Two combined features managed to detect all damage types and
+# raised no false positives.
 
-# Damage location.
-The second level of Rytter's hierarchy is damage localization. This problem can
-be approached as a regression problem, however here it is based on the
-classification work done for damage detection where transmissibilities are used
-to determine damage classes for each panel. A vector of damage indices for each
-of the panels is given as input to a multi-layer perceptron (MLP) which is
-trained to select the damaged panel. The paper argues that "it may be sufficient
-to classify which skin panel is damged rather than give a more precise damage
-location. It is likely that, by lowering expectations, a more robust damage
-locator will be the result". This approach has an accuracy of 86.5%, the main
-errors were from two pairs of adjacent panels, whose damage detectors would fire
-when either of the panels were removed. The approach depends on the fact that
-damage is local to some degree, and the damage detectors don't fire in all
-cases, which was true in this case.
+# # Damage location.
+# The second level of Rytter's hierarchy is damage localization. This problem can
+# be approached as a regression problem, however here it is based on the
+# classification work done for damage detection where transmissibilities are used
+# to determine damage classes for each panel. A vector of damage indices for each
+# of the panels is given as input to a multi-layer perceptron (MLP) which is
+# trained to select the damaged panel. The paper argues that "it may be sufficient
+# to classify which skin panel is damged rather than give a more precise damage
+# location. It is likely that, by lowering expectations, a more robust damage
+# locator will be the result". This approach has an accuracy of 86.5%, the main
+# errors were from two pairs of adjacent panels, whose damage detectors would fire
+# when either of the panels were removed. The approach depends on the fact that
+# damage is local to some degree, and the damage detectors don't fire in all
+# cases, which was true in this case.
 
-# Damage assessment.
-, the assessment was based on the previous detection technique.
+# # Damage assessment.
+# , the assessment was based on the previous detection technique.
 
-*** Neural Clouds for monitoring of complex systems
-   # One-class classification.
-   In one-class classification, a classifier attempts to identify objects of a
-   single class among all objects by learning from a training set that consists
-   only of objects of that class. One-class classifiers are useful in the domain
-   of system condition monitoring because often only data corresponding to the
-   normal range of operating conditions is available. Data corresponding to the
-   class of abnormal conditions, when a failure or breakdown of a system has
-   occurred, is often not available or is difficult or expensive to obtain.
+# *** Neural Clouds for monitoring of complex systems
+#    # One-class classification.
+#    In one-class classification, a classifier attempts to identify objects of a
+#    single class among all objects by learning from a training set that consists
+#    only of objects of that class. One-class classifiers are useful in the domain
+#    of system condition monitoring because often only data corresponding to the
+#    normal range of operating conditions is available. Data corresponding to the
+#    class of abnormal conditions, when a failure or breakdown of a system has
+#    occurred, is often not available or is difficult or expensive to obtain.
 
-   # Neural Clouds algorithm.
-   The Neural Clouds (NC) method presented in cite:lang2008neural is a one-class
-   classifier which provides a confidence measure of the condition of a complex
-   system. In the NC algorithm we are dealing with measurements from a real
-   object where each measurement is considered as a point in n-dimensional
-   space.
+#    # Neural Clouds algorithm.
+#    The Neural Clouds (NC) method presented in cite:lang2008neural is a one-class
+#    classifier which provides a confidence measure of the condition of a complex
+#    system. In the NC algorithm we are dealing with measurements from a real
+#    object where each measurement is considered as a point in n-dimensional
+#    space.
 
-   # Normalization and clustering.
-   First a normalization procedure is applied to the data to avoid clustering
-   problems in the subsequent step. The data is then clustered and the centroids
-   of the clusters extracted. The centroids are then encapsulated with "Gaussian
-   bells", and these Gaussian bells are normalized to avoid outliers in the
-   data.
+#    # Normalization and clustering.
+#    First a normalization procedure is applied to the data to avoid clustering
+#    problems in the subsequent step. The data is then clustered and the centroids
+#    of the clusters extracted. The centroids are then encapsulated with "Gaussian
+#    bells", and these Gaussian bells are normalized to avoid outliers in the
+#    data.
 
-   # Height = probability.
-   The summation of the Gaussian bells results in a height =h= for each point
-   =p= on the hyperplane of parameter values. The value of =h= at a point =p=
-   can be interpreted as the probability of the parameter values at =p= falling
-   within the normal conditions represented by the training data.
+#    # Height = probability.
+#    The summation of the Gaussian bells results in a height =h= for each point
+#    =p= on the hyperplane of parameter values. The value of =h= at a point =p=
+#    can be interpreted as the probability of the parameter values at =p= falling
+#    within the normal conditions represented by the training data.
 
-   # Comparison.
-   In comparison to other one-class classifiers, the NC method has an advantage
-   in condition monitoring in that it creates this unique plateau where height
-   can be interpreted as probability of the system condition. Figure
-   [[fig:neural-clouds]] shows this plateau in comparison with other one-class
-   classifiers, Gaussian mixture and Parzen-window.
+#    # Comparison.
+#    In comparison to other one-class classifiers, the NC method has an advantage
+#    in condition monitoring in that it creates this unique plateau where height
+#    can be interpreted as probability of the system condition. Figure
+#    [[fig:neural-clouds]] shows this plateau in comparison with other one-class
+#    classifiers, Gaussian mixture and Parzen-window.
 
-   #+CAPTION: Comparison of Neural Clouds with other approaches, namely Gaussian mixture and Parzen-window. At the left side 2D contour line plots are pictures and at the right normalized density 3D plots.
-   #+NAME: fig:neural-clouds
-   [[../images/neural-clouds.png]]
+#    #+CAPTION: Comparison of Neural Clouds with other approaches, namely Gaussian mixture and Parzen-window. At the left side 2D contour line plots are pictures and at the right normalized density 3D plots.
+#    #+NAME: fig:neural-clouds
+#    [[../images/neural-clouds.png]]
 
-   # Limitations.
-   It is important to note that when significant changes occur in the normal
-   state of the system, perhaps due to environmental changes, then the NC
-   classifier should be retrained in order to avoid a false alarm. However, if a
-   NC classifier is continually being retrained with real-time data then it may
-   not detect a gradual long-term change to the system.
-*** Combining data-driven methods with finite element analysis for flood early warning systems
-   # Introduction and why levee collapse.
-   In cite:pyayt2015combining a system for real-time levee condition monitoring
-   is presented based on a combination of data-driven methods and finite-element
-   analysis. Levee monitoring allows for earlier warning signals incase of levee
-   failure, compared to the current method of visual inspection. The problem
-   with visual inspection is that when deformations are visiable at the surface
-   it means that levee collapse is already in progress.
+#    # Limitations.
+#    It is important to note that when significant changes occur in the normal
+#    state of the system, perhaps due to environmental changes, then the NC
+#    classifier should be retrained in order to avoid a false alarm. However, if a
+#    NC classifier is continually being retrained with real-time data then it may
+#    not detect a gradual long-term change to the system.
+# *** Combining data-driven methods with finite element analysis for flood early warning systems
+#    # Introduction and why levee collapse.
+#    In cite:pyayt2015combining a system for real-time levee condition monitoring
+#    is presented based on a combination of data-driven methods and finite-element
+#    analysis. Levee monitoring allows for earlier warning signals incase of levee
+#    failure, compared to the current method of visual inspection. The problem
+#    with visual inspection is that when deformations are visiable at the surface
+#    it means that levee collapse is already in progress.
 
-   # Data-driven vs. finite element.
-   Data-driven methods are model-free and include machine learning and
-   statistical techniques, whereas finite-element analysis is a model-based
-   method. One advantage of data-driven methods are that they do not require
-   information about physical parameters of the monitored system. As opposed to
-   finite-element analysis which in the case of levee condition monitoring
-   requires parameters such as slope geometry and soil properties. The
-   model-based methods provide more information about the monitored object, but
-   are more expensive to evaluate and thus difficult to use for real-time
-   condition assessment.
+#    # Data-driven vs. finite element.
+#    Data-driven methods are model-free and include machine learning and
+#    statistical techniques, whereas finite-element analysis is a model-based
+#    method. One advantage of data-driven methods are that they do not require
+#    information about physical parameters of the monitored system. As opposed to
+#    finite-element analysis which in the case of levee condition monitoring
+#    requires parameters such as slope geometry and soil properties. The
+#    model-based methods provide more information about the monitored object, but
+#    are more expensive to evaluate and thus difficult to use for real-time
+#    condition assessment.
 
-   # Combination of methods.
-   In this paper the data-driven and finite-element components of the system
-   which were developed are referred to as the Artificial Intelligence (AI) and
-   Computer Model (CM) respectively. The AI and CM can be combined in two ways.
-   In the first case the CM is used for data generation. Data is generated by
-   the CM corresponding to normal and abnormal conditions. The normal behaviour
-   data is used to train the AI and both the normal and abnormal behaviour data
-   can be used for testing the AI. In the second case shown in Figure
-   [[fig:ai-and-cm]] the CM is used for validation of the alarms generated by the
-   AI. If the AI detects abnormal behaviour then the CM is run to confirm the
-   result. If the AI was correct a warning is raised, else the new data point is
-   used to retrain the AI.
+#    # Combination of methods.
+#    In this paper the data-driven and finite-element components of the system
+#    which were developed are referred to as the Artificial Intelligence (AI) and
+#    Computer Model (CM) respectively. The AI and CM can be combined in two ways.
+#    In the first case the CM is used for data generation. Data is generated by
+#    the CM corresponding to normal and abnormal conditions. The normal behaviour
+#    data is used to train the AI and both the normal and abnormal behaviour data
+#    can be used for testing the AI. In the second case shown in Figure
+#    [[fig:ai-and-cm]] the CM is used for validation of the alarms generated by the
+#    AI. If the AI detects abnormal behaviour then the CM is run to confirm the
+#    result. If the AI was correct a warning is raised, else the new data point is
+#    used to retrain the AI.
 
-   #+CAPTION: AI and CM...
-   #+NAME: fig:ai-and-cm
-   [[../images/ai-and-cm.png]]
+#    #+CAPTION: AI and CM...
+#    #+NAME: fig:ai-and-cm
+#    [[../images/ai-and-cm.png]]
 
-   # Finite element analysis.
-   # The paper includes a section which demonstrates the applicability of FEM for
-   # prediction tasks. Real sensor values (collected from an experiment where a
-   # constructed levee was intentionaly collapsed) are compared to virtual sensor
-   # values generated by the CM. Figure TODO:REF it can be clearly seen how the
-   # real and virtual sensor values deviate prior to collapse.
-*** Flood early warning system: design, implementation and computational modules.
-   # Decision support system.
-   In cite:krzhizhanovskaya2011flood a prototype of an flood early warning
-   system (EWS) is presented as developed within the UrbanFlood FP7 project.
-   This system monitors sensors installed in flood defenses, detects sensor
-   signal abnormalities, calculates failure probability of the flood defense,
-   and simulates failure scenarios. All of this information is made available
-   online as part of a DSS to help the relevant figure of authority make an
-   informed decision in case of emergency or routine assessment.
+#    # Finite element analysis.
+#    # The paper includes a section which demonstrates the applicability of FEM for
+#    # prediction tasks. Real sensor values (collected from an experiment where a
+#    # constructed levee was intentionaly collapsed) are compared to virtual sensor
+#    # values generated by the CM. Figure TODO:REF it can be clearly seen how the
+#    # real and virtual sensor values deviate prior to collapse.
+# *** Flood early warning system: design, implementation and computational modules.
+#    # Decision support system.
+#    In cite:krzhizhanovskaya2011flood a prototype of an flood early warning
+#    system (EWS) is presented as developed within the UrbanFlood FP7 project.
+#    This system monitors sensors installed in flood defenses, detects sensor
+#    signal abnormalities, calculates failure probability of the flood defense,
+#    and simulates failure scenarios. All of this information is made available
+#    online as part of a DSS to help the relevant figure of authority make an
+#    informed decision in case of emergency or routine assessment.
 
-   # Relevant components of the EWS.
-   Some requirements that must be taken into account in the design of an EWS
-   include:
-   - Sensor equipment design, installation and technical maintenance.
-   - Sensor data transmission, filtering and analysis.
-   - Computational models and simulation components.
-   - Onteractive visualization technologies.
-   - Remote access to the system.
-   Thus it is clear that the development of an EWS or DSS consists of much more
-   than the development of the software components, but must also take into
-   account the installation of hardware and the transmission of information
-   between components of the system. These many interacting components are
-   shown in Figure [[fig:urbanflood-ews]] along with a description.
+#    # Relevant components of the EWS.
+#    Some requirements that must be taken into account in the design of an EWS
+#    include:
+#    - Sensor equipment design, installation and technical maintenance.
+#    - Sensor data transmission, filtering and analysis.
+#    - Computational models and simulation components.
+#    - Onteractive visualization technologies.
+#    - Remote access to the system.
+#    Thus it is clear that the development of an EWS or DSS consists of much more
+#    than the development of the software components, but must also take into
+#    account the installation of hardware and the transmission of information
+#    between components of the system. These many interacting components are
+#    shown in Figure [[fig:urbanflood-ews]] along with a description.
 
-   #+CAPTION: The /Sensor Monitoring/ module receives data from the installed sensors which are then filtered by the /AI Anomaly Detector/. In case an abnormality is detected the /Reliability Analysis/ calculates the probability of failure. If the failure probability is high then the /Breach Simulator/ predicts the dynamics of the dike failure. A fast response is calculated beginning with the /AI Anomaly Detector/ and ending with the /Breaching Simulator/. The /Virtual Dike/ module is additionaly available for the purpose of simulation by expert users, but takes longer. The fast response and the response from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which models the flooding dynamics, this information is sent to the decision support system to be made available to the decision maker.
-   #+NAME: fig:urbanflood-ews
-   #+ATTR_LATEX: :width 250pt
-   [[../images/urbanflood-ews.png]]
+#    #+CAPTION: The /Sensor Monitoring/ module receives data from the installed sensors which are then filtered by the /AI Anomaly Detector/. In case an abnormality is detected the /Reliability Analysis/ calculates the probability of failure. If the failure probability is high then the /Breach Simulator/ predicts the dynamics of the dike failure. A fast response is calculated beginning with the /AI Anomaly Detector/ and ending with the /Breaching Simulator/. The /Virtual Dike/ module is additionaly available for the purpose of simulation by expert users, but takes longer. The fast response and the response from the /Virtual Dike/ module are both fed to the /Flood Simulator/ which models the flooding dynamics, this information is sent to the decision support system to be made available to the decision maker.
+#    #+NAME: fig:urbanflood-ews
+#    #+ATTR_LATEX: :width 250pt
+#    [[../images/urbanflood-ews.png]]
 
-*** A clustering approach for structural health monitoring on bridges
-   # Introduction.
-   In cite:diez2016clustering a clustering based approach is presented to group
-   substructures or joints with similar behaviour and to detect abnormal or
-   damaged ones. The presented approach is based on the simple idea that a
-   sensor located at a damaged substructure or joint will record responses that
-   are significantly different from sensors at undamaged points on the bridge.
+# *** A clustering approach for structural health monitoring on bridges
+#    # Introduction.
+#    In cite:diez2016clustering a clustering based approach is presented to group
+#    substructures or joints with similar behaviour and to detect abnormal or
+#    damaged ones. The presented approach is based on the simple idea that a
+#    sensor located at a damaged substructure or joint will record responses that
+#    are significantly different from sensors at undamaged points on the bridge.
 
-   # Collected data.
-   The approach was applied to data collected from 2,400 tri-axial
-   accelerometers installed on 800 jack arches on the Sydney Harbour Bridge. An
-   /event/ is defined as a time period in which a vehicle is driving across a
-   joint. A pre-set threshold is set to trigger the recording of the responses
-   by each sensor, each event is then represented by a vector of samples $X$.
+#    # Collected data.
+#    The approach was applied to data collected from 2,400 tri-axial
+#    accelerometers installed on 800 jack arches on the Sydney Harbour Bridge. An
+#    /event/ is defined as a time period in which a vehicle is driving across a
+#    joint. A pre-set threshold is set to trigger the recording of the responses
+#    by each sensor, each event is then represented by a vector of samples $X$.
 
-   # Normalisation.
-   Prior to performing any abnormality detection the data is preprocessed. First
-   each event data is transformed into a feature $V_i = |A_i| - |A_r|$ where
-   $A_i$ is the instantaneous acceleration at the $i$th sample and $A_r$ is the
-   "rest vector" or average of the first 100 samples. The event data is then
-   normalised as $X = \frac{V - \mu(V)}{\sigma(V)}$.
+#    # Normalisation.
+#    Prior to performing any abnormality detection the data is preprocessed. First
+#    each event data is transformed into a feature $V_i = |A_i| - |A_r|$ where
+#    $A_i$ is the instantaneous acceleration at the $i$th sample and $A_r$ is the
+#    "rest vector" or average of the first 100 samples. The event data is then
+#    normalised as $X = \frac{V - \mu(V)}{\sigma(V)}$.
 
-   # Outlier removal.
-   After normalisation of the event data, k-nearest neighbours is applied for
-   outlier removal. One might consider that outliers are useful in the detection
-   of abnormal conditions, since they represent abnormal responses. However if
-   outlying data per joint are removed, then a greater level of confidence can
-   be had when an abnormal condition is detected knowing that the result is not
-   based on any outliers. In this outlier removal step the sum of the energy in
-   time domain is calculated for event data as $E(X) = \sum_i |x_i|^2$. Then for
-   every iteration of k-nearest neighbours, the $k$ closest neighbours to the
-   mean of the enery of the joint's signals $\mu_{joint}$ is calculated.
+#    # Outlier removal.
+#    After normalisation of the event data, k-nearest neighbours is applied for
+#    outlier removal. One might consider that outliers are useful in the detection
+#    of abnormal conditions, since they represent abnormal responses. However if
+#    outlying data per joint are removed, then a greater level of confidence can
+#    be had when an abnormal condition is detected knowing that the result is not
+#    based on any outliers. In this outlier removal step the sum of the energy in
+#    time domain is calculated for event data as $E(X) = \sum_i |x_i|^2$. Then for
+#    every iteration of k-nearest neighbours, the $k$ closest neighbours to the
+#    mean of the enery of the joint's signals $\mu_{joint}$ is calculated.
 
-   # Tranform and clustering metric.
-   The event data is then transformed from the time domain into a series of
-   frequencies using the Fast Fourier Transform (FFT), such that the original
-   vibration data is now represented as a sequence that determines the
-   importance of each frequency component in the signal. After this
-   transformation a distance metric is calculated for each pair of event
-   signals, this metric is used for k-means clustering of the data for anomaly
-   detection. The distance metric used is the Euclidean distance: $dist(X, Y)
-   = ||X - Y|| = \sqrt{\sum (x_i - y_i)^2}$.
+#    # Tranform and clustering metric.
+#    The event data is then transformed from the time domain into a series of
+#    frequencies using the Fast Fourier Transform (FFT), such that the original
+#    vibration data is now represented as a sequence that determines the
+#    importance of each frequency component in the signal. After this
+#    transformation a distance metric is calculated for each pair of event
+#    signals, this metric is used for k-means clustering of the data for anomaly
+#    detection. The distance metric used is the Euclidean distance: $dist(X, Y)
+#    = ||X - Y|| = \sqrt{\sum (x_i - y_i)^2}$.
 
-   # Event based clustering.
-   Two clustering methods were applied, event-based and joint-based. In the
-   event-based clustering experiment it was known beforehand that joint 4 was
-   damaged. All event data was clustered using k-means clustering with $K = 2$
-   which resulted in a big cluster containing 23,849 events and a smaller
-   cluster of 4662 events mostly located in joint 4. The percentage of events
-   per joint in the big cluster are shown in Figure [[fig:shb-joint4]] where joint 4
-   is clearly an outlier.
+#    # Event based clustering.
+#    Two clustering methods were applied, event-based and joint-based. In the
+#    event-based clustering experiment it was known beforehand that joint 4 was
+#    damaged. All event data was clustered using k-means clustering with $K = 2$
+#    which resulted in a big cluster containing 23,849 events and a smaller
+#    cluster of 4662 events mostly located in joint 4. The percentage of events
+#    per joint in the big cluster are shown in Figure [[fig:shb-joint4]] where joint 4
+#    is clearly an outlier.
 
-   #+CAPTION: ...
-   #+NAME: fig:shb-joint4
-   [[../images/shb-joint4.png]]
+#    #+CAPTION: ...
+#    #+NAME: fig:shb-joint4
+#    [[../images/shb-joint4.png]]
 
-   # Frequency profiles.
-   A frequency profile of both the big and small cluster are shown in Figures
-   [[fig:shb-cluster0-profile]] and [[fig:shb-cluster1-profile]]. In case there is no
-   knowledge of abnormal behaviour then this method can be used to separate
-   outliers and obtain a profile of normal behaviour. In this research on SHB
-   there was prior knowledge of a damaged joint. A frequency profile of an
-   arbitrary joint and the damaged joint before and after repair is shown in
-   Figure [[fig:shb-damaged-profile]]. The difference of the damaged profile to the
-   other two is clear, which indicates that there is sufficient information in
-   frequency information from accelerometers to detect abnormal joints.
+#    # Frequency profiles.
+#    A frequency profile of both the big and small cluster are shown in Figures
+#    [[fig:shb-cluster0-profile]] and [[fig:shb-cluster1-profile]]. In case there is no
+#    knowledge of abnormal behaviour then this method can be used to separate
+#    outliers and obtain a profile of normal behaviour. In this research on SHB
+#    there was prior knowledge of a damaged joint. A frequency profile of an
+#    arbitrary joint and the damaged joint before and after repair is shown in
+#    Figure [[fig:shb-damaged-profile]]. The difference of the damaged profile to the
+#    other two is clear, which indicates that there is sufficient information in
+#    frequency information from accelerometers to detect abnormal joints.
 
-   #+CAPTION: ...
-   #+NAME: fig:shb-cluster0-profile
-   [[../images/shb-cluster0-profile.png]]
+#    #+CAPTION: ...
+#    #+NAME: fig:shb-cluster0-profile
+#    [[../images/shb-cluster0-profile.png]]
 
-   #+CAPTION: ...
-   #+NAME: fig:shb-cluster1-profile
-   [[../images/shb-cluster1-profile.png]]
+#    #+CAPTION: ...
+#    #+NAME: fig:shb-cluster1-profile
+#    [[../images/shb-cluster1-profile.png]]
 
-   #+CAPTION: ...
-   #+NAME: fig:shb-damaged-profile
-   [[../images/shb-damaged-profile.png]]
+#    #+CAPTION: ...
+#    #+NAME: fig:shb-damaged-profile
+#    [[../images/shb-damaged-profile.png]]
 
-   # Joint-based clustering.
-   In joint-based clustering a pairwise map of distances is calculated between
-   each pair of joint representatives. A joint representative is calculated as
-   the mean of the values of all event data for one joint, after the outlier
-   removal phase. Two experiments were conducted. One experiment consisted only
-   of 6 joints, including the damaged joint 4. The clustering method detected
-   the damaged joint as can be seen in [[fig:shb-6-joint-map]]. The second
-   experiment was run on data from 71 joints. The resulting map can be seen in
-   [[fig:shb-71-joint-map]] which accurately detected the damaged joint 135. Damage
-   was also detected in joint 131 but this result was not verified.
+#    # Joint-based clustering.
+#    In joint-based clustering a pairwise map of distances is calculated between
+#    each pair of joint representatives. A joint representative is calculated as
+#    the mean of the values of all event data for one joint, after the outlier
+#    removal phase. Two experiments were conducted. One experiment consisted only
+#    of 6 joints, including the damaged joint 4. The clustering method detected
+#    the damaged joint as can be seen in [[fig:shb-6-joint-map]]. The second
+#    experiment was run on data from 71 joints. The resulting map can be seen in
+#    [[fig:shb-71-joint-map]] which accurately detected the damaged joint 135. Damage
+#    was also detected in joint 131 but this result was not verified.
 
-   #+NAME: fig:shb-6-joint-map
-   #+CAPTION: TODO:CAPTION
-   #+ATTR_LATEX: :width 200pt
-   [[../images/shb-6-joint-map.png]]
+#    #+NAME: fig:shb-6-joint-map
+#    #+CAPTION: TODO:CAPTION
+#    #+ATTR_LATEX: :width 200pt
+#    [[../images/shb-6-joint-map.png]]
 
-   #+NAME: fig:shb-71-joint-map
-   #+CAPTION: TODO:CAPTION
-   #+ATTR_LATEX: :width 200pt
-   [[../images/shb-71-joint-map.png]]
+#    #+NAME: fig:shb-71-joint-map
+#    #+CAPTION: TODO:CAPTION
+#    #+ATTR_LATEX: :width 200pt
+#    [[../images/shb-71-joint-map.png]]
 
-*** DSS
-   \textcolor{red}{TODO: Overview of bridge DSS}
-*** Summary
-\textcolor{red}{TODO: conclude the literature review}
-#+LATEX: \clearpage
+# *** DSS
+#    \textcolor{red}{TODO: Overview of bridge DSS}
+# *** Summary
+# \textcolor{red}{TODO: conclude the literature review}
+# #+LATEX: \clearpage
 * Theory
 * Methods
 ** Simulation
@@ -2210,11 +2210,11 @@ translation responses calculated on a grid, from a simulation where a point load
 is placed at point A (defined in Table [[tbl:loading-positions]]) at $x = 34.955$
 and $z = 29.226$ meters. In Figure [[fig:converge-strain]] a similar plot is shown
 but for longitudinal strain instead of vertical translation.
-\textcolor{red}{Update images (fine on grid) and comment on convergence} In order to determine
-the distance from point load simulations at which strain can be expected to
-converge, the strain is plotted at multiple distance from a point load
-simulation in Figure [[fig:point-a-nesw]]. From visual inspection this figure shows
-that strain has converged in each of the directions shown within $\approx
+\textcolor{red}{Update images (fine on grid) and comment on convergence} In
+order to determine the distance from point load simulations at which strain can
+be expected to converge, the strain is plotted at multiple distance from a point
+load simulation in Figure [[fig:point-a-nesw]]. From visual inspection this figure
+shows that strain has converged in each of the directions shown within $\approx
 \SI{1.5}{\meter}$. \textcolor{red}{Fix word wrap around small Figures.}
 
 #+NAME: fig:point-a-nesw
@@ -2561,6 +2561,7 @@ cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
 
 #+NAME: fig:crack-1
 #+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 1 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
+#+ATTR_LATEX: :placement [t]
 [[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
 
 # Non-linear crack behaviour.
@@ -2576,6 +2577,7 @@ back down" is not expected.
 
 #+NAME: fig:crack-moment
 #+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment $M_{cr}$ is reached the response, as shown in the black line, is non-linear. This image is from cite:gilbert2013time.
+#+ATTR_LATEX: :float wrap :width 0.45\textwidth :placement {hr}{0.4\textwidth}
 [[./saved-images/crack/crack-moment.png]]
 
 # Pier settlement damage.
@@ -2893,5 +2895,4 @@ settlement the pier settlement can be detected.
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
-
 bibliography:myrefs.bib

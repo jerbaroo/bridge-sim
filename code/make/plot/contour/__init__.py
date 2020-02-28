@@ -138,9 +138,9 @@ def traffic_response_plots(c: Config, times: int = 3):
 
 def point_load_response_plots(c: Config, x: float, z: float, kn: int = 1000):
     """Response to a point load per damage scenario."""
-    response_type = ResponseType.YTranslation
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # scenarios = all_scenarios(c)
-    damage_scenarios = [HealthyDamage(), unit_temp_scenario, transverse_crack()]
+    damage_scenarios = [HealthyDamage(), transverse_crack()]
 
     # 10 x 10 grid of points on the bridge deck where to record responses.
     points = [
@@ -150,45 +150,47 @@ def point_load_response_plots(c: Config, x: float, z: float, kn: int = 1000):
             np.linspace(c.bridge.z_min, c.bridge.z_max, 100),
         )
     ]
-    all_responses = []
-    for damage_scenario in damage_scenarios:
-        sim_params = SimParams(
-            response_types=[response_type],
-            ploads=[
-                PointLoad(x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=kn)
-            ],
-        )
-        use_c, sim_params = damage_scenario.use(c=c, sim_params=sim_params)
-        all_responses.append(
-            load_fem_responses(
-                c=use_c,
-                sim_params=sim_params,
-                response_type=response_type,
-                sim_runner=OSRunner(use_c),
-            ).resize()
-        )
-    amin, amax = np.inf, -np.inf
-    for sim_responses in all_responses:
-        responses = np.array(list(sim_responses.values()))
-        amin = min(amin, min(responses))
-        amax = max(amax, max(responses))
-    for d, damage_scenario in enumerate(damage_scenarios):
-        top_view_bridge(c.bridge, abutments=True, piers=True)
-        plot_contour_deck(
-            c=c,
-            responses=all_responses[d],
-            levels=100,
-            norm=colors.Normalize(vmin=amin, vmax=amax),
-        )
-        plt.title(damage_scenario.name)
-        plt.tight_layout()
-        plt.savefig(
-            c.get_image_path(
-                "contour/point-load",
-                safe_str(f"{damage_scenario.name}-x-{x:.2f}-z-{z:.2f}-kn-{kn}"),
+
+    for response_type in response_types:
+        all_responses = []
+        for damage_scenario in damage_scenarios:
+            sim_params = SimParams(
+                response_types=[response_type],
+                ploads=[
+                    PointLoad(x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=kn)
+                ],
             )
-        )
-        plt.close()
+            use_c, sim_params = damage_scenario.use(c=c, sim_params=sim_params)
+            all_responses.append(
+                load_fem_responses(
+                    c=use_c,
+                    sim_params=sim_params,
+                    response_type=response_type,
+                    sim_runner=OSRunner(use_c),
+                ).resize()
+            )
+        amin, amax = np.inf, -np.inf
+        for sim_responses in all_responses:
+            responses = np.array(list(sim_responses.values()))
+            amin = min(amin, min(responses))
+            amax = max(amax, max(responses))
+        for d, damage_scenario in enumerate(damage_scenarios):
+            top_view_bridge(c.bridge, abutments=True, piers=True)
+            plot_contour_deck(
+                c=c,
+                responses=all_responses[d],
+                levels=100,
+                norm=colors.Normalize(vmin=amin, vmax=amax),
+            )
+            plt.title(damage_scenario.name)
+            plt.tight_layout()
+            plt.savefig(
+                c.get_image_path(
+                    "contour/point-load",
+                    safe_str(f"x-{x:.2f}-z-{z:.2f}-kn-{kn}-{response_type.name()}-{damage_scenario.name}") + ".pdf",
+                )
+            )
+            plt.close()
 
 
 def cracked_concrete_plots(c: Config):

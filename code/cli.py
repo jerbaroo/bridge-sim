@@ -168,8 +168,9 @@ def remove():
     help="Words required in the filename.",
 )
 def clean(keep):
-    remove_except_npy(c=c(), keep=keep)
     from classify.scenario.bridge import transverse_crack
+
+    remove_except_npy(c=c(), keep=keep)
     c_ = transverse_crack().use(c())[0]
     remove_except_npy(c=c_, keep=keep)
 
@@ -187,8 +188,7 @@ def info():
 @info.command(help="Print information about this bridge.")
 @click.option("--piers", is_flag=True)
 def bridge(piers):
-    config = c()
-    config.bridge.print_info(c=config, pier_fix_info=piers)
+    c().bridge.print_info(c=c(), pier_fix_info=piers)
 
 
 @info.command(help="Z positions of the wheel tracks, in meters.")

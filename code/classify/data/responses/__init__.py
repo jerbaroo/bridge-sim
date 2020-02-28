@@ -47,15 +47,13 @@ def responses_to_traffic_array(
         points: List[Point], points on the bridge to calculate responses at.
         sim_runner: FEMRunner, the FEM program to run simulations with.
 
-    TODO: Make 'TrafficArray' optional.
-
     """
     # if np.count_nonzero(traffic_array) == 0:
     #     unit_load_matrix = np.zeros(
     #         len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
     #     )
     unit_load_matrix = ILMatrix.load_ulm(
-        c=c, response_type=response_type, points=points, sim_runner=sim_runner,
+        c=damage_scenario.use(c)[0], response_type=response_type, points=points, sim_runner=sim_runner,
     )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)
