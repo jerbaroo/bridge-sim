@@ -177,7 +177,7 @@ def clean(keep):
 
 
 ################
-##### Util #####
+##### Info #####
 ################
 
 
@@ -223,9 +223,11 @@ def truck_1_loads(x: float):
         )
 
 
-@info.command(help="Correlation of temperature and response.")
-def thermal_correlation():
-    pass
+@info.command(help="Plot the distribution of vehicles.")
+def vehicle_dist():
+    from make.plot import vehicles
+
+    vehicles.vehicle_plots(c())
 
 
 ####################

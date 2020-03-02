@@ -1,34 +1,12 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Days
-** Day 1 (Wed 19 Feb)
-- Test to_traffic_array
-- Speed up to_traffic_array
-- Temp. responses in top view plot
-** Day 2 (Thur 20 Feb)
-- Contour plot of temperature effect
-- Temperature gradient references
-- Pier settlement effect line in "top view" plot
-- Fix traffic generation bug, 48mins of traffic!
-- Save/load ULM & traffic from disk
-** Day 3 (Fri 21 Feb)
-- Start using Jupyter notebook
-- Much better temperature data
-** Day 4 (Sat 22 Feb)
-- Collect responses in Jupyter
-** Day 5 (Sun 23 Feb)
-- Accuracy of distance from pier settlement plot
-- Plot combined effect in July and December
-- Show failure to detect annual change
-** Day 6 (Mon 24 Feb)
-- Isolation forest for damage detection model
-- Only show allowed sensors in pier settlement accuracy plot
-- Plot boundary decision in damage detection plots
-** Day 7 (Tue 25 Feb)
-- Fix cracked concrete plot
-- Add cracked concrete references
-- Run cracked concrete simulations (med)
-- Add clean command to remove uneeded files
+28 days to finish thesis.
+** Day 1 (2nd March)
+- Plot healthy vs. cracked ULS
+- Run cracked ULS @ medium mesh on workhorse
+- Run regression plots on workhorse
+-
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
@@ -734,3 +712,32 @@ CLOSED: [2019-11-07 Thu 10:46]
 *** 25th November
 **** TODO Collect strain
 **** TODO Verification: regression plot
+** Days
+*** Day 1 (Wed 19 Feb)
+- Test to_traffic_array
+- Speed up to_traffic_array
+- Temp. responses in top view plot
+*** Day 2 (Thur 20 Feb)
+- Contour plot of temperature effect
+- Temperature gradient references
+- Pier settlement effect line in "top view" plot
+- Fix traffic generation bug, 48mins of traffic!
+- Save/load ULM & traffic from disk
+*** Day 3 (Fri 21 Feb)
+- Start using Jupyter notebook
+- Much better temperature data
+*** Day 4 (Sat 22 Feb)
+- Collect responses in Jupyter
+*** Day 5 (Sun 23 Feb)
+- Accuracy of distance from pier settlement plot
+- Plot combined effect in July and December
+- Show failure to detect annual change
+*** Day 6 (Mon 24 Feb)
+- Isolation forest for damage detection model
+- Only show allowed sensors in pier settlement accuracy plot
+- Plot boundary decision in damage detection plots
+*** Day 7 (Tue 25 Feb)
+- Fix cracked concrete plot
+- Add cracked concrete references
+- Run cracked concrete simulations (med)
+- Add clean command to remove uneeded files

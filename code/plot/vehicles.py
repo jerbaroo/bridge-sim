@@ -34,7 +34,7 @@ def plot_db(c: Config):
 
     # Sample to 10% of original size.
     sampled_a16 = a16_no_outliers.sample(n=int(len(a16) * 0.1))
-    print_i(f"Sampled A16 data has {len(sampled_a16)} rows")
+    print_i(f"Downsampled A16 data has {len(sampled_a16)} rows")
     sampled_a16.to_csv("data/a16-data/a16.csv")
     print_i("Wrote updated A16 data to disk")
 
@@ -43,14 +43,11 @@ def plot_db(c: Config):
     ).T
     passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=10).T
     print(passengers)
-    s = 1
 
     # Plot outliers.
-    plt.subplot(1, 2, 1)
     plt.scatter(outliers["length"], outliers["total_weight"], s=s, color="red")
-    plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=s)
+    plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=1)
 
-    plt.show()
 
 
 def plot_density(c: Config, save: str = None):
@@ -129,9 +126,8 @@ def group_scatter_plots(
         add_1()
     plt.gcf().set_size_inches(16, 10)
     plt.tight_layout()
-    if save:
-        plt.savefig(save)
-        plt.close()
+    plt.savefig(save)
+    plt.close()
 
 
 def plot_length_vs_axles(c: Config, cols: int = 2, save: str = None):

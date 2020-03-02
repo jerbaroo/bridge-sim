@@ -31,7 +31,7 @@ I would like to thank...
 # Commands #
 # -------- #
 
-# ./cli.sh --mesh full --save-to /d/saved/r2 validate r2
+# ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
 
 # Old commands
 
