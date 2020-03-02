@@ -348,6 +348,8 @@ def per_sensor_plots(
 
 def r2_plots(c: Config):
     """R² plots for displacement and strain."""
+    rt_y = ResponseType.YTranslation
+    rt_s = ResponseType.Strain
 
     ##########################
     ###### Displacement ######
@@ -384,7 +386,7 @@ def r2_plots(c: Config):
             c=c,
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
-            response_type=ResponseType.YTranslation,
+            response_type=rt_y,
             damage_scenario=HealthyDamage(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
@@ -418,9 +420,9 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Displacement: Diana vs. measurements")
-    plt.xlabel("Displacement measurement (mm)")
-    plt.ylabel("Displacement in Diana (mm)")
+    plt.title(f"{rt_y.name()}: Diana vs. measurements")
+    plt.xlabel(f"{rt_y.name()} measurement (mm)")
+    plt.ylabel(f"{rt_y.name()} in Diana (mm)")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -435,9 +437,9 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Displacement: OpenSees vs. measurements")
-    plt.xlabel("Displacement measurement (mm)")
-    plt.ylabel("Displacement in OpenSees (mm)")
+    plt.title(f"{rt_y.name()}: OpenSees vs. measurements")
+    plt.xlabel(f"{rt_y.name()} measurement (mm)")
+    plt.ylabel(f"{rt_y.name()} in OpenSees (mm)")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -455,10 +457,11 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Displacement: OpenSees vs. Diana")
-    plt.xlabel("Displacement in Diana (mm)")
-    plt.ylabel("Displacement in OpenSees (mm)")
+    plt.title(f"{rt_y.name()}: OpenSees vs. Diana")
+    plt.xlabel(f"{rt_y.name()} in Diana (mm)")
+    plt.ylabel(f"{rt_y.name()} in OpenSees (mm)")
 
+    plt.tight_layout()
     plt.savefig(c.get_image_path("validation/regression", "regression-displa.pdf"))
     plt.close()
 
@@ -497,7 +500,7 @@ def r2_plots(c: Config):
         c=c,
         mv_vehicles=[wagen1],
         times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
-        response_type=ResponseType.Strain,
+        response_type=rt_s,
         damage_scenario=HealthyDamage(),
         points=[
             Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
@@ -529,8 +532,8 @@ def r2_plots(c: Config):
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title("Strain: Diana vs. measurements")
-    plt.xlabel("Strain measurement (m/m)")
-    plt.ylabel("Strain in Diana (m/m)")
+    plt.xlabel("Strain measurement")
+    plt.ylabel("Strain in Diana")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -548,8 +551,8 @@ def r2_plots(c: Config):
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title("Strain: OpenSees vs. measurements")
-    plt.xlabel("Strain measurement (m/m)")
-    plt.ylabel("Strain in OpenSees (m/m)")
+    plt.xlabel("Strain measurement")
+    plt.ylabel("Strain in OpenSees")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -568,9 +571,10 @@ def r2_plots(c: Config):
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title("Strain: OpenSees vs. Diana")
-    plt.xlabel("Strain in Diana (m/m)")
-    plt.ylabel("Strain in OpenSees (m/m)")
+    plt.xlabel("Strain in Diana")
+    plt.ylabel("Strain in OpenSees")
 
+    plt.tight_layout()
     plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))
 
 

@@ -49,7 +49,6 @@ def plot_db(c: Config):
     plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=1)
 
 
-
 def plot_density(c: Config, save: str = None):
     """Plot the vehicle density."""
     plt.bar(
