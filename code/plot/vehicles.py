@@ -20,6 +20,8 @@ def plot_db(c: Config):
     """Original A16 data, showing outliers, and downsampled final data."""
     # Print information on original data.
     a16 = load_vehicle_data("data/a16-data/original-a16.csv")
+    a16 = a16[["length", "total_weight", "weight_per_axle", "axle_distance"]]
+    print_i(f"A16 columns = {a16.columns}")
     print_i(f"Original A16 data has {len(a16)} rows")
     print_i(f"Minimum length = {np.min(a16['length']) / 100} m")
     print_i(f"Minimum weight = {np.min(a16['total_weight'])} kN")
@@ -31,7 +33,6 @@ def plot_db(c: Config):
         f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data"
     )
     a16_no_outliers = a16.drop(outliers.index)
-    # print(a16.columns)
 
     # Sample to 10% of original size.
     sampled_a16 = a16_no_outliers.sample(n=int(len(a16) * 0.1))
@@ -39,14 +40,11 @@ def plot_db(c: Config):
     sampled_a16.to_csv("data/a16-data/a16.csv")
     print_i("Wrote updated A16 data to disk")
 
-    passengers = np.random.multivariate_normal(
-        [700, 12.53], cov=np.eye(2), size=len(sampled_a16)
-    ).T
-    passengers = np.random.multivariate_normal([700, 12.53], cov=np.eye(2), size=10).T
+    passengers = np.random.multivariate_normal([700, 2], cov=np.eye(2), size=10).T
     print(passengers)
 
     # Plot outliers.
-    plt.scatter(outliers["length"], outliers["total_weight"], s=s, color="red")
+    plt.scatter(outliers["length"], outliers["total_weight"], s=1, color="red")
     plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=1)
 
 

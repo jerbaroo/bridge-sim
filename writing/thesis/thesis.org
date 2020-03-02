@@ -10,7 +10,7 @@
 #+LATEX_HEADER: \usepackage{xcolor}
 
 # ./cli.sh --save --mesh full contour cover-photo --x 85 --deform 3.5
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/cover-photo/cover-photo-cropped.pdf]]
+[[./saved-images/cover-photo-cropped.pdf]]
 
 #+LATEX: \newpage
 #+LATEX: \section*{Acknowledgements}
@@ -31,6 +31,8 @@ I would like to thank...
 # Commands #
 # -------- #
 
+# ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --cracked
+# ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --healthy
 # ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
 
 # Old commands
