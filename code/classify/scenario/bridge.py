@@ -11,7 +11,7 @@ from model.bridge import Bridge
 from model.load import PierSettlement
 from model.response import ResponseType
 from model.scenario import DamageScenario
-from util import round_m
+from util import round_m, safe_str
 
 
 class HealthyDamage(DamageScenario):
@@ -106,7 +106,7 @@ class CrackedDamage(DamageScenario):
 
 
 def transverse_crack(
-    length: float = 1,
+    length: float = 0.5,
     width: Optional[float] = None,
     at_x: Optional[float] = None,
     at_z: Optional[float] = None,
@@ -125,7 +125,7 @@ def transverse_crack(
             at_z = bridge.z_min
         return at_x, at_z, at_x + length, at_z + width
 
-    return CrackedDamage(name="transverse", crack_area=crack_area)
+    return CrackedDamage(name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"), crack_area=crack_area)
 
 
 def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:
