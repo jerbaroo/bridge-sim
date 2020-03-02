@@ -201,6 +201,7 @@ class ILMatrix(ResponsesMatrix):
         fem_runner: FEMRunner,
         load_z_frac: float,
         run_only: bool,
+        indices: Optional[List[int]] = None,
     ) -> "ILMatrix":
         """Load a wheel track from disk, running simulations if necessary.
 
@@ -232,6 +233,12 @@ class ILMatrix(ResponsesMatrix):
                 for x in c.bridge.wheel_track_xs(c)
             ]
         )
+        # Filter simulations, only running those in 'indices'.
+        if indices is not None:
+            expt_params.sim_params = [
+                sp for i, sp in enumerate(expt_params.sim_params)
+                if i in indices
+            ]
         return load_expt_responses(
             c=c,
             expt_params=expt_params,

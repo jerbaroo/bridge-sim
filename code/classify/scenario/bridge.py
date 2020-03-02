@@ -125,7 +125,10 @@ def transverse_crack(
             at_z = bridge.z_min
         return at_x, at_z, at_x + length, at_z + width
 
-    return CrackedDamage(name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"), crack_area=crack_area)
+    return CrackedDamage(
+        name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"),
+        crack_area=crack_area
+    )
 
 
 def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:

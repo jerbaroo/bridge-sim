@@ -15,6 +15,7 @@ from make.plot import classification as classification_
 from make.plot import contour as contour_
 from make.plot import geometry as geometry_
 from make.plot import vehicle, verification
+from model.response import ResponseType
 from model.bridge.bridge_705 import (
     bridge_705_2d,
     bridge_705_3d,
@@ -536,6 +537,21 @@ def truck1_contour(x: float):
     from make.verify import truck1_contour
 
     truck1_contour(c=c(), x=x)
+
+
+@verify.command(help="Contour plot of a unit load simulation.")
+@click.option("--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0).")
+@click.option("--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0).")
+@click.option("--rt", type=click.Choice(["strain", "ytrans"]))
+def uls_contour(x_i: int, z_i: int, rt: str):
+    from make.verify import uls_contour_plot
+
+    if rt == "strain":
+        response_type = ResponseType.Strain
+    elif rt == "ytrans":
+        response_type = ResponseType.YTranslation
+
+    uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
 
 
 ####################

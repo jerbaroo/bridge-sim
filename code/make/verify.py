@@ -9,10 +9,12 @@ from classify.data.responses import (
 )
 from classify.vehicle import wagen1
 from classify.scenarios import healthy_scenario
+from classify.scenario.bridge import transverse_crack
 from config import Config
 from fem.build import BuildContext
 from fem.params import ExptParams, SimParams
 from fem.responses import load_fem_responses
+from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import build_model_3d
 from model.bridge import Point
@@ -21,7 +23,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import flatten, safe_str
+from util import flatten, print_i, safe_str
 
 uni_axle_vehicle = MvVehicle(
     kn=wagen1.total_kn(),
@@ -333,3 +335,42 @@ def truck1_contour(c: Config, x: float):
         c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")
     )
     plt.close()
+
+
+def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType):
+    wheel_xs = c.bridge.wheel_track_xs(c)
+    wheel_x = wheel_xs[x_i]
+    wheel_zs = c.bridge.wheel_track_zs(c)
+    wheel_z = wheel_zs[z_i]
+    print_i(f"Wheel (x, z) = ({wheel_x}, {wheel_z})")
+    plt.landscape()
+    plt.subplot(2, 1, 1)
+    healthy = list(ILMatrix.load_wheel_track(
+        c=c,
+        response_type=response_type,
+        fem_runner=OSRunner(c),
+        load_z_frac=c.bridge.z_frac(wheel_z),
+        run_only=False,
+        indices=[x_i],
+    ))[0].resize()
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=healthy)
+    c = transverse_crack().use(c)[0]
+    cracked = list(ILMatrix.load_wheel_track(
+        c=c,
+        response_type=response_type,
+        fem_runner=OSRunner(c),
+        load_z_frac=c.bridge.z_frac(wheel_z),
+        run_only=False,
+        indices=[x_i],
+    ))[0].resize()
+    plt.subplot(2, 1, 2)
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=cracked)
+    plt.tight_layout()
+    plt.savefig(
+        c.get_image_path(
+            "verification",
+            safe_str(f"uls-contour-x-{wheel_x}-z-{wheel_z}-{response_type.name()}") + ".pdf"
+        )
+    )
