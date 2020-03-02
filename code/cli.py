@@ -223,11 +223,11 @@ def truck_1_loads(x: float):
         )
 
 
-@info.command(help="Plot the distribution of vehicles.")
+@info.command(help="Make and plot the vehicle database.")
 def vehicle_dist():
-    from make.plot import vehicles
+    from plot.vehicles import plot_db
 
-    vehicles.vehicle_plots(c())
+    plot_db(c())
 
 
 ####################

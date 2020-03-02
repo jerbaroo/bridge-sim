@@ -1,7 +1,9 @@
 """Plot vehicle distributions."""
+from itertools import count
 from math import ceil
 from typing import Callable, List, Tuple, TypeVar
 
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,164 +22,108 @@ def plot_db(c: Config):
     """Original A16 data, showing outliers, and downsampled final data."""
     # Print information on original data.
     a16 = load_vehicle_data("data/a16-data/original-a16.csv")
-    a16 = a16[["length", "total_weight", "weight_per_axle", "axle_distance"]]
     print_i(f"A16 columns = {a16.columns}")
     print_i(f"Original A16 data has {len(a16)} rows")
-    print_i(f"Minimum length = {np.min(a16['length']) / 100} m")
-    print_i(f"Minimum weight = {np.min(a16['total_weight'])} kN")
+    min_length = np.min(a16["length"])
+    print_i(f"Minimum length = {min_length / 100} m")
+    min_weight = np.min(a16["total_weight"])
+    print_i(f"Minimum weight = {min_weight} kN")
 
     # Get and remove outliers.
-    outliers = a16[(np.abs(stats.zscore(a16[["total_weight", "length"]])) >= 3)]
+    outliers = a16[(np.abs(stats.zscore(a16[["total_weight", "length"]])) >= 2)]
     num_outliers = len(a16) - len(outliers)
     print_i(
         f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data"
     )
-    a16_no_outliers = a16.drop(outliers.index)
+    a16 = a16.drop(outliers.index)
 
     # Sample to 10% of original size.
-    sampled_a16 = a16_no_outliers.sample(n=int(len(a16) * 0.1))
-    print_i(f"Downsampled A16 data has {len(sampled_a16)} rows")
-    sampled_a16.to_csv("data/a16-data/a16.csv")
+    a16 = a16.sample(n=int(len(a16) * 0.1))
+    print_i(f"Downsampled A16 data has {len(a16)} rows")
+
+    # Construct passenger vehicles.
+    n, min_kn = len(a16), 5
+    weights = np.random.gumbel(loc=12.53, scale=10, size=n)
+    weights = [w for w in weights if w >= min_kn]
+    axles = list(map(int, np.around(
+        np.interp(
+            weights,
+            [min(weights), max(weights)],
+            [2, 4]
+        ),
+        0
+    )))
+    add_min_length = 2.4 * 100
+    add_max_length = min_length * 1.2
+    lengths = np.interp(weights, [min(weights), max(weights)], [add_min_length, add_max_length])
+    rand = np.random.gumbel(loc=1.5, scale=4, size=len(lengths))
+    lengths = np.multiply(lengths, rand)
+
+    weights = np.multiply(weights, np.random.gumbel(1, 1, len(weights)))
+    add_weight = np.interp(lengths, [add_min_length, add_max_length], [1, min_weight * 1.5])
+    weights += add_weight
+
+    # Add passenger vehicles to DataFrame.
+    records = []
+    for length, weight, axle in zip(lengths, weights, axles):
+        # A little filter function, to make results look a bit better.
+        if add_min_length <= length <= 9.7 * 100 and weight >= 7 and (length > 5 * 100 or weight < 100):
+            records.append({
+                "length": length,
+                "total_weight": weight,
+                "weight_per_axle": str([weight / axle] * axle),
+                "axle_distance": str([length / (axle - 1)] * (axle - 1))
+            })
+    a16 = a16.append(records, ignore_index=True)
+    a16.index.name = "number"
+
+    a16.to_csv("data/a16-data/a16.csv")
     print_i("Wrote updated A16 data to disk")
 
-    passengers = np.random.multivariate_normal([700, 2], cov=np.eye(2), size=10).T
-    print(passengers)
+    ws, ls = a16["total_weight"], a16["length"]
+    print_i(f"Weight: min = {min(ws)}, max = {max(ws)}")
+    print_i(f"Length: min = {min(ls)}, max = {max(ls)}")
 
-    # Plot outliers.
-    plt.scatter(outliers["length"], outliers["total_weight"], s=1, color="red")
-    plt.scatter(a16_no_outliers["length"], a16_no_outliers["total_weight"], s=1)
+    # Plot.
+    def plot_pdf():
+        xs = list(map(lambda x: x[0], c.vehicle_pdf))
+        xs[-1] = min(xs[-1], plt.xlim()[1])
+        ps = list(map(lambda x: x[1], c.vehicle_pdf))
+        total_x = xs[-1] - xs[0]
+        rel_heights = []
+        for x0, x1, p in zip(xs[:-1], xs[1:], ps):
+            l = (x1 - x0) / total_x
+            h = p / l
+            rel_heights.append(h)
+        for x0, x1, h in zip(xs[:-1], xs[1:], rel_heights):
+            h = (h / max(rel_heights)) * plt.ylim()[1]
+            plt.gca().add_patch(patches.Rectangle(
+                (x0, 0),
+                x1 - x0,
+                h,
+                facecolor="none",
+                edgecolor="red",
+                lw=1,
+                label=f"Area = probability" if x1 == xs[-1] else None
+            ))
+        plt.legend()
 
-
-def plot_density(c: Config, save: str = None):
-    """Plot the vehicle density."""
-    plt.bar(
-        range(len(c.vehicle_pdf)),
-        list(map(lambda x: x[1] / 100, c.vehicle_pdf)),
-        tick_label=[f"{x[0]:.1f}" for x in c.vehicle_pdf],
-    )
-    plt.title(f"Vehicle density on {c.bridge.name}")
-    plt.xlabel(f"Maximum vehicle length (m)")
-    plt.ylabel(f"Density")
-    if save:
-        plt.savefig(save)
-        plt.close()
-
-
-pdDataFrameGroupBy = TypeVar("pd.DataFrameGroupBy")
-
-
-def group_scatter_plots(
-    c: Config,
-    groups: List[Tuple[float, pdDataFrameGroupBy]],
-    # Functions that return the x and y data.
-    group_x: Callable[[pd.DataFrame], List[float]],
-    group_y: Callable[[pd.DataFrame], List[float]],
-    group_x_label: str = None,
-    group_y_label: str = None,
-    cols: int = 2,
-    save: str = None,
-    title: str = None,
-):
-    """Scatter plots for each group of data and for the full data."""
-    # Setup groups, rows and columns.
-    num_groups = max(map(lambda x: x[0], groups)) + 1  # + 1 for the 0 index.
-    rows = ceil(num_groups / cols) + 1
-    row, col = 0, 0
-
-    # Add a wide header plot of all the data.
-    print_d(D, f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
-    plt.subplot2grid((rows, cols), (row, col), colspan=cols)
-    plt.scatter(group_x(c.vehicle_data), group_y(c.vehicle_data), s=10)
-    if title:
-        plt.title(f"{title} (all data)")
-    if group_x_label:
-        plt.xlabel(group_x_label)
-    if group_y_label:
-        plt.ylabel(group_y_label)
-    xlim, ylim = plt.xlim(), plt.ylim()
-
-    # Add a subplot for each group.
-    def add_1():
-        nonlocal col
-        nonlocal row
-        col = 0 if col == cols - 1 else col + 1
-        if col == 0:
-            row += 1
-
-    row += 1  # For the wide header plot.
-    last_i = 0
-    for (i, group) in [(int(i), g) for i, g in groups]:
-        print_d(D, f"i = {i}")
-        [add_1() for _ in range(last_i + 1, i)]  # For any empty groups.
-        last_i = i
-        print_d(D, f"rows = {rows}, cols = {cols}, row = {row}, col = {col}")
-        plt.subplot2grid((rows, cols), (row, col))
-        plt.scatter(group_x(group), group_y(group), s=10)
-        if title:
-            plt.title(f"{title} (group {i})")
-        if group_x_label:
-            plt.xlabel(group_x_label)
-        if group_y_label:
-            plt.ylabel(group_y_label)
-        plt.xlim(xlim)
-        plt.ylim(ylim)
-        add_1()
-    plt.gcf().set_size_inches(16, 10)
+    num_axles = a16["weight_per_axle"].apply(lambda s: len(axle_array_and_count(s)))
+    plt.landscape()
+    plt.subplot(2, 1, 1)
+    plt.scatter(a16["length"] / 100, a16["total_weight"], s=1)
+    plot_pdf()
+    plt.ylabel("Load intensity (kN)")
+    plt.xlabel("Length (m)")
+    plt.title("Vehicle load intensity")
+    plt.xlim(0, plt.xlim()[1])
+    plt.subplot(2, 1, 2)
+    plt.scatter(a16["length"] / 100, num_axles, s=1)
+    plt.xlim(0, plt.xlim()[1])
+    plt.ylabel("Number of axles")
+    plt.xlabel("Length (m)")
+    plt.title("Vehicle number of axles")
     plt.tight_layout()
-    plt.savefig(save)
+    plt.savefig(c.get_image_path("vehicles", "vehicles-db.png"))
+    plt.savefig(c.get_image_path("vehicles", "vehicles-db.pdf"))
     plt.close()
-
-
-def plot_length_vs_axles(c: Config, cols: int = 2, save: str = None):
-    """Plot length vs number of axles for each length group."""
-    group_length = lambda group: group["length"] / 100
-    group_num_axles = lambda group: group["weight_per_axle"].apply(
-        lambda s: len(axle_array_and_count(s))
-    )
-    group_scatter_plots(
-        c=c,
-        groups=vehicle_pdf_groups(c),
-        group_y=group_num_axles,
-        group_x=group_length,
-        group_y_label="number of axles",
-        group_x_label="length (m)",
-        cols=cols,
-        save=save,
-        title="Vehicle length against number of axles",
-    )
-
-
-def plot_length_vs_weight(c: Config, cols: int = 2, save: str = None):
-    """Plot length vs number of axles for each length group."""
-    group_length = lambda group: group["length"] / 100
-    group_weight = lambda group: group["total_weight"]
-    group_scatter_plots(
-        c=c,
-        groups=vehicle_pdf_groups(c),
-        group_y=group_weight,
-        group_x=group_length,
-        group_y_label="weight (kN)",
-        group_x_label="length (m)",
-        cols=cols,
-        save=save,
-        title="Vehicle length against weight",
-    )
-
-
-def plot_weight_vs_axles(c: Config, cols: int = 2, save: str = None):
-    """Plot length vs number of axles for each length group."""
-    group_weight = lambda group: group["total_weight"]
-    group_num_axles = lambda group: group["weight_per_axle"].apply(
-        lambda s: len(axle_array_and_count(s))
-    )
-    group_scatter_plots(
-        c=c,
-        groups=vehicle_pdf_groups(c),
-        group_x=group_weight,
-        group_y=group_num_axles,
-        group_x_label="weight (kN)",
-        group_y_label="number of axles",
-        cols=cols,
-        save=save,
-        title="Vehicle number of axles against weight",
-    )
