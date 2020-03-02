@@ -2895,4 +2895,5 @@ settlement the pier settlement can be detected.
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
+
 bibliography:myrefs.bib
