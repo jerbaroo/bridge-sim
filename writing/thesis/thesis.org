@@ -27,6 +27,14 @@ I would like to thank...
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
+# -------- #
+# Commands #
+# -------- #
+
+# ./cli.sh --mesh full --save-to /d/saved/r2 validate r2
+
+# Old commands
+
 # ./cli.sh --mesh med --save-to /z/saved-med simulate uls
 
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses

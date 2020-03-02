@@ -385,7 +385,7 @@ def r2_plots(c: Config):
             mv_vehicles=[wagen1],
             times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=ResponseType.YTranslation,
-            bridge_scenario=HealthyDamage(),
+            damage_scenario=HealthyDamage(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
