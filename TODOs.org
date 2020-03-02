@@ -4,8 +4,9 @@
 28 days to finish thesis.
 ** Day 1 (2nd March)
 - Plot healthy vs. cracked ULS
+  - they are different, at least y translation
 - Run cracked ULS @ medium mesh on workhorse
-- Run regression plots on workhorse
+- Finalize regression plots on workhorse
 -
 * Todo List
 ** TODO [#A] Validate temperature load

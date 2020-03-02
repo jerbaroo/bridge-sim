@@ -2154,12 +2154,12 @@ good agreement between the measurements, OpenSees and Diana.
 #+NAME: fig:regress-displa
 #+CAPTION[Linear regression of vert. trans. responses]: Linear regression of vertical translation responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the vertical translation at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements and shows the values are in very good agreement. The OpenSees model has a better fit to these measurements than the Diana model. All sensor and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
 #+ATTR_LATEX: :height 1\textwidth
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-displa.pdf]]
+[[./saved-images/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
 #+CAPTION[Linear regression of strain responses]: Linear regression of longitudinal strain responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the strain at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements, the OpenSees model has a better fit to these measurements than the Diana model, however clearly the strain values do not match as closely as vertical translation in Figure [[fig:regress-displa]]. All sensor and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
 #+ATTR_LATEX: :height 1\textwidth
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/validation/regression/regression-strain.pdf]]
+[[./saved-images/regression/regression-strain.pdf]]
 
 #+NAME: fig:sensors-displa
 #+ATTR_LATEX: :height 1\textwidth

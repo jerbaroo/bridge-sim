@@ -31,6 +31,7 @@ def plot_db(c: Config):
         f"Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight & length) from A16 data"
     )
     a16_no_outliers = a16.drop(outliers.index)
+    # print(a16.columns)
 
     # Sample to 10% of original size.
     sampled_a16 = a16_no_outliers.sample(n=int(len(a16) * 0.1))
