@@ -36,6 +36,9 @@ I would like to thank...
 # ./cli.sh --mesh full --save-to /d/saved/diana-comp validate diana-comp
 # ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
 # ./cli.sh --save-to /d/saved/conv-pl validate convergence
+# ./cli.sh --save-to /d/saved/conv-pl validate convergence-nesw --fp
+# /d/saved/conv-pl/generated-data-images/convergence/strain-pl-a-convergence.txt
+# --at 'point load at A' --to pl-a
 
 # Old commands
 
@@ -1819,8 +1822,6 @@ the parameter =il_num_loads=, and the parameters that define the mesh density,
 determine the discretization step of the model and thus the accuracy of the
 responses which are calculated.
 
-# \textcolor{red, TODO: Convergence plot}
-
 # Influence lines per wheel track.
 =il_num_loads= number of unit load simulations are run per wheel track. Then for
 any point on the bridge, the response at that point can be calculated to a load
@@ -2105,7 +2106,7 @@ rather than a distributed load, as shown in the plot on the right of Figure
 #+NAME: fig:truck-1
 #+CAPTION[Truck 1 specification]: Specification of truck 1 from the experimental campaign. The plot on the left shows the axles and wheel prints of Truck 1 from the experimental measurement campaign. Each square shows the dimensions of a wheel print and each black line is an axle. Each end of each axle is annotated with the load intensity of the wheels at that end of the axle. The plot on the right depicts the model of the truck in simulation, here the force at each axle's end is represented by a point load.
 #+ATTR_LATEX: :placement [!t]
-[[../../saved-generated-data-images/vehicle/wagen-1.pdf]]
+[[./saved-images/vehicles/wagen-1.pdf]]
 
 # TODO: Is the 375mm also to the right.
 
@@ -2227,12 +2228,12 @@ shows that strain has converged in each of the directions shown within $\approx
 #+NAME: fig:point-a-nesw
 #+CAPTION[Strain convergence at distance from point load A]: Strain convergence at increasing distance from the point load at A. Each plotted line shows the strain response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from point A, in one of the 4 cardinal directions.
 #+ATTR_LATEX: :float wrap :width 0.45\textwidth
-[[./saved-images/convergence-pl/convergencestrain-point-load-a.pdf]]
+[[./saved-images/convergence-pl/convergencestrain-pl-a.pdf]]
 
 #+NAME: fig:converge-displa
 #+ATTR_LATEX: :float wrap :width 0.4\textwidth
 #+CAPTION[Convergence of vertical translation]: Minimum, maximum and mean vertical translation, from a simulation of bridge 705 with a point load at point A. The x-axis shows the number of nodes in the FEM. The y-axis is the vertical translation normalized to the mean of the final 5 values of that plotted response line. When the model size has reached 24'000 nodes... \textcolor{red}{Update/re-run image and fix caption}
-[[./saved-images/convergence-pl/min-max-displacement.pdf]]
+[[./saved-images/convergence-pl/min-max-displa.pdf]]
 
 #+NAME: fig:converge-strain
 #+ATTR_LATEX: :float wrap :width 0.4\textwidth
