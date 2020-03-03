@@ -20,9 +20,9 @@ DEBUG = True
 
 def resize_units(units):
     if units == "m":
-        return (lambda r: r * 1000), "mm"
+        return (lambda r: r * 1E3), "mm"
     if units == "":
-        return (lambda r: r / 100000), ""
+        return (lambda r: r * 1E-6), ""
     return None, units
 
 
