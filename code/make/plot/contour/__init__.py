@@ -444,7 +444,7 @@ def comparison_plots_705(c: Config, run_only: bool):
             if run_only:
                 continue
             title = (
-                f"{response_type.name()} from a {loads[0].kn} kN point load at,"
+                f"{response_type.name()} from a {loads[0].kn} kN point load at"
                 + f"\nx = {load_x:.3f}m, z = {load_z:.3f}m, with "
             )
             save = lambda prefix: c.get_image_path(
