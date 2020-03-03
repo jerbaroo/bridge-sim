@@ -1005,8 +1005,8 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
         ax.set_title(
             f"Strain at increasing distance\nin direction {compass_name} from\n{from_}"
         )
-        ax.set_xlabel("max_shell_len (m)")
-        ax.set_ylabel("Strain (m\m)")
+        ax.set_xlabel("MSL (m)")
+        ax.set_ylabel("Strain")
         ax.grid(axis="y")
     plt.tight_layout()
     clb = plt.colorbar(mappable, ax=axes.ravel())
