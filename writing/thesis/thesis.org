@@ -35,7 +35,7 @@ I would like to thank...
 # ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --healthy
 # ./cli.sh --mesh full --save-to /d/saved/diana-comp validate diana-comp
 # ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
-# ./cli.sh --save-to /d/saved/conv-pl/ validate convergence
+# ./cli.sh --save-to /d/saved/conv-pl validate convergence
 
 # Old commands
 

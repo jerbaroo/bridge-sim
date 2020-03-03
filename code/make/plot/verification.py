@@ -589,7 +589,7 @@ def plot_pier_convergence(
     min_shell_len: float,
     max_shell_len: Optional[float] = None,
 ):
-    """Make pier convergence data file, decreasing mesh size per simulation."""
+    """Plot pier convergence, increasing mesh density per simulation."""
     # We will be modifying the 'Config', so make a copy.
     og_c = c
     c = deepcopy(c)
@@ -626,7 +626,7 @@ def plot_pier_convergence(
         # need for bridge accuracy in filepath.
         acc=False,
     )
-    print_i(f"Saving parameters to {filepath}")
+    print_i(f"Expecting parameters at {filepath}")
 
     if not os.path.exists(filepath):
         print_i(filepath)

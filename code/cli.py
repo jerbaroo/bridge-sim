@@ -339,6 +339,19 @@ def convergence():
     verification.plot_convergence(c())
 
 
+@validate.command(help="Plot NESW convergence around a point load.")
+@click.option("--fp", type=str, help="Filepath of results file.")
+@click.option("--from_", type=str)
+@click.option("--label", type=str)
+def convergence_nesw(fp, from_, label):
+    verification.plot_nesw_strain_convergence(
+        c=c(),
+        filepath=fp,
+        from_=from_,
+        label=label,
+    )
+
+
 @validate.command(help="Plot strain convergence for pier settlement.")
 @click.option("--pier", type=int, required=True, help="Index of the pier to settle.")
 @click.option(
