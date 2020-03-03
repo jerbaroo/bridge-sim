@@ -16,7 +16,7 @@ from util import print_d, print_s, print_w
 D: bool = False
 
 # Column names of the vehicle data to add noise.
-noise_col_names = ["speed", "length", "total_weight"]
+noise_col_names = []
 
 
 def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int]):
@@ -64,7 +64,7 @@ def noise_per_column(c: Config, col_names: List[str]):
 def sample_vehicle(
     c: Config,
     group_index: int = None,
-    noise_col_names: List[str] = noise_col_names,
+    noise_col_names: List[str] = [],
     pd_row: bool = False,
 ) -> Union[MvVehicle, Tuple[MvVehicle, pd.DataFrame]]:
     """Sample a vehicle from a c.vehicle_density group.
@@ -80,6 +80,7 @@ def sample_vehicle(
     # Select a vehicle group randomly, if no group is specified.
     if group_index is None:
         rand = np.random.uniform()
+        # print(rand)
         # print_d(D, f"Vehicle PDF = {c.vehicle_pdf}")
         # Group's are tuples of group maximum and percentage of all groups.
         min, max = 0, c.vehicle_pdf[-1][0]
@@ -87,27 +88,28 @@ def sample_vehicle(
         print_d(D, f"min = {min}, max = {max}")
         running_fraction = 0
         # Iterate through group percentage's until the randomly selected one.
+        # print(c.vehicle_pdf)
         for i, (_, group_fraction) in enumerate(c.vehicle_pdf):
             running_fraction += group_fraction
+            # print(f"running fraction = {running_fraction}")
             # print(f"i = {i}, running_fraction = {running_fraction}")
             if rand < running_fraction:
                 group_index = i
                 break
-    else:
-        group_index = init_group_index
-    print_d(D, f"group_index = {group_index}")
+    # print(D, f"group_index = {group_index}")
 
     # Sample a vehicle uniformly randomly from the group.
-    groups_dict = {i: None for _ in range(len(c.vehicle_pdf))}
+    groups_dict = {i: None for i in range(len(c.vehicle_pdf))}
     print_d(D, groups_dict.items())
-    for i, group in vehicle_pdf_groups(c):
-        print_d(D, f"i = {i}")
+    for i, (_, group) in enumerate(vehicle_pdf_groups(c)):
+        # print(D, f"i = {i}")
         groups_dict[i] = group
     group = groups_dict[group_index]
+
     # print(f"group = {type(group)}")
     if group is None:
         print_w(f"Sampled group is None, resampling...")
-        return sample_vehicle(c, init_group_index)
+        return sample_vehicle(c, group_index)
     sample = c.vehicle_data.loc[group.sample().index]
 
     # Add noise to the sample if requested.

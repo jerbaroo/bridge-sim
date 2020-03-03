@@ -88,6 +88,7 @@ class Config:
         self.vehicle_pdf = vehicle_pdf
         self.vehicle_pdf_col = vehicle_pdf_col
         start = timer()
+        self.vehicle_data_path = vehicle_data_path
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(
             f"Loaded vehicle data from {vehicle_data_path} in"

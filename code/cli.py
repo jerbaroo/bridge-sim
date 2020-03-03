@@ -225,9 +225,9 @@ def truck_1_loads(x: float):
 
 @info.command(help="Make and plot the vehicle database.")
 def vehicle_dist():
-    from plot.vehicles import plot_db
+    from plot.vehicles import plot_dist
 
-    plot_db(c())
+    plot_dist(c())
 
 
 ####################
@@ -582,7 +582,7 @@ def top_view(mins, skip, damage):
     if damage == "healthy":
         damage_scenario = healthy_damage
     elif damage == "pier":
-        damage_scenario = pier_disp_damage([(5, 0.5 / 1000)])
+        damage_scenario = pier_disp_damage([(5, 1 / 1000)])
 
     top_view_plot(
         c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario

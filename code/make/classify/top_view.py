@@ -49,7 +49,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         sim_runner=OSRunner(c),
     )
     # Temperature effect.
-    temps = temperature.load("may", offset=10)["temp"]
+    temps = temperature.load("holly-springs")["temp"]
     temp_effect = temperature.get_effect(
         c=c,
         response_type=response_type,

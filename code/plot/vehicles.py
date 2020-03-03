@@ -11,14 +11,14 @@ from scipy import stats
 
 from config import Config
 from vehicles import axle_array_and_count, load_vehicle_data
-from vehicles.sample import vehicle_pdf_groups
+from vehicles.sample import sample_vehicle, vehicle_pdf_groups
 from util import print_d, print_i
 
 # Print debug information for this file.
 D: bool = False
 
 
-def plot_db(c: Config):
+def plot_dist(c: Config):
     """Original A16 data, showing outliers, and downsampled final data."""
     # Print information on original data.
     a16 = load_vehicle_data("data/a16-data/original-a16.csv")
@@ -104,25 +104,35 @@ def plot_db(c: Config):
                 facecolor="none",
                 edgecolor="red",
                 lw=1,
-                label=f"Area = probability" if x1 == xs[-1] else None
+                label=f"Area ∝ probability" if x1 == xs[-1] else None
             ))
         plt.legend()
 
+    n = 10000
+    c.vehicle_data = load_vehicle_data(c.vehicle_data_path)
+    vehicles = [sample_vehicle(c) for _ in range(n)]
+    kns = list(map(lambda v: v.total_kn(), vehicles))
+
     num_axles = a16["weight_per_axle"].apply(lambda s: len(axle_array_and_count(s)))
     plt.landscape()
-    plt.subplot(2, 1, 1)
+    plt.subplot(3, 1, 1)
     plt.scatter(a16["length"] / 100, a16["total_weight"], s=1)
     plot_pdf()
     plt.ylabel("Load intensity (kN)")
     plt.xlabel("Length (m)")
-    plt.title("Vehicle load intensity")
+    plt.title("Load intensity per vehicle")
     plt.xlim(0, plt.xlim()[1])
-    plt.subplot(2, 1, 2)
+    plt.subplot(3, 1, 2)
     plt.scatter(a16["length"] / 100, num_axles, s=1)
     plt.xlim(0, plt.xlim()[1])
     plt.ylabel("Number of axles")
     plt.xlabel("Length (m)")
-    plt.title("Vehicle number of axles")
+    plt.title("Number of axles per vehicle")
+    plt.subplot(3, 1, 3)
+    plt.hist(kns)
+    plt.ylabel("Number of vehicles")
+    plt.xlabel("Load intensity")
+    plt.title(f"Load intensity distribution of {n} sampled vehicles")
     plt.tight_layout()
     plt.savefig(c.get_image_path("vehicles", "vehicles-db.png"))
     plt.savefig(c.get_image_path("vehicles", "vehicles-db.pdf"))
