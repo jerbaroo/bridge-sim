@@ -341,14 +341,14 @@ def convergence():
 
 @validate.command(help="Plot NESW convergence around a point load.")
 @click.option("--fp", type=str, help="Filepath of results file.")
-@click.option("--from_", type=str)
-@click.option("--label", type=str)
-def convergence_nesw(fp, from_, label):
+@click.option("--at", type=str, help="Named point for plot title")
+@click.option("--to", type=str, help="Filepath extension for saving plot.")
+def convergence_nesw(fp, at, to):
     verification.plot_nesw_strain_convergence(
         c=c(),
         filepath=fp,
-        from_=from_,
-        label=label,
+        from_=at,
+        label=to,
     )
 
 
