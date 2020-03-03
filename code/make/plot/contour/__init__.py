@@ -426,6 +426,8 @@ def comparison_plots_705(c: Config, run_only: bool):
             omin, omax = float(row["omin"]), float(row["omax"])
             amin, amax = max(dmin, omin), min(dmax, omax)
             levels = np.linspace(amin, amax, 16)
+            print(f"{label}, levels: {levels}")
+            levels = None
 
             # Create the OpenSees plot.
             loads = [

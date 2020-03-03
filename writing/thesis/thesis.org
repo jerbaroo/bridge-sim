@@ -33,6 +33,7 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --cracked
 # ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --healthy
+# ./cli.sh --mesh full --save-to /d/saved/diana-comp validate diana-comp
 # ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
 
 # Old commands
@@ -41,7 +42,6 @@ I would like to thank...
 
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
 
-# ./cli.sh --mesh full --save-to /z/saved-diana-comp validate diana-comp
 
 # Move folder up one level.
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors

@@ -7,6 +7,10 @@
   - they are different (good), at least y translation
 - Run cracked ULS @ medium mesh on workhorse
 - Finalize regression plots on workhorse
+- Create distribution of low weight vehicles
+** Day 2 (3rd March)
+- Fix traffic generation bug
+- Finish vehicle distribution plot
 -
 * Todo List
 ** TODO [#A] Validate temperature load
