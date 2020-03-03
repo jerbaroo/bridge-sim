@@ -38,12 +38,8 @@ I would like to thank...
 
 # Old commands
 
-# ./cli.sh --mesh med --save-to /z/saved-med simulate uls
-
 # ./cli.sh --mesh med --save-to /z/saved-verify --shorten-paths true verify comp-responses
 
-
-# Move folder up one level.
 # ./cli.sh --mesh med --save-to /z/saved-sensors-med --shorten-paths true validate sensors
 
 # ./cli.sh --mesh full --save-to /z/jeremy/per-sensors-full --shorten-paths true validate sensors
@@ -2049,7 +2045,7 @@ small areas.
 
 #+NAME: fig:comp-os-a-y
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Vert. tranfrom from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-y]] from simulation with Diana. \textcolor{red}{Colors don't match exactly.}
+#+CAPTION[Vert. tranfrom from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-y]] from simulation with Diana.
 [[./saved-images/diana-comp/a-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-a-s

@@ -13,7 +13,7 @@ venv/
 
 # Code & generated data
 code/config_sys.py
-generated*/
+*generated*/
 
 # Diana
 diana*.out
