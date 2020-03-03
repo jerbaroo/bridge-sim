@@ -453,8 +453,6 @@ def comparison_plots_705(c: Config, run_only: bool):
             )
             top_view_bridge(c.bridge, piers=True, abutments=True)
             fem_responses = fem_responses.resize()
-            if response_type == ResponseType.Strain:
-                fem_responses = fem_responses.map(lambda r: r * 1e-6)
             sci_format = response_type == ResponseType.Strain
             plot_contour_deck(
                 c=c,
