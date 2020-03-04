@@ -216,7 +216,7 @@ def truck_1_time_series(c: Config):
 
 
 def stress_strength_plot(c: Config):
-    """Plot the difference of tensile strength and strength under load."""
+    """Plot the difference of tensile strength and stress under load."""
     original_c = c
     response_type = ResponseType.StrainT
     settlement = 5
@@ -264,6 +264,7 @@ def stress_strength_plot(c: Config):
     # Cracked concrete.
     plt.subplot(3, 1, 3)
     time = wagen1.time_at(x=52, bridge=c.bridge)
+    wagen1.kn = 2 * wagen1.total_kn()
     loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
     c, sim_params = transverse_crack().use(original_c)
     # from classify.scenario.bridge import healthy_damage
@@ -277,7 +278,7 @@ def stress_strength_plot(c: Config):
     ).resize().to_stress(c.bridge)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses)
-    plt.title(f"Top stress: load & cracked concrete")
+    plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
 
     plt.tight_layout()
     plt.savefig(original_c.get_image_path("validation", "stress-strength.pdf"))

@@ -87,6 +87,12 @@ plt.rc("figure", titlesize=BIGGER_SIZE)  # Figure title
 ###############################################################################
 
 
+def legend_marker_size(legend, size):
+    """Set the marker size for all legend markers."""
+    for legend_handle in legend.legendHandles:
+        legend_handle._sizes = [size]
+
+
 parula_cmap = colors.LinearSegmentedColormap.from_list(
     "parula",
     [
