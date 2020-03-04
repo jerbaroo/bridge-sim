@@ -264,11 +264,11 @@ def stress_strength_plot(c: Config):
     # Cracked concrete.
     plt.subplot(3, 1, 3)
     time = wagen1.time_at(x=52, bridge=c.bridge)
-    wagen1.kn = 2 * wagen1.total_kn()
+    # wagen1.kn = 2 * wagen1.total_kn()
     loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
-    c, sim_params = transverse_crack().use(original_c)
-    # from classify.scenario.bridge import healthy_damage
-    # c, sim_params = healthy_damage.use(original_c)
+    # c, sim_params = transverse_crack().use(original_c)
+    from classify.scenario.bridge import healthy_damage
+    c, sim_params = healthy_damage.use(original_c)
     sim_params.ploads = loads
     responses = load_fem_responses(
         c=c,
@@ -278,7 +278,8 @@ def stress_strength_plot(c: Config):
     ).resize().to_stress(c.bridge)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses)
-    plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
+    # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
+    plt.title(f"Top stress: {int(wagen1.kn)} kN vehicle")
 
     plt.tight_layout()
     plt.savefig(original_c.get_image_path("validation", "stress-strength.pdf"))
