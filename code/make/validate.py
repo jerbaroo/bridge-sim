@@ -3,16 +3,20 @@ import numpy as np
 from classify.data.responses import responses_to_traffic_array
 from classify.data.responses.convert import loads_to_traffic_array
 from classify.noise import add_displa_noise, add_strain_noise
+from classify.scenario.bridge import pier_disp_damage, transverse_crack
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
+from classify import temperature
 from config import Config
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
 from fem.params import ExptParams, SimParams
-from fem.responses import load_fem_responses
+from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
 from plot import plt
+from plot.geometry import top_view_bridge
+from plot.responses import plot_contour_deck
 from util import clean_generated, flatten, print_i, print_s
 from validate.campaign import displa_sensor_xz, strain_sensor_xz
 
@@ -208,4 +212,73 @@ def truck_1_time_series(c: Config):
     set_labels("Strain", "Time")
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/truck-1", "time-series-strain.pdf"))
+    plt.close()
+
+
+def stress_strength_plot(c: Config):
+    """Plot the difference of tensile strength and strength under load."""
+    original_c = c
+    response_type = ResponseType.StrainT
+    settlement = 5
+    temp = 15
+    deck_points = [
+        Point(x=x, y=0, z=z)
+        for x in np.linspace(
+            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2)
+        )
+        for z in np.linspace(
+            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2)
+        )
+    ]
+    plt.portrait()
+
+    # Pier settlement.
+    plt.subplot(3, 1, 1)
+    c, sim_params = pier_disp_damage([(5, settlement / 1000)]).use(original_c)
+    responses = load_fem_responses(
+        c=c,
+        sim_runner=OSRunner(c),
+        response_type=response_type,
+        sim_params=sim_params,
+    ).resize().to_stress(c.bridge)
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=responses)
+    plt.title(f"Top stress: {settlement} mm pier settlement")
+
+    # Temperature effect.
+    plt.subplot(3, 1, 2)
+    temp_effect = temperature.effect(
+        c=c, response_type=response_type, points=deck_points, temps=[temp],
+    ).T[0]
+    responses = Responses(
+        response_type=response_type,
+        responses=[
+            (temp_effect[p_ind], deck_points[p_ind])
+            for p_ind in range(len(deck_points))
+        ],
+    ).resize().to_stress(c.bridge)
+    top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=responses)
+    plt.title(f"Top stress: at {temp} °C")
+
+    # Cracked concrete.
+    plt.subplot(3, 1, 3)
+    time = wagen1.time_at(x=52, bridge=c.bridge)
+    loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
+    c, sim_params = transverse_crack().use(original_c)
+    # from classify.scenario.bridge import healthy_damage
+    # c, sim_params = healthy_damage.use(original_c)
+    sim_params.ploads = loads
+    responses = load_fem_responses(
+        c=c,
+        sim_runner=OSRunner(c),
+        response_type=response_type,
+        sim_params=sim_params,
+    ).resize().to_stress(c.bridge)
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=responses)
+    plt.title(f"Top stress: load & cracked concrete")
+
+    plt.tight_layout()
+    plt.savefig(original_c.get_image_path("validation", "stress-strength.pdf"))
     plt.close()

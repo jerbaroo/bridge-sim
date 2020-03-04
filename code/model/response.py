@@ -24,6 +24,7 @@ class ResponseType(Enum):
     ZTranslation = "ztrans"
     Stress = "stress"
     Strain = "strain"
+    StrainT = "straint"
 
     @staticmethod
     def all() -> List["ResponseType"]:
@@ -41,6 +42,7 @@ class ResponseType(Enum):
             ResponseType.ZTranslation: "Z translation",
             ResponseType.Stress: "Stress",
             ResponseType.Strain: "Strain",
+            ResponseType.StrainT: "Top strain",
         }[self]
 
     def units(self, short: bool = True) -> str:
@@ -51,4 +53,5 @@ class ResponseType(Enum):
             ResponseType.ZTranslation: ("meters", "m"),
             ResponseType.Stress: ("kilo Newton", "N/mm²"),
             ResponseType.Strain: ("kilo Newton", ""),
+            ResponseType.StrainT: ("kilo Newton", ""),
         }[self][int(short)]

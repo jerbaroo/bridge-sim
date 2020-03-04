@@ -61,11 +61,19 @@ def load_fem_responses(
     'fem' module of this package should be separate from that abstraction.
 
     """
+    original_response_types = set(sim_params.response_types)
+    print(original_response_types)
     sim_params.response_types = [
         rt
         for rt in sim_params.response_types
         if rt in sim_runner.supported_response_types(c.bridge)
     ]
+    for rt in original_response_types:
+        if rt not in sim_params.response_types:
+            print_w(
+                f"Removing response type from SimParams: {rt}"
+                f", not supported by {sim_runner.name} SimRunner"
+            )
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in SimParams")
 
@@ -179,13 +187,16 @@ class Responses:
             x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
         }
 
-    def map(self, f):
+    def map(self, f, xyz: bool = False):
         """Map a function over the values of responses."""
         time = self.times[0]
         for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
-                    self.responses[time][x][y][z] = f(response)
+                    if xyz:
+                        self.responses[time][x][y][z] = f(response, x, y, z)
+                    else:
+                        self.responses[time][x][y][z] = f(response)
         return self
 
     def resize(self):
@@ -210,14 +221,17 @@ class Responses:
 
     def to_stress(self, bridge: Bridge):
         """Convert strains to stresses."""
-        if self.response_type != ResponseType.Strain:
-            raise ValueError(f"Responses are not {response_type.Strain}")
-        if len(bridge.sections) > 1:
-            raise ValueError("Currently only single deck section supported")
-        youngs = bridge.sections[0].youngs
+        if self.response_type not in [ResponseType.Strain, ResponseType.StrainT]:
+            raise ValueError(f"Responses must be strain responses")
+        if len(bridge.sections) == 1:
+            youngs = bridge.sections[0].youngs
+            self.map(lambda r: r * youngs)
+        else:
+            def _map(r, x, y, z):
+                return r * bridge.deck_section_at(x=x, z=z).youngs
+            self.map(_map, xyz=True)
         self.response_type = ResponseType.Stress
         self.units = self.response_type.units()
-        self.map(lambda r: r * youngs)
         return self
 
     def values(self, point: bool = False):

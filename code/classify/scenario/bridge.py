@@ -164,8 +164,13 @@ class PierDispDamage(DamageScenario):
         if len(pier_disps) < 1:
             raise ValueError("At least 1 PierDisp required")
         name = name_prefix + "-".join(list(map(lambda pd: pd.id_str(), pier_disps)))
-        super().__init__(name=name)
         self.pier_disps = pier_disps
+        def mod_sim_params(sim_params: SimParams):
+            if len(self.pier_disps) > 1:
+                raise ValueError("Cannot have SimParams with > 1 pier settlement")
+            sim_params.displacement_ctrl = self.pier_disps[0]
+            return sim_params
+        super().__init__(name=name, mod_sim_params=mod_sim_params)
 
 
 def pier_disp_damage(pier_disps: List[Tuple[int, float]]) -> PierDispDamage:

@@ -5,7 +5,6 @@ from typing import Callable, List, Tuple
 
 import config_sys
 from model.bridge import Bridge
-from model.response import ResponseType
 from vehicles import load_vehicle_data
 from util import print_i, print_w
 

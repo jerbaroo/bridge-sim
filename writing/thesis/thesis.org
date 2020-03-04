@@ -32,6 +32,8 @@ I would like to thank...
 # -------- #
 
 # ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --cracked
+# ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --healthy
+# ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --cracked
 # ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --healthy
 # ./cli.sh --mesh full --save-to /d/saved/diana-comp validate diana-comp
 # ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
@@ -39,6 +41,10 @@ I would like to thank...
 # ./cli.sh --save-to /d/saved/conv-pl validate convergence-nesw --fp
 # /d/saved/conv-pl/generated-data-images/convergence/strain-pl-a-convergence.txt
 # --at 'point load at A' --to pl-a
+# ./cli.sh --save-to /d/saved/pier-4 validate pier-conv --pier 4 --max-nodes
+# 100000 --without-radius 2 --nesw-loc 0 --nesw-max-dist 5 --max-shell-len 2
+# --min-shell-len 0.5
+# ./cli.sh
 
 # Old commands
 

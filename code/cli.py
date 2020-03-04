@@ -441,6 +441,14 @@ def truck_1_ts():
     validate.truck_1_time_series(c())
 
 
+@validate.command(help="")
+def stress_strength():
+    from make import validate
+
+    validate.stress_strength_plot(c())
+
+
+
 #################
 ##### Param #####
 #################

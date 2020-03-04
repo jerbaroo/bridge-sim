@@ -59,10 +59,10 @@ def convert_strain_responses(
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
     converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
 ):
-    if ResponseType.Strain not in parsed_sim_responses:
+    if not any(rt in parsed_sim_responses for rt in [ResponseType.Strain, ResponseType.StrainT]):
         return
     parsed_sim_strain = parsed_sim_responses[ResponseType.Strain]
-    result = []
+    result_bottom, result_top = [], []
     print_w("Elements belonging to piers will not have strain recorded")
     print_w("Strain responses are specified to be at y=0, but recorded lower")
 
@@ -115,15 +115,22 @@ def convert_strain_responses(
             half_height = element.section.thickness / 2
             # print(response_point.x, response_point.y, response_point.z)
             # print(eps11)
-            result.append(
+            result_bottom.append(
                 (
                     (eps11 - (theta11 * half_height)) * -1e6,
                     Point(x=response_point.x, y=response_point.y, z=response_point.z,),
                 )
             )
+            result_top.append(
+                (
+                    (eps11 + (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
 
-    converted_expt_responses[sim_ind][ResponseType.Strain] = result
-    print(len(result))
+    converted_expt_responses[sim_ind][ResponseType.Strain] = result_bottom
+    converted_expt_responses[sim_ind][ResponseType.StrainT] = result_top
+    print(len(result_bottom))
 
 
 def convert_responses_3d(
