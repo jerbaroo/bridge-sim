@@ -277,6 +277,6 @@ def bridge_705_config(bridge: Callable[..., Bridge]) -> Config:
         bridge=bridge,
         vehicle_data_path="data/a16-data/a16.csv",
         vehicle_pdf=[
-            (2.4, 0.7), (5.6, 90.1), (11.5, 5.9), (12.2, 0.3), (43, 0)],
+            (2.4, 5), (5.6, 45), (7.5, 30), (9, 15), (11.5, 4), (12.2, 0.5), (43, 0)],
         vehicle_pdf_col="length",
     )

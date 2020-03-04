@@ -14,7 +14,7 @@ from model.response import ResponseType
 from fem.params import ExptParams, SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
-from plot import plt
+from plot import equal_lims, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import clean_generated, flatten, print_i, print_s
@@ -281,6 +281,7 @@ def stress_strength_plot(c: Config):
     # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
     plt.title(f"Top stress: {int(wagen1.total_kn())} kN vehicle")
 
+    equal_lims("x", 3, 1)
     plt.tight_layout()
     plt.savefig(original_c.get_image_path("validation", "stress-strength.pdf"))
     plt.close()
