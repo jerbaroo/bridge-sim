@@ -166,6 +166,7 @@ def plot_nesw_convergence(
         )
         ax.set_xlabel("Nodes in FEM")
         ax.set_ylabel("Strain (E-6)")
+        ax.set_xlim(ax.get_xlim()[1], ax.get_xlim()[0])
     plt.tight_layout()
     clb = plt.colorbar(mappable, ax=axes.ravel())
     clb.ax.set_title("Distance (m)")
