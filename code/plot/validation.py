@@ -147,12 +147,12 @@ def plot_nesw_convergence(
                 break
             line_responses = []
             for max_shell_len, sim_responses in responses.items():
-                msl = float(df.at[max_shell_len, "max-shell-len"])
                 deck_nodes = float(df.at[max_shell_len, "deck-nodes"])
                 pier_nodes = float(df.at[max_shell_len, "pier-nodes"])
                 line_responses.append(
                     (
-                        deck_nodes + pier_nodes,
+                        # deck_nodes + pier_nodes,
+                        max_shell_len,
                         scalar(sim_responses.at_deck(dist_point, interp=True)),
                     )
                 )
