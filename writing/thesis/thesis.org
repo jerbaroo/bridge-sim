@@ -43,8 +43,9 @@ I would like to thank...
 # --at 'point load at A' --to pl-a
 # ./cli.sh --save-to /d/saved/pier-4 validate pier-conv --pier 4 --max-nodes
 # 100000 --without-radius 2 --nesw-loc 0 --nesw-max-dist 5 --max-shell-len 2
-# --min-shell-len 0.5
-# ./cli.sh
+# --min-shell-len 0.35
+# ./cli.sh --shorten-paths true --save-to /d/saved/strength --mesh full validate
+# stress-strength
 
 # Old commands
 
@@ -2605,6 +2606,11 @@ settlement the pier settlement can be detected.
 * Results
 
 ** Simulation
+
+The temperature gradient of the bridge will be affected by the intensity of the
+solar radiation, air temperature and wind speed. The effect of stresses from
+thermal loading are significant but the deflections are not, which is consistent
+with the findings in cite:thepchatri1977prediction.
 
 ** Damage Identification
 

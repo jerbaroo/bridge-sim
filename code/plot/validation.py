@@ -147,6 +147,7 @@ def plot_nesw_convergence(
                 break
             line_responses = []
             for max_shell_len, sim_responses in responses.items():
+                msl = float(df.at[max_shell_len, "max-shell-len"])
                 deck_nodes = float(df.at[max_shell_len, "deck-nodes"])
                 pier_nodes = float(df.at[max_shell_len, "pier-nodes"])
                 line_responses.append(
@@ -164,7 +165,7 @@ def plot_nesw_convergence(
             f"Strain at increasing distance\nin direction {compass_name} from\n{from_}"
         )
         ax.set_xlabel("Nodes in FEM")
-        ax.set_ylabel("Strain (m\m)")
+        ax.set_ylabel("Strain (E-6)")
     plt.tight_layout()
     clb = plt.colorbar(mappable, ax=axes.ravel())
     clb.ax.set_title("Distance (m)")
