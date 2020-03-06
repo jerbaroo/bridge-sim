@@ -153,7 +153,7 @@ def get_len_per_min(c: Config, speed_up: float):
 
 
 def resize(temps, tmin=-5, tmax=35):
-    """Resize temperatues into a given range."""
+    """Resize temperatures into a range."""
     return interp1d(
         np.linspace(min(temps), max(temps), 1000),
         np.linspace(tmin, tmax, 1000)
