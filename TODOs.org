@@ -18,7 +18,7 @@
 - Run convergence data
 ** Day 4 (5th March)
 ** Day 5 (6th march)
-- Finalize N
+- Finalize NESW pier convergence plots
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
