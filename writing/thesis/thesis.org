@@ -2458,7 +2458,7 @@ least a somewhat realistic set of sensor positions that are being ignored.
 #+NAME: fig:strain-sensors
 #+CAPTION[Positions of available strain sensors]: Available positions in simulation to place strain sensors on the deck of bridge 705 for the purpose of classification. The blue dots indicate positions where strain sensors are available while the red sensors indicate positions where data from strain sensors cannot be used due to a lack of convergence.
 #+ATTR_LaTeX: :placement [!t]
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/sensors/unavailable-sensors.pdf]]
+[[./saved-images/unavailable-sensors.pdf]]
 
 *** Model Assumptions
 

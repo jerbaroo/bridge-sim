@@ -194,7 +194,7 @@ def make_available_sensors_plot(c: Config, pier_radius: float, track_radius):
         return without_t(point) or without_p(point)
 
     plot_deck_sensors(c=c, without=without, label=True)
-    plt.title(f"Sensors available for classification on {c.bridge.name}")
+    plt.title(f"Sensors available for classification on Bridge 705")
     plt.tight_layout()
     plt.savefig(c.get_image_path("sensors", "unavailable-sensors.pdf"))
     plt.close()

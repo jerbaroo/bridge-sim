@@ -748,13 +748,6 @@ def plot_pier_convergence(
     #     print(f"Filtering displacements with max shell len {key}", end="\r")
     # print()
 
-    # A plot of sensors that are (un)available.
-    plot_deck_sensors(c=c, without=without)
-    plt.savefig(
-        og_c.get_image_path("convergence-pier", "unavailable sensors.pdf", acc=False)
-    )
-    plt.close()
-
     # Plot convergence of strain, first with all sensors, then without some.
     title = f"Strain convergence as a function of model size\ndue to settlement of pier {pier_i}"
     plot_mmm_strain_convergence(

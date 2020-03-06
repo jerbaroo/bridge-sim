@@ -57,14 +57,14 @@ def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool =
             [avail_nodes[0].x],
             [avail_nodes[0].z],
             color="#1f77b4",
-            label="available",
+            label="Available",
             s=5,
         )
         plt.scatter(
             [unavail_nodes[0].x],
             [unavail_nodes[0].z],
             color="#ff7f0e",
-            label="unavailable",
+            label="Unavailable",
             s=5,
         )
         legend = plt.legend()
