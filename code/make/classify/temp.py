@@ -31,7 +31,9 @@ def temp_contour_plot(c: Config, temp: int):
         ).T[0]
         # Resize responses if applicable to response type.
         resize_f, units = resize_units(response_type.units())
-        if resize_f is not None:
+        if response_type == ResponseType.Strain:
+            units = "E-6"
+        elif resize_f is not None:
             temp_effect = resize_f(temp_effect)
         responses = Responses(
             response_type=response_type,
@@ -42,7 +44,7 @@ def temp_contour_plot(c: Config, temp: int):
             units=units,
         )
         top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
-        plot_contour_deck(c=c, responses=responses)
+        plot_contour_deck(c=c, responses=responses, decimals=2)
         plt.title(f"{response_type.name()} at {temp} °C")
 
     plt.landscape()

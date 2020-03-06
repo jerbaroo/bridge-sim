@@ -1628,6 +1628,11 @@ Appendix. Because the sensor noise is so low, there does not appear much need to
 add sensor noise to the signals, but neither is there much of a reason not to,
 therefore this low amount of white noise is added to the generated signals.
 
+#+NAME: fig:temp-20
+#+ATTR_LATEX: :placement [t]
+#+CAPTION[Effect of air temperature at 20 °C]: The effect of air temperature at 20 °C, assuming bridge 705 was set at a temperature of 15 °C. What is clear from the plots is that the vertical translation due to a change in temperature is greatest near the abutments and near the center of the bridge. textcolor{red}{Update plot once temperature model is updated}
+[[./saved-images/thermal/temp-effect-20.pdf]]
+
 *** Traffic Model
 
 \textcolor{red}{TODO: Distribution of passenger vehicles}
