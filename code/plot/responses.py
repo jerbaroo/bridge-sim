@@ -17,7 +17,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import Response, ResponseType
-from plot import default_cmap, plt
+from plot import default_cmap, legend_marker_size, plt
 from util import flatten, print_w
 
 
@@ -67,7 +67,8 @@ def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool =
             label="unavailable",
             s=5,
         )
-        plt.legend()
+        legend = plt.legend()
+        legend_marker_size(legend, 50)
 
 
 def plot_distributions(
