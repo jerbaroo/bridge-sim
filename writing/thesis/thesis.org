@@ -2346,14 +2346,10 @@ investigated at points at increasing distance from the north-western point of
 pier 4 in Figure [[fig:pier-4-nesw]], and in Figure [[fig:pier-5-nesw]] in Appendix
 [[sec:app:pier]] for pier 5.
 
-# ./cli.sh --shorten-paths false --save-to /Volumes/THESIS/pier-4-convergence
-# validate pier-conv --pier 4 --max-nodes 100000 --without-radius 2 --nesw-loc 0
-# --nesw-max-dist 5 --max-shell-len 2 --min-shell-len 0.35
-
 #+NAME: fig:pier-4-nesw
 #+CAPTION[Stress convergence at distance from pier 4]: Stress convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the stress response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from the north-western point of the pier, in one of the 4 cardinal directions.
 #+ATTR_LATEX: :float wrap :width 0.38\textwidth :placement {r}{0.4\textwidth}
-[[./saved-images/piers/nesw-pier-4.pdf]]
+[[./saved-images/convergence-piers/nesw-pier-4.pdf]]
 
 ***** Temperature Load
 
@@ -2891,7 +2887,7 @@ with the findings in cite:thepchatri1977prediction.
 
 #+NAME: fig:pier-5-nesw
 #+CAPTION[Strain convergence at distances from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
-[[./saved-images/piers/nesw-pier-5.pdf]]
+[[./saved-images/convergence-piers/nesw-pier-5.pdf]]
 
 ** Temperature Load
 

@@ -151,8 +151,8 @@ def plot_nesw_convergence(
                 pier_nodes = float(df.at[max_shell_len, "pier-nodes"])
                 line_responses.append(
                     (
-                        # deck_nodes + pier_nodes,
-                        max_shell_len,
+                        deck_nodes + pier_nodes,
+                        # max_shell_len,
                         scalar(sim_responses.at_deck(dist_point, interp=True)),
                     )
                 )
@@ -164,7 +164,7 @@ def plot_nesw_convergence(
         ax.set_title(
             f"Strain at increasing distance\nin direction {compass_name} from\n{from_}"
         )
-        ax.set_xlabel("MSL (m)")
+        ax.set_xlabel("Nodes in FEM")
         ax.set_ylabel("Strain")
         ax.set_xlim(ax.get_xlim()[1], ax.get_xlim()[0])
     plt.tight_layout()
