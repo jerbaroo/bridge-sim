@@ -676,7 +676,7 @@ def plot_pier_convergence(
                 response_type=ResponseType.Strain,
                 sim_runner=OSRunner(c),
             )
-            all_strains[max_shell_len] = strains
+            all_strains[max_shell_len] = strains.resize()
             end = timer()
             # If the simulation was run, then nodes from the built FEM will be
             # attached. In that case save the paramameters.

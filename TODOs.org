@@ -12,7 +12,12 @@
 - Fix traffic generation bug
 - Finish vehicle distribution plot
 - Finalize Diana comparison plots
--
+** Day 3 (4th march)
+- Finalize point load convergence plots
+- Collect all data on workhorse
+- Run convergence data
+** Day 4 (5th March)
+** Day 5 (6th march)
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
