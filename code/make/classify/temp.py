@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 
 from config import Config
@@ -54,4 +56,23 @@ def temp_contour_plot(c: Config, temp: int):
     plot_response_type(ResponseType.Strain)
     plt.tight_layout()
     plt.savefig(c.get_image_path("classify", f"temp-effect-{temp}.pdf"))
+    plt.close()
+
+
+def temp_gradient_plot(c: Config, date: str):
+    """Plot the temperature gradient throughout the bridge deck."""
+    from_ = datetime.fromisoformat(f"2019-07-01T00:00")
+    to = datetime.fromisoformat(f"2019-07-02T23:59")
+    temp = temperature.load(name=date)
+    temp = temperature.from_to_mins(temp, from_, to)
+    temps = temperature.resize(list(temp["temp"]))
+    dates = temp["datetime"]
+    temps_bottom, temps_top = temperature.temps_bottom_top(c=c, temps=temps)
+    plt.plot(dates, temps, label="Air")
+    plt.plot(dates, temps_bottom, label="Bottom of deck")
+    plt.plot(dates, temps_top, label="Top of deck")
+    plt.legend(loc="lower right")
+    plt.gcf().autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig(c.get_image_path("temperature", "gradient.pdf"))
     plt.close()

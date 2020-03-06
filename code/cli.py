@@ -642,6 +642,16 @@ def temp_contour(temp):
     temp_contour_plot(c=c(), temp=temp)
 
 
+@classify.command(help="Plot bridge deck temperature gradient.")
+@click.option(
+    "--date", type=str, default="holly-springs", help="Filename of year temperature data."
+)
+def temp_gradient(date):
+    from make.classify.temp import temp_gradient_plot
+
+    temp_gradient_plot(c=c(), date=date)
+
+
 @classify.command(help="Plot removal of temperature effect.")
 @click.option("--name", type=str, default="may", help="Filename to plot effect for.")
 def temp_rm(name):

@@ -92,6 +92,13 @@ def from_to_mins(df, from_, to, smooth: bool = False):
     return df
 
 
+def temps_bottom_top(c: Config, temps: List[float]):
+    """The top and bottom bridge temperatures for given air temperatures."""
+    temps_bottom = np.array(temps) - c.bridge.ref_temp_c
+    temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    return temps_bottom, temps_top
+
+
 def effect(
     c: Config, response_type: ResponseType, points: List[Point], temps: List[float]
 ) -> List[List[float]]:
@@ -119,13 +126,13 @@ def effect(
         [linear_responses.at_deck(point, interp=True) for point in points]
     )
     print_d(D, f"unit uniform and linear = {unit_uniforms} {unit_linears}")
-    # Combine uniform and linear.
-    temps_bottom = np.array(temps) - c.bridge.ref_temp_c
-    temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    # Determine temperature gradient throughout the bridge.
+    temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps)
     temps_half = (temps_bottom + temps_top) / 2
     print_d(D, f"tb = {temps_bottom[:3]}")
     print_d(D, f"tt = {temps_top[:3]}")
     print_d(D, f"th = {temps_half[:3]}")
+    # Combine uniform and linear responses.
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
@@ -143,6 +150,14 @@ def effect(
 def get_len_per_min(c: Config, speed_up: float):
     """Length of time series corresponding to 1 minute of temperature."""
     return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
+
+
+def resize(temps, tmin=-5, tmax=35):
+    """Resize temperatues into a given range."""
+    return interp1d(
+        np.linspace(min(temps), max(temps), 1000),
+        np.linspace(tmin, tmax, 1000)
+    )(temps)
 
 
 def get_effect(

@@ -1633,7 +1633,7 @@ is added in all classification experiments.
 
 #+NAME: fig:temp-20
 #+ATTR_LATEX: :placement [t]
-#+CAPTION[Effect of air temperature at 20 °C]: The effect of air temperature at 20 °C, assuming bridge 705 was set at a temperature of 15 °C. What is clear from the plots is that the vertical translation due to a change in temperature is greatest near the abutments and near the center of the bridge and strain is greatest at piers. This is because the constraints on translation at the abutments and at the piers (the piers near the longitudinal center in particular because they are additionally constrained against transverse movement) cause stress & strain close to the piers and large vertical translation at the mid-spans. textcolor{red}{Update plot once temperature model is updated}
+#+CAPTION[Effect of air temperature at 20 °C]: The effect of air temperature at 20 °C, assuming the concrete of bridge 705 was set at a temperature of 15 °C. What is clear from the plots is that the vertical translation due to a change in temperature is greatest near the abutments and near the center of the bridge and strain is greatest at piers. This is because the constraints on translation at the abutments and at the piers (the piers near the longitudinal center in particular because they are additionally constrained against transverse movement) cause stress & strain close to the piers and large vertical translation at the mid-spans. textcolor{red}{Update plot once temperature model is updated}
 [[./saved-images/thermal/temp-effect-20.pdf]]
 
 *** Traffic Model
