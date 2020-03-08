@@ -72,10 +72,11 @@ def temp_gradient_plot(c: Config, date: str):
     temps_year_bottom, temps_year_top = temperature.temps_bottom_top(
         c=c, temps=temps_year, len_per_hour=60
     )
+    x, z = 5, 0
     uniform_year, linear_year, effect_year = temperature.effect(
         c=c,
         response_type=ResponseType.YTranslation,
-        points=[Point(x=8.4, y=0, z=2.4)],
+        points=[Point(x=x, y=0, z=z)],
         temps=temps_year,
         len_per_hour=60,
         d=True
@@ -94,7 +95,7 @@ def temp_gradient_plot(c: Config, date: str):
     plt.title("Annual gradient")
     plt.subplot(3, 2, 5)
     plt.plot(dates_year, effect_year[0] * 1000)
-    plt.title("Annual Y translation")
+    plt.title(f"Annual Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
     plt.subplot(3, 2, 2)
@@ -110,7 +111,7 @@ def temp_gradient_plot(c: Config, date: str):
     plt.title("Two day gradient")
     plt.subplot(3, 2, 6)
     plt.plot(dates_year[i:j+1], effect_year[0][i:j+1] * 1000)
-    plt.title("Two day Y translation")
+    plt.title(f"Two day Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
