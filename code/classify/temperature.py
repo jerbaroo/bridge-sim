@@ -1,7 +1,7 @@
 import math
 import os
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -92,24 +92,64 @@ def from_to_mins(df, from_, to, smooth: bool = False):
     return df
 
 
-def temps_bottom_top(c: Config, temps: List[float]):
+def from_to_indices(df, from_, to):
+    """Indices of temperatures that correspond to the given range."""
+    start, end = None, None
+    for i, date in enumerate(df["datetime"]):
+        if start is None and date >= from_:
+            start = i
+        if date >= to:
+            return start, i
+    raise ValueError("End date not found")
+
+
+def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
     """The top and bottom bridge temperatures for given air temperatures."""
-    temps_bottom = np.array(temps) - c.bridge.ref_temp_c
-    temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
-    return temps_bottom, temps_top
+
+    # temps_bottom = np.array(temps) - c.bridge.ref_temp_c
+    # temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    # return temps_bottom, temps_top
+    
+    bd = 0.001
+    # bn = 0.008
+
+    temps_b = [temps[0]]
+    for i, temp_a in enumerate(temps[1:]):
+        temps_b.append((1 - bd) * temps_b[i - 1] + bd * temp_a)
+
+    recent_hours = 3
+    sd = 0.008
+    sn = 0.008
+    temps_s = [temps[0]]
+
+    for i, temp_a in enumerate(temps[1:]):
+        recent_start = i - (len_per_hour * recent_hours)
+        if i > 1 and temps_b[i - 1] > temps_b[i - 2]:
+            recent_max = np.max(temps[max(0, recent_start):i])
+            temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
+        else:
+            temps_s.append((1 - sn) * temps_s[i - 1] + sn * temp_a)
+
+    return np.array(temps_b), np.array(temps_s)
 
 
 def effect(
-    c: Config, response_type: ResponseType, points: List[Point], temps: List[float]
+        c: Config,
+        response_type: ResponseType,
+        points: List[Point],
+        temps: List[float],
+        len_per_hour: int,
+        d: bool = False
 ) -> List[List[float]]:
     """Temperature effect at given points for a number of given temperatures.
 
     The result is of shape (number of points, number of temperatures).
 
     """
+    original_c = c
     # Unit effect from uniform temperature loading.
     unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
-    c, sim_params = unit_uniform.use(c)
+    c, sim_params = unit_uniform.use(original_c)
     uniform_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
@@ -118,7 +158,7 @@ def effect(
     )
     # Unit effect from linear temperature loading.
     unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
-    c, sim_params = unit_linear.use(c)
+    c, sim_params = unit_linear.use(original_c)
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
@@ -127,22 +167,26 @@ def effect(
     )
     print_d(D, f"unit uniform and linear = {unit_uniforms} {unit_linears}")
     # Determine temperature gradient throughout the bridge.
-    temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps)
+    temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps, len_per_hour=len_per_hour)
     temps_half = (temps_bottom + temps_top) / 2
+    temps_linear = temps_top - temps_bottom
+    temps_uniform = temps_half - c.bridge.ref_temp_c
     print_d(D, f"tb = {temps_bottom[:3]}")
     print_d(D, f"tt = {temps_top[:3]}")
     print_d(D, f"th = {temps_half[:3]}")
+    print_d(D, f"temps linear = {temps_linear[:3]}")
+    print_d(D, f"temps uniform = {temps_uniform[:3]}")
     # Combine uniform and linear responses.
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
-    temps_delta = temps_top - temps_bottom
     linear_responses = np.array(
-        [unit_linear * temps_delta for unit_linear in unit_linears]
+        [unit_linear * temps_linear for unit_linear in unit_linears]
     )
-    print_d(D, f"temps_delta = {temps_delta[:3]}")
     print_d(D, f"uniform responses = {uniform_responses[:3]}")
     print_d(D, f"linear responses = {linear_responses[:3]}")
+    if d:
+        return temps_uniform, temps_linear, uniform_responses + linear_responses
     return uniform_responses + linear_responses
     # return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
 
@@ -166,7 +210,7 @@ def get_effect(
     points: List[Point],
     responses: List[List[float]],
     temps: List[float],
-    speed_up: int,
+    speed_up: int = 1,
     repeat_responses: bool = False,
 ) -> List[float]:
     """Temperature effect corresponding to time series at a number of points."""
@@ -174,10 +218,11 @@ def get_effect(
     # Convert the temperature data into temperature effect at each point.
     effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
     assert len(effect_) == len(points)
-    # A temperature sample is available per minute. Here we calculate the number
-    # of responses between each pair of recorded temperatures and the number of
-    # temperature samples required for the given responses.
+    # A temperature sample is available per minute. Here we calculate the
+    # number of responses between each pair of recorded temperatures and the
+    # number of temperature samples required for the given responses.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
+    print(f"len per min = {len_per_min}")
     num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
     if num_temps_req > len(effect_[0]):
         raise ValueError(

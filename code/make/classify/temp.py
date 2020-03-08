@@ -7,7 +7,7 @@ from classify import temperature
 from fem.responses import Responses
 from model.bridge import Point
 from model.response import ResponseType
-from plot import plt
+from plot import equal_lims, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
 from util import resize_units
@@ -61,17 +61,57 @@ def temp_contour_plot(c: Config, temp: int):
 
 def temp_gradient_plot(c: Config, date: str):
     """Plot the temperature gradient throughout the bridge deck."""
+    temp_loaded = temperature.load(name=date)
+    from_ = datetime.fromisoformat(f"2019-01-01T00:00")
+    to = datetime.fromisoformat(f"2019-12-31T23:59")
+    temp_year = temperature.from_to_mins(temp_loaded, from_, to)
     from_ = datetime.fromisoformat(f"2019-07-01T00:00")
     to = datetime.fromisoformat(f"2019-07-02T23:59")
-    temp = temperature.load(name=date)
-    temp = temperature.from_to_mins(temp, from_, to)
-    temps = temperature.resize(list(temp["temp"]))
-    dates = temp["datetime"]
-    temps_bottom, temps_top = temperature.temps_bottom_top(c=c, temps=temps)
-    plt.plot(dates, temps, label="Air")
-    plt.plot(dates, temps_bottom, label="Bottom of deck")
-    plt.plot(dates, temps_top, label="Top of deck")
+    temps_year = temperature.resize(list(temp_year["temp"]))
+    dates_year = temp_year["datetime"]
+    temps_year_bottom, temps_year_top = temperature.temps_bottom_top(
+        c=c, temps=temps_year, len_per_hour=60
+    )
+    uniform_year, linear_year, effect_year = temperature.effect(
+        c=c,
+        response_type=ResponseType.YTranslation,
+        points=[Point(x=8.4, y=0, z=2.4)],
+        temps=temps_year,
+        len_per_hour=60,
+        d=True
+    )
+    plt.portrait()
+    plt.subplot(3, 2, 1)
+    plt.plot(dates_year, temps_year, label="Air")
+    plt.plot(dates_year, temps_year_top, label="Top of deck")
+    plt.plot(dates_year, temps_year_bottom, label="Bottom of deck")
     plt.legend(loc="lower right")
+    plt.title("Annual temperature")
+    plt.subplot(3, 2, 3)
+    plt.plot(dates_year, linear_year, label="Linear component")
+    plt.plot(dates_year, uniform_year, label="Uniform component")
+    plt.legend(loc="lower right")
+    plt.title("Annual gradient")
+    plt.subplot(3, 2, 5)
+    plt.plot(dates_year, effect_year[0] * 1000)
+    plt.title("Annual Y translation")
+
+    i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
+    plt.subplot(3, 2, 2)
+    plt.plot(dates_year[i:j+1], temps_year[i:j+1], label="Air")
+    plt.plot(dates_year[i:j+1], temps_year_top[i:j+1], label="Top of deck")
+    plt.plot(dates_year[i:j+1], temps_year_bottom[i:j+1], label="Bottom of deck")
+    plt.legend(loc="lower right")
+    plt.title("Two day temperature")
+    plt.subplot(3, 2, 4)
+    plt.plot(dates_year[i:j+1], linear_year[i:j+1], label="Linear component")
+    plt.plot(dates_year[i:j+1], uniform_year[i:j+1], label="Uniform component")
+    plt.legend(loc="lower right")
+    plt.title("Two day gradient")
+    plt.subplot(3, 2, 6)
+    plt.plot(dates_year[i:j+1], effect_year[0][i:j+1] * 1000)
+    plt.title("Two day Y translation")
+
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
     plt.savefig(c.get_image_path("temperature", "gradient.pdf"))

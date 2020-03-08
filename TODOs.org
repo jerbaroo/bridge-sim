@@ -12,14 +12,16 @@
 - Fix traffic generation bug
 - Finish vehicle distribution plot
 - Finalize Diana comparison plots
-** Day 3 (4th march)
+** Day 3 (4th March)
 - Finalize point load convergence plots
 - Collect all data on workhorse
 - Run convergence data
 ** Day 4 (5th March)
-** Day 5 (6th march)
+** Day 5 (6th March)
 - Finalize NESW pier convergence plots
--
+- Start temp -> (bottom, top) plot
+** Day 6 (7th March)
+** Day 7 (8th March)
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
