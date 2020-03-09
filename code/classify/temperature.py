@@ -137,13 +137,20 @@ def effect(
         c: Config,
         response_type: ResponseType,
         points: List[Point],
-        temps: List[float],
-        len_per_hour: int,
+        len_per_hour: int = None,
+        temps: List[float] = None,
+        temps_bt = None,
         d: bool = False
 ) -> List[List[float]]:
     """Temperature effect at given points for a number of given temperatures.
 
     The result is of shape (number of points, number of temperatures).
+
+    Args:
+        temps_bt: A 2-tuple of arrays, the first array is for the temperatures
+            at the bottom of the bridge, and the second array is for the
+            temperatures at the top of the bridge. If this argument is given
+            then 'temps' and 'len_per_hour' will be ignored.
 
     """
     original_c = c
@@ -153,6 +160,11 @@ def effect(
     uniform_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
+    # Convert uniform responses to correct type (thermal post-processing).
+    if response_type in [ResponseType.Strain, ResponseType.StrainT]:
+        uniform_responses = unit_uniform.to_strain(c=c, sim_responses=uniform_responses)
+    elif response_type == ResponseType.Stress:
+        uniform_responses = unit_uniform.to_stress(c=c, sim_responses=uniform_responses)
     unit_uniforms = np.array(
         [uniform_responses.at_deck(point, interp=True) for point in points]
     )
@@ -162,12 +174,21 @@ def effect(
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
     )
+    # Convert linear responses to correct type (thermal post-processing).
+    if response_type in [ResponseType.Strain, ResponseType.StrainT]:
+        linear_responses = unit_linear.to_strain(c=c, sim_responses=linear_responses)
+    elif response_type == ResponseType.Stress:
+        linear_responses = unit_linear.to_stress(c=c, sim_responses=linear_responses)
     unit_linears = np.array(
         [linear_responses.at_deck(point, interp=True) for point in points]
     )
     print_d(D, f"unit uniform and linear = {unit_uniforms} {unit_linears}")
     # Determine temperature gradient throughout the bridge.
-    temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps, len_per_hour=len_per_hour)
+    if temps_bt is not None:
+        temps_bottom, temps_top = temps_bt
+        temps_bottom, temps_top = np.array(temps_bottom), np.array(temps_top)
+    else:
+        temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps, len_per_hour=len_per_hour)
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
     temps_uniform = temps_half - c.bridge.ref_temp_c

@@ -635,11 +635,12 @@ def temp_effect_date(date, vert):
 
 
 @classify.command(help="Contour plot of temperature effect.")
-@click.option("--temp", type=int, default=20, help="Temperature in celcius.")
-def temp_contour(temp):
+@click.option("--bottom", type=float, required=True, help="Bottom temperature in celcius.")
+@click.option("--top", type=float, required=True, help="Top temperature in celcius.")
+def temp_contour(bottom, top):
     from make.classify.temp import temp_contour_plot
 
-    temp_contour_plot(c=c(), temp=temp)
+    temp_contour_plot(c=c(), temp_bottom=bottom, temp_top=top)
 
 
 @classify.command(help="Plot bridge deck temperature gradient.")

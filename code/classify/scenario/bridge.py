@@ -223,10 +223,11 @@ class ThermalDamage(DamageScenario):
             mod_sim_params=mod_sim_params,
         )
 
-    def to_stress(self, c: Config, sim_responses: SimResponses):
-        if sim_responses.response_type != ResponseType.Strain:
+    def to_strain(self, c: Config, sim_responses: SimResponses):
+        """Convert responses, adding free and restrained strain."""
+        if sim_responses.response_type not in [ResponseType.Strain, ResponseType.StrainT]:
             raise ValueError(
-                "Can only convert Strain not {sim_responses.response_type}"
+                f"Can only convert Strain not {sim_responses.response_type}"
             )
         if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
             raise ValueError("Must be only axial or moment loading")
@@ -235,16 +236,18 @@ class ThermalDamage(DamageScenario):
             sim_responses = sim_responses.map(
                 lambda r: (r * 1e-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
             )
-            sim_responses = sim_responses.to_stress(c.bridge)
         # Linear temperature load.
         elif self.moment_delta_temp != 0:
             sim_responses = sim_responses.map(
                 lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
             )
-            sim_responses = sim_responses.to_stress(c.bridge)
         else:
-            raise ValueError("Don't know how to convert to stress")
+            raise ValueError("Don't know how to convert to strain")
         return sim_responses
+
+    def to_stress(self, c: Config, sim_responses: SimResponses):
+        sim_responses = self.to_strain(c=c, sim_responses=sim_responses)
+        return sim_responses.to_stress(c.bridge)
 
 
 def thermal_damage(

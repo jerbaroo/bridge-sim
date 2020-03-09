@@ -22,6 +22,9 @@
 - Start temp -> (bottom, top) plot
 ** Day 6 (7th March)
 ** Day 7 (8th March)
+- Temperature gradient model and plot
+- Temperature contour plot
+** Day 8 (9th March)
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.

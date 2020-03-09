@@ -126,6 +126,7 @@ def plot_contour_deck(
     mm_legend: bool = True,
     sci_format: bool = False,
     decimals: int = 4,
+    loc = None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -189,6 +190,6 @@ def plot_contour_deck(
                 alpha=alpha,
             )
     if mm_legend or len(ploads) > 0:
-        plt.legend()
+        plt.legend(loc=loc)
     plt.xlabel("X position (m)")
     plt.ylabel("Z position (m)")

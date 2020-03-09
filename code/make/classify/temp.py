@@ -13,7 +13,7 @@ from plot.responses import plot_contour_deck
 from util import resize_units
 
 
-def temp_contour_plot(c: Config, temp: int):
+def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
     """Plot the effect of temperature at a given temperature."""
     # Points on the deck to collect responses.
     deck_points = [
@@ -29,13 +29,14 @@ def temp_contour_plot(c: Config, temp: int):
     def plot_response_type(response_type: ResponseType):
         # Temperature effect.
         temp_effect = temperature.effect(
-            c=c, response_type=response_type, points=deck_points, temps=[temp],
+            c=c,
+            response_type=response_type,
+            points=deck_points,
+            temps_bt=([temp_bottom], [temp_top]),
         ).T[0]
         # Resize responses if applicable to response type.
         resize_f, units = resize_units(response_type.units())
-        if response_type == ResponseType.Strain:
-            units = "E-6"
-        elif resize_f is not None:
+        if response_type == ResponseType.YTranslation:
             temp_effect = resize_f(temp_effect)
         responses = Responses(
             response_type=response_type,
@@ -46,8 +47,8 @@ def temp_contour_plot(c: Config, temp: int):
             units=units,
         )
         top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
-        plot_contour_deck(c=c, responses=responses, decimals=2)
-        plt.title(f"{response_type.name()} at {temp} °C")
+        plot_contour_deck(c=c, responses=responses, decimals=6 if response_type == ResponseType.Strain else 2, loc="upper right")
+        plt.title(f"{response_type.name()} when bottom = {temp_bottom} °C, top = {temp_top} °C")
 
     plt.landscape()
     plt.subplot(2, 1, 1)
@@ -55,7 +56,7 @@ def temp_contour_plot(c: Config, temp: int):
     plt.subplot(2, 1, 2)
     plot_response_type(ResponseType.Strain)
     plt.tight_layout()
-    plt.savefig(c.get_image_path("classify", f"temp-effect-{temp}.pdf"))
+    plt.savefig(c.get_image_path("classify", f"temp-effect-{temp_bottom}-{temp_top}.pdf"))
     plt.close()
 
 
@@ -72,7 +73,7 @@ def temp_gradient_plot(c: Config, date: str):
     temps_year_bottom, temps_year_top = temperature.temps_bottom_top(
         c=c, temps=temps_year, len_per_hour=60
     )
-    x, z = 5, 0
+    x, z = (c.bridge.x_max - (c.bridge.length / 2)), 0
     uniform_year, linear_year, effect_year = temperature.effect(
         c=c,
         response_type=ResponseType.YTranslation,
@@ -112,6 +113,9 @@ def temp_gradient_plot(c: Config, date: str):
     plt.subplot(3, 2, 6)
     plt.plot(dates_year[i:j+1], effect_year[0][i:j+1] * 1000)
     plt.title(f"Two day Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
+
+    for ps in [(1, 2), (3, 4), (5, 6)]:
+        equal_lims("y", 3, 2, ps)
 
     plt.gcf().autofmt_xdate()
     plt.tight_layout()

@@ -220,14 +220,14 @@ def stress_strength_plot(c: Config):
     original_c = c
     response_type = ResponseType.StrainT
     settlement = 5
-    temp = 15
+    temp_bottom, temp_top = 21, 30
     deck_points = [
         Point(x=x, y=0, z=z)
         for x in np.linspace(
-            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2)
+            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 3)
         )
         for z in np.linspace(
-            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2)
+            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 3)
         )
     ]
     plt.portrait()
@@ -247,8 +247,12 @@ def stress_strength_plot(c: Config):
 
     # Temperature effect.
     plt.subplot(3, 1, 2)
+    c = original_c
     temp_effect = temperature.effect(
-        c=c, response_type=response_type, points=deck_points, temps=[temp],
+        c=c,
+        response_type=response_type,
+        points=deck_points,
+        temps_bt=([temp_bottom], [temp_top]),
     ).T[0]
     responses = Responses(
         response_type=response_type,
@@ -256,10 +260,10 @@ def stress_strength_plot(c: Config):
             (temp_effect[p_ind], deck_points[p_ind])
             for p_ind in range(len(deck_points))
         ],
-    ).resize().to_stress(c.bridge)
+    ).to_stress(c.bridge)
     top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses)
-    plt.title(f"Top stress: at {temp} °C")
+    plt.title(f"Top stress:\nbottom = {temp_bottom} °C, top = {temp_top} °C")
 
     # Cracked concrete.
     plt.subplot(3, 1, 3)
@@ -268,6 +272,7 @@ def stress_strength_plot(c: Config):
     loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
     # c, sim_params = transverse_crack().use(original_c)
     from classify.scenario.bridge import healthy_damage
+
     c, sim_params = healthy_damage.use(original_c)
     sim_params.ploads = loads
     responses = load_fem_responses(
