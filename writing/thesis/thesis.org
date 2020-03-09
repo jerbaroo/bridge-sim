@@ -44,8 +44,11 @@ I would like to thank...
 # ./cli.sh --save-to /d/saved/pier-4 validate pier-conv --pier 4 --max-nodes
 # 100000 --without-radius 2 --nesw-loc 0 --nesw-max-dist 5 --max-shell-len 2
 # --min-shell-len 0.35
-# ./cli.sh --shorten-paths true --save-to /d/saved/strength --mesh full validate
-# stress-strength
+# ./cli.sh --shorten-paths true --save-to /d/saved/temp-plots --mesh full
+# validate stress-strength
+# ./cli.sh --save-to /d/saved/temp-plots --mesh full classify temp-gradient
+# ./cli.sh --save-to /d/saved/temp-plots --mesh full classify temp-contour
+# --bottom 21 --top 30
 
 # Old commands
 

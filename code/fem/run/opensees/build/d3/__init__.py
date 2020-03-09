@@ -247,6 +247,19 @@ def opensees_fixed_pier_nodes(
 
 def opensees_section(section: Section3D):
     """OpenSees ElasticMembranePlateSection command for a Section3D."""
+    # New orthotropic method.
+    return (
+        f"nDMaterial ElasticOrthotropic {section.id}"
+        f" {section.youngs * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}"
+        f" {section.poissons} {section.poissons} {section.poissons}"
+        f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
+        f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
+        f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
+        f" {section.density * 1E-3}"
+        f"\nsection PlateFiber {section.id} {section.id} {section.thickness}"
+    )
+    # Old isotropic method.
+    raise ValueError("Not using isotropic method")
     return (
         f"section ElasticMembranePlateSection {section.id}"
         + f" {section.youngs * 1E6} {section.poissons} {section.thickness}"
