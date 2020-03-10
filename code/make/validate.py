@@ -215,10 +215,12 @@ def truck_1_time_series(c: Config):
     plt.close()
 
 
-def stress_strength_plot(c: Config):
+def stress_strength_plot(c: Config, top: bool):
     """Plot the difference of tensile strength and stress under load."""
     original_c = c
-    response_type = ResponseType.StrainT
+    plt.portrait()
+    response_type = ResponseType.StrainT if top else ResponseType.Strain
+    top_str = "Top" if top else "Bottom"
     settlement = 5
     temp_bottom, temp_top = 21, 30
     deck_points = [
@@ -230,7 +232,6 @@ def stress_strength_plot(c: Config):
             c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 3)
         )
     ]
-    plt.portrait()
 
     # Pier settlement.
     plt.subplot(3, 1, 1)
@@ -242,8 +243,8 @@ def stress_strength_plot(c: Config):
         sim_params=sim_params,
     ).resize().to_stress(c.bridge)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses)
-    plt.title(f"Top stress: {settlement} mm pier settlement")
+    plot_contour_deck(c=c, responses=responses, loc="upper right")
+    plt.title(f"{top_str} stress\n{settlement} mm pier settlement")
 
     # Temperature effect.
     plt.subplot(3, 1, 2)
@@ -262,13 +263,14 @@ def stress_strength_plot(c: Config):
         ],
     ).to_stress(c.bridge)
     top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses)
-    plt.title(f"Top stress:\nbottom = {temp_bottom} °C, top = {temp_top} °C")
+    plot_contour_deck(c=c, responses=responses, loc="upper right")
+    plt.title(f"{top_str} stress\nTref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C")
+    # plt.title(f"{top_str} stress\nbottom, top = {temp_bottom}, {temp_top}")
 
     # Cracked concrete.
     plt.subplot(3, 1, 3)
     time = wagen1.time_at(x=52, bridge=c.bridge)
-    # wagen1.kn = 2 * wagen1.total_kn()
+    wagen1.kn = 400
     loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
     # c, sim_params = transverse_crack().use(original_c)
     from classify.scenario.bridge import healthy_damage
@@ -282,11 +284,11 @@ def stress_strength_plot(c: Config):
         sim_params=sim_params,
     ).resize().to_stress(c.bridge)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses)
+    plot_contour_deck(c=c, responses=responses, loc="upper right")
     # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
-    plt.title(f"Top stress: {int(wagen1.total_kn())} kN vehicle")
+    plt.title(f"{top_str} stress\n {int(wagen1.total_kn())} kN vehicle")
 
     equal_lims("x", 3, 1)
     plt.tight_layout()
-    plt.savefig(original_c.get_image_path("validation", "stress-strength.pdf"))
+    plt.savefig(original_c.get_image_path("validation", f"stress-strength-{top_str.lower()}.pdf"))
     plt.close()

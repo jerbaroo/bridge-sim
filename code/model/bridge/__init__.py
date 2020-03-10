@@ -351,7 +351,8 @@ class Section3D:
     Args:
         density: float, section density in kg/m.
         thickness: float, section thickness in m.
-        youngs: float, Young's modulus of the section in MPa.
+        youngs: float, Young's modulus of the section in N/mm1.
+        youngs_x: Optional[float], Young's modulus in x direction, in N/mm2.
         poisson: float, Poisson's ratio.
         start_x_frac: float, start of the section as a fraction of x position.
         start_z_frac: float, start of the section as a fraction of z position.
@@ -370,10 +371,12 @@ class Section3D:
         start_z_frac: float,
         end_x_frac: float,
         end_z_frac: float,
+        youngs_x: Optional[float] = None,
     ):
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
+        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac

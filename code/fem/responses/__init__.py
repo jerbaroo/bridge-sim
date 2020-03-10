@@ -62,7 +62,6 @@ def load_fem_responses(
 
     """
     original_response_types = set(sim_params.response_types)
-    print(original_response_types)
     sim_params.response_types = [
         rt
         for rt in sim_params.response_types
@@ -70,10 +69,11 @@ def load_fem_responses(
     ]
     for rt in original_response_types:
         if rt not in sim_params.response_types:
-            print_w(
-                f"Removing response type from SimParams: {rt}"
-                f", not supported by {sim_runner.name} SimRunner"
-            )
+            # print_w(
+            #     f"Removing response type from SimParams: {rt}"
+            #     f", not supported by {sim_runner.name} SimRunner"
+            # )
+            pass
     if response_type not in sim_params.response_types:
         raise ValueError(f"Can't load {response_type} if not in SimParams")
 

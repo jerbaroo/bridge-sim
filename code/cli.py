@@ -442,10 +442,11 @@ def truck_1_ts():
 
 
 @validate.command(help="")
-def stress_strength():
+@click.option("--top", is_flag=True, help="Top or bottom stress.")
+def stress_strength(top):
     from make import validate
 
-    validate.stress_strength_plot(c())
+    validate.stress_strength_plot(c=c(), top=top)
 
 
 

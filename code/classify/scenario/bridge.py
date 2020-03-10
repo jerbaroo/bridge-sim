@@ -95,7 +95,8 @@ class CrackedDamage(DamageScenario):
             # print(f"z (start, end) = ({z_start}, {z_end})")
             cracked_section = deepcopy(section)
             cracked_section.id = max_id + i + 1
-            cracked_section.youngs *= 0.5
+            y_x = cracked_section.youngs_x()
+            cracked_section.youngs_x = lambda: 0.5 * y_x
             cracked_section.start_x_frac = bridge.x_frac(x_start)
             cracked_section.start_z_frac = bridge.z_frac(z_start)
             cracked_section.end_x_frac = bridge.x_frac(x_end)

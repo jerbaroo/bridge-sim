@@ -250,7 +250,7 @@ def opensees_section(section: Section3D):
     # New orthotropic method.
     return (
         f"nDMaterial ElasticOrthotropic {section.id}"
-        f" {section.youngs * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}"
+        f" {section.youngs_x() * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}"
         f" {section.poissons} {section.poissons} {section.poissons}"
         f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
         f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
@@ -259,7 +259,7 @@ def opensees_section(section: Section3D):
         f"\nsection PlateFiber {section.id} {section.id} {section.thickness}"
     )
     # Old isotropic method.
-    raise ValueError("Not using isotropic method")
+    raise ValueError("Not using orthotropic method")
     return (
         f"section ElasticMembranePlateSection {section.id}"
         + f" {section.youngs * 1E6} {section.poissons} {section.thickness}"

@@ -395,7 +395,10 @@ def gradient_pier_displacement_plot(
 
 def comparison_plots_705(c: Config, run_only: bool):
     """Make contour plots for all verification points on bridge 705."""
+    # from classify.scenario.bridge import transverse_crack
+    # c = transverse_crack().use(c)[0]
     positions = [
+        # (52, -8.4, "a"),
         (34.95459, 26.24579 - 16.6, "a"),
         (51.25051, 16.6 - 16.6, "b"),
         (89.98269, 9.445789 - 16.6, "c"),
@@ -461,6 +464,7 @@ def comparison_plots_705(c: Config, run_only: bool):
                 cmap=cmap,
                 levels=levels,
                 sci_format=sci_format,
+                decimals=4,
             )
             plt.title(title + "OpenSees")
             plt.tight_layout()

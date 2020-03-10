@@ -86,6 +86,7 @@ def from_to_mins(df, from_, to, smooth: bool = False):
     )
     # Sort.
     df = df.sort_values(by=["datetime"])
+    df["temp"] = pd.to_numeric(df["temp"])
     # Smooth.
     if smooth:
         df["temp"] = savgol_filter(df["temp"], 20, 3)

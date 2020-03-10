@@ -172,9 +172,9 @@ def plot_contour_deck(
             [x], [z], label=f"{pload.kn} kN load", marker="o", color="red",
         )
     # Plot min and max responses.
-    amin_s = f"{np.around(amin, decimals)}" if sci_format else f"{np.around(amin, decimals)}"
-    amax_s = f"{np.around(amax, decimals)}" if sci_format else f"{np.around(amax, decimals)}"
-    aabs_s = f"{np.around(abs(amin - amax), decimals)}" if sci_format else f"{np.around(abs(amin - amax), decimals)}"
+    amin_s = f"{amin:.{decimals}g}" if sci_format else f"{np.around(amin, decimals)}"
+    amax_s = f"{amax:.{decimals}g}" if sci_format else f"{np.around(amax, decimals)}"
+    aabs_s = f"{amin - amax:.{decimals}g}" if sci_format else f"{np.around(abs(amin - amax), decimals)}"
     if mm_legend:
         for point, label, color, alpha in [
             ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),
