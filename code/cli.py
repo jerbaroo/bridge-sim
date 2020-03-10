@@ -230,22 +230,12 @@ def vehicle_dist():
     plot_dist(c())
 
 
-####################
-##### Geometry #####
-####################
-
-
-@cli.group(help="Informative plots of a bridge's geometry.")
-def geometry():
-    pass
-
-
-@geometry.command(help="Shells in 3D coloured by material properties.")
+@info.command(help="Shells in 3D coloured by material properties.")
 def shells_3d():
     geometry_.make_shell_properties_3d(c())
 
 
-@geometry.command(help="Top view of shells coloured by material properties.")
+@info.command(help="Top view of shells coloured by material properties.")
 @click.option("--shells", type=click.Choice(["deck", "pier"]), default="deck")
 @click.option(
     "--prop",
@@ -266,12 +256,12 @@ def shells_top(shells, prop, refined, outline, lanes):
     )
 
 
-@geometry.command(help="3D scatter plot of FEM nodes.")
+@info.command(help="3D scatter plot of FEM nodes.")
 def nodes():
     geometry_.make_node_plots(c())
 
 
-@geometry.command(help="Plot available sensors on the deck.")
+@info.command(help="Plot available sensors on the deck.")
 @click.option(
     "--pier-radius",
     type=float,
@@ -284,9 +274,15 @@ def nodes():
     required=True,
     help="Radius around wheel tracks to ignore.",
 )
-def avail_sensors(pier_radius, track_radius):
+@click.option(
+    "--edge-radius",
+    type=float,
+    required=True,
+    help="Radius around bridge edges to ignore.",
+)
+def avail_sensors(pier_radius, track_radius, edge_radius):
     geometry_.make_available_sensors_plot(
-        c=c(), pier_radius=pier_radius, track_radius=track_radius
+        c=c(), pier_radius=pier_radius, track_radius=track_radius, edge_radius=edge_radius
     )
 
 
@@ -441,13 +437,19 @@ def truck_1_ts():
     validate.truck_1_time_series(c())
 
 
-@validate.command(help="")
+@validate.command(help="Plot stress for some high stress scenarios.")
 @click.option("--top", is_flag=True, help="Top or bottom stress.")
 def stress_strength(top):
     from make import validate
 
     validate.stress_strength_plot(c=c(), top=top)
 
+
+@validate.command(help="Plot bridge 705 temperature measurements.")
+def temp_705():
+    from make import validate
+
+    validate.temp_705_plot(c())
 
 
 #################

@@ -6,7 +6,7 @@ from classify.noise import add_displa_noise, add_strain_noise
 from classify.scenario.bridge import pier_disp_damage, transverse_crack
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
-from classify import temperature
+from classify import temperature, without
 from config import Config
 from model.bridge import Point
 from model.load import PointLoad
@@ -235,7 +235,7 @@ def stress_strength_plot(c: Config, top: bool):
 
     # Pier settlement.
     plt.subplot(3, 1, 1)
-    c, sim_params = pier_disp_damage([(5, settlement / 1000)]).use(original_c)
+    c, sim_params = pier_disp_damage([(9, settlement / 1000)]).use(original_c)
     responses = load_fem_responses(
         c=c,
         sim_runner=OSRunner(c),
@@ -261,7 +261,7 @@ def stress_strength_plot(c: Config, top: bool):
             (temp_effect[p_ind], deck_points[p_ind])
             for p_ind in range(len(deck_points))
         ],
-    ).to_stress(c.bridge)
+    ).without(remove=without.edges(c=c, radius=2)).to_stress(c.bridge)
     top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses, loc="upper right")
     plt.title(f"{top_str} stress\nTref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C")
@@ -292,3 +292,8 @@ def stress_strength_plot(c: Config, top: bool):
     plt.tight_layout()
     plt.savefig(original_c.get_image_path("validation", f"stress-strength-{top_str.lower()}.pdf"))
     plt.close()
+
+
+def temp_705_plot():
+    """Plot temperature from experimental campaign."""
+    pass

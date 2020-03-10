@@ -19,7 +19,7 @@ from sklearn.linear_model import LinearRegression
 from classify.data.responses import responses_to_vehicles_d
 from classify.scenario.bridge import HealthyDamage, PierDispDamage
 from classify.vehicle import wagen1
-from classify.without import without_pier_lines
+from classify import without
 from config import Config
 from fem.build import det_nodes, det_shells
 from fem.model import Shell
@@ -607,7 +607,7 @@ def plot_pier_convergence(
     if max_shell_len is None:
         max_shell_len = c.bridge.length / 10
     # Construct a function to ignore responses, this is around pier lines.
-    without = without_pier_lines(c=c, radius=strain_ignore_radius)
+    without = without.pier_lines(c=c, radius=strain_ignore_radius)
 
     def update_bridge():
         c.bridge.name = "Bridge 705"
