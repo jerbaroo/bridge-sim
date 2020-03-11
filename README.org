@@ -1,4 +1,4 @@
-* An extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* An extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
 Code is in [[code]] with a README describing the files [[./code/README.org][here]].
 
@@ -8,9 +8,9 @@ Supporting data is in [[data]].
 
 ** Quickstart
 
-Have Python 3.7+ installed, then [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]].
+Make sure you have Python 3.7+ installed, then [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]].
 
-You need [[https://opensees.berkeley.edu/][OpenSees]] on your system, which can you download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
+You also need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
 
 Clone this repository and change into the directory:
 
