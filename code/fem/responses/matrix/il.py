@@ -236,8 +236,7 @@ class ILMatrix(ResponsesMatrix):
         # Filter simulations, only running those in 'indices'.
         if indices is not None:
             expt_params.sim_params = [
-                sp for i, sp in enumerate(expt_params.sim_params)
-                if i in indices
+                sp for i, sp in enumerate(expt_params.sim_params) if i in indices
             ]
         return load_expt_responses(
             c=c,

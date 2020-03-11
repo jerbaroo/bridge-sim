@@ -236,12 +236,16 @@ def stress_strength_plot(c: Config, top: bool):
     # Pier settlement.
     plt.subplot(3, 1, 1)
     c, sim_params = pier_disp_damage([(9, settlement / 1000)]).use(original_c)
-    responses = load_fem_responses(
-        c=c,
-        sim_runner=OSRunner(c),
-        response_type=response_type,
-        sim_params=sim_params,
-    ).resize().to_stress(c.bridge)
+    responses = (
+        load_fem_responses(
+            c=c,
+            sim_runner=OSRunner(c),
+            response_type=response_type,
+            sim_params=sim_params,
+        )
+        .resize()
+        .to_stress(c.bridge)
+    )
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses, loc="upper right")
     plt.title(f"{top_str} stress\n{settlement} mm pier settlement")
@@ -255,16 +259,22 @@ def stress_strength_plot(c: Config, top: bool):
         points=deck_points,
         temps_bt=([temp_bottom], [temp_top]),
     ).T[0]
-    responses = Responses(
-        response_type=response_type,
-        responses=[
-            (temp_effect[p_ind], deck_points[p_ind])
-            for p_ind in range(len(deck_points))
-        ],
-    ).without(remove=without.edges(c=c, radius=2)).to_stress(c.bridge)
+    responses = (
+        Responses(
+            response_type=response_type,
+            responses=[
+                (temp_effect[p_ind], deck_points[p_ind])
+                for p_ind in range(len(deck_points))
+            ],
+        )
+        .without(remove=without.edges(c=c, radius=2))
+        .to_stress(c.bridge)
+    )
     top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses, loc="upper right")
-    plt.title(f"{top_str} stress\nTref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C")
+    plt.title(
+        f"{top_str} stress\nTref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C"
+    )
     # plt.title(f"{top_str} stress\nbottom, top = {temp_bottom}, {temp_top}")
 
     # Cracked concrete.
@@ -277,12 +287,16 @@ def stress_strength_plot(c: Config, top: bool):
 
     c, sim_params = healthy_damage.use(original_c)
     sim_params.ploads = loads
-    responses = load_fem_responses(
-        c=c,
-        sim_runner=OSRunner(c),
-        response_type=response_type,
-        sim_params=sim_params,
-    ).resize().to_stress(c.bridge)
+    responses = (
+        load_fem_responses(
+            c=c,
+            sim_runner=OSRunner(c),
+            response_type=response_type,
+            sim_params=sim_params,
+        )
+        .resize()
+        .to_stress(c.bridge)
+    )
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses, loc="upper right")
     # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
@@ -290,7 +304,11 @@ def stress_strength_plot(c: Config, top: bool):
 
     equal_lims("x", 3, 1)
     plt.tight_layout()
-    plt.savefig(original_c.get_image_path("validation", f"stress-strength-{top_str.lower()}.pdf"))
+    plt.savefig(
+        original_c.get_image_path(
+            "validation", f"stress-strength-{top_str.lower()}.pdf"
+        )
+    )
     plt.close()
 
 

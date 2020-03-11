@@ -128,7 +128,7 @@ def transverse_crack(
 
     return CrackedDamage(
         name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"),
-        crack_area=crack_area
+        crack_area=crack_area,
     )
 
 
@@ -166,11 +166,13 @@ class PierDispDamage(DamageScenario):
             raise ValueError("At least 1 PierDisp required")
         name = name_prefix + "-".join(list(map(lambda pd: pd.id_str(), pier_disps)))
         self.pier_disps = pier_disps
+
         def mod_sim_params(sim_params: SimParams):
             if len(self.pier_disps) > 1:
                 raise ValueError("Cannot have SimParams with > 1 pier settlement")
             sim_params.displacement_ctrl = self.pier_disps[0]
             return sim_params
+
         super().__init__(name=name, mod_sim_params=mod_sim_params)
 
 
@@ -226,7 +228,10 @@ class ThermalDamage(DamageScenario):
 
     def to_strain(self, c: Config, sim_responses: SimResponses):
         """Convert responses, adding free and restrained strain."""
-        if sim_responses.response_type not in [ResponseType.Strain, ResponseType.StrainT]:
+        if sim_responses.response_type not in [
+            ResponseType.Strain,
+            ResponseType.StrainT,
+        ]:
             raise ValueError(
                 f"Can only convert Strain not {sim_responses.response_type}"
             )

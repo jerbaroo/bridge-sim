@@ -184,11 +184,21 @@ def make_node_plots(original_c: Config):
                 plt.close()
 
 
-def make_available_sensors_plot(c: Config, pier_radius: float, track_radius: float, edge_radius: float):
+def make_available_sensors_plot(
+    c: Config, pier_radius: float, track_radius: float, edge_radius: float
+):
     """Scatter plot of sensors used for classification."""
     top_view_bridge(c.bridge, abutments=True, piers=True, compass=False)
-    plot_deck_sensors(c=c, without=without.points(
-        c=c, pier_radius=pier_radius, track_radius=track_radius, edge_radius=edge_radius), label=True)
+    plot_deck_sensors(
+        c=c,
+        without=without.points(
+            c=c,
+            pier_radius=pier_radius,
+            track_radius=track_radius,
+            edge_radius=edge_radius,
+        ),
+        label=True,
+    )
     plt.title(f"Sensors available for classification on Bridge 705")
     plt.tight_layout()
     plt.savefig(c.get_image_path("sensors", "unavailable-sensors.pdf"))

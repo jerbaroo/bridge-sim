@@ -20,15 +20,16 @@ def _distance_numpy(A, B, P):
 
 def edges(c: Config, radius: float):
     """Reject points on the bridge deck not close to edges."""
+
     def _without_edges(point: Point) -> bool:
         if point.y != 0 or radius == 0:
             return False
         p2 = np.array([point.x, point.z])
         for edge_z0, edge_x0, edge_z1, edge_x1 in [
-                (c.bridge.z_min, c.bridge.x_min, c.bridge.z_max, c.bridge.x_min),
-                (c.bridge.z_max, c.bridge.x_min, c.bridge.z_max, c.bridge.x_max),
-                (c.bridge.z_max, c.bridge.x_max, c.bridge.z_min, c.bridge.x_max),
-                (c.bridge.z_min, c.bridge.x_max, c.bridge.z_min, c.bridge.x_min),
+            (c.bridge.z_min, c.bridge.x_min, c.bridge.z_max, c.bridge.x_min),
+            (c.bridge.z_max, c.bridge.x_min, c.bridge.z_max, c.bridge.x_max),
+            (c.bridge.z_max, c.bridge.x_max, c.bridge.z_min, c.bridge.x_max),
+            (c.bridge.z_min, c.bridge.x_max, c.bridge.z_min, c.bridge.x_min),
         ]:
             p0 = np.array([edge_x0, edge_z0])
             p1 = np.array([edge_x1, edge_z1])
@@ -36,11 +37,13 @@ def edges(c: Config, radius: float):
             if dist <= radius:
                 return True
         return False
+
     return _without_edges
 
 
 def pier_lines(c: Config, radius: float):
     """Reject points on the deck not close to pier lines."""
+
     def _without_pier_lines(point: Point) -> bool:
         if point.y != 0 or radius == 0:
             return False
@@ -58,12 +61,14 @@ def pier_lines(c: Config, radius: float):
                 if dist <= radius:
                     return True
         return False
+
     return _without_pier_lines
 
 
 def wheel_tracks(c: Config, radius: float):
     """Reject points on the deck not close to wheel tracks."""
     wheel_track_zs = c.bridge.wheel_track_zs(c)
+
     def _without_pier_lines(point: Point) -> bool:
         if point.y != 0 or radius == 0:
             return False
@@ -80,6 +85,7 @@ def wheel_tracks(c: Config, radius: float):
                 # print(f"from point {p3} to {p1} - {p2}")
                 # print(f"radius = {radius}")
         return False
+
     return _without_pier_lines
 
 
@@ -87,6 +93,8 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
     without_p = pier_lines(c=c, radius=pier_radius)
     without_t = wheel_tracks(c=c, radius=track_radius)
     without_e = edges(c=c, radius=edge_radius)
+
     def _without_points(point: Point) -> bool:
         return without_t(point) or without_p(point) or without_e(point)
+
     return _without_points

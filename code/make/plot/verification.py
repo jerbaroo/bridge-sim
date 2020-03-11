@@ -1168,9 +1168,7 @@ def plot_convergence(c: Config):
     plt.xlabel("Number of nodes")
     plt.ylabel("Normalized y translation")
     plt.legend()
-    plt.savefig(
-        c.get_image_path("convergence", "min-max-displa.pdf", bridge=False)
-    )
+    plt.savefig(c.get_image_path("convergence", "min-max-displa.pdf", bridge=False))
     plt.close()
 
     # Strain

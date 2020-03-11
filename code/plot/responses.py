@@ -126,7 +126,7 @@ def plot_contour_deck(
     mm_legend: bool = True,
     sci_format: bool = False,
     decimals: int = 4,
-    loc = None,
+    loc=None,
 ):
     """Contour plot of given responses. Iterate over x and z for a fixed y."""
     # Structure data.
@@ -174,7 +174,11 @@ def plot_contour_deck(
     # Plot min and max responses.
     amin_s = f"{amin:.{decimals}g}" if sci_format else f"{np.around(amin, decimals)}"
     amax_s = f"{amax:.{decimals}g}" if sci_format else f"{np.around(amax, decimals)}"
-    aabs_s = f"{amin - amax:.{decimals}g}" if sci_format else f"{np.around(abs(amin - amax), decimals)}"
+    aabs_s = (
+        f"{amin - amax:.{decimals}g}"
+        if sci_format
+        else f"{np.around(abs(amin - amax), decimals)}"
+    )
     if mm_legend:
         for point, label, color, alpha in [
             ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),

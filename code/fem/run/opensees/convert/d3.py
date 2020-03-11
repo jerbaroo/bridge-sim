@@ -59,7 +59,9 @@ def convert_strain_responses(
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
     converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
 ):
-    if not any(rt in parsed_sim_responses for rt in [ResponseType.Strain, ResponseType.StrainT]):
+    if not any(
+        rt in parsed_sim_responses for rt in [ResponseType.Strain, ResponseType.StrainT]
+    ):
         return
     parsed_sim_strain = parsed_sim_responses[ResponseType.Strain]
     result_bottom, result_top = [], []

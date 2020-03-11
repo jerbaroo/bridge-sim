@@ -45,35 +45,40 @@ def plot_dist(c: Config):
     n, min_kn = len(a16), 5
     weights = np.random.gumbel(loc=12.53, scale=10, size=n)
     weights = [w for w in weights if w >= min_kn]
-    axles = list(map(int, np.around(
-        np.interp(
-            weights,
-            [min(weights), max(weights)],
-            [2, 4]
-        ),
-        0
-    )))
+    axles = list(
+        map(int, np.around(np.interp(weights, [min(weights), max(weights)], [2, 4]), 0))
+    )
     add_min_length = 2.4 * 100
     add_max_length = min_length * 1.2
-    lengths = np.interp(weights, [min(weights), max(weights)], [add_min_length, add_max_length])
+    lengths = np.interp(
+        weights, [min(weights), max(weights)], [add_min_length, add_max_length]
+    )
     rand = np.random.gumbel(loc=1.5, scale=4, size=len(lengths))
     lengths = np.multiply(lengths, rand)
 
     weights = np.multiply(weights, np.random.gumbel(1, 1, len(weights)))
-    add_weight = np.interp(lengths, [add_min_length, add_max_length], [1, min_weight * 1.5])
+    add_weight = np.interp(
+        lengths, [add_min_length, add_max_length], [1, min_weight * 1.5]
+    )
     weights += add_weight
 
     # Add passenger vehicles to DataFrame.
     records = []
     for length, weight, axle in zip(lengths, weights, axles):
         # A little filter function, to make results look a bit better.
-        if add_min_length <= length <= 9.7 * 100 and weight >= 7 and (length > 5 * 100 or weight < 100):
-            records.append({
-                "length": length,
-                "total_weight": weight,
-                "weight_per_axle": str([weight / axle] * axle),
-                "axle_distance": str([length / (axle - 1)] * (axle - 1))
-            })
+        if (
+            add_min_length <= length <= 9.7 * 100
+            and weight >= 7
+            and (length > 5 * 100 or weight < 100)
+        ):
+            records.append(
+                {
+                    "length": length,
+                    "total_weight": weight,
+                    "weight_per_axle": str([weight / axle] * axle),
+                    "axle_distance": str([length / (axle - 1)] * (axle - 1)),
+                }
+            )
     a16 = a16.append(records, ignore_index=True)
     a16.index.name = "number"
 
@@ -97,15 +102,17 @@ def plot_dist(c: Config):
             rel_heights.append(h)
         for x0, x1, h in zip(xs[:-1], xs[1:], rel_heights):
             h = (h / max(rel_heights)) * plt.ylim()[1]
-            plt.gca().add_patch(patches.Rectangle(
-                (x0, 0),
-                x1 - x0,
-                h,
-                facecolor="none",
-                edgecolor="red",
-                lw=1,
-                label=f"Area ∝ probability" if x1 == xs[-1] else None
-            ))
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (x0, 0),
+                    x1 - x0,
+                    h,
+                    facecolor="none",
+                    edgecolor="red",
+                    lw=1,
+                    label=f"Area ∝ probability" if x1 == xs[-1] else None,
+                )
+            )
         plt.legend()
 
     n = 10000

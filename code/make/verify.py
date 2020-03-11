@@ -345,25 +345,29 @@ def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType)
     print_i(f"Wheel (x, z) = ({wheel_x}, {wheel_z})")
     plt.landscape()
     plt.subplot(2, 1, 1)
-    healthy = list(ILMatrix.load_wheel_track(
-        c=c,
-        response_type=response_type,
-        fem_runner=OSRunner(c),
-        load_z_frac=c.bridge.z_frac(wheel_z),
-        run_only=False,
-        indices=[x_i],
-    ))[0].resize()
+    healthy = list(
+        ILMatrix.load_wheel_track(
+            c=c,
+            response_type=response_type,
+            fem_runner=OSRunner(c),
+            load_z_frac=c.bridge.z_frac(wheel_z),
+            run_only=False,
+            indices=[x_i],
+        )
+    )[0].resize()
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=healthy)
     c = transverse_crack().use(c)[0]
-    cracked = list(ILMatrix.load_wheel_track(
-        c=c,
-        response_type=response_type,
-        fem_runner=OSRunner(c),
-        load_z_frac=c.bridge.z_frac(wheel_z),
-        run_only=False,
-        indices=[x_i],
-    ))[0].resize()
+    cracked = list(
+        ILMatrix.load_wheel_track(
+            c=c,
+            response_type=response_type,
+            fem_runner=OSRunner(c),
+            load_z_frac=c.bridge.z_frac(wheel_z),
+            run_only=False,
+            indices=[x_i],
+        )
+    )[0].resize()
     plt.subplot(2, 1, 2)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=cracked)
@@ -371,6 +375,7 @@ def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType)
     plt.savefig(
         c.get_image_path(
             "verification",
-            safe_str(f"uls-contour-x-{wheel_x}-z-{wheel_z}-{response_type.name()}") + ".pdf"
+            safe_str(f"uls-contour-x-{wheel_x}-z-{wheel_z}-{response_type.name()}")
+            + ".pdf",
         )
     )

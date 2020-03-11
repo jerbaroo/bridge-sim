@@ -112,7 +112,7 @@ def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
     # temps_bottom = np.array(temps) - c.bridge.ref_temp_c
     # temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
     # return temps_bottom, temps_top
-    
+
     bd = 0.001
     # bn = 0.008
 
@@ -128,7 +128,7 @@ def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
     for i, temp_a in enumerate(temps[1:]):
         recent_start = i - (len_per_hour * recent_hours)
         if i > 1 and temps_b[i - 1] > temps_b[i - 2]:
-            recent_max = np.max(temps[max(0, recent_start):i])
+            recent_max = np.max(temps[max(0, recent_start) : i])
             temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
         else:
             temps_s.append((1 - sn) * temps_s[i - 1] + sn * temp_a)
@@ -137,13 +137,13 @@ def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
 
 
 def effect(
-        c: Config,
-        response_type: ResponseType,
-        points: List[Point],
-        len_per_hour: int = None,
-        temps: List[float] = None,
-        temps_bt = None,
-        d: bool = False
+    c: Config,
+    response_type: ResponseType,
+    points: List[Point],
+    len_per_hour: int = None,
+    temps: List[float] = None,
+    temps_bt=None,
+    d: bool = False,
 ) -> List[List[float]]:
     """Temperature effect at given points for a number of given temperatures.
 
@@ -191,7 +191,9 @@ def effect(
         temps_bottom, temps_top = temps_bt
         temps_bottom, temps_top = np.array(temps_bottom), np.array(temps_top)
     else:
-        temps_bottom, temps_top = temps_bottom_top(c=c, temps=temps, len_per_hour=len_per_hour)
+        temps_bottom, temps_top = temps_bottom_top(
+            c=c, temps=temps, len_per_hour=len_per_hour
+        )
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
     temps_uniform = temps_half - c.bridge.ref_temp_c
@@ -223,8 +225,7 @@ def get_len_per_min(c: Config, speed_up: float):
 def resize(temps, tmin=-5, tmax=35):
     """Resize temperatures into a range."""
     return interp1d(
-        np.linspace(min(temps), max(temps), 1000),
-        np.linspace(tmin, tmax, 1000)
+        np.linspace(min(temps), max(temps), 1000), np.linspace(tmin, tmax, 1000)
     )(temps)
 
 

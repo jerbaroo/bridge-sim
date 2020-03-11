@@ -282,7 +282,10 @@ def nodes():
 )
 def avail_sensors(pier_radius, track_radius, edge_radius):
     geometry_.make_available_sensors_plot(
-        c=c(), pier_radius=pier_radius, track_radius=track_radius, edge_radius=edge_radius
+        c=c(),
+        pier_radius=pier_radius,
+        track_radius=track_radius,
+        edge_radius=edge_radius,
     )
 
 
@@ -341,10 +344,7 @@ def convergence():
 @click.option("--to", type=str, help="Filepath extension for saving plot.")
 def convergence_nesw(fp, at, to):
     verification.plot_nesw_strain_convergence(
-        c=c(),
-        filepath=fp,
-        from_=at,
-        label=to,
+        c=c(), filepath=fp, from_=at, label=to,
     )
 
 
@@ -566,8 +566,12 @@ def truck1_contour(x: float):
 
 
 @verify.command(help="Contour plot of a unit load simulation.")
-@click.option("--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0).")
-@click.option("--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0).")
+@click.option(
+    "--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0)."
+)
+@click.option(
+    "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
+)
 @click.option("--rt", type=click.Choice(["strain", "ytrans"]))
 def uls_contour(x_i: int, z_i: int, rt: str):
     from make.verify import uls_contour_plot
@@ -638,7 +642,9 @@ def temp_effect_date(date, vert):
 
 
 @classify.command(help="Contour plot of temperature effect.")
-@click.option("--bottom", type=float, required=True, help="Bottom temperature in celcius.")
+@click.option(
+    "--bottom", type=float, required=True, help="Bottom temperature in celcius."
+)
 @click.option("--top", type=float, required=True, help="Top temperature in celcius.")
 def temp_contour(bottom, top):
     from make.classify.temp import temp_contour_plot
@@ -648,7 +654,10 @@ def temp_contour(bottom, top):
 
 @classify.command(help="Plot bridge deck temperature gradient.")
 @click.option(
-    "--date", type=str, default="holly-springs", help="Filename of year temperature data."
+    "--date",
+    type=str,
+    default="holly-springs",
+    help="Filename of year temperature data.",
 )
 def temp_gradient(date):
     from make.classify.temp import temp_gradient_plot

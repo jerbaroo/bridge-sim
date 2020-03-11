@@ -47,8 +47,15 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
             units=units,
         )
         top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
-        plot_contour_deck(c=c, responses=responses, decimals=6 if response_type == ResponseType.Strain else 2, loc="upper right")
-        plt.title(f"{response_type.name()} when Tref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C")
+        plot_contour_deck(
+            c=c,
+            responses=responses,
+            decimals=6 if response_type == ResponseType.Strain else 2,
+            loc="upper right",
+        )
+        plt.title(
+            f"{response_type.name()} when Tref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C"
+        )
 
     plt.landscape()
     plt.subplot(2, 1, 1)
@@ -56,7 +63,9 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
     plt.subplot(2, 1, 2)
     plot_response_type(ResponseType.Strain)
     plt.tight_layout()
-    plt.savefig(c.get_image_path("classify", f"temp-effect-{temp_bottom}-{temp_top}.pdf"))
+    plt.savefig(
+        c.get_image_path("classify", f"temp-effect-{temp_bottom}-{temp_top}.pdf")
+    )
     plt.close()
 
 
@@ -80,7 +89,7 @@ def temp_gradient_plot(c: Config, date: str):
         points=[Point(x=x, y=0, z=z)],
         temps=temps_year,
         len_per_hour=60,
-        d=True
+        d=True,
     )
     plt.portrait()
     plt.subplot(3, 2, 1)
@@ -100,18 +109,20 @@ def temp_gradient_plot(c: Config, date: str):
 
     i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
     plt.subplot(3, 2, 2)
-    plt.plot(dates_year[i:j+1], temps_year[i:j+1], label="Air")
-    plt.plot(dates_year[i:j+1], temps_year_top[i:j+1], label="Top of deck")
-    plt.plot(dates_year[i:j+1], temps_year_bottom[i:j+1], label="Bottom of deck")
+    plt.plot(dates_year[i : j + 1], temps_year[i : j + 1], label="Air")
+    plt.plot(dates_year[i : j + 1], temps_year_top[i : j + 1], label="Top of deck")
+    plt.plot(
+        dates_year[i : j + 1], temps_year_bottom[i : j + 1], label="Bottom of deck"
+    )
     plt.legend(loc="lower right")
     plt.title("Two day temperature")
     plt.subplot(3, 2, 4)
-    plt.plot(dates_year[i:j+1], linear_year[i:j+1], label="Linear component")
-    plt.plot(dates_year[i:j+1], uniform_year[i:j+1], label="Uniform component")
+    plt.plot(dates_year[i : j + 1], linear_year[i : j + 1], label="Linear component")
+    plt.plot(dates_year[i : j + 1], uniform_year[i : j + 1], label="Uniform component")
     plt.legend(loc="lower right")
     plt.title("Two day gradient")
     plt.subplot(3, 2, 6)
-    plt.plot(dates_year[i:j+1], effect_year[0][i:j+1] * 1000)
+    plt.plot(dates_year[i : j + 1], effect_year[0][i : j + 1] * 1000)
     plt.title(f"Two day Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     for ps in [(1, 2), (3, 4), (5, 6)]:

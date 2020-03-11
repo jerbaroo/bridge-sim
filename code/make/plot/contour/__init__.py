@@ -157,7 +157,9 @@ def point_load_response_plots(c: Config, x: float, z: float, kn: int = 1000):
             sim_params = SimParams(
                 response_types=[response_type],
                 ploads=[
-                    PointLoad(x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=kn)
+                    PointLoad(
+                        x_frac=c.bridge.x_frac(x), z_frac=c.bridge.z_frac(z), kn=kn
+                    )
                 ],
             )
             use_c, sim_params = damage_scenario.use(c=c, sim_params=sim_params)
@@ -187,7 +189,10 @@ def point_load_response_plots(c: Config, x: float, z: float, kn: int = 1000):
             plt.savefig(
                 c.get_image_path(
                     "contour/point-load",
-                    safe_str(f"x-{x:.2f}-z-{z:.2f}-kn-{kn}-{response_type.name()}-{damage_scenario.name}") + ".pdf",
+                    safe_str(
+                        f"x-{x:.2f}-z-{z:.2f}-kn-{kn}-{response_type.name()}-{damage_scenario.name}"
+                    )
+                    + ".pdf",
                 )
             )
             plt.close()

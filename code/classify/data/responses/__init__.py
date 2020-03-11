@@ -53,7 +53,10 @@ def responses_to_traffic_array(
     #         len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
     #     )
     unit_load_matrix = ILMatrix.load_ulm(
-        c=damage_scenario.use(c)[0], response_type=response_type, points=points, sim_runner=sim_runner,
+        c=damage_scenario.use(c)[0],
+        response_type=response_type,
+        points=points,
+        sim_runner=sim_runner,
     )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)

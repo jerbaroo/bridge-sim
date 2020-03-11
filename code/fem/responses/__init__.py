@@ -227,8 +227,10 @@ class Responses:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
         else:
+
             def _map(r, x, y, z):
                 return r * bridge.deck_section_at(x=x, z=z).youngs
+
             self.map(_map, xyz=True)
         self.response_type = ResponseType.Stress
         self.units = self.response_type.units()
