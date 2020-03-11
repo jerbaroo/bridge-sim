@@ -48,7 +48,7 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
         )
         top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
         plot_contour_deck(c=c, responses=responses, decimals=6 if response_type == ResponseType.Strain else 2, loc="upper right")
-        plt.title(f"{response_type.name()} when bottom = {temp_bottom} °C, top = {temp_top} °C")
+        plt.title(f"{response_type.name()} when Tref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C")
 
     plt.landscape()
     plt.subplot(2, 1, 1)

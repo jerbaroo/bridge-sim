@@ -1,30 +1,20 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Days
-28 days to finish thesis.
-** Day 1 (2nd March)
-- Plot healthy vs. cracked ULS
-  - they are different (good), at least y translation
-- Run cracked ULS @ medium mesh on workhorse
-- Finalize regression plots on workhorse
-- Create distribution of low weight vehicles
-** Day 2 (3rd March)
-- Fix traffic generation bug
-- Finish vehicle distribution plot
-- Finalize Diana comparison plots
-** Day 3 (4th March)
-- Finalize point load convergence plots
-- Collect all data on workhorse
-- Run convergence data
-** Day 4 (5th March)
-** Day 5 (6th March)
-- Finalize NESW pier convergence plots
-- Start temp -> (bottom, top) plot
-** Day 6 (7th March)
-** Day 7 (8th March)
-- Temperature gradient model and plot
-- Temperature contour plot
-** Day 8 (9th March)
+** Wed 11 March (1 / 21)
+* Notes on experiments
+** Concrete experiment
+*** The change in the concrete happens immediately.
+*** Testing distributions is easier than an ML model.
+*** Every minute take a distribution of responses.
+*** Compare the model to two previous models.
+*** Plot the difference in distributions over time.
+*** Highlight where the cracking occurs.
+** Pier experiment
+*** In July start with a healthy bridge.
+*** Every day skip n (7?) days.
+*** Remove noise and check comparison measure.
+*** Plot the results over time.
 * Todo List
 ** TODO [#A] Validate temperature load
 - For the same simulation, the vertical translation is in excellent agreement.
@@ -759,3 +749,28 @@ CLOSED: [2019-11-07 Thu 10:46]
 - Add cracked concrete references
 - Run cracked concrete simulations (med)
 - Add clean command to remove uneeded files
+** Days
+    28 days to finish thesis.
+    ** Day 1 (2nd March)
+    - Plot healthy vs. cracked ULS
+    - they are different (good), at least y translation
+    - Run cracked ULS @ medium mesh on workhorse
+    - Finalize regression plots on workhorse
+    - Create distribution of low weight vehicles
+    ** Day 2 (3rd March)
+    - Fix traffic generation bug
+    - Finish vehicle distribution plot
+    - Finalize Diana comparison plots
+    ** Day 3 (4th March)
+    - Finalize point load convergence plots
+    - Collect all data on workhorse
+    - Run convergence data
+    ** Day 4 (5th March)
+    ** Day 5 (6th March)
+    - Finalize NESW pier convergence plots
+    - Start temp -> (bottom, top) plot
+    ** Day 6 (7th March)
+    ** Day 7 (8th March)
+    - Temperature gradient model and plot
+    - Temperature contour plot
+    ** Day 8 (9th March)
