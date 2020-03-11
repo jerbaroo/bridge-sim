@@ -83,7 +83,7 @@ def temp_gradient_plot(c: Config, date: str):
         c=c, temps=temps_year, len_per_hour=60
     )
     x, z = (c.bridge.x_max - (c.bridge.length / 2)), 0
-    uniform_year, linear_year, effect_year = temperature.effect(
+    uniform_year_y, linear_year_y, effect_year_y = temperature.effect(
         c=c,
         response_type=ResponseType.YTranslation,
         points=[Point(x=x, y=0, z=z)],
@@ -91,24 +91,39 @@ def temp_gradient_plot(c: Config, date: str):
         len_per_hour=60,
         d=True,
     )
+    uniform_year_s, linear_year_s, effect_year_s = temperature.effect(
+        c=c,
+        response_type=ResponseType.Strain,
+        points=[Point(x=x, y=0, z=z)],
+        temps=temps_year,
+        len_per_hour=60,
+        d=True,
+    )
     plt.portrait()
-    plt.subplot(3, 2, 1)
+    plt.subplot(4, 2, 1)
     plt.plot(dates_year, temps_year, label="Air")
     plt.plot(dates_year, temps_year_top, label="Top of deck")
     plt.plot(dates_year, temps_year_bottom, label="Bottom of deck")
+    plt.ylabel("Temperature °C ")
     plt.legend(loc="lower right")
     plt.title("Annual temperature")
-    plt.subplot(3, 2, 3)
-    plt.plot(dates_year, linear_year, label="Linear component")
-    plt.plot(dates_year, uniform_year, label="Uniform component")
+    plt.subplot(4, 2, 3)
+    plt.plot(dates_year, linear_year_y, label="Linear component")
+    plt.plot(dates_year, uniform_year_y, label="Uniform component")
+    plt.ylabel("Temperature °C ")
     plt.legend(loc="lower right")
     plt.title("Annual gradient")
-    plt.subplot(3, 2, 5)
-    plt.plot(dates_year, effect_year[0] * 1000)
+    plt.subplot(4, 2, 5)
+    plt.plot(dates_year, effect_year_y[0] * 1000)
+    plt.ylabel("Y translation (mm)")
     plt.title(f"Annual Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
+    plt.subplot(4, 2, 7)
+    plt.ylabel("Strain")
+    plt.plot(dates_year, effect_year_s[0] * 1000)
+    plt.title(f"Annual strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
-    plt.subplot(3, 2, 2)
+    plt.subplot(4, 2, 2)
     plt.plot(dates_year[i : j + 1], temps_year[i : j + 1], label="Air")
     plt.plot(dates_year[i : j + 1], temps_year_top[i : j + 1], label="Top of deck")
     plt.plot(
@@ -116,19 +131,26 @@ def temp_gradient_plot(c: Config, date: str):
     )
     plt.legend(loc="lower right")
     plt.title("Two day temperature")
-    plt.subplot(3, 2, 4)
-    plt.plot(dates_year[i : j + 1], linear_year[i : j + 1], label="Linear component")
-    plt.plot(dates_year[i : j + 1], uniform_year[i : j + 1], label="Uniform component")
+    plt.subplot(4, 2, 4)
+    plt.plot(dates_year[i : j + 1], linear_year_y[i : j + 1], label="Linear component")
+    plt.plot(dates_year[i : j + 1], uniform_year_y[i : j + 1], label="Uniform component")
     plt.legend(loc="lower right")
     plt.title("Two day gradient")
-    plt.subplot(3, 2, 6)
-    plt.plot(dates_year[i : j + 1], effect_year[0][i : j + 1] * 1000)
+    plt.subplot(4, 2, 6)
+    plt.plot(dates_year[i : j + 1], effect_year_y[0][i : j + 1] * 1000)
     plt.title(f"Two day Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
+    plt.subplot(4, 2, 8)
+    plt.plot(dates_year[i : j + 1], effect_year_s[0][i : j + 1] * 1000)
+    plt.title(f"Two day strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
-    for ps in [(1, 2), (3, 4), (5, 6)]:
-        equal_lims("y", 3, 2, ps)
+    for ps in [(1, 2), (3, 4), (5, 6), (7, 8)]:
+        plt.subplot(4, 2, ps[1])
+        plt.gca().set_yticklabels([])
+        equal_lims("y", 4, 2, ps)
 
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
+    # fig = plt.gcf()
+    # fig.align_ylabels(fig.axes[::2])
     plt.savefig(c.get_image_path("temperature", "gradient.pdf"))
     plt.close()

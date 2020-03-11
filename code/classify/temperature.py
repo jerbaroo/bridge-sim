@@ -149,6 +149,10 @@ def effect(
 
     The result is of shape (number of points, number of temperatures).
 
+    NOTE: The 'ThermalDamage' method 'to_strain' multiplies the results by E-6,
+        which is called by this function. Take note that the strain values are
+        already increased by E-6, and do not need to be resized.
+
     Args:
         temps_bt: A 2-tuple of arrays, the first array is for the temperatures
             at the bottom of the bridge, and the second array is for the
