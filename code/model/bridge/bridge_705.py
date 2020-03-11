@@ -1,4 +1,5 @@
 """Specification and Config for bridge 705 in Amsterdam."""
+import os
 from copy import deepcopy
 from typing import Callable, List, Optional, Tuple
 
@@ -19,6 +20,9 @@ from model.bridge import (
     Support3D,
 )
 from util import round_m
+
+
+__dir__ = os.path.normpath(os.path.join(os.path.realpath(__file__), "../../../../"))
 
 
 #################################
@@ -104,7 +108,8 @@ def bridge_705_2d(
 
 
 def bridge_705_deck_sections():
-    with open("bridge705/bridge-705.org") as f:
+    __dir__ = os.path.normpath(os.path.join(os.path.realpath(__file__), "../../../../"))
+    with open(os.path.join(__dir__, "bridge705/bridge-705.org")) as f:
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
@@ -272,10 +277,10 @@ def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
 
 
 def bridge_705_config(bridge: Callable[..., Bridge]) -> Config:
-    """A 'Config' for bridge 705 in Amsterdam."""
+    """A 'Config' for (bridge 705 in Amsterdam."""
     return Config(
         bridge=bridge,
-        vehicle_data_path="data/a16-data/a16.csv",
+        vehicle_data_path=os.path.join(__dir__, "data/a16-data/a16.csv"),
         vehicle_pdf=[
             (2.4, 5), (5.6, 45), (7.5, 30), (9, 15), (11.5, 4), (12.2, 0.5), (43, 0)],
         vehicle_pdf_col="length",

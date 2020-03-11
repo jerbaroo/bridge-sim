@@ -22,6 +22,8 @@ D: bool = False
 
 # https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 
+__dir__ = os.path.normpath(os.path.join(os.path.realpath(__file__), "../../../"))
+
 
 def parse_line(line):
     # 23803 20190101 0005 20181231 1805      3  -89.43   34.82    12.4
@@ -37,7 +39,7 @@ def parse_line(line):
 
 def load(name: str, offset: int = 0) -> pd.DataFrame:
     # If the file is already parsed, return it..
-    name_path = os.path.join("data/temperature", name + ".txt")
+    name_path = os.path.join(__dir__, "data/temperature", name + ".txt")
     saved_path = name_path + ".parsed"
     if os.path.exists(saved_path):
         temps = pd.read_csv(saved_path, index_col=0, parse_dates=["datetime"])
