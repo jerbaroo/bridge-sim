@@ -82,7 +82,8 @@ def temp_gradient_plot(c: Config, date: str):
     temps_year_bottom, temps_year_top = temperature.temps_bottom_top(
         c=c, temps=temps_year, len_per_hour=60
     )
-    x, z = (c.bridge.x_max - (c.bridge.length / 2)), 0
+    # x, z = (c.bridge.x_max - (c.bridge.length / 2)), 0
+    x, z = 21, -8.4
     uniform_year_y, linear_year_y, effect_year_y = temperature.effect(
         c=c,
         response_type=ResponseType.YTranslation,
@@ -119,7 +120,7 @@ def temp_gradient_plot(c: Config, date: str):
     plt.title(f"Annual Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
     plt.subplot(4, 2, 7)
     plt.ylabel("Strain")
-    plt.plot(dates_year, effect_year_s[0] * 1000)
+    plt.plot(dates_year, effect_year_s[0])
     plt.title(f"Annual strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
@@ -140,7 +141,7 @@ def temp_gradient_plot(c: Config, date: str):
     plt.plot(dates_year[i : j + 1], effect_year_y[0][i : j + 1] * 1000)
     plt.title(f"Two day Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
     plt.subplot(4, 2, 8)
-    plt.plot(dates_year[i : j + 1], effect_year_s[0][i : j + 1] * 1000)
+    plt.plot(dates_year[i : j + 1], effect_year_s[0][i : j + 1])
     plt.title(f"Two day strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
 
     for ps in [(1, 2), (3, 4), (5, 6), (7, 8)]:
