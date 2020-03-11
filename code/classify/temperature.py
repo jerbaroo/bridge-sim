@@ -233,6 +233,15 @@ def resize(temps, tmin=-5, tmax=35):
     )(temps)
 
 
+def apply(effect: List[float], responses: List[float]):
+    """Given effect interpolated across given responses."""
+    i = interp1d(
+        np.linspace(0, len(responses) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000)
+    )(np.arange(len(responses)))
+    return interp1d(np.arange(len(effect)), effect)(i)
+
+
 def apply_effect(
     c: Config,
     points: List[Point],
@@ -250,6 +259,7 @@ def apply_effect(
         responses are given at a rate of 'c.sensor_hz'.
 
     """
+    raise ValueError("Deprecated")
     assert len(responses) == len(points)
     # Convert the temperature data into temperature effect at each point.
     # effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
