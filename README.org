@@ -1,4 +1,4 @@
-* An extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
 Code is in [[code]] with a README describing the files [[./code/README.org][here]].
 
