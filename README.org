@@ -26,7 +26,6 @@ Install project dependencies:
 
 #+BEGIN_SRC bash
 pipenv install
-pipenv shell
 #+END_SRC
 
 Now either run the CLI or browse the notebooks:
