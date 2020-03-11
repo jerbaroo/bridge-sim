@@ -1,42 +1,39 @@
 * An extensible decision support system for bridge maintenance based on sensor data [[https://circleci.com/gh/barischrooneyj/thesis-msc-computational-science.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
-My thesis for the University of Amsterdam and TNO.
-
 Code is in [[code]] with a README describing the files [[./code/README.org][here]].
-
-Supporting data is in [[data]].
 
 PDFs and source files are in [[writing]], rendered thesis PDF [[./writing/thesis/thesis.pdf][here]].
 
+Supporting data is in [[data]].
+
 ** Quickstart
 
-Ensure that [[https://pipenv.kennethreitz.org/en/latest/][pipenv]] and Python 3.7 are installed on your system. Instructions for
-installing pipenv can be found [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][here]].
+Have Python 3.7+ installed, then [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]].
 
-You'll also need [[https://opensees.berkeley.edu/][OpenSees]] on your system, which can you download from [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]
+You need [[https://opensees.berkeley.edu/][OpenSees]] on your system, which can you download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
 
-Then clone this repository and change into the directory:
+Clone this repository and change into the directory:
 
 #+BEGIN_SRC bash
-git clone git@github.com:barischrooneyj/bridge-dss
+git clone git@github.com:barischrooneyj/bridge-sim
 cd bridge-dss
 #+END_SRC bash
 
 Open the file [[code/config_sys.py]] and ensure that =Config.os_exe_path= points
 to the OpenSees executable installed on your system.
 
-Then install Python dependencies and activate the Python environment:
+Install project dependencies:
 
 #+BEGIN_SRC bash
 pipenv install
 pipenv shell
 #+END_SRC
 
-Finally run this script to create some plots using the low accuracy "debug"
-model of bridge 705 in Amsterdam:
+Now either run the CLI or browse the notebooks:
 
 #+BEGIN_SRC bash
-./scripts/make-all.sh --clean --debug --3d
+./cli.sh
+pipenv run jupyter lab
 #+END_SRC
 
-Resulting plots are found in the directory [[generated-data-debug-images]].
+If you have an error and are on windows you may need to ~pipenv install pypiwin32~.
