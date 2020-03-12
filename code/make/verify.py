@@ -372,7 +372,7 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
     healthy_responses = load_fem_responses(
         c=c,
         sim_params=SimParams(ploads=loads),
-        response_type=ResponseType.Strain,
+        response_type=response_type,
         sim_runner=OSRunner(c),
     )
     vmin, vmax = min(healthy_responses.values()), max(healthy_responses.values())
@@ -380,7 +380,7 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
     crack_responses = load_fem_responses(
         c=c,
         sim_params=SimParams(ploads=loads),
-        response_type=ResponseType.Strain,
+        response_type=response_type,
         sim_runner=OSRunner(c),
     )
     vmin = min(vmin, min(crack_responses.values()))
@@ -397,6 +397,6 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
     plt.title("Truck 1 on cracked bridge")
     plt.tight_layout()
     plt.savefig(
-        original_c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")
+        original_c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}-{response_type.name()}") + ".pdf")
     )
     plt.close()
