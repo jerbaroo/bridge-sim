@@ -247,11 +247,14 @@ def opensees_fixed_pier_nodes(
 
 def opensees_section(section: Section3D):
     """OpenSees ElasticMembranePlateSection command for a Section3D."""
+    # TODO: Implicit information, assumption that if young's modulus in x
+    #     direction is modified that cracking is desired (poisson's set to 0).
+    CRACK_Z = not np.isclose(section.youngs_x(), section.youngs)
     # New orthotropic method.
     return (
         f"nDMaterial ElasticOrthotropic {section.id}"
         f" {section.youngs_x() * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}"
-        f" {section.poissons} {section.poissons} {section.poissons}"
+        f" {0 if CRACK_Z else section.poissons} {section.poissons} {section.poissons}"
         f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
         f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"
         f" {(section.youngs * 1E6) / (2 * (1 + section.poissons))}"

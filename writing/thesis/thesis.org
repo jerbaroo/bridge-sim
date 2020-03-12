@@ -2585,7 +2585,7 @@ The crack zone occurs across the southern lane, the deck of bridge 705 in the
 cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
 
 #+NAME: fig:crack-1
-#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 1 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
+#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 0.5 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
 #+ATTR_LATEX: :placement [t]
 [[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
 
@@ -2610,8 +2610,8 @@ The second type of damage that is considered is the settlement of a pier, which
 can occur due to a change in soil properties, perhaps due to climatic conditions
 such as the drying of the soil which is a problem for clay soils in particular
 that can become very dense as moisture is removed. Pier settlement is modeled at
-a number of different severities, in order to determine at what severity of
-settlement the pier settlement can be detected.
+a number of different severities, in order to determine at what severity the
+pier settlement can be detected.
 
 #+LATEX: \newpage
 * Results
@@ -2673,9 +2673,14 @@ previous work has made an effort to be re-usable. **2** Creating a re-usable
 model will reduce the barrier to entry for others interested in doing research
 on damage detection of bridges. **3** Many bridges are built with similar
 materials and have similar geometry, thus one model of a bridge can be adapted
-to other bridges. In the vision of creating "digital twins" of bridges, creating
-re-usable models will allow for targeting many more bridges and the models of
-those types of bridges will be of higher quality.
+to other bridges. Toward a vision of creating "digital twins" of bridges,
+creating re-usable models will allow for targeting many more bridges in the
+national stock and the models of those bridge types will be of higher quality.
+
+Finally it is suggested that sensors are installed on a concrete slab bridge and
+the data made available in real-time to researchers. The sensors should record
+traffic with weight-in-motion technology, and sensors should record air
+temperature, wind speed and solar radiation.
 
 #+LATEX: \clearpage
 * Appendix
