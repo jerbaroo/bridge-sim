@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import matplotlib as mpl
 import numpy as np
 
 from classify.data.responses.convert import loads_to_traffic_array
@@ -368,27 +369,31 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
     LOADS = False
     time = wagen1.time_at(x=x, bridge=c.bridge)
     loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
-    sim_responses = load_fem_responses(
+    healthy_responses = load_fem_responses(
         c=c,
         sim_params=SimParams(ploads=loads),
         response_type=ResponseType.Strain,
         sim_runner=OSRunner(c),
     )
+    vmin, vmax = min(healthy_responses.values()), max(healthy_responses.values())
+    c = transverse_crack().use(c)[0]
+    crack_responses = load_fem_responses(
+        c=c,
+        sim_params=SimParams(ploads=loads),
+        response_type=ResponseType.Strain,
+        sim_runner=OSRunner(c),
+    )
+    vmin = min(vmin, min(crack_responses.values()))
+    vmax = max(vmax, max(crack_responses.values()))
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     plt.landscape()
     plt.subplot(2, 1, 1)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
+    plot_contour_deck(c=c, responses=healthy_responses, ploads=loads if LOADS else [], scatter=True)
     plt.title("Truck 1 on healthy bridge")
-    c = transverse_crack().use(c)[0]
-    sim_responses = load_fem_responses(
-        c=c,
-        sim_params=SimParams(ploads=loads),
-        response_type=ResponseType.Strain,
-        sim_runner=OSRunner(c),
-    )
     plt.subplot(2, 1, 2)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
+    plot_contour_deck(c=c, responses=crack_responses, ploads=loads if LOADS else [], scatter=True)
     plt.title("Truck 1 on cracked bridge")
     plt.tight_layout()
     plt.savefig(
