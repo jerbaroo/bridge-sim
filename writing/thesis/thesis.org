@@ -23,7 +23,6 @@ I would like to thank...
 #+LATEX: \listoffigures
 #+LATEX: \newpage
 #+LATEX: \listoflistings
-#+LATEX: \newpage
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
@@ -338,41 +337,41 @@ finally a conclusion of the work and results is presented.
 | Traffic scenario    | Defines the traffic that flows over a bridge         |
 
 #+LATEX: \newpage
-** Pseudocode
+# ** Pseudocode
 
-# Imperative and declarative.
-Pseudocode in this thesis is given in two formats. Some of the psuedocode will
-be presented in an imperative-style, that resembles the syntax of the Python
-programming language. For code that represents data types rather a series of
-operations, the pseudocode will resemble the syntax of Haskell. For most people
-the syntax of Python, or a similar imperative style language, will already be
-familiar. The syntax for data types used in this thesis is presented below in
-Listing [[lst:haskell]].
+# # Imperative and declarative.
+# Pseudocode in this thesis is given in two formats. Some of the psuedocode will
+# be presented in an imperative-style, that resembles the syntax of the Python
+# programming language. For code that represents data types rather a series of
+# operations, the pseudocode will resemble the syntax of Haskell. For most people
+# the syntax of Python, or a similar imperative style language, will already be
+# familiar. The syntax for data types used in this thesis is presented below in
+# Listing [[lst:haskell]].
 
-# Type signatures.
-Sometimes the reader will be presented with a type signature that looks like
-=foo :: A -> B -> C=. A type signature describes the input and output types of a
-function, the previous type signature can be read as "a function =foo= that
-takes an argument of type =A=, an argument of type =B=, and returns a value of
-type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
-function =bar= which takes a list of =Float= as input and returns a value of
-type =Int=". A type signature for a value si given as the generalization of a
-fucntion with 0 arguments, for example =truck_1 :: Vehicle= simply informs the
-reader that the variable =truck_1= is of type =Person=.
+# # Type signatures.
+# Sometimes the reader will be presented with a type signature that looks like
+# =foo :: A -> B -> C=. A type signature describes the input and output types of a
+# function, the previous type signature can be read as "a function =foo= that
+# takes an argument of type =A=, an argument of type =B=, and returns a value of
+# type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
+# function =bar= which takes a list of =Float= as input and returns a value of
+# type =Int=". A type signature for a value si given as the generalization of a
+# fucntion with 0 arguments, for example =truck_1 :: Vehicle= simply informs the
+# reader that the variable =truck_1= is of type =Person=.
 
-#+NAME: lst:haskell
-#+CAPTION[Pseudocode example for a data type]: Pseudocode example for a data type declaration as used in this thesis. This pseudocode declares a type that describes a vehicle in terms of two pieces of data, a list of axle distance and a list of loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type =bar=. The square brackets represent the list type and the curly brackets represent a tuple type.
-#+BEGIN_SRC haskell
--- A vehicle as a list of axle distances and wheel loads.
-data Vehicle {
-    -- Distance betwen each pair of axles.
-    axleDistances :: [Float],
-    -- A tuple per axle, of wheel load intensity in kilo Newton.
-    wheelLoads    :: [(Float, Float)]
-  }
-#+END_SRC
+# #+NAME: lst:haskell
+# #+CAPTION[Pseudocode example for a data type]: Pseudocode example for a data type declaration as used in this thesis. This pseudocode declares a type that describes a vehicle in terms of two pieces of data, a list of axle distance and a list of loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type =bar=. The square brackets represent the list type and the curly brackets represent a tuple type.
+# #+BEGIN_SRC haskell
+# -- A vehicle as a list of axle distances and wheel loads.
+# data Vehicle {
+#     -- Distance betwen each pair of axles.
+#     axleDistances :: [Float],
+#     -- A tuple per axle, of wheel load intensity in kilo Newton.
+#     wheelLoads    :: [(Float, Float)]
+#   }
+# #+END_SRC
 
-#+LATEX: \clearpage
+# #+LATEX: \clearpage
 * Literature Review
 
 # Introduction.
@@ -849,7 +848,7 @@ inaccurate damage detection, if for example the detection system is being
 trained on the faulty sensor data.
 
 #+NAME: tbl:damage-events
-#+CAPTION[Types of damage]: Types of damage due to short-term and long-term events. The first column gives the name of the damage type, and whether it is a short-term or long-term damage event. The second column gives examples of the type of damage and the third column indicates the part of the bridge that would be affected under such an event.
+#+CAPTION[Types of damage from short-term and long-term events]: Types of damage from short-term and long-term events. The first column gives the name of the damage type, and whether it is a short-term or long-term damage event. The second column gives examples of the type of damage and the third column indicates the part of the bridge that would be affected under such an event.
 #+ATTR_LATEX: :float sidewaystable
 |---------------------------------------+------------------------------------------------------+--------------|
 | Short tem event                       | Examples                                             | Component    |
@@ -1354,6 +1353,7 @@ their behaviour under load. Mesh parameters define the density of the base mesh
 and how the mesh is built.
 
 #+NAME: lst:bridge
+#+CAPTION[Definition of the Bridge model]: Definition of the Bridge model. An instance of this Bridge model can be transformed into a FEM for OpenSees.
 #+BEGIN_SRC haskell
 data Bridge {
   length   :: Float,
@@ -1365,6 +1365,7 @@ data Bridge {
 #+END_SRC
 
 #+NAME: lst:bridge-705
+#+CAPTION[Instance of the Bridge model]: Instance of the Bridge model. This Bridge represents bridge 705 in Amsterdam.
 #+BEGIN_SRC haskell
 bridge705 = Bridge {
   length   :: 102,
@@ -1409,16 +1410,15 @@ were used in the generated FEM of bridge 705 for OpenSees. These material
 properties originally came from blueprints that were used for the construction
 of the bridge. The material properties are specified in terms of density in
 kilogram per meter, thickness in meters and Young's modulus in mega Pascal.
-Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705. A
-similar figure but for Young's modulus of the deck of bridge 705 is available in
-the Appendix as Figure [[fig:bridge-705-youngs]]. Note that for both of these plots
-the material properties are symmetric across the longitudinal center of the
-bridge. The material properties of bridge 705's deck are also available in a
-more digestable format in Table [[tbl:bridge-705-props]] in the Appendix.
+Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705.
+Note that for this plot the material properties are symmetric across the
+longitudinal center of the bridge. The material properties of bridge 705's deck
+are also available in a more digestable format in Table [[tbl:bridge-705-props]] in
+the Appendix.
 
-#+CAPTION: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.
+#+CAPTION[Thickness of the FEM of bridge 705]: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-thickness
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/thickness-parula-outline-false-lanes-true.pdf]]
+[[./saved-images/geometry/thickness-parula-outline-false-lanes-false.pdf]]
 
 Density and Young's modulus are set to a constant value throughout all piers of
 bridge 705. Thickness however varies linearly according the specification from
@@ -1607,7 +1607,7 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 
 #+NAME: fig:temp
 #+ATTR_LATEX: :placement [t]
-#+CAPTION[Effect of temperature]: Effect of temperature at point A (see Table [[tbl:loading-positions]]) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range $\SI{-5}{\celcius}$ to $\SI{35}{\celcius}$. Each plot has two vertical axes, one for temperature and one for vertical translation.
+#+CAPTION[Effect of temperature at point A]: Effect of temperature at point A (see Table TODO) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range -5 °C to 35 °C. Each plot has two vertical axes, one for temperature and one for vertical translation.
 [[./saved-images/thermal/temperature.pdf]]
 
 # Temperature effect.
@@ -1641,7 +1641,7 @@ is added in all classification experiments.
 
 #+NAME: fig:temp-20
 #+ATTR_LATEX: :placement [t]
-#+CAPTION[Effect of air temperature at 20 °C]: The effect of air temperature at 20 °C, assuming the concrete of bridge 705 was set at a temperature of 15 °C. What is clear from the plots is that the vertical translation due to a change in temperature is greatest near the abutments and near the center of the bridge and strain is greatest at piers. This is because the constraints on translation at the abutments and at the piers (the piers near the longitudinal center in particular because they are additionally constrained against transverse movement) cause stress & strain close to the piers and large vertical translation at the mid-spans. textcolor{red}{Update plot once temperature model is updated}
+#+CAPTION[Effect of air temperature at 20 °C]: The effect of air temperature at 20 °C, assuming the concrete of bridge 705 was set at a temperature of 12 °C. What is clear from the plots is that the vertical translation due to a change in temperature is greatest near the abutments and near the center of the bridge and strain is greatest at piers. This is because the constraints on translation at the abutments and at the piers (the piers near the longitudinal center in particular because they are additionally constrained against transverse movement) cause stress & strain close to the piers and large vertical translation at the mid-spans. textcolor{red}{Update plot once temperature model is updated}
 [[./saved-images/thermal/temp-effect-20.pdf]]
 
 *** Traffic Model
@@ -1799,7 +1799,7 @@ response at many points to many vehicles over a series of time steps using
 matrix multiplication is shown in Listing [[lst:matmul]].
 
 #+NAME: lst:superposition
-#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. When requesting the response at a point =p= to a vehicle on a bridge, the vehicle is first decomposed into loading positions =wp= and intensities =wi=, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position =wp=, the unit load simulation is selected where =wp= is closest to the unit load applied in that simulation. From this unit load simulation, the response =ru= at the recorded point closest to point =p= is considered. Thus the response =ru= is the response to a load at one of the vehicle wheel's positions, except not to the wheel's load but instead to a load of unit intensity, thus =ru= must be multiplied by =wi / ul= where =ul= is the unit load intensity.
+#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. When requesting the response at a point p to a vehicle on a bridge, the vehicle is first decomposed into loading positions wp and intensities wi, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position wp, the unit load simulation is selected where wp is closest to the unit load applied in that simulation. From this unit load simulation, the response ru at the recorded point closest to point p is considered. Thus the response ru is the response to a load at one of the vehicle wheel's positions, except not to the wheel's load but instead to a load of unit intensity, thus ru must be multiplied by wi / ul where ul is the unit load intensity.
 #+BEGIN_SRC python
 response = 0
 p = Point(x=35, y=0, z=25)
@@ -1849,28 +1849,19 @@ responses which are calculated.
 any point on the bridge, the response at that point can be calculated to a load
 on one of that wheel tracks. The function of the response at a point due to a
 changing load is called an influence line, which is commonly used in structural
-engineering to describe a response function. Figure [[fig:influence-lines]] contains
+engineering to describe a response function. Figure TODO:REMOVE contains
 a number of influence lines. Each influence line shows the displacement of the
 bridge deck at a different point on the wheel track at ~z = -9.4m~, as a unit
 load is moved along the same wheel track.
-
-#+CAPTION: Displacement of the bridge deck at different points on the wheel track at ~z = -9.4m~, in each influence line plot a unit load is moved along the same wheel track. The red vertical line depicts the position of the load.
-#+NAME: fig:influence-lines
-[[./images/subplots-y-z-94.png]]
 
 Furthermore we can stack the influence lines for a number of points against each
 other, flipping each influence line by $90 \degree$ so it is vertical. For
 example, we can consider a number of equidistant points along a slice in the
 longitudinal direction of a bridge, and for each of these points consider the
-response to a load moving along the same slice. Figure [[fig:il-matrix]] shows such
+response to a load moving along the same slice. Figure TODO:REMOVE shows such
 a matrix for ~z = -9.4m~. Each column of the matrix is an influence line, each
 row shows the response along the bridge deck for ~z = -9.4m~ for a different
 loading position.
-
-#+NAME: fig:il-matrix
-#+CAPTION[Load and response combinations on a wheel track]: A number of vertical influence lines stacked together. Each influence line (column) shows displacement at a different point on the wheel track at ~z = -9.4m~. Each column of the matrix is an influence line. Each row shows the response along the bridge deck for ~z = -9.4m~ for a different loading position. This image shows how, closer to the center of the bridge, the bridge does not suffer as much displacement.
-#+ATTR_LATEX: :placement [ht]
-[[./images/il-matrix-y-z-94.png]]
 
 Another of the damage scenarios is pier displacement. To calculate responses to
 a load under this damage scenario, all of the unit load simulations need to be
@@ -1897,13 +1888,9 @@ When running a pier displacement simulation the =DisplacementControl= command is
 used to specify that the central bottom node of the pier should be displaced by
 1m. A load is placed on this node, though the load intensity is ignored by the
 =DisplacementControl= algorithm, the load intensity is instead increased until a
-displacement of 1m is reached. Figure [[fig:pier-disp]] shows a contour plot of the
+displacement of 1m is reached. Figure TODO:REMOVE shows a contour plot of the
 displacement of the deck of bridge 705 due to a single pier being displaced by
 -1m.
-
-#+CAPTION: A contour plot of the displacement of the deck of bridge 705 due a pier being displaced by 1m. The node onto which a load is applied, and the same node that is watched by the =DisplacementControl= algorithm until the specified displacement of 1m is reached, is indicated by a red circle. This node is the central bottom node of the pier indicated by vertical black bars on either side of the red circle. The maximum displacement on the bridge deck is slightly less than 1m, this is because the piers are not infinitely stiff but have some elasticity.
-#+NAME: fig:pier-disp
-[[./images/ytranslation-pier-5.png]]
 
 Due to the linear elastic accumption made when modeling, only one pier
 displacement simulation needs to be run per pier. One simulation is run for each
@@ -1956,12 +1943,8 @@ these shells takes the simple process of splitting each shell into four smaller
 shells, thus introducing five additional nodes per shell that is refined. For a
 point-load simulation... A refined mesh of bridge 705, with a parameter of ~MSL
 = 0.5~ for the base mesh, $R = [2, 1, 0.5]$ and $L_x, L_z = (85, 16.6)$ is shown
-in Figure [[fig:705-mesh]].
+in Figure TODO:REMOVE.
 # TODO: Specify exact refinement positions.
-
-#+NAME: fig:705-mesh
-#+CAPTION[Refined mesh of bridge 705]:
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-refined-top-view/mesh-outline-true-parula.pdf]]
 
 *** Reusable System
 # Emphasis on reproduceable research.
@@ -2003,20 +1986,13 @@ If it’s easy to reuse, people will. Create an environment that supports reuse.
 Keeping with these principles, an effort has been made for the research in this
 thesis to me not just reproduceable but extensible. A system for running traffic
 simulations on concrete slab bridges and analyzing results is published on the
-Python Package Index (PyPI) cite:rankingpypi under the name =traffic-sim= where
-you will also find the documentation. Two examples showing the use of the system
-are presented in Listing [[lst:ts-point-load]] and Listing [[lst:ts-wagen-1]], for
-=traffic-sim= installation instructions see the documentation on PyPI.
+Python Package Index (PyPI) cite:rankingpypi under the name =bridge-sim= where
+you will also find the documentation. An example showing the use of the system
+is presented in Listing [[lst:ts-point-load]] =bridge-sim= installation instructions
+and the documentation which are linked on GitHub.
 
 #+NAME: lst:ts-point-load
-#+CAPTION: Contour load of a point load in =traffic-sim=.
-#+BEGIN_SRC python
-# example.py
-from traffic_sim import PointLoad
-#+END_SRC
-
-#+NAME: lst:ts-wagen-1
-#+CAPTION: Animation of a truck in =traffic-sim=.
+#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
 #+BEGIN_SRC python
 # example.py
 from traffic_sim import PointLoad
@@ -2064,22 +2040,22 @@ small areas.
 
 #+NAME: fig:comp-diana-a-y
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Vert. trans. from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-y]] from simulation with OpenSees.
+#+CAPTION[Y translation in Diana from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 34.955 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/a-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-a-y
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Vert. tranfrom from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-y]] from simulation with Diana.
+#+CAPTION[Y translation in OpenSees from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 34.955 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/a-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-a-s
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Strain in Diana from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-a-s]] from simulation with OpenSees.
+#+CAPTION[Strain in Diana from a point load at A with Diana]: Vertical translation from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 34.955 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/a-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-a-s
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Strain in OpenSees from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 34.955$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-a-s]] from simulation with Diana.
+#+CAPTION[Strain in OpenSees from a point load at A with OpenSees]: Vertical translation from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 34.955 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/a-strain.pdf]]
 
 #+NAME: tbl:loading-positions
@@ -2174,12 +2150,12 @@ Of the twenty strain sensors installed by TNO, T1 - T20, all of them are in very
 good agreement between the measurements, OpenSees and Diana.
 
 #+NAME: fig:regress-displa
-#+CAPTION[Linear regression of vert. trans. responses]: Linear regression of vertical translation responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the vertical translation at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements and shows the values are in very good agreement. The OpenSees model has a better fit to these measurements than the Diana model. All sensor and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
+#+CAPTION[Linear regression of y translation responses]: Linear regression of vertical translation responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the vertical translation at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements and shows the values are in very good agreement. The OpenSees model has a better fit to these measurements than the Diana model. All sensor and truck positions considered are given in Table TODO and Figure TODO respectively.
 #+ATTR_LATEX: :height 1\textwidth
 [[./saved-images/regression/regression-displa.pdf]]
 
 #+NAME: fig:regress-strain
-#+CAPTION[Linear regression of strain responses]: Linear regression of longitudinal strain responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the strain at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements, the OpenSees model has a better fit to these measurements than the Diana model, however clearly the strain values do not match as closely as vertical translation in Figure [[fig:regress-displa]]. All sensor and truck positions considered are given in Table [[tbl:sensor-pos]] and Figure [[fig:truck-pos]] respectively.
+#+CAPTION[Linear regression of strain responses]: Linear regression of longitudinal strain responses from the experimental campaign against responses from simulation with OpenSees and Diana. Each plot is for a combination of two data sources. Each blue point compares the strain at one sensor from one loading position, between two data sources. The x-axis is the value from 1 data source, and the y-axis the value from the other data source. The second plot compares OpenSees with the experimental measurements, the OpenSees model has a better fit to these measurements than the Diana model, however clearly the strain values do not match as closely as vertical translation in Figure TODO. All sensor and truck positions considered are given in Table TODO and Figure TODO respectively.
 #+ATTR_LATEX: :height 1\textwidth
 [[./saved-images/regression/regression-strain.pdf]]
 
@@ -2240,6 +2216,7 @@ translation responses calculated on a grid, from a simulation where a point load
 is placed at point A (defined in Table [[tbl:loading-positions]]) at $x = 34.955$
 and $z = 29.226$ meters. In Figure [[fig:converge-strain]] a similar plot is shown
 but for longitudinal strain instead of vertical translation.
+
 \textcolor{red}{Update images (fine on grid) and comment on convergence} In
 order to determine the distance from point load simulations at which strain can
 be expected to converge, the strain is plotted at multiple distance from a point
@@ -2248,18 +2225,21 @@ shows that strain has converged in each of the directions shown within $\approx
 \SI{1.5}{\meter}$. \textcolor{red}{Fix word wrap around small Figures.}
 
 #+NAME: fig:point-a-nesw
-#+CAPTION[Strain convergence at distance from point load A]: Strain convergence at increasing distance from the point load at A. Each plotted line shows the strain response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from point A, in one of the 4 cardinal directions.
+#+CAPTION[Strain convergence at increasing distance from point load at A]: Strain convergence at increasing distance from the point load at A. Each plotted line shows the strain response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from point A, in one of the 4 cardinal directions.
 #+ATTR_LATEX: :float wrap :width 0.45\textwidth
 [[./saved-images/convergence-pl/convergencestrain-pl-a.pdf]]
 
+\textcolor{red}{TODO: Update or re-run image and fix caption}
+\textcolor{red}{Use image on grid and fix caption}
+
 #+NAME: fig:converge-displa
 #+ATTR_LATEX: :float wrap :width 0.4\textwidth
-#+CAPTION[Convergence of vertical translation]: Minimum, maximum and mean vertical translation, from a simulation of bridge 705 with a point load at point A. The x-axis shows the number of nodes in the FEM. The y-axis is the vertical translation normalized to the mean of the final 5 values of that plotted response line. When the model size has reached 24'000 nodes... \textcolor{red}{Update/re-run image and fix caption}
+#+CAPTION[Convergence of vertical translation]: Minimum, maximum and mean vertical translation, from a simulation of bridge 705 with a point load at point A. The x-axis shows the number of nodes in the FEM. The y-axis is the vertical translation normalized to the mean of the final 5 values of that plotted response line. When the model size has reached 24'000 nodes...
 [[./saved-images/convergence-pl/min-max-displa.pdf]]
 
 #+NAME: fig:converge-strain
 #+ATTR_LATEX: :float wrap :width 0.4\textwidth
-#+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 with a point load at point A. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 24'000 nodes... \textcolor{red}{Use image on grid and fix caption}
+#+CAPTION[Convergence of strain]: Minimum, maximum and mean strain, from a simulation of bridge 705 with a point load at point A. The x-axis shows the number of nodes in the FEM. The y-axis is the strain normalized to the mean of the final 5 values of that plotted response line. The maximum response is the maximum response from any node. TODO, minimum and mean strain are all shown to converge at similar rates. When the model size has reached 24'000 nodes...
 [[./saved-images/convergence-pl/min-max-strain.pdf]]
 
 # Convergence at NESW.
@@ -2330,22 +2310,22 @@ converted to stresses via Young's modulus.
 
 #+NAME: fig:pd-4d-axis
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Vert. trans. from settlement of pier 4 with AxisVM]: Vertical translation recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, and the bridge deck raises by a maximum of $\SI{0.141}{\meter}. \textcolor{red}{Fix units.}
+#+CAPTION[Vert. trans. from settlement of pier 4 with AxisVM]: Vertical translation recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by 1 mm. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, and the bridge deck raises by a maximum of 0.141 mm.
 [[./saved-images/piers/4-axis-displa.pdf]]
 
 #+NAME: fig:pd-4d-os
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Vert. trans. from settlement of pier 4 with OpenSees]: Vertical translation recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, and the bridge deck raises by a maximum of $\SI{0.129}{\meter}$. \textcolor{red}{Fix units.}
+#+CAPTION[Vert. trans. from settlement of pier 4 with OpenSees]: Vertical translation recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by 1 mm. The maximum (dark blue) vertical translation is on the order of the displacement applied to the pier, and the bridge deck raises by a maximum of 0.129 mm.
 [[./saved-images/piers/pier-4-y-translation.pdf]]
 
 #+NAME: fig:pd-4s-axis
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Stress from settlement of pier 4 with AxisVm]: Longitudinal stress recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The responses are in excellent agreement with OpenSees in Figure [[fig:pd-4s-os]]. The minimum stresses are beyond the range of those recorded with OpenSees as indicated by the white area inside the blue. \textcolor{red}{Fix title and missing legend}
+#+CAPTION[Stress from settlement of pier 4 with AxisVm]: Longitudinal stress recorded with AxisVM when pier 4 of bridge 705 is displaced vertically by 1 mm. The responses are in excellent agreement with OpenSees in Figure TODO. The minimum stresses are beyond the range of those recorded with OpenSees as indicated by the white area inside the blue.
 [[./saved-images/piers/4-axis-stress.pdf]]
 
 #+NAME: fig:pd-4s-os
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Stress from settlement of pier 4 with OpenSees]: Longitudinal stress recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by $\SI{1}{\millimeter}$. The responses share the same colorbar as the simulation with AxisVM above and are in excellent agreement.
+#+CAPTION[Stress from settlement of pier 4 with OpenSees]: Longitudinal stress recorded with OpenSees when pier 4 of bridge 705 is displaced vertically by 1 mm. The responses share the same colorbar as the simulation with AxisVM above and are in excellent agreement.
 [[./saved-images/piers/pier-4-stress.pdf]]
 
 # Agreement between AxisVM and OpenSees.
@@ -2362,8 +2342,8 @@ pier 4 in Figure [[fig:pier-4-nesw]], and in Figure [[fig:pier-5-nesw]] in Appen
 [[sec:app:pier]] for pier 5.
 
 #+NAME: fig:pier-4-nesw
-#+CAPTION[Stress convergence at distance from pier 4]: Stress convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the stress response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from the north-western point of the pier, in one of the 4 cardinal directions.
 #+ATTR_LATEX: :float wrap :width 0.38\textwidth :placement {r}{0.4\textwidth}
+#+CAPTION[Stress convergence at distance from pier 4]: Stress convergence at increasing distance from the north-western (NW) point of pier 4. Each plotted line shows the stress response at a point, as model size is increased via the MSL parameter. In each of the 4 plots the lines are coloured to show the distance from the north-western point of the pier, in one of the 4 cardinal directions.
 [[./saved-images/convergence-piers/nesw-pier-4.pdf]]
 
 ***** Temperature Load
@@ -2393,22 +2373,24 @@ that the stress recorded is in good agreement.
 
 #+NAME: fig:thermal-uniform-y-axis
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Vert. trans. from uniform temperature loading in AxisVM]: Vertical translation from $\SI{+1}{\celsius}$ uniform temperature loading of the deck of bridge 705 with AxisVM. The responses are in excellent agreement with OpenSees in Figure [[fig:thermal-uniform-y-os]] but the maximum and minimums are slightly beyond the range of the OpenSees results, as indicated by the white areas.
+#+CAPTION[Y translation from uniform temperature loading in AxisVM]: Vertical translation from 1 °C uniform temperature loading of the deck of bridge 705 with AxisVM. The responses are in excellent agreement with OpenSees in Figure TODO but the maximum and minimums are slightly beyond the range of the OpenSees results, as indicated by the white areas.
 [[./saved-images/thermal/axis-ytrans-axial.pdf]]
+
+\textcolor{red}{Fix colorbar maximum}
 
 #+NAME: fig:thermal-uniform-y-os
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Vert. trans. from uniform temperature loading in OpenSees]: Vertical translation from $\SI{+1}{\celsius}$ uniform temperature loading of the deck of bridge 705 with OpenSees. The responses are in excellent agreement with AxisVM in Figure [[fig:thermal-uniform-y-os]]. \textcolor{red}{Fix colorbar maximum (should't be white in center of both plots)}
+#+CAPTION[Y translation from uniform temperature loading in OpenSees]: Vertical translation from 1 °C uniform temperature loading of the deck of bridge 705 with OpenSees. The responses are in excellent agreement with AxisVM in Figure TODO.
 [[./saved-images/thermal/thermal-deck-unit-axial_load-y-translation.pdf]]
 
 #+NAME: fig:thermal-uniform-s-axis
 #+ATTR_LaTeX: :placement [!p] :height 0.5\textwidth
-#+CAPTION[Stress from uniform temperature loading in AxisVM]: Stress from $\SI{+1}{\celsius}$ uniform temperature loading of the deck of bridge 705 with AxisVM.
+#+CAPTION[Stress from uniform temperature loading in AxisVM]: Stress from 1 °C uniform temperature loading of the deck of bridge 705 with AxisVM.
 [[./saved-images/thermal/axis-stress-axial.pdf]]
 
 #+NAME: fig:thermal-uniform-s-os
 #+ATTR_LaTeX: :height 0.5\textwidth
-#+CAPTION[Stress from uniform temperature loading in OpenSees]: Stress from $\SI{+1}{\celsius}$ uniform temperature loading of the deck of bridge 705 with OpenSees. \textcolor{red}{Of the model this is the last bit that really needs to be fixed, vertical translation from the same simulation matches well, and both vertical translation and stress match well for the linear component, so this is likely in post-processing, or try increase model size for the temperature simulations (only 1)}
+#+CAPTION[Stress from uniform temperature loading in OpenSees]: Stress from 1 °C uniform temperature loading of the deck of bridge 705 with OpenSees. \textcolor{red}{FIX!}
 [[./saved-images/thermal/thermal-deck-unit-axial_load-stress.pdf]]
 
 ***** Conclusion
@@ -2579,15 +2561,16 @@ biggest problems affecting concrete bridge decks, and most of the cracking
 occurs around mid‐span between piers and not over the piers. For these reasons
 the cracking that will be modeled for damage detection is a transverse crack
 zone at mid-span of bridge 705's central span. The crack zone extends from the
-edge bridge 705 to the center and is 0.5 m wide. The decision to use 0.5 m is
-based on the visual inspection of photos of a number of cracked concrete bridge
-decks, and from the bridge deck cracking investigation cite:vargas2012bridge.
-The crack zone occurs across the southern lane, the deck of bridge 705 in the
-cracked concrete damage scenario is shown in Figure [[fig:crack-1]].
+south edge of bridge 705 to the center and is 0.5 m wide. The decision to use
+0.5 m is based on the visual inspection of photos of a number of cracked
+concrete bridge decks, and from the bridge deck cracking investigation
+cite:vargas2012bridge. The crack zone occurs across the southern lane, the deck
+of bridge 705 in the cracked concrete damage scenario is shown in Figure
+[[fig:crack-1]].
 
 #+NAME: fig:crack-1
-#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 0.5 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to $\frac{1}{2}$ of its original value.
 #+ATTR_LATEX: :placement [t]
+#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 0.5 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to 0.5 times its original value.
 [[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
 
 # Non-linear crack behaviour.
@@ -2602,8 +2585,8 @@ uniform bending of a reinforced concrete slab, according to this work the "fall
 back down" is not expected.
 
 #+NAME: fig:crack-moment
-#+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment $M_{cr}$ is reached the response, as shown in the black line, is non-linear. This image is from cite:gilbert2013time.
 #+ATTR_LATEX: :float wrap :width 0.45\textwidth :placement {hr}{0.4\textwidth}
+#+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment is reached, the response is non-linear. This image is from cite:gilbert2013time.
 [[./saved-images/crack/crack-moment.png]]
 
 # Pier settlement damage.
@@ -2697,14 +2680,6 @@ that could cause false positives in classification.
 
 ** Bridge 705
 
-# #+CAPTION: Density of the deck of the generated FEM of bridge 705 in kilogram per meter. The bridge deck under the tram lane, in the center of the bridge (light green), is the most dense (2.9 kg/m). The deck under the traffic lanes (teal green) is slightly less dense at (2.845 kg/mg) and the purple areas in-between are the least dense at approximately 2.6 kg/m. The material properties are symmetric across the longitudinal center of the bridge.
-# #+NAME: fig:bridge-705-density
-# [[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/density-parula-outline-false-lanes-true.pdf]]
-
-#+CAPTION: Young's modulus of the deck of the generated FEM of bridge 705 in mega Pascal. The bridge deck under the tram lane, in the center of the bridge (yellow), has the highest modulus of elasticity at 41291 MPa. The deck under the traffic lanes (blue) has a lower value of 41291 MPa and the purple areas in-between have the lowest value at 38400 MPa. The material properties are symmetric across the width of the bridge.
-#+NAME: fig:bridge-705-youngs
-[[../../saved-generated-data-images/bridge-705-full-3d/healthy/geometry/deck-shells-unrefined-top-view/young's-modulus-parula-outline-false-lanes-true.pdf]]
-
 #+NAME: tbl:bridge-705-props
 #+CAPTION[Material properties of bridge 705]: Material properties of the deck of the generated FEM of bridge 705. The first column determines the position where a material property begins, in meters from the southern edge of the bridge. The second column gives the material density in kilogram per meter, the second column gives the thickness in meters, and the third column gives Young's modulus in mega Pascal.
 | position |   density | thickness | youngs |
@@ -2746,7 +2721,7 @@ that could cause false positives in classification.
 # TODO: Update values and tables.
 
 #+NAME: tbl:diana-nodes
-#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana bridge 705 model. Each node corresponds to a loading position in Table [[tbl:loading-positions]]. Providing this information allows for the contour plots from the Diana model to be reproduced, by anyone with a licence for the Diana software. The Diana model can either be requested from the thesis author, or can be found in the =traffic-sim= GitHub repository.
+#+CAPTION[Nodes chosen for loading in Diana]: Identifiers of nodes in the Diana bridge 705 model. Each node corresponds to a loading position in Table TODO. Providing this information allows for the contour plots from the Diana model to be reproduced, by anyone with a licence for the Diana software. The Diana model can either be requested from the thesis author, or can be found in the =traffic-sim= GitHub repository.
 | Label | Node identifier |        X |        Z |
 |-------+-----------------+----------+----------|
 | A     | 126'679         | 34.95459 | 26.24579 |
@@ -2755,7 +2730,7 @@ that could cause false positives in classification.
 | D     | 54'603          | 102.5037 | 6.954211 |
 
 #+NAME: tbl:max-displacement
-#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
 | Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
 |-------+------------+---------------+------------+---------------|
 | A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
@@ -2767,7 +2742,7 @@ that could cause false positives in classification.
 #+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 #+NAME: tbl:min-displacement
-#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table [[tbl:loading-positions]]. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
 | Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
 |-------+------------+---------------+------------+---------------|
 | A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
@@ -2779,52 +2754,52 @@ that could cause false positives in classification.
 #+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 #+NAME: fig:comp-diana-b-y
-#+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b-y]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 51.251 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 #+ATTR_LaTeX: :placement [!p]
 [[./saved-images/diana-comp/b-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-b-y
-#+CAPTION[Displacement in OpenSees from a point load (B)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 52.521$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-b-y]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from a point load (B)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 52.521 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/b-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-b-s
-#+CAPTION[Strain in Diana from a point load (B)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 51.251$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-b-s]] from simulation with OpenSees.
+#+CAPTION[Strain in Diana from a point load (B)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 51.251 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/b-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-b-s
-#+CAPTION[Strain in OpenSees from a point load (B)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 52.521$ meters and $z = 16.6$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-b-s]] from simulation with Diana.
+#+CAPTION[Strain in OpenSees from a point load (B)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 52.521 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/b-strain.pdf]]
 
 #+NAME: fig:comp-diana-c-y
-#+CAPTION[Displacement in Diana from a point load (C)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-c-y]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (C)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 92.406 meters and z = 12.405 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/c-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-c-y
-#+CAPTION[Displacement in OpenSees from a point load (C)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-c-y]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from a point load (C)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 92.406 m and z = 12.405 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/c-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-c-s
-#+CAPTION[Strain in Diana from a point load (C)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-c-s]] from simulation with OpenSees.
+#+CAPTION[Strain in Diana from a point load (C)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 92.406 m and z = 12.405 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/c-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-c-s
-#+CAPTION[Displacement in OpenSees from a point load (C)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 92.406$ meters and $z = 12.405$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-c-s]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from a point load (C)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 92.406 m and z = 12.405 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/c-strain.pdf]]
 
 #+NAME: fig:comp-diana-d-y
-#+CAPTION[Displacement in Diana from a point load (D)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d-y]] from simulation with OpenSees.
+#+CAPTION[Displacement in Diana from a point load (D)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 101.765 m and z = 3.974 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/d-diana-y-translation.pdf]]
 
 #+NAME: fig:comp-os-d-y
-#+CAPTION[Displacement in OpenSees from point load (D)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d-y]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from point load (D)]: Displacement from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 101.765 m and z = 3.974 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/d-y-translation.pdf]]
 
 #+NAME: fig:comp-diana-d-s
-#+CAPTION[Strain in Diana from a point load (D)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-os-d-s]] from simulation with OpenSees.
+#+CAPTION[Strain in Diana from a point load (D)]: Strain from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 101.765 m and z = 3.974 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
 [[./saved-images/diana-comp/d-diana-strain.pdf]]
 
 #+NAME: fig:comp-os-d-s
-#+CAPTION[Displacement in OpenSees from point load (D)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at $x = 101.765$ meters and $z = 3.974$ meters. The responses in this Figure match closely to the responses in Figure [[fig:comp-diana-d-s]] from simulation with Diana.
+#+CAPTION[Displacement in OpenSees from point load (D)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 101.765 m and z = 3.974 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/d-strain.pdf]]
 
 #+LATEX: \clearpage
@@ -2832,18 +2807,18 @@ that could cause false positives in classification.
 <<sec:app:expt>>
 
 #+NAME: fig:noise-displa
-#+CAPTION[Noise for vert. trans. sensors]: Unprocessed responses, and estimated noise, from vertical translation sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting a Savgol filter with window size 31 and degree 3 to the unprocessed data.
 #+ATTR_LATEX: :height 1\textwidth
+#+CAPTION[Noise for Y translation sensors]: Unprocessed responses, and estimated noise, from vertical translation sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting a Savgol filter with window size 31 and degree 3 to the unprocessed data.
 [[./saved-images/noise/noise-displa.pdf]]
 
 #+NAME: fig:noise-strain
-#+CAPTION[Noise for strain sensors]: Unprocessed responses, and estimated noise, from strain sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting Savgol filter with window size 31 and degree 3 to the unprocessed data.
 #+ATTR_LATEX: :height 1\textwidth
+#+CAPTION[Noise for strain sensors]: Unprocessed responses, and estimated noise, from strain sensors in dynamic test 1 in the experimental campaign. The standard deviation of the noise is estimated on the result of fitting and subtracting Savgol filter with window size 31 and degree 3 to the unprocessed data.
 [[./saved-images/noise/noise-strain.pdf]]
 
 #+NAME: fig:truck-pos
-#+CAPTION[Truck 1 positions in campaign]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as =S1= to =S13=. In this image the distance 1012.5mm is shown from the west abutment of the bridge to position =S1=. It should be noted that there is an additional 375mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 #+ATTR_LATEX: :float sideways
+#+CAPTION[Truck 1 positions in campaign]: Positions of the front axle of truck 1 during the experimental campaign. The positions are labeled as S1 to S13. In this image the distance 1012.5 mm is shown from the west abutment of the bridge to position S1. It should be noted that there is an additional 375 mm to the west-most end of the bridge, this is the overlap of the abument and the bridge. This image is provided by TNO.
 [[./images/truck-pos.png]]
 
 #+NAME: tbl:sensor-pos
@@ -2945,50 +2920,49 @@ that could cause false positives in classification.
 <<sec:app:pier>>
 
 #+NAME: fig:pd-5d-axis
-#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
 #+ATTR_LATEX: :height 0.5\textwidth :placement [h]
+#+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by 1 m. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
 [[./saved-images/piers/5-axis-displa.pdf]]
 
 #+NAME: fig:pd-5d-os
-#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
 #+ATTR_LATEX: :height 0.5\textwidth :placement [h]
+#+CAPTION[Displacement from pier (5) settlement with OpenSees]: Displacement recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by 1 m. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
 [[./saved-images/piers/pier-5-y-translation.pdf]]
 
 #+NAME: fig:pd-5s-axis
-#+CAPTION[Stress from pier (5) settlement with AxisVM]: Stress recorded in AxisVM when a pier (5) of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
 #+ATTR_LATEX: :height 0.5\textwidth :placement [h]
+#+CAPTION[Stress from pier (5) settlement with AxisVM]: Stress recorded in AxisVM when a pier (5) of bridge 705 is displaced by 1 m. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the maximum.
 [[./saved-images/piers/5-axis-stress.pdf]]
 
 #+NAME: fig:pd-5s-os
-#+CAPTION[Stress from pier (5) settlement with OpenSees]: Stress recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by $\SI{1}{\meter}$. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
 #+ATTR_LATEX: :height 0.5\textwidth :placement [h]
+#+CAPTION[Stress from pier (5) settlement with OpenSees]: Stress recorded with OpenSees when a pier (5) of the generated FEM of bridge 705 is displaced by 1 m. The colours indicate the amount that the bridge deck is displaced, dark red is the maximum stress recorded and dark blue the minimum.
 [[./saved-images/piers/pier-5-stress.pdf]]
 
 #+NAME: fig:pier-5-nesw
-#+CAPTION[Strain convergence at distances from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
+#+CAPTION[Strain convergence at increasing distance from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
 [[./saved-images/convergence-piers/nesw-pier-5.pdf]]
 
 ** Temperature Load
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:thermal-linear-y-axis
-#+CAPTION[Vert. trans. from linear temperature loading with AxisVM]: Vertical translation from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
+#+CAPTION[Y translation from linear temperature loading with AxisVM]: Vertical translation from 1 °C linear temperature loading of the deck of bridge 705 with AxisVM.
 [[./saved-images/thermal/axis-ytrans-moment.pdf]]
 
 #+NAME: fig:thermal-linear-y-os
-#+CAPTION[Vert. trans. from linear temperature loading with OpenSees]: Vertical translation from $\SI{+1}{\celsius}$ linear tempearature loading of the deck of bridge 705 with OpenSees.
+#+CAPTION[Y translation from linear temperature loading with OpenSees]: Vertical translation from 1 °C linear tempearature loading of the deck of bridge 705 with OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-moment_load-y-translation.pdf]]
 
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:thermal-linear-s-axis
-#+CAPTION[Stress from linear temperature loading with AxisVM]: Stress from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with AxisVM.
+#+CAPTION[Stress from linear temperature loading with AxisVM]: Stress from 1 °C linear temperature loading of the deck of bridge 705 with AxisVM.
 [[./saved-images/thermal/axis-stress-moment.pdf]]
 
 #+NAME: fig:thermal-linear-s-os
-#+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from $\SI{+1}{\celsius}$ linear temperature loading of the deck of bridge 705 with OpenSees.
+#+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from 1 °C linear temperature loading of the deck of bridge 705 with OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-moment_load-stress.pdf]]
 
 #+LATEX: \clearpage
 bibliographystyle:ieeetr
-
 bibliography:myrefs.bib
