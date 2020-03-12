@@ -2621,9 +2621,7 @@ damage can be easily mistaken for long-term environmental effects, such as the
 annual fluctuation in temperature. Therefore the primary challenge in detecting
 long-term damage is the removal of long-term environmental effects. With
 short-term damage the challenge lies in detecting a sudden change in the time
-series of sensor responses. Some short-term changes may not affect the structure
-and in this case the time series of responses is expected to return to normal.
-damage which can
+series of sensor responses.
 
 The thermal effect applied to a bridge will depend on factors including the
 intensity of the solar radiation, air temperature and wind speed. The effect of
@@ -2632,7 +2630,19 @@ not, which is consistent with the findings in cite:thepchatri1977prediction. It
 is for these reasons that pier settlement is a relatively easy type of long-term
 damage to detect, because the response due to temperature and the response due
 to pier settlement have an almost orthogonal effect on vertical translation and
-strain.
+strain. Pier settlement is expected to behave non-linearly on bridge 705 beyond
+\textcolor{red}{TODO $\approx$}, taking into account the additional stress from
+temperature and traffic load. However pier settlement can be detected at
+\textcolor{red}{TODO}, before cracking. Not many sensors are required in order
+to detect pier settlement, as sensors close to the pier are all sensitive to
+that type of damage, therefore it is suggested that only 1 vertical translation
+sensor is required per supporting pier.
+
+Some short-term damage may not permanently affect the structure and in this case
+the time series of responses is expected to return to normal. Detection of
+damage which causes a permanent change in the response of a structure will
+reduce the amount of false positive detections at the expence of not detecting
+some damage.
 
 ** Future Research
 
@@ -2662,10 +2672,10 @@ previous work (not just the previous results) which is most easily done if the
 previous work has made an effort to be re-usable. **2** Creating a re-usable
 model will reduce the barrier to entry for others interested in doing research
 on damage detection of bridges. **3** Many bridges are built with similar
-materials and with similar geometry, thus one model of a bridge can be adapted
+materials and have similar geometry, thus one model of a bridge can be adapted
 to other bridges. In the vision of creating "digital twins" of bridges, creating
 re-usable models will allow for targeting many more bridges and the models of
-those bridges will be of higher quality.
+those types of bridges will be of higher quality.
 
 #+LATEX: \clearpage
 * Appendix
