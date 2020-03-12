@@ -374,11 +374,11 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
         response_type=ResponseType.Strain,
         sim_runner=OSRunner(c),
     )
-    plt.portrait()
+    plt.landscape()
     plt.subplot(2, 1, 1)
-    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
-    plt.title("Healthy")
+    plt.title("Truck 1 on healthy bridge")
     c = transverse_crack().use(c)[0]
     sim_responses = load_fem_responses(
         c=c,
@@ -387,9 +387,9 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
         sim_runner=OSRunner(c),
     )
     plt.subplot(2, 1, 2)
-    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
-    plt.title("Cracked")
+    plt.title("Truck 1 on cracked bridge")
     plt.tight_layout()
     plt.savefig(
         original_c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")

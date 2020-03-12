@@ -35,23 +35,23 @@ I would like to thank...
 # Commands #
 # -------- #
 
-# ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --cracked
-# ./cli.sh --mesh med --save-to /d/saved/mesh-med-600 simulate uls --healthy
-# ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --cracked
-# ./cli.sh --mesh full --save-to /d/saved/mesh-full-600 simulate uls --healthy
-# ./cli.sh --mesh full --save-to /d/saved/diana-comp validate diana-comp
-# ./cli.sh --mesh full --save-to /d/saved/r2 --shorten-paths true validate r2
-# ./cli.sh --save-to /d/saved/conv-pl validate convergence
-# ./cli.sh --save-to /d/saved/conv-pl validate convergence-nesw --fp
-# /d/saved/conv-pl/generated-data-images/convergence/strain-pl-a-convergence.txt
+# ./cli.sh --mesh med --save-to /e/saved/mesh-med-600 simulate uls --cracked
+# ./cli.sh --mesh med --save-to /e/saved/mesh-med-600 simulate uls --healthy
+# ./cli.sh --mesh full --save-to /e/saved/mesh-full-600 simulate uls --cracked
+# ./cli.sh --mesh full --save-to /e/saved/mesh-full-600 simulate uls --healthy
+# ./cli.sh --mesh full --save-to /e/saved/diana-comp validate diana-comp
+# ./cli.sh --mesh full --save-to /e/saved/r2 --shorten-paths true validate r2
+# ./cli.sh --save-to /e/saved/conv-pl validate convergence
+# ./cli.sh --save-to /e/saved/conv-pl validate convergence-nesw --fp
+# /e/saved/conv-pl/generated-data-images/convergence/strain-pl-a-convergence.txt
 # --at 'point load at A' --to pl-a
-# ./cli.sh --save-to /d/saved/pier-4 validate pier-conv --pier 4 --max-nodes
+# ./cli.sh --save-to /e/saved/pier-4 validate pier-conv --pier 4 --max-nodes
 # 100000 --without-radius 2 --nesw-loc 0 --nesw-max-dist 5 --max-shell-len 2
 # --min-shell-len 0.35
-# ./cli.sh --shorten-paths true --save-to /d/saved/temp-plots --mesh full
+# ./cli.sh --shorten-paths true --save-to /e/saved/temp-plots --mesh full
 # validate stress-strength
-# ./cli.sh --save-to /d/saved/temp-plots --mesh full classify temp-gradient
-# ./cli.sh --save-to /d/saved/temp-plots --mesh full classify temp-contour
+# ./cli.sh --save-to /e/saved/temp-plots --mesh full classify temp-gradient
+# ./cli.sh --save-to /e/saved/temp-plots --mesh full classify temp-contour
 # --bottom 21 --top 30
 
 # Old commands
@@ -2646,7 +2646,7 @@ some damage.
 
 ** Future Research
 
-It is suggested that further research on damage detection to concrete slab
+It is suggested that further research on damage detection of concrete slab
 bridges, or indeed other bridges, focuses on the creation of **re-usable
 models** that aim to be **highly realistic**, including dynamic effects and an
 improved environmental model (wind speed, angle of the sun, shrink, creepage).
@@ -2664,14 +2664,14 @@ should focus immediately on highly realistic modeling.
 If the confidence in =D= depends on the quality of =M= then it is likely that
 any future research will spend a significant amount of time on the development
 of a model of a bridge and it's environment. The suggestion of creating
-re-usable models is given for three reasons. **1** The work done in building the
-model =M= should not be "thrown away" each time new research is undertaken, if
-the confidence in =D= depends on the quality of =M= then research should not
+re-usable models is given for three reasons. **1.** The work done in building
+the model =M= should not be "thrown away" each time new research is undertaken,
+if the confidence in =D= depends on the quality of =M= then research should not
 start building =M= from scratch every time and instead aim to build upon the
 previous work (not just the previous results) which is most easily done if the
-previous work has made an effort to be re-usable. **2** Creating a re-usable
+previous work has made an effort to be re-usable. **2.** Creating a re-usable
 model will reduce the barrier to entry for others interested in doing research
-on damage detection of bridges. **3** Many bridges are built with similar
+on damage detection of bridges. **3.** Many bridges are built with similar
 materials and have similar geometry, thus one model of a bridge can be adapted
 to other bridges. Toward a vision of creating "digital twins" of bridges,
 creating re-usable models will allow for targeting many more bridges in the
@@ -2679,8 +2679,14 @@ national stock and the models of those bridge types will be of higher quality.
 
 Finally it is suggested that sensors are installed on a concrete slab bridge and
 the data made available in real-time to researchers. The sensors should record
-traffic with weight-in-motion technology, and sensors should record air
-temperature, wind speed and solar radiation.
+traffic with weigh-in-motion technology in order to accurately model the traffic
+on the bridge, should record air temperature, wind speed, solar radiation and
+the temperature at the top and bottom of the bridge deck in order to validate
+and better understand the effect of temperature on the bridge. And finally, and
+perhaps most importantly, the translation and strain sensors on the bridge
+should record the responses under operational conditions in order to get more
+realistic information about the noise or unexplained variations in the signal
+that could cause false positives in classification.
 
 #+LATEX: \clearpage
 * Appendix
