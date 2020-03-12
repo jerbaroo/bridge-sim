@@ -383,6 +383,9 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
         response_type=response_type,
         sim_runner=OSRunner(c),
     )
+    if response_type == ResponseType.YTranslation:
+        healthy_responses = healthy_responses.resize()
+        crack_responses = crack_responses.resize()
     vmin = min(vmin, min(crack_responses.values()))
     vmax = max(vmax, max(crack_responses.values()))
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
