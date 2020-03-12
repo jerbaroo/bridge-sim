@@ -557,14 +557,6 @@ def comp_load_positions():
     compare_load_positions(c())
 
 
-@verify.command(help="Contour plot of Truck 1 at given x position.")
-@click.option("--x", type=float, default=40, help="X positions of Truck 1.")
-def truck1_contour(x: float):
-    from make.verify import truck1_contour
-
-    truck1_contour(c=c(), x=x)
-
-
 @verify.command(help="Contour plot of a unit load simulation.")
 @click.option(
     "--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0)."
@@ -572,7 +564,7 @@ def truck1_contour(x: float):
 @click.option(
     "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
 )
-@click.option("--rt", type=click.Choice(["strain", "ytrans"]))
+@click.option("--rt", required=True, type=click.Choice(["strain", "ytrans"]))
 def uls_contour(x_i: int, z_i: int, rt: str):
     from make.verify import uls_contour_plot
 
@@ -582,6 +574,22 @@ def uls_contour(x_i: int, z_i: int, rt: str):
         response_type = ResponseType.YTranslation
 
     uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
+
+
+@verify.command(help="Contour plot of truck 1, healthy & cracked.")
+@click.option(
+    "--x", type=int, default=51.8, help="X position of Truck 1's front axle."
+)
+@click.option("--rt", required=True, type=click.Choice(["strain", "ytrans"]))
+def truck1_contour(x: int, rt: str):
+    from make.verify import wagen_1_contour_plot
+
+    if rt == "strain":
+        response_type = ResponseType.Strain
+    elif rt == "ytrans":
+        response_type = ResponseType.YTranslation
+
+    wagen_1_contour_plot(c=c(), x=x, response_type=response_type)
 
 
 ####################

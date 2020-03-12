@@ -27,6 +27,10 @@ I would like to thank...
 #+LATEX: \listoftables
 #+LATEX: \newpage
 
+# Say that the difference in Diana comparison is removed because of the many
+# loads that belong to a single vehicle. But will be a little bit above, as seen
+# in the time series plots.
+
 # -------- #
 # Commands #
 # -------- #
@@ -2609,16 +2613,59 @@ that can become very dense as moisture is removed. Pier settlement is modeled at
 a number of different severities, in order to determine at what severity of
 settlement the pier settlement can be detected.
 
+#+LATEX: \newpage
 * Results
 
-** Simulation
+Damage to a bridge can be classified as long-term or short-term. Long-term
+damage can be easily mistaken for long-term environmental effects, such as the
+annual fluctuation in temperature. Therefore the primary challenge in detecting
+long-term damage is the removal of long-term environmental effects. With
+short-term damage the challenge lies in detecting a sudden change in the time
+series of sensor responses. Some short-term changes may not affect the structure
+and in this case the time series of responses is expected to return to normal.
+damage which can
 
-The temperature gradient of the bridge will be affected by the intensity of the
-solar radiation, air temperature and wind speed. The effect of stresses from
-thermal loading are significant but the deflections are not, which is consistent
-with the findings in cite:thepchatri1977prediction.
+The thermal effect applied to a bridge will depend on factors including the
+intensity of the solar radiation, air temperature and wind speed. The effect of
+stresses from thermal loading are significant but the vertical translations are
+not, which is consistent with the findings in cite:thepchatri1977prediction. It
+is for these reasons that pier settlement is a relatively easy type of long-term
+damage to detect, because the response due to temperature and the response due
+to pier settlement have an almost orthogonal effect on vertical translation and
+strain.
 
-** Damage Identification
+** Future Research
+
+It is suggested that further research on damage detection to concrete slab
+bridges, or indeed other bridges, focuses on the creation of **re-usable
+models** that aim to be **highly realistic**, including dynamic effects and an
+improved environmental model (wind speed, angle of the sun, shrink, creepage).
+
+When building a model the goal is usually to make the model as simple as
+possible while not making it too simple that it cannot capture what is being
+examined. In the case of damage detection of bridges, one cannot go around
+damaging bridges and so a model =M= of the bridge and it's environment may be
+built and a second model =D= built to detect damage on the output of =M=, now we
+are building models built on models! Furthermore, the implementor of =D= may be
+familiar with the inner workings of =M=! The confidence in the results of =D=
+will depend on the quality of =M= and it is for this reason that future work
+should focus immediately on highly realistic modeling.
+
+If the confidence in =D= depends on the quality of =M= then it is likely that
+any future research will spend a significant amount of time on the development
+of a model of a bridge and it's environment. The suggestion of creating
+re-usable models is given for three reasons. **1** The work done in building the
+model =M= should not be "thrown away" each time new research is undertaken, if
+the confidence in =D= depends on the quality of =M= then research should not
+start building =M= from scratch every time and instead aim to build upon the
+previous work (not just the previous results) which is most easily done if the
+previous work has made an effort to be re-usable. **2** Creating a re-usable
+model will reduce the barrier to entry for others interested in doing research
+on damage detection of bridges. **3** Many bridges are built with similar
+materials and with similar geometry, thus one model of a bridge can be adapted
+to other bridges. In the vision of creating "digital twins" of bridges, creating
+re-usable models will allow for targeting many more bridges and the models of
+those bridges will be of higher quality.
 
 #+LATEX: \clearpage
 * Appendix

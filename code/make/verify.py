@@ -317,26 +317,6 @@ def compare_load_positions(c: Config):
     plt.close()
 
 
-def truck1_contour(c: Config, x: float):
-    """Contour plot of Truck 1 at given x position."""
-    time = wagen1.time_at(x=x, bridge=c.bridge)
-    loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
-    # loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
-    sim_responses = load_fem_responses(
-        c=c,
-        sim_params=SimParams(ploads=loads),
-        response_type=ResponseType.Strain,
-        sim_runner=OSRunner(c),
-    )
-    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=sim_responses, ploads=loads, scatter=True)
-    plt.tight_layout()
-    plt.savefig(
-        c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")
-    )
-    plt.close()
-
-
 def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType):
     wheel_xs = c.bridge.wheel_track_xs(c)
     wheel_x = wheel_xs[x_i]
@@ -356,7 +336,8 @@ def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType)
         )
     )[0].resize()
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=healthy)
+    plot_contour_deck(c=c, responses=healthy, sci_format=True, decimals=6)
+    plt.title("Healthy")
     c = transverse_crack().use(c)[0]
     cracked = list(
         ILMatrix.load_wheel_track(
@@ -370,7 +351,8 @@ def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType)
     )[0].resize()
     plt.subplot(2, 1, 2)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=cracked)
+    plot_contour_deck(c=c, responses=cracked, sci_format=True, decimals=6)
+    plt.title("Cracked")
     plt.tight_layout()
     plt.savefig(
         c.get_image_path(
@@ -379,3 +361,37 @@ def uls_contour_plot(c: Config, x_i: int, z_i: int, response_type: ResponseType)
             + ".pdf",
         )
     )
+
+
+def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
+    original_c = c
+    LOADS = False
+    time = wagen1.time_at(x=x, bridge=c.bridge)
+    loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
+    sim_responses = load_fem_responses(
+        c=c,
+        sim_params=SimParams(ploads=loads),
+        response_type=ResponseType.Strain,
+        sim_runner=OSRunner(c),
+    )
+    plt.portrait()
+    plt.subplot(2, 1, 1)
+    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
+    plt.title("Healthy")
+    c = transverse_crack().use(c)[0]
+    sim_responses = load_fem_responses(
+        c=c,
+        sim_params=SimParams(ploads=loads),
+        response_type=ResponseType.Strain,
+        sim_runner=OSRunner(c),
+    )
+    plt.subplot(2, 1, 2)
+    top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    plot_contour_deck(c=c, responses=sim_responses, ploads=loads if LOADS else [], scatter=True)
+    plt.title("Cracked")
+    plt.tight_layout()
+    plt.savefig(
+        original_c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}") + ".pdf")
+    )
+    plt.close()
