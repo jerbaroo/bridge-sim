@@ -77,8 +77,6 @@ def make_shell_properties_top_view(
 ):
     """Make plots of the shells in top view, coloured by material property."""
     original_c = c
-    # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
-    bridge_name = c.bridge.name
     # For each damage scenario build the model and extract the shells.
     for damage_scenario, damage_name in zip(
         healthy_and_cracked_scenarios, [None, "cracked"]
@@ -139,7 +137,7 @@ def make_shell_properties_top_view(
                         top_view()
                         damage_str = "" if damage_name is None else f" ({damage_name})"
                         plt.title(
-                            f"{prop_name} of {bridge_name}'s {shells_name}{damage_str}"
+                            f"{prop_name} of bridge 705's {shells_name}{damage_str}"
                         )
                         plt.savefig(
                             c.get_image_path(
