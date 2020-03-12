@@ -799,7 +799,7 @@ the available budgets, a maintenance plan of a bridge can be presented. An
 example of such a plan for a typical concrete highway bridge is shown in Figure
 [[fig:concrete-bridge-maintenance-cost]].
 
-#+CAPTION: The maintenance cost of a typical concrete highway bridge. The y-axis shows the cost in thousands of euros. Each bar is for a period of five years and the cost is based on underlying components as indicated by the legend.
+#+CAPTION[Maintenance cost of a concrete highway bridge]: The maintenance cost of a typical concrete highway bridge. The y-axis shows the cost in thousands of euros. Each bar is for a period of five years and the cost is based on underlying components as indicated by the legend.
 #+NAME: fig:concrete-bridge-maintenance-cost
 [[./images/concrete-bridge-maintenance-cost.png]]
 
@@ -825,9 +825,10 @@ structures. After a long time the cost of replacement will be approximately 85�
 million, approximately half the cost of annual maintanence of concrete bridges
 at 37€ million.
 
-#+CAPTION: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
+#+CAPTION[Replacement cost of concrete bridges]: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
 #+NAME: fig:dutch-replacement-cost
 [[./images/dutch-replacement-cost.png]]
+
 ** Damage Types
 
 Damage to a bridge can be classified as short-term or long-term. Short-term
@@ -1399,7 +1400,7 @@ traveling in opposite directions and two tram lines in the center. The bridge
 has 24 supporting piers each of a height of 3.5 meters. Figure
 [[fig:bridge-705-real]] shows a photo of bridge 705.
 
-#+CAPTION: Bridge 705 at Cornelis Lelylaan, Amsterdam. The bridge has two traffic lanes, and two tram lanes in-between them. This photo is courtesy of TNO.
+#+CAPTION[Bridge 705 at Cornelis Lelylaan, Amsterdam]: Bridge 705 at Cornelis Lelylaan, Amsterdam. The bridge has two traffic lanes, and two tram lanes in-between them. This photo is courtesy of TNO.
 #+NAME: fig:bridge-705-real
 [[../../bridge705/bridge-705.png]]
 

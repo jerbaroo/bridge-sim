@@ -77,13 +77,13 @@ def make_shell_properties_top_view(
 ):
     """Make plots of the shells in top view, coloured by material property."""
     original_c = c
+    # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
+    bridge_name = c.bridge.name
     # For each damage scenario build the model and extract the shells.
     for damage_scenario, damage_name in zip(
         healthy_and_cracked_scenarios, [None, "cracked"]
     ):
-        c, sim_params = damage_scenario.use(original_c, SimParams([]))
-        # TODO: Hack to fix bridge name in plot title, being corrupted somewhere.
-        bridge_name = c.bridge.name
+        c, sim_params = damage_scenario.use(original_c)
         for ctx, ctx_name, refined, in [
             (
                 BuildContext(
