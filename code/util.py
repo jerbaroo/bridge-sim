@@ -18,6 +18,11 @@ init()
 DEBUG = True
 
 
+def log(c: Config, s):
+    with open(c.get_data_path("log", "log.txt"), "a") as f:
+        f.write("\n" + s)
+
+
 def resize_units(units):
     if units == "m":
         return (lambda r: r * 1e3), "mm"

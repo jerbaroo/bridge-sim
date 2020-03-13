@@ -14,7 +14,7 @@ from fem.run import FEMRunner
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
-from util import print_d, print_i, print_w, round_m, safe_str, shorten_path
+from util import log, print_d, print_i, print_w, round_m, safe_str, shorten_path
 
 # Print debug information for this file.
 D: bool = False
@@ -118,6 +118,8 @@ class ILMatrix(ResponsesMatrix):
             for sim_responses in wheel_track:
                 for j, point in enumerate(points):
                     partial[i][j] = sim_responses.at_deck(point, interp=False)
+                    if wheel_z < 0 and i == 302:
+                        log(c, f"z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}")
                 i += 1
             assert i == c.il_num_loads
             print_i(f"Calculated unit load matrix for wheel track {wheel_z}")

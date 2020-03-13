@@ -299,12 +299,25 @@ def simulate():
     pass
 
 
-@simulate.command(help="Run all unit load simulations.")
+@simulate.command(help="Run unit load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
 @click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
 @click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
 def uls(piers, healthy, cracked):
     simulations.run_uls(c=c(), piers=piers, healthy=healthy, cracked=cracked)
+
+
+@simulate.command(help="Generate unit load matrices")
+@click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
+@click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
+@click.option(
+    "--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0)."
+)
+@click.option(
+    "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
+)
+def ulm(healthy, cracked, x_i, z_i):
+    simulations.run_ulm(c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i)
 
 
 @simulate.command(help="Record information for convergence plots.")

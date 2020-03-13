@@ -15,6 +15,7 @@ from fem.responses import Responses
 from fem.responses.matrix.dc import DCMatrix
 from fem.responses.matrix.il import ILMatrix
 from fem.run import FEMRunner
+from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.load import PointLoad, MvVehicle
 from model.response import ResponseType
@@ -35,7 +36,7 @@ def responses_to_traffic_array(
     response_type: ResponseType,
     damage_scenario: "DamageScenario",
     points: List[Point],
-    sim_runner: FEMRunner,
+    sim_runner: Callable[[Config], FEMRunner] = OSRunner
 ):
     """The magic function.
 
@@ -45,18 +46,16 @@ def responses_to_traffic_array(
         damage_scenario: DamageScenario, the damage scenario of the bridge.
         response_type, ResponseType, the type of sensor response to calculate.
         points: List[Point], points on the bridge to calculate responses at.
-        sim_runner: FEMRunner, the FEM program to run simulations with.
+        sim_runner: Callable[[Config], FEMRunner], the FEM program to run
+            simulations with.
 
     """
-    # if np.count_nonzero(traffic_array) == 0:
-    #     unit_load_matrix = np.zeros(
-    #         len(c.bridge.wheel_tracks(c)) * c.il_num_loads, len(points),
-    #     )
+    use_c = damage_scenario.use(c)[0]
     unit_load_matrix = ILMatrix.load_ulm(
-        c=damage_scenario.use(c)[0],
+        c=use_c,
         response_type=response_type,
         points=points,
-        sim_runner=sim_runner,
+        sim_runner=sim_runner(use_c),
     )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)
