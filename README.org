@@ -15,11 +15,11 @@ You also need [[https://opensees.berkeley.edu/][OpenSees]], you can download it 
 Clone this repository and change into the directory:
 
 #+BEGIN_SRC bash
-git clone git@github.com:barischrooneyj/bridge-sim
-cd bridge-dss
+git clone git@github.com:barischrooneyj/bridge-sim  # or https://github.com/barischrooneyj/bridge-sim
+cd bridge-sim
 #+END_SRC bash
 
-Open the file [[code/config_sys.py]] and ensure that =Config.os_exe_path= points
+Open the Python file ~code/config_sys.py~ with a text editor and ensure that =Config.os_exe_path= points
 to the OpenSees executable installed on your system.
 
 Install project dependencies:
@@ -28,7 +28,7 @@ Install project dependencies:
 pipenv install
 #+END_SRC
 
-Now either run the CLI or browse the notebooks:
+Now either explore the CLI or browse the notebooks:
 
 #+BEGIN_SRC bash
 ./cli.sh
