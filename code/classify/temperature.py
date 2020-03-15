@@ -1,7 +1,7 @@
 import math
 import os
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -34,27 +34,33 @@ def parse_line(line):
     year, mon, day, hr, mn = (ds[0:4], ds[4:6], ds[6:8], ts[0:2], ts[2:4])
     # 2011-11-04T00:05
     dt = datetime.fromisoformat(f"{year}-{mon}-{day}T{hr}:{mn}")
-    return [dt, float(line[-11])]
+    return [dt, float(line[-15]), float(line[-13])]
 
 
-def load(name: str, offset: int = 0) -> pd.DataFrame:
+def load(name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)) -> pd.DataFrame:
     # If the file is already parsed, return it..
     name_path = os.path.join(__dir__, "data/temperature", name + ".txt")
     saved_path = name_path + ".parsed"
     if os.path.exists(saved_path):
-        temps = pd.read_csv(saved_path, index_col=0, parse_dates=["datetime"])
-        temps["temp"] = temps["temp"].add(offset)
-        return temps
+        df = pd.read_csv(saved_path, index_col=0, parse_dates=["datetime"])
+        lq = df["temp"].quantile(temp_quantile[0])
+        hq = df["temp"].quantile(temp_quantile[1])
+        print(f"Temperature {temp_quantile} quantiles = {lq}, {hq}")
+        df = df[(df["temp"] >= lq) & (df["temp"] <= hq)]
+        return df
     # ..otherwise read and parse the data.
     with open(name_path) as f:
         temps = list(map(parse_line, f.readlines()))
     # Remove NANs.
-    for line_ind, [dt, temp] in enumerate(temps):
+    for line_ind, [dt, temp, solar] in enumerate(temps):
         if np.isnan(temp):
             print_i(f"NAN in {name} temperature")
-            temps[line_ind][-1] = temps[line_ind - 1][-1]
+            temps[line_ind][1] = temps[line_ind - 1][1]
+        if np.isnan(solar):
+            print_i(f"NAN in {name} solar radiation")
+            temps[line_ind][2] = temps[line_ind - 1][2]
     # Pack it into a DataFrame.
-    df = pd.DataFrame(temps, columns=["datetime", "temp"])
+    df = pd.DataFrame(temps, columns=["datetime", "temp", "solar"])
     # Convert to celcius.
     # df["temp"] = (df["temp"] - 32) * (5 / 9)
     # Remove duplicate times.
@@ -66,12 +72,12 @@ def load(name: str, offset: int = 0) -> pd.DataFrame:
     df = df.sort_values(by=["datetime"])
     # Save.
     df.to_csv(saved_path)
-    return load_temperature(name=name, offset=offset)
+    return load(name=name)
 
 
 def from_to_mins(df, from_, to, smooth: bool = False):
     # Create times and temperatures from given data.
-    dates, temps = df["datetime"], df["temp"]
+    dates, temps, solar = df["datetime"], df["temp"], df["solar"]
     times = dates.apply(lambda d: datetime.timestamp(d))
     # Create times that are expected to return.
     result_dates, result_times = [], []
@@ -80,15 +86,17 @@ def from_to_mins(df, from_, to, smooth: bool = False):
         result_dates.append(curr)
         result_times.append(datetime.timestamp(curr))
         curr += timedelta(minutes=1)
-    # Interpolate to get result temps.
+    # Interpolate to get results.
     result_temps = interp1d(times, temps, fill_value="extrapolate")(result_times)
+    result_solar = interp1d(times, solar, fill_value="extrapolate")(result_times)
     # Pack it into a DataFrame.
     df = pd.DataFrame(
-        np.array([result_dates, result_temps]).T, columns=["datetime", "temp"]
+        np.array([result_dates, result_temps, result_solar]).T, columns=["datetime", "temp", "solar"]
     )
     # Sort.
     df = df.sort_values(by=["datetime"])
     df["temp"] = pd.to_numeric(df["temp"])
+    df["solar"] = pd.to_numeric(df["solar"])
     # Smooth.
     if smooth:
         df["temp"] = savgol_filter(df["temp"], 20, 3)
@@ -106,7 +114,7 @@ def from_to_indices(df, from_, to):
     raise ValueError("End date not found")
 
 
-def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
+def temps_bottom_top(c: Config, temps: List[float], solar: List[float], len_per_hour):
     """The top and bottom bridge temperatures for given air temperatures."""
 
     # temps_bottom = np.array(temps) - c.bridge.ref_temp_c
@@ -123,15 +131,21 @@ def temps_bottom_top(c: Config, temps: List[float], len_per_hour):
     recent_hours = 3
     sd = 0.008
     sn = 0.008
+    ss = 0.0001
     temps_s = [temps[0]]
 
-    for i, temp_a in enumerate(temps[1:]):
+    for i, (temp_a, solar) in enumerate(zip(temps[1:], solar[1:])):
         recent_start = i - (len_per_hour * recent_hours)
-        if i > 1 and temps_b[i - 1] > temps_b[i - 2]:
+        # if i > 1 and temps_b[i - 1] > temps_b[i - 2]:
+        if False:
             recent_max = np.max(temps[max(0, recent_start) : i])
             temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
         else:
-            temps_s.append((1 - sn) * temps_s[i - 1] + sn * temp_a)
+            temps_s.append(
+                (1 - sn - ss) * temps_s[i - 1]
+                + sn * temp_a
+                + ss * solar
+            )
 
     return np.array(temps_b), np.array(temps_s)
 
@@ -142,6 +156,7 @@ def effect(
     points: List[Point],
     len_per_hour: int = None,
     temps: List[float] = None,
+    solar: List[float] = None,
     temps_bt=None,
     d: bool = False,
 ) -> List[List[float]]:
@@ -193,7 +208,7 @@ def effect(
     # Determine temperature gradient throughout the bridge.
     if temps_bt is None:
         temps_bottom, temps_top = temps_bottom_top(
-            c=c, temps=temps, len_per_hour=len_per_hour
+            c=c, temps=temps, solar=solar, len_per_hour=len_per_hour
         )
     else:
         temps_bottom, temps_top = temps_bt
