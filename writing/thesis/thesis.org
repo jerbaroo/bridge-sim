@@ -141,45 +141,10 @@ Amsterdam was available at TNO (Netherlands Organisation for Applied Scientific
 Research) for the proprietary FE software package Diana. This FEM was previously
 validated against measurements from an experimental campaign. The existence of a
 validated FEM for bridge 705 allows the FEM for OpenSees to be validated by
-comparing responses under the same loading conditions in the two models. Sensor
-data collected with OpenSees is also compared directly to the measurements from
-static load tests in the experimental campaign.
-
-# Validation of temperature and pier settlement.
-An important environmental effect to consider is that of temperature. When a
-structure is heated up it will expand and when it cools down it will contract.
-In a structure such as a bridge where movement is constrained at the piers and
-abutments, forces will build up due to the thermal expansion/contraction and the
-bridge will deform. The effect of temperature and pier settlement (which is one
-of the considered damage scenarios) are validated by comparison of the responses
-generated under those conditions to the responses recorded in the FE software
-package AxisVM. AxisVM provides a graphical user interface (GUI) which allows
-for the simple visual verification of the built model, and the application of
-thermal loading or pier settlement is as easy as clicking a few buttons.
-
-# Validation of time series.
-Once the FE model is validated additional steps are still necessary in order to
+comparing responses under the same loading conditions in the two models. Once
+the FE model is validated additional steps are still necessary in order to
 combine responses generated via FE simulation under different loading conditions
-into a time series of responses under moving traffic. These time series are the
-data that will be used for damage detection, thus validating their correctness
-is paramount. To accomplish this a comparison will be made between a time series
-of measurements from the experimental campaign, where a truck was driven across
-bridge 705, and a time series of the simulated sensor data of the same truck
-moving across bridge 705.
-
-# Validate of analysis techniques.
-# Bridge data corresponding to states normal and abnormal was not available,
-# however data was avilable from viaducts corresponding to two states, high and
-# low temperature. In this thesis the **analysis techniques are tested** on this
-# data to provide, an albeit limited, test that the techniques can perform a
-# classification between states on real data.
-
-# And it is necessary to **test the developed analysis techniques on real data**
-# to have confidence in the techniques, for when a DSS for bridge maintenance is
-# installed in real life.
-
-# After all, "in theory there is no difference between theory and practice, while
-# in practice there is", \textcolor{red}{TODO:REF ambiquity of who said this}.
+into a time series of responses under moving traffic.
 
 # Difficulty of determining "healthy" state.
 SHM is a term used to describe a range of systems implemented for the purpose of
@@ -189,11 +154,37 @@ the "normal" of "healthy" state of the system cite:aktan2001monitoring. This is
 because environmental effects such as temperature can affect the response of the
 structure enough to signal a departure from the structure's healthy state.
 
+# Validation of temperature and pier settlement.
+Therefore an important environmental effect to consider is that of temperature.
+When a structure is heated up it will expand and when it cools down it will
+contract. In a structure such as a bridge where movement is constrained at piers
+and abutments, forces will build up due to the thermal expansion/contraction and
+the bridge will deform and stresses will build up. The effect of temperature and
+pier settlement (which is one of the considered damage scenarios) are verified
+by comparison of the responses generated under those conditions to the responses
+recorded in the FE software package AxisVM. AxisVM provides a graphical user
+interface (GUI) which allows for the simple visual verification of the built
+model, and the application of thermal loading or pier settlement is as easy as
+clicking a few buttons.
+
+# Validation on real data.
+# Bridge data corresponding to states normal and abnormal was not available,
+# however data was avilable from viaducts corresponding to two states, high and
+# low temperature. In this thesis the **analysis techniques are tested** on this
+# data to provide, an albeit limited, test that the techniques can perform a
+# classification between states on real data. And it is necessary to **test the
+# developed analysis techniques on real data** to have confidence in the
+# techniques, for when a DSS for bridge maintenance is installed in real life.
+# After all, "in theory there is no difference between theory and practice, while
+# in practice there is", \textcolor{red}{TODO:REF ambiquity of who said this}.
+
 # Used with operator expertise.
 Evaluation of a SHM system for bridges requires that the SHM system has been
 installed prior to the occurence of damage. However for the economical decision
 of installing a long-term SHM system to be taken, someone needs to be convinced
-of the potential value of the system, somewhat of a catch 22. Thus research is
+of the potential value of the system, thus installation, development and
+evaluation of an SHM system will be a gradual cyclical process. The economical
+constraint into research in damage detection of bridges is also why research is
 largely based on numerical simulations of bridges, in which case environmental
 and operational effects are typically missing in the analysis, or damage is
 applied to a bridge before it is decommissioned, in which case the bridge is not
@@ -211,14 +202,14 @@ bridge. The provided information should enable the operator of the system to
 make a more informed decision about when and/or where maintenance should be
 carried out. The provided information can include real-time sensor data and an
 analysis thereof. Intelligence augmentation, where human experise is augmented
-by artifical intelligence (AI) techniques is a natural step in the development
-of fully automated AI-based systems. An example of this step in development is
-the car company Tesla's "auto-pilot" for self-driving on highways which is only
-a step in the direction to full self-driving but has shown enough value to be
-produced and will allow for the collection of huge amounts of data for the
-future improvement of the system. While AI can extend human's cognition with
-computational processing capacity, humans can at this point still offer a more
-holistic, intuitive approach in decision making cite:jarrahi2018artificial.
+by artifical intelligence (AI) techniques is a natural step in the cyclical
+development of fully automated AI-based systems. An example of this step in
+development is the car company Tesla's "auto-pilot" for self-driving on highways
+which is only a step in the direction to full self-driving but has shown enough
+value to be produced and will allow for the collection of huge amounts of data
+for the future improvement of the system. While AI can extend human's cognition
+with computational processing capacity, humans can at this point still offer a
+more holistic, intuitive approach in decision making cite:jarrahi2018artificial.
 
 # OpenSees is my open source FE program of choice.
 # This thesis could have gone one of two ways. The verified FEM of bridge 705 for
