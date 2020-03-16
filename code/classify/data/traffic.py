@@ -2,6 +2,7 @@
 import os
 import pickle
 from timeit import default_timer as timer
+from typing import Optional
 
 import dill
 import numpy as np
@@ -18,7 +19,7 @@ def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float)
 
 
 def load_traffic(
-    c: Config, traffic_scenario: TrafficScenario, max_time: float,
+    c: Config, traffic_scenario: TrafficScenario, max_time: float, add: Optional[str]=None
 ):
     """Load traffic from disk, generated if necessary."""
     path = (
@@ -30,6 +31,8 @@ def load_traffic(
         + ".npy"
     )
     print(path)
+    if add is not None:
+        path += add
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path + ".arr"):
         traffic_sequence = traffic_scenario.traffic_sequence(

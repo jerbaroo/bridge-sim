@@ -66,7 +66,7 @@ def responses_to_traffic_array(
     assert len(pd_responses) == len(points)
     if isinstance(damage_scenario, PierDispDamage):
         pd_expt = list(
-            DCMatrix.load(c=c, response_type=response_type, fem_runner=sim_runner)
+            DCMatrix.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
         )
         for point_i, point in enumerate(points):
             for pier_displacement in damage_scenario.pier_disps:

@@ -302,7 +302,8 @@ def to_traffic_array(
             if enter:
                 current[vehicle.lane].append(vehicle)
                 print(
-                    f"Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}"
+                    f"Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}",
+                    end="\r"
                 )
             else:
                 current[vehicle.lane].popleft()
