@@ -1282,7 +1282,9 @@ few pages read independently.
 
 * Theory
 
-The FE
+The FE, I have found one or two links for this. Will also have a look at the
+OpenSees commands which are used.
+
 \newpage
 
 * Methods
@@ -1721,80 +1723,64 @@ earthquake, and oil and gas.
 *** Superposition
 
 The goal of the data collection system is to translate the bridge model
-(=Bridge=), along with a =TrafficScenario= and =BridgeScenario=, into a time
-series of responses. This subsection details how that translation takes place.
+(=Bridge=), along with a selected traffic scenario and damage scenario (healthy
+or cracked or with settled pier) into a time series of responses for a number of
+responses.
 
 # A Bridge is transformed into a TCL file.
 The data collection system transforms a =Bridge= into a FEM for OpenSees. The
-resulting FEM is a 2D or 3D model depending on the dimensionality of the
-=Bridge=. In each case the FEM takes the form of a =.tcl= file (written in the
-TCL language). A =.tcl= file for Opensees consists of a sequence of commands for
-declaring a structure's geometry, material properties, and other settings of a
-FE simulation. For example, a =.tcl= file created from a =Bridge= will consist
-of a number of =node= and =element= commands, where nodes are points in space
-with degrees of freedom and elements are a mathematical relation of how degrees
-of freedom relate between nodes. In the case of the FEMs built from a =Bridge=,
-four nodes are connected by a /shell/ element. Shell elements are used when the
-thickness is significantly smaller than the other dimensions. In the case of
-bridge 705's deck the length is 102.75m, width is 33.2m, and thickness is
-varying from 0.5m to 0.739m.
+FEM takes the form of a =.tcl= file. A =.tcl= file for Opensees consists of a
+sequence of commands for declaring a structure's geometry, material properties,
+and other settings of a FE simulation. Four nodes are connected by a /shell/
+element. Shell elements are used when the thickness is significantly smaller
+than the other dimensions. In the case of bridge 705's deck, the length is
+$102.75 m$, width is $33.2 m$, and thickness varies from $0.5 m$ to $0.739 m$.
 
 # Unit load simulations are run.
-Under the =HealthyScenario= for a =Bridge=, a number of simulations are run the
-first time that a response is requested to a point load or vehicle. For each
-wheel track a number of simulations are run. The number of simulations per wheel
-track is specified by the system parameter =il_num_loads=. In each of these
-simulations a load of unit intensity =I= is placed at a point on the wheel track
-and responses of the bridge are recorded. The responses are translation from
-each node, and stress and strain from each element. Thus in summary, for each of
-the =il_num_loads= simulations per wheel track, the responses from the bridge
-are recorded. Each of these simulations we will call a unit load simulation, and
-the responses to such a simulation, unit load responses.
+For a =Bridge=, a number of simulations are run the first time that a response
+to a load is requested. For each wheel track 600 simulations are run, that
+translates into a simulation every $102.75 / 600 0.17125 m$. In each of these
+simulations, a load of unit intensity =I= is placed at a point on the wheel
+track and responses of the bridge to the load are recorded. The responses are
+translation (in each of the three directions of the coordinate system) from each
+node, and strain at a number of points from each element. From now on we will
+call these simulations unit load simulations, and the response at a point to one
+of these simulations a unit load response. Unit load simulations must only be
+run once for a bridge in healthy or cracked condition, in each case $4 * 600 =
+2400$ simulations are run for the ULS and an additional two simulations are run
+to simulate the uniform and linear temperature components. For the healthy
+bridge an additional 24 simulations are run for settling each pier, for a total
+of $2 * (2400 + 2) + 24 = 4828$ simulations.
 
-# Principle of superposition to calculate responses.
-Unit load simulations are simulations that must only be run once, and then the
-principle of superposition can be used to determine the response to a vehicle
-under the =HealthyScenario=, based on the unit load responses. Furthermore, the
-response to traffic (multiple vehicles on the bridge) can be calculated simply
-by summing the response to each vehicle on the bridge. The use of the principle
-of superposition to calculate the response to a vehicle is introduced in Listing
-[[lst:superposition]]. This calculation can however be phrased as a linear algebra
-problem for which computers are typically optimized. The calculation of the
-response at many points to many vehicles over a series of time steps using
-matrix multiplication is shown in Listing [[lst:matmul]].
+# Listings.
+The use of the principle of superposition to calculate the response to a vehicle
+is shown in imperative style in Listing [[lst:superposition]]. This calculation can
+however be phrased as a linear algebra problem for which most CPUs are highly
+optimized. The calculation of the response at many points to many vehicles over
+a series of time steps using matrix multiplication is shown in Listing
+[[lst:matmul]].
 
 #+NAME: lst:superposition
-#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. When requesting the response at a point p to a vehicle on a bridge, the vehicle is first decomposed into loading positions wp and intensities wi, one position and one load intensity for each of the vehicle's wheels. Then for each wheel position wp, the unit load simulation is selected where wp is closest to the unit load applied in that simulation. From this unit load simulation, the response ru at the recorded point closest to point p is considered. Thus the response ru is the response to a load at one of the vehicle wheel's positions, except not to the wheel's load but instead to a load of unit intensity, thus ru must be multiplied by wi / ul where ul is the unit load intensity.
+#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. The description of the method is given in imperative style with comments.
 #+BEGIN_SRC python
 response = 0
 p = Point(x=35, y=0, z=25)
+# A vehicle is decomposed into loading positions (wp) and loading intensities
+# (wi) per wheel, a maximum of two positions and intensites per wheel.
 for wp, wi in vehicle:
-    unit_load_simulation = sim_with_unit_load_closest_to(wp)
-    ru = unit_load_simulation.response_at(point)
-    response += ru * (wi / ul)
-#+END_SRC
-
-#+NAME: lst:matmul
-#+CAPTION[Response to traffic using matrix multiplication]: Response to traffic using matrix multiplication
-#+BEGIN_SRC python
-$ traffic_t0 = [
-    1, 2, 0, 0,
-    1, 2, 0, 0,
-    3, 3, 0, 0,
-    3, 3, 0, 0]
-$ traffic = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3]
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3, 0]
-    [0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3, 0, 0]
-    [0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0]
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-$ points = [
-    [0, 0, 0, 0]
-    [0, 0, 0, 0]
-    [0, 0, 0, 0]
-    [0, 0, 0, 0]
-]
-$ print(np.matmul(traffic, points))
+    unit_load_responses = responses_with_unit_load_closest_to(wp)
+    # The response at the requested point p due to unit load I.
+    ru = unit_load_responses.response_at(point)
+    # The response at the requested point p due to wp is calculated as the
+    # response due to unit load times (wi / I). This is added to the result.
+    response += ru * (wi / I)
+# The response at the requested point p due to pier settlement by a certain
+# amount of millimeters. This is calculated as the response due to unit pier
+# settlement (PI) times (mm / PI) where mm is the amount of settlemnt of pier
+# P.
+if mm > 0:
+    pu = responses_to_unit_pier_settlement(P)
+    response += pu * (mm / PI)
 #+END_SRC
 
 # Limited accuracy of responses: mesh density & il_num_loads
@@ -1917,8 +1903,8 @@ The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
 
-\textcolor{red}{Here I need to put an image from the animation where the traffic
-and responses are shown in top and bottom plots respectively}.
+\textcolor{red}{Here I need to put an image from the "animation" where the
+traffic and responses are shown in top and bottom plots respectively}.
 
 *** Validation
 The FEM generated for the purpose of data collection needs to be validated,
@@ -2461,6 +2447,11 @@ cite:gilbert2013time it is stated that "When a primary crack develops, there is
 a sudden change in the local stiffness at and immediately adjacent to each
 crack".
 
+#+NAME: fig:crack-1
+#+ATTR_LATEX: :placement [p]
+#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 0.5 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to 0.5 times its original value.
+[[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
+
 # What value of Young's modulus.
 According to cite:gilbert2013time an upper limit of the second moment of area of
 cracked concrete is given as $0.61$ of the value of uncracked concrete, this
@@ -2486,10 +2477,10 @@ cite:vargas2012bridge. The crack zone occurs across the southern lane, the deck
 of bridge 705 in the cracked concrete damage scenario is shown in Figure
 [[fig:crack-1]].
 
-#+NAME: fig:crack-1
-#+ATTR_LATEX: :placement [t]
-#+CAPTION[Cracked concrete damage scenario]: The cracked concrete damage scenario. The crack zone is 0.5 m long and spans halfway across the bridge, 16.6 m. The plot shows the shell elements of the deck of the generated FEM of bridge 705 for OpenSees, coloured by the value of Young's modulus per shell. The blue area is the crack zone. In this area the value of Young's modulus is reduced to 0.5 times its original value.
-[[./saved-images/crack/youngs-modulus-jet-outline-false-lanes-true.pdf]]
+#+NAME: fig:crack-moment
+#+ATTR_LATEX: :float wrap :width 0.45\textwidth :placement {!hr}{0.4\textwidth}
+#+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment is reached, the response is non-linear. This image is from cite:gilbert2013time.
+[[./saved-images/crack/crack-moment.png]]
 
 # Non-linear crack behaviour.
 It is noted that in reality the cracking of concrete will introduce non-linear
@@ -2502,10 +2493,6 @@ cite:gilbert2013time, shows the non-linear behaviour that is expected due to
 uniform bending of a reinforced concrete slab, according to this work the "fall
 back down" is not expected.
 
-#+NAME: fig:crack-moment
-#+ATTR_LATEX: :float wrap :width 0.45\textwidth :placement {hr}{0.4\textwidth}
-#+CAPTION[Curvature of concrete due to bending]: The moment-curvature responses of a reinforced concrete slab. At moments less than the cracking moment the curvature is almost linear. Once the cracking moment is reached, the response is non-linear. This image is from cite:gilbert2013time.
-[[./saved-images/crack/crack-moment.png]]
 
 # Pier settlement damage.
 The second type of damage that is considered is the settlement of a pier, which
