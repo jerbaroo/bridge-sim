@@ -925,27 +925,6 @@ inspection of a bridge is required.
 
 ** Extensibility
 
-In order for the developed DSS to be truly extensible it is not limited to
-depend on a single finite element program. The system has as a parameter a
-method of communication with a finite element program, such that data can be
-collected and analyzed from different finite element programs, in this case
-OpenSees and Diana.
-
-Due to the expensive nature of installing sensors in real life and of damaging a
-bridge which is likely prohibited, the software system includes a component for
-simulating sensor responses from reinforced concrete bridges. In order for this
-simulation to be extensible and allow for further research on bridges other than
-bridge 705, the specification of the bridge is simply a parameter of the system.
-
-The developed decision support system has a number of **parameters** such that
-users wishing to extend the software further are not limited to focus on bridge
-705 or to use a specific finite element program. The specification of a bridge
-is a parameter of the system, as is the type and intensity of traffic on the
-bridge. Furthermore, as mentioned earlier, different finite element programs can
-be integrated with this system, which may be useful if a finite element model of
-a bridge for a different finite element program is already available to the
-user.
-
 # Emphasis on reproduceable research.
 In recent years there is an increased emphasis on reproducable research within
 the scientific community. Reproducing research can allow for the verification of
@@ -970,36 +949,22 @@ the original author's interest.
 
 # DRY and reuse.
 Reuse of software aligns with the /don't repeat yourself/ (DRY) principle of
-software engineering. Violations of DRY are creatively referred to as WET, or
-/write every time/. The downside of WET solutions are that each implementation
-has its own bugs, whereas in DRY solutions the bug fixes and optimizations are
-shared by all contributors and users. Reusable research can be made Open Source.
-Open source software can leverage the knowledge of the community and prevent
-duplication of effort which can occur when software is developed behind closed
-doors or for monetary gain.
+software engineering[fn:1]. Violations of DRY are creatively referred to as WET,
+or /write every time/. The downside of WET solutions are that each
+implementation has its own bugs. Software that is shared with all is known as
+open source. Open source can leverage the knowledge of the community to reduce
+the likelihood of error and prevent duplication of effort, because the bug fixes
+and optimizations are shared by all contributors and users, in contrast to
+software that is developed behind closed doors or for monetary gain.
 
-Open source software also provides transparency to
-anyone wishing to investigate the software and may produce more reliable
-software due to more people .
-
-# Extensibility requires open source.
-For a software system to be resusable, it must be available to any user wishing
-to extend said software. The benefits of **open source software** are well
-known, in particular open source software allows /any individual with an
-interest/ to develop or /extend/ the software.
-
-
-To aid reuse and avoid repitition,
-software must be made easy to use, which is the very next tip after the DRY
-principle in the book The Pragmatic Programmer cite:hunt1900pragmatic.
-
-#+BEGIN_QUOTE
-Make It Easy To Reuse
-
-If it’s easy to reuse, people will. Create an environment that supports reuse.
-
--- The Pragmatic Programmer \textcolor{red}{page number}
-#+END_QUOTE
+[fn:1] A note from the author: it is the author's personal opinion that the
+power of software is not entirely leveraged within the resarch community. The
+machine learning community is perhaps a strong exception in this regard where a
+lot of work is available through functions of popular programming libraries. I
+recommend the book The Pragmatic Programmer cite:hunt1900pragmatic for anyone
+wishing to learn more about crafting good software, not a very technical book
+and does not need to be read cover to cover, instead it can be picked up and
+any section read.
 
 # ** Existing Work
 # :PROPERTIES:
@@ -2576,6 +2541,18 @@ pier settlement can be detected.
 
 #+LATEX: \newpage
 * Results
+
+All of the work in this thesis is open source and an effort has been made to
+present useful abstractions that may be considered for reuse. The finite element
+model files that are generated and run are all based on the =Bridge= model
+discussed in Section . This allows for further research on concrete slab bridges
+other than bridge 705, without having to generate the model at the abstraction
+of nodes and shells. Furthermore, an effort has been made to abstract the finite
+element program that runs the generated files (OpenSees in this case) to a
+specific part of the system, such that in theory an interested party could add
+support for another finite element program, which could be useful if a finite
+element model of a bridge for a different finite element program is already
+available to the user.
 
 Damage to a bridge can be classified as long-term or short-term. Long-term
 damage can be easily mistaken for long-term environmental effects, such as the
