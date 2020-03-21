@@ -283,18 +283,7 @@ for the future improvement of the system. While AI can extend human's cognition
 with computational processing capacity, humans can at this point still offer a
 more holistic, intuitive approach in decision making cite:jarrahi2018artificial.
 
-# OpenSees is my open source FE program of choice.
-# This thesis could have gone one of two ways. The verified FEM of bridge 705 for
-# Diana could have been used to simulate sensor responses for analysis. However
-# Diana requires a relatively expensive proprietary licence for use (you must ask
-# for a quote) and the file format of FEMs in Diana is rather awkward to modify.
-# \textcolor{red}{support this claim}. By using OpenSees it was easier to target a
-# greater number of bridges, by generating FEMs based on a high-level bridge
-# specification. More importantly however OpenSees does not require a licence for
-# use and is additionaly available for macOS users thus allowing for the research
-# to be reproduced or extended.
-
-# TODO: Talk about Diana in the FE Section.
+# OpenSees is my open source FE program of choice.o
 
 # What is extensibility and what is the benefit for this thesis?
 Extensibility is a measure of the ability to extend software without accessing
@@ -962,11 +951,11 @@ software that is developed behind closed doors or for monetary gain.
 [fn:1] A note from the author: it is my personal opinion that the power of
 software is not entirely leveraged within the resarch community. The machine
 learning community is perhaps a strong exception in this regard where a lot of
-work is available through functions of popular programming libraries. I
+work is available through functions for popular programming languages. I
 recommend the book The Pragmatic Programmer cite:hunt1900pragmatic for anyone
 wishing to learn more about crafting good software, not a very technical book
 and does not need to be read cover to cover, instead it can be picked up and any
-section read.
+few pages read independently.
 
 # ** Existing Work
 # :PROPERTIES:
@@ -1439,8 +1428,9 @@ parameter (required by OpenSees) will not have an effect.
 *** Damage Model
 
 This Subsection discusses how different damage scenarios, as dicussed in
-Subsection [[Damage Types]], can be simulated. We maintain the description of each
-damage type however we will only model pier settlement and cracked concrete.
+Subsection [[Damage Types]], can be simulated. We maintain the description of a
+number of damage types here however we will only model pier settlement and
+cracked concrete.
 
 /Pier settlement/ can be simulated by displacing a pier by a fixed amount. This
 is achieved in a simulation by applying a /displacement load/ at the bottom of a
@@ -1487,11 +1477,17 @@ considered.
 Two forms of noise are modeled, sensor noise and thermal noise. Sensor noise is
 modeled with a white noise process, for each sensor type a standard deviation of
 sensor noise is set. Thermal noise is modeled by running simulations of unit
-($\SI{+1}{\celcius}$) uniform and linear temperature load (explained in a
-minute), and then combining the responses from these simulations depending on
-the air temperature being modeled. Thermal noise is considered sufficient to
-investigate the robustness of the damage identification model to long-term
-variations in response.
+($\SI{+1}{\celcius}$) temperature load and then combining the responses from
+these simulations depending on the temperature gradient through the bridge deck
+that is being modeled. Thermal noise is considered sufficient to investigate the
+robustness of the damage identification model to long-term variations in
+response. A breakdown of the different effects that a bridge will be subjected
+to is presented in Figure [[fig:effects]].
+
+#+NAME: fig:effects
+#+ATTR_LATEX: :placement [t]
+#+CAPTION[Frequency domain of different effects]: Frequency domain of different effects that a bridge will be subjected to. This image is from cite:ye2018integrated.
+[[./saved-images/effects.png]]
 
 # Linear thermal expansion.
 OpenSees does not directly support the application of thermal load based on a
@@ -1500,7 +1496,8 @@ on the assumption of linear thermal expansion. Under this assumption the strains
 (and stresses) due to a change in temperature ($\varepsilon_{thermal}$) are
 linearly proportional to the change in temperature, $\varepsilon_thermal \propto
 \alpha \delta{T}$, where $\alpha$ is the coefficient of thermal expansion, which
-is a property of the material being considered e.g. concrete.
+is a property of the material being considered e.g. concrete. For concrete a
+value 12E-6 is used.
 
 # Temperature decomposed: EuroCode.
 According to European design code Eurocode 1 cite:gulvanessian2001en1991 the
@@ -1510,27 +1507,57 @@ a structure, can be decomposed into a uniform and linear component. While this
 assumption is made in modeling, the temperature gradient can vary throughout the
 day, for example a uniform gradient can exist just before sunrise when air
 temperature can remain close to constant for several hours
-cite:reynolds1972thermal. Furthermore the asphalt on the bridge deck can have an
-effect on the temperature because the darker surface can cause greater heat
-absorption, and the asphalt can also have an insulating effect. In a test in
-Southern England $\approx \SI{5}{\centimeter}$ of asphalt was required before
-the insulation matched the greater heat absorption cite:hendry1960thermal.
+cite:reynolds1972thermal.
+
+Furthermore the asphalt on the bridge deck can have an effect on the temperature
+because the darker surface can cause greater heat absorption, and the asphalt
+can also have an insulating effect. In a test in Southern England $\approx
+\SI{5}{\centimeter}$ of asphalt was required before the insulation matched the
+greater heat absorption cite:hendry1960thermal.
 
 # Temperature decomposed: example, time from when concrete was set.
-The change in temperature that must be considered is the change from the time
-when the concrete was set, during construction of the bridge. If the change in
-temperature at the bottom of the bridge deck is $\SI{+2}{\celcius}$ and the
-change at the top of the bridge deck is $\SI{+10}{\celcius}$, this can be
-decomposed into a $\SI{+6}{\celcius}$ uniform temperature component and a
-$\SI{+8}{\celcius}$ linear component, as depicted in Figure
-\textcolor{red}{TODO fig:thermal-loading}.
+The change in temperature that must be considered for calculating the effect to
+the bridge is the change from the time when the concrete was set, during
+construction of the bridge. If the change in temperature at the bottom of the
+bridge deck is $\SI{+2}{\celcius}$ and the change at the top of the bridge deck
+is $\SI{+10}{\celcius}$, this can be decomposed into a $\SI{+6}{\celcius}$
+uniform temperature component and a $\SI{+8}{\celcius}$ linear component. The
+uniform temperature component refers to the difference in temperature at the
+center of the bridge deck and the linear component refers to the difference
+between the top and bottom of the bridge deck.
 
-# Temperature difference of concrete bridge deck.
-According to Eurocode 1 cite:gulvanessian2001en1991 a difference of
-$\SI{+8}{\celcius}$ between the shade air temperature and the uniform bridge
-temperature component can be used for concrete deck bridges. The same document
-specifies a maximum linear temperature difference component of
-$\SI{+15}{\celcius}$ for concrete deck bridges.
+# Data source.
+The temperature gradient through the bridge deck is modeled based on data from
+the National Climatic Data Center cite:data2001national branch of the National
+Oceanic and Atmospheric Administration (NOAA), which provides quality controlled
+datasets of temperature data at a resolution of one data point every 5 minutes.
+Air temperature and solar radiation data was used from a weather station in
+Holly Springs in North Carolina, USA. Because the range of temperatures in the
+data is greater than what is expected in the Netherlands, the data was
+interpolated form the original range to the smaller range of $\SI{-5}{\celcius}$
+to $\SI{35}{\celcius}$.
+
+# Temperature gradient figure.
+Air temperature, solar irradiance and the temperature gradient through the
+bridge deck are depicted in Figure [[fig:temp-grad]]. According to Eurocode 1
+cite:gulvanessian2001en1991 a maximum $\SI{+8}{\celcius}$ uniform temperature
+component can be used for design purposes for concrete bridges, and a maximum
+linear temperature component of $\SI{+15}{\celcius}$. Comparing these values to
+the values in Figure [[fig:temp-grad]] we can see that the linear component is
+approximately in line with design values, while the uniform temperature
+component significantly exceeds the design value. A reference temperature of
+$\SI{+12}{\celcius}$ is selected for bridge 705.
+
+#+NAME: fig:temp-grad
+#+ATTR_LATEX: :height 1\textwidth :placement [!p]
+#+CAPTION[Temperature gradient model for bridge 705]: Temperature gradient model for bridge 705. The two plots in the top row show, for two different date ranges, the air temperature from the NOAA dataset and the modeled top and bottom bridge deck temperatures. In the second row the solar irradiance from the same NOAA data is shown for the two date ranges, and finally in the third row the uniform and linear temperature components are presented.
+[[./saved-images/thermal/gradient-1.pdf]]
+
+# The resulting temperature and the vertical translation at point A (defined in
+# Table [[tbl:loading-positions]]) are given in Figure [[fig:temp]]. The data provides a
+# temperature value every 5 minutes, a linear interpolation is used both in Figure
+# [[fig:temp]] and when performing classification in order to have more data points
+# available.
 
 # Should transverse DOF be set?
 The degrees of freedom in transverse direction must also be set. According to
@@ -1568,16 +1595,16 @@ in transverse direction.
 
 # Calculating the uniform temperature load.
 The combination of a change in temperature and a known coefficient of thermal
-expansion (CTE or $\alpha$) of a material can be used to calculate the axial
-thermal load to be applied to a material as shown in Equation [[eqn:thermal]]. First
-the strain due to thermal expansion $\varepsilon_thermal$ is calculated as the
-product of $\alpha$ and $\delta{T}$, then in combination with Young's modulus
-$E$ the equivalent stress $\sigma_thermal$ is obtained. The thermal load
+expansion (CTE or $\alpha$) of a material can be used to calculate the thermal
+load to be applied to a material as shown in Equation [[eqn:thermal]]. First the
+exptected strain due to thermal expansion $\varepsilon_thermal$ is calculated as
+the product of $\alpha$ and $\delta{T}$, then in combination with Young's
+modulus $E$ the equivalent stress $\sigma_thermal$ is obtained. The thermal load
 $F_thermal$ to be applied to the cross section of an element in simulation is
 then determined as the product of the cross sectional area $A$ and the stress.
 Note that the force applied to each of the shell element's nodes is $F_thermal /
 2$ as there are two nodes sharing each of the four cross sections of the
-element, as shown in Figure. \textcolor{red}{force per thermal load}
+element.
 
 #+NAME: eqn:thermal
 \begin{equation}
@@ -1592,20 +1619,6 @@ element, as shown in Figure. \textcolor{red}{force per thermal load}
 #+ATTR_LATEX: :placement [t]
 #+CAPTION[Effect of temperature at point A]: Effect of temperature at point A (see Table TODO) during the year of 2019, data taken from NOAA for Holly Springs, North Carolina and interpolated to the range -5 °C to 35 °C. Each plot has two vertical axes, one for temperature and one for vertical translation.
 [[./saved-images/thermal/temperature.pdf]]
-
-# Temperature effect.
-Temperature data is taken from the National Climatic Data Center
-cite:data2001national branch of the National Oceanic and Atmospheric
-Administration (NOAA), which provides temperature data at a resolution of one data
-point every 1 minute. Air temperature data was used from a weather station in
-Holly Springs in North Carolina, USA. Because the range of temperatures in the
-data is greater than what is expected in the Netherlands, the data was
-interpolated form the original range to the smaller range of $\SI{-5}{\celcius}$
-to $\SI{35}{\celcius}$. The resulting temperature and the vertical translation
-at point A (defined in Table [[tbl:loading-positions]]) are given in Figure
-[[fig:temp]]. The data provides a temperature value every 5 minutes, a linear
-interpolation is used both in Figure [[fig:temp]] and when performing classification
-in order to have more data points available.
 
 # Noise estimate.
 To estimate the amount of noise to apply to generated data, the responses from
@@ -1630,7 +1643,7 @@ is added in all classification experiments.
 *** Traffic Model
 
 #+NAME: fig:vehicle-dist
-#+ATTR_LATEX: :placement [t]
+#+ATTR_LATEX: :placement [!ht]
 #+CAPTION[Distribution of vehicles]: The distribution of vehicles used in simulations of traffic passing over bridge 705. The first and second plots show the distribution of vehicle loading intensity and the number of axles in the vehicle database, that from which vehicles are sampled. The red area in the first plot is the probability density function that defines which vehicles in the database are sampled. The third plot shows the distribution of the load intensity of 10000 randomly sampled vehicles.
 [[./saved-images/vehicles/vehicles-db.pdf]]
 
@@ -1650,13 +1663,10 @@ the NDW dataset.
 # A16 dataset structure.
 The A16 dataset contains a number of columns, including time and date, lane the
 vehicle was travelling on, the vehicle type, vehicle speed, distance between
-axles and load per axle.
-
-# A16 filtering.
-In the A16 data all vehicles are above 3500kg in weight and 7m in length. The
-A16 dataset was filtered so that neither the total weight nor the total length
-would exceed a z-score of 3 for that column respectively. The filtered data is
-shown in \textcolor{red}{TODO filtered data}.
+axles and load per axle. In the A16 dataset all vehicles are above 3500kg in
+weight and 7m in length. The A16 dataset was then filtered so that neither the
+total weight nor the total length would exceed a z-score of 3 for that column
+respectively.
 
 # Speed and axle width are constant, most columns ignored.
 In the A16 dataset only the distance between axles and the load per axle are
@@ -1669,62 +1679,36 @@ calculate responses for any vehicle travelling across the bridge, because they
 can then all travel along the same wheel tracks.
 
 # Wheel tracks.
-The wheel tracks that exist on a bridge are half an axle width (1.25m) either
-side of the center of each lane. The lanes on bridge 705 are both 8.4m wide and
-4.2m from the center of the bridge in the transverse direction. Thus the lanes
-are separated from each other by 8.4m and the center of the lanes are at ~z =
-+-8.4m~. The wheel tracks are located at ~z = += 7.15~ and ~z = += 9.65~. The
-lanes and wheel tracks on bridge 705 are depicted in Figure
-\textcolor{red}{TODO: lanes and wheel tracks figure}.
+The wheel tracks that exist on a bridge are half an axle width (1.25 m) either
+side of the center of each lane. The lanes on bridge 705 are both 8.4 m wide and
+4.2 m from the center of the bridge in the transverse direction. Thus the lanes
+are separated from each other by 8.4 m and the center of the lanes are at $z =
+\pm 8.4 m$. The wheel tracks are located at $z = \pm 7.15 m$ and $z = \pm 9.65
+m$. The lanes and wheel tracks on bridge 705 are depicted in Figure TODO.
 
-# Data collection system parameterized.
-The data collection system is parameterized by the distribution of the vehicles
-that drive over it. The system has as parameter a filepath =vehicle_data_path=,
-a column name =vehicle_pdf_col=, and at =vehicle_pdf= a list that describes the
-probability density function (PDF) of vehicles in terms of the data in that
-column. The parameter =vehicle_data_path= must point to a =.csv= file which
-contains descriptions of vehicles. This =.csv= file will be loaded as a Pandas
-=DataFrame= and should contain data as described in Table [[tbl:vehicle_data]].
+*** FE Programs
 
-#+NAME: tbl:vehicle_data
-#+CAPTION: Example of Pandas =DataFrame= containing descriptions of vehicles that will be sampled. "axle\_load" is the load per axle in kilo Newton, "load" is the sum of these values. "axle\_distance" is the distance in meters between each pair of subsequent axles, "distance" is the sum of these values.
-| load   | axle\_load          | distance | axle\_distance |
-|--------+---------------------+----------+----------------|
-| 225.55 | [79.44, 101, 45.11] | .79      | [6.02, 1.32]   |
-| ...    | ...                 | ...      | ...            |
-
-For example, a Pandas =DataFrame= will be loaded from =vehicle_data_path=, then
-vehicles will be sampled from this =DataFrame= based on the PDF. A vehicle that
-is sampled from this =DataFrame= will have a speed of 40kmph, and an axle-width
-of 2m, the inter-axle distances and the axle weights are taken from the
-=DataFrame=.
-
-*** FE Program
-# Two finite element programs.
-Two FE programs are used for the collection of sensor responses, OpenSees
-(cite:mazzoni2006opensees) and DIANA (cite:diana2019diana). OpenSees is used
-because it is open source software, such that anyone can download and use the
-software without a licence. On the other hand is proprietary software, if you
-want to do research with Diana a licence must be purchased. The reason Diana is
-supported is because a verified 3D FEM of bridge 705 is available for Diana. In
-this thesis the Diana FEM is used in limited capacity for the verification of
-results obtained via OpenSees. The focus is instead on OpenSees because it is
-software that anyone with a laptop can use for free to extend this research. In
-addition it is useful to have two FE programs available, one (OpenSees) can be
-used to run less accurate but faster 2D FE simulations, allowing for a more
-rapid research cycle. The results can then be compared and verified against
-results from more accurate but also more computationally expensive 3D FE
-simulations (Diana). It is noted that the 2D model will ignore some aspects in
-the transverse direction of the bridge deck. For example the 3D model of bridge
-705 has two lanes, but the 2D model ignores the concept of lanes entirely.
+You may have asked yourself why the previously validated FEM of bridge 705 for
+Diana was not used to simulate sensor responses for analysis? It was not used
+for a number of reasons that deserve mentioning. Diana is proprietary software
+that requires a relatively expensive licence for use (you must ask for a quote),
+using proprietary software is analagous to submitting research to paywalled
+journals and should not be encouraged. Within TNO even I did not always have
+access to use Diana because the floating licenses were all in use. Another
+reason the Diana software was not used is that the file format of FE models for
+Diana is rather awkward to modify. The FE models would still require work in
+order to model damage and also perhaps to adjust the mesh density (and run
+time).
 
 # OpenSees.
-OpenSees stands for the /Open Sysem for Earthquake Engineering Simulation/, it
-is "an open source software framework for creating applications for the
-nonlinear analysis of structural and soil systems using either a standard FEM or
-an FE reliability analysis. It is object-oriented by design and—in addition to
-achieving computationally efficiency—it’s designed to be flexible, extensible,
-and portable" cite:mckenna2011opensees.
+The FE program that was chosen is OpenSees (cite:mazzoni2006opensees). OpenSees
+was primarily chosen because it is open source software. OpenSees stands for the
+/Open Sysem for Earthquake Engineering Simulation/, it is "an open source
+software framework for creating applications for the nonlinear analysis of
+structural and soil systems using either a standard FEM or an FE reliability
+analysis. It is object-oriented by design and—in addition to achieving
+computationally efficiency—it’s designed to be flexible, extensible, and
+portable" cite:mckenna2011opensees.
 
 # DIANA.
 DIANA (\textbf{DI}splacement \textbf{ANA}lyzer) is developed by DIANA FEA BV
@@ -1734,13 +1718,11 @@ a FE software package that is dedicated to problems in civil engineering,
 including structural and geotechnical, and engineering related to tunnelling,
 earthquake, and oil and gas.
 
-\textcolor{red}{TODO: Image of the 705 Diana model.}
-
 *** Superposition
 
-The goal of the data collection system is to translate a =Bridge=, along with a
-=TrafficScenario= and =BridgeScenario=, into a time series of responses. This
-subsection details how that translation takes place.
+The goal of the data collection system is to translate the bridge model
+(=Bridge=), along with a =TrafficScenario= and =BridgeScenario=, into a time
+series of responses. This subsection details how that translation takes place.
 
 # A Bridge is transformed into a TCL file.
 The data collection system transforms a =Bridge= into a FEM for OpenSees. The
@@ -1929,26 +1911,15 @@ point-load simulation... A refined mesh of bridge 705, with a parameter of ~MSL
 in Figure TODO:REMOVE.
 # TODO: Specify exact refinement positions.
 
-*** Reusable System
-Keeping with these principles, an effort has been made for the research in this
-thesis to not just be reproduceable but extensible. A system for running traffic
-simulations on concrete slab bridges and analyzing results is published on the
-Python Package Index (PyPI) cite:rankingpypi under the name =bridge-sim= where
-you will also find the documentation. An example showing the use of the system
-is presented in Listing [[lst:ts-point-load]] =bridge-sim= installation instructions
-and the documentation which are linked on GitHub.
-
-#+NAME: lst:ts-point-load
-#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
-#+BEGIN_SRC python
-# example.py
-from traffic_sim import PointLoad
-#+END_SRC
-
 *** Collected Data
+
 The outputs of the system are time series of responses from sensors distributed
 across the bridge model, these time series of responses we call /events/. Events
 are labelled by simulation scenario and simulation time.
+
+\textcolor{red}{Here I need to put an image from the animation where the traffic
+and responses are shown in top and bottom plots respectively}.
+
 *** Validation
 The FEM generated for the purpose of data collection needs to be validated,
 otherwise an analysis of the data would offer little value. In this Subsection
@@ -2545,8 +2516,25 @@ a number of different severities, in order to determine at what severity the
 pier settlement can be detected.
 
 #+LATEX: \newpage
+
 * Results
 
+*** Reusable System
+
+Keeping with these principles, an effort has been made for the research in this
+thesis to not just be reproduceable but extensible. A system for running traffic
+simulations on concrete slab bridges and analyzing results is published on the
+Python Package Index (PyPI) cite:rankingpypi under the name =bridge-sim= where
+you will also find the documentation. An example showing the use of the system
+is presented in Listing [[lst:ts-point-load]] =bridge-sim= installation instructions
+and the documentation which are linked on GitHub.
+
+#+NAME: lst:ts-point-load
+#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
+#+BEGIN_SRC python
+# example.py
+from traffic_sim import PointLoad
+#+END_SRC
 All of the work in this thesis is open source and an effort has been made to
 present useful abstractions that may be considered for reuse. The finite element
 model files that are generated and run are all based on the =Bridge= model
@@ -2558,6 +2546,8 @@ specific part of the system, such that in theory an interested party could add
 support for another finite element program, which could be useful if a finite
 element model of a bridge for a different finite element program is already
 available to the user.
+
+** Damage detection
 
 Damage to a bridge can be classified as long-term or short-term. Long-term
 damage can be easily mistaken for long-term environmental effects, such as the
