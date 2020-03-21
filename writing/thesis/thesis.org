@@ -75,6 +75,67 @@ I would like to thank...
 # ./cli.sh params noise
 # ./cli.sh classify temp-effect-4
 
+* Abbreviations
+
+| ANN      | Artificial neural network                                     |
+| CTE      | Coefficient of thermal expansion                              |
+| DSS      | Decision support software                                     |
+| FEM      | Finite element model                                          |
+| NDE      | Non-disruptive evaluation                                     |
+| NDW      | National Data Warehouse for Traffic Information (Netherlands) |
+| NOAA     | National Oceanic and Atmospheric (USA)                        |
+| OCSVM    | One-class Support Vector Machine                              |
+| OpenSees | Open System for Earthquake Engineering Simulation             |
+| RNN      | Recurrent Neural Network                                      |
+| SHB      | Sydney Harbour Bridge                                         |
+| SVM      | Support Vector Machine                                        |
+| PyPI     | Python Package Index                                          |
+
+# ** Definitions
+
+# | Crack zone          | An area of the bridge deck where cracks have occured |
+# | Normal condition    | The bridge in expected or healthy state              |
+# | =Bridge=            | Model of a concrete slab bridge's geometry           |
+# | Damage scenario     | Healthy or specific damage state of a bridge         |
+# | Simulation scenario | Combination of damage scenario and traffic scenario  |
+# | Traffic scenario    | Defines the traffic that flows over a bridge         |
+
+#+LATEX: \newpage
+# ** Pseudocode
+
+# # Imperative and declarative.
+# Pseudocode in this thesis is given in two formats. Some of the psuedocode will
+# be presented in an imperative-style, that resembles the syntax of the Python
+# programming language. For code that represents data types rather a series of
+# operations, the pseudocode will resemble the syntax of Haskell. For most people
+# the syntax of Python, or a similar imperative style language, will already be
+# familiar. The syntax for data types used in this thesis is presented below in
+# Listing [[lst:haskell]].
+
+# # Type signatures.
+# Sometimes the reader will be presented with a type signature that looks like
+# =foo :: A -> B -> C=. A type signature describes the input and output types of a
+# function, the previous type signature can be read as "a function =foo= that
+# takes an argument of type =A=, an argument of type =B=, and returns a value of
+# type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
+# function =bar= which takes a list of =Float= as input and returns a value of
+# type =Int=". A type signature for a value si given as the generalization of a
+# fucntion with 0 arguments, for example =truck_1 :: Vehicle= simply informs the
+# reader that the variable =truck_1= is of type =Person=.
+
+# #+NAME: lst:haskell
+# #+CAPTION[Pseudocode example for a data type]: Pseudocode example for a data type declaration as used in this thesis. This pseudocode declares a type that describes a vehicle in terms of two pieces of data, a list of axle distance and a list of loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type =bar=. The square brackets represent the list type and the curly brackets represent a tuple type.
+# #+BEGIN_SRC haskell
+# -- A vehicle as a list of axle distances and wheel loads.
+# data Vehicle {
+#     -- Distance betwen each pair of axles.
+#     axleDistances :: [Float],
+#     -- A tuple per axle, of wheel load intensity in kilo Newton.
+#     wheelLoads    :: [(Float, Float)]
+#   }
+# #+END_SRC
+
+# #+LATEX: \clearpage
 * Introduction
 
 # Motivation of the research question.
@@ -311,67 +372,6 @@ finally a conclusion of the work and results is presented.
   # at equivalent positions on each substructure.
 
 #+LATEX: \clearpage
-* Abbreviations
-
-| ANN      | Artificial neural network                                     |
-| CTE      | Coefficient of thermal expansion                              |
-| DSS      | Decision support software                                     |
-| FEM      | Finite element model                                          |
-| NDE      | Non-disruptive evaluation                                     |
-| NDW      | National Data Warehouse for Traffic Information (Netherlands) |
-| NOAA     | National Oceanic and Atmospheric (USA)                        |
-| OCSVM    | One-class Support Vector Machine                              |
-| OpenSees | Open System for Earthquake Engineering Simulation             |
-| RNN      | Recurrent Neural Network                                      |
-| SHB      | Sydney Harbour Bridge                                         |
-| SVM      | Support Vector Machine                                        |
-| PyPI     | Python Package Index                                          |
-
-# ** Definitions
-
-# | Crack zone          | An area of the bridge deck where cracks have occured |
-# | Normal condition    | The bridge in expected or healthy state              |
-# | =Bridge=            | Model of a concrete slab bridge's geometry           |
-# | Damage scenario     | Healthy or specific damage state of a bridge         |
-# | Simulation scenario | Combination of damage scenario and traffic scenario  |
-# | Traffic scenario    | Defines the traffic that flows over a bridge         |
-
-#+LATEX: \newpage
-# ** Pseudocode
-
-# # Imperative and declarative.
-# Pseudocode in this thesis is given in two formats. Some of the psuedocode will
-# be presented in an imperative-style, that resembles the syntax of the Python
-# programming language. For code that represents data types rather a series of
-# operations, the pseudocode will resemble the syntax of Haskell. For most people
-# the syntax of Python, or a similar imperative style language, will already be
-# familiar. The syntax for data types used in this thesis is presented below in
-# Listing [[lst:haskell]].
-
-# # Type signatures.
-# Sometimes the reader will be presented with a type signature that looks like
-# =foo :: A -> B -> C=. A type signature describes the input and output types of a
-# function, the previous type signature can be read as "a function =foo= that
-# takes an argument of type =A=, an argument of type =B=, and returns a value of
-# type =C=". Another example is =bar :: [Float] -> Int= which can be read as "a
-# function =bar= which takes a list of =Float= as input and returns a value of
-# type =Int=". A type signature for a value si given as the generalization of a
-# fucntion with 0 arguments, for example =truck_1 :: Vehicle= simply informs the
-# reader that the variable =truck_1= is of type =Person=.
-
-# #+NAME: lst:haskell
-# #+CAPTION[Pseudocode example for a data type]: Pseudocode example for a data type declaration as used in this thesis. This pseudocode declares a type that describes a vehicle in terms of two pieces of data, a list of axle distance and a list of loads per wheel. Note that =foo :: bar= indicates a field of name =foo= and type =bar=. The square brackets represent the list type and the curly brackets represent a tuple type.
-# #+BEGIN_SRC haskell
-# -- A vehicle as a list of axle distances and wheel loads.
-# data Vehicle {
-#     -- Distance betwen each pair of axles.
-#     axleDistances :: [Float],
-#     -- A tuple per axle, of wheel load intensity in kilo Newton.
-#     wheelLoads    :: [(Float, Float)]
-#   }
-# #+END_SRC
-
-# #+LATEX: \clearpage
 * Literature Review
 <<sec:lit>>
 
@@ -894,8 +894,8 @@ and access to a location on the bridge may be difficult or not even possible.
 # Changes in frequencies.
 Many global health monitoring techniques are based on finding changes in
 resonant frequencies or mode shapes, as discussed in the literature review
-<<sec:lit>>. However for concrete structures the deterioration of reinforced
-steel has little effect on natural frequency. Some methods attempt to find the
+[[sec:lit]]. However for concrete structures the deterioration of reinforced steel
+has little effect on natural frequency. Some methods attempt to find the
 location and length of cracks based on natural frequency, however these methods
 assume the only damage is cracking, an assumption that will certainly not always
 be true in a real-life setting.
@@ -923,7 +923,7 @@ inspection of a bridge is required.
 #  Difficult to obtain an accurate analytical model.
 #  Concrete does not guarantee uniform material properties.
 
-** Extensibility
+** Reusability
 
 # Emphasis on reproduceable research.
 In recent years there is an increased emphasis on reproducable research within
@@ -938,12 +938,14 @@ contains both code and results, an example being the Jupyter Notebook.
 # Reuse through modulur components and shared code.
 However I argue that we can do even better. There may be components of another's
 research that you are eager to use but that are difficult to extract. To avoid
-this the software should be presented as composable functions, allowing for the
-reuse of the research, whereby a researcher can compose some of the functions in
-a manner which was not done in the original research. Software can be thought of
-as Lego \textregistered blocks, and research that provides new and exciting Lego
-\textregistered blocks will allow for faster iteration in that research domain.
-It is unfortunate that spending time crafting reusable work such that other
+this the software which forms the resarch should be presented as composable
+functions, allowing for the reuse of the research, allowing a researcher to
+compose some of the functions in a manner which was not done in the original
+research. Software should not be overcomplicated and can be thought of as
+Lego\textsuperscript{\textregistered} blocks for engineering or research.
+Research that offers new and exciting Lego\textsuperscript{\textregistered}
+blocks will allow for faster iteration in that research domain by others. It is
+unfortunate that spending time crafting reusable work such that other
 researchers in the same domain can perform better reseach is typically not in
 the original author's interest.
 
@@ -957,14 +959,14 @@ the likelihood of error and prevent duplication of effort, because the bug fixes
 and optimizations are shared by all contributors and users, in contrast to
 software that is developed behind closed doors or for monetary gain.
 
-[fn:1] A note from the author: it is the author's personal opinion that the
-power of software is not entirely leveraged within the resarch community. The
-machine learning community is perhaps a strong exception in this regard where a
-lot of work is available through functions of popular programming libraries. I
+[fn:1] A note from the author: it is my personal opinion that the power of
+software is not entirely leveraged within the resarch community. The machine
+learning community is perhaps a strong exception in this regard where a lot of
+work is available through functions of popular programming libraries. I
 recommend the book The Pragmatic Programmer cite:hunt1900pragmatic for anyone
 wishing to learn more about crafting good software, not a very technical book
-and does not need to be read cover to cover, instead it can be picked up and
-any section read.
+and does not need to be read cover to cover, instead it can be picked up and any
+section read.
 
 # ** Existing Work
 # :PROPERTIES:
@@ -1286,8 +1288,16 @@ any section read.
 # *** Summary
 # \textcolor{red}{TODO: conclude the literature review}
 # #+LATEX: \clearpage
+
+\newpage
+
 * Theory
+
+The FE
+\newpage
+
 * Methods
+
 ** Simulation
 <<sec:meth:sim>>
 
@@ -1295,67 +1305,78 @@ any section read.
 This section describes the data collection system which was created to model a
 bridge in software and to collect data from simulating the bridge's response
 under a damage scenario and traffic scenario. Following a brief overview of how
-the data collection system operates, this section describes in detail the model
-of a bridge's geometry (=Bridge=), of a damage scenario and a traffic scenario,
-the FE software used to simulate a bridge's response, how the data collection
-system operates from input to output, a description of the collected data,
-validation of the model, and finally an overview of the assumptions that were
-made in modeling.
+the data collection system operates, this section describes the reusable model
+of a bridge (=Bridge=), how the data collection system operates from input to
+output, a description of the collected data, validation of the model, and
+finally an overview of the assumptions that were made in modeling.
 
 # Brief system overview.
-First a quick summary of the data collection system. A simulation scenario is
-defined as a combination of a damage scenario and traffic scenario. For a given
-=Bridge=, a number of FEMs are generated of the bridge in undamaged state, and
-simulations are run. In each simulation a unit load is placed at a different
-point on the bridge deck. Each point is chosen to be on a "wheel track", which
-is where a vehicle's wheels will be when the vehicle is later "driven" along the
-bridge. Vehicles are sampled according to the given traffic scenario and driven
-along the bridge on a traffic lane in discrete time steps. Using the principle
-of superposition, responses collected from the previous simulations can be
-summed together (one for each vehicle's wheel) to calculate a response at a
-requested point. A number of additional simulations must be run for the bridge
-in damaged state. This will all be explained more thoroughly in Subsection
-[[Superposition]] but it is useful to present a brief overview in advance.
+First a quick summary of the data collection system. For a given =Bridge=, a
+number of FEMs are generated of the bridge in undamaged state, and simulations
+are run. In each simulation a unit load is placed at a different point on the
+bridge deck. Each point is chosen to be on a "wheel track", which is where a
+vehicle's wheels will be when the vehicle is later "driven" along the bridge.
+Vehicles are sampled and driven along the bridge on a traffic lane in discrete
+time steps. Using the principle of superposition, responses collected from the
+previous simulations can be summed together (one for each vehicle's wheel) to
+calculate a response at a requested point. A number of additional simulations
+must be run for the bridge in damaged state and to calculate the effect due to a
+change in temperature. This will all be explained more thoroughly as we advance
+through this Section.
 
 *** Bridge Model
 
 # The bridge type.
-A parametric model for describing no-prestress no-posttension concrete slab
-bridges was created for the programming language Python. The parametric model
-exists as the type =Bridge=.
+A parameterized model for describing non-prestress non-posttensioned concrete
+slab bridges was created for the programming language Python. This model is
+presented as the type =Bridge=.
 
 # Parameters of a bridge.
-A =Bridge= is parameterized by dimensionality, length, width, piers, lanes,
-material properties and parameters that define the mesh density. A =Bridge= can
-be declared as 2D or 3D, this defines if the resulting FEM will be 2D or 3D. The
-length and width define the area of the bridge deck. Piers define the position,
-size and angle of the piers which support the bridge deck. Lanes define where
-vehicles are allowed to drive on the bridge and the direction of traffic.
-Material properties determine the interaction between the bridge elements and
-their behaviour under load. Mesh parameters define the density of the base mesh
-and how the mesh is built.
+A =Bridge= is parameterized by length, width, piers, lanes, material properties
+and additional parameters that define the mesh density. The length and width
+define the area of the bridge deck. Piers define the position, size and angle of
+the piers which support the bridge deck. Lanes define where vehicles are allowed
+to drive on the bridge and the direction of traffic. Material properties
+determine the interaction between the elements in the generated finite element
+model and their behaviour when forces are applied to the elements. The mesh
+parameters define the minimum density of the generated mesh, minimum because
+additional nodes and elements must be placed at locations of interest, such as
+where the material properties change and where the supporting piers meet the
+deck.
 
 #+NAME: lst:bridge
-#+CAPTION[Definition of the Bridge model]: Definition of the Bridge model. An instance of this Bridge model can be transformed into a FEM for OpenSees.
+#+CAPTION[Definition of the Bridge model]: Definition of the Bridge model for Python. An instance of this Bridge model can be transformed into a finite element model for OpenSees.
 #+BEGIN_SRC haskell
 data Bridge {
-  length   :: Float,
-  width    :: Float,
-  lanes    :: [Lane],
-  sections :: [Section],
-  piers    :: [Pier]
+  length    :: Float,
+  width     :: Float,
+  lanes     :: [Lane],
+  materials :: [Material],
+  piers     :: [Pier],
+  ...
   }
 #+END_SRC
 
 #+NAME: lst:bridge-705
-#+CAPTION[Instance of the Bridge model]: Instance of the Bridge model. This Bridge represents bridge 705 in Amsterdam.
+#+CAPTION[Instance of the Bridge model for bridge 705]: Instance of the Bridge model for Python. This Bridge represents bridge 705 in Amsterdam, from this a finite element model for OpenSees can be generated.
 #+BEGIN_SRC haskell
 bridge705 = Bridge {
-  length   :: 102,
-  width    :: 33.2,
-  lanes    :: [Lane(4, 12.4), Lane(20.8, 29.2)],
-  sections :: [Section],
-  piers    :: [12.75, 15.3, 15.3, 15.3, 15.3, 15.3, 12.75]
+  length    :: 102,
+  width     :: 33.2,
+  lanes     :: [Lane(4, 12.4), Lane(20.8, 29.2)],
+  -- For brevity, material properties are not listed.
+  -- Material properties are presented in Table [[tbl:bridge-705-props]].
+  material  :: [Material],
+  -- For brevity, only a partial definition of a single pier.
+  piers     :: [Pier(
+    x=12.75,
+    z=-12.6,
+    length=3.1,
+    height=3.5,
+    width_top=3.666,
+    width_bottom=1.8,
+    ...
+  ), ...]
   }
 #+END_SRC
 
@@ -1377,46 +1398,37 @@ of freedom are set as not fixed.
 #+NAME: fig:705-piers
 [[./saved-images/photo-705-piers.JPG]]
   
-**** Discretization
-- Material properties may vary according to a continuous function on a real
-  bridge while material properties in the FEM change at given discretization
-  points.
 **** Bridge 705
 
 The same material properties that were used in the Diana model of bridge 705
 were used in the generated FEM of bridge 705 for OpenSees. These material
 properties originally came from blueprints that were used for the construction
-of the bridge. The material properties are specified in terms of density in
-kilogram per meter, thickness in meters and Young's modulus in mega Pascal.
-Figure [[fig:bridge-705-thickness]] show the thickness of the deck of bridge 705.
-Note that for this plot the material properties are symmetric across the
-longitudinal center of the bridge. The material properties of bridge 705's deck
-are also available in a more digestable format in Table [[tbl:bridge-705-props]] in
-the Appendix.
+of the bridge, meaning that the finite element model that is generated
+represents the bridge in ideal healthy state. The material properties are
+specified in terms of density in kilogram per meter, thickness in meters and
+Young's modulus in mega Pascal. Figure [[fig:bridge-705-thickness]] show the
+thickness of the deck of bridge 705. Note that for this plot the material
+properties are symmetric across the longitudinal center of the bridge. The
+material properties of bridge 705's deck are also available in a more digestable
+format in Table [[tbl:bridge-705-props]] in the Appendix.
 
 #+CAPTION[Thickness of the FEM of bridge 705]: Thickness of the deck of the generated FEM of bridge 705. The bridge has the least thickness along the traffic lanes (approximately the purple area), and is most thick (yellow) between the traffic lanes and the tram lane in the center of the bridge (green). The material properties are symmetric across the longitudinal center of the bridge.
 #+NAME: fig:bridge-705-thickness
 [[./saved-images/geometry/thickness-parula-outline-false-lanes-false.pdf]]
 
 Density and Young's modulus are set to a constant value throughout all piers of
-bridge 705. Thickness however varies linearly according the specification from
-the Diana model, increasing from a thickness of 0.362 meters at the top of each
-pier to 1.266 meters at the top. The photograph of bridge presented in Figure
-[[fig:bridge-705-real]] shows the increasing thickness of the piers. When generating
-a model of bridge 705 for simulation, the piers are discretized into a number of
-shell elements based on the $max_shell_len$ parameter as described in Subsection
-[[Meshing]], each shell is assigned a value linearly in the range $[1.266, 0.362]$.
-Poisson's ratio, which is the negative ratio of lateral strain to longitudinal
-strain is constant for the entirety of the bridge deck and for the piers, set to
-the material constant of 0.2 for concrete.
-
-TODO: Why is Density not going to have an effect.
-
-The nodes of the generated FEM which have degree's of freedom fixed are: the
-nodes which make up the abutments at the east and west ends of the bridge, and
-the nodes along the bottom of each the piers. All of these nodes are fixed in
-translation along the y (vertical) and the z (transverse) axes. In addition
-piers 8 - 15 are fixed in translation along the x (longitudinal) axis. Figure
+bridge 705. Thickness however varies linearly, increasing from a thickness of
+0.362 meters at the top of each pier to 1.266 meters at the top. The photograph
+of bridge 705 presented in Figure [[fig:bridge-705-real]] shows the increasing
+thickness of the piers. When generating a model of bridge 705 for simulation,
+the piers are discretized into a number of shell elements based on the meshing
+parameters of the =Bridge= and each shell element is assigned a value linearly
+in the range $[1.266, 0.362]$. Poisson's ratio, which is the negative ratio of
+strain in two perpendicular directions is constant for the entirety of the
+bridge deck and for the piers, set to the material constant of 0.2 for concrete.
+In this thesis it is only changes in response which are considered, thus the
+self-weight of the structure due to gravity is ignored, therefore the density
+parameter (required by OpenSees) will not have an effect.
 
 \textcolor{red}{TODO: Figure of fixed and numbered nodes.}
 
@@ -1426,12 +1438,9 @@ piers 8 - 15 are fixed in translation along the x (longitudinal) axis. Figure
 
 *** Damage Model
 
-# TODO: verify content when Leziria bridge document is published.
-
-The goal of the damage identification model is to identify different damage
-scenarios from simulations of the operation of a bridge. This Subsection
-discusses how different damage scenarios, as dicussed in Subsection [[Damage
-Types]], can be simulated.
+This Subsection discusses how different damage scenarios, as dicussed in
+Subsection [[Damage Types]], can be simulated. We maintain the description of each
+damage type however we will only model pier settlement and cracked concrete.
 
 /Pier settlement/ can be simulated by displacing a pier by a fixed amount. This
 is achieved in a simulation by applying a /displacement load/ at the bottom of a
@@ -1452,18 +1461,13 @@ individually. We will refer to an area where cracking has occured as a crack
 zone.
 
 /Corrosion/ of the steel reinforment bars can be simulated by increasing the
-size of the reinforcement bars.
-
-# TODO:WHY can corrosion be simulated in this manner.
+size of reinforcement bars.
 
 A /malfunctioning sensor/ can be simulated by adding white noise to the
 simulated sensor's responses or by adding a constant offset to the responses.
 
-# TODO:LITERATURE. From discussions with Sousa TODO:REF, detecting malfunctioning
-# sensors is useful to accomplish.
-
- # How to test/score the models.
 *** Noise Model
+
 # What is noise?
 Noise in a signal is considered to be the response from unwanted or unknown
 sources. In the case of bridges the following can be considered as noise:
@@ -1483,10 +1487,11 @@ considered.
 Two forms of noise are modeled, sensor noise and thermal noise. Sensor noise is
 modeled with a white noise process, for each sensor type a standard deviation of
 sensor noise is set. Thermal noise is modeled by running simulations of unit
-($\SI{+1}{\celcius}$) uniform and linear temperature load, and then combining
-the responses from these simulations depending on the air temperature being
-modeled. Thermal noise is considered sufficient to investigate the robustness of
-the damage identification model to long-term variations in response.
+($\SI{+1}{\celcius}$) uniform and linear temperature load (explained in a
+minute), and then combining the responses from these simulations depending on
+the air temperature being modeled. Thermal noise is considered sufficient to
+investigate the robustness of the damage identification model to long-term
+variations in response.
 
 # Linear thermal expansion.
 OpenSees does not directly support the application of thermal load based on a
