@@ -135,6 +135,17 @@ once real sensor data is available. It is thus necessary to validate the FE
 model and simulated sensor data in order to provide confidence in the damage
 detection methods applied to the data.
 
+# Bridge 705.
+Bridge 705 is a non-prestressed non-posttensioned concrete slab bridge in
+Amsterdam, close to Lelylaan station. The bridge has two lanes of traffic,
+traveling in opposite directions and two tram lines between them. The bridge has
+24 supporting piers each of a height of 3.5 meters. Figure [[fig:bridge-705-real]]
+shows a photo of bridge 705.
+
+#+CAPTION[Bridge 705 at Cornelis Lelylaan, Amsterdam]: Bridge 705 at Cornelis Lelylaan, Amsterdam. The bridge has two traffic lanes, and two tram lanes in-between them. This photo is courtesy of TNO.
+#+NAME: fig:bridge-705-real
+[[../../bridge705/bridge-705.png]]
+
 # Validation of point loads.
 A FEM of the no-prestress no-postension concrete slab bridge, bridge 705, in
 Amsterdam was available at TNO (Netherlands Organisation for Applied Scientific
@@ -362,6 +373,7 @@ finally a conclusion of the work and results is presented.
 
 # #+LATEX: \clearpage
 * Literature Review
+<<sec:lit>>
 
 # Introduction.
 The goal of this Section is to summarise the existing body of work related to
@@ -726,10 +738,11 @@ classifications divided by the total number of classifications). However a
 discussion of the false positive rate and false negative rate are crucial.
 Consider a paper that presents a false positive rate of 1.3%, does this mean
 that an anomaly detection system would incorrectly signal that damage has
-occured for every 1 in 100 samples taken? Furthermore when environmental effects
-are taken into account the false positive rate would rise sharply.
+occured for every 1 in 100 samples taken? Furthermore, when environmental
+effects are taken into account the false positive rate would be expected to rise
+sharply.
 
-Based on this literature review the recommendation is made that future research
+Based on this literature review a recommendation is made that future research
 should focus on how an anomaly detection system would take into account
 environmental effects and more generally how such a system could work in a real
 installation, instead of simply reporting on the accuracy of a system on a
@@ -742,20 +755,34 @@ The Literature Review provided information on /what/ has already been achieved
 in the subject area of this thesis. This Section however provides background
 information in order to further motivate this thesis -- the focus now moves to
 the question of /why/. Why should sensors be installed on concrete slab bridges
-for the purpose of damage detection? This Section will examine the different
-types of bridges, types of damage that occur, how health monitoring takes place,
-and why an extensible system for researching damage detection on bridges is
-desirable.
+for the purpose of damage detection? This Section will briefly look at the
+different types of bridges, damage types, and how health monitoring currently
+takes place.
 
 ** Existing Bridges
+
 # Dutch road network overview.
 The Dutch national main road network consists of 3,200km of road. Assets in the
 road network are divided into four categories: pavements, structures, traffic
 facilities and environmental assets. Each structure is categorized into a type
 that has its own maintenance characteristics. Table [[tbl:dutch-road-network]]
-outlines the categorization of the 3,283 structures in the network.
+outlines the categorization of the 3,283 structures in the Dutch network. The
+aim of bridge maintenance is effective management of bridge stock and realistic
+budgeting, taking into account the entire bridge stock.
 
-#+CAPTION[Structures in the Dutch national main road network]: Structures in the Dutch national main road network. Each type of structure has its own maintenance characteristics. The table lists for each structure type the total number in the Dutch national main road network and the total deck area.
+# Cost of bridge maintenance.
+Bridges are a type of structure that require a large investment, though they
+also have a long service life of 50 to 100 years. Annual maintenance costs are
+relatively small compared to the initial investment cost (<1%), however over the
+lifetime of the bridge the maintenance costs are on the order of the initial
+investment cite:klatter2003life. The annual maintenance cost of concrete bridges
+in the Dutch stock is 37 \euro M. In an aging bridge stock the cost of
+maintenance can be assumed constant, averaged over the large number of
+structures. After a long time the cost of replacement will be approximately 85€
+million, approximately half the cost of annual maintanence of concrete bridges
+at 37€ million cite:klatter2003life.
+
+#+CAPTION[Structures in the Dutch national main road network]: Structures in the Dutch national main road network. Each type of structure has its own maintenance characteristics. The table lists for each structure type the total number in the Dutch national main road network and the total deck area. This table is from cite:klatter2003life.
 #+NAME: tbl:dutch-road-network
 | Stucture type        | Number | Deck Area (m2) |
 |----------------------+--------+----------------|
@@ -770,91 +797,21 @@ outlines the categorization of the 3,283 structures in the network.
 
 # TODO: https://www.wellsconcrete.com/blog/use-prestressed-concrete-vs-cast-place-concrete-precastprestressed-concrete/
 
-Bridge 705 is a bridge in
-
-#+CAPTION[Photo of the piers of bridge 705]: Photo of the piers of bridge 705. This photo shows piers at 5 of the 6 positions in longitudinal direction of the bridge. The two rows of piers furthest from the camera and the one row closest to the camera are hinged piers (notice the blue hinge closest to the camera) that allow the bridge deck to move in longitudinal direction. The remaining two rows of piers are fixed against longitudinal translation. The bridge is symmetrical, thus the single row of piers not shown (behind the camera) are also hinged.
-#+NAME: fig:705-piers
-[[./saved-images/photo-705-piers.JPG]]
-
-# Types of bridges.
-** Bridge Maintenance
-
-In this subsection we will take a brief look at the cost of bridge maintenance,
-with a focus on Dutch concrete slab bridges. Bridge maintenance is a requirement
-in the life-cycle of a bridge in order to extend the life of a bridge and keep
-it within operational conditions. The aims of bridge maintenance are effective
-management of bridge stock and realistic and prioritized budgeting, taking into
-account the entire bridge stock. cite:klatter2003life should be considered the
-de-facto reference for this subsection.
-
-# Cost of bridge maintenance.
-Bridges are a type of structure that require a large investment, though they
-also have a long service life of 50 to 100 years. Annual maintenance costs are
-relatively small compared to the initial investment cost (<1%), however over the
-lifetime of the bridge the maintenance costs are on the order of the initial
-investment. The annual maintenance cost and the cost of replacement are given
-for each type of structure in the Dutch national main road network in Table
-[[tbl:dutch-bridge-costs]].
-
-#+CAPTION[Maintenance and replacement cost of Dutch road structures]: Annual maintenance cost and cost of replacement in millions of euros, for each type of structure in the Dutch national main road network.
-#+NAME: tbl:dutch-bridge-costs
-| Stucture type        | Total Replacement | Annual Maintenance |
-|                      |         Cost (€M) |     Cost (\euro M) |
-|----------------------+-------------------+--------------------|
-|                      |               <r> |                <r> |
-| Concrete bridge      |             6,600 |                 37 |
-| Steel bridge (fixed) |               600 |                  7 |
-| Movable bridge       |             1,100 |                 10 |
-| Tunnel               |             1,700 |                 13 |
-| Aqueduct             |               250 |                  1 |
-|----------------------+-------------------+--------------------|
-| Total                |            10,250 |                 68 |
-
-# Maintenance cost example.
-The maintenance cost of a concrete bridge can be estimated by determining the
-maintenance cost of frequently used components such as concrete elements,
-extension joints and bearings. These costs estimates of the frequently used
-components first require a description of minimal acceptable condition of the
-components. Then, in combination with an estimation of maintanence intervals
-(which can come from subjective and conflicting sources) and prioritization of
-the available budgets, a maintenance plan of a bridge can be presented. An
-example of such a plan for a typical concrete highway bridge is shown in Figure
-[[fig:concrete-bridge-maintenance-cost]].
-
-#+CAPTION[Maintenance cost of a concrete highway bridge]: The maintenance cost of a typical concrete highway bridge. The y-axis shows the cost in thousands of euros. Each bar is for a period of five years and the cost is based on underlying components as indicated by the legend.
-#+NAME: fig:concrete-bridge-maintenance-cost
-[[./images/concrete-bridge-maintenance-cost.png]]
-
 # Age of the current Dutch bridge stock.
 The Dutch national road network contains over 3,000 highway bridges. Of these,
 most are 30 or more years old. A significant amount of bridges were constructed
-in the 1970s, which is typical for many Western European road networks. Fitting
-a Weibull distribution to the lifetime of demolished concrete bridges suggests
-an expected lifetime of 41 years. This in turn would mean that the many concrete
-bridges constructed in the 1970s and earlier would be due for replacement.
-However, of these demolished bridges, many were demolished due to a change in
-functional or economical requirements, rather than due to technical failure.
-Including the ages of current bridges in the fitted distribution increases the
-expected lifetime to 75 years, which is more in line with the design for 80
-years of most Dutch highway bridges, design codes in the Netherlands require a
-design lifetime between 50 and 100 years.
-
-# Cost of Dutch bridge maintenance vs replacement.
-Figure [[fig:dutch-replacement-cost]] shows an initial peak in the expected cost of
-replacement of Dutch bridges, this is largely due tot . In an aging bridge stock the cost
-of maintenance can be assumed constant, averaged over the large number of
-structures. After a long time the cost of replacement will be approximately 85€
-million, approximately half the cost of annual maintanence of concrete bridges
-at 37€ million.
-
-#+CAPTION[Replacement cost of concrete bridges]: The expected cost of replacement of concrete bridges in the Dutch national main road network. The expected cost is calculated by summing over all concrete bridges, their ages and replacement costs. The initial peak is largely due to a surge in construction around the 1970s. The cost of replacement will tend to 85€ million in the long run.
-#+NAME: fig:dutch-replacement-cost
-[[./images/dutch-replacement-cost.png]]
+in the 1970s, which is typical for many Western European road networks. The
+demolition of many Dutch bridges has been due to functional or economical
+requirements, before the design life of the bridge has expired, rather than due
+to technical failure. Design codes in the Netherlands require a design lifetime
+between 50 and 100 years. From the combination of the design life of bridges and
+the fact that may bridges were built post war, then a large peak can be expected
+in the maintenance and construction cost of Dutch bridges cite:klatter2003life.
 
 ** Damage Types
 
 Damage to a bridge can be classified as short-term or long-term. Short-term
-damage events are defined as a change of the properties of structural materials
+damage events are defined as a change in the properties of structural materials
 and elements, and of the behaviour of the whole structure, due to effects that
 occur during a very short period of time such as a collision or fire. Long-term
 damage events are those that occur gradually over a longer period of time. Table
@@ -865,7 +822,7 @@ damage due to short-term and long-term scenarios respectively.
 When damage is detected based on sensor measurements another possibility is of
 course that the sensor is itself faulty. Sensors can become faulty for a number
 of reasons, increased noise, bad installation, battery issues, harsh environment
-etc. cite:ni2009sensor. Maintaining a healthy sensor network is important
+etcetera cite:ni2009sensor. Maintaining a healthy sensor network is important
 because faulty sensors can cause not only permanent loss of data but also
 inaccurate damage detection, if for example the detection system is being
 trained on the faulty sensor data.
@@ -899,69 +856,49 @@ trained on the faulty sensor data.
 
 ** Health Monitoring
 
-# Damage localization and assessment (levels 2 and 3): have limitations.
-The most basic form of damage identification is determining whether damage has
-occured or not (detection). More sophisticated SHM methods attempt to determine
-the location (localization) or extent (assessment) of the damage.
+# # Hierarchy of levels.
+The question of /damage detection/ is to identify if a system has departed from
+normal (i.e. undamaged) condition, simple "is there damage or not?". The more
+sophisticated problem of /damage identification/ seeks to determine a greater
+level of information on the damage status, even to predict the future of the
+situation. The problem of damage identification can be considered as a hierarchy
+of levels as described in cite:rytter1993vibrational.
 
-require either
-severe damage or make assumptions about the type of damage cite:peter2003review.
-While an SHM system should be capable of a minimal amount of condition
-assessment (CA) the more likely scenario is an additional investigation for CA
-is triggered by the system cite:brownjohn2006structural.
-
-In this subsection we review some of the current methods of health monitoring of
-bridges. citet:peter2003review should be considered the default reference for
-this subsection.
-
-# Global health monitoring.
 Current state of the art health monitoring methods only indicate whether damage
 has occured in a bridge, not determining the location or severity of the damage.
-\textcolor{red}{verify by looking at more recent methods} This class of methods
-are referred to as "global health monitoring" methods. Global health monitoring
-methods are considered sufficient since knowing that damage has occured will
-allow a more accurate inspection to take place.
+It is suggested that another level could be added to Rytter's hierarchy, level
+2.1, the type of damage that occurs. If a certain type of damage is detected at
+a location then that will likely help with the assessment of the structure's
+health (level 3).
 
-# Local health monitoring.
-Local health monitoring refers to methods that find the location and possibly
-the extent of damage. Non-destructive evaluation (NDE) refers to methods of
-determining the location of damage without damaging the structure, for example
-with guided ultrasonic waves. NDE can be time consuming and expensive, and
-access to a location on the bridge may be difficult or not even possible.
+ - Level 1. (Detection) indication that damage might be present in the
+   structure.
+ - Level 2. (Localization) information about the probable position of the
+   damage.
+ - Level 3. (Assessment) an estimate of the extent of the damage.
+ - Level 4. (Prediction) information about the safety of the structure.
 
 # Expense of local health monitoring.
 In the USA the Federal Highway Administration (FHA) requires that the condition
-of bridges be evaluated every two years.
-
-Such an inspection typically takes the
+of bridges be evaluated every two years. Such an inspection typically takes the
 form of a tap test. A tap test is a test where the surface of the bridge is
 tapped in order to find variations in the sound response. However the tap test
 is limited to finding damage near the surface and in cases, significant cracks.
 And consider that in the USA there are over 500,000 highway bridges with a span
 length of over 7m, inspection of all these bridges with a limited budget and
-staff not always achievable.
+staff not always achievable. Non-destructive evaluation (NDE) refers to methods
+of determining the location of damage without damaging the structure, for
+example with guided ultrasonic waves. NDE can be time consuming and expensive,
+and access to a location on the bridge may be difficult or not even possible.
 
 # Changes in frequencies.
-Most global health monitoring techniques are based on finding changes in
-resonant frequencies or mode shapes. However for concrete structures the
-deterioration of reinforced steel has little effect on natural frequency. Some
-methods attempt to find the location and length of cracks based on natural
-frequency, however these methods assume the only damage is cracking, an
-assumption that will certainly not always be true in a real-life setting.
-
-# Robust to environmental factors.
-# Novelty detection methods do not require baseline data.
-Bridges will be subjected to environmental factors that affect the responses
-recorded by sensors. If the change in responses from environmental factors is
-considered as noise, then the change from damage must be notably greater than
-the change from noise in order for the health monitoring technique to detect
-that damage has occured. Methods which compare responses to baseline responses
-from the undamaged structure will suffer from this problem. Methods based on
-novelty detection do not require baseline data but typically do not provide a
-measure of the damage severity.
-
-#  Difficult to obtain an accurate analytical model.
-#  Concrete does not guarantee uniform material properties.
+Many global health monitoring techniques are based on finding changes in
+resonant frequencies or mode shapes, as discussed in the literature review
+<<sec:lit>>. However for concrete structures the deterioration of reinforced
+steel has little effect on natural frequency. Some methods attempt to find the
+location and length of cracks based on natural frequency, however these methods
+assume the only damage is cracking, an assumption that will certainly not always
+be true in a real-life setting.
 
 In the USA two bridge management systems (BMS) are used for the prioritization
 of funds and for the recommendation of actions for each bridge, these are PONTIS
@@ -972,8 +909,22 @@ bridge deck maintenance is proposed, however the system has self-proclaimed
 flaws including a lack of bridge deck problems analyzed, and data from the
 inspection of a bridge is required.
 
-** Sensor Technology
+# citet:peter2003review
+
+# Global health monitoring.
+# This class of methods are referred to as "global health monitoring" methods.
+# Global health monitoring methods are considered sufficient since knowing that
+# damage has occured will allow a more accurate inspection to take place.
+
+# Local health monitoring.
+# Local health monitoring refers to methods that find the location and possibly
+# the extent of damage.
+
+#  Difficult to obtain an accurate analytical model.
+#  Concrete does not guarantee uniform material properties.
+
 ** Extensibility
+
 In order for the developed DSS to be truly extensible it is not limited to
 depend on a single finite element program. The system has as a parameter a
 method of communication with a finite element program, such that data can be
@@ -995,17 +946,61 @@ be integrated with this system, which may be useful if a finite element model of
 a bridge for a different finite element program is already available to the
 user.
 
-# Extensibility requires open source.
-For a software system to be extensible, the source code must be available to any
-user wishing to extend said software. The benefits of **open source software**
-are well known, in particular open source software allows /any individual with
-an interest/ to develop or /extend/ the software. Open source software can thus
-leverage the knowledge of the community and prevent duplication of efforts which
-can occur when software is developed behind closed doors. Open source software
-also provides transparency to anyone wishing to investigate the software and may
-produce more reliable software due to more people having eyes on it.
+# Emphasis on reproduceable research.
+In recent years there is an increased emphasis on reproducable research within
+the scientific community. Reproducing research can allow for the verification of
+another's work. However reproducing research may come at the cost of one or more
+researcher's time, and while verification through reproduction is a valid goal,
+in an ideal world we should not have to redo work that has already been done. In
+order to prevent the waste of time that comes with reproducing another's work,
+the "dynamic document" has gained much popularity, a single document that
+contains both code and results, an example being the Jupyter Notebook.
 
-\textcolor{red}{extending to other types of bridges}
+# Reuse through modulur components and shared code.
+However I argue that we can do even better. There may be components of another's
+research that you are eager to use but that are difficult to extract. To avoid
+this the software should be presented as composable functions, allowing for the
+reuse of the research, whereby a researcher can compose some of the functions in
+a manner which was not done in the original research. Software can be thought of
+as Lego \textregistered blocks, and research that provides new and exciting Lego
+\textregistered blocks will allow for faster iteration in that research domain.
+It is unfortunate that spending time crafting reusable work such that other
+researchers in the same domain can perform better reseach is typically not in
+the original author's interest.
+
+# DRY and reuse.
+Reuse of software aligns with the /don't repeat yourself/ (DRY) principle of
+software engineering. Violations of DRY are creatively referred to as WET, or
+/write every time/. The downside of WET solutions are that each implementation
+has its own bugs, whereas in DRY solutions the bug fixes and optimizations are
+shared by all contributors and users. Reusable research can be made Open Source.
+Open source software can leverage the knowledge of the community and prevent
+duplication of effort which can occur when software is developed behind closed
+doors or for monetary gain.
+
+Open source software also provides transparency to
+anyone wishing to investigate the software and may produce more reliable
+software due to more people .
+
+# Extensibility requires open source.
+For a software system to be resusable, it must be available to any user wishing
+to extend said software. The benefits of **open source software** are well
+known, in particular open source software allows /any individual with an
+interest/ to develop or /extend/ the software.
+
+
+To aid reuse and avoid repitition,
+software must be made easy to use, which is the very next tip after the DRY
+principle in the book The Pragmatic Programmer cite:hunt1900pragmatic.
+
+#+BEGIN_QUOTE
+Make It Easy To Reuse
+
+If it’s easy to reuse, people will. Create an environment that supports reuse.
+
+-- The Pragmatic Programmer \textcolor{red}{page number}
+#+END_QUOTE
+
 # ** Existing Work
 # :PROPERTIES:
 # :UNNUMBERED: t
@@ -1412,21 +1407,16 @@ against longitudinal translation while some are not. Hinged piers, as can be
 clearly seen in Figure [[fig:705-piers]], are not fixed against longitudinal
 translation, while the remaining piers are fixed. All of the remaining degrees
 of freedom are set as not fixed.
+
+#+CAPTION[Photo of the piers of bridge 705]: Photo of the piers of bridge 705. This photo shows piers at 5 of the 6 positions in longitudinal direction of the bridge. The two rows of piers furthest from the camera and the one row closest to the camera are hinged piers (notice the blue hinge closest to the camera) that allow the bridge deck to move in longitudinal direction. The remaining two rows of piers are fixed against longitudinal translation. The bridge is symmetrical, thus the single row of piers not shown (behind the camera) are also hinged.
+#+NAME: fig:705-piers
+[[./saved-images/photo-705-piers.JPG]]
   
 **** Discretization
 - Material properties may vary according to a continuous function on a real
   bridge while material properties in the FEM change at given discretization
   points.
 **** Bridge 705
-Bridge 705 is a no-prestress no-posttension concrete slab bridge in the east of
-Amsterdam, close to Lelylaan station. The bridge has two lanes of traffic,
-traveling in opposite directions and two tram lines in the center. The bridge
-has 24 supporting piers each of a height of 3.5 meters. Figure
-[[fig:bridge-705-real]] shows a photo of bridge 705.
-
-#+CAPTION[Bridge 705 at Cornelis Lelylaan, Amsterdam]: Bridge 705 at Cornelis Lelylaan, Amsterdam. The bridge has two traffic lanes, and two tram lanes in-between them. This photo is courtesy of TNO.
-#+NAME: fig:bridge-705-real
-[[../../bridge705/bridge-705.png]]
 
 The same material properties that were used in the Diana model of bridge 705
 were used in the generated FEM of bridge 705 for OpenSees. These material
@@ -1970,44 +1960,8 @@ in Figure TODO:REMOVE.
 # TODO: Specify exact refinement positions.
 
 *** Reusable System
-# Emphasis on reproduceable research.
-In recent years there is an increased emphasis on reproducable research within
-the scientific community. Reproducable research can be more easily verified by
-peers than research which must be reimplemented. If research is accomplished
-through code, for example as simulations are, then the research can be verified
-be downloading the software and running it.
-
-# Lifted parameters
-# TODO: Not extensible, but on the way to extensible.
-If the parameters of the research are not buried deep in the code but instead
-"lifted" to the boundaries of the system, then that research can be considered
-not just reproduceable but extensible.
-
-# Reuse through composition of modular components.
-Furthermore if the software is presented as composable functions instead of
-scripts, then this allows for the reuse of the research, whereby a researcher
-can compose some of the functions in a manner which was not done in the original
-research.
-
-# DRY and reuse.
-Reuse of software aligns with the /don't repeat yourself/ (DRY) principle of
-software engineering. Violations of DRY are creatively referred to as WET, or
-/write every time/. The downside of WET solutions are that each implementation
-has its own bugs, whereas in DRY solutions the bug fixes and optimizations are
-shared by all contributors and users. To aid reuse and avoid repitition,
-software must be made easy to use, which is the very next tip after the DRY
-principle in the book The Pragmatic Programmer cite:hunt1900pragmatic.
-
-#+BEGIN_QUOTE
-Make It Easy To Reuse
-
-If it’s easy to reuse, people will. Create an environment that supports reuse.
-
--- The Pragmatic Programmer \textcolor{red}{page number}
-#+END_QUOTE
-
 Keeping with these principles, an effort has been made for the research in this
-thesis to me not just reproduceable but extensible. A system for running traffic
+thesis to not just be reproduceable but extensible. A system for running traffic
 simulations on concrete slab bridges and analyzing results is published on the
 Python Package Index (PyPI) cite:rankingpypi under the name =bridge-sim= where
 you will also find the documentation. An example showing the use of the system
@@ -2649,7 +2603,12 @@ Some short-term damage may not permanently affect the structure and in this case
 the time series of responses is expected to return to normal. Detection of
 damage which causes a permanent change in the response of a structure will
 reduce the amount of false positive detections at the expence of not detecting
-some damage.
+some damage. Detecting a change in the strain along around a crack zone will
+require a dense sensor network, and installing many strain gauge instruments may
+be insufficient and too expensive, therefore the use of innovative sensors such
+as the SENSkin cite:cheilakou2018strain which is an "inexpensive, skin-like
+sensor" and can detect strain between 0.00012 and 0.1, however more research
+into these kind of sensors is required.
 
 ** Future Research
 
