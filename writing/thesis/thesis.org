@@ -1331,7 +1331,7 @@ to drive on the bridge and the direction of traffic. Material properties
 determine the interaction between the elements in the generated finite element
 model and their behaviour when forces are applied to the elements. The mesh
 parameters define the minimum density of the generated mesh, minimum because
-additional nodes and elements must be placed at locations of interest, such as
+additional nodes and elements must be placed at additional important locations,
 where the material properties change and where the supporting piers meet the
 deck.
 
@@ -1739,7 +1739,7 @@ $102.75 m$, width is $33.2 m$, and thickness varies from $0.5 m$ to $0.739 m$.
 # Unit load simulations are run.
 For a =Bridge=, a number of simulations are run the first time that a response
 to a load is requested. For each wheel track 600 simulations are run, that
-translates into a simulation every $102.75 / 600 0.17125 m$. In each of these
+translates into a simulation every $102.75 / 600 = 0.17125 m$. In each of these
 simulations, a load of unit intensity =I= is placed at a point on the wheel
 track and responses of the bridge to the load are recorded. The responses are
 translation (in each of the three directions of the coordinate system) from each
@@ -1756,12 +1756,13 @@ of $2 * (2400 + 2) + 24 = 4828$ simulations.
 The use of the principle of superposition to calculate the response to a vehicle
 is shown in imperative style in Listing [[lst:superposition]]. This calculation can
 however be phrased as a linear algebra problem for which most CPUs are highly
-optimized. The calculation of the response at many points to many vehicles over
-a series of time steps using matrix multiplication is shown in Listing
-[[lst:matmul]].
+optimized and this is how the responses are actually calculated, however
+stepping through the calculation in imperative style is more informative, at
+least to the author.
 
 #+NAME: lst:superposition
-#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. The description of the method is given in imperative style with comments.
+#+CAPTION[Response to a vehicle from unit load simulations]: Using the principle of superposition to calculate the response to a vehicle from unit load simulations. The description of the method is given in the comments of the code. This code is presented in imperative style while in reality the responses are calculated using matrix multiplication for which CPUs are optimized.
+#+ATTR_LATEX: :options frame=single
 #+BEGIN_SRC python
 response = 0
 p = Point(x=35, y=0, z=25)
@@ -1784,10 +1785,11 @@ if mm > 0:
 #+END_SRC
 
 # Limited accuracy of responses: mesh density & il_num_loads
-=il_num_loads= number of unit load simulations are run per wheel track. And
-there are a finite number of responses collected from each unit load simulation,
-as determined by the mesh density. To explicitly state an important point: the
-unit load responses, which are used to calculate a response at a point =P= to a
+\textcolor{red}{TODO: I am too tired to rephrase this complicated paragraph right now.}
+The number of unit load simulations are run per wheel track. And there are a
+finite number of responses collected from each unit load simulation, as
+determined by the mesh density. To explicitly state an important point: the unit
+load responses, which are used to calculate a response at a point =P= to a
 vehicle, are the responses at the recorded point closest to =P=, and the unit
 load simulations from which these responses are taken are those for which the
 unit load is closest to each of a vehicle's wheels position on the bridge. Thus
@@ -1795,107 +1797,56 @@ the parameter =il_num_loads=, and the parameters that define the mesh density,
 determine the discretization step of the model and thus the accuracy of the
 responses which are calculated.
 
-# Influence lines per wheel track.
-=il_num_loads= number of unit load simulations are run per wheel track. Then for
-any point on the bridge, the response at that point can be calculated to a load
-on one of that wheel tracks. The function of the response at a point due to a
-changing load is called an influence line, which is commonly used in structural
-engineering to describe a response function. Figure TODO:REMOVE contains
-a number of influence lines. Each influence line shows the displacement of the
-bridge deck at a different point on the wheel track at ~z = -9.4m~, as a unit
-load is moved along the same wheel track.
+When creating a FEM of a =Bridge= under pier settlement for OpenSees, each of
+the nodes at the bottom of the pier being settled are not fixed for vertical
+translation (to allow for the settlement of the piers to occur). When running a
+pier settlement simulation the =DisplacementControl= command for OpenSees is
+used to specify that the central bottom node of the pier should be vertically
+translated by unit amount. Even though a load must be placed on this node, the
+load intensity is ignored by the =DisplacementControl= algorithm, the load
+intensity is instead increased until a displacement of unit amount is reached.
+After these simulations have run, the response at any point on the bridge can be
+calculated due to any combination of piers being settled by different amounts.
 
-Furthermore we can stack the influence lines for a number of points against each
-other, flipping each influence line by $90 \degree$ so it is vertical. For
-example, we can consider a number of equidistant points along a slice in the
-longitudinal direction of a bridge, and for each of these points consider the
-response to a load moving along the same slice. Figure TODO:REMOVE shows such
-a matrix for ~z = -9.4m~. Each column of the matrix is an influence line, each
-row shows the response along the bridge deck for ~z = -9.4m~ for a different
-loading position.
+# **** Meshing
 
-Another of the damage scenarios is pier displacement. To calculate responses to
-a load under this damage scenario, all of the unit load simulations need to be
-run again for this damage scenario. The name of the pier displacement damage
-scenario in the data collection sytem is =PierDisplacement=. =PierDisplacement=
-specifies a displacement in meters of one of a bridge's piers.
+# The mesh of the generated FEM is controlled by a parameter $max\_shell_\len$ or
+# ~MSL~. This parameter determines the maximum permitted length of a shell element
+# in the generated FEM.
 
-When creating a FEM of a =Bridge= under pier displacement for OpenSees, each of
-the bottom nodes of the piers under displacement are not fixed for y translation
-(to allow for the displacement of the piers to occur). An important step when
-creating a FEM under this damage scenario for OpenSees is to set the method of
-integration with the =integrator= command. Under the undamaged scenario the
-integrator used is =LoadControl=, which specifies that, among other things, the
-predictive time step of the simulation is driven by the loads applied. In the
-case of pier displacement the =DisplacementControl= integrator is used instead,
-this is used to specify that in an analysis step, the displacement control
-algorithm will seek the time step that will result in a specified increment for
-a particular degree of freedom of a specified node. For example the command
-=integrator DisplacementControl 1 2 0.1= specifies that the displacement control
-algorithm will seek an increment of 0.1 at node 1 in the second degree of
-freedom.
+# # The meshing process is split into two parts. Construction of the base mesh,
+# # followed by refinement.
 
-When running a pier displacement simulation the =DisplacementControl= command is
-used to specify that the central bottom node of the pier should be displaced by
-1m. A load is placed on this node, though the load intensity is ignored by the
-=DisplacementControl= algorithm, the load intensity is instead increased until a
-displacement of 1m is reached. Figure TODO:REMOVE shows a contour plot of the
-displacement of the deck of bridge 705 due to a single pier being displaced by
--1m.
+# # Points of interest in one direction of the bridge deck.
+# The base mesh is constructed by first considering a number of positions of
+# interest in one direction of the bridge deck. For example, in the transverse
+# direction of the bridge, positions of interest include where the material
+# properties change and where the tops of the piers begin and end. For each pair
+# of positions of interest $P_0, P_1$ that are next to each other, a number of
+# equidistant positions $PS_{0,1}$ are selected between $P_0$ and $P_1$, such that
+# the distance between any neighbourly pair of positions in $PS_{0,1}$ is as close
+# to ~MSL~ as possible but no greater. $PS_{0,1}$ are added to a set of positions
+# $PS_x$.
 
-Due to the linear elastic accumption made when modeling, only one pier
-displacement simulation needs to be run per pier. One simulation is run for each
-pier, until that pier has been displaced by unit amount, one meter in the case
-of this data collection system. After these simulations have run, the response
-at any point on the bridge can be calculated due to any combination of piers
-being displaced by different amounts, as outlined in Listing [[lst:pier-disp]].
+# # Cartesian product.
+# We now have a number of positions $PS_x$ where nodes should be placed in the
+# transverse direction of the bridge deck. The same process is repeated in the
+# longitudinal direction to acquire $PS_z$ and then the cartesian product of
+# $PS_x$ and $PS_z$ is calculated. The result is a point for each node in the base
+# mesh of the bridge deck. A similar process is applied to the bridge piers.
 
-#+NAME: lst:pier-disp
-#+CAPTION: Calculation of the response
-#+BEGIN_SRC python
-response = 0
-p = Point(x=35, y=0, z=25)
-for vehicle in traffic:
-    for wp, wi in vehicle:
-        unit_load_simulation = load_sim_closest_to(wp)
-        ru = unit_load_simulation.response_at(point)
-        response += ru * (wi / ul)
-#+END_SRC
-**** Meshing
-The mesh of the generated FEM is controlled by a parameter $max\_shell_\len$ or
-~MSL~. This parameter determines the maximum permitted length of a shell element
-in the generated FEM. The meshing process is split into two parts. Construction
-of the base mesh, followed by refinement.
+# # # Refinement.
+# # Refinement of the base mesh occurs around a specified loading position $L$
+# # based on a set of refinement radii $R$. Each set of four neighbouring nodes
+# # which form a rectangle are considered as a shell element. For each radius
+# # $R_i$ in $R$, the shells which contain a node $R_i$ meters or less from $L$
+# # are refined. Refining these shells takes the simple process of splitting each
+# # shell into four smaller shells, thus introducing five additional nodes per
+# # shell that is refined. For a point-load simulation... A refined mesh of bridge
+# # 705, with a parameter of ~MSL = 0.5~ for the base mesh, $R = [2, 1, 0.5]$ and
+# # $L_x, L_z = (85, 16.6)$ is shown in Figure TODO:REMOVE.
 
-# Points of interest in one direction of the bridge deck.
-The base mesh is constructed by first considering a number of positions of
-interest in one direction of the bridge deck. For example, in the transverse
-direction of the bridge, positions of interest include where the material
-properties change and where the tops of the piers begin and end. For each pair
-of positions of interest $P_0, P_1$ that are next to each other, a number of
-equidistant positions $PS_{0,1}$ are selected between $P_0$ and $P_1$, such that
-the distance between any neighbourly pair of positions in $PS_{0,1}$ is as close
-to ~MSL~ as possible but no greater. $PS_{0,1}$ are added to a set of positions
-$PS_x$.
-
-# Cartesian product.
-We now have a number of positions $PS_x$ where nodes should be placed in the
-transverse direction of the bridge deck. The same process is repeated in the
-longitudinal direction to acquire $PS_z$ and then the cartesian product of
-$PS_x$ and $PS_z$ is calculated. The result is a point for each node in the base
-mesh of the bridge deck. A similar process is applied to the bridge piers.
-
-# Refinement.
-Refinement of the base mesh occurs around a specified loading position $L$ based
-on a set of refinement radii $R$. Each set of four neighbouring nodes which form
-a rectangle are considered as a shell element. For each radius $R_i$ in $R$, the
-shells which contain a node $R_i$ meters or less from $L$ are refined. Refining
-these shells takes the simple process of splitting each shell into four smaller
-shells, thus introducing five additional nodes per shell that is refined. For a
-point-load simulation... A refined mesh of bridge 705, with a parameter of ~MSL
-= 0.5~ for the base mesh, $R = [2, 1, 0.5]$ and $L_x, L_z = (85, 16.6)$ is shown
-in Figure TODO:REMOVE.
-# TODO: Specify exact refinement positions.
+# # # TODO: Specify exact refinement positions.
 
 *** Collected Data
 
@@ -2085,9 +2036,11 @@ even generate a mesh itself, therefore a test of model convergence in terms of
 mesh density must be performed.
 
 # How mesh density is controlled.
-The density of the generated FEM's mesh is controlled by the parameter ~MSL~ as
-discussed in Subsection [[Meshing]]. As the value of ~MSL~ is decreased, the area of
-all shells in the generated FEM for OpenSees decreases, heading to a limit of 0.
+The density of the generated FEM's mesh is controlled by the parameter ~MSL~
+which determines the minimum distance between two nodes in one of the directions
+of the coordinate system of the bridge. As the value of ~MSL~ is decreased, the
+area of all shells in the generated FEM for OpenSees decreases, heading to a
+limit of 0.
 
 # Computation on a grid: why it's necessary.
 The positions of nodes will change as ~MSL~ is varied. Consider the transverse
@@ -2493,7 +2446,6 @@ cite:gilbert2013time, shows the non-linear behaviour that is expected due to
 uniform bending of a reinforced concrete slab, according to this work the "fall
 back down" is not expected.
 
-
 # Pier settlement damage.
 The second type of damage that is considered is the settlement of a pier, which
 can occur due to a change in soil properties, perhaps due to climatic conditions
@@ -2506,15 +2458,17 @@ pier settlement can be detected.
 
 * Results
 
-*** Reusable System
+** Reusable System
 
-Keeping with these principles, an effort has been made for the research in this
-thesis to not just be reproduceable but extensible. A system for running traffic
-simulations on concrete slab bridges and analyzing results is published on the
-Python Package Index (PyPI) cite:rankingpypi under the name =bridge-sim= where
-you will also find the documentation. An example showing the use of the system
-is presented in Listing [[lst:ts-point-load]] =bridge-sim= installation instructions
-and the documentation which are linked on GitHub.
+\textcolor{Fix: Python & windows issue}
+
+An effort has been made for the research in this thesis to be highly reusable. A
+system for running traffic simulations on concrete slab bridges and analyzing
+results is published on the Python Package Index (PyPI) cite:rankingpypi under
+the name =bridge-sim= where you will also find the documentation. An example
+showing the use of the system is presented in Listing [[lst:ts-point-load]]
+=bridge-sim= installation instructions and the documentation which are linked on
+GitHub.
 
 #+NAME: lst:ts-point-load
 #+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
@@ -2572,9 +2526,9 @@ into these kind of sensors is required.
 ** Future Research
 
 It is suggested that further research on damage detection of concrete slab
-bridges, or indeed other bridges, focuses on the creation of **re-usable
-models** that aim to be **highly realistic**, including dynamic effects and an
-improved environmental model (wind speed, angle of the sun, shrink, creepage).
+bridges focuses on the creation of **re-usable models** that aim to be **highly
+realistic**, and the strongest recommendation is to focus on the **removal of
+environmental effects**.
 
 When building a model the goal is usually to make the model as simple as
 possible while not making it too simple that it cannot capture what is being
@@ -2584,7 +2538,9 @@ built and a second model =D= built to detect damage on the output of =M=, now we
 are building models built on models! Furthermore, the implementor of =D= may be
 familiar with the inner workings of =M=! The confidence in the results of =D=
 will depend on the quality of =M= and it is for this reason that future work
-should focus immediately on highly realistic modeling.
+should focus immediately on the inclusion of dynamic effects, including dynamic
+effects and an improved environmental model (wind speed, angle of the sun,
+shrink, creepage).
 
 If the confidence in =D= depends on the quality of =M= then it is likely that
 any future research will spend a significant amount of time on the development
@@ -2596,22 +2552,29 @@ start building =M= from scratch every time and instead aim to build upon the
 previous work (not just the previous results) which is most easily done if the
 previous work has made an effort to be re-usable. **2.** Creating a re-usable
 model will reduce the barrier to entry for others interested in doing research
-on damage detection of bridges. **3.** Many bridges are built with similar
-materials and have similar geometry, thus one model of a bridge can be adapted
-to other bridges. Toward a vision of creating "digital twins" of bridges,
-creating re-usable models will allow for targeting many more bridges in the
-national stock and the models of those bridge types will be of higher quality.
+on damage detection of bridges and if an effort is made to create reusable
+tools, who knows, maybe some day a community will begin to form around these
+tools! **3.** Many concrete slab bridges have similar mechanics and have similar
+geometry, thus one model of a bridge can be adapted to other bridges. Toward a
+vision of creating "digital twins" of bridges, creating re-usable models will
+allow for targeting many more bridges in the national stock and the models of
+those bridge types will be of higher quality.
 
 Finally it is suggested that sensors are installed on a concrete slab bridge and
 the data made available in real-time to researchers. The sensors should record
 traffic with weigh-in-motion technology in order to accurately model the traffic
 on the bridge, should record air temperature, wind speed, solar radiation and
 the temperature at the top and bottom of the bridge deck in order to validate
-and better understand the effect of temperature on the bridge. And finally, and
-perhaps most importantly, the translation and strain sensors on the bridge
-should record the responses under operational conditions in order to get more
-realistic information about the noise or unexplained variations in the signal
-that could cause false positives in classification.
+and better understand the effect of temperature on the bridge. Translation and
+strain sensors on the bridge should record the responses under operational
+conditions in order to get more realistic information about the noise or
+unexplained variations in the signal that could cause false positives in
+classification. Perhaps the most important part of having real-time sensors is
+that an environmental model could be learned and predicting or removing the
+environmental effects based on some subset of the sensors could be researched.
+When anamalous conditions can be triggered by damage or environmental effects
+then it is no surprise that the primary recommendation is that future work
+should researching how environmental effects should be removed.
 
 #+LATEX: \clearpage
 * Appendix

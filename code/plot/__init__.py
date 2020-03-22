@@ -49,6 +49,8 @@ _og_show = _plt.show
 def _savefig(s):
     print_i(f"Saving image to {s}")
     _og_savefig(s)
+    if s.endswith(".pdf"):
+        _og_savefig(s.replace(".pdf", ".png"))
 
 
 def _show(*args, **kwargs):
