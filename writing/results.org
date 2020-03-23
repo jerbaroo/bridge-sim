@@ -1,0 +1,71 @@
+- With what accuracy can the vertical translation of a sensor on bridge 705 be
+  predicted without temperature effect based on regression of previous year's
+  responses with air temperature and 24 daily samples?
+
+Temperature may cause a temporary change in vertical translation. A model =T=
+based on a number of variables such as air temperature can be built in order to
+predict the effect of temperature on a structure. However in this problem domain
+generating data via simulation is necessary, and so the model =T= must be used
+instead to simulate the effect of temperature, and of course the same model =T=
+cannot simply be used to predict and remove the simulated effect. To convince
+ourselves that removal of the temperature effect would work in real life, a
+simple and robust technique should be used. After removal of the temperature
+effect what remains is the effect due to live load and additional effects as
+seen in Figure A.
+
+Removing the temperature effect from a number of sensors based on regression of
+the previous year's responses against air temperature measurements CITE, and
+fitting a curve to 24 samples taken in a 24 hour cycle CITE, the mean effect
+that was not removed due to temperature is 18% for the sensor at $x = 21 m, z =
+0.84 m$ and N % for the sensor at S.
+
+- What sensor threshold value is appropriate to trigger warnings when pier 5 of
+  bridge 705 is settled by $3 mm$? (**Q.2**)?
+
+The tensile strength of concrete is $\approx 3 \frac{N}{mm^2}$. Stresses will
+occur on the bridge due to a number of different effects. Based on Figure F, the
+combination of live load, temperature effect on the hottest day of the year, and
+pier settlement of $5 mm$, a tensile strength of $\approx 2.5$ will already be
+reached. All concrete will crack and this model does not include a number of
+additional effects such as dead load which may incur additional stresses,
+therefore $3 mm$ is chosen as a value slightly which is large enough to warrant
+a warning but unlikely to cause large damage.
+
+A single sensor (Figure G) is chosen in the vicinity of pier 5. Two time series
+of responses from July to December are generated, one time series with pier 5
+settled by $3 mm$ and one time series when bridge 705 is still in healthy state.
+A small sensor threshold value is chosen and the number of days on which each
+sensor is triggered is recorded. When the healthy time series triggers a sensor
+this is considered a false positive and when the pier settled time series does
+not trigger a warning this is considered a false negative. The sensor threshold
+must be increased to determine at which point the true classifications are
+maximized and the false classifications are minimized. When the threshold is too
+small there will be many false positives and when the threshold is too large
+there will be many false negatives.
+
+- What is the minimum amount of pier settlement that can be detected for pier 5
+  based on the same sensor as in the previous experiment before classification
+  accuracy drops below 90%?
+
+Building upon the previous experiment but repeating it for decreasing values of
+pier settlement, then at some point it will no longer be possible to select a
+sensor threshold value that will trigger warnings due to pier settlement but not
+trigger warnings due to live load and temperature effect. In this experiment a
+lower limit of 90% classification accuracy is selected and we investigate at
+what level of pier settlement can this classification accuracy no longer be
+achieved.
+
+- To what extent does the ability to predict the vertical translation change
+  due to pier settlement change across bridge 705?
+
+The effect of temperature is not uniform across the bridge, instead temperature
+will affect..., to think through a bit more...
+
+- Can the change in sensor responses that occurs due to cracking be detected?
+
+Generate multiple time series of responses, and apply the crack at a random
+point in the time series, the crack is assumed to occur instantly. At each
+minute in the simulation a comparative measure is calculated between the last
+minute and third last minute of responses. What value of the comparative measure
+maximizes the accuracy at each minute when the measure is calculated, and what
+is that accuracy?
