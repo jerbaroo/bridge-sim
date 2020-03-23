@@ -10,7 +10,7 @@ from fem.build import get_bridge_nodes, get_bridge_shells
 from fem.model import BuildContext, Node, Shell
 from fem.params import SimParams
 from model.bridge import Point
-from plot import default_cmap, parula_cmap, plt
+from plot import default_cmap, legend_marker_size, parula_cmap, plt
 from plot.geometry import top_view_bridge
 from plot.geometry.shell import shell_properties_3d, shell_properties_top_view
 from plot.geometry.node import node_scatter_3d
@@ -197,6 +197,9 @@ def make_available_sensors_plot(
         ),
         label=True,
     )
+    for l_i, load in enumerate([Point(x=21, z=-8.4), Point(x=33, z=-4)]):
+        plt.scatter([load.x], [load.z], color="red", marker="o", s=50, label="Sensor of interest" if l_i == 0 else None)
+    legend_marker_size(plt.legend(), 50)
     plt.title(f"Sensors available for classification on Bridge 705")
     plt.tight_layout()
     plt.savefig(c.get_image_path("sensors", "unavailable-sensors.pdf"))
