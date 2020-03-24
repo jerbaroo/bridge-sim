@@ -2485,8 +2485,8 @@ will affect..., like the previous question but for every sensor, just show a
 single plot that reveals the pier settlement underneath.
 
 \bigskip **Question 2.** What threshold values are appropriate to trigger
-warnings from two selected sensors on bridge 705 when pier 5 is settled by $3
-mm$?
+warnings from the two selected sensors on bridge 705 when pier 5 is settled by
+$3 mm$?
 
 \bigskip The tensile strength of concrete is approximately $3 \frac{N}{mm^2}$.
 Stresses will occur on the bridge due to a number of different effects. Based on
