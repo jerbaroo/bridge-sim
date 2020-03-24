@@ -2512,8 +2512,8 @@ positives and when the threshold is too large there will be many false
 negatives.
 
 \bigskip **Question 3.** What is the minimum amount of pier settlement that can
-be detected for pier 5 based on the same sensor as in the previous experiment
-before classification accuracy drops below 90%?
+be detected for pier 5 based on the same selected sensors as in the previous
+experiment before classification accuracy drops below 90%?
 
 \bigskip Building upon the previous experiment but repeating it for decreasing
 values of pier settlement from the initial $3 mm$. At some point it will no

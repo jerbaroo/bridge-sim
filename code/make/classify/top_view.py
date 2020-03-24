@@ -1,5 +1,6 @@
 import matplotlib as mpl
 import numpy as np
+from datetime import datetime
 
 from config import Config
 from classify.data.responses import responses_to_traffic_array
@@ -46,18 +47,34 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         damage_scenario=damage_scenario,
         points=deck_points,
         response_type=response_type,
-        sim_runner=OSRunner(c),
     )
-    # Temperature effect.
-    temps = temperature.load("holly-springs")["temp"]
-    temp_effect = temperature.get_effect(
-        c=c,
-        response_type=response_type,
-        points=deck_points,
-        temps=temps,
-        responses=responses_array.T,
-        speed_up=60,
+    # Temperature effect July 1st.
+    temps_2019 = temperature.load("holly-springs")
+    temps_2019["temp"] = temperature.resize(temps_2019["temp"])
+    effect_2019 = temperature.effect(c=c, response_type=response_type, points=deck_points, temps=temps_2019["temp"], solar=temps_2019["solar"], len_per_hour=60).T
+    # The effect is ordered by time series and then by points. (104910, 301)
+    assert len(effect_2019) == len(temps_2019)
+    july_2019_i, july_2019_j = temperature.from_to_indices(
+        temps_2019,
+        datetime.fromisoformat(f"2019-10-01T00:00"),
+        datetime.fromisoformat(f"2019-10-01T23:59"),
     )
+    temp_effect = []
+    for i in range(len(deck_points)):
+        temp_effect.append(
+            temperature.apply(
+                # Effect for July 1st, for the current point..
+                effect=effect_2019.T[i][july_2019_i:july_2019_j],
+                # ..for the length of the time series.
+                responses=responses_array
+            )
+        )
+    temp_effect = np.array(temp_effect)
+    plt.subplot(2, 1, 1)
+    plt.plot(effect_2019.T[-1])
+    plt.subplot(2, 1, 2)
+    plt.plot(temp_effect[-1])
+    plt.show()
     # Determine response due to pier settlement.
     pd_response_at_point = 0
     if isinstance(damage_scenario, PierDispDamage):
@@ -73,7 +90,8 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     resize_f, units = resize_units(response_type.units())
     if resize_f is not None:
         responses_array = resize_f(responses_array)
-        temp_effect = resize_f(temp_effect)
+        temp_effect = resize_f(temp_effect.T).T
+        print(np.mean(temp_effect[-1]))
         pd_response_at_point = resize_f(pd_response_at_point)
     responses_w_temp = responses_array + temp_effect.T
     # Determine levels of the colourbar.
