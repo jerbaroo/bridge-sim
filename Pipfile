@@ -23,7 +23,6 @@ portalocker = "*"
 scipy = "*"
 sklearn = "*"
 termcolor = "*"
-jupyterlab = "*"
 
 [pipenv]
 allow_prereleases = true

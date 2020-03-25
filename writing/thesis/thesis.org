@@ -475,8 +475,8 @@ cite:stubbs2000global it simply states "the existence of noise in the data
 processing should be addressed".
 
 # Analytical model: hard to acquire inaccurate.
-Health monitoring based on a numerical model imposes a challenge because a
-numerical model is required and the necessary data for building a numerical
+Health monitoring based on a numerical model imposes a challenge simply because
+the numerical model is required, and the necessary data for building a numerical
 model is not always available. This is because civil infrastucture is not always
 built precisely to the original design, due to changes in orders or due to
 on-site construction constraints. Moreover, in the case of concrete, uniform
@@ -592,6 +592,7 @@ environmental conditions that may trigger anomolous conditions in real life.
 # are highly damped with low natural frequencies
 
 *** Noise
+<<sec:lit:noise>>
 
 Any structural health monitoring system that is deployed on a real-life
 structure must consider the environmental and operational effects that will
@@ -2354,16 +2355,16 @@ the run time of a simulation is approximatley three minutes on a
 #+ATTR_LATEX: :float wrap :width 0.45\textwidth
 [[./saved-images/params/uls.pdf]]
 
-# Non convergence of strains -> ignored sensors.
+# Non-convergence of strains -> ignored sensors.
 The generated strain responses are not converging close to the point loads that
 are applied on the wheel tracks, and also not converging close to the piers in
 the pier settlement simulations. Under elastic plate theory, the stresses (and
 strains) under a point load are infinitely large, which is why we do not observe
 convergence cite:timoshenko1959theory. Therefore strain sensors are not placed
 around the piers or near the wheel tracks for the purpose of classification.
-Figure [[fig:strain-sensors]] shows the positions on bridge 705 where simulated
-strain responses are collected, the selection of these sensors is justified in
-the following paragraphs.
+Figure [[fig:avail-sensors]] shows the positions on bridge 705 where simulated strain
+responses are collected, the selection of these sensors is justified in the
+following paragraphs.
 
 # Sensors ignored around piers.
 Figures [[fig:pier-4-nesw]] and [[fig:pier-5-nesw]] show how the collected strains
@@ -2374,7 +2375,7 @@ the bottom of the bridge deck due to the presence of the piers, thus this is at
 least a somewhat realistic set of sensor positions that are being ignored.
 \textcolor{red}{Reference}.
 
-#+NAME: fig:strain-sensors
+#+NAME: fig:avail-sensors
 #+CAPTION[Positions of available strain sensors]: Available positions in simulation to place strain sensors on the deck of bridge 705 for the purpose of classification. The blue dots indicate positions where strain sensors are available while the red sensors indicate positions where data from strain sensors cannot be used due to a lack of convergence.
 #+ATTR_LaTeX: :placement [!t]
 [[./saved-images/unavailable-sensors.pdf]]
@@ -2456,12 +2457,13 @@ should be made the focus of future work.
 A number of experiments will be run on the data which has been generated from
 the model outlined in Section [[sec:meth:sim]] on simulation. In this Section we
 outline a number of questions that are to be answered based on this model and
-outline what the experiments are which we hope will provide the answers.
+outline what the experiments are which we hope will provide the answers. These
+questions will naturally build upon the questions that come before them.
 
 \bigskip **Question 1:** With what accuracy can the vertical translation of two
 selected sensors on bridge 705 be predicted without temperature effect based on
-regression of previous year's responses with air temperature and 24 daily
-samples?
+regression of the model's previous year's responses with air temperature and
+taking hourly samples to remove the daily component?
 
 \bigskip Temperature may cause a temporary change in vertical translation. A
 model =T= based on a number of variables such as air temperature can be built in
@@ -2470,19 +2472,19 @@ problem domain generating data via simulation is necessary, and so the model =T=
 must be used instead to simulate the effect of temperature, and of course the
 same model =T= cannot simply be used to predict and remove the simulated effect.
 To convince ourselves that removal of the temperature effect would work in real
-life, a simple and robust technique should be used. After removal of the
-temperature effect what remains is the effect due to live load and additional
-effects as seen in Figure A. Answering this question we will look closely at two
-specific sensors, the next question however will consider the entire bridge
-deck.
+life, a simple and robust technique should be used. Furthermore the temperature
+model is based on data taken at 5-minute samples from a quality controlled
+dataset, using air temperature, solar radiation and \textcolor{red}{TODO wind
+speed (I have the data) and error term}.
 
-\bigskip **Question 4.** To what extent does the ability to predict the vertical
-translation change due to pier settlement change across bridge 705 based on the
-same method as in Question 1?
-
-The effect of temperature is not uniform across the bridge, instead temperature
-will affect..., like the previous question but for every sensor, just show a
-single plot that reveals the pier settlement underneath.
+The method used is based on cite:kromanis2016shm. The thermal effect is removed
+by linear regression of the previous year's responses against air temperature
+measurements and linear interpolation of hourly samples from a 24 hour cycle.
+This paper from 2016 also suggests a method for anomaly detection as discussed
+in Section [[sec:lit:noise]]. After removal of the temperature effect what remains
+is the effect from live load and additional effects as seen in Figure
+[[fig:effects]]. Answering this question we will look closely at the two specific
+sensors indicated in Figure [[fig:avail-sensors]].
 
 \bigskip **Question 2.** What threshold values are appropriate to trigger
 warnings from the two selected sensors on bridge 705 when pier 5 is settled by
@@ -2498,32 +2500,32 @@ such as dead load which may incur additional stresses, therefore $3 mm$ is
 chosen as a value of settlement which is large enough to warrant a warning but
 unlikely to cause large damage.
 
-Two sensors (Figure G) chosen in the vicinity of pier 5. For each sensor two
-time series of responses from July to December are generated, one time series
-with pier 5 settled by $3 mm$ and one time series when bridge 705 is still in
-healthy state. A small sensor threshold value is chosen and the number of days
-on which each sensor is triggered is recorded. When the healthy time series
-triggers a sensor this is considered a false positive and when the pier settled
-time series does not trigger a warning this is considered a false negative. The
-sensor threshold must be increased to determine at which point the number of
-correct classifications are maximized and the number of false classifications
-are minimized. When the threshold is too small there will be many false
+For both of the same two sensors (Figure [[fig:avail-sensors]]) as previously
+selected two time series of responses from July to December are generated, one
+time series with pier 5 settled by $3 mm$ and one time series when bridge 705 is
+still in healthy state. A small sensor threshold value is chosen and the number
+of days on which each sensor is triggered is recorded. When the healthy time
+series triggers a sensor this is considered a false positive and when the pier
+settled time series does not trigger a warning this is considered a false
+negative. The sensor threshold is increased to determine at which point the
+accuracy is maximized. When the threshold is too small there will be many false
 positives and when the threshold is too large there will be many false
 negatives.
 
-\bigskip **Question 3.** What is the minimum amount of pier settlement that can
-be detected for pier 5 based on the same selected sensors as in the previous
-experiment before classification accuracy drops below 90%?
+\bigskip **Question 3.** For each selected sensor, at what minimum amount of
+pier settlement can we, using the methods from previous questions, classify
+every response correctly? Furthermore for each value of pier settlement what
+is the range of sensor thresholds for which this is possible?
 
-\bigskip Building upon the previous experiment but repeating it for decreasing
-values of pier settlement from the initial $3 mm$. At some point it will no
-longer be possible to select a sensor threshold value that will trigger warnings
-due to pier settlement but not trigger warnings due to live load and temperature
-effect. In this experiment a lower limit of 90% classification accuracy is
-selected and we determine at what level of pier settlement this classification
-accuracy can no longer be achieved.
+\bigskip This question builds upon the previous experiment but the experiment is
+repeated for increasing values of pier settlement, starting from 0. As pier
+settlement increases the difference between the sensor responses from the bridge
+in healthy state and the bridge in pier settled state also increases. At some
+point the difference will be large enough that all sensor responses, according
+to the model, will be correctly classified. For each selected sensor, what is
+the minimum amount of pier settlement for which this is true?
 
-\bigskip **Question 5.** Can the change in sensor responses that occur due to
+\bigskip **Question 4.** Can the change in sensor responses that occur due to
 cracking be detected?
 
 \bigskip Generate multiple time series of responses, and apply the crack at a
@@ -2531,10 +2533,9 @@ random point in the time series, the crack is assumed to occur instantly. At
 each minute in the simulation a comparative measure is calculated between the
 last minute and third last minute of responses. What value of the comparative
 measure maximizes the accuracy at each minute when the measure is calculated,
-and what is that accuracy?
+and what is that accuracy? This requires some.
 
 #+LATEX: \newpage
-
 * Results
 
 ** Reusable System
@@ -2576,26 +2577,91 @@ long-term damage is the removal of long-term environmental effects. With
 short-term damage the challenge lies in detecting a sudden change in the time
 series of sensor responses.
 
-**Question 1.** Removing the temperature effect from a number of sensors based
-on regression of the previous year's responses against air temperature
-measurements CITE, and fitting a curve to 24 samples taken in a 24 hour cycle
-CITE, the mean effect that was not removed due to temperature is 18% for the
-sensor at $x = 21 m, z = 0.84 m$ and N % for the sensor at S.
+\bigskip **Question 1.**
 
-The thermal effect applied to a bridge will depend on factors including the
-intensity of the solar radiation, air temperature and wind speed. The effect of
-stresses from thermal loading are significant but the vertical translations are
-not, which is consistent with the findings in cite:thepchatri1977prediction. It
-is for these reasons that pier settlement is a relatively easy type of long-term
-damage to detect, because the response due to temperature and the response due
-to pier settlement have an almost orthogonal effect on vertical translation and
-strain. Pier settlement is expected to behave non-linearly on bridge 705 beyond
-\textcolor{red}{TODO $\approx$}, taking into account the additional stress from
-temperature and traffic load. However pier settlement can be detected at
-\textcolor{red}{TODO}, before cracking. Not many sensors are required in order
-to detect pier settlement, as sensors close to the pier are all sensitive to
-that type of damage, therefore it is suggested that only 1 vertical translation
-sensor is required per supporting pier.
+# Regression plots -> annual temperature component.
+A linear regression of thermal effect from the model and air temperature
+measurements in 2018 at the two sensors was performed and used to predict the
+annual temperature component at the same sensors in 2019, plots showing the
+regression are available in the appendix in Figures [[fig:regress-y-a]] and
+[[fig:regress-s-a]]. Removal of the daily thermal effect for one day is shown in
+Figure [[fig:temp-removal-31]], the median vertical translation on $31^{st}$
+December 2019 at $x = 21 m$, $z = -8.4 m$ without thermal effect (ground truth)
+is $-0.46 mm$ and after removal it is $-0.39 mm$, an error of 13%, whereas for
+strain the error is $(-7.23 - 2.3) / 2.3 = 4.14$, which is more than 400%. **The
+reason for this is that ratio of the effect of pier settlement to the thermal
+effect is much greater for vertical translation than for strain.** While this
+plot is informative for removal of the daily effect we need to investigate the
+ability to remove the thermal effect for every day of 2019, such a plot is
+presented in Figure [[fig:temp-removal-2019]]. Here the mean error is $0.18 mm$, or
+40% of the ground truth. What is important to note is how the standard deviation
+of the predicted vertical translation is reduced from $0.15 mm$ to $0.04 mm$
+when the median over a 2 week period is taken rather than over a single day.
+**Because pier settlement is classified as long-term damage, taking the median
+over a longer period of time is appropriate method to increase robustness of the
+measure.** Turning our attention now to the second sensor mentioned in the
+question description, we can see in Figure [[fig:temp-removal-2019-b]] that the mean
+error is only $0.02 mm$ which upon further investigation is because this sensor,
+according to the model, is not as effected by the linear temperature component,
+but is effected by the uniform temperature component, which can be more easily
+removed.
+
+#+NAME: fig:temp-removal-31
+#+CAPTION[Removing thermal effect on 31st December]: Removing thermal effect on $31^{st}$ December 2019. The plots on the left show the response (vertical translation on the top, and strain on the bottom) without thermal effect added, the plots in the middle show the response with thermal effect added and a linear interpolation between daily samples (orange), the plots on the right show the response after removal of the daily component.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1/pier-temp-removal.pdf]]
+
+#+NAME: fig:temp-removal-2019
+#+CAPTION[Removing thermal effect in 2019 (A)]: Removing thermal effect in 2019 from a sensor at $x = 21 m, z = -8.4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1/pier-prob-ts.pdf]]
+
+#+NAME: fig:temp-removal-2019-b
+#+CAPTION[Removing thermal effect in 2019 (B)]: Removing thermal effect in 2019 from a sensor at $x = 33 m, z = -4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1b/pier-prob-ts.pdf]]
+
+#+NAME: fig:scenarios
+#+CAPTION[Signal for different scenarios]: Vertical translation and strain for a number of different scenarios. The scenario are the healthy bridge and pier 5 settled by $1 mm$, each for three different days. In the top plot no thermal effect is added (ground truth), in the middle plot thermal effect is added and in the third plot the thermal effect was removed based on the outlined method. We can clearly see in the bottom plot how the effect from pier settlement (primarily vertical change) is orthogonal to the effect from temperature (primarily horizontal change).
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1/pier-temp-scenarios.pdf]]
+
+\bigskip **Question 2.**
+
+#+NAME: tbl:matrix
+#+ATTR_LATEX: :environment matrix
+|                | Sensor triggered | Sensor not triggered |
+|----------------+------------------+----------------------|
+| Healthy bridge | False positive   | True negative        |
+| Damaged bridge | True positive    | False negative       |
+
+The results of the experiment to determine the sensitivity of selecting a
+threshold for a sensor are shown in Figure [[fig:fp-a]]. Of the two selected
+sensors, the sensor further from pier 5, at $x = 21 m$, $z = -8.4 m$ has an
+$\approx 1 mm$ range where the sensor is fully accurate according to this model,
+while for the sensor close to pier to 5, the range is about $2.5 mm$. This
+sensor has a larger range of accurate sensor thresholds not just because the
+sensor is closer to pier 5 where the effect of settlement will be greater but
+also because the sensor is further from the lanes of traffic, meaning there is
+not as much effect from the traffic, "noise", which must be distinguished from
+the effect from pier settlement. It is not surprising that a sensor close to a
+pier is better at detecting pier settlement. It should of course be noted that
+in reality that there will eventually be some kind of significantly large
+disturbance that will cause even cause a misclassification by the robust 2 week
+estimator, in the range of responses denoted as 100% accurate in Figures
+[[fig:fp-a]] - [[fig:fp-b]]. The accuracy of using the daily median after thermal effect
+removal instead of a 2 week median, is shown to be significantly lower
+\textcolor{red}{Accuracy of daily estimator.}.
+
+#+NAME: fig:fp-a
+#+CAPTION[Selecting a sensor threshold (A)]: Selecting a sensor threshold for the sensor further from any piers in Figure TODO. Sensor responses are collected daily from July 1 to December 31, once when pier 5 is settled by 3mm, and once when the bridge is in healthy state. Thermal effect is removed and daily responses are classified according to the matrix TODO.
+[[./saved-images/q-2/fp-fp-tn-tp-21--8.pdf]]
+
+#+NAME: fig:fp-b
+#+CAPTION[Selecting a sensor threshold (B)]: Selecting a sensor threshold for the sensor further from any piers in Figure TODO. Sensor responses are collected daily from July 1 to December 31, once when pier 5 is settled by 3mm, and once when the bridge is in healthy state. Thermal effect is removed and daily responses are classified according to the matrix TODO.
+[[./saved-images/q-2/fp-fp-tn-tp-33--4.pdf]]
+
+**Question 4.**
 
 Some short-term damage may not permanently affect the structure and in this case
 the time series of responses is expected to return to normal. Detection of
@@ -2608,7 +2674,30 @@ as the SENSkin cite:cheilakou2018strain which is an "inexpensive, skin-like
 sensor" and can detect strain between 0.00012 and 0.1, however more research
 into these kind of sensors is required.
 
-** Future Research
+* Conclusion
+
+# Pier settlement easy to detect, orthogonal.
+The thermal effect applied to a bridge will depend on factors including the
+intensity of the solar radiation, air temperature and wind speed. The effect of
+stresses from thermal loading are significant but the vertical translations are
+not, which is consistent with the findings in cite:thepchatri1977prediction. It
+is for these reasons that pier settlement is a relatively easy type of long-term
+damage to detect (severity dependent), because the response due to temperature
+and the response due to pier settlement have an almost orthogonal effect on
+vertical translation and strain.
+
+# Dicussion on pier settlment.
+Not many sensors are required in order to detect pier settlement, as sensors
+close to the pier are all sensitive to that type of damage, however even the
+sensor which was selected that is further away from pier 5 can detect damage
+prior to damage occuring. While the reader would be right to have some
+skepticism about how this may work in real life, the reader should also consider
+if monitoring changes in vertical translation makes the most sense to detect an
+abnormal amount of vertical translation, furthermore using a measure which is
+robust to short-term changes, such as the median over a longer period of time
+can avoid triggering a warning due to short-term events. For example, if daily
+predictions were used instead of every 2 weeks, the accuracy would have been
+significantly reduced, as seed in Figure [[fig:temp-removal-2019]].
 
 It is suggested that further research on damage detection of concrete slab
 bridges focuses on the creation of **re-usable models** that aim to be **highly
@@ -2660,6 +2749,12 @@ environmental effects based on some subset of the sensors could be researched.
 When anamalous conditions can be triggered by damage or environmental effects
 then it is no surprise that the primary recommendation is that future work
 should researching how environmental effects should be removed.
+
+#+LATEX: \clearpage
+* Bibliography (TODO: remove heading)
+
+bibliographystyle:ieeetr
+bibliography:myrefs.bib
 
 #+LATEX: \clearpage
 * Appendix
@@ -2811,7 +2906,7 @@ should researching how environmental effects should be removed.
 [[./images/truck-pos.png]]
 
 #+NAME: tbl:sensor-pos
-#+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given with an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
+#+CAPTION[Sensors in the experimental campaign]: Sensors in the experimental campaign. Each sensor is given an identifying label, position on the bridge deck, type of response the sensor is measuring, and company that installed the sensor.
 | Label |     X | Z | Type | Company |
 |-------+-------+---+------+---------|
 |  0.49 | 0.465 | A |      |         |
@@ -2952,6 +3047,14 @@ should researching how environmental effects should be removed.
 #+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from 1 °C linear temperature loading of the deck of bridge 705 with OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-moment_load-stress.pdf]]
 
-#+LATEX: \clearpage
-bibliographystyle:ieeetr
-bibliography:myrefs.bib
+** Classification
+
+#+NAME: fig:regress-y-a
+#+CAPTION[Regression of thermal effect and Y translation (A)]: Regression of thermal effect and Y translation in 2018, and prediction for 2019, for the sensor at $x = 21 m$, $z = -8.4 m$.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1/temp-ytrans-fit.pdf]]
+
+#+NAME: fig:regress-s-a
+#+CAPTION[Regression of thermal effect and strain (A)]: Regression of thermal effect and strain in 2018, and prediction for 2019, for the sensor at $x = 21 m$, $z = -8.4 m$.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1/temp-strain-fit.pdf]]
