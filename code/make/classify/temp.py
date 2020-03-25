@@ -133,7 +133,9 @@ def temp_gradient_plot(c: Config, date: str):
     plt.title("Two day temperature")
     plt.subplot(3, 2, 6)
     plt.plot(dates_year[i : j + 1], linear_year_y[i : j + 1], label="Linear component")
-    plt.plot(dates_year[i : j + 1], uniform_year_y[i : j + 1], label="Uniform component")
+    plt.plot(
+        dates_year[i : j + 1], uniform_year_y[i : j + 1], label="Uniform component"
+    )
     plt.legend(loc="lower right")
     plt.title("Two day gradient")
     plt.subplot(3, 2, 4)

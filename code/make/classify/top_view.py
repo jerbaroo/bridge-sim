@@ -51,7 +51,14 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     # Temperature effect July 1st.
     temps_2019 = temperature.load("holly-springs")
     temps_2019["temp"] = temperature.resize(temps_2019["temp"])
-    effect_2019 = temperature.effect(c=c, response_type=response_type, points=deck_points, temps=temps_2019["temp"], solar=temps_2019["solar"], len_per_hour=60).T
+    effect_2019 = temperature.effect(
+        c=c,
+        response_type=response_type,
+        points=deck_points,
+        temps=temps_2019["temp"],
+        solar=temps_2019["solar"],
+        len_per_hour=60,
+    ).T
     # The effect is ordered by time series and then by points. (104910, 301)
     assert len(effect_2019) == len(temps_2019)
     july_2019_i, july_2019_j = temperature.from_to_indices(
@@ -66,7 +73,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
                 # Effect for July 1st, for the current point..
                 effect=effect_2019.T[i][july_2019_i:july_2019_j],
                 # ..for the length of the time series.
-                responses=responses_array
+                responses=responses_array,
             )
         )
     temp_effect = np.array(temp_effect)

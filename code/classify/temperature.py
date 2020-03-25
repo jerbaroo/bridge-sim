@@ -37,7 +37,9 @@ def parse_line(line):
     return [dt, float(line[-15]), float(line[-13])]
 
 
-def load(name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)) -> pd.DataFrame:
+def load(
+    name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)
+) -> pd.DataFrame:
     # If the file is already parsed, return it..
     name_path = os.path.join(__dir__, "data/temperature", name + ".txt")
     saved_path = name_path + ".parsed"
@@ -91,7 +93,8 @@ def from_to_mins(df, from_, to, smooth: bool = False):
     result_solar = interp1d(times, solar, fill_value="extrapolate")(result_times)
     # Pack it into a DataFrame.
     df = pd.DataFrame(
-        np.array([result_dates, result_temps, result_solar]).T, columns=["datetime", "temp", "solar"]
+        np.array([result_dates, result_temps, result_solar]).T,
+        columns=["datetime", "temp", "solar"],
     )
     # Sort.
     df = df.sort_values(by=["datetime"])
@@ -141,11 +144,7 @@ def temps_bottom_top(c: Config, temps: List[float], solar: List[float], len_per_
             recent_max = np.max(temps[max(0, recent_start) : i])
             temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
         else:
-            temps_s.append(
-                (1 - sn - ss) * temps_s[i - 1]
-                + sn * temp_a
-                + ss * solar
-            )
+            temps_s.append((1 - sn - ss) * temps_s[i - 1] + sn * temp_a + ss * solar)
 
     return np.array(temps_b), np.array(temps_s)
 
@@ -252,7 +251,7 @@ def apply(effect: List[float], responses: List[float]):
     """Given effect interpolated across given responses."""
     i = interp1d(
         np.linspace(0, len(responses) - 1, 10000),
-        np.linspace(0, len(effect) - 1, 10000)
+        np.linspace(0, len(effect) - 1, 10000),
     )(np.arange(len(responses)))
     return interp1d(np.arange(len(effect)), effect)(i)
 
@@ -316,9 +315,7 @@ def apply_effect(
             print_d(D, f"end = {end}")
             print_d(D, f"end - start = {end - start}")
             # print_d(D, f"temp_start, temp_end = {temps[j]}, {temps[j + 1]}")
-            print_d(
-                D, f"effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}"
-            )
+            print_d(D, f"effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}")
             result[i][start:end] = np.linspace(
                 effect[i][j], effect[i][j + 1], end - start
             )

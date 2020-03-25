@@ -590,9 +590,7 @@ def uls_contour(x_i: int, z_i: int, rt: str):
 
 
 @verify.command(help="Contour plot of truck 1, healthy & cracked.")
-@click.option(
-    "--x", type=int, default=51.8, help="X position of Truck 1's front axle."
-)
+@click.option("--x", type=int, default=51.8, help="X position of Truck 1's front axle.")
 @click.option("--rt", required=True, type=click.Choice(["strain", "ytrans"]))
 def truck1_contour(x: int, rt: str):
     from make.verify import wagen_1_contour_plot

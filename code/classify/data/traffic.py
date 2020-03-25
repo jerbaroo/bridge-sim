@@ -19,7 +19,10 @@ def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float)
 
 
 def load_traffic(
-    c: Config, traffic_scenario: TrafficScenario, max_time: float, add: Optional[str]=None
+    c: Config,
+    traffic_scenario: TrafficScenario,
+    max_time: float,
+    add: Optional[str] = None,
 ):
     """Load traffic from disk, generated if necessary."""
     path = (

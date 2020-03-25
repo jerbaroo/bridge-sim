@@ -392,14 +392,29 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
     plt.landscape()
     plt.subplot(2, 1, 1)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=healthy_responses, ploads=loads if LOADS else [], scatter=True, norm=norm)
+    plot_contour_deck(
+        c=c,
+        responses=healthy_responses,
+        ploads=loads if LOADS else [],
+        scatter=True,
+        norm=norm,
+    )
     plt.title("Truck 1 on healthy bridge")
     plt.subplot(2, 1, 2)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=crack_responses, ploads=loads if LOADS else [], scatter=True, norm=norm)
+    plot_contour_deck(
+        c=c,
+        responses=crack_responses,
+        ploads=loads if LOADS else [],
+        scatter=True,
+        norm=norm,
+    )
     plt.title("Truck 1 on cracked bridge")
     plt.tight_layout()
     plt.savefig(
-        original_c.get_image_path("verification", safe_str(f"truck1-contour-x-{x}-{response_type.name()}") + ".pdf")
+        original_c.get_image_path(
+            "verification",
+            safe_str(f"truck1-contour-x-{x}-{response_type.name()}") + ".pdf",
+        )
     )
     plt.close()

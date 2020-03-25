@@ -119,7 +119,10 @@ class ILMatrix(ResponsesMatrix):
                 for j, point in enumerate(points):
                     partial[i][j] = sim_responses.at_deck(point, interp=False)
                     if wheel_z < 0 and i == 302:
-                        log(c, f"z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}")
+                        log(
+                            c,
+                            f"z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}",
+                        )
                 i += 1
             assert i == c.il_num_loads
             print_i(f"Calculated unit load matrix for wheel track {wheel_z}")

@@ -493,8 +493,9 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
     """
     # Read in the template model file.
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    template_path = os.path.normpath(os.path.join(
-        dir_path, "../../../../../../", c.os_3d_model_template_path))
+    template_path = os.path.normpath(
+        os.path.join(dir_path, "../../../../../../", c.os_3d_model_template_path)
+    )
     with open(template_path) as f:
         in_tcl = f.read()
 

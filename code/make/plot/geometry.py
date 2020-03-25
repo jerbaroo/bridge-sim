@@ -198,7 +198,14 @@ def make_available_sensors_plot(
         label=True,
     )
     for l_i, load in enumerate([Point(x=21, z=-8.4), Point(x=33, z=-4)]):
-        plt.scatter([load.x], [load.z], color="red", marker="o", s=50, label="Sensor of interest" if l_i == 0 else None)
+        plt.scatter(
+            [load.x],
+            [load.z],
+            color="red",
+            marker="o",
+            s=50,
+            label="Sensor of interest" if l_i == 0 else None,
+        )
     legend_marker_size(plt.legend(), 50)
     plt.title(f"Sensors available for classification on Bridge 705")
     plt.tight_layout()

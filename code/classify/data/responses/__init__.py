@@ -36,7 +36,7 @@ def responses_to_traffic_array(
     response_type: ResponseType,
     damage_scenario: "DamageScenario",
     points: List[Point],
-    sim_runner: Callable[[Config], FEMRunner] = OSRunner
+    sim_runner: Callable[[Config], FEMRunner] = OSRunner,
 ):
     """The magic function.
 

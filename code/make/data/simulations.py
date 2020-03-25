@@ -46,16 +46,10 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
     point = Point(x=wheel_x, y=0, z=wheel_z)
     if healthy:
         ILMatrix.load_ulm(
-            c=c,
-            response_type=response_type,
-            points=[point],
-            sim_runner=OSRunner(c),
+            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
         )
     if cracked:
         c = transverse_crack().use(c)[0]
         ILMatrix.load_ulm(
-            c=c,
-            response_type=response_type,
-            points=[point],
-            sim_runner=OSRunner(c),
+            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
         )
