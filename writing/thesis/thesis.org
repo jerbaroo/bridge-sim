@@ -617,9 +617,14 @@ asphalt on the bridge. In cite:moser2011environmental a number of model are
 proposed to show the relationship between natural frequency and temperature,
 these included a bilinear model and 4th polynomial order models with and without
 cross terms, all models performed well. In cite:kromanis2016shm a regression
-based approach is suggested to be integrated in a SHM system for bridges, the
-paper suggests a data collection reference period of 1 year and a minimum of 24
-samples per day in order to remove the daily temperature effect.
+based approach, Regression-Based Thermal Response Prediction (RBTRP), is
+suggested to be integrated in a SHM system for bridges, the paper suggests a
+data collection reference period of 1 year and a minimum of 24 samples per day
+in order to remove the daily temperature effect. This paper from 2016 also
+suggests a method for anomaly detection based on computing the difference
+between measurements and predictions using RBTRP. The authors state that further
+work is necessary to take into account long-term changes in responses from
+expected behaviour such as changes in material behaviour.
 
 An integrated machine learning algorithm, combining techniques including PCA, is
 presented in cite:ye2018integrated for separating the individual components of
@@ -2474,45 +2479,53 @@ same model =T= cannot simply be used to predict and remove the simulated effect.
 To convince ourselves that removal of the temperature effect would work in real
 life, a simple and robust technique should be used. Furthermore the temperature
 model is based on data taken at 5-minute samples from a quality controlled
-dataset, using air temperature, solar radiation and \textcolor{red}{TODO wind
-speed (I have the data) and error term}.
+dataset, using air temperature, solar radiation and \textcolor{red}{TODO add
+wind speed for increased daily error, I have the data}.
 
 The method used is based on cite:kromanis2016shm. The thermal effect is removed
 by linear regression of the previous year's responses against air temperature
 measurements and linear interpolation of hourly samples from a 24 hour cycle.
-This paper from 2016 also suggests a method for anomaly detection as discussed
-in Section [[sec:lit:noise]]. After removal of the temperature effect what remains
-is the effect from live load and additional effects as seen in Figure
-[[fig:effects]]. Answering this question we will look closely at the two specific
-sensors indicated in Figure [[fig:avail-sensors]].
+After removal of the temperature effect what remains is the effect from live
+load and additional effects as seen in Figure [[fig:effects]]. Answering this
+question we will look closely at the two specific sensors indicated in Figure
+[[fig:avail-sensors]].
 
-\bigskip **Question 2.** What threshold values are appropriate to trigger
+\bigskip **Question 2.** How does the addition of a $1 mm$ error term into the
+reference measurements from the previous year affect the ability to determine if
+a pier has settled?
+
+\bigskip **Question 3.** What threshold values are appropriate to trigger
 warnings from the two selected sensors on bridge 705 when pier 5 is settled by
 $3 mm$?
 
 \bigskip The tensile strength of concrete is approximately $3 \frac{N}{mm^2}$.
 Stresses will occur on the bridge due to a number of different effects. Based on
-Figure F, the combination of live load, temperature effect on the hottest day of
-the year, and pier settlement of $5 mm$, a tensile strength of $\approx 2.5$
-will already be reached. Typically all concrete under load will end up cracking
-to some degree, and this model does not include a number of additional effects
-such as dead load which may incur additional stresses, therefore $3 mm$ is
+Figure [[fig:effects]], the combination of live load, temperature effect on the
+hottest day of the year, and pier settlement of $5 mm$, a tensile strength of
+$\approx 2.5$ will already be reached. Typically all concrete under load will
+end up cracking to some degree, and this model does not include a number of
+additional effects which may incur additional stresses, therefore $3 mm$ is
 chosen as a value of settlement which is large enough to warrant a warning but
 unlikely to cause large damage.
 
-For both of the same two sensors (Figure [[fig:avail-sensors]]) as previously
-selected two time series of responses from July to December are generated, one
-time series with pier 5 settled by $3 mm$ and one time series when bridge 705 is
-still in healthy state. A small sensor threshold value is chosen and the number
-of days on which each sensor is triggered is recorded. When the healthy time
-series triggers a sensor this is considered a false positive and when the pier
-settled time series does not trigger a warning this is considered a false
-negative. The sensor threshold is increased to determine at which point the
-accuracy is maximized. When the threshold is too small there will be many false
-positives and when the threshold is too large there will be many false
-negatives.
+For the two selected sensors (see Figure [[fig:avail-sensors]]), two time series of
+responses from July to December are generated, one time series with pier 5
+settled by $3 mm$ and one time series when bridge 705 is still in healthy state.
+A small sensor threshold value is chosen and the number of days on which each
+sensor is triggered is recorded. When the healthy time series triggers a sensor
+this is considered a false positive and when the pier settled time series does
+not trigger a warning this is considered a false negative, see Table [[tbl:matrix]].
+The sensor threshold is increased to determine at which point the accuracy is
+maximized. When the threshold is too small there will be many false positives
+and when the threshold is too large there will be many false negatives.
 
-\bigskip **Question 3.** For each selected sensor, at what minimum amount of
+#+NAME: tbl:matrix
+|                | Sensor triggered | Sensor not triggered |
+|----------------+------------------+----------------------|
+| Healthy bridge | False positive   | True negative        |
+| Damaged bridge | True positive    | False negative       |
+
+\bigskip **Question 4.** For each selected sensor, at what minimum amount of
 pier settlement can we, using the methods from previous questions, classify
 every response correctly? Furthermore for each value of pier settlement what
 is the range of sensor thresholds for which this is possible?
@@ -2525,7 +2538,7 @@ point the difference will be large enough that all sensor responses, according
 to the model, will be correctly classified. For each selected sensor, what is
 the minimum amount of pier settlement for which this is true?
 
-\bigskip **Question 4.** Can the change in sensor responses that occur due to
+\bigskip **Question 5.** Can the change in sensor responses that occur due to
 cracking be detected?
 
 \bigskip Generate multiple time series of responses, and apply the crack at a
@@ -2537,36 +2550,6 @@ and what is that accuracy? This requires some.
 
 #+LATEX: \newpage
 * Results
-
-** Reusable System
-
-\textcolor{Fix: Python & windows issue}
-
-An effort has been made for the research in this thesis to be highly reusable. A
-system for running traffic simulations on concrete slab bridges and analyzing
-results is published on the Python Package Index (PyPI) cite:rankingpypi under
-the name =bridge-sim= where you will also find the documentation. An example
-showing the use of the system is presented in Listing [[lst:ts-point-load]]
-=bridge-sim= installation instructions and the documentation which are linked on
-GitHub.
-
-#+NAME: lst:ts-point-load
-#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
-#+BEGIN_SRC python
-# example.py
-from traffic_sim import PointLoad
-#+END_SRC
-All of the work in this thesis is open source and an effort has been made to
-present useful abstractions that may be considered for reuse. The finite element
-model files that are generated and run are all based on the =Bridge= model
-discussed in Section . This allows for further research on concrete slab bridges
-other than bridge 705, without having to generate the model at the abstraction
-of nodes and shells. Furthermore, an effort has been made to abstract the finite
-element program that runs the generated files (OpenSees in this case) to a
-specific part of the system, such that in theory an interested party could add
-support for another finite element program, which could be useful if a finite
-element model of a bridge for a different finite element program is already
-available to the user.
 
 ** Damage detection
 
@@ -2628,13 +2611,6 @@ removed.
 
 \bigskip **Question 2.**
 
-#+NAME: tbl:matrix
-#+ATTR_LATEX: :environment matrix
-|                | Sensor triggered | Sensor not triggered |
-|----------------+------------------+----------------------|
-| Healthy bridge | False positive   | True negative        |
-| Damaged bridge | True positive    | False negative       |
-
 The results of the experiment to determine the sensitivity of selecting a
 threshold for a sensor are shown in Figure [[fig:fp-a]]. Of the two selected
 sensors, the sensor further from pier 5, at $x = 21 m$, $z = -8.4 m$ has an
@@ -2673,6 +2649,46 @@ be insufficient and too expensive, therefore the use of innovative sensors such
 as the SENSkin cite:cheilakou2018strain which is an "inexpensive, skin-like
 sensor" and can detect strain between 0.00012 and 0.1, however more research
 into these kind of sensors is required.
+
+** Reusable System
+
+An effort has been made for the research in this thesis to be highly reusable. A
+system for running traffic simulations on concrete slab bridges and analyzing
+results is published on the Python Package Index (PyPI) cite:rankingpypi under
+the name =bridge-sim= where you will also find a link to the documentation,
+including installation instructions and runnable examples. An example showing
+the use of the system is presented in Listing [[lst:ts-point-load]].
+
+#+NAME: lst:ts-point-load
+#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
+#+BEGIN_SRC python
+# example.py
+from bridge_sim import bridges, fem, model, plot
+
+# Import the already constructed bridge examples model.
+config = bridges.bridge_example()
+point_load = model.PointLoad(x=51, z=0, kn=100)
+responses = fem.responses.load(config, point_load)
+plot.top_view_bridge(config, lanes=True, piers=True)
+plot.contour_responses(config, responses)
+plot.plt.show()
+#+END_SRC
+
+All of the work in this thesis is open source and an effort has been made to
+present useful abstractions that may be considered for reuse. An effort has even
+been made to abstract the finite element program that runs the generated files
+(OpenSees in this case) to a specific part of the system (separation of
+concerns), such that in theory an interested party could add support for another
+finite element program. While it is not claimed that the usability or
+correctness of every part of the system is production ready, some parts of the
+system, such as generating FEM files for OpenSees and running them certainly is,
+the FEM files that are generated and run are all based on the =Bridge= model
+discussed in Section [[sec:model:bridge]]. This allows for further research on
+concrete slab bridges other than bridge 705, without having to generate the
+model at the abstraction of nodes and shells. Infact the example in Listing
+[[lst:ts-point-load]] shows the minimal amount of code necessary for generating a
+contour plot for a previously constructed =Bridge= model. \textcolor{red}{More
+examples of reuse}.
 
 * Conclusion
 
