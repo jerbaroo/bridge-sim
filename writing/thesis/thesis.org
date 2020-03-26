@@ -90,6 +90,9 @@ I would like to thank...
 | SHB      | Sydney Harbour Bridge                                         |
 | SVM      | Support Vector Machine                                        |
 | PyPI     | Python Package Index                                          |
+| X        | Longitudinal axis of bridge                                   |
+| Y        | Vertical axis of bridge                                       |
+| Z        | Transverse axis of bridge                                     |
 
 # ** Definitions
 
@@ -1322,6 +1325,7 @@ change in temperature. This will all be explained more thoroughly as we advance
 through this Section.
 
 *** Bridge Model
+<<sec:model:bridge>>
 
 # The bridge type.
 A parameterized model for describing non-prestress non-posttensioned concrete
@@ -1949,12 +1953,12 @@ sense to compare simulations with only a single point load applied because the
 traffic responses used for classification are generated based on a superposition
 of responses from simulations where a single point is applied. For each point
 load the colours in the plot for OpenSees and Diana are set to be equal, with
-out of range values set to a white colour.
+out of range values set to a white colour.In the Appendix the remaining Figures
+[[fig:comp-diana-b-y]] - [[fig:comp-os-d-s]] for points B - D are given.
 
-In Appendix [[sec:app:diana]] the remaining Figures [[fig:comp-diana-b-y]] -
-[[fig:comp-os-d-s]] for points B - D are given. A comparison of the maximum and
-minimum strains and vertical translations from these simulations is also given
-in the Appendix in Tables [[tbl:max-displacement]] and [[tbl:min-displacement]].
+# A comparison of the maximum and minimum strains and
+# vertical translations from these simulations is also given in the Appendix in
+# Tables [[tbl:max-displacement]] and [[tbl:min-displacement]].
 
 Of these four point load simulations the responses are in very good agreement
 between OpenSees and Diana, the first Figure [[fig:comp-diana-a-y]] matches the
@@ -2014,8 +2018,8 @@ measurements from the load tests of Truck 1 are considered. This is because the
 measured responses, and the responses from Diana for Truck 1 were available from
 TNO in a ready-to-consume format. The 13 loading positions of truck 1 are
 considered sufficient. The positions of the truck and the sensors considered for
-validation are available in Appendix [[sec:app:expt]], in Figure [[fig:truck-pos]] and
-Table [[tbl:sensor-pos]].
+validation are available in Appendix in Figure [[fig:truck-pos]] and Table
+[[tbl:sensor-pos]].
 
 # Truck 1 and the static load test.
 The specification of Truck 1 which was used in the experimental campaign is
@@ -2226,11 +2230,11 @@ comparison, these are piers 4 and 5 which are clearly identifiable in Figures
 Simulations were run where piers 4 and 5 are displaced vertically with AxisVM
 and OpenSees. Contour plots of the vertical translation and longitudinal stress
 along the bottom of the bridge deck are shown in Figures [[fig:pd-4d-axis]] -
-[[fig:pd-4s-os]] for $\SI{1}{\millimeter}$ settlement of pier 4 and in Appendix
-[[sec:app:pier]] for pier 5. The reason that stress is compared with AxisVM instead
-of strain is that the AxisVM software only provides a visualization of the
-stress, therefore the strains collected from simulation with OpenSees are
-converted to stresses via Young's modulus.
+[[fig:pd-4s-os]] for $\SI{1}{\millimeter}$ settlement of pier 4 and in the Appendix
+in Figures [[fig:pd-5d-axis]] and [[fig:pd-5s-os]] for pier 5. The reason that stress is
+compared with AxisVM instead of strain is that the AxisVM software only provides
+a visualization of the stress, therefore the strains collected from simulation
+with OpenSees are converted to stresses via Young's modulus.
 
 # TODO: Talk about range of colourbars, and cut off.
 
@@ -2266,8 +2270,8 @@ different likely due to non-convergence where the solution tends to infinity
 cite:timoshenko1959theory. In order to investigate this claim (similar to how it
 was accomplished for point load A in Figure TODO) convergence of stresses is
 investigated at points at increasing distance from the north-western point of
-pier 4 in Figure [[fig:pier-4-nesw]], and in Figure [[fig:pier-5-nesw]] in Appendix
-[[sec:app:pier]] for pier 5.
+pier 4 in Figure [[fig:pier-4-nesw]], and in Figure [[fig:pier-5-nesw]] in the Appendix
+for pier 5.
 
 #+NAME: fig:pier-4-nesw
 #+ATTR_LATEX: :float wrap :width 0.38\textwidth :placement {r}{0.4\textwidth}
@@ -2571,23 +2575,26 @@ regression are available in the appendix in Figures [[fig:regress-y-a]] and
 Figure [[fig:temp-removal-31]], the median vertical translation on $31^{st}$
 December 2019 at $x = 21 m$, $z = -8.4 m$ without thermal effect (ground truth)
 is $-0.46 mm$ and after removal it is $-0.39 mm$, an error of 13%, whereas for
-strain the error is $(-7.23 - 2.3) / 2.3 = 4.14$, which is more than 400%. **The
-reason for this is that ratio of the effect of pier settlement to the thermal
-effect is much greater for vertical translation than for strain.** While this
-plot is informative for removal of the daily effect we need to investigate the
-ability to remove the thermal effect for every day of 2019, such a plot is
-presented in Figure [[fig:temp-removal-2019]]. Here the mean error is $0.18 mm$, or
-40% of the ground truth. What is important to note is how the standard deviation
-of the predicted vertical translation is reduced from $0.15 mm$ to $0.04 mm$
-when the median over a 2 week period is taken rather than over a single day.
-**Because pier settlement is classified as long-term damage, taking the median
-over a longer period of time is appropriate method to increase robustness of the
-measure.** Turning our attention now to the second sensor mentioned in the
-question description, we can see in Figure [[fig:temp-removal-2019-b]] that the mean
-error is only $0.02 mm$ which upon further investigation is because this sensor,
-according to the model, is not as effected by the linear temperature component,
-but is effected by the uniform temperature component, which can be more easily
-removed.
+strain the error is $(-7.23 - 2.3) / 2.3 = 4.14$, or 400%. The reason for this
+is that ratio of the effect of pier settlement to the thermal effect is much
+greater for vertical translation than for strain.
+
+While this plot is informative for removal of the daily effect we need to
+investigate the ability to remove the thermal effect for every day of 2019, such
+a plot is presented in Figure [[fig:temp-removal-2019]]. Here the mean error is
+$0.18 mm$, or 40% of the ground truth. What is important to note is how the
+standard deviation of the predicted vertical translation is reduced from $0.15
+mm$ or 39% of thr ground truth, to $0.04 mm$ or 9% when the median over a 2 week
+period is taken rather than over a single day. Because pier settlement is
+classified as long-term damage, taking the median over a longer period of time
+is appropriate method to increase robustness of the measure. Turning our
+attention now to the second sensor mentioned in the question description, we can
+see in Figure [[fig:temp-removal-2019-b]] that the mean error is only $0.02 mm$
+which upon further investigation is because this sensor, according to the model,
+is not as effected by the linear temperature component (as seen in Figure
+[[fig:regress-y-b]]), but is effected by the uniform temperature component, which
+can be more easily removed in this model, at least until the error term is added
+in the next question.
 
 #+NAME: fig:temp-removal-31
 #+CAPTION[Removing thermal effect on 31st December]: Removing thermal effect on $31^{st}$ December 2019. The plots on the left show the response (vertical translation on the top, and strain on the bottom) without thermal effect added, the plots in the middle show the response with thermal effect added and a linear interpolation between daily samples (orange), the plots on the right show the response after removal of the daily component.
@@ -2595,17 +2602,17 @@ removed.
 [[./saved-images/q-1/pier-temp-removal.pdf]]
 
 #+NAME: fig:temp-removal-2019
-#+CAPTION[Removing thermal effect in 2019 (A)]: Removing thermal effect in 2019 from a sensor at $x = 21 m, z = -8.4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period.
+#+CAPTION[Removing thermal effect in 2019 (A)]: Removing thermal effect in 2019 from a sensor at $x = 21 m, z = -8.4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period. The increased variation in the cold months corresponds to the variation in temperature as seen in Figure TODOREF.
 #+ATTR_LaTeX: :placement [!ht]
 [[./saved-images/q-1/pier-prob-ts.pdf]]
 
 #+NAME: fig:temp-removal-2019-b
-#+CAPTION[Removing thermal effect in 2019 (B)]: Removing thermal effect in 2019 from a sensor at $x = 33 m, z = -4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period.
+#+CAPTION[Removing thermal effect in 2019 (B)]: Removing thermal effect in 2019 from a sensor at $x = 33 m, z = -4 m$. The black line shows the median vertical translation without thermal effect added. The blue line shows the median daily predicted vertical translation after removal of the annual and daily thermal effect, the orange line is the median over a two week period. The increased variation in the cold months corresponds to the variation in temperature as seen in Figure TODOREF.
 #+ATTR_LaTeX: :placement [!ht]
 [[./saved-images/q-1b/pier-prob-ts.pdf]]
 
 #+NAME: fig:scenarios
-#+CAPTION[Signal for different scenarios]: Vertical translation and strain for a number of different scenarios. The scenario are the healthy bridge and pier 5 settled by $1 mm$, each for three different days. In the top plot no thermal effect is added (ground truth), in the middle plot thermal effect is added and in the third plot the thermal effect was removed based on the outlined method. We can clearly see in the bottom plot how the effect from pier settlement (primarily vertical change) is orthogonal to the effect from temperature (primarily horizontal change).
+#+CAPTION[Signal for different scenarios]: Vertical translation and strain for a number of different scenarios. The scenario are the healthy bridge and pier 5 settled by $1 mm$, each for three different days. In the top plot no thermal effect is added (ground truth), in the middle plot thermal effect is added and in the third plot the thermal effect was removed based on the method outlined in question 2. We can clearly see in the bottom plot how the effect from pier settlement (primarily vertical change) is orthogonal to the effect from temperature (primarily horizontal change).
 #+ATTR_LaTeX: :placement [!ht]
 [[./saved-images/q-1/pier-temp-scenarios.pdf]]
 
@@ -2623,17 +2630,19 @@ not as much effect from the traffic, "noise", which must be distinguished from
 the effect from pier settlement. It is not surprising that a sensor close to a
 pier is better at detecting pier settlement. It should of course be noted that
 in reality that there will eventually be some kind of significantly large
-disturbance that will cause even cause a misclassification by the robust 2 week
+disturbance that will cause a misclassification even by the robust 2 week
 estimator, in the range of responses denoted as 100% accurate in Figures
 [[fig:fp-a]] - [[fig:fp-b]]. The accuracy of using the daily median after thermal effect
 removal instead of a 2 week median, is shown to be significantly lower
 \textcolor{red}{Accuracy of daily estimator.}.
 
 #+NAME: fig:fp-a
+#+ATTR_LATEX: :height 0.5\textwidth :placement [!ht]
 #+CAPTION[Selecting a sensor threshold (A)]: Selecting a sensor threshold for the sensor further from any piers in Figure TODO. Sensor responses are collected daily from July 1 to December 31, once when pier 5 is settled by 3mm, and once when the bridge is in healthy state. Thermal effect is removed and daily responses are classified according to the matrix TODO.
 [[./saved-images/q-2/fp-fp-tn-tp-21--8.pdf]]
 
 #+NAME: fig:fp-b
+#+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 #+CAPTION[Selecting a sensor threshold (B)]: Selecting a sensor threshold for the sensor further from any piers in Figure TODO. Sensor responses are collected daily from July 1 to December 31, once when pier 5 is settled by 3mm, and once when the bridge is in healthy state. Thermal effect is removed and daily responses are classified according to the matrix TODO.
 [[./saved-images/q-2/fp-fp-tn-tp-33--4.pdf]]
 
@@ -2642,13 +2651,14 @@ removal instead of a 2 week median, is shown to be significantly lower
 Some short-term damage may not permanently affect the structure and in this case
 the time series of responses is expected to return to normal. Detection of
 damage which causes a permanent change in the response of a structure will
-reduce the amount of false positive detections at the expence of not detecting
+reduce the amount of false positive detections at the expense of not detecting
 some damage. Detecting a change in the strain along around a crack zone will
 require a dense sensor network, and installing many strain gauge instruments may
-be insufficient and too expensive, therefore the use of innovative sensors such
-as the SENSkin cite:cheilakou2018strain which is an "inexpensive, skin-like
-sensor" and can detect strain between 0.00012 and 0.1, however more research
-into these kind of sensors is required.
+be insufficient and too expensive anyway, therefore the use of innovative
+sensors such as the SENSkin cite:cheilakou2018strain which is an "inexpensive,
+skin-like sensor" and can detect strain between 0.00012 and 0.1, or distributed
+fiber optics sensors as were used in cite:enckell2011evaluation, however more
+research into these sensor technologies is required.
 
 ** Reusable System
 
@@ -2660,37 +2670,38 @@ including installation instructions and runnable examples. An example showing
 the use of the system is presented in Listing [[lst:ts-point-load]].
 
 #+NAME: lst:ts-point-load
-#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim.
+#+CAPTION[Contour plot of a point load with bridge-sim]: Contour plot of a point load with bridge-sim. Find =bridge-sim= on PyPI for a link to instructions to get this example running.
 #+BEGIN_SRC python
 # example.py
 from bridge_sim import bridges, fem, model, plot
 
 # Import the already constructed bridge examples model.
-config = bridges.bridge_example()
+bridge = bridges.bridge_example()
 point_load = model.PointLoad(x=51, z=0, kn=100)
-responses = fem.responses.load(config, point_load)
-plot.top_view_bridge(config, lanes=True, piers=True)
-plot.contour_responses(config, responses)
+responses = fem.responses.load(bridge, point_load)
+plot.top_view_bridge(bridge, lanes=True, piers=True)
+plot.contour_responses(bridge, responses)
 plot.plt.show()
 #+END_SRC
 
 All of the work in this thesis is open source and an effort has been made to
 present useful abstractions that may be considered for reuse. An effort has even
 been made to abstract the finite element program that runs the generated files
-(OpenSees in this case) to a specific part of the system (separation of
-concerns), such that in theory an interested party could add support for another
-finite element program. While it is not claimed that the usability or
+(OpenSees in this case) to a specific part of the system (separation of concerns
+principle), such that in theory an interested party could add support for
+another finite element program. While it is not claimed that the usability or
 correctness of every part of the system is production ready, some parts of the
-system, such as generating FEM files for OpenSees and running them certainly is,
-the FEM files that are generated and run are all based on the =Bridge= model
-discussed in Section [[sec:model:bridge]]. This allows for further research on
+system, such as generating FEM files for OpenSees and running them, certainly
+is. The FEM files that are generated and run are all based on the =Bridge= model
+discussed in Section [[sec:model:bridge]], this allows for further research on
 concrete slab bridges other than bridge 705, without having to generate the
 model at the abstraction of nodes and shells. Infact the example in Listing
 [[lst:ts-point-load]] shows the minimal amount of code necessary for generating a
-contour plot for a previously constructed =Bridge= model. \textcolor{red}{More
-examples of reuse}.
+contour plot for a previously constructed =Bridge= model.
 
-* Conclusion
+\textcolor{red}{More examples of reuse}.
+
+*** Discussion
 
 # Pier settlement easy to detect, orthogonal.
 The thermal effect applied to a bridge will depend on factors including the
@@ -2705,15 +2716,19 @@ vertical translation and strain.
 # Dicussion on pier settlment.
 Not many sensors are required in order to detect pier settlement, as sensors
 close to the pier are all sensitive to that type of damage, however even the
-sensor which was selected that is further away from pier 5 can detect damage
-prior to damage occuring. While the reader would be right to have some
-skepticism about how this may work in real life, the reader should also consider
-if monitoring changes in vertical translation makes the most sense to detect an
-abnormal amount of vertical translation, furthermore using a measure which is
-robust to short-term changes, such as the median over a longer period of time
-can avoid triggering a warning due to short-term events. For example, if daily
-predictions were used instead of every 2 weeks, the accuracy would have been
-significantly reduced, as seed in Figure [[fig:temp-removal-2019]].
+selected sensor that is further away from pier 5 could detect pier settlement
+prior to damage occuring with correct configuration. However, placing a sensor
+close to a pier will allow for maximum error on selecting a threshold for
+vertical translation. While the reader would be right to have some skepticism
+about how this may work in real life, the reader should also consider that
+monitoring changes in vertical translation probably makes the most sense to
+detect an abnormal amount of vertical translation, furthermore using a measure
+which is robust to short-term changes, such as the median over a longer period
+of time can avoid triggering a warning due to short-term events. For example, if
+daily predictions were used instead of every 2 weeks, the accuracy would have
+been significantly reduced, as seen in Figure [[fig:temp-removal-2019]].
+
+* Recommendations
 
 It is suggested that further research on damage detection of concrete slab
 bridges focuses on the creation of **re-usable models** that aim to be **highly
@@ -2728,9 +2743,8 @@ built and a second model =D= built to detect damage on the output of =M=, now we
 are building models built on models! Furthermore, the implementor of =D= may be
 familiar with the inner workings of =M=! The confidence in the results of =D=
 will depend on the quality of =M= and it is for this reason that future work
-should focus immediately on the inclusion of dynamic effects, including dynamic
-effects and an improved environmental model (wind speed, angle of the sun,
-shrink, creepage).
+should focus immediately on including dynamic effects and an improved
+environmental model (wind speed, angle of the sun, shrink, creepage).
 
 If the confidence in =D= depends on the quality of =M= then it is likely that
 any future research will spend a significant amount of time on the development
@@ -2751,20 +2765,29 @@ allow for targeting many more bridges in the national stock and the models of
 those bridge types will be of higher quality.
 
 Finally it is suggested that sensors are installed on a concrete slab bridge and
-the data made available in real-time to researchers. The sensors should record
-traffic with weigh-in-motion technology in order to accurately model the traffic
-on the bridge, should record air temperature, wind speed, solar radiation and
-the temperature at the top and bottom of the bridge deck in order to validate
-and better understand the effect of temperature on the bridge. Translation and
-strain sensors on the bridge should record the responses under operational
-conditions in order to get more realistic information about the noise or
-unexplained variations in the signal that could cause false positives in
-classification. Perhaps the most important part of having real-time sensors is
-that an environmental model could be learned and predicting or removing the
-environmental effects based on some subset of the sensors could be researched.
-When anamalous conditions can be triggered by damage or environmental effects
-then it is no surprise that the primary recommendation is that future work
-should researching how environmental effects should be removed.
+the collected continuously and the data made available to researchers, this will
+allow for the proper validation of the effect of temperature and provide data
+under operational conditions with all the variations and effects that occur in
+real life. The sensors should record traffic with weigh-in-motion technology in
+order to accurately model the traffic on the bridge, should record air
+temperature, wind speed, solar radiation and the temperature at the top and
+bottom of the bridge deck in order to validate and better understand the effect
+of temperature on the bridge. Translation and strain sensors on the bridge
+should record the responses under operational conditions in order to get more
+realistic information about the noise or unexplained variations in the signal
+that could cause false positives in classification. Perhaps the most important
+part of having real-time sensors is that an environmental model could be learned
+and predicting or removing the environmental effects based on some subset of the
+sensors could be researched. When anamalous conditions can be triggered by
+damage or environmental effects then it is no surprise that the primary
+recommendation is that future work should research how environmental effects
+should be removed.
+
+If the reader is interested in a few "concrete" recommendations to increase the
+strength of the argument, then these three suggestions are made:
+- collect data from a more complex cracking model,
+- validate the thermal effect against real data,
+- acquire data from a real bridge under operational conditions.
 
 #+LATEX: \clearpage
 * Bibliography (TODO: remove heading)
@@ -2777,8 +2800,6 @@ bibliography:myrefs.bib
 :PROPERTIES:
 :APPENDIX: t
 :END:
-
-** Bridge 705
 
 #+NAME: tbl:bridge-705-props
 #+CAPTION[Material properties of bridge 705]: Material properties of the deck of the generated FEM of bridge 705. The first column determines the position where a material property begins, in meters from the southern edge of the bridge. The second column gives the material density in kilogram per meter, the second column gives the thickness in meters, and the third column gives Young's modulus in mega Pascal.
@@ -2810,10 +2831,6 @@ bibliography:myrefs.bib
 |    32599 | 2.724E-06 |       740 |  38400 |
 |    32600 | 2.724E-06 |       750 |  38400 |
 
-#+LATEX: \clearpage
-** Diana FEM
-<<sec:app:diana>>
-
 # The mean difference of the maximum displacements between simulations is
 # $0.0784 mm$ and the mean difference of the minimum displacements is $0.2165
 # mm$.
@@ -2829,29 +2846,29 @@ bibliography:myrefs.bib
 | C     | 53'166          | 89.98269 | 9.445789 |
 | D     | 54'603          | 102.5037 | 6.954211 |
 
-#+NAME: tbl:max-displacement
-#+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
-| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
-|-------+------------+---------------+------------+---------------|
-| A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
-| B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
-| C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
-| D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
-|-------+------------+---------------+------------+---------------|
-|       |            |          Mean |     0.0021 |        0.0784 |
-#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
+# #+NAME: tbl:max-displacement
+# #+CAPTION[Comparison of maximum displacement with Diana]: Comparison of maximum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determined the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the maximum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+# | Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+# |-------+------------+---------------+------------+---------------|
+# | A     |     0.1015 |        0.1082 |     0.0067 |        0.0660 |
+# | B     |     0.0030 |        0.0032 |     0.0002 |        0.0667 |
+# | C     |     0.0116 |        0.0121 |     0.0005 |        0.0431 |
+# | D     |     0.0058 |        0.0066 |     0.0008 |        0.1379 |
+# |-------+------------+---------------+------------+---------------|
+# |       |            |          Mean |     0.0021 |        0.0784 |
+# #+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
-#+NAME: tbl:min-displacement
-#+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
-| Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
-|-------+------------+---------------+------------+---------------|
-| A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
-| B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
-| C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
-| D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
-|-------+------------+---------------+------------+---------------|
-|       |            |          Mean |     0.0181 |        0.2165 |
-#+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
+# #+NAME: tbl:min-displacement
+# #+CAPTION[Comparison of minimum displacement with Diana]: Comparison of minimum displacement between simulations of bridge 705 with the validated Diana model and a high-density OpenSees model. The first column determines the position of a 100kN point load applied in simulation, the position is defined in Table TODO. The second and third columns show the minimum displacement in millimeters for the Diana and OpenSees models respectively, due to the 100kN load placed at the labeled point.
+# | Point | Diana (mm) | OpenSees (mm) | Diff. (mm) | Diff. / Diana |
+# |-------+------------+---------------+------------+---------------|
+# | A     |    -0.2810 |       -0.3221 |     0.0411 |        0.1463 |
+# | B     |    -0.1375 |       -0.1431 |     0.0056 |        0.0407 |
+# | C     |    -0.0464 |       -0.0673 |     0.0209 |        0.4504 |
+# | D     |    -0.0210 |       -0.0258 |     0.0048 |        0.2286 |
+# |-------+------------+---------------+------------+---------------|
+# |       |            |          Mean |     0.0181 |        0.2165 |
+# #+TBLFM: $4=abs($2-$3);%0.4f::$5=abs($4/$2);%0.4f::@6$4=vmean(@2$4..@5$4);%0.4f::@6$5=vmean(@2$5..@5$5);%0.4f
 
 #+NAME: fig:comp-diana-b-y
 #+CAPTION[Displacement in Diana from a point load (B)]: Displacement from a simulation of the Diana model of bridge 705, with a 100 kN point-load placed at x = 51.251 m and z = 16.6 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with OpenSees.
@@ -2901,10 +2918,6 @@ bibliography:myrefs.bib
 #+NAME: fig:comp-os-d-s
 #+CAPTION[Displacement in OpenSees from point load (D)]: Strain from a simulation of the generated FEM of bridge 705 for OpenSees, with a 100 kN point-load placed at x = 101.765 m and z = 3.974 m. The responses in this Figure match closely to the responses in Figure TODO from simulation with Diana.
 [[./saved-images/diana-comp/d-strain.pdf]]
-
-#+LATEX: \clearpage
-** Experimental Campaign
-<<sec:app:expt>>
 
 #+NAME: fig:noise-displa
 #+ATTR_LATEX: :height 1\textwidth
@@ -3015,10 +3028,6 @@ bibliography:myrefs.bib
 #+CAPTION[Time series of strain sensors O12, O2 & O3]: Responses of longitudinal strain at sensors O12, O2 and O3 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
 [[./saved-images/sensors/strain-O-1.pdf]]
 
-#+LATEX: \clearpage
-** Pier Settlement
-<<sec:app:pier>>
-
 #+NAME: fig:pd-5d-axis
 #+ATTR_LATEX: :height 0.5\textwidth :placement [h]
 #+CAPTION[Displacement from pier settlement with AxisVM]: Displacement recorded in AxisVM when a pier (5) of bridge 705 is displaced by 1 m. The colours indicate the amount that the bridge deck is displaced, dark blue is the minimum displacement recorded and dark red the maximum.
@@ -3043,8 +3052,6 @@ bibliography:myrefs.bib
 #+CAPTION[Strain convergence at increasing distance from pier 5]: Strain convergence at increasing distance from the north-western (NW) point of pier 5. Each plotted line shows the strain response at a point, as model size is increased. In each plot the lines are coloured to show the distance from the north-western point of pier 5. The points the strains are collected at are at increasing distance in one of the cardinal directions from the NW point of pier 5.
 [[./saved-images/convergence-piers/nesw-pier-5.pdf]]
 
-** Temperature Load
-
 #+ATTR_LaTeX: :placement [!p]
 #+NAME: fig:thermal-linear-y-axis
 #+CAPTION[Y translation from linear temperature loading with AxisVM]: Vertical translation from 1 °C linear temperature loading of the deck of bridge 705 with AxisVM.
@@ -3063,7 +3070,15 @@ bibliography:myrefs.bib
 #+CAPTION[Stress from linear temperature loading with OpenSees]: Stress from 1 °C linear temperature loading of the deck of bridge 705 with OpenSees.
 [[./saved-images/thermal/thermal-deck-unit-moment_load-stress.pdf]]
 
-** Classification
+#+NAME: fig:regress-y-b
+#+CAPTION[Regression of thermal effect and Y translation (A)]: Regression of thermal effect and Y translation in 2018, and prediction for 2019, for the sensor at $x = 33 m$, $z = -4 m$.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1b/temp-ytrans-fit.pdf]]
+
+#+NAME: fig:regress-s-b
+#+CAPTION[Regression of thermal effect and strain (A)]: Regression of thermal effect and strain in 2018, and prediction for 2019, for the sensor at $x = 33 m$, $z = -4 m$.
+#+ATTR_LaTeX: :placement [!ht]
+[[./saved-images/q-1b/temp-strain-fit.pdf]]
 
 #+NAME: fig:regress-y-a
 #+CAPTION[Regression of thermal effect and Y translation (A)]: Regression of thermal effect and Y translation in 2018, and prediction for 2019, for the sensor at $x = 21 m$, $z = -8.4 m$.
