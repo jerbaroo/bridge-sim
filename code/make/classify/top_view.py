@@ -33,10 +33,10 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     # Points on the deck to collect responses.
     deck_points = [
         Point(x=x, y=0, z=z)
-        # for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2))
-        # for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2))
-        for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=30)
-        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)
+        for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2))
+        for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2))
+        # for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=30)
+        # for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)
     ]
     point = Point(x=21, y=0, z=-8.4)  # Point to plot
     deck_points.append(point)

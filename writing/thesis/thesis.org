@@ -2612,11 +2612,11 @@ in the next question.
 [[./saved-images/q-1b/pier-prob-ts.pdf]]
 
 #+NAME: fig:scenarios
-#+CAPTION[Signal for different scenarios]: Vertical translation and strain for a number of different scenarios. The scenario are the healthy bridge and pier 5 settled by $1 mm$, each for three different days. In the top plot no thermal effect is added (ground truth), in the middle plot thermal effect is added and in the third plot the thermal effect was removed based on the method outlined in question 2. We can clearly see in the bottom plot how the effect from pier settlement (primarily vertical change) is orthogonal to the effect from temperature (primarily horizontal change).
+#+CAPTION[Signal for different scenarios]: Vertical translation and strain for a number of different scenarios. The scenario are the healthy bridge and pier 5 settled by $1 mm$, each for three different days. In the top plot no thermal effect is added (ground truth), in the middle plot thermal effect is added and in the third plot the thermal effect was removed based on the method outlined in question 3. We can clearly see in the bottom plot how the effect from pier settlement (primarily vertical change) is orthogonal to the effect from temperature (primarily horizontal change).
 #+ATTR_LaTeX: :placement [!ht]
-[[./saved-images/q-1/pier-temp-scenarios.pdf]]
+[[./saved-images/q-1/pier-temp-scenarios.png]]
 
-\bigskip **Question 2.**
+\bigskip **Question 3.**
 
 The results of the experiment to determine the sensitivity of selecting a
 threshold for a sensor are shown in Figure [[fig:fp-a]]. Of the two selected
@@ -2646,7 +2646,13 @@ removal instead of a 2 week median, is shown to be significantly lower
 #+CAPTION[Selecting a sensor threshold (B)]: Selecting a sensor threshold for the sensor further from any piers in Figure TODO. Sensor responses are collected daily from July 1 to December 31, once when pier 5 is settled by 3mm, and once when the bridge is in healthy state. Thermal effect is removed and daily responses are classified according to the matrix TODO.
 [[./saved-images/q-2/fp-fp-tn-tp-33--4.pdf]]
 
-**Question 4.**
+\bigskip **Question 4.**
+
+Investigating the range of sensor thresholds for which the damage is accurately
+classified according to the experiment description, we find that...
+\textcolor{red}{Add figures once error term added}
+
+\bigskip **Question 5.**
 
 Some short-term damage may not permanently affect the structure and in this case
 the time series of responses is expected to return to normal. Detection of

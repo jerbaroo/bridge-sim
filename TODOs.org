@@ -1,5 +1,47 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
+* Finish List
+** [#A] Q1 Temperature removal
+*** Show standard error
+*** Cleanup notebook
+** [#A] Q2 Error term
+*** 1mm pier settlement
+*** Some other change
+** [#A] Q3 Sensor threshold
+** [#A] Q4 Range of threshold
+*** Add daily estimator
+** [#A] Q5 Concrete
+*** Setup change detection experiment
+** [#A] Animation plot
+*** Run on workhorse
+- ./cli.sh --save-to /e/saved/mesh-full-600-mar --mesh full classify top-view --damage pier
+*** Run with more sensors for a finer plot
+** [#C] Wind speed
+** [#A] Plot temperature measurements
+** [#A] Investigate cracked concrete
+*** Run cracked with poissons at 0.2
+- ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --cracked
+- Poisson's ratio in TCL files is: 0.2 0.2 0.2
+- ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --healthy
+*** Generate plot from Q5 notebook
+** [#B] Investigate uniform temperature
+** [#C] Investigate dynamic time series
+*** Ensure full data has run
+*** Plot time series using full data
+** [#B] Second bridge
+** [#B] Re-usable example
+** [#C] Lera's thing
+** [#A] Writing
+*** Stress strength plots
+*** Temperature plot (without Y translation)
+*** Temperature removal plots
+*** Frequency plot
+*** Computational time
+*** Temperature model
+*** Finite element formulation
+*** Arpi's feedback
+*** Discussion
+*** Link to chapter 4
 * Days
 ** Wed 11 March (1 / 21)
 * Notes on experiments
@@ -28,15 +70,19 @@
 *** TODO Record temperature without piers
 ** DONE [#A] Fix traffic generation bug
 CLOSED: [2020-02-22 Sat 12:23]
-** TODO [#A] First pass of methods section
-** TODO [#A] Second pass of validation section
+** DONE [#A] First pass of methods section
+CLOSED: [2020-03-27 Fri 14:05]
+** DONE [#A] Second pass of validation section
+CLOSED: [2020-03-27 Fri 14:05]
 ** TODO [#A] Save high quality data [0/2]
 *** TODO Save healthy data
 *** TODO Save cracked data
-** TODO [#A] First pass of results section
-** TODO [#A] Second pass of literature review
-*** TODO Go over Arpi's papers
-** TODO [#A] Traffic top view plot [8/11]
+** DONE [#A] First pass of results section
+CLOSED: [2020-03-27 Fri 14:05]
+** DONE [#A] Second pass of literature review
+CLOSED: [2020-03-27 Fri 14:05]
+** DONE [#A] Traffic top view plot
+CLOSED: [2020-03-27 Fri 14:07]
 *** DONE Save figure every n frames
 CLOSED: [2020-02-14 Fri 18:47]
 *** DONE Consistent colours
@@ -51,17 +97,12 @@ CLOSED: [2020-02-18 Tue 16:54]
 CLOSED: [2020-02-19 Wed 16:36]
 *** DONE Add pier settlement line
 CLOSED: [2020-02-22 Sat 12:23]
-*** TODO Generate high quality plots
-*** WAIT Show it's changes, not absolute
+*** DONE Generate high quality plots
+CLOSED: [2020-03-27 Fri 14:07]
 *** DONE Add temperature effect to contour
 CLOSED: [2020-02-19 Wed 17:41]
-*** TODO Investigate temperature & assert
-** TODO [#A] Classify damage [0/5]
-*** TODO Iterate over features
-*** TODO Show convergence of distribution over time
-*** TODO Investigate dimensionality reduction
-*** TODO Train on healthy only (1 class)
-*** TODO Remove temperature effect
+** DONE [#A] Classify damage
+CLOSED: [2020-03-27 Fri 14:06]
 ** TODO [#A] Truck 1 time series plots [6/8]
 *** DONE Meeting with Arthur to go over Matlab script
 CLOSED: [2020-02-10 Mon 10:23]
@@ -80,7 +121,8 @@ CLOSED: [2020-02-18 Tue 17:46]
 *** TODO Align based on frequency
 *** TODO Run with full mesh
 - Running on workhorse
-** TODO [#A] Cleanup per-sensor plots [5/6]
+** DONE [#A] Cleanup per-sensor plots [5/6]
+CLOSED: [2020-03-27 Fri 14:06]
 *** DONE Remove transverse strain plots
 CLOSED: [2020-02-12 Wed 14:21]
 *** DONE Alphabetical plots
@@ -91,12 +133,10 @@ CLOSED: [2020-02-12 Wed 14:54]
 CLOSED: [2020-02-12 Wed 18:38]
 *** DONE Fix titles
 CLOSED: [2020-02-12 Wed 15:07]
-*** TODO Check strain jaggedness
-- See if it makes sense from contour plot.
-- Maybe this is when an axle crosses a pier?
 ** DONE [#A] Save ULM to disk
 CLOSED: [2020-02-22 Sat 12:23]
-** TODO [#B] Light vehicles
+** DONE [#B] Light vehicles
+CLOSED: [2020-03-27 Fri 14:06]
 - Based on  paper from TNO
 - Add vehicles per class
 ** TODO [#B] Asphalt references
