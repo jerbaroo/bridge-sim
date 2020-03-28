@@ -6,13 +6,15 @@
 CLOSED: [2020-03-28 Sat 12:55]
 *** DONE Cleanup notebook
 CLOSED: [2020-03-28 Sat 17:05]
-*** Use new images in thesis
+*** DONE Use new images in thesis
+CLOSED: [2020-03-28 Sat 17:18]
 ** [#A] Q2 Error term
 *** 1mm pier settlement
 *** Some other change
 ** [#A] Q3 Sensor threshold
 ** [#A] Q4 Range of threshold
 *** Add daily estimator
+** [#A] Go over writing Q1 - Q4
 ** [#A] Q5 Concrete
 *** Setup change detection experiment
 ** DONE [#A] Animation plot [2/2]
@@ -24,15 +26,20 @@ CLOSED: [2020-03-28 Sat 12:07]
 CLOSED: [2020-03-28 Sat 13:33]
 ** [#C] Wind speed
 ** [#A] Plot temperature measurements
-** [#A] Investigate cracked concrete
-*** Run cracked with poissons at 0.2
+** [#A] Investigate cracked concrete [/]
+*** DONE Run cracked with poissons at 0.2
+CLOSED: [2020-03-28 Sat 17:46]
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --cracked
 - Poisson's ratio in TCL files is: 0.2 0.2 0.2
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --healthy
 *** Generate plot from Q5 notebook
 ** [#C] Investigate uniform temperature
 ** [#B] Investigate dynamic time series
-*** Ensure full data has run
+*** DONE Ensure full data has run
+CLOSED: [2020-03-28 Sat 18:04]
+- Looks good for top view plot
+*** DONE Plot locally to ensure it's working
+CLOSED: [2020-03-28 Sat 18:04]
 *** Plot time series using full data
 ** [#B] Second bridge
 ** [#B] Re-usable example

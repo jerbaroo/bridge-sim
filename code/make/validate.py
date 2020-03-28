@@ -128,7 +128,6 @@ def truck_1_time_series(c: Config):
         response_type=ResponseType.YTranslation,
         damage_scenario=healthy_scenario,
         points=displa_points,
-        sim_runner=OSRunner(c),
     ).T
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
@@ -181,7 +180,6 @@ def truck_1_time_series(c: Config):
         response_type=ResponseType.Strain,
         damage_scenario=healthy_scenario,
         points=strain_points,
-        sim_runner=OSRunner(c),
     ).T
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(strain_points), 2, (s_i * 2) + 1)
@@ -209,7 +207,7 @@ def truck_1_time_series(c: Config):
         plt.plot(data)
         # plt.plot(data[data_center - side_expt : data_center + side_expt])
         plt.title(f"{strain_label} in dynamic test")
-    set_labels("Strain", "Time")
+    set_labels("Microstrain", "Time")
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/truck-1", "time-series-strain.pdf"))
     plt.close()
