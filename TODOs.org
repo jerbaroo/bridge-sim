@@ -35,7 +35,8 @@ CLOSED: [2020-03-28 Sat 17:46]
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --healthy
 *** Generate plot from Q5 notebook
 ** [#C] Investigate uniform temperature
-** [#B] Investigate dynamic time series
+** DONE [#B] Investigate dynamic time series
+CLOSED: [2020-03-28 Sat 20:52]
 *** DONE Ensure full data has run
 CLOSED: [2020-03-28 Sat 18:04]
 - Looks good for top view plot
@@ -47,7 +48,8 @@ CLOSED: [2020-03-28 Sat 18:29]
 CLOSED: [2020-03-28 Sat 18:45]
 *** DONE Use other sensor
 CLOSED: [2020-03-28 Sat 20:31]
-*** TODO Include in thesis
+*** DONE Include in thesis
+CLOSED: [2020-03-28 Sat 20:52]
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing
