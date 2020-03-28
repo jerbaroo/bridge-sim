@@ -155,7 +155,7 @@ def truck_1_time_series(c: Config):
                 data_center = i
         plt.plot(data[data_center - side_expt : data_center + side_expt])
         plt.title(f"{displa_label} in dynamic test")
-    set_labels("Y translation", "Time")
+    set_labels("Y translation (mm)", "Time")
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/truck-1", "time-series-vert-trans.pdf"))
     plt.close()

@@ -45,8 +45,9 @@ CLOSED: [2020-03-28 Sat 18:04]
 CLOSED: [2020-03-28 Sat 18:29]
 *** DONE Fix strain
 CLOSED: [2020-03-28 Sat 18:45]
-*** TODO Use other sensor
-*** Include in thesis
+*** DONE Use other sensor
+CLOSED: [2020-03-28 Sat 20:31]
+*** TODO Include in thesis
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing
