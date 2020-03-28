@@ -12,8 +12,9 @@
 *** Add daily estimator
 ** [#A] Q5 Concrete
 *** Setup change detection experiment
-** [#A] Animation plot
-*** Run on workhorse
+** [#A] Animation plot [/]
+*** DONE Run on workhorse
+CLOSED: [2020-03-28 Sat 12:07]
 - ./cli.sh --save-to /e/saved/mesh-full-600-mar --mesh full classify top-view --damage pier
 *** Run with more sensors for a finer plot
 ** [#C] Wind speed
@@ -24,16 +25,17 @@
 - Poisson's ratio in TCL files is: 0.2 0.2 0.2
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --healthy
 *** Generate plot from Q5 notebook
-** [#B] Investigate uniform temperature
-** [#C] Investigate dynamic time series
+** [#C] Investigate uniform temperature
+** [#B] Investigate dynamic time series
 *** Ensure full data has run
 *** Plot time series using full data
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing
-** [#A] Writing
+** [#A] Writing [1/1]
 *** Stress strength plots
-*** Temperature plot (without Y translation)
+*** DONE Temperature plot (without Y translation)
+CLOSED: [2020-03-28 Sat 12:51]
 *** Temperature removal plots
 *** Frequency plot
 *** Computational time
