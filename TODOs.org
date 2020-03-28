@@ -40,7 +40,10 @@ CLOSED: [2020-03-28 Sat 18:04]
 - Looks good for top view plot
 *** DONE Plot locally to ensure it's working
 CLOSED: [2020-03-28 Sat 18:04]
-*** Plot time series using full data
+*** DONE Plot time series using full data
+CLOSED: [2020-03-28 Sat 18:29]
+*** Fix strain
+*** Include in thesis
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing

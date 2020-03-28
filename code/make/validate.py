@@ -186,10 +186,11 @@ def truck_1_time_series(c: Config):
         # Find the center of the plot, minimum point in the data.
         data_center = 0
         for i in range(len(sensor_responses)):
-            if sensor_responses[i] < sensor_responses[data_center]:
+            if sensor_responses[i] > sensor_responses[data_center]:
                 data_center = i
         # sensor_responses = add_strain_noise(sensor_responses)
-        plt.plot(sensor_responses)
+        # plt.plot(sensor_responses)
+        plt.plot(sensor_responses[data_center - side : data_center + side])
         # plt.plot(sensor_responses[data_center - side : data_center + side])
         plt.title(f"{strain_labels[s_i]} in simulation")
     # Results from experiment.
@@ -204,7 +205,8 @@ def truck_1_time_series(c: Config):
         for i in range(15000):
             if data[i] < data[data_center]:
                 data_center = i
-        plt.plot(data)
+        # plt.plot(data)
+        plt.plot(data[data_center - side_expt : data_center + side_expt])
         # plt.plot(data[data_center - side_expt : data_center + side_expt])
         plt.title(f"{strain_label} in dynamic test")
     set_labels("Microstrain", "Time")
