@@ -2108,6 +2108,16 @@ good agreement between the measurements, OpenSees and Diana.
 #+CAPTION[Time series of strain sensors O1, O10 and O11]: Responses of longitudinal strain at sensors U25-U27 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
 [[./saved-images/sensors/strain-O-0.pdf]]
 
+#+NAME: fig:dyna-vert
+#+ATTR_LATEX: :height 1\textwidth
+#+CAPTION[Comparison of Y translation to dynamic test]: Responses of vertical translation at sensors U25-U27 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the vertical translation at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
+[[./saved-images/sensors/displa-8.pdf]]
+
+#+NAME: fig:dyna-strain
+#+ATTR_LATEX: :height 1\textwidth
+#+CAPTION[Comparison of Strain to dynamic test]: Responses of longitudinal strain at sensors U25-U27 to Truck 1 moving across bridge 705. The x-axis is the x position of the front axle of Truck 1 on bridge 705 and the y-axis is the strain at each sensor due to the truck's loading. Each set of coloured scatter points are from a different labeled data source.
+[[./saved-images/sensors/strain-O-0.pdf]]
+
 **** Convergence
 
 # Why is convergence necessary.

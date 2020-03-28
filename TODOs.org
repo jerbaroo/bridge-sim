@@ -1,7 +1,8 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Finish List
-** [#A] Q1 Temperature removal
+** DONE [#A] Q1 Temperature removal
+CLOSED: [2020-03-28 Sat 19:04]
 *** DONE Show standard error
 CLOSED: [2020-03-28 Sat 12:55]
 *** DONE Cleanup notebook
@@ -42,24 +43,27 @@ CLOSED: [2020-03-28 Sat 18:04]
 CLOSED: [2020-03-28 Sat 18:04]
 *** DONE Plot time series using full data
 CLOSED: [2020-03-28 Sat 18:29]
-*** Fix strain
+*** DONE Fix strain
+CLOSED: [2020-03-28 Sat 18:45]
+*** TODO Use other sensor
 *** Include in thesis
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing
-** [#A] Writing [2/2]
-*** Stress strength plots
+** [#A] Writing [2/10]
+*** TODO Stress strength plots
 *** DONE Temperature plot (without Y translation)
 CLOSED: [2020-03-28 Sat 12:51]
-*** Temperature removal plots
+*** TODO Temperature removal plots
 *** DONE Frequency plot
 CLOSED: [2020-03-28 Sat 13:40]
-*** Computational time
-*** Temperature model
-*** Finite element formulation
-*** Arpi's feedback
-*** Discussion
-*** Link to chapter 4
+*** TODO Computational time
+*** TODO Temperature model
+*** TODO Finite element formulation
+*** TODO Arpi's feedback
+*** TODO Discussion
+*** TODO Link to chapter 4
+\newpage
 * Days
 ** Wed 11 March (1 / 21)
 * Notes on experiments
