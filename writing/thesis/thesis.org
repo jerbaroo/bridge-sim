@@ -1724,7 +1724,7 @@ is added in all classification experiments.
 #+CAPTION[Distribution of vehicles]: The distribution of vehicles used in simulations of traffic passing over bridge 705. The first and second plots show the distribution of vehicle loading intensity and the number of axles in the vehicle database, that from which vehicles are sampled. The red area in the first plot is the probability density function that defines which vehicles in the database are sampled. The third plot shows the distribution of the load intensity of 10000 randomly sampled vehicles.
 [[./saved-images/vehicles/vehicles-db.pdf]]
 
-https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
+# https://www.researchgate.net/publication/303809875_Emission_factors_for_alternative_drivelines_and_alternative_fuels
 
 # Data on heavy vehicles comes from a dataset collected on the A16 highway in the Netherlands. Data on light vehicles have been added by the author and can be identified approximately as the vehicles less than 10 m in the first plot.
 
@@ -1923,16 +1923,25 @@ calculated due to any combination of piers being settled by different amounts.
 
 # # # TODO: Specify exact refinement positions.
 
-*** Collected Data
+The outputs of the data collection system (simulations) are time series of
+responses from sensors selected on the bottom of the bridge deck. Figure
+[[fig:animation]] shows a contour plot of the responses from vertical translation
+from sensors on the bottom of the bridge deck during a 1 minute simulation with
+temperature data from the $1^{st}$ of July 2019. Temperature effect is sped up
+by a factor of 60 such that 1 hour of temperature effect takes place over 1
+minute of traffic simulation, the reason being that not as much traffic data is
+required, because 24 minutes of traffic data is already 2.76 gigabytes. If we
+wanted to see the effect of temperature over a number of hours, perhaps a 24
+hour period, and use the original 1-to-1 rate of traffic then we would require
+$60 * 2.76 = 165$ gigabytes of data.
 
-The outputs of the system are time series of responses from sensors distributed
-across the bridge model, these time series of responses we call /events/. Events
-are labelled by simulation scenario and simulation time.
-
-\textcolor{red}{Here I need to put an image from the "animation" where the
-traffic and responses are shown in top and bottom plots respectively}.
+#+NAME: fig:animation
+#+ATTR_LATEX: :placement [!ht]
+#+CAPTION[Superposition of effects]: Superposition of effects during a simulation on the $1^{st}$ of July 2019. The top plot is a contour plot coloured by the vertical translation from $200 \cdot 60 = 12000$ sensors on the bottom of the bridge deck. Each of the white-ish and green-ish rectangles represents a vehicle on the bridge. 1 minute of traffic data is used for the simulation and 1 hour of temperature data. Pier 5 has been settled by 1mm and the effect of this is clearly identifiable. The bottom plot shows the responses from the vertical translation sensor at the bottom of the bridge deck, the sensor position is indicated by a red point in the top plot.
+[[./saved-images/animation.png]]
 
 *** Validation
+
 The FEM generated for the purpose of data collection needs to be validated,
 otherwise an analysis of the data would offer little value. In this Subsection
 the data collection system is set to bridge 705 and the generated FEM for
@@ -2126,11 +2135,11 @@ less than 16.6 the number of nodes will jump to 4. The nodes are equidistantly
 placed and thus do not line up with the original 3 nodes. Vertical translation
 from a simulation is recorded at the positions of nodes, and strain is recorded
 at positions $\frac{1}{2} \cdot \sqrt{3}$ of a shell elements width and height
-from the shell element's center, as discussed in Subsection [[Collected Data]]. Due
-to the variation of the position of nodes as ~MSL~ is increased, the convergence
-of responses is based on responses calculated on a $100 \cdot 30$ grid that does
-not change. The response at each point on this grid is calculated as the
-interpolation of the responses from nearby points collected from simulation.
+from the shell element's center. Due to the variation of the position of nodes
+as ~MSL~ is increased, the convergence of responses is based on responses
+calculated on a $100 \cdot 30$ grid that does not change. The response at each
+point on this grid is calculated as the interpolation of the responses from
+nearby points collected from simulation.
 
 # Computation on a grid: min, max, mean.
 # thus the maximum and mean displacement and minimum and mean strain are

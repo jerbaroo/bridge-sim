@@ -2,8 +2,11 @@
 
 * Finish List
 ** [#A] Q1 Temperature removal
-*** Show standard error
-*** Cleanup notebook
+*** DONE Show standard error
+CLOSED: [2020-03-28 Sat 12:55]
+*** DONE Cleanup notebook
+CLOSED: [2020-03-28 Sat 17:05]
+*** Use new images in thesis
 ** [#A] Q2 Error term
 *** 1mm pier settlement
 *** Some other change
@@ -12,11 +15,13 @@
 *** Add daily estimator
 ** [#A] Q5 Concrete
 *** Setup change detection experiment
-** [#A] Animation plot [/]
+** DONE [#A] Animation plot [2/2]
+CLOSED: [2020-03-28 Sat 13:33]
 *** DONE Run on workhorse
 CLOSED: [2020-03-28 Sat 12:07]
 - ./cli.sh --save-to /e/saved/mesh-full-600-mar --mesh full classify top-view --damage pier
-*** Run with more sensors for a finer plot
+*** DONE Run with more sensors for a finer plot
+CLOSED: [2020-03-28 Sat 13:33]
 ** [#C] Wind speed
 ** [#A] Plot temperature measurements
 ** [#A] Investigate cracked concrete
@@ -32,12 +37,13 @@ CLOSED: [2020-03-28 Sat 12:07]
 ** [#B] Second bridge
 ** [#B] Re-usable example
 ** [#C] Lera's thing
-** [#A] Writing [1/1]
+** [#A] Writing [2/2]
 *** Stress strength plots
 *** DONE Temperature plot (without Y translation)
 CLOSED: [2020-03-28 Sat 12:51]
 *** Temperature removal plots
-*** Frequency plot
+*** DONE Frequency plot
+CLOSED: [2020-03-28 Sat 13:40]
 *** Computational time
 *** Temperature model
 *** Finite element formulation
