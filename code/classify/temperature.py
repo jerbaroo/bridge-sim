@@ -179,7 +179,7 @@ def effect(
     unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_uniform.use(original_c)
     uniform_responses = load_fem_responses(
-        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
     )
     # Convert uniform responses to correct type (thermal post-processing).
     if response_type in [ResponseType.Strain, ResponseType.StrainT]:
@@ -193,7 +193,7 @@ def effect(
     unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = unit_linear.use(original_c)
     linear_responses = load_fem_responses(
-        c=c, sim_runner=OSRunner(c), response_type=response_type, sim_params=sim_params,
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
     )
     # Convert linear responses to correct type (thermal post-processing).
     if response_type in [ResponseType.Strain, ResponseType.StrainT]:

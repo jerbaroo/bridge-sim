@@ -2612,7 +2612,7 @@ investigate the ability to remove the thermal effect for every day of 2019, such
 a plot is presented in Figure [[fig:temp-removal-2019]]. Here the mean error is
 $0.18 mm$, or 40% of the ground truth. What is important to note is how the
 standard deviation of the predicted vertical translation is reduced from $0.15
-mm$ or 39% of thr ground truth, to $0.04 mm$ or 9% when the median over a 2 week
+mm$ or 39% of the ground truth, to $0.04 mm$ or 9% when the median over a 2 week
 period is taken rather than over a single day. Because pier settlement is
 classified as long-term damage, taking the median over a longer period of time
 is appropriate method to increase robustness of the measure. Turning our

@@ -1,13 +1,13 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Finish List
-** [#A] Q2 Error term
-*** 1mm pier settlement
-*** Some other change
-** [#A] Q3 Sensor threshold
-** [#A] Q4 Range of threshold
+** DONE [#A] Q1 Error term
+CLOSED: [2020-03-29 Sun 19:15]
+*** DONE 2mm pier settlement
+CLOSED: [2020-03-29 Sun 18:35]
+** [#A] Q2 Sensor threshold
+** [#A] Q3 Range of threshold
 *** Add daily estimator
-** [#A] Go over writing Q1 - Q4
 ** [#A] Q5 Concrete
 *** Setup change detection experiment
 ** [#A] Plot temperature measurements
@@ -25,6 +25,8 @@ CLOSED: [2020-03-28 Sat 13:40]
 *** TODO Discussion
 *** TODO Link to chapter 4
 \newpage
+** [#B] Second bridge
+** [#B] Re-usable example
 ** DONE [#A] Q1 Temperature removal
 CLOSED: [2020-03-28 Sat 19:04]
 *** DONE Show standard error
@@ -51,8 +53,6 @@ CLOSED: [2020-03-28 Sat 17:46]
 CLOSED: [2020-03-29 Sun 13:43]
 *** DONE Run HQ data and check poisson's ratios
 CLOSED: [2020-03-29 Sun 13:52]
-** [#B] Second bridge
-** [#B] Re-usable example
 ** DONE [#B] Investigate dynamic time series
 CLOSED: [2020-03-28 Sat 20:52]
 *** DONE Ensure full data has run
@@ -68,9 +68,12 @@ CLOSED: [2020-03-28 Sat 18:45]
 CLOSED: [2020-03-28 Sat 20:31]
 *** DONE Include in thesis
 CLOSED: [2020-03-28 Sat 20:52]
-** [#C] Wind speed
-** [#C] Investigate uniform temperature
-** [#C] Lera's thing
+** ABORT [#C] Wind speed
+CLOSED: [2020-03-29 Sun 18:25]
+** ABORT [#C] Investigate uniform temperature
+CLOSED: [2020-03-29 Sun 18:25]
+** ABORT [#C] Lera's thing
+CLOSED: [2020-03-29 Sun 18:25]
 * Days
 ** Wed 11 March (1 / 21)
 * Notes on experiments

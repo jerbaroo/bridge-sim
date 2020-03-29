@@ -5,7 +5,7 @@ import os
 import dill
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import List, NewType, Optional, Tuple
+from typing import Callable, List, NewType, Optional, Tuple, Union
 
 import numpy as np
 from scipy.interpolate import interp1d, interp2d
@@ -34,7 +34,7 @@ def load_fem_responses(
     c: Config,
     sim_params: SimParams,
     response_type: ResponseType,
-    sim_runner: "FEMRunner",
+    sim_runner: Union["FEMRunner", Callable[[Config], "FEMRunner"]],
     run: bool = False,
     run_only: bool = False,
     index: Optional[Tuple[int, int]] = None,
@@ -61,6 +61,8 @@ def load_fem_responses(
     'fem' module of this package should be separate from that abstraction.
 
     """
+    if callable(sim_runner):
+        sim_runner = sim_runner(c)
     original_response_types = set(sim_params.response_types)
     sim_params.response_types = [
         rt
