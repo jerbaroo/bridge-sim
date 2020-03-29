@@ -1,5 +1,7 @@
+import datetime
 import math
 import os
+from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
@@ -7,6 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
+from sklearn.linear_model import LinearRegression
 
 from classify.scenario.bridge import ThermalDamage
 from config import Config
@@ -23,6 +26,23 @@ D: bool = False
 # https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 
 __dir__ = os.path.normpath(os.path.join(os.path.realpath(__file__), "../../../"))
+
+
+def remove_sampled(num_samples, signal):
+    """Interpolate between num_samples and subtract.
+
+    Data must be of shape n samples x f features.
+    """
+    # 'num_samples + 1' indices into given signal.
+    indices = list(map(int, np.linspace(0, len(signal) - 1, num_samples + 1)))
+    # Mean value of the signal between each pair of indices,
+    # and new indices, at center between each pair of indices.
+    y_samples, new_indices = [], []
+    for i_lo, i_hi in zip(indices[:-1], indices[1:]):
+        y_samples.append(np.mean(signal[i_lo:i_hi]))
+        new_indices.append(int((i_lo + i_hi) / 2))
+    rm =  interp1d(new_indices, y_samples, fill_value="extrapolate")(np.arange(len(signal)))
+    return rm, deepcopy(rm) - rm[0]
 
 
 def parse_line(line):
@@ -324,25 +344,14 @@ def apply_effect(
     return result
 
 
-def estimate_temp_effect(
-    c: Config, responses: List[float], speed_up: float
-) -> List[float]:
-    from scipy.interpolate import interp1d
+# Shorthand.
+ij = lambda _t, _i, _j: from_to_indices(_t, datetime.fromisoformat(_i), datetime.fromisoformat(_j))
 
-    # First get the length of the time series that corresponds to a minute, and
-    # also to an hour, of temperature time.
-    len_per_min = get_len_per_min(c=c, speed_up=speed_up)
-    len_per_hr = len_per_min * 60
-    # Determine indices of the readings in the given time series of responses.
-    # And determine the reading, as the average response over the period.
-    xs = np.arange(len(responses), 0, -len_per_hr)
-    # print(f"xs = {xs}")
-    temp_points = [np.mean(responses[max(0, i - len_per_hr) : i]) for i in xs]
-    # print(f"len_per_hr = {len_per_hr}")
-    # print(f"temp points = {temp_points}")
-    f = interp1d(xs, temp_points, kind="cubic", fill_value="extrapolate")
-    return f(np.arange(len(responses)))
-    # import numpy.polynomial.polynomial as poly
-    # coefs = poly.polyfit(xs, temp_points, 6)
-    # print(f"coefs")
-    # return poly.polyval(np.arange(len(responses)), coefs)
+
+def regress_and_errors(x, y):
+    """Linear regression predictor, and error from each given point."""
+    lr = LinearRegression().fit(x.reshape(-1, 1), y)
+    errors = []
+    for x_, y_ in zip(x, y):
+        errors.append(abs(y_ - lr.predict([[x_]])[0]))
+    return lr, np.array(errors)
