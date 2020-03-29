@@ -1,14 +1,6 @@
 #+TODO: TODO(t) INPROGRESS(i) FEEDBACK(f) VERIFY(v) WAIT(w) BLOCKED(b) | DONE(d) ABORT(a)
 
 * Finish List
-** DONE [#A] Q1 Temperature removal
-CLOSED: [2020-03-28 Sat 19:04]
-*** DONE Show standard error
-CLOSED: [2020-03-28 Sat 12:55]
-*** DONE Cleanup notebook
-CLOSED: [2020-03-28 Sat 17:05]
-*** DONE Use new images in thesis
-CLOSED: [2020-03-28 Sat 17:18]
 ** [#A] Q2 Error term
 *** 1mm pier settlement
 *** Some other change
@@ -18,6 +10,29 @@ CLOSED: [2020-03-28 Sat 17:18]
 ** [#A] Go over writing Q1 - Q4
 ** [#A] Q5 Concrete
 *** Setup change detection experiment
+** [#A] Plot temperature measurements
+** [#A] Writing [2/10]
+*** TODO Stress strength plots
+*** DONE Temperature plot (without Y translation)
+CLOSED: [2020-03-28 Sat 12:51]
+*** TODO Temperature removal plots
+*** DONE Frequency plot
+CLOSED: [2020-03-28 Sat 13:40]
+*** TODO Computational time
+*** TODO Temperature model
+*** TODO Finite element formulation
+*** TODO Arpi's feedback
+*** TODO Discussion
+*** TODO Link to chapter 4
+\newpage
+** DONE [#A] Q1 Temperature removal
+CLOSED: [2020-03-28 Sat 19:04]
+*** DONE Show standard error
+CLOSED: [2020-03-28 Sat 12:55]
+*** DONE Cleanup notebook
+CLOSED: [2020-03-28 Sat 17:05]
+*** DONE Use new images in thesis
+CLOSED: [2020-03-28 Sat 17:18]
 ** DONE [#A] Animation plot [2/2]
 CLOSED: [2020-03-28 Sat 13:33]
 *** DONE Run on workhorse
@@ -25,16 +40,19 @@ CLOSED: [2020-03-28 Sat 12:07]
 - ./cli.sh --save-to /e/saved/mesh-full-600-mar --mesh full classify top-view --damage pier
 *** DONE Run with more sensors for a finer plot
 CLOSED: [2020-03-28 Sat 13:33]
-** [#C] Wind speed
-** [#A] Plot temperature measurements
-** [#A] Investigate cracked concrete [/]
+** DONE [#A] Investigate cracked concrete [3/3]
+CLOSED: [2020-03-29 Sun 13:52]
 *** DONE Run cracked with poissons at 0.2
 CLOSED: [2020-03-28 Sat 17:46]
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --cracked
 - Poisson's ratio in TCL files is: 0.2 0.2 0.2
 - ./cli.sh --save-to /e/saved/mesh-med-600-crack-poisson-02 --mesh med simulate uls --healthy
-*** Generate plot from Q5 notebook
-** [#C] Investigate uniform temperature
+*** DONE Generate plot from Q5 notebook
+CLOSED: [2020-03-29 Sun 13:43]
+*** DONE Run HQ data and check poisson's ratios
+CLOSED: [2020-03-29 Sun 13:52]
+** [#B] Second bridge
+** [#B] Re-usable example
 ** DONE [#B] Investigate dynamic time series
 CLOSED: [2020-03-28 Sat 20:52]
 *** DONE Ensure full data has run
@@ -50,23 +68,9 @@ CLOSED: [2020-03-28 Sat 18:45]
 CLOSED: [2020-03-28 Sat 20:31]
 *** DONE Include in thesis
 CLOSED: [2020-03-28 Sat 20:52]
-** [#B] Second bridge
-** [#B] Re-usable example
+** [#C] Wind speed
+** [#C] Investigate uniform temperature
 ** [#C] Lera's thing
-** [#A] Writing [2/10]
-*** TODO Stress strength plots
-*** DONE Temperature plot (without Y translation)
-CLOSED: [2020-03-28 Sat 12:51]
-*** TODO Temperature removal plots
-*** DONE Frequency plot
-CLOSED: [2020-03-28 Sat 13:40]
-*** TODO Computational time
-*** TODO Temperature model
-*** TODO Finite element formulation
-*** TODO Arpi's feedback
-*** TODO Discussion
-*** TODO Link to chapter 4
-\newpage
 * Days
 ** Wed 11 March (1 / 21)
 * Notes on experiments

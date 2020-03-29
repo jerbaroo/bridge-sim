@@ -2491,9 +2491,12 @@ outline what the experiments are which we hope will provide the answers. These
 questions will naturally build upon the questions that come before them.
 
 \bigskip **Question 1:** With what accuracy can the vertical translation of two
-selected sensors on bridge 705 be predicted without temperature effect based on
-regression of the model's previous year's responses with air temperature and
-taking hourly samples to remove the daily component?
+selected sensors on bridge 705 be predicted after temperature effect removal
+using regression of the model's previous year's (2018) vertical translation
+responses with air temperature to remove the annual component and taking hourly
+samples to remove the daily component? Furthermore, how does the addition of a
+$1 mm$ pier settlement term into the recorded vertical translation responses
+from 2018 affect the ability to predict vertical translation?
 
 \bigskip Temperature may cause a temporary change in vertical translation. A
 model =T= based on a number of variables such as air temperature can be built in
@@ -2504,8 +2507,9 @@ same model =T= cannot simply be used to predict and remove the simulated effect.
 To convince ourselves that removal of the temperature effect would work in real
 life, a simple and robust technique should be used. Furthermore the temperature
 model is based on data taken at 5-minute samples from a quality controlled
-dataset, using air temperature, solar radiation and \textcolor{red}{TODO add
-wind speed for increased daily error, I have the data}.
+dataset, using air temperature and solar radiation.
+and \textcolor{red}{TODO add wind speed for increased daily error, I have the
+data}.
 
 The method used is based on cite:kromanis2016shm. The thermal effect is removed
 by linear regression of the previous year's responses against air temperature
@@ -2515,11 +2519,14 @@ load and additional effects as seen in Figure [[fig:effects]]. Answering this
 question we will look closely at the two specific sensors indicated in Figure
 [[fig:avail-sensors]].
 
-\bigskip **Question 2.** How does the addition of a $1 mm$ error term into the
-reference measurements from the previous year affect the ability to determine if
-a pier has settled?
+So far the question has assumed that bridge 705 was in perfect health throughout
+2018 when the reference measurements were taken. While it is informative to
+investigate this ideal case, it is entirely possible that some pier settlement
+has already occured in 2018. So we introduce $1 mm$ of pier settlement that
+increases linearly over the period of 2018, to see how the ability to predict
+pier settlement is affected.
 
-\bigskip **Question 3.** What threshold values are appropriate to trigger
+\bigskip **Question 2.** What threshold values are appropriate to trigger
 warnings from the two selected sensors on bridge 705 when pier 5 is settled by
 $3 mm$?
 
@@ -2550,7 +2557,7 @@ and when the threshold is too large there will be many false negatives.
 | Healthy bridge | False positive   | True negative        |
 | Damaged bridge | True positive    | False negative       |
 
-\bigskip **Question 4.** For each selected sensor, at what minimum amount of
+\bigskip **Question 3.** For each selected sensor, at what minimum amount of
 pier settlement can we, using the methods from previous questions, classify
 every response correctly? Furthermore for each value of pier settlement what
 is the range of sensor thresholds for which this is possible?
@@ -2563,7 +2570,7 @@ point the difference will be large enough that all sensor responses, according
 to the model, will be correctly classified. For each selected sensor, what is
 the minimum amount of pier settlement for which this is true?
 
-\bigskip **Question 5.** Can the change in sensor responses that occur due to
+\bigskip **Question 4.** Can the change in sensor responses that occur due to
 cracking be detected?
 
 \bigskip Generate multiple time series of responses, and apply the crack at a
