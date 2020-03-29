@@ -8,9 +8,11 @@ from classify.data.responses import (
     responses_to_traffic_array,
     responses_to_vehicles_d,
 )
+from classify.data.traffic import load_traffic
 from classify.vehicle import wagen1
 from classify.scenarios import healthy_scenario
-from classify.scenario.bridge import transverse_crack
+from classify.scenario.bridge import healthy_damage, transverse_crack
+from classify.scenario.traffic import normal_traffic
 from config import Config
 from fem.build import BuildContext
 from fem.params import ExptParams, SimParams
@@ -418,3 +420,47 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
         )
     )
     plt.close()
+
+
+def cracked_concrete_plot(c: Config):
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
+    sensor_point = Point(x=51.8, y=0, z=-8.4)
+    # Generate traffic data.
+    total_mins = 2
+    total_seconds = total_mins * 60
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence, traffic, traffic_array = load_traffic(
+        c=c,
+        traffic_scenario=traffic_scenario,
+        max_time=total_seconds,
+    )
+    # Split the traffic array in half, the crack will happen halfway through.
+    half_i = int(len(traffic_array) / 2)
+    traffic_array_0, traffic_array_1 = traffic_array[:half_i], traffic_array[half_i:]
+    assert len(traffic_array_0) + len(traffic_array_1) == len(traffic_array)
+    # Collect responses due to traffic.
+    responses = []
+    for rt in response_types:
+        responses_healthy_cracked = []
+        for ds, ta in [(healthy_damage, traffic_array_0), (transverse_crack(), traffic_array_1)]:
+            print(f"Sections in damage scenario = {len(ds.use(c)[0].bridge.sections)}")
+            responses_healthy_cracked.append(responses_to_traffic_array(
+                c=c, traffic_array=ta, response_type=rt, damage_scenario=ds, points=[sensor_point],
+            ).T[0])  # Responses from a single point.
+        responses.append(np.concatenate(responses_healthy_cracked))
+    responses = np.array(responses)
+    # Plot the cracked time series.
+    plt.landscape()
+    plt.subplot(2, 1, 1)
+    plt.plot(np.arange(half_i), responses[0][:half_i] * 1000, label="Healthy")
+    plt.plot(np.arange(half_i, len(responses[0])), responses[0][half_i:] * 1000, label="Cracked")
+    plt.legend()
+    plt.ylabel("Y translation (mm)")
+    # plt.plot(np.arange(half_i, len(responses[0])), responses[0][half_i:])
+    plt.subplot(2, 1, 2)
+    plt.plot(np.arange(half_i), responses[1][:half_i], label="Healthy")
+    plt.plot(np.arange(half_i, len(responses[0])), responses[1][half_i:], label="Cracked")
+    plt.legend()
+    plt.ylabel("Microstrain")
+    # plt.plot(np.arange(half_i, len(responses[1])), responses[1][half_i:])
+    plt.savefig(c.get_image_path("verify/cracked", "crack-time-series.pdf"))

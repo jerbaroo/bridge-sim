@@ -603,6 +603,13 @@ def truck1_contour(x: int, rt: str):
     wagen_1_contour_plot(c=c(), x=x, response_type=response_type)
 
 
+@verify.command(help="Plot a time series where a crack occurs.")
+def cracked_concrete():
+    from make.verify import cracked_concrete_plot
+
+    cracked_concrete_plot(c())
+
+
 ####################
 ##### Classify #####
 ####################
