@@ -398,20 +398,21 @@ def wagen_1_contour_plot(c: Config, x: int, response_type: ResponseType):
         c=c,
         responses=healthy_responses,
         ploads=loads if LOADS else [],
-        scatter=True,
+        scatter=False,
         norm=norm,
     )
-    plt.title("Truck 1 on healthy bridge")
+    rt_name = "Microstrain" if response_type.name() == "Strain" else response_type.name()
+    plt.title(f"{rt_name} from Truck 1 on cracked bridge")
     plt.subplot(2, 1, 2)
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(
         c=c,
         responses=crack_responses,
         ploads=loads if LOADS else [],
-        scatter=True,
+        scatter=False,
         norm=norm,
     )
-    plt.title("Truck 1 on cracked bridge")
+    plt.title(f"{rt_name} from Truck 1 on cracked bridge")
     plt.tight_layout()
     plt.savefig(
         original_c.get_image_path(
@@ -450,17 +451,21 @@ def cracked_concrete_plot(c: Config):
         responses.append(np.concatenate(responses_healthy_cracked))
     responses = np.array(responses)
     # Plot the cracked time series.
+    x0 = np.arange(half_i) * c.sensor_hz / 60
+    x1 = np.arange(half_i, len(responses[0])) * c.sensor_hz / 60
     plt.landscape()
     plt.subplot(2, 1, 1)
-    plt.plot(np.arange(half_i), responses[0][:half_i] * 1000, label="Healthy")
-    plt.plot(np.arange(half_i, len(responses[0])), responses[0][half_i:] * 1000, label="Cracked")
+    plt.plot(x0, responses[0][:half_i] * 1000, label="Healthy")
+    plt.plot(x1, responses[0][half_i:] * 1000, label="Cracked")
     plt.legend()
     plt.ylabel("Y translation (mm)")
+    plt.xlabel("Time (minutes)")
     # plt.plot(np.arange(half_i, len(responses[0])), responses[0][half_i:])
     plt.subplot(2, 1, 2)
-    plt.plot(np.arange(half_i), responses[1][:half_i], label="Healthy")
-    plt.plot(np.arange(half_i, len(responses[0])), responses[1][half_i:], label="Cracked")
+    plt.plot(x0, responses[1][:half_i], label="Healthy")
+    plt.plot(x1, responses[1][half_i:], label="Cracked")
     plt.legend()
     plt.ylabel("Microstrain")
+    plt.xlabel("Time (minutes)")
     # plt.plot(np.arange(half_i, len(responses[1])), responses[1][half_i:])
     plt.savefig(c.get_image_path("verify/cracked", "crack-time-series.pdf"))
