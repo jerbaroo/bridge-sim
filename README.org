@@ -1,16 +1,18 @@
 * Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
   
-*Work in progress! Features are at varying levels of completion, though the examples below should at least all work. The API will be improved after I submit my thesis. Currently the codebase is a bit messy as I have begun the migration to a more user-friendly API.*
+*Cleanup in progress! Features are at varying levels of readiness, though the examples below should at least all work. The API will be improved after I submit my thesis. Currently the codebase is a bit messy as I have begun the migration to a more user-friendly API.*
 
-*If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I love feedback, so don't hesitate to communicate any thoughts.*
+*If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I do love feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.*
 
 ** Installation
 
 *A Python package will be introduced soon (matter of weeks), however in the mean time, installation is by downloading and running the source code directly.*
 
-You need Python 3.7+ installed, then [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]].
+Make sure you have Python 3.7+ installed.
 
-You also need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
+And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with =pip install --user pipenv=?
+
+You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
 
 Clone this repository and change into the directory:
 
