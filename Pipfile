@@ -1,0 +1,30 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black = "*"
+jupyterlab = "*"
+pytest = "*"
+pydeps = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+
+[packages]
+private = {path = "./private",editable = true}
+public = {path = "./public",editable = true}
+click = "*"
+colorama = "*"
+matplotlib = "*"
+numpy = "*"
+pandas = "*"
+pathos = "*"
+portalocker = "*"
+scipy = "*"
+sklearn = "*"
+termcolor = "*"
+findup = "*"
+
+[pipenv]
+allow_prereleases = true

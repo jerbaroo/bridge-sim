@@ -1,0 +1,28 @@
+# System
+.DS_Store
+*.swp
+*.tb
+
+# Python
+*.egg-info/
+.idea/
+.ipynb_checkpoints/
+.mypy_cache/
+__pycache__/
+venv/
+
+# Code & generated data
+code/config_sys.py
+*generated*/
+
+# Diana
+diana*.out
+diana.ff
+diana*.dat
+
+# Axis
+*.axr
+**/Revisions/
+
+# Private
+thesis-questions/
