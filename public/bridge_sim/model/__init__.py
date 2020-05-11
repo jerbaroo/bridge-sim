@@ -22,9 +22,9 @@ def PointLoad(config: LibConfig, x: float, z: float, kn: float):
 
     Args:
         bridge: Bridge, temporarily needed.
-        x: float, x position on bridge in [0 1].
-        z: float, z position on bridge in [0 1].
-        kn: float, load intensity in kilo Newton.
+        x: float, x position on bridge.
+        z: float, z position on bridge.
+        kn: float, load intensity.
 
     """
     return LibPointLoad(
