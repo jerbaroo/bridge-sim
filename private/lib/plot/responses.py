@@ -118,6 +118,7 @@ def plot_contour_deck(
     c: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
+    units: Optional[str] = None,
     y: float = 0,
     cmap=default_cmap,
     norm=None,
@@ -187,9 +188,12 @@ def plot_contour_deck(
         )
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+
     # Colourbar, maybe using given norm.
     clb = plt.colorbar(cs, norm=norm)
-    clb.ax.set_title(responses.units)
+    if units is not None:
+        clb.ax.set_title(units)
+
     # Plot point loads.
     for pload in point_loads:
         x = pload.x_frac * c.bridge.length
@@ -214,10 +218,12 @@ def plot_contour_deck(
             if sci_format
             else f"{np.around(abs(amin - amax), decimals)}"
         )
+        units_str = "" if units is None else f" {units}"
+        print(units_str)
         for point, label, color, alpha in [
-            ((amin_x, amin_z), f"min = {amin_s} {responses.units}", "orange", 0),
-            ((amax_x, amax_z), f"max = {amax_s} {responses.units}", "green", 0),
-            ((amin_x, amin_z), f"|min-max| = {aabs_s} {responses.units}", "red", 0),
+            ((amin_x, amin_z), f"min = {amin_s} {units_str}", "orange", 0),
+            ((amax_x, amax_z), f"max = {amax_s} {units_str}", "green", 0),
+            ((amin_x, amin_z), f"|min-max| = {aabs_s} {units_str}", "red", 0),
         ]:
             plt.scatter(
                 [point[0]],
@@ -229,5 +235,5 @@ def plot_contour_deck(
             )
     # End: min, max legend.
 
-    plt.xlabel("X position (m)")
-    plt.ylabel("Z position (m)")
+    plt.xlabel("X position")
+    plt.ylabel("Z position")

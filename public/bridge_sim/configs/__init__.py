@@ -15,7 +15,7 @@ def opensees_default(bridge: Bridge, os_exe: Optional[str] = None, **kwargs) -> 
     return Config(
         bridge=bridge,
         fem_runner=os_runner(os_exe),
-        vehicle_data_path=os.path.join(proj_dir, "data/a16-data/a16.csv"),
+        vehicle_data_path=os.path.join(proj_dir, "data/traffic/traffic.csv"),
         vehicle_pdf=[
             (2.4, 5),
             (5.6, 45),
