@@ -69,5 +69,5 @@ def top_view_bridge(
         ax_c.imshow(compass_img)
         ax_c.axis("off")
         plt.sca(ax)  # Return control to the original axis.
-    plt.xlabel("X position (m)")
-    plt.ylabel("Z position (m)")
+    plt.xlabel("X position")
+    plt.ylabel("Z position")
