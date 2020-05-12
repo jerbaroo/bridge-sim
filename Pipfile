@@ -12,8 +12,7 @@ sphinx = "*"
 sphinx-rtd-theme = "*"
 
 [packages]
-private = {path = "./private",editable = true}
-public = {path = "./public",editable = true}
+src = {path = "./src",editable = true}
 click = "*"
 colorama = "*"
 matplotlib = "*"
@@ -25,6 +24,7 @@ scipy = "*"
 sklearn = "*"
 termcolor = "*"
 findup = "*"
+pypandoc = "*"
 
 [pipenv]
 allow_prereleases = true

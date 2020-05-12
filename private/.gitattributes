@@ -1,2 +1,0 @@
-displa_paths.tb filter=lfs diff=lfs merge=lfs -text
-strains_paths.tb filter=lfs diff=lfs merge=lfs -text
