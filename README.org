@@ -3,6 +3,7 @@
 *Cleanup in progress! Features are at varying levels of readiness, though the examples below should at least all work. The API will be improved after I submit my thesis. Currently the codebase is a bit messy as I have begun the migration to a more user-friendly API.*
 
 *If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I do love feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.*
+[[./data/animation.png]]
 
 ** Installation
 
