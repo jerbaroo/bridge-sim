@@ -1,28 +1,28 @@
 # Example 1.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
-
-# config = configs.opensees_default(bridges.bridge_example)
-# point_loads = [model.PointLoad(config, x=5, z=0, kn=100)]
-# responses = fem.responses(config, model.RT.YTranslation, point_loads)
-# plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config, piers=True)
-# plt.tight_layout()
-# plt.show()
-
-# Example 2.
-
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot, vehicle
+from bridge_sim import bridges, configs, fem, model, plot
 
-config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
-point_loads = vehicle.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+config = configs.opensees_default(bridges.bridge_example)
+point_loads = [model.PointLoad(config, x=5, z=0, load=100)]
 responses = fem.responses(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
 plt.show()
+
+# Example 2.
+
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, fem, model, plot, vehicle
+
+# config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
+# point_loads = vehicle.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+# responses = fem.responses(config, model.RT.YTranslation, point_loads)
+# plot.contour_responses(config, responses, point_loads)
+# plot.top_view_bridge(config, piers=True)
+# plt.tight_layout()
+# plt.show()
 
 # Example 3.
 

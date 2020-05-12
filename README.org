@@ -52,7 +52,7 @@ import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
 
 config = configs.opensees_default(bridges.bridge_example)
-point_loads = [model.PointLoad(config, x=5, z=0, kn=100)]
+point_loads = [model.PointLoad(config, x=5, z=0, load=100)]
 responses = fem.responses(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
