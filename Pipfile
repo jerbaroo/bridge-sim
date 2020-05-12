@@ -6,10 +6,12 @@ verify_ssl = true
 [dev-packages]
 black = "*"
 jupyterlab = "*"
+pypandoc = "*"
 pytest = "*"
 pydeps = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+twine = "*"
 
 [packages]
 src = {path = "./src",editable = true}
@@ -24,7 +26,6 @@ scipy = "*"
 sklearn = "*"
 termcolor = "*"
 findup = "*"
-pypandoc = "*"
 
 [pipenv]
 allow_prereleases = true

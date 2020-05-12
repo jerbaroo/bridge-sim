@@ -11,8 +11,10 @@
 __pycache__/
 venv/
 
-# Generated data
+# Generated
 *generated*/
+src/build/
+src/dist/
 
 # Diana
 diana*.out
