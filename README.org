@@ -1,4 +1,4 @@
-* Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg&circle-token=20fdf4442f5ec94ea46006e65a551c1cc304667c]]
+* Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg]]
   
 *Cleanup in progress! Features are at varying levels of readiness, though the examples below should at least all work. The API will be improved after I submit my thesis. Currently the codebase is a bit messy as I have begun the migration to a more user-friendly API.*
 
