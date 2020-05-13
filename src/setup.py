@@ -4,7 +4,7 @@ import setuptools
 long_description = pypandoc.convert_file("../README.org", "md")
 
 setuptools.setup(
-    name="bridge-sim-barischrooneyj", # Replace with your own username
+    name="bridge-sim-barischrooneyj",  # Replace with your own username
     version="0.0.5",
     author="Jeremy Barisch-Rooney",
     author_email="barischrooneyj@protonmail.com",
