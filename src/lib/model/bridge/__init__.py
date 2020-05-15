@@ -125,7 +125,7 @@ class Support:
         height: float,
         width_top: float,
         width_bottom: float,
-        sections: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
+        materials: Union[List["Section3DPier"], Callable[[float], "Section3DPier"]],
         fix_x_translation: bool,
         fix_z_translation: bool,
         fix_y_translation: bool = True,
@@ -145,7 +145,7 @@ class Support:
         self.fix_x_rotation = fix_x_rotation
         self.fix_y_rotation = fix_y_rotation
         self.fix_z_rotation = fix_z_rotation
-        self._sections = sections
+        self._sections = materials
         # Must be callable or a list.
         if not callable(self._sections):
             assert isinstance(self._sections, list)
