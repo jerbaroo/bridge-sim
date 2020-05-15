@@ -178,15 +178,14 @@ class MvVehicle(Vehicle):
         axle_width: float,
         kmph: float,
         lane: Optional["Lane"] = None,
-        init_x_frac: Optional[float] = None,
+        init_x_frac: float = 0,
     ):
         super().__init__(kn=kn, axle_distances=axle_distances, axle_width=axle_width)
         self.kmph = kmph
         self.mps = self.kmph / 3.6  # Meters per second.
         self.lane = lane
         self.init_x_frac = init_x_frac
-        if self.init_x_frac is not None:
-            assert self.init_x_frac <= 1
+        assert self.init_x_frac <= 1
 
     def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
         """Positions of the vehicle's wheels in transverse direction.
@@ -234,19 +233,20 @@ class MvVehicle(Vehicle):
         return bridge.x(self.x_frac_at(time=time, bridge=bridge))
 
     def xs_at(self, time: float, bridge: Bridge):
-        """X position of bridge for each axle in meters at given time."""
+        """X position on bridge for each axle in meters at given time."""
         if not hasattr(self, "_xs_at_time"):
             xs = [self.x_at(time=time, bridge=bridge)]
             # Determine the distance between each pair of axles.
             delta_xs = np.array(self.axle_distances)
             if bridge.lanes[self.lane].ltr:
                 delta_xs *= -1
+                delta_xs = reversed(delta_xs)
             # Add the distance for each axle, after the front axle.
             for delta_x in delta_xs:
                 xs.append(xs[-1] + delta_x)
             self._xs_at_time = np.array(xs)
         delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
-        return self._xs_at_time + delta_x_time
+        return sorted(self._xs_at_time + delta_x_time)
 
     def x_fracs_at(self, time: float, bridge: Bridge):
         """Fraction of x position of bridge for each axle at given time."""
