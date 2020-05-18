@@ -14,20 +14,16 @@ Make sure you have Python 3.7+ installed.
 
 And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with =pip install --user pipenv=?
 
-You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]].
+You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If installing OpenSees on Linux the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help. Alternatively using an existing Docker image could be another way to go.
 
 Clone this repository and change into the directory:
 
 #+BEGIN_SRC bash
-git clone --single-branch https://github.com/barischrooneyj/bridge-sim
+git clone https://github.com/barischrooneyj/bridge-sim
 cd bridge-sim
 #+END_SRC
 
-In the =bridge-sim= directory install project dependencies with =pipenv install=.
-
-If you have an error and are on the Windows OS you may need to ~pipenv install pypiwin32~.
-
-I do not run Windows so can be of limited help there.
+In the =bridge-sim= directory install project dependencies with =pipenv install=. If you have an error and are on the Windows OS you may need to ~pipenv install pypiwin32~. I do not run Windows so can be of limited help there.
 
 ** Introduction
 
