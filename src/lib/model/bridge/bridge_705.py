@@ -195,7 +195,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 height=3.5,
                 width_top=3.666,
                 width_bottom=1.8,
-                sections=pier_section_f,
+                materials=pier_section_f,
                 # sections=bridge_705_pier_sections,
                 fix_x_translation=(x_index in [2, 3]),
                 fix_y_translation=True,
