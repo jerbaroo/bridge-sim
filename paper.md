@@ -1,5 +1,4 @@
 ---
-
 title: 'bridge-sim: A Python package for concrete slab bridge simulation'
 tags:
   - Python
@@ -17,7 +16,6 @@ affiliations:
    index: 2
 date: 19 May 2019
 bibliography: paper.bib
-
 ---
 
 # Summary
@@ -36,22 +34,21 @@ without the delay or cost of a real-time maintenance check.
 <!-- Research application -->
 
 One of the biggest problems related to damage detection of concrete slab bridges
-is the collection of data `@worden:2006` -> "Worden (2006)". This is because
-bridges are expensive structures that we are simply not allowed to damage,
-except as they are being decommisioned but then traffic is no longer permitted
-on the bridge. To circumvent this issue a lot of research is based on numerical
-simulations. However models used in such research are typically not built for
-re-use, and so researchers must resort to creating their models from the
-low-level building blocks of nodes and forces. `bridge-sim` addresses the need
-for a high-level API for data collection from concrete slab bridge simulation.
+is the collection of data [@worden:2006]. This is because bridges are expensive
+structures that we are simply not allowed to damage, except as they are being
+decommisioned but then traffic is no longer permitted on the bridge. To
+circumvent this issue a lot of research is based on numerical simulations.
+However models used in such research are typically not built for re-use, and so
+researchers must resort to creating their models from the low-level building
+blocks of nodes and forces. `bridge-sim` addresses the need for a high-level API
+for data collection from concrete slab bridge simulation.
 
 `bridge-sim` is open source software that provides a high-level API for building
 linear and non-linear 3D models of concrete slab bridges, running simulations of
-the generated models with OpenSees `@mckenna:2011` -> "(McKenna 2011)", and
-generating time series of sensor responses and graphics of these responses e.g.
-figure \autoref{fig:time}. `bridge-sim` has been written with extensibility in
-mind such that adding support for another finite element program other than
-OpenSees is possible.
+the generated models with OpenSees [@mckenna:2011], and generating time series
+and graphics of the responses e.g. \autoref{fig:time}. `bridge-sim` has been
+written with extensibility in mind such that adding support for another finite
+element program other than OpenSees is possible.
 
 `bridge-sim` makes the process of generating time series data via simulation of
 concrete slab bridges much faster and easier than with OpenSees. `bridge-sim`
@@ -64,10 +61,11 @@ validated against sensor data collected from a real bridge.
 
 ![Contour plot and time series of vertical translation responses.\label{fig:time}](./data/animation.png) 
 
-The code below shows a simple example that can be run with `bridge-sim`. This
-example uses a provided `Bridge` instance and runs a simulation with a custom
-`Vehicle` placed on the bridge. A contour plot of the vertical translation
-responses is then generated with the popular Matplotlib library.
+The code below shows a very simple example that can be run with `bridge-sim`, to
+give an idea of the kind of API that is provided. This example uses a built-in
+`Bridge` instance and runs a simulation with a custom `Vehicle` placed on the
+bridge. A contour plot of the vertical translation responses is then generated
+with the popular Matplotlib library.
 
 ```python
 import matplotlib.pyplot as plt
@@ -86,16 +84,17 @@ new_vehicle = Vehicle(
 )
 
 config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
-point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+point_loads = new_vehicle.to_point_load_pw(
+    time=3.5, bridge=config.bridge, list=True)
 responses = fem.responses(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
 plt.show()
-```	
+```
 
 # Acknowledgements
 
-We acknowledge support from TNO during the genesis of this project.
+Support from TNO is acknowledged during the genesis of this project.
 
 # References
