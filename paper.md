@@ -34,10 +34,33 @@ accomplishes this by providing a class-based API with classes such as `Bridge`,
 `Material` and `Vehicle`. Functionality provided by `bridge-sim` through this
 high-level API includes generation of finite element models based on a `Bridge`
 specification including mesh generation, traffic flow generation, settlement of
-piers and simulation of temperature effect. One of the generated models has been
-validated against sensor data collected from bridge 705 in Amsterdam, a plot
-comparing responses from linear simulation to static load tests (a truck parked
-on the bridge) is shown in \autoref{fig:val}.
+piers and simulation of temperature effect. A more thorough description of
+functionality is provided in the list below. One of the generated models has
+been validated against sensor data collected from bridge 705 in Amsterdam, a
+plot comparing responses from linear simulation to static load tests (a truck
+parked on the bridge) is shown in \autoref{fig:val}.
+
+- **Model file generation** Generating a model file for OpenSees from a
+  high-level description of geometry, material properties and boundary
+  conditions.
+- **Pier Settlement** Linear simulation of settlement of piers by applying a
+  displacement load to the central node of one or more supporting piers.
+- **Traffic Flow** Generation of a traffic flow based on a Poisson process and
+  simulation of the response of the bridge to the traffic based on superposition
+  of a number of one-time simulations.
+- **Temperature Load** Simulation of temperature effect based on linear thermal
+  expansion $\Delta L = \alpha L \Delta T$. (Simulation inputs are verified.
+  Vertical translation simulation outputs are verified. Strain simulation
+  outputs required further verification).
+- **Non-linear Simulation** A non-linear simulation can be triggered via a
+  simulation flag.
+- **Time-dependent Simulation** The loads corresponding to a traffic flow can be
+  written directly into a model file to run a simulation with multiple time
+  steps, instead of generating the time series via superposition from linear
+  simulations.
+- **Shrinkage**
+- **Graphics** Support for collecting and displaying simulation results
+  including generation of time series animation e.g. \autoref{fig:val}.
 
 ![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](./data/animation.png) 
 
@@ -62,14 +85,16 @@ researchers must resort to creating their models from the low-level building
 blocks of nodes and forces. `bridge-sim` addresses the need for a high-level API
 for data collection from concrete slab bridge simulation.
 
+![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](./data/images/val.png)
+
 # Usage Example 
 
-The code below shows a very simple example that can be run with `bridge-sim`, to
-give an idea of the kind of API that is provided. This example uses a built-in
-`Bridge` instance and a simulation is run with a custom `Vehicle` placed on the
-bridge. A contour plot of vertical translation responses is then generated with
-`bridge-sim` library functions, which are built upon the popular Matplotlib
-library.
+The code below shows a simple example that can be run with `bridge-sim`, to give
+the reader an idea of the level of abstraction that is provided. This example
+uses a built-in `Bridge` instance and a simulation is run with a custom
+`Vehicle` placed on the bridge. A contour plot of vertical translation responses
+is then generated with `bridge-sim` library functions, which are built upon the
+popular Matplotlib library.
 
 ```python
 import matplotlib.pyplot as plt
@@ -96,8 +121,6 @@ plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
 plt.show()
 ```
-
-![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](./data/images/val.png)
 
 # Acknowledgements
 
