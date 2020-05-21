@@ -1,0 +1,11 @@
+.idea/
+.git/
+.mypy_cache/
+.pytest_cache/
+comments/
+crack/
+docs/
+legacy/
+notebooks/
+sphinx-docs/
+validation/
