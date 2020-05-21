@@ -6,12 +6,11 @@ from typing import List, Optional
 
 import numpy as np
 
-from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from lib.fem.run import FEMRunner
-from lib.model.bridge import Point
-from lib.model.load import PointLoad
+from bridge_sim.model import Point, Config
+from bridge_sim.model.vehicle import PointLoad
 from lib.model.response import ResponseType
 from util import log, print_d, print_i, round_m, shorten_path
 

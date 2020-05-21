@@ -1,7 +1,7 @@
 """Run an OpenSees simulation."""
 import subprocess
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.fem.params import ExptParams
 from lib.fem.run import FEMRunner
 

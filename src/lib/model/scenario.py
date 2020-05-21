@@ -7,10 +7,9 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 # from classify.data.responses.convert import loads_to_traffic_array
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config, Bridge
 from lib.fem.params import SimParams
-from lib.model.bridge import Bridge
-from lib.model.load import MvVehicle
+from bridge_sim.model.vehicle import MvVehicle
 from util import print_i
 
 

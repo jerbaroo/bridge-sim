@@ -17,11 +17,8 @@ from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
 # from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Point, Vehicle, Config, Dimensions, Bridge, Material
 from lib.fem.run import FEMRunner
-from lib.model.bridge import Bridge, Dimensions, Point, Section
-from lib.model.load import Vehicle
 from util import print_d, print_i, print_w, kde_sampler
 
 # Print debug information for this file.
@@ -374,7 +371,7 @@ def plot_bridge_first_section(bridge: Bridge, save: str = None, show: bool = Fal
     plot_section(bridge.sections[0], save=save, show=show)
 
 
-def plot_section(section: Section, save: str = None, show: bool = False):
+def plot_section(section: Material, save: str = None, show: bool = False):
     """Plot the cross section of a bridge."""
     for p in section.patches:
         plt.plot([p.p0.z, p.p1.z], [p.p0.y, p.p0.y], color=bridge_color)  # Bottom.

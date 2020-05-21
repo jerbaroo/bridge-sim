@@ -1,6 +1,6 @@
 from itertools import chain
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.fem.run.build.types import AllSupportNodes, DeckNodes
 
 

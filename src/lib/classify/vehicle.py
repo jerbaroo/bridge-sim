@@ -1,6 +1,6 @@
 import pandas as pd
 
-from lib.model.load import MvVehicle
+from bridge_sim.model.vehicle import MvVehicle
 from util import kg_to_kn
 
 # Wagen 1 from the experimental campaign.

@@ -5,8 +5,7 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.common import opensees_to_numpy

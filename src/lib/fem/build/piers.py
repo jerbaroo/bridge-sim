@@ -3,8 +3,8 @@ import math
 import numpy as np
 from scipy.interpolate import interp1d
 
+from bridge_sim.model import Bridge
 from lib.fem.model import BuildContext, PierNodes
-from lib.model.bridge import Bridge, Section3D, Support3D
 
 
 def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:

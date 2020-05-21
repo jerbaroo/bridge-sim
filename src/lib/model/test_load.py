@@ -3,7 +3,8 @@ import numpy as np
 
 from lib.classify.vehicle import wagen1
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from lib.model.load import MvVehicle, PointLoad, Vehicle
+from bridge_sim.model.vehicle import MvVehicle, PointLoad
+from bridge_sim.model import Vehicle
 from util import flatten
 
 c = bridge_705_config(bridge_705_3d)

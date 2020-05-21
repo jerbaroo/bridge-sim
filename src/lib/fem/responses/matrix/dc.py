@@ -1,8 +1,8 @@
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from lib.fem.run import FEMRunner
-from lib.model.load import PierSettlement
+from bridge_sim.model.vehicle import PierSettlement
 from lib.model.response import ResponseType
 
 

@@ -3,13 +3,10 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
 from lib.classify.scenario.traffic import heavy_traffic_1, normal_traffic
-from lib.model.load import PierSettlement, MvVehicle
-from lib.model.scenario import TrafficScenario, to_traffic, to_traffic_array
+from lib.model.scenario import TrafficScenario, to_traffic_array
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
 from util import print_i
-from lib.vehicles.sample import sample_vehicle
 
 c = bridge_705_config(bridge_705_3d)
 

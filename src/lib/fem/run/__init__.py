@@ -5,10 +5,9 @@ import os
 from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional
 
-from bridge_sim.model import ResponseType
+from bridge_sim.model import ResponseType, Bridge
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses import SimResponses
-from lib.model.bridge import Bridge
 from util import print_d, print_i, safe_str, shorten_path
 
 # Print debug information for this file.

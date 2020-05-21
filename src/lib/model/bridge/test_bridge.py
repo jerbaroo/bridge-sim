@@ -28,7 +28,7 @@ def test_wheel_track_xs():
 #     Patch,
 #     Section,
 #     Section2D,
-#     Section3D,
+#     Material,
 #     Support3D,
 #     Support,
 # )
@@ -36,7 +36,7 @@ def test_wheel_track_xs():
 # # Some sections and supports to reuse.
 
 # a_2d_section = Section2D(patches=[Patch(y_min=-1, y_max=0, z_min=-10, z_max=10)])
-# a_3d_section = Section3D(density=1, thickness=2, youngs=3, poissons=4)
+# a_3d_section = Material(density=1, thickness=2, youngs=3, poissons=4)
 # a_3d_support = Support3D(
 #     x=50, z=0, length=4, height=2, width_top=3, width_bottom=1, sections=[]
 # )
@@ -189,7 +189,7 @@ def test_wheel_track_xs():
 #     support = Support3D(
 #         x=50, z=0, length=4, height=2.1, width_top=3, width_bottom=1, sections=[],
 #     )
-#     section = Section3D(density=1, thickness=0.6, youngs=3, poissons=4)
+#     section = Material(density=1, thickness=0.6, youngs=3, poissons=4)
 #     bridge = Bridge(
 #         name="test",
 #         length=12,
@@ -227,7 +227,7 @@ def test_wheel_track_xs():
 #     """A 3D bridge must have correctly constructed sections."""
 #     # First section doesn't start at 0.
 #     with pytest.raises(ValueError) as e:
-#         section_1 = Section3D(
+#         section_1 = Material(
 #             density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.1
 #         )
 #         bridge = Bridge(
@@ -247,13 +247,13 @@ def test_wheel_track_xs():
 
 #     # Order of sections is incorrect.
 #     with pytest.raises(ValueError) as e:
-#         section_1 = Section3D(
+#         section_1 = Material(
 #             density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0
 #         )
-#         section_2 = Section3D(
+#         section_2 = Material(
 #             density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.5
 #         )
-#         section_3 = Section3D(
+#         section_3 = Material(
 #             density=1, thickness=2, youngs=3, poissons=4, start_x_frac=0.2
 #         )
 #         bridge = Bridge(

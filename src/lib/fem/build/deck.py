@@ -12,7 +12,7 @@ from lib.fem.model import (
     Node,
     Shell,
 )
-from lib.model.bridge import Bridge, Section3D
+from bridge_sim.model import Material, Bridge
 from util import assert_sorted, flatten, print_i, round_m
 
 # A list of x positions, and a list of z positions.
