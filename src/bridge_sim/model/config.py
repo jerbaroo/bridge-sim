@@ -1,4 +1,5 @@
 """Simulation configuration object."""
+
 import os
 from timeit import default_timer as timer
 from typing import Callable, List, Tuple
@@ -18,31 +19,6 @@ def _get_dir(directory):
 
 
 class Config:
-    """Simulation configuration object.
-
-    In addition to the arguments of this constructor you may want to change the
-    attributes of this 'Config' object. Please see the source of this 'Config'
-    object directly for definition and comments, do not depend on documentation.
-
-    Args:
-        bridge: Callable[[], Bridge], returns a bridge specification.
-        vehicle_data_path: str, path of the vehicle data CSV file.
-        vehicle_pdf_col: str, column of vehicle_data to group by.
-        vehicle_pdf: List[Tuple[float, float]], density of vehicles below a
-            maximum value for that column.
-
-            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
-
-            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
-            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
-            This applies if 'vehicle_pdf_col' is "length".
-        generated_data: str, directory where to save generated files.
-
-    Attrs:
-        cte: float, coefficient of thermal expansion, in meters per celcius.
-
-    """
-
     def __init__(
         self,
         bridge: Callable[[], Bridge],
@@ -53,6 +29,25 @@ class Config:
         generated_data: str = "generated-data",
         shorten_paths: bool = False,
     ):
+        """Simulation configuration object.
+
+        Combines a Bridge and FEMRunner among other things.
+
+        :param bridge: function that returns a bridge.
+        :param fem_runner:
+        :param vehicle_data_path: path of the vehicle CSV file.
+        :param vehicle_pdf:
+            percentage of vehicles below a maximum value for that column.
+
+            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
+
+            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
+            This applies if 'vehicle_pdf_col' is "length".
+        :param vehicle_pdf_col: column of vehicle_data to group by.
+        :param generated_data: directory where to save generated files.
+        :param shorten_paths: shorten simulation paths.
+        """
         # Bridge.
         # TODO: Move reset call into Bridge constructor.
         self._bridge = bridge

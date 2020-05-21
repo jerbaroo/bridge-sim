@@ -1,19 +1,16 @@
 """Build OpenSees 3D model files."""
 import os
-from copy import deepcopy
-from enum import Enum
 from collections import OrderedDict, defaultdict
 from itertools import chain
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
 from bridge_sim.model import ResponseType, PierSettlement, PointLoad
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.build import (
     det_nodes_id_str,
-    det_nodes,
     det_shells_id_str,
     det_shells,
     get_bridge_shells_and_nodes,
@@ -32,7 +29,7 @@ from lib.fem.run.opensees.build.d3.thermal import (
     opensees_thermal_moment_deck_loads,
 )
 from lib.fem.run.opensees.build.d3.util import comment
-from lib.model.bridge import Point, Section3D, Support3D
+from lib.model.bridge import Section3D
 from util import flatten, print_d, print_i, print_w, round_m
 
 

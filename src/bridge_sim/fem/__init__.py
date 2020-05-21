@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from bridge_sim.model import PierSettlement, PointLoad, ResponseType
-from lib.config import Config as LibConfig
+from bridge_sim.model.config import Config as LibConfig
 from lib.fem.params import SimParams as LibSimParams
 from lib.fem.responses import load_fem_responses as lib_load_fem_responses
 

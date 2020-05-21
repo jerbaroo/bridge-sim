@@ -1,11 +1,9 @@
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
-from lib.fem.responses.matrix.il import ILMatrix
 from lib.fem.run import FEMRunner
 from lib.model.load import PierSettlement
 from lib.model.response import ResponseType
-from util import print_w
 
 
 class DCMatrix(ResponsesMatrix):

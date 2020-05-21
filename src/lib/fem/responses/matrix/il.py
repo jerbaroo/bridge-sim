@@ -4,17 +4,16 @@ from collections import deque
 from copy import deepcopy
 from typing import List, Optional
 
-import dill
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from lib.fem.run import FEMRunner
 from lib.model.bridge import Point
 from lib.model.load import PointLoad
 from lib.model.response import ResponseType
-from util import log, print_d, print_i, print_w, round_m, safe_str, shorten_path
+from util import log, print_d, print_i, round_m, shorten_path
 
 # Print debug information for this file.
 D: bool = False

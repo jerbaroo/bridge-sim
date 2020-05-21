@@ -1,5 +1,6 @@
 """All classes: bridges, simulation, vehicles etc."""
 # This module should import no other bridge_sim modules!
+# Apart from re-exporting classes within this module.
 
 from enum import Enum
 from typing import List

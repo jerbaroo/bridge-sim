@@ -5,8 +5,7 @@ from typing import Dict, List, NewType, Optional, Tuple
 import numpy as np
 from scipy.spatial import distance
 
-from lib.config import Config
-from lib.model.bridge import Point, Section3D, Section3DPier, Support3D
+from lib.model.bridge import Point, Section3D, Support3D
 from util import print_d, round_m
 
 

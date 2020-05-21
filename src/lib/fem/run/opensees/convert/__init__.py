@@ -2,7 +2,7 @@
 from typing import Dict, List
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.convert.d2 import convert_responses_2d

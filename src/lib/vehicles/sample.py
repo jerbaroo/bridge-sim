@@ -1,12 +1,12 @@
 """Sample vehicles from the vehicle data."""
 from timeit import default_timer as timer
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.model.load import MvVehicle
 from lib.vehicles import VehicleData, axle_array_and_count
 from util import print_d, print_s, print_w

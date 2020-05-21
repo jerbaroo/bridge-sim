@@ -5,10 +5,9 @@ from itertools import chain
 from typing import Callable, List
 
 import numpy as np
-from scipy.interpolate import interp1d
 
-from lib.classify.scenario.bridge import CrackedDamage, HealthyDamage, PierDispDamage
-from lib.config import Config
+from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses import Responses
 from lib.fem.responses.matrix import load_expt_responses
@@ -19,7 +18,7 @@ from lib.fem.run.opensees import OSRunner
 from lib.model.bridge import Point
 from lib.model.load import PointLoad, MvVehicle
 from lib.model.response import ResponseType
-from util import flatten, print_d, print_i, print_w
+from util import flatten, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.responses"

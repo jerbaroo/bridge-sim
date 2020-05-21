@@ -3,7 +3,7 @@ from typing import Optional
 
 import findup
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.run.opensees import os_runner
 from lib.model.bridge import Bridge
 

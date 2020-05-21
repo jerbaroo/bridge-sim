@@ -1,12 +1,12 @@
 """Specification and Config for bridge 705 in Amsterdam."""
 import os
 from copy import deepcopy
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, List, Optional
 
 import findup
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.run.opensees import os_runner
 from lib.model.bridge import (
     Bridge,
@@ -15,7 +15,6 @@ from lib.model.bridge import (
     Lane,
     Layer,
     Patch,
-    Section,
     Section2D,
     Section3D,
     Section3DPier,

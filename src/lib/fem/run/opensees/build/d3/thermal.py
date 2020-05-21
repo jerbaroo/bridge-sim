@@ -1,10 +1,9 @@
 from collections import defaultdict
 from enum import Enum
-from itertools import chain
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.build import det_shells
 from lib.fem.model import BuildContext, DeckShells
 from lib.fem.params import SimParams
