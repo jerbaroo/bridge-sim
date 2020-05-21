@@ -3,8 +3,7 @@ import numpy as np
 
 from lib.classify.vehicle import wagen1
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from bridge_sim.model.vehicle import MvVehicle, PointLoad
-from bridge_sim.model import Vehicle
+from bridge_sim.model import PointLoad
 from util import flatten
 
 c = bridge_705_config(bridge_705_3d)
@@ -46,21 +45,21 @@ def test_to_point_load_pw():
     for time in wagen1_times:
         loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert total_kn < wagen1.total_kn()
     # As Truck 1 is fully on the bridge.
     wagen1_times = np.linspace(entered_time, leaving_time, 100)
     for time in wagen1_times:
         loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert total_kn == wagen1.total_kn()
     # As Truck 1 is leaving the bridge.
     wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
     for time in wagen1_times:
         loads = wagen1.to_point_load_pw(time=time, bridge=c.bridge)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert total_kn < wagen1.total_kn()
 
 
@@ -112,7 +111,7 @@ def test_to_wheel_track_loads():
     for time in enter_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert total_kn < wagen1.total_kn()
     # As Truck 1 is fully on the bridge, total load equals that of Truck 1.
     on_times = np.linspace(entered_time, leaving_time, 100)
@@ -122,14 +121,14 @@ def test_to_wheel_track_loads():
     for time in on_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert np.isclose(total_kn, wagen1.total_kn())
     # As Truck 1 is leaving the bridge, total load is less than Truck 1.
     leave_times = np.linspace(leaving_time + 0.001, left_time, 100)
     for time in leave_times:
         loads = wagen1.to_wheel_track_loads(c=c, time=time)
         flat_loads = flatten(loads, PointLoad)
-        total_kn = sum(map(lambda l: l.kn, flat_loads))
+        total_kn = sum(map(lambda l: l.load, flat_loads))
         assert total_kn < wagen1.total_kn()
 
 
@@ -141,8 +140,7 @@ def test_wheel_track_loads_on_track():
     for time in np.concatenate((enter_times, on_times, leave_times)):
         loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
         for load in loads:
-            load_x = c.bridge.x(load.x_frac)
-            assert any(np.isclose(load_x, x) for x in wheel_track_xs)
+            assert any(np.isclose(load.x, x) for x in wheel_track_xs)
 
 
 def test_compare_to_wheel_track_and_to_point_load():
@@ -159,7 +157,7 @@ def test_compare_to_wheel_track_and_to_point_load():
 
     def sum_loads(loads):
         """Sum of the load intensity (kn) of all given loads."""
-        return sum(map(lambda l: l.kn, flatten(loads, PointLoad)))
+        return sum(map(lambda l: l.load, flatten(loads, PointLoad)))
 
     for i in range(len(times)):
         # Assert that the total load intensity is equal for both functions.
@@ -183,14 +181,14 @@ def test_compare_to_wheel_track_and_to_point_load():
             # Assert that x positions of loads match up.
             for axle_i in range(wt.shape[1]):
                 for wt_load, pw_load in zip(wt[0][axle_i], pw[0][axle_i]):
-                    # Total kn should be equal betwwen both functions..
+                    # Total kn should be equal between both functions..
                     wt_kn = sum_loads(wt_load)
-                    assert np.isclose(wt_kn, pw_load.kn)
+                    assert np.isclose(wt_kn, pw_load.load)
                     # ..x positions should match up too.
                     if len(wt_load) == 1:
-                        assert np.isclose(wt_load[0].x_frac, pw_load.x_frac)
+                        assert np.isclose(wt_load[0].x, pw_load.x)
                     elif len(wt_load) == 2:
-                        assert wt_load[0].x_frac < pw_load.x_frac < wt_load[1].x_frac
+                        assert wt_load[0].x < pw_load.x < wt_load[1].x
                     else:
                         assert False
 

@@ -22,7 +22,7 @@ def cluster_damage(c: Config, mins: float):
         c=c, traffic_scenario=traffic_scenario, max_time=mins * 60,
     )
     point = Point(x=21, y=0, z=-8.4)  # Point to investigate.
-    # Collect vertical translation and strain for all damage scenarios.
+    # Collect vertical translation and strain for all scenarios scenarios.
     responses_y = []
     responses_s = []
     for damage_scenario in [healthy_damage, pier_disp_damage([(5, 0.5 / 1000)])]:
@@ -49,7 +49,7 @@ def cluster_damage(c: Config, mins: float):
             ).T[0]
         )
         assert len(responses_s[-1]) == len(traffic_array)
-    # Calculate features per damage.
+    # Calculate features per scenarios.
     damage_features = []
     damage_labels = []
     for damage_ind in range(len(responses_y)):

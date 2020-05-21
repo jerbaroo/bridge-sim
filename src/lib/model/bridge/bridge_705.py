@@ -6,7 +6,15 @@ from typing import Callable, List, Optional
 import findup
 import numpy as np
 
-from bridge_sim.model import Config, Dimensions, Lane, Material, MaterialSupport, Bridge, Support
+from bridge_sim.model import (
+    Config,
+    Dimensions,
+    Lane,
+    Material,
+    MaterialSupport,
+    Bridge,
+    Support,
+)
 from lib.fem.run.opensees import os_runner
 from util import round_m
 
@@ -175,7 +183,6 @@ def bridge_705_3d(
         lanes=lanes,
         supports=supports,
         materials=sections,
-        dimensions=Dimensions.D3,
         base_mesh_deck_max_x=base_mesh_deck_max_x,
         base_mesh_deck_max_z=base_mesh_deck_max_z,
         base_mesh_pier_max_long=base_mesh_pier_max_long,

@@ -1,10 +1,10 @@
 import pandas as pd
 
-from bridge_sim.model.vehicle import MvVehicle
+from bridge_sim.model import Vehicle
 from util import kg_to_kn
 
 # Wagen 1 from the experimental campaign.
-wagen1 = MvVehicle(
+wagen1 = Vehicle(
     kn=[
         (5050 * kg_to_kn, 5300 * kg_to_kn),
         (4600 * kg_to_kn, 4000 * kg_to_kn),

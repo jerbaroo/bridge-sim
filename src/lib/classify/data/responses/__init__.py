@@ -41,7 +41,7 @@ def responses_to_traffic_array(
     Args:
         c: Config, global configuration object.
         traffic_array: TrafficArray, ....
-        damage_scenario: DamageScenario, the damage scenario of the bridge.
+        damage_scenario: DamageScenario, the scenarios scenario of the bridge.
         response_type, ResponseType, the type of sensor response to calculate.
         points: List[Point], points on the bridge to calculate responses at.
         sim_runner: Callable[[Config], FEMRunner], the FEM program to run

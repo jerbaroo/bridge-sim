@@ -9,7 +9,9 @@ from lib.fem.run.opensees import os_runner
 project_dir = os.path.dirname(findup.glob(".git"))
 
 
-def opensees_default(bridge: Callable[[], Bridge], os_exe: Optional[str] = None, **kwargs) -> Config:
+def opensees_default(
+    bridge: Callable[[], Bridge], os_exe: Optional[str] = None, **kwargs
+) -> Config:
     """A config using OpenSees for the given Bridge.
 
     :param bridge: function to return a new bridge.

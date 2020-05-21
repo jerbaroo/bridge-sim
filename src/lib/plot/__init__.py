@@ -17,7 +17,15 @@ from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
 # from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
-from bridge_sim.model import ResponseType, Point, Vehicle, Config, Dimensions, Bridge, Material
+from bridge_sim.model import (
+    ResponseType,
+    Point,
+    Vehicle,
+    Config,
+    Dimensions,
+    Bridge,
+    Material,
+)
 from lib.fem.run import FEMRunner
 from util import print_d, print_i, print_w, kde_sampler
 

@@ -234,7 +234,7 @@ def pairwise_cluster(c: Config, load: bool):
             )
         ]
 
-        # Collect a list of features per damage scenario.
+        # Collect a list of features per scenarios scenario.
         features = []
         for damage_scenario in healthy_and_cracked_scenarios[1:]:
             damage_c = damage_scenario.use(c)
@@ -328,7 +328,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
             ks_values_damage[-1].append(ks)
 
     plt.imshow(ks_values_damage)
-    plt.savefig(c.get_image_path("joint-clustering", "damage-bridge"))
+    plt.savefig(c.get_image_path("joint-clustering", "scenarios-bridge"))
     plt.close()
 
     ks_values_comp = []
@@ -340,7 +340,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
 
     plt.landscape()
     plt.imshow(ks_values_comp)
-    plt.savefig(c.get_image_path("joint-clustering", "damage-bridge-comp"))
+    plt.savefig(c.get_image_path("joint-clustering", "scenarios-bridge-comp"))
     plt.close()
 
     responses = Responses.from_responses(
@@ -349,5 +349,5 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
     )
     top_view_bridge(c.bridge, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses)
-    plt.savefig(c.get_image_path("joint-clustering", "damage-bridge-comp-contour"))
+    plt.savefig(c.get_image_path("joint-clustering", "scenarios-bridge-comp-contour"))
     plt.close()

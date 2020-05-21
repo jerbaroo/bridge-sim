@@ -25,7 +25,7 @@ def damage_scenario_traffic_plot(
     saves: List[str],
     times: int = 3,
 ):
-    """Save a contour plot of a damage scenario under normal traffic."""
+    """Save a contour plot of a scenarios scenario under normal traffic."""
     # Grid of points where to record responses.
     grid_points = [
         Point(x=x, y=0, z=z)

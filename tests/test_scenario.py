@@ -1,12 +1,8 @@
 """Test model.scenario and classify.data.scenarios."""
-from timeit import default_timer as timer
-
 import numpy as np
 
-from lib.classify.scenario.traffic import heavy_traffic_1, normal_traffic
-from lib.model.scenario import TrafficScenario, to_traffic_array
+from bridge_sim.traffic import normal_traffic, to_traffic_array
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from util import print_i
 
 c = bridge_705_config(bridge_705_3d)
 

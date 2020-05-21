@@ -1,4 +1,5 @@
-"""All classes: bridges, simulation, vehicles etc."""
+"""Core classes: bridges and different loads."""
+
 import os
 from enum import Enum
 from itertools import chain
@@ -43,11 +44,14 @@ class Point:
         self.z: float = np.around(z, DIST_DECIMALS)
 
     def distance(self, point):
-        return np.around(np.sqrt(
-            ((self.x - point.x) ** 2)
-            + ((self.y - point.y) ** 2)
-            + ((self.z - point.z) ** 2)
-        ), DIST_DECIMALS)
+        return np.around(
+            np.sqrt(
+                ((self.x - point.x) ** 2)
+                + ((self.y - point.y) ** 2)
+                + ((self.z - point.z) ** 2)
+            ),
+            DIST_DECIMALS,
+        )
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z})"
@@ -72,7 +76,9 @@ class PointLoad:
 
     def id_str(self):
         """String uniquely representing this point load."""
-        return safe_str(f"({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})")
+        return safe_str(
+            f"({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})"
+        )
 
     def point(self) -> Point:
         """The 'Point' part of this point load."""
@@ -99,11 +105,19 @@ class ResponseType(Enum):
 
     def is_stress(self):
         """Is this response type a stress type?"""
-        return self in [ResponseType.StressXXB, ResponseType.StressXXT, ResponseType.StressZZB]
+        return self in [
+            ResponseType.StressXXB,
+            ResponseType.StressXXT,
+            ResponseType.StressZZB,
+        ]
 
     def is_strain(self):
         """Is this response type a strain type?"""
-        return self in [ResponseType.StrainXXB, ResponseType.StrainXXT, ResponseType.StrainZZB]
+        return self in [
+            ResponseType.StrainXXB,
+            ResponseType.StrainXXT,
+            ResponseType.StrainZZB,
+        ]
 
     def ss_direction(self) -> str:
         """A stress or strain identifier e.g. XXB is applicable."""
@@ -321,9 +335,7 @@ class Dimensions(Enum):
 
     def name(self) -> str:
         """Human readable name for dimensions."""
-        return {
-            Dimensions.D3: "3D",
-        }[self]
+        return {Dimensions.D3: "3D",}[self]
 
 
 class Support:
@@ -813,7 +825,9 @@ class Bridge:
 
     def _min_max(
         self,
-        f: Callable[[Union[Support, Material]], Tuple[Optional[float], Optional[float]]],
+        f: Callable[
+            [Union[Support, Material]], Tuple[Optional[float], Optional[float]]
+        ],
     ) -> Tuple[float, float]:
         """The min and max values in a direction from supports and sections."""
         z_min, z_max = None, None
@@ -1023,6 +1037,8 @@ class Vehicle:
             meters: bool, whether to return positions in meters (True) or
                 fractions (False) of the bridge width in [0 1].
         """
+        if not meters:
+            raise ValueError("Should not be doing this")
         lane = bridge.lanes[self.lane]
         tracks = [
             lane.z_center - (self.axle_width / 2),
@@ -1177,7 +1193,9 @@ class Vehicle:
         # For each axle.
         for x, kn in zip(xs, kns):
             # Skip axle if not on the bridge.
-            if x < c.bridge.x_min or x > c.bridge.x_max:
+            if (x < c.bridge.x_min and not np.isclose(x, c.bridge.x_min)) or (
+                x > c.bridge.x_max and not np.isclose(x, c.bridge.x_max)
+            ):
                 continue
             left, right = [], []
             for (load_x, load_frac) in self.to_wheel_track_xs(
@@ -1195,20 +1213,16 @@ class Vehicle:
     def to_wheel_track_loads(
         self, c: "Config", time: float, flat: bool = False
     ) -> List[Tuple[List[PointLoad], List[PointLoad]]]:
-        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=False)
+        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=True)
         assert z0 < z1
         result = []
         for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
             left, right = [], []
             left_loads, right_loads = axle_loads
             for load_x, load_kn in left_loads:
-                left.append(
-                    PointLoad(x_frac=c.bridge.x_frac(load_x), z_frac=z0, kn=load_kn,)
-                )
+                left.append(PointLoad(x=load_x, z=z0, load=load_kn))
             for load_x, load_kn in right_loads:
-                right.append(
-                    PointLoad(x_frac=c.bridge.x_frac(load_x), z_frac=z1, kn=load_kn,)
-                )
+                right.append(PointLoad(x=load_x, z=z1, load=load_kn))
             result.append((left, right))
         if flat:
             return flatten(result, PointLoad)
@@ -1225,7 +1239,9 @@ class Vehicle:
         # For each axle.
         for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
             # Skip axle if not on the bridge.
-            if x < bridge.x_min or x > bridge.x_max:
+            if (x < bridge.x_min and not np.isclose(x, bridge.x_min)) or (
+                x > bridge.x_max and not np.isclose(x, bridge.x_max)
+            ):
                 continue
             # Two wheel load intensities.
             kn_wheel = kn_per_axle[x_i] / 2
