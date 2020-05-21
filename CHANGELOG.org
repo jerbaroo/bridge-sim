@@ -1,0 +1,8 @@
+* v0.0.3
+
+
+
+* v0.0.2
+
+- Move bridge-sim virtual environment inside project directory in the Docker image using PIPENV_VENV_IN_PROJECT.
+- Move paper.* files into own directory.

@@ -62,7 +62,7 @@ parked on the bridge) is shown in \autoref{fig:val}.
 - **Graphics** Support for collecting and displaying simulation results
   including generation of time series animation e.g. \autoref{fig:val}.
 
-![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](./data/animation.png) 
+![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](../data/animation.png) 
 
 # Problem Domain
 
@@ -85,7 +85,7 @@ researchers must resort to creating their models from the low-level building
 blocks of nodes and forces. `bridge-sim` addresses the need for a high-level API
 for data collection from concrete slab bridge simulation.
 
-![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](./data/images/val.png)
+![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](../data/images/val.png)
 
 # Usage Example 
 

@@ -5,6 +5,7 @@
 comments/
 crack/
 docs/
+docker/Dockerfile
 legacy/
 notebooks/
 sphinx-docs/

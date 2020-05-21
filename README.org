@@ -15,7 +15,7 @@ Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed.
 Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
 #+BEGIN_SRC bash
-docker run -ite LC_ALL=C.UTF-8 -e LANG=C.UTF-8 barischrooneyj/bridge-sim:v0.0.1
+docker run -ite LC_ALL=C.UTF-8 -e LANG=C.UTF-8 barischrooneyj/bridge-sim:v0.0.2
 #+END_SRC
 
 Run the provided example file /example.py/ with =pipenv run python example.py=. This will generate an image /docker.png/.
