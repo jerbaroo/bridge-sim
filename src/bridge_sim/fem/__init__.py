@@ -14,7 +14,7 @@ def responses(
     config: LibConfig,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
-    pier_settle: Optional[PierSettlement] = None,
+    pier_settlement: Optional[PierSettlement] = None,
 ):
     """Responses from a single linear simulation.
 
@@ -28,6 +28,6 @@ def responses(
     """
     return lib_load_fem_responses(
         c=config,
-        sim_params=LibSimParams(ploads=point_loads, displacement_ctrl=pier_settle),
+        sim_params=LibSimParams(ploads=point_loads, displacement_ctrl=pier_settlement),
         response_type=response_type,
     )

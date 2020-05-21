@@ -460,7 +460,7 @@ def opensees_integrator(c: Config, pier_disp: Optional[PierSettlement]):
         return "integrator LoadControl 1"
     node = c.bridge.supports[pier_disp.pier].disp_node
     return (
-        f"integrator DisplacementControl {node.n_id} 2" + f" {pier_disp.displacement}"
+        f"integrator DisplacementControl {node.n_id} 2" + f" {pier_disp.settlement}"
     )
 
 

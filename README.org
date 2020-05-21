@@ -78,8 +78,8 @@ import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
 
 config = configs.opensees_default(bridges.bridge_example)
-point_loads = [model.PointLoad(config, x=5, z=0, load=100)]
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+point_loads = [model.PointLoad(x=5, z=0, load=100)]
+responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
@@ -95,8 +95,9 @@ import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot, vehicle
 
 config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
-point_loads = vehicle.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+point_loads = vehicle.wagen1.to_point_load_pw(
+    time=3.5, bridge=config.bridge, list=True)
+responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
@@ -114,8 +115,8 @@ from bridge_sim import bridges, configs, fem, model, plot
 config = configs.opensees_default(bridges.bridge_wide)
 responses = fem.responses(
     config,
-    model.RT.YTranslation,
-    pier_settle=model.PierSettlement(0, 1)
+    model.RT.YTrans,
+    pier_settlement=model.PierSettlement(0, 1.2)
 )
 plot.contour_responses(config, responses)
 plot.top_view_bridge(config, piers=True, lanes=True)
@@ -132,19 +133,17 @@ import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
 
 config = configs.opensees_default(bridges.bridge_wide)
-plt.figure(figsize=(16, 10))  # Increase plot size.
-for response_type, subplot in [
-        (model.RT.YTranslation, 1),
-        (model.RT.ZTranslation, 2),
-        (model.RT.Strain, 3),  # Will be renamed to StrainXXB.
-        (model.RT.StrainZZB, 4),
-    ]:
+plt.figure(figsize=(16, 10))
+for subplot, response_type in enumerate([
+        model.RT.YTrans, model.RT.ZTrans,
+        model.RT.StrainXXB, model.RT.StrainZZB,
+    ]):
     responses = fem.responses(
         config,
         response_type,
-        pier_settle=model.PierSettlement(0, 1)
-    ).resize()  # Make units more readable, m -> mm, strain to microstrain.
-    plt.subplot(2, 2, subplot)
+        pier_settlement=model.PierSettlement(0, 1)
+    ).resize()
+    plt.subplot(2, 2, subplot + 1)
     plot.contour_responses(config, responses)
     plot.top_view_bridge(config, piers=True, lanes=True)
 
@@ -195,8 +194,8 @@ def new_bridge():
     )
 
 config = configs.opensees_default(new_bridge)
-point_loads = [model.PointLoad(config, x=18, z=0, load=100)]
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+point_loads = [model.PointLoad(x=18, z=0, load=100)]
+responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
@@ -209,8 +208,8 @@ Like the first static vehicle example, but this time with a custom vehicle.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot, vehicle
-from bridge_sim.vehicle import Vehicle
+from bridge_sim import bridges, configs, fem, model, plot
+from bridge_sim.model import Vehicle
 
 new_vehicle = Vehicle(
     # Load intensity of each axle.
@@ -221,15 +220,11 @@ new_vehicle = Vehicle(
     axle_width=2.5,
     # Speed of the vehicle.
     kmph=20,
-    # Index of a traffic lane on the bridge.
-    lane=0,
-    # Fraction of the position on the lane at time = 0.
-    init_x_frac=0,
 )
 
 config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
