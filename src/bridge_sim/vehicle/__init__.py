@@ -1,4 +1,4 @@
-from lib.model.load import MvVehicle as Vehicle
+from lib.model.load import Vehicle
 
 # Wagen 1 from the experimental campaign.
 wagen1 = Vehicle(

@@ -10,11 +10,11 @@ from typing import Callable, List, NewType, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import griddata, interp1d, interp2d
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.model import Shell
 from lib.fem.params import ExptParams, SimParams
 from lib.model.bridge import Bridge, Dimensions, Point
-from lib.model.response import Response, ResponseType
 from util import nearest_index, print_i, print_w, resize_units
 
 # Print debug information for this file.

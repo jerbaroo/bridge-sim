@@ -5,18 +5,15 @@ Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 """
 from typing import Callable, List, Optional, Tuple
 
-import matplotlib.colors as colors
-import matplotlib.cm as cm
 import numpy as np
 from scipy.stats import chisquare
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.build import get_bridge_nodes, det_nodes
 from lib.fem.responses import Responses
-from lib.fem.run import FEMRunner
 from lib.model.bridge import Point
 from lib.model.load import PointLoad
-from lib.model.response import Response, ResponseType
 from lib.plot import default_cmap, legend_marker_size, plt
 from util import flatten, print_w
 
@@ -196,10 +193,10 @@ def plot_contour_deck(
 
     # Plot point loads.
     for pload in point_loads:
-        x = pload.x_frac * c.bridge.length
-        z = (pload.z_frac * c.bridge.width) - (c.bridge.width / 2)
+        x = pload.x
+        z = pload.z
         plt.scatter(
-            [x], [z], label=f"{pload.kn} kN load", marker="o", color="black",
+            [x], [z], label=f"{pload.load} kN load", marker="o", color="black",
         )
 
     # Begin: min, max legend.

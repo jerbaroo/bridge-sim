@@ -4,6 +4,7 @@ import itertools
 from collections import defaultdict
 from timeit import default_timer as timer
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
@@ -11,7 +12,6 @@ from lib.fem.run.opensees.parse.common import (
     opensees_to_numpy,
     opensees_to_stress_strain,
 )
-from lib.model.response import ResponseType
 from util import print_d, print_i
 
 # Print debug information for this file.

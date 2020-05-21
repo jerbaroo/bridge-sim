@@ -6,6 +6,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 from scipy.interpolate import interp1d
 
+from bridge_sim.model import Point
 from util import print_d, print_i, print_s, round_m, safe_str
 
 # Comment/uncomment to print debug statements for this file.
@@ -175,33 +176,6 @@ class Support:
 
 # For backwards compatibility.
 Support3D = Support
-
-
-class Point:
-    """A point described by three positions in meters: (x, y, z).
-
-    X is along the deck, y is the height, and z is across the deck.
-
-    TODO: Change default arguments to None.
-
-    """
-
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        self.x: float = round_m(x)
-        self.y: float = round_m(y)
-        self.z: float = round_m(z)
-
-    def distance(self, point):
-        return round_m(
-            np.sqrt(
-                ((self.x - point.x) ** 2)
-                + ((self.y - point.y) ** 2)
-                + ((self.z - point.z) ** 2)
-            )
-        )
-
-    def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
 
 
 class Lane:

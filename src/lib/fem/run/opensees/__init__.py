@@ -2,6 +2,7 @@
 import os
 from typing import Callable, List, Optional
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.params import SimParams
 from lib.fem.run import FEMRunner
@@ -10,26 +11,20 @@ from lib.fem.run.opensees.convert import convert_responses
 from lib.fem.run.opensees.parse import parse_responses
 from lib.fem.run.opensees.run import run_model
 from lib.model.bridge import Bridge, Dimensions, Layer, Patch
-from lib.model.response import ResponseType
 from util import print_i
 
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
     if bridge.dimensions == Dimensions.D2:
-        return [
-            ResponseType.XTranslation,
-            ResponseType.YTranslation,
-            ResponseType.Strain,
-            ResponseType.Stress,
-        ]
+        raise NotImplementedError()
     elif bridge.dimensions == Dimensions.D3:
         return [
-            ResponseType.XTranslation,
-            ResponseType.YTranslation,
-            ResponseType.ZTranslation,
-            ResponseType.Strain,
-            ResponseType.StrainT,
+            ResponseType.XTrans,
+            ResponseType.YTrans,
+            ResponseType.ZTrans,
+            ResponseType.StrainXXB,
+            ResponseType.StrainXXT,
             ResponseType.StrainZZB,
         ]
     else:

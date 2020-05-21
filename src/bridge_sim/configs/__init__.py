@@ -8,14 +8,14 @@ from lib.fem.run.opensees import os_runner
 from lib.model.bridge import Bridge
 
 
-proj_dir = os.path.dirname(findup.glob(".git"))
+project_dir = os.path.dirname(findup.glob(".git"))
 
 
 def opensees_default(bridge: Bridge, os_exe: Optional[str] = None, **kwargs) -> Config:
     return Config(
         bridge=bridge,
         fem_runner=os_runner(os_exe),
-        vehicle_data_path=os.path.join(proj_dir, "data/traffic/traffic.csv"),
+        vehicle_data_path=os.path.join(project_dir, "data/traffic/traffic.csv"),
         vehicle_pdf=[
             (2.4, 5),
             (5.6, 45),

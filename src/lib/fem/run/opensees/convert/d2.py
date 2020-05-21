@@ -1,14 +1,14 @@
 """Convert parsed 2D OpenSees responses to [Response]."""
 from typing import Dict, List
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.run import Parsed
-from lib.model.response import Response, ResponseType
 
 
 def convert_responses_2d(
     c: Config, parsed_responses: Parsed
-) -> Dict[int, Dict[ResponseType, List[Response]]]:
+) -> Dict[int, Dict[ResponseType, List["Response"]]]:
     """Convert parsed 2D OpenSees responses to [Response]."""
     sim_inds = list(parsed_responses.keys())
     for sim_ind in sim_inds:

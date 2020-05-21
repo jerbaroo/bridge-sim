@@ -1,0 +1,13 @@
+FROM barischrooneyj/bridge-sim-base
+
+COPY . /bridge-sim
+WORKDIR /bridge-sim
+
+# Install project dependencies.
+RUN pipenv install --dev --python 3.7
+
+# Necessary for bridge-sim to find project root.
+RUN touch .git
+
+# Overwrite the example with docker version.
+RUN cp docker/example.py example.py

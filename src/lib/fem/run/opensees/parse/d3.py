@@ -5,11 +5,11 @@ from typing import List
 
 import numpy as np
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.common import opensees_to_numpy
-from lib.model.response import ResponseType
 from util import print_i
 
 
@@ -39,8 +39,7 @@ def parse_stress_strain_responses_3d(
 ):
     """Parse stress or strain responses from a 3D OpenSees simulation."""
     if any(
-        rt in sim_params.response_types
-        for rt in [ResponseType.Strain, ResponseType.Stress]
+        rt.is_stress() or rt.is_strain() for rt in sim_params.response_types
     ):
         lines = []
         for response_path in response_paths:
@@ -56,7 +55,7 @@ def parse_stress_strain_responses_3d(
                 lines.append(per_element_lines)
         lines = np.array(lines)
         print(lines.shape)
-        results_dict[sim_ind][ResponseType.Strain] = lines
+        results_dict[sim_ind][ResponseType.StrainXXB] = lines
 
 
 def parse_responses_3d(
@@ -73,7 +72,7 @@ def parse_responses_3d(
             fem_params=fem_params,
             sim_ind=sim_ind,
             responses_path=os_runner.x_translation_path(fem_params),
-            response_type=ResponseType.XTranslation,
+            response_type=ResponseType.XTrans,
         )
         # Parse y translation responses if necessary.
         parse_translation_responses_3d(
@@ -81,7 +80,7 @@ def parse_responses_3d(
             fem_params=fem_params,
             sim_ind=sim_ind,
             responses_path=os_runner.y_translation_path(fem_params),
-            response_type=ResponseType.YTranslation,
+            response_type=ResponseType.YTrans,
         )
         # Parse z translation responses if necessary.
         parse_translation_responses_3d(
@@ -89,7 +88,7 @@ def parse_responses_3d(
             fem_params=fem_params,
             sim_ind=sim_ind,
             responses_path=os_runner.z_translation_path(fem_params),
-            response_type=ResponseType.ZTranslation,
+            response_type=ResponseType.ZTrans,
         )
         # Parse strain responses if necessary.
         parse_stress_strain_responses_3d(

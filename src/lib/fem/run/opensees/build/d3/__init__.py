@@ -7,6 +7,8 @@ from itertools import chain
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
+from bridge_sim.model import ResponseType, PierSettlement, PointLoad
 from lib.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.build import (
@@ -31,8 +33,6 @@ from lib.fem.run.opensees.build.d3.thermal import (
 )
 from lib.fem.run.opensees.build.d3.util import comment
 from lib.model.bridge import Point, Section3D, Support3D
-from lib.model.load import PierSettlement, PointLoad
-from lib.model.response import ResponseType
 from util import flatten, print_d, print_i, print_w, round_m
 
 
@@ -341,13 +341,11 @@ def opensees_load(
     pier_disp: Optional[PierSettlement] = None,
 ):
     """An OpenSees load command."""
-    pload_z = c.bridge.z(z_frac=pload.z_frac)
-    pload_x = c.bridge.x(x_frac=pload.x_frac)
     assert deck_nodes[0][0].y == 0
     assert deck_nodes[-1][-1].y == 0
     best_node = sorted(
         chain.from_iterable(deck_nodes),
-        key=lambda node: node.distance(x=pload_x, y=0, z=pload_z),
+        key=lambda node: node.distance(x=pload.x, y=0, z=pload.z),
     )[0]
 
     if pier_disp is not None:
@@ -358,14 +356,14 @@ def opensees_load(
         )
 
     assert np.isclose(best_node.y, 0)
-    print(f"before assert load.x = {pload_x}")
+    print(f"before assert load.x = {pload.x}")
     print(f"best_node_x = {best_node.x}")
     # If we have a proper mesh then this should be the exact node.
     # TODO: Remove atol when fractional positioning is removed from the system.
-    assert np.isclose(best_node.x, pload_x, atol=0.001)
-    assert np.isclose(best_node.z, pload_z, atol=0.001)
+    assert np.isclose(best_node.x, pload.x, atol=0.001)
+    assert np.isclose(best_node.z, pload.z, atol=0.001)
 
-    return f"load {best_node.n_id} 0 {pload.kn * 1000} 0 0 0 0"
+    return f"load {best_node.n_id} 0 {pload.load * 1000} 0 0 0 0"
 
 
 def opensees_loads(
@@ -401,15 +399,15 @@ def opensees_translation_recorders(
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
-    if ResponseType.XTranslation in fem_params.response_types:
+    if ResponseType.XTrans in fem_params.response_types:
         x_path = os_runner.x_translation_path(fem_params)
         translation_response_types.append((x_path, 1))
         print_i(f"OpenSees: saving x translation at {x_path}")
-    if ResponseType.YTranslation in fem_params.response_types:
+    if ResponseType.YTrans in fem_params.response_types:
         y_path = os_runner.y_translation_path(fem_params)
         translation_response_types.append((y_path, 2))
         print_i(f"OpenSees: saving y translation at {y_path}")
-    if ResponseType.ZTranslation in fem_params.response_types:
+    if ResponseType.ZTrans in fem_params.response_types:
         z_path = os_runner.z_translation_path(fem_params)
         translation_response_types.append((z_path, 3))
         print_i(f"OpenSees: saving z translation at {z_path}")
@@ -434,8 +432,6 @@ def opensees_strain_recorders(
     c: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
 ):
     """OpenSees recorder commands for translation."""
-    if not ResponseType.Strain in sim_params.response_types:
-        return ""
     return "\n".join(
         f"recorder Element"
         f" -file {os_runner.strain_path(sim_params=sim_params, point=point)}"
@@ -460,8 +456,6 @@ def opensees_stress_variables(
     These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
     """
-    if not ResponseType.Stress in sim_params.response_types:
-        return "", os_runner.stress_path(sim_params)
     return det_shells_id_str(ctx), os_runner.stress_path(sim_params)
 
 
@@ -513,10 +507,8 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
         sim_ctx = sim_params.build_ctx(c.bridge)
         sim_params.ctx = sim_ctx
         for load in sim_params.ploads:
-            print(f"Load in build_model_3d = {load.point(c.bridge)}")
-            sim_ctx.add_loads.append(
-                Point(x=c.bridge.x(load.x_frac), y=0, z=c.bridge.z(load.z_frac))
-            )
+            print(f"Load in build_model_3d = {load.point()}")
+            sim_ctx.add_loads.append(load.point())
         if len(sim_ctx.refinement_radii) == 0:
             print_i("Not refining loads")
         else:

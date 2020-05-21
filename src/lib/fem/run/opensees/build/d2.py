@@ -6,8 +6,6 @@ import numpy as np
 from lib.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.model.bridge import Dimensions, Fix, Layer, Patch, Section
-from lib.model.load import PierSettlement, PointLoad
-from lib.model.response import ResponseType
 from util import print_d, print_i
 
 # Print debug information for this file.

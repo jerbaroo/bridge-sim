@@ -88,7 +88,7 @@ RELIABILITY = NO_RELIABILITY
 # remove the directory from DIRS.
 
 BASE		= /usr/local
-HOME		= /root
+HOME		= /opensees
 FE		= $(HOME)/OpenSees/SRC
 
 AMDdir       = $(HOME)/OpenSees/OTHER/AMD

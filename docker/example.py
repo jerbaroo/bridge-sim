@@ -18,7 +18,7 @@ new_vehicle = Vehicle(
 )
 
 config = configs.opensees_default(
-    bridges.bridge_example, "/root/bin/OpenSees", shorten_paths=True)
+    bridges.bridge_example, "/opensees/bin/OpenSees", shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
 responses = fem.responses(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
