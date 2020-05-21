@@ -1,1 +1,1 @@
-cd .. && docker build -f docker/Dockerfile .
+docker build -f docker/Dockerfile .
