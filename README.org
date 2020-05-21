@@ -29,6 +29,8 @@ d297a50ff165        barischrooneyj/bridge-sim:v0.0.1   "/bin/bash"      37 secon
 $ docker cp d297a50ff165:/bridge-sim/docker.png docker.png
 #+END_SRC
 
+To copy other files to the Docker container you can run =docker cp local-files/ d297a50ff165:/bridge-sim/=. Run =docker cp= or search the web for more information.
+
 *** Directly
 
 These instructions are if you are interested in developing the =bridge-sim= software, or if you cannot run =bridge-sim= via Docker. A Python package will be published on PyPI at some point however hopefully either of the available methods should suffice in the meantime.
