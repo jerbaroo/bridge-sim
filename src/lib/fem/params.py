@@ -1,10 +1,9 @@
 """Parameters for FEM simulations."""
 from typing import List, Optional
 
+from bridge_sim.model import ResponseType, PierSettlement, PointLoad
 from lib.fem.model import BuildContext
 from lib.model.bridge import Bridge
-from lib.model.load import PierSettlement, PointLoad
-from lib.model.response import ResponseType
 from util import safe_str
 
 
@@ -46,7 +45,7 @@ class SimParams:
 
     def build_ctx(self, bridge: Bridge) -> BuildContext:
         return BuildContext(
-            add_loads=[pload.point(bridge) for pload in self.ploads],
+            add_loads=[pload.point() for pload in self.ploads],
             refinement_radii=self.refinement_radii,
         )
 

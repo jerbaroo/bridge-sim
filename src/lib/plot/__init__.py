@@ -17,11 +17,11 @@ from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
 # from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.run import FEMRunner
 from lib.model.bridge import Bridge, Dimensions, Point, Section
-from lib.model.load import MvVehicle
-from lib.model.response import ResponseType
+from lib.model.load import Vehicle
 from util import print_d, print_i, print_w, kde_sampler
 
 # Print debug information for this file.
@@ -310,12 +310,12 @@ def animate_plot(
 
 
 def _plot_vehicle_deck_side(
-    bridge: Bridge, mv_vehicle: MvVehicle, normalize_vehicle_height: bool = False,
+    bridge: Bridge, vehicle: Vehicle, normalize_vehicle_height: bool = False,
 ):
     """Plot a vehicle on the side of the deck (but don't plot the deck)."""
-    xl = bridge.x(x_frac=mv_vehicle.init_x_frac)
+    xl = bridge.x(x_frac=vehicle.init_x_frac)
     # Width and height on the plot.
-    width = mv_vehicle.length
+    width = vehicle.length
     height = width / 2
     if normalize_vehicle_height:
         y_min, y_max = plt.ylim()
@@ -330,7 +330,7 @@ def _plot_vehicle_deck_side(
 
 def plot_bridge_deck_side(
     bridge: Bridge,
-    mv_vehicles: List[MvVehicle] = [],
+    mv_vehicles: List[Vehicle] = [],
     equal_axis: bool = True,
     normalize_vehicle_height: bool = False,
     save: str = None,
@@ -422,7 +422,7 @@ def animate_bridge_response(
     c: Config,
     responses,
     response_type: ResponseType,
-    mv_vehicles: List[MvVehicle] = [],
+    mv_vehicles: List[Vehicle] = [],
     save: str = None,
     show: bool = False,
 ):
@@ -511,7 +511,7 @@ def animate_bridge_response(
 
 def animate_mv_vehicle(
     c: Config,
-    mv_vehicle: MvVehicle,
+    mv_vehicle: Vehicle,
     response_type: ResponseType,
     fem_runner: FEMRunner,
     num_x_fracs: int = 100,

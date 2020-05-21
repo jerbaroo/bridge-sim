@@ -1,8 +1,8 @@
 * v0.0.3
-
-
+- Added base Docker image to avoid building the whole image again when
+  =bridge-sim= code is modified.
 
 * v0.0.2
-
-- Move bridge-sim virtual environment inside project directory in the Docker image using PIPENV_VENV_IN_PROJECT.
-- Move paper.* files into own directory.
+- Moved bridge-sim virtual environment inside project directory in the Docker
+  image using PIPENV_VENV_IN_PROJECT.
+- Moved paper.* files into own directory.

@@ -5,13 +5,13 @@ from typing import Dict, List
 
 import numpy as np
 
+from bridge_sim.model import ResponseType
 from lib.config import Config
 from lib.fem.build import det_nodes, det_shells
 from lib.fem.model import Node, Shell
 from lib.fem.params import SimParams, ExptParams
 from lib.fem.run import Parsed
 from lib.model.bridge import Point
-from lib.model.response import Response, ResponseType
 from util import print_d, print_w
 
 # Print debug information for this file.
@@ -24,7 +24,7 @@ def convert_sim_translation_responses(
     sim_ind: int,
     response_type: ResponseType,
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
-    converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List["Response"]]],
 ):
     """Convert parsed simulation translation responses to List[Response].
 
@@ -57,14 +57,13 @@ def convert_strain_responses(
     elements: List[Shell],
     sim_ind: int,
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
-    converted_expt_responses: Dict[int, Dict[ResponseType, List[Response]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List["Response"]]],
 ):
     if not any(
-        rt in parsed_sim_responses
-        for rt in [ResponseType.Strain, ResponseType.StrainT, ResponseType.StrainZZB]
+        rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses
     ):
         return
-    parsed_sim_strain = parsed_sim_responses[ResponseType.Strain]
+    parsed_sim_strain = parsed_sim_responses[ResponseType.StrainXXB]
     result_bottom, result_bottom_z, result_top = [], [], []
     print_w("Elements belonging to piers will not have strain recorded")
     print_w("Strain responses are specified to be at y=0, but recorded lower")
@@ -142,15 +141,15 @@ def convert_strain_responses(
                 )
             )
 
-    converted_expt_responses[sim_ind][ResponseType.Strain] = result_bottom
+    converted_expt_responses[sim_ind][ResponseType.StrainXXB] = result_bottom
+    converted_expt_responses[sim_ind][ResponseType.StrainXXT] = result_top
     converted_expt_responses[sim_ind][ResponseType.StrainZZB] = result_bottom_z
-    converted_expt_responses[sim_ind][ResponseType.StrainT] = result_top
     print(len(result_bottom))
 
 
 def convert_responses_3d(
     c: Config, expt_params: ExptParams, parsed_expt_responses: Parsed
-) -> Dict[int, Dict[ResponseType, List[Response]]]:
+) -> Dict[int, Dict[ResponseType, List["Response"]]]:
     """Convert parsed OpenSees responses to List[Response]."""
     # A dictionary of simulation index to ResponseType to [Response].
     converted_expt_responses = defaultdict(dict)
@@ -160,9 +159,9 @@ def convert_responses_3d(
         elements = det_shells(sim_params.bridge_shells)
         # Parse x, y, and z translation responses if necessary.
         for response_type in [
-            ResponseType.XTranslation,
-            ResponseType.YTranslation,
-            ResponseType.ZTranslation,
+            ResponseType.XTrans,
+            ResponseType.YTrans,
+            ResponseType.ZTrans,
         ]:
             convert_sim_translation_responses(
                 nodes=nodes,

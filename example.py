@@ -127,15 +127,11 @@ new_vehicle = Vehicle(
     axle_width=2.5,
     # Speed of the vehicle.
     kmph=20,
-    # Index of a traffic lane on the bridge.
-    lane=0,
-    # Fraction of the position on the lane at time = 0.
-    init_x_frac=0,
 )
 
 config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()
