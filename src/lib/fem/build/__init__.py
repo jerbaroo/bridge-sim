@@ -12,7 +12,7 @@ from lib.fem.model import (
     Node,
     Shell,
 )
-from lib.model.bridge import Bridge
+from bridge_sim.model import Bridge
 from util import flatten
 
 

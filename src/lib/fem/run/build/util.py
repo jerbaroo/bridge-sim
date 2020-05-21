@@ -3,7 +3,7 @@ import numpy as np
 
 from lib.fem.params import SimParams
 from lib.fem.run.build.types import AllSupportNodes
-from lib.model.bridge import Bridge
+from bridge_sim.model import Bridge
 from util import print_i
 
 

@@ -1,4 +1,4 @@
-from lib.model.load import Vehicle
+from bridge_sim.model import Vehicle
 
 # Wagen 1 from the experimental campaign.
 wagen1 = Vehicle(

@@ -5,7 +5,8 @@ from typing import Dict, List, NewType, Optional, Tuple
 import numpy as np
 from scipy.spatial import distance
 
-from lib.model.bridge import Point, Section3D, Support3D
+from bridge_sim.model import Support
+from bridge_sim.model import Point, Material
 from util import print_d, round_m
 
 
@@ -22,12 +23,12 @@ class Node:
         y: float, y position of this node on the bridge.
         z: float, z position of this node on the bridge.
         deck: bool, whether this node belongs to the bridge deck.
-        pier: Optional[Support3D], a pier that this node may belong to.
+        pier: Optional[Support], a pier that this node may belong to.
         comment: Optional[str], an optional comment for the .tcl file.
         support: Optional[3D], a support that this node may belong to.
 
     Attrs:
-        section: Section3D, a section that may be attached, or not.
+        section: Material, a section that may be attached, or not.
 
     """
 
@@ -38,9 +39,9 @@ class Node:
         y: float,
         z: float,
         deck: bool,
-        pier: Optional[Support3D] = None,
+        pier: Optional[Support] = None,
         comment: Optional[str] = None,
-        support: Optional[Support3D] = None,
+        support: Optional[Support] = None,
     ):
         self.n_id = n_id
         self.x = round_m(x)
@@ -114,7 +115,7 @@ class ShellElement:
         nj_id: int, index of the node at corner j of this shell element.
         nk_id: int, index of the node at corner k of this shell element.
         nl_id: int, index of the node at corner l of this shell element.
-        section: Section3D, section that this shell element belongs to.
+        section: Material, section that this shell element belongs to.
         support_position_index: Optional[Tuple[int, int, int, int]], a 4-tuple
             of the support index, support wall index, and z and y indices
 
@@ -127,7 +128,7 @@ class ShellElement:
         nj_id: int,
         nk_id: int,
         nl_id: int,
-        section: Section3D,
+        section: Material,
         pier: bool,
         nodes_by_id: Dict[int, Node],
         support_position_index: Optional[Tuple[int, int, int, int]] = None,

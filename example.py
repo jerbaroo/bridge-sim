@@ -116,7 +116,7 @@
 
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
-from bridge_sim.vehicle import Vehicle
+from bridge_sim.model import Vehicle
 
 new_vehicle = Vehicle(
     # Load intensity of each axle.

@@ -1,13 +1,11 @@
 """Refinement of the deck mesh."""
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict
 
 import numpy as np
 
 from lib.fem.params import SimParams
-from lib.model.bridge import Bridge
-from lib.model.load import PointLoad
-from util import round_m
+from bridge_sim.model import Bridge, PointLoad
 
 
 def get_pier_refinement_positions(bridge: Bridge) -> "DeckPositions":

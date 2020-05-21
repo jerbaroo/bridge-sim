@@ -6,8 +6,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from bridge_sim.model import ResponseType, PierSettlement, PointLoad
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, PierSettlement, PointLoad, Config, Material
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.build import (
     det_nodes_id_str,
@@ -29,7 +28,6 @@ from lib.fem.run.opensees.build.d3.thermal import (
     opensees_thermal_moment_deck_loads,
 )
 from lib.fem.run.opensees.build.d3.util import comment
-from lib.model.bridge import Section3D
 from util import flatten, print_d, print_i, print_w, round_m
 
 
@@ -250,8 +248,8 @@ def opensees_fixed_pier_nodes(
 ##### Begin sections #####
 
 
-def opensees_section(section: Section3D):
-    """OpenSees ElasticMembranePlateSection command for a Section3D."""
+def opensees_section(section: Material):
+    """OpenSees ElasticMembranePlateSection command for a Material."""
     # TODO: Implicit information, assumption that if young's modulus in x
     #     direction is modified that cracking is desired (poisson's set to 0).
     CRACK_Z = not np.isclose(section.youngs_x(), section.youngs)

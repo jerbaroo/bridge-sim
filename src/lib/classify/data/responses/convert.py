@@ -2,8 +2,8 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model.config import Config
-from lib.model.load import PointLoad
+from bridge_sim.model import Config
+from bridge_sim.model.vehicle import PointLoad
 from util import print_d
 
 D: str = "classify.responses.convert"

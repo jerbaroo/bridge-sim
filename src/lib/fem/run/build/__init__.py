@@ -6,7 +6,7 @@ from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config, Bridge, Support
 from lib.fem.params import SimParams
 from lib.fem.run.build.assert_ import (
     assert_all_pier_nodes,
@@ -15,7 +15,6 @@ from lib.fem.run.build.assert_ import (
 from lib.fem.run.build.refinement import get_deck_refinement_positions
 from lib.fem.run.build.types import AllSupportNodes, DeckNodes, Node
 from lib.fem.run.build.util import print_mesh_info
-from lib.model.bridge import Bridge, Support3D
 from util import print_d, round_m, st
 
 # TODO: Experimental, but I think this works.
@@ -47,9 +46,9 @@ def get_node(
     y: float,
     z: float,
     deck: bool = False,
-    pier: Optional[Support3D] = None,
+    pier: Optional[Support] = None,
     comment_str: Optional[str] = None,
-    support: Optional[Support3D] = None,
+    support: Optional[Support] = None,
 ):
     """Get a 'Node' if one already exists at position, else create a new one.
 
@@ -57,7 +56,7 @@ def get_node(
 
     Args:
         deck: bool, whether the requested Node belongs to a deck.
-        pier: Optional[Support3D], a pier the requested Node may belong to.
+        pier: Optional[Support], a pier the requested Node may belong to.
 
     """
     x = round_m(x)

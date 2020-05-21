@@ -6,20 +6,8 @@ from typing import Callable, List, Optional
 import findup
 import numpy as np
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config, Dimensions, Lane, Material, MaterialSupport, Bridge, Support
 from lib.fem.run.opensees import os_runner
-from lib.model.bridge import (
-    Bridge,
-    Dimensions,
-    Fix,
-    Lane,
-    Layer,
-    Patch,
-    Section2D,
-    Section3D,
-    Section3DPier,
-    Support3D,
-)
 from util import round_m
 
 
@@ -50,57 +38,6 @@ bridge_705_piers = [0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
-bridge_705_supports_2d = [Fix(x / bridge_705_length, y=True) for x in bridge_705_piers]
-bridge_705_supports_2d[0].x = True
-
-
-############################
-##### Patches & Layers #####
-############################
-
-
-# NOTE: These patches and layers are incorrect!
-bridge_705_patches = [
-    Patch(y_min=-1, y_max=0, z_min=-16.6, z_max=16.6),
-    Patch(y_min=-10, y_max=-1, z_min=-5, z_max=5),
-]
-bridge_705_layers = [
-    Layer(
-        y_min=-0.4, y_max=-0.4, z_min=-15, z_max=15, num_fibers=20, area_fiber=4.9e-4,
-    ),
-    Layer(y_min=-8, y_max=-8, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
-    Layer(y_min=-9, y_max=-9, z_min=-4.5, z_max=4.5, num_fibers=10, area_fiber=4.9e-4,),
-]
-
-
-def bridge_705_2d(
-    name: str = "Bridge 705",
-    length: float = bridge_705_length,
-    width: float = bridge_705_width,
-    lanes: List[Lane] = bridge_705_lanes,
-    piers: List[float] = bridge_705_piers,
-    layers: List[Layer] = bridge_705_layers,
-    patches: List[Patch] = bridge_705_patches,
-    sections: Optional[List[Section2D]] = None,
-    supports: List[Fix] = bridge_705_supports_2d,
-    base_mesh_deck_nodes_x: int = 412,
-    base_mesh_deck_nodes_z: int = None,
-    base_mesh_pier_nodes_y: int = None,
-    base_mesh_pier_nodes_z: int = None,
-) -> Bridge:
-    """A 2D model of bridge 705 in Amsterdam."""
-    if sections is None:
-        sections = [Section2D(patches=patches, layers=layers)]
-    return Bridge(
-        name=name,
-        length=length,
-        width=width,
-        lanes=lanes,
-        supports=supports,
-        sections=sections,
-        dimensions=Dimensions.D2,
-        base_mesh_deck_nodes_x=base_mesh_deck_nodes_x,
-    )
 
 
 ############################
@@ -115,7 +52,7 @@ def bridge_705_deck_sections():
         )
     # A list of each deck section, with incorrect 'end_z_frac'.
     _deck_sections = [
-        Section3D(
+        Material(
             density=density * 1e6,
             thickness=thickness / 1000,
             youngs=youngs,
@@ -140,7 +77,7 @@ def bridge_705_deck_sections():
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 
 # Function to generate material properties from fraction of pier length.
-pier_section_f = lambda start_frac_len: Section3DPier(
+pier_section_f = lambda start_frac_len: MaterialSupport(
     density=2.724,
     thickness=round_m(
         np.interp(start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top])
@@ -187,7 +124,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
     # print(f"x_index = {x_index}")
     for z_index, _support_z in enumerate(bridge_705_supports_z):
         bridge_705_supports_3d.append(
-            Support3D(
+            Support(
                 x=_support_x,
                 z=_support_z,
                 length=3.1,
@@ -214,8 +151,8 @@ def bridge_705_3d(
     length: float = bridge_705_length,
     width: float = bridge_705_width,
     lanes: List[Lane] = bridge_705_lanes,
-    sections: Optional[List[Section3D]] = None,
-    supports: List[Support3D] = bridge_705_supports_3d,
+    sections: Optional[List[Material]] = None,
+    supports: List[Support] = bridge_705_supports_3d,
     base_mesh_deck_max_x: int = 0.5,
     base_mesh_deck_max_z: int = 0.5,
     base_mesh_pier_max_long: int = 0.5,

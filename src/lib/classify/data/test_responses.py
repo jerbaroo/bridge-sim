@@ -8,9 +8,9 @@ from lib.classify.data.responses.convert import (
 )
 from lib.classify.vehicle import wagen1
 from lib.fem.run.opensees import OSRunner
-from lib.model.bridge import Point
+from bridge_sim.model import Point
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from lib.model.load import MvVehicle, PointLoad
+from bridge_sim.model.vehicle import MvVehicle, PointLoad
 from lib.model.response import ResponseType
 from util import flatten, print_d
 

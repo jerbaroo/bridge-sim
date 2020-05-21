@@ -8,12 +8,9 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 from scipy.stats import chisquare
 
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Point, Config, PointLoad
 from lib.fem.build import get_bridge_nodes, det_nodes
 from lib.fem.responses import Responses
-from lib.model.bridge import Point
-from lib.model.load import PointLoad
 from lib.plot import default_cmap, legend_marker_size, plt
 from util import print_w
 

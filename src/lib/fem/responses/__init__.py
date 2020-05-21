@@ -10,11 +10,9 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 from scipy.interpolate import griddata, interp1d, interp2d
 
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Point, Config, Dimensions, Bridge
 from lib.fem.model import Shell
 from lib.fem.params import ExptParams, SimParams
-from lib.model.bridge import Bridge, Dimensions, Point
 from util import nearest_index, print_i, resize_units
 
 # Print debug information for this file.
@@ -82,16 +80,6 @@ def load_fem_responses(
         prog_str = f"{index[0]}/{index[1]}: "
     print_prog = lambda s: print_i(prog_str + s, end="\r")
 
-    # May need to free a node in y direction.
-    if c.bridge.dimensions == Dimensions.D2:
-        set_y_false = False
-        if sim_params.displacement_ctrl is not None:
-            pier = sim_params.displacement_ctrl.pier
-            fix = c.bridge.supports[pier]
-            if fix.y:
-                fix.y = False
-                set_y_false = True
-
     path = _responses_path(
         sim_runner=c.fem_runner, sim_params=sim_params, response_type=response_type,
     )
@@ -113,11 +101,6 @@ def load_fem_responses(
     # If only running was requested then we are done.
     if run_only:
         return None
-
-    # And set the node as fixed again after running.
-    if c.bridge.dimensions == Dimensions.D2:
-        if set_y_false:
-            fix.y = True
 
     start = timer()
     try:

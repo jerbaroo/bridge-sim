@@ -3,7 +3,7 @@ from enum import Enum
 
 import numpy as np
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.fem.build import det_shells
 from lib.fem.model import BuildContext, DeckShells
 from lib.fem.params import SimParams

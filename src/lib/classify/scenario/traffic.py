@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 
 import numpy as np
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.model.scenario import TrafficScenario
 from lib.vehicles.sample import sample_vehicle
 from util import print_d, st

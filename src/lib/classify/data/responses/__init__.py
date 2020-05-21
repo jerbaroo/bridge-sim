@@ -7,7 +7,6 @@ from typing import Callable, List
 import numpy as np
 
 from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
-from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses import Responses
 from lib.fem.responses.matrix import load_expt_responses
@@ -15,8 +14,8 @@ from lib.fem.responses.matrix.dc import DCMatrix
 from lib.fem.responses.matrix.il import ILMatrix
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees import OSRunner
-from lib.model.bridge import Point
-from lib.model.load import PointLoad, MvVehicle
+from bridge_sim.model import Point, Config
+from bridge_sim.model.vehicle import PointLoad, MvVehicle
 from lib.model.response import ResponseType
 from util import flatten, print_i, print_w
 

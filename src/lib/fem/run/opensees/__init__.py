@@ -2,33 +2,26 @@
 import os
 from typing import Callable, List, Optional
 
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Config, Dimensions, Bridge
 from lib.fem.params import SimParams
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees.build import build_model
 from lib.fem.run.opensees.convert import convert_responses
 from lib.fem.run.opensees.parse import parse_responses
 from lib.fem.run.opensees.run import run_model
-from lib.model.bridge import Bridge, Dimensions, Layer, Patch
 from util import print_i
 
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     """The response types supported by OpenSees for a given bridge."""
-    if bridge.dimensions == Dimensions.D2:
-        raise NotImplementedError()
-    elif bridge.dimensions == Dimensions.D3:
-        return [
-            ResponseType.XTrans,
-            ResponseType.YTrans,
-            ResponseType.ZTrans,
-            ResponseType.StrainXXB,
-            ResponseType.StrainXXT,
-            ResponseType.StrainZZB,
-        ]
-    else:
-        raise ValueError(f"{bridge.dimensions} not supported by OSRunner")
+    return [
+        ResponseType.XTrans,
+        ResponseType.YTrans,
+        ResponseType.ZTrans,
+        ResponseType.StrainXXB,
+        ResponseType.StrainXXT,
+        ResponseType.StrainZZB,
+    ]
 
 
 class OSRunner(FEMRunner):
@@ -65,26 +58,6 @@ class OSRunner(FEMRunner):
 
     def z_translation_path(self, fem_params: SimParams):
         return self.translation_path(fem_params=fem_params, axis="z")
-
-    def patch_paths(self, fem_params: SimParams, patch: Patch):
-        return [
-            self.opensees_out_path(
-                sim_params=fem_params,
-                ext="out",
-                append=f"-patch-{point.y:.5f}-{point.z:.5f}",
-            )
-            for point in patch.points()
-        ]
-
-    def layer_paths(self, fem_params: SimParams, layer: Layer):
-        return [
-            self.opensees_out_path(
-                sim_params=fem_params,
-                ext="out",
-                append=f"-layer-{point.y:.5f}-{point.z:.5f}",
-            )
-            for point in layer.points()
-        ]
 
     def element_path(self, fem_params: SimParams):
         return self.opensees_out_path(sim_params=fem_params, ext="out", append="-elems")

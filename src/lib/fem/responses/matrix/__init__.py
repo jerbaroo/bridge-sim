@@ -7,7 +7,7 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model.config import Config
+from bridge_sim.model import Config
 from lib.fem.params import ExptParams
 from lib.fem.responses import SimResponses, load_fem_responses
 from lib.fem.run import FEMRunner

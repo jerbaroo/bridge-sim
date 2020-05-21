@@ -1,13 +1,10 @@
 """Convert responses from an OpenSees simulation"""
 from typing import Dict, List
 
-from bridge_sim.model import ResponseType
-from bridge_sim.model.config import Config
+from bridge_sim.model import ResponseType, Config
 from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
-from lib.fem.run.opensees.convert.d2 import convert_responses_2d
 from lib.fem.run.opensees.convert.d3 import convert_responses_3d
-from lib.model.bridge import Dimensions
 from util import print_d
 
 # Print debug information for this file.
@@ -19,9 +16,6 @@ def convert_responses(
 ) -> Dict[int, Dict[ResponseType, List["Response"]]]:
     """Parse responses from an OpenSees simulation."""
     print_d(D, f"Converting {c.bridge.dimensions} bridge responses")
-    if c.bridge.dimensions == Dimensions.D2:
-        return convert_responses_2d(c=c, parsed_responses=parsed_expt_responses)
-    else:
-        return convert_responses_3d(
-            c=c, expt_params=expt_params, parsed_expt_responses=parsed_expt_responses,
-        )
+    return convert_responses_3d(
+        c=c, expt_params=expt_params, parsed_expt_responses=parsed_expt_responses,
+    )

@@ -26,7 +26,7 @@ def section_for_deck_element(
     """Section for an element on the deck.
 
     Creates a dict (if not already created) of all section's x positions, to z
-    positions, to Section3D. Then iterates through sorted x positions finding
+    positions, to Material. Then iterates through sorted x positions finding
     the last one less than or equal to the given element's lowest x position,
     then does the same for the sorted z positions, then the section is found.
 

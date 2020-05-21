@@ -4,7 +4,8 @@ from typing import Callable, Dict, List, NewType, Optional, Tuple
 import numpy as np
 from scipy.spatial import distance
 
-from lib.model.bridge import Point, Section3D, Support3D
+from bridge_sim.model import Support
+from bridge_sim.model import Point, Material
 from util import round_m
 
 
@@ -17,12 +18,12 @@ class Node:
         y: float, y position of this node on the bridge.
         z: float, z position of this node on the bridge.
         deck: bool, whether this node belongs to the bridge deck.
-        pier: Optional[Support3D], a pier that this node may belong to.
+        pier: Optional[Support], a pier that this node may belong to.
         comment: Optional[str], an optional comment for the .tcl file.
         support: Optional[3D], a support that this node may belong to.
 
     Attrs:
-        section: Section3D, a section that may be attached, or not.
+        section: Material, a section that may be attached, or not.
 
     """
 
@@ -33,7 +34,7 @@ class Node:
         y: float,
         z: float,
         deck: bool,
-        pier: Optional[Support3D] = None,
+        pier: Optional[Support] = None,
         comment: Optional[str] = None,
     ):
         self.n_id = n_id
@@ -91,7 +92,7 @@ class Shell:
         nj_id: int, index of the node at corner j of this shell element.
         nk_id: int, index of the node at corner k of this shell element.
         nl_id: int, index of the node at corner l of this shell element.
-        section: Section3D, section that this shell element belongs to.
+        section: Material, section that this shell element belongs to.
         pier: bool, whether this shell is on a pier.
         nodes_by_id: NodesById, nodes in this build context.
 
@@ -104,7 +105,7 @@ class Shell:
         nj_id: int,
         nk_id: int,
         nl_id: int,
-        section: Section3D,
+        section: Material,
         pier: bool,
         nodes_by_id: NodesById,
     ):
@@ -275,7 +276,7 @@ class BuildContext:
         nk_id: int,
         nl_id: int,
         pier: bool,
-        section: Section3D,
+        section: Material,
     ) -> Shell:
         n_ids = (ni_id, nj_id, nk_id, nl_id)
         if n_ids not in self.shells_by_n_ids:

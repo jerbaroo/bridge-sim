@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-from bridge_sim.model.config import Config
-from lib.model.load import MvVehicle
+from bridge_sim.model import Vehicle, Config
 from lib.vehicles import VehicleData, axle_array_and_count
 from util import print_d, print_s, print_w
 
@@ -66,7 +65,7 @@ def sample_vehicle(
     group_index: int = None,
     noise_col_names: List[str] = [],
     pd_row: bool = False,
-) -> Union[MvVehicle, Tuple[MvVehicle, pd.DataFrame]]:
+) -> Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
     """Sample a vehicle from a c.vehicle_density group.
 
     Args:
@@ -137,7 +136,7 @@ def sample_vehicle(
     # print(axle_distances)
     # print(axle_weights)
     # print(row["total_weight"])
-    vehicle = MvVehicle(
+    vehicle = Vehicle(
         kmph=40,
         kn=axle_weights,
         axle_width=c.axle_width,

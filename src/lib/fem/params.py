@@ -1,9 +1,8 @@
 """Parameters for FEM simulations."""
 from typing import List, Optional
 
-from bridge_sim.model import ResponseType, PierSettlement, PointLoad
+from bridge_sim.model import ResponseType, PierSettlement, PointLoad, Bridge
 from lib.fem.model import BuildContext
-from lib.model.bridge import Bridge
 from util import safe_str
 
 

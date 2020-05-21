@@ -1,4 +1,4 @@
-from lib.model.bridge import Bridge, Lane, Support, MaterialDeck, MaterialSupport
+from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
 
 
 def bridge_example() -> Bridge:
