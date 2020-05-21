@@ -37,9 +37,7 @@ def parse_stress_strain_responses_3d(
     results_dict, sim_params: SimParams, sim_ind: int, response_paths: List[str],
 ):
     """Parse stress or strain responses from a 3D OpenSees simulation."""
-    if any(
-        rt.is_stress() or rt.is_strain() for rt in sim_params.response_types
-    ):
+    if any(rt.is_stress() or rt.is_strain() for rt in sim_params.response_types):
         lines = []
         for response_path in response_paths:
             with open(response_path) as f:

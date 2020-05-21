@@ -1,49 +1,24 @@
-"""Scenarios for the traffic and bridge."""
 from collections import deque
-from copy import copy, deepcopy
-from typing import Callable, List, NewType, Tuple
+from timeit import default_timer as timer
+from typing import NewType, List, Tuple, Callable
 
 import numpy as np
+from lib.vehicles.sample import sample_vehicle
 from scipy.interpolate import interp1d
 
-# from classify.data.responses.convert import loads_to_traffic_array
-from bridge_sim.model import Config, Bridge
-from lib.fem.params import SimParams
-from bridge_sim.model.vehicle import MvVehicle
-from util import print_i
+from bridge_sim.model import Bridge, Config, PointLoad, Vehicle
+from util import print_i, print_d, st
 
-
-class DamageScenario:
-    """Base class for bridge scenarios. Do not construct directly."""
-
-    def __init__(
-        self,
-        name: str,
-        mod_bridge: Callable[[Bridge], Bridge] = lambda b: b,
-        mod_sim_params: Callable[[SimParams], SimParams] = lambda s: s,
-    ):
-        self.name = name
-        self.mod_bridge = mod_bridge
-        self.mod_sim_params = mod_sim_params
-
-    def use(
-        self, c: Config, sim_params: SimParams = SimParams(),
-    ) -> Tuple[Config, SimParams]:
-        """Copies of the given arguments modified for this damage scenario."""
-        config_copy = copy(c)
-        config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
-        sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
-        return config_copy, sim_params_copy
-
+D = False
 
 # A list of vehicle, time they enter/leave the bridge, and a boolean if they are
 # entering (true) or leaving. This sequence should be time ordered. This is a
 # memory efficient representation of traffic.
-TrafficSequence = NewType("TrafficSequence", List[Tuple[MvVehicle, float, bool]])
+TrafficSequence = NewType("TrafficSequence", List[Tuple[Vehicle, float, bool]])
 
 # A list of vehicles per lane per time step. This representation naturally fits
 # the semantics of real life traffic on a bridge. Useful for plotting.
-Traffic = NewType("Traffic", List[List[List[MvVehicle]]])
+Traffic = NewType("Traffic", List[List[List[Vehicle]]])
 
 # An array of time step (rows) * wheel position (columns). Each cell value is
 # load in kilo Newton. This representation is useful for matrix multiplication.
@@ -66,7 +41,7 @@ class TrafficScenario:
 
     """
 
-    def __init__(self, name: str, mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]]):
+    def __init__(self, name: str, mv_vehicle_f: Callable[..., Tuple[Vehicle, float]]):
         self.name = name
         self.mv_vehicle_f = mv_vehicle_f
 
@@ -127,7 +102,7 @@ class TrafficScenario:
         ]
 
         # Per lane, next vehicle ready to drive onto the lane.
-        next_vehicles: List[MvVehicle] = [
+        next_vehicles: List[Vehicle] = [
             next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens
         ]
 
@@ -136,7 +111,7 @@ class TrafficScenario:
             raise ValueError("Initial vehicle not starting at x = 0")
 
         # Count the amount of full lanes traveled.
-        first_vehicle: MvVehicle = next_vehicles[0]
+        first_vehicle: Vehicle = next_vehicles[0]
         full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
 
         # Increase simulation by time taken to warm up.
@@ -146,7 +121,7 @@ class TrafficScenario:
         print(f"max_time = {max_time}")
 
         # Time vehicles will leave the bridge, in order.
-        time_leave: List[Tuple[MvVehicle, float]] = deque([])
+        time_leave: List[Tuple[Vehicle, float]] = deque([])
 
         # Until maximum time is reached, see below..
         while True:
@@ -364,3 +339,72 @@ def to_traffic_array(
         f"Generated {time - start_time - time_step:.4f} s of 'TrafficArray' from 'TrafficSequence'"
     )
     return result
+
+
+def arrival(beta: float, min_d: float):
+    """Inter-arrival times of vehicles to a bridge."""
+    result = np.random.exponential(beta)
+    assert isinstance(result, float)
+    if result < min_d:
+        return arrival(beta=beta, min_d=min_d)
+    return result
+
+
+def normal_traffic(c: Config, lam: float, min_d: float):
+    """Normal traffic scenario, arrives according to poisson process."""
+    count = 0
+
+    def mv_vehicle_f(time: float, full_lanes: int):
+        start = timer()
+        vehicle = sample_vehicle(c), arrival(beta=lam, min_d=min_d)
+        nonlocal count
+        count += 1
+        print_i(f"{count}{st(count)} sampled vehicle took {timer() - start}")
+        return vehicle
+
+    return TrafficScenario(name=f"normal-lam-{lam}", mv_vehicle_f=mv_vehicle_f)
+
+
+def x_to_wheel_track_index(c: Config):
+    """Return a function from x position to wheel track index."""
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+
+    def wheel_track_index(x: float):
+        wheel_x_ind = np.searchsorted(wheel_track_xs, x)
+        if wheel_x_ind == 0:
+            return wheel_x_ind
+        wheel_x = wheel_track_xs[wheel_x_ind]
+        wheel_x_lo = wheel_track_xs[wheel_x_ind - 1]
+        if wheel_x_ind < len(wheel_track_xs) - 1:
+            assert abs(x - wheel_track_xs[wheel_x_ind + 1]) > abs(x - wheel_x)
+        if abs(x - wheel_x_lo) < abs(x - wheel_x):
+            return wheel_x_ind - 1
+        return wheel_x_ind
+
+    return wheel_track_index
+
+
+def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
+    """Convert a list of loads per timestep to a 'TrafficArray'."""
+    times = len(loads)
+    wheel_track_zs = c.bridge.wheel_track_zs(c)
+    num_load_positions = c.il_num_loads * len(wheel_track_zs)
+    traffic_array = np.zeros((times, num_load_positions))
+    wheel_track_index_f = x_to_wheel_track_index(c)
+    for time, time_loads in enumerate(loads):
+        # For each load, find the wheel track it's on, and then fill the ULM.
+        for load in time_loads:
+            wheel_track_found = False
+            for w, wheel_track_z in enumerate(wheel_track_zs):
+                if not wheel_track_found and np.isclose(wheel_track_z, load.z):
+                    wheel_track_found = True
+                    print_d(D, f"load z = {load.z}")
+                    print_d(D, f"load x = {load.x}")
+                    x_ind = wheel_track_index_f(load.x)
+                    j = (w * c.il_num_loads) + x_ind
+                    print_d(D, f"x_ind = {x_ind}")
+                    print_d(D, f"j = {j}")
+                    traffic_array[time][j] += load.load
+            if not wheel_track_found:
+                raise ValueError(f"No wheel track for point load at z = {load.z}")
+    return traffic_array

@@ -186,34 +186,6 @@ def transverse_crack(
     )
 
 
-def center_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:
-    """A bridge with the center of a lane cracked."""
-    x_frac = percent / 100
-
-    def crack_area(bridge: Bridge) -> CrackArea:
-        x_start, z_start = bridge.x(0.5 - (x_frac / 2)), bridge.lanes[lane].z_min
-        length, width = bridge.x(x_frac), bridge.lanes[lane].width
-        return x_start, z_start, x_start + length, z_start + width
-
-    return CrackedDamage(
-        name=f"crack-lane-{lane}-center-{percent}", crack_area=crack_area
-    )
-
-
-def start_lane_crack(percent: float = 20, lane: int = 0) -> CrackedDamage:
-    """A bridge with the start of the lane cracked."""
-    x_frac = percent / 100
-
-    def crack_area(bridge: Bridge) -> CrackArea:
-        x_start, z_start = 0, bridge.lanes[lane].z_min
-        length, width = bridge.x(x_frac), bridge.lanes[lane].width
-        return x_start, z_start, x_start + length, z_start + width
-
-    return CrackedDamage(
-        name=f"crack-lane-{lane}-start-{percent}", crack_area=crack_area
-    )
-
-
 class PierDispDamage(DamageScenario):
     def __init__(self, pier_disps: [PierSettlement], name_prefix: str = ""):
         if len(pier_disps) < 1:

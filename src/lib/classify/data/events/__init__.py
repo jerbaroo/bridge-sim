@@ -205,7 +205,7 @@ class Events:
         Args:
             bridge: Bridge, bridge on which traffic drives one.
             traffic_scenario: TrafficScenario, scenario of the traffic.
-            bridge_scenarios: List[DamageScenario], bridge damage scenarios.
+            bridge_scenarios: List[DamageScenario], bridge scenarios scenarios.
             points: List[Point], points at which to record responses.
             response_types: List[ResponseType], type of responses to record.
             fem_runner: FEMRunner, FE program to run simulations with.

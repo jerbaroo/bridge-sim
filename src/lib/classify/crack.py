@@ -35,7 +35,7 @@ def crack_time_series(
         traffic_array_mins: float, minutes of the the traffic flow.
         sensor: Point, point at which to collect responses.
         crack_frac: float, fraction of time series where crack occurs.
-        damage: DamageScenario, damage that occurs at crack_frac.
+        damage: DamageScenario, scenarios that occurs at crack_frac.
         temps: List[float], list of air temperature, per temperature minute.
         solar: List[float], list of solar radiance, per temperature minute.
 
@@ -90,7 +90,9 @@ def crack_time_series(
     for ri, rt in enumerate(response_types):
         responses_healthy_cracked = []
         for ds, ta in [(HealthyDamage(), traffic_array_0), (damage, traffic_array_1)]:
-            print(f"Sections in damage scenario = {len(ds.use(c)[0].bridge.sections)}")
+            print(
+                f"Sections in scenarios scenario = {len(ds.use(c)[0].bridge.sections)}"
+            )
             responses_healthy_cracked.append(
                 responses_to_traffic_array(
                     c=c,

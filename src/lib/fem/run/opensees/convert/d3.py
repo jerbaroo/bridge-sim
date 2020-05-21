@@ -57,9 +57,7 @@ def convert_strain_responses(
     parsed_sim_responses: Dict[ResponseType, List[List[float]]],
     converted_expt_responses: Dict[int, Dict[ResponseType, List["Response"]]],
 ):
-    if not any(
-        rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses
-    ):
+    if not any(rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses):
         return
     parsed_sim_strain = parsed_sim_responses[ResponseType.StrainXXB]
     result_bottom, result_bottom_z, result_top = [], [], []

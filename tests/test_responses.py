@@ -1,15 +1,11 @@
 """Test classify.data.responses."""
 import numpy as np
-import pytest
 
 from bridge_sim.traffic import x_to_wheel_track_index, loads_to_traffic_array
 from lib.classify.vehicle import wagen1
-from lib.fem.run.opensees import OSRunner
-from bridge_sim.model import Point
 from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from bridge_sim.model.vehicle import MvVehicle, PointLoad
-from lib.model.response import ResponseType
-from util import flatten, print_d
+from bridge_sim.model import PointLoad
+from util import flatten
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.test_responses"

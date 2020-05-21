@@ -20,7 +20,7 @@ from util import flatten, safe_str
 
 def make_shell_properties_3d(original_c: Config):
     """Make plots of the shells in 3D, coloured by material property."""
-    # For each damage scenario build the model and extract the shells.
+    # For each scenarios scenario build the model and extract the shells.
     for damage_scenario in healthy_and_cracked_scenarios:
         c, sim_params = damage_scenario.use(original_c, SimParams([]))
         for ctx, ctx_name in [
@@ -77,7 +77,7 @@ def make_shell_properties_top_view(
 ):
     """Make plots of the shells in top view, coloured by material property."""
     original_c = c
-    # For each damage scenario build the model and extract the shells.
+    # For each scenarios scenario build the model and extract the shells.
     for damage_scenario, damage_name in zip(
         healthy_and_cracked_scenarios, [None, "cracked"]
     ):

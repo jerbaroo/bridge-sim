@@ -508,7 +508,7 @@ def noise():
 ###################
 
 
-@cli.group(help="Contour plots for loading & damage scenarios.")
+@cli.group(help="Contour plots for loading & scenarios scenarios.")
 def contour():
     pass
 
@@ -687,7 +687,7 @@ def crack_ts(n: float):
 @click.option("--mins", type=float, default=1, help="Minutes of traffic.")
 @click.option("--skip", type=int, default=50, help="Skip every n recorded responses.")
 @click.option(
-    "--damage",
+    "--scenarios",
     type=click.Choice(["healthy", "pier"]),
     default="healthy",
     help="Damage scenario.",

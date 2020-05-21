@@ -90,7 +90,7 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
 
 
 def traffic_response_plots(c: Config, times: int = 3):
-    """Response to normal traffic per damage scenario at multiple time steps."""
+    """Response to normal traffic per scenarios scenario at multiple time steps."""
     response_type = ResponseType.YTranslation
     # 10 x 10 grid of points on the bridge deck where to record responses.
     points = [
@@ -139,7 +139,7 @@ def traffic_response_plots(c: Config, times: int = 3):
 def point_load_response_plots(
     c: Config, x: float, z: float, kn: int = 1000, run: bool = False
 ):
-    """Response to a point load per damage scenario."""
+    """Response to a point load per scenarios scenario."""
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # scenarios = all_scenarios(c)
     damage_scenarios = [HealthyDamage(), transverse_crack()]

@@ -43,7 +43,7 @@ def animate_traffic_top_view(
         fem_runner: FEMRunner, FE program used to run the simulations.
         response_type: ResponseType, type of sensor response to record.
         traffic_name: str, name of the traffic scenario.
-        bridge_scenario: DamageScenario, damage scenario of the bridge.
+        bridge_scenario: DamageScenario, scenarios scenario of the bridge.
         save: str, filepath where to save the animation.
 
     """
