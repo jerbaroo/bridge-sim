@@ -9,13 +9,13 @@ import numpy as np
 from scipy.stats import chisquare
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.build import get_bridge_nodes, det_nodes
 from lib.fem.responses import Responses
 from lib.model.bridge import Point
 from lib.model.load import PointLoad
 from lib.plot import default_cmap, legend_marker_size, plt
-from util import flatten, print_w
+from util import print_w
 
 
 def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool = False):

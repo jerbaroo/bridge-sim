@@ -4,7 +4,7 @@ from typing import Callable, List, NewType, Optional, Tuple
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import SimParams
 from lib.fem.responses import SimResponses
 from lib.model.bridge import Bridge, Point

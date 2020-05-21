@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.model.load import PointLoad
 from util import print_d
 

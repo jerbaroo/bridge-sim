@@ -18,7 +18,7 @@ from scipy import stats
 
 # from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.run import FEMRunner
 from lib.model.bridge import Bridge, Dimensions, Point, Section
 from lib.model.load import Vehicle

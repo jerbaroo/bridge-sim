@@ -2,8 +2,7 @@
 import os
 
 import matplotlib
-from lib.config import Config
-from lib.model.bridge import Bridge
+from bridge_sim.model.config import Config
 from lib.plot import plt
 
 # Print debug information for this file.

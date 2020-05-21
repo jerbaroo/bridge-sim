@@ -6,13 +6,13 @@ from typing import Dict, List
 import numpy as np
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.build import det_nodes, det_shells
 from lib.fem.model import Node, Shell
-from lib.fem.params import SimParams, ExptParams
+from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
 from lib.model.bridge import Point
-from util import print_d, print_w
+from util import print_w
 
 # Print debug information for this file.
 D = "fem.run.opensees.convert.d3"

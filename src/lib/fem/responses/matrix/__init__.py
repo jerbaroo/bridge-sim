@@ -3,16 +3,15 @@ import itertools
 from collections import deque
 from copy import deepcopy
 from pathos.multiprocessing import Pool
-from typing import Callable, List
+from typing import List
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.responses import SimResponses, load_fem_responses
 from lib.fem.run import FEMRunner
 from lib.model.response import Response, ResponseType
-from util import print_i
 
 
 class ResponsesMatrix:

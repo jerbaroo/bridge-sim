@@ -3,7 +3,7 @@ import os
 from typing import Callable, List, Optional
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import SimParams
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees.build import build_model

@@ -5,17 +5,17 @@ import os
 import dill
 from collections import defaultdict
 from timeit import default_timer as timer
-from typing import Callable, List, NewType, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 from scipy.interpolate import griddata, interp1d, interp2d
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.model import Shell
 from lib.fem.params import ExptParams, SimParams
 from lib.model.bridge import Bridge, Dimensions, Point
-from util import nearest_index, print_i, print_w, resize_units
+from util import nearest_index, print_i, resize_units
 
 # Print debug information for this file.
 D: str = "fem.responses"

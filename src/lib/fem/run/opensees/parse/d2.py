@@ -5,7 +5,7 @@ from collections import defaultdict
 from timeit import default_timer as timer
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.common import (

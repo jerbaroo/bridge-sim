@@ -1,17 +1,17 @@
 """Scenarios for the traffic and bridge."""
 from collections import deque
 from copy import copy, deepcopy
-from typing import Callable, List, NewType, Optional, Tuple, Union
+from typing import Callable, List, NewType, Tuple
 
 import numpy as np
 from scipy.interpolate import interp1d
 
 # from classify.data.responses.convert import loads_to_traffic_array
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import SimParams
 from lib.model.bridge import Bridge
-from lib.model.load import MvVehicle, PointLoad
-from util import flatten, print_i
+from lib.model.load import MvVehicle
+from util import print_i
 
 
 class DamageScenario:

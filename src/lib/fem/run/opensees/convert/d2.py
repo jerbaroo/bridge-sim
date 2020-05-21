@@ -2,7 +2,7 @@
 from typing import Dict, List
 
 from bridge_sim.model import ResponseType
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.run import Parsed
 
 

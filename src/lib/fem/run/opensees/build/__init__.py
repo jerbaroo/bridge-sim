@@ -1,5 +1,5 @@
 """Build an OpenSees 2D or 3D model file."""
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.run.opensees.build.d2 import build_model_2d
 from lib.fem.run.opensees.build.d3 import build_model_3d

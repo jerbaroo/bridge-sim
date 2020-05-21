@@ -115,7 +115,7 @@
 # Example 6.
 
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot, vehicle
+from bridge_sim import bridges, configs, fem, model, plot
 from bridge_sim.vehicle import Vehicle
 
 new_vehicle = Vehicle(

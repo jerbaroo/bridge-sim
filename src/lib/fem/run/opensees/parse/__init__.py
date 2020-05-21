@@ -1,5 +1,5 @@
 """Parse responses from an OpenSees simulation"""
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.d2 import parse_responses_2d

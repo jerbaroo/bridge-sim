@@ -6,7 +6,7 @@ from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import SimParams
 from lib.fem.run.build.assert_ import (
     assert_all_pier_nodes,
@@ -15,7 +15,7 @@ from lib.fem.run.build.assert_ import (
 from lib.fem.run.build.refinement import get_deck_refinement_positions
 from lib.fem.run.build.types import AllSupportNodes, DeckNodes, Node
 from lib.fem.run.build.util import print_mesh_info
-from lib.model.bridge import Bridge, Section3D, Support3D
+from lib.model.bridge import Bridge, Support3D
 from util import print_d, round_m, st
 
 # TODO: Experimental, but I think this works.

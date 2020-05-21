@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from lib.config import Config
+from bridge_sim.model.config import Config
 from lib.fem.params import ExptParams, SimParams
 from lib.model.bridge import Dimensions, Fix, Layer, Patch, Section
 from util import print_d, print_i
