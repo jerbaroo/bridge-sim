@@ -8,11 +8,32 @@
 
 ** Installation
 
-*A Python package will be introduced soon (matter of weeks), however in the mean time, installation is by downloading and running the source code directly.*
+*** Docker
 
-Make sure you have Python 3.7+ installed.
+Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed.
 
-And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with =pip install --user pipenv=?
+Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
+
+#+BEGIN_SRC bash
+docker run -ite LC_ALL=C.UTF-8 -e LANG=C.UTF-8 barischrooneyj/bridge-sim:v0.0.1
+#+END_SRC
+
+Run the provided example file /example.py/ with =pipenv run python example.py=. This will generate an image /docker.png/.
+
+To copy the generated image to your host system run the following commands in a separate terminal. The first command lists all running Docker containers. Copy the container ID and then use the =docker cp= command to copy the output to your host system.
+
+#+BEGIN_SRC bash
+$ docker ps
+CONTAINER ID        IMAGE                              COMMAND          CREATED             STATUS            PORTS     NAMES
+d297a50ff165        barischrooneyj/bridge-sim:v0.0.1   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
+$ docker cp d297a50ff165:/bridge-sim/docker.png docker.png
+#+END_SRC
+
+*** Directly
+
+These instructions are if you are interested in developing the =bridge-sim= software, or if you cannot run =bridge-sim= via Docker. A Python package will be published on PyPI at some point however hopefully either of the available methods should suffice in the meantime.
+
+Make sure you have Python 3.7+ installed. And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with =pip install --user pipenv=?
 
 You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If installing OpenSees on Linux the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help. Alternatively using an existing Docker image could be another way to go.
 
