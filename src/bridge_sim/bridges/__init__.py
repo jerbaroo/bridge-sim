@@ -64,7 +64,7 @@ def bridge_wide() -> Bridge:
                 height=2,
                 width_top=2,
                 width_bottom=2,
-                sections=[
+                materials=[
                     MaterialSupport(
                         density=0.7,
                         thickness=0.7,
@@ -79,9 +79,7 @@ def bridge_wide() -> Bridge:
         ],
         materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
         lanes=[
-            Lane(-4, -3, True),
-            Lane(-2, -1, True),
-            Lane(1, 2, True),
-            Lane(3, 4, True),
+            Lane(-4, -1, True),
+            Lane(1, 4, True),
         ],
     )
