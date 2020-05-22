@@ -6,6 +6,7 @@ comments/
 crack/
 docs/
 docker/Dockerfile
+generated-data/
 legacy/
 notebooks/
 sphinx-docs/

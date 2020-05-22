@@ -1,7 +1,12 @@
 FROM barischrooneyj/bridge-sim-base
 
+# Overwrite with newest version of bridge-sim.
+RUN rm -rf /bridge-sim
 COPY . /bridge-sim
 WORKDIR /bridge-sim
+
+# Add OpenSees to PATH.
+RUN echo 'export PATH=$PATH:/opensees/bin' >> ~/.bashrc
 
 # Install project dependencies.
 RUN pipenv install --dev --python 3.7

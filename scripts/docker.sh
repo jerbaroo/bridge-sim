@@ -7,6 +7,6 @@ docker tag X barischrooneyj/bridge-sim-base
 
 For the live image:
 docker build -f docker/Dockerfile2 .
-docker tag X barischrooneyj/bridge-sim:v0.0.1
-docker push barischrooneyj/bridge-sim:v0.0.1
+docker tag Y barischrooneyj/bridge-sim:version
+docker push barischrooneyj/bridge-sim:version
 EOF
