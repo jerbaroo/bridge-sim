@@ -226,7 +226,7 @@ def truck_1_loads(x: float):
         )
 
 
-@info.command(help="Make and plot the vehicle database.")
+@info.command(help="Make and plot the vehicles database.")
 def vehicle_dist():
     from plot.vehicles import plot_dist
 
@@ -620,7 +620,7 @@ def uls_contour(x_i: int, z_i: int, rt: str):
 @click.option("--run", is_flag=True, help="Force the simulation to run again.")
 @click.option("--length", type=float, default=0.5, help="Length of transverse crack.")
 @click.option("--outline", is_flag=True, help="Plot an outline of the crack area.")
-@click.option("--wheels", is_flag=True, help="Plot position of vehicle's wheel.")
+@click.option("--wheels", is_flag=True, help="Plot position of vehicles's wheel.")
 @click.option("--temp", is_flag=True, help="Add temperature effect.")
 def truck1_contour(
     x: int,

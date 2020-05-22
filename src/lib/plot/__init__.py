@@ -317,7 +317,7 @@ def animate_plot(
 def _plot_vehicle_deck_side(
     bridge: Bridge, vehicle: Vehicle, normalize_vehicle_height: bool = False,
 ):
-    """Plot a vehicle on the side of the deck (but don't plot the deck)."""
+    """Plot a vehicles on the side of the deck (but don't plot the deck)."""
     xl = bridge.x(x_frac=vehicle.init_x_frac)
     # Width and height on the plot.
     width = vehicle.length
@@ -345,7 +345,7 @@ def plot_bridge_deck_side(
 
     Args:
         equal_axis: bool, if true set both axes to have the same scale.
-        normalize_vehicle_height: bool, plot the height of a vehicle relative
+        normalize_vehicle_height: bool, plot the height of a vehicles relative
             to the height of the y-axis.
 
     """
@@ -434,10 +434,10 @@ def animate_bridge_response(
     """Animate a bridge's response, of one response type, to moving vehicles.
 
     Args:
-        responses: a 3 or 4 dimensional list. The first index is the vehicle,
+        responses: a 3 or 4 dimensional list. The first index is the vehicles,
             followed by time, then x position. Then there is either a float
-            representing the response to the vehicle, or a list of responses for
-            each vehicle axle.
+            representing the response to the vehicles, or a list of responses for
+            each vehicles axle.
 
     """
     per_axle = not isinstance(responses[0][0][0], float)
@@ -461,7 +461,7 @@ def animate_bridge_response(
         update_vehicles(t)
         plt.ylim(top=top, bottom=bottom)
 
-        # Plot responses for each moving vehicle.
+        # Plot responses for each moving vehicles.
         for i in range(len(mv_vehicles)):
             t_vehicle_responses = responses[i][t]
             x_axis = c.bridge.x_axis_equi(len(t_vehicle_responses))
@@ -484,7 +484,7 @@ def animate_bridge_response(
                     linewidth=1,
                 )
 
-            # Plot one response for the moving vehicle.
+            # Plot one response for the moving vehicles.
             else:
                 plt.plot(x_axis, t_vehicle_responses)
 
@@ -524,7 +524,7 @@ def animate_mv_vehicle(
     save: str = None,
     show: bool = False,
 ):
-    """Animate the bridge's response to a moving vehicle."""
+    """Animate the bridge's response to a moving vehicles."""
     times = list(times_on_bridge(c=c, mv_vehicles=[mv_vehicles]))
     at = [Point(x=c.bridge.x(x_frac)) for x_frac in np.linspace(0, 1, num_x_fracs)]
     responses = responses_to_mv_vehicles(
@@ -536,7 +536,7 @@ def animate_mv_vehicle(
         at=at,
         per_axle=per_axle,
     )
-    # Reshape to have only a single response type and moving vehicle.
+    # Reshape to have only a single response type and moving vehicles.
     new_shape = [d for d in responses.shape if d != 1]
     responses = responses.reshape(new_shape)
     animate_bridge_response(

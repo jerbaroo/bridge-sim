@@ -207,7 +207,7 @@ def pier_displacement_distribution_plots(
 #         c=c, lam=lam, min_d=min_d, prob_heavy=0.01
 #     ).traffic(bridge=c.bridge, max_time=max_time, time_step=time_step)
 
-#     # Filter out any normal traffic so it's just one heavy vehicle.
+#     # Filter out any normal traffic so it's just one heavy vehicles.
 #     for t, t_traffic in enumerate(heavy_traffic):
 #         heavy_traffic[t] = [v for v in t_traffic if v.kn == 500]
 #         assert len(heavy_traffic[t]) <= 1

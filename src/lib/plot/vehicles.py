@@ -1,4 +1,4 @@
-"""Plot vehicle distributions."""
+"""Plot vehicles distributions."""
 from itertools import count
 from math import ceil
 from typing import Callable, List, Tuple, TypeVar
@@ -127,14 +127,14 @@ def plot_dist(c: Config):
     plot_pdf()
     plt.ylabel("Load intensity (kN)")
     plt.xlabel("Length (m)")
-    plt.title("Load intensity per vehicle")
+    plt.title("Load intensity per vehicles")
     plt.xlim(0, plt.xlim()[1])
     plt.subplot(3, 1, 2)
     plt.scatter(a16["length"] / 100, num_axles, s=1)
     plt.xlim(0, plt.xlim()[1])
     plt.ylabel("Number of axles")
     plt.xlabel("Length (m)")
-    plt.title("Number of axles per vehicle")
+    plt.title("Number of axles per vehicles")
     plt.subplot(3, 1, 3)
     plt.hist(kns)
     plt.ylabel("Number of vehicles")

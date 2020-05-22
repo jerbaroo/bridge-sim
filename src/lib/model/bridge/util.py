@@ -13,7 +13,7 @@ def wheel_tracks(c: Config) -> List[float]:
     """
     tracks = []
 
-    # A moving vehicle for each bridge lane.
+    # A moving vehicles for each bridge lane.
     mv_vehicles = [
         next(
             normal_traffic(c=c, lam=1, min_d=1).mv_vehicles(bridge=c.bridge, lane=lane)

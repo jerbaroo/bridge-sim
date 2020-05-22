@@ -12,7 +12,7 @@ def test_sample_vehicle():
     c = bridge_705_test_config(bridge_705_2d)
     c.vehicle_density = [(11.5, 0.7), (12.2, 0.2), (43, 0.1)]
 
-    # Test a vehicle is returned.
+    # Test a vehicles is returned.
     vehicle = sample_vehicle(c)
     print_d(D, vehicle)
     assert isinstance(vehicle, Vehicle)

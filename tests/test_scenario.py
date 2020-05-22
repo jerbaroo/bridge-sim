@@ -17,19 +17,19 @@ def test_traffic_sequence_not_adjusted():
     warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
     end_time = traffic_sequence[-1][1]
     assert end_time > warmed_up_at + max_time
-    # The first vehicle should enter at x=0 at time t=0.
+    # The first vehicles should enter at x=0 at time t=0.
     assert traffic_sequence[0][0].init_x_frac == 0
     assert traffic_sequence[0][1] == 0
     assert traffic_sequence[0][2] == True
-    # Time the simulation has warmed up at should be when the first vehicle has
+    # Time the simulation has warmed up at should be when the first vehicles has
     # left the bridge. Since all vehicles have the same speed, this should at
-    # least be greater than the time any vehicle takes until it has begun to
-    # leave the bridge (first axle leaving), but depending on vehicle length the
-    # time to have entirely left will be a little different per vehicle.
+    # least be greater than the time any vehicles takes until it has begun to
+    # leave the bridge (first axle leaving), but depending on vehicles length the
+    # time to have entirely left will be a little different per vehicles.
     vehicle = next(traffic_scenario.mv_vehicles(bridge=c.bridge, lane=0))(0, 0)
     assert warmed_up_at > vehicle.time_leaving_bridge(c.bridge)
     first_vehicle, first_time, first_event = traffic_sequence[0]
-    # Time of the first event should be 0, when the first vehicle enters.
+    # Time of the first event should be 0, when the first vehicles enters.
     assert first_time == 0
     penul_vehicle, penul_time, penul_event = traffic_sequence[-2]
     final_vehicle, final_time, final_event = traffic_sequence[-1]

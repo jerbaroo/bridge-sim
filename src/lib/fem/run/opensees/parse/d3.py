@@ -5,7 +5,7 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model import ResponseType, Config
+from bridge_sim.model import Config, ResponseType, RT
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.common import opensees_to_numpy
@@ -21,38 +21,37 @@ def parse_translation_responses_3d(
 ):
     """Parse translation responses from a 3D OpenSees simulation."""
     print(f"response_type = {response_type}")
-    print(f"fem_params.response_types = {fem_params.response_types}")
-    if response_type in fem_params.response_types:
-        start = timer()
-        translation_responses = opensees_to_numpy(responses_path)
-        translation_responses *= -1
-        print_i(
-            f"OpenSees: Parsed {response_type.name()} responses in"
-            + f" {timer() - start:.2f}s"
-        )
-        results_dict[sim_ind][response_type] = translation_responses
+    if response_type not in [RT.XTrans, RT.YTrans, RT.ZTrans]:
+        raise ValueError("Must be translation response type")
+    start = timer()
+    translation_responses = opensees_to_numpy(responses_path)
+    translation_responses *= -1
+    print_i(
+        f"OpenSees: Parsed {response_type.name()} responses in"
+        + f" {timer() - start:.2f}s"
+    )
+    results_dict[sim_ind][response_type] = translation_responses
 
 
 def parse_stress_strain_responses_3d(
     results_dict, sim_params: SimParams, sim_ind: int, response_paths: List[str],
 ):
     """Parse stress or strain responses from a 3D OpenSees simulation."""
-    if any(rt.is_stress() or rt.is_strain() for rt in sim_params.response_types):
-        lines = []
-        for response_path in response_paths:
-            with open(response_path) as f:
-                new_lines = f.read()
-                if new_lines.endswith("\n"):
-                    new_lines = new_lines[:-1]
-                new_lines = list(map(float, new_lines.split()))
-                sections = len(new_lines) / 8
-                if int(len(new_lines)) / 8 != sections:
-                    raise ValueError("Unexpected length of parsed strains")
-                per_element_lines = np.array_split(new_lines, sections)
-                lines.append(per_element_lines)
-        lines = np.array(lines)
-        print(lines.shape)
-        results_dict[sim_ind][ResponseType.StrainXXB] = lines
+    lines = []
+    for response_path in response_paths:
+        with open(response_path) as f:
+            new_lines = f.read()
+            if new_lines.endswith("\n"):
+                new_lines = new_lines[:-1]
+            new_lines = list(map(float, new_lines.split()))
+            sections = len(new_lines) / 8
+            if int(len(new_lines)) / 8 != sections:
+                raise ValueError("Unexpected length of parsed strains")
+            per_element_lines = np.array_split(new_lines, sections)
+            lines.append(per_element_lines)
+    lines = np.array(lines)
+    print(lines.shape)
+    results_dict[sim_ind][ResponseType.StrainXXB] = lines
 
 
 def parse_responses_3d(

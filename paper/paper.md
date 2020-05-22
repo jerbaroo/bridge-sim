@@ -98,7 +98,7 @@ popular Matplotlib library.
 
 ```python
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot, vehicle
+from bridge_sim import bridges, configs, fem, model, plot, vehicles
 from bridge_sim.model import Vehicle
 
 new_vehicle = Vehicle(
@@ -108,7 +108,7 @@ new_vehicle = Vehicle(
     axle_distances=[2, 2, 2, 1],
     # Width of each axle, distance between point loads.
     axle_width=2.5,
-    # Speed of the vehicle.
+    # Speed of the vehicles.
     kmph=20,
 )
 

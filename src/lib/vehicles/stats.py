@@ -1,4 +1,4 @@
-"""Statistics on the vehicle data."""
+"""Statistics on the vehicles data."""
 from typing import List
 
 import numpy as np
@@ -9,7 +9,7 @@ from vehicles.sample import noise_col_names, noise_per_column
 
 
 def vehicle_density_stats(c: Config):
-    """Human readable statistics on vehicle density."""
+    """Human readable statistics on vehicles density."""
     data = c.vehicle_data
     num_bins = len(c.vehicle_density)
     groups = length_groups(c, c.vehicle_density_col)
@@ -35,7 +35,7 @@ def vehicle_density_stats(c: Config):
 
 
 def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_names):
-    """Human readable statistics on noise for vehicle data columns."""
+    """Human readable statistics on noise for vehicles data columns."""
     noise_data = noise_per_column(c, noise_col_names)
     data_len = len(c.vehicle_data[noise_col_names[0]])
     return (

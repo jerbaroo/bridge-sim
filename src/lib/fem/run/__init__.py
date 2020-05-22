@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional
 
@@ -68,14 +69,6 @@ class FEMRunner:
             return_converted: bool, for testing, return converted responses.
 
         """
-
-        supported_response_types = self.supported_response_types(self.c.bridge)
-        # Check that all FEMParams contain supported response types.
-        for fem_params in expt_params.sim_params:
-            for response_type in fem_params.response_types:
-                if response_type not in supported_response_types:
-                    raise ValueError(f"{response_type} not supported by {self.name}")
-
         # Building.
         start = timer()
         expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
@@ -140,26 +133,23 @@ class FEMRunner:
                     + f"({response_type})"
                 )
 
-    def sim_raw_path(
+    def sim_model_path(
         self,
         sim_params: SimParams,
         ext: str,
         append: str = "",
         dirname: Optional[str] = None,
     ) -> str:
-        """A file path for a FE model file or raw simulation responses.
-
-        The file path is based on a Bridge, SimParams and this SimRunner.
+        """A file path for a FE model file.
 
         NOTE: you probably don't want this function. Instead you may be
         interested in 'load_fem_responses' or 'fem_responses_path'.
 
-        Args:
-            sim_params: SimParams, parameters for a FEM simulation.
-            ext: str, a file extension without the dot.
-            append: str, appended before the file extension.
-            dirname: Optional[str], directory name, default is 'self.name'.
-
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name.
+        :param append: append to the filename (before the extension).
+        :return: path for the output file.
         """
         param_str = sim_params.id_str()
         append = append if len(append) == 0 else f"-{append}"
@@ -181,27 +171,21 @@ class FEMRunner:
         append: str = "",
         response_types: List[ResponseType] = [],
     ) -> str:
-        """Like 'sim_raw_path', however response types are overridden.
+        """Path for unprocessed simulation output files.
 
-        Intended for output files from FE simulations where we don't care what
-        other response types were recorded.
-
-        Args:
-            sim_params: SimParams, parameters for a FEM simulation.
-            ext: str, a file extension without the dot.
-            append: str, appended before the file extension.
-            dirname: Optional[str], directory name, default is 'self.name' +
-                "-responses".
-            response_types: List[ResponseType], override the response types
-                in the SimParams.
-
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name + "-responses".
+        :param append: append to the filename (before the extension).
+        :param response_types: response types identifying the output file.
+        :return: path for the output file.
         """
-        original_response_types = sim_params.response_types
-        sim_params.response_types = response_types
+        sim_params_copy = deepcopy(sim_params)
+        sim_params_copy.response_types = response_types
+        # Output files are response type specific, so append to filename.
+        append += "".join([rt.name() for rt in response_types])
         if dirname is None:
             dirname = self.name + "-responses"
-        result = self.sim_raw_path(
-            sim_params=sim_params, ext=ext, dirname=dirname, append=append
+        return self.sim_model_path(
+            sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
         )
-        sim_params.response_types = original_response_types
-        return result

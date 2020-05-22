@@ -181,7 +181,7 @@ class Config:
 
         :param bridge: function that returns a bridge.
         :param fem_runner:
-        :param vehicle_data_path: path of the vehicle CSV file.
+        :param vehicle_data_path: path of the vehicles CSV file.
         :param vehicle_pdf:
             percentage of vehicles below a maximum value for that column.
 
@@ -232,11 +232,11 @@ class Config:
         self.vehicle_data_path = vehicle_data_path
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(
-            f"Loaded vehicle data from {vehicle_data_path} in"
+            f"Loaded vehicles data from {vehicle_data_path} in"
             + f" {timer() - start:.2f}s"
         )
 
-        # Ensure vehicle probability density sums to 1.
+        # Ensure vehicles probability density sums to 1.
         pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
         if int(pdf_sum) != 100:
             pre_pdf_sum = pdf_sum
@@ -964,15 +964,15 @@ class Vehicle:
         lane: int = 0,
         init_x_frac: float = 0,
     ):
-        """A vehicle, load intensities, position and speed.
+        """A vehicles, load intensities, position and speed.
 
         :param kn:
-            intensity, either for the entire vehicle or per axle, or as a list
+            intensity, either for the entire vehicles or per axle, or as a list
             of tuple (per wheel, each tuple is left then right wheel), in kilo
             Newton.
         :param axle_distances: distance between axles in meters.
-        :param axle_width: width of the vehicle's axles in meters.
-        :param kmph: speed of this vehicle.
+        :param axle_width: width of the vehicles's axles in meters.
+        :param kmph: speed of this vehicles.
         :param lane: index of a lane on a bridge.
         :param init_x_frac: position at time 0 in a simulation.
         """
@@ -1024,16 +1024,16 @@ class Vehicle:
         return cmap, norm
 
     def color(self, all_vehicles: List["Vehicle"]):
-        """Color of this vehicle scaled based on given vehicles."""
+        """Color of this vehicles scaled based on given vehicles."""
         cmap, norm = self.cmap_norm(all_vehicles)
         if len(all_vehicles) == 0:
             return cmap(0.5)
         return cmap(norm(self.total_kn()))
 
     def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
-        """Positions of the vehicle's wheels in transverse direction.
+        """Positions of the vehicles's wheels in transverse direction.
         Args:
-            bridge: Bridge, the bridge on which the vehicle is moving.
+            bridge: Bridge, the bridge on which the vehicles is moving.
             meters: bool, whether to return positions in meters (True) or
                 fractions (False) of the bridge width in [0 1].
         """
@@ -1052,7 +1052,7 @@ class Vehicle:
         """Fraction of x position of bridge in meters at given time.
         Args:
             time: float, time passed from initial position, in seconds.
-            bridge: Bridge, bridge the vehicle is moving on.
+            bridge: Bridge, bridge the vehicles is moving on.
         """
         delta_x_frac = (self.mps * time) / bridge.length
         init_x_frac = self.init_x_frac
@@ -1067,7 +1067,7 @@ class Vehicle:
         """X position of front axle on bridge at given time, in meters.
         Args:
             time: float, time passed from initial position, in seconds.
-            bridge: Bridge, bridge the vehicle is moving on.
+            bridge: Bridge, bridge the vehicles is moving on.
         """
         return bridge.x(self.x_frac_at(time=time, bridge=bridge))
 
@@ -1094,14 +1094,14 @@ class Vehicle:
     def on_bridge(self, time: float, bridge: Bridge) -> bool:
         """Whether a moving load is on a bridge at a given time."""
         x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Left-most and right-most vehicle positions as fractions.
+        # Left-most and right-most vehicles positions as fractions.
         xl_frac, xr_frac = min(x_fracs), max(x_fracs)
         return 0 <= xl_frac <= 1 or 0 <= xr_frac <= 1
 
     def full_lanes(self, time: float, bridge: Bridge) -> float:
-        """The amount of bridge lanes travelled by this vehicle."""
+        """The amount of bridge lanes travelled by this vehicles."""
         x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Left-most and right-most vehicle positions as fractions.
+        # Left-most and right-most vehicles positions as fractions.
         xl_frac, xr_frac = min(x_fracs), max(x_fracs)
         if bridge.lanes[self.lane].ltr:
             return xl_frac
@@ -1109,7 +1109,7 @@ class Vehicle:
             return abs(xr_frac - 1)
 
     def passed_bridge(self, time: float, bridge: Bridge) -> bool:
-        """Whether the current vehicle has travelled over the bridge."""
+        """Whether the current vehicles has travelled over the bridge."""
         return self.full_lanes(time=time, bridge=bridge) > 1
 
     def time_at(self, x, bridge: Bridge):
@@ -1121,25 +1121,25 @@ class Vehicle:
         return float(abs(init_x - x)) / self.mps
 
     def time_entering_bridge(self, bridge: Bridge):
-        """Time the vehicle begins to enter the bridge."""
+        """Time the vehicles begins to enter the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x)) / self.mps
 
     def time_entered_bridge(self, bridge: Bridge):
-        """Time the vehicle has entered the bridge."""
+        """Time the vehicles has entered the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x) + self.length) / self.mps
 
     def time_leaving_bridge(self, bridge: Bridge):
-        """Time the vehicle begins to leave the bridge."""
+        """Time the vehicles begins to leave the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x) + bridge.length) / self.mps
 
     def time_left_bridge(self, bridge: Bridge):
-        """Time the vehicle has left the bridge."""
+        """Time the vehicles has left the bridge."""
         init_x = bridge.x(self.init_x_frac)
         assert init_x <= 0
         return float(abs(init_x) + bridge.length + self.length) / self.mps
