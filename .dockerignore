@@ -2,10 +2,11 @@
 .git/
 .mypy_cache/
 .pytest_cache/
+build/
 crack/
+docs/
 generated-data/
 generated-data-images/
 paper/
-sphinx-docs/
 src/build/
 src/dist/

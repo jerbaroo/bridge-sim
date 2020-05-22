@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.vehicles.sample API documentation</title>
+<meta name="description" content="Sample vehicles from the vehicles data." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.vehicles.sample</code></h1>
+</header>
+<section id="section-intro">
+<p>Sample vehicles from the vehicles data.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Sample vehicles from the vehicles data.&#34;&#34;&#34;
+from timeit import default_timer as timer
+from typing import List, Tuple, Union, NewType
+
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+
+from bridge_sim.model import Vehicle, Config
+from bridge_sim.util import print_d, print_s, print_w
+
+# Print debug information for this file.
+# D: str = &#34;vehicles.sample&#34;
+D: bool = False
+
+# Column names of the vehicles data to add noise.
+noise_col_names = []
+
+VehicleData = NewType(&#34;VehicleData&#34;, pd.DataFrame)
+
+
+def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int]):
+    &#34;&#34;&#34;Vehicle data grouped by a maximum value per group.&#34;&#34;&#34;
+    print_d(D, f&#34;Vehicle PDF column is {repr(col)}&#34;)
+    print_d(D, str(lengths))
+    assert sorted(lengths) == lengths
+    # TODO Better vehicles data format, should be meters.
+    if col == &#34;length&#34;:
+        lengths = [length * 100 for length in lengths]
+
+    def group_by(x):
+        length = vehicle_data.loc[x, col]
+        for i, l in enumerate(lengths):
+            if length &lt; l:
+                return i
+
+    return vehicle_data.groupby(by=group_by)
+
+
+def vehicle_pdf_groups(c: Config):
+    &#34;&#34;&#34;Return vehicles PDF groups, only ever calculated once.&#34;&#34;&#34;
+    if not hasattr(c, &#34;_vehicle_pdf_groups&#34;):
+        start = timer()
+        c._vehicle_pdf_groups = _vehicle_pdf_groups(
+            c.vehicle_data, c.vehicle_pdf_col, list(map(lambda x: x[0], c.vehicle_pdf)),
+        )
+        print_s(f&#34;Vehicle PDF groups loaded in {timer() - start}&#34;)
+    return c._vehicle_pdf_groups
+
+
+def noise_per_column(c: Config, col_names: List[str]):
+    &#34;&#34;&#34;Return (#outliers removed, stddev of remaining) for each column.&#34;&#34;&#34;
+    data = c.vehicle_data
+    result = []
+    for col_name in col_names:
+        col = data[col_name]
+        amount_before_removal = len(col)
+        col = col[np.abs(stats.zscore(col)) &lt; 3]
+        amount_removed = amount_before_removal - len(col)
+        result.append((amount_removed, np.std(col)))
+    return result
+
+
+def sample_vehicle(
+    c: Config,
+    group_index: int = None,
+    noise_col_names: List[str] = [],
+    pd_row: bool = False,
+) -&gt; Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
+    &#34;&#34;&#34;Sample a vehicles from a c.vehicle_density group.
+
+    Args:
+        c: Config, config from which to load vehicles data and density info.
+        init_group_index: int, sample from a given group index or all (None).
+        noise_col_names: List[str], a list of columns to apply noise to.
+        pd_row: bool, if true return a tuple of Vehicle and the corresponding
+            row from the Pandas DataFrame, else return just a Vehicle.
+
+    &#34;&#34;&#34;
+    # Select a vehicles group randomly, if no group is specified.
+    if group_index is None:
+        rand = np.random.uniform()
+        # print(rand)
+        # print_d(D, f&#34;Vehicle PDF = {c.vehicle_pdf}&#34;)
+        # Group&#39;s are tuples of group maximum and percentage of all groups.
+        min, max = 0, c.vehicle_pdf[-1][0]
+        print_d(D, f&#34;rand = {rand}&#34;)
+        print_d(D, f&#34;min = {min}, max = {max}&#34;)
+        running_fraction = 0
+        # Iterate through group percentage&#39;s until the randomly selected one.
+        # print(c.vehicle_pdf)
+        for i, (_, group_fraction) in enumerate(c.vehicle_pdf):
+            running_fraction += group_fraction
+            # print(f&#34;running fraction = {running_fraction}&#34;)
+            # print(f&#34;i = {i}, running_fraction = {running_fraction}&#34;)
+            if rand &lt; running_fraction:
+                group_index = i
+                break
+    # print(D, f&#34;group_index = {group_index}&#34;)
+
+    # Sample a vehicles uniformly randomly from the group.
+    groups_dict = {i: None for i in range(len(c.vehicle_pdf))}
+    print_d(D, groups_dict.items())
+    for i, (_, group) in enumerate(vehicle_pdf_groups(c)):
+        # print(D, f&#34;i = {i}&#34;)
+        groups_dict[i] = group
+    group = groups_dict[group_index]
+
+    # print(f&#34;group = {type(group)}&#34;)
+    if group is None:
+        print_w(f&#34;Sampled group is None, resampling...&#34;)
+        return sample_vehicle(c, group_index)
+    sample = c.vehicle_data.loc[group.sample().index]
+
+    # Add noise to the sample if requested.
+    if c.perturb_stddev:
+        # print(f&#34;perturb&#34;)
+        for col_name, (_, stddev) in zip(
+            noise_col_names, noise_per_column(c, noise_col_names)
+        ):
+            print_d(
+                D,
+                f&#34;col_name = {col_name}, stddev = {stddev:.2f}&#34;
+                + f&#34;,{c.perturb_stddev} x stddev&#34;
+                + f&#34; {c.perturb_stddev * stddev:.2f}&#34;,
+            )
+            noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
+            print_d(D, f&#34;before =\n{sample[col_name]},\nnoise = {noise}&#34;)
+            sample[col_name] = sample[col_name] + noise
+            print_d(D, f&#34;after =\n{sample[col_name]}&#34;)
+
+    # Convert sample to Vehicle and return it.
+    row = sample.iloc[0]
+    axle_distances = axle_array_and_count(row[&#34;axle_distance&#34;])
+    axle_weights = axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    # TODO: Fix units in database.
+    # print(axle_distances)
+    # print(axle_weights)
+    # print(row[&#34;total_weight&#34;])
+    vehicle = Vehicle(
+        kmph=40,
+        kn=axle_weights,
+        axle_width=c.axle_width,
+        axle_distances=np.array(axle_distances) / 100,
+    )
+    return (vehicle, sample) if pd_row else vehicle
+
+
+col_names = [
+    # &#34;month&#34;,
+    # &#34;day&#34;,
+    # &#34;year&#34;,
+    # &#34;hour&#34;,
+    # &#34;min&#34;,
+    # &#34;sec&#34;,
+    # &#34;number&#34;,
+    # &#34;lane&#34;,
+    # &#34;type&#34;,
+    # &#34;speed&#34;,
+    &#34;number&#34;,
+    &#34;length&#34;,
+    &#34;total_weight&#34;,
+    &#34;weight_per_axle&#34;,
+    &#34;axle_distance&#34;,
+]
+index_col_name = &#34;number&#34;
+
+
+def load_vehicle_data(vehicle_data_path) -&gt; VehicleData:
+    &#34;&#34;&#34;Load the vehicles data from disk.&#34;&#34;&#34;
+    return pd.read_csv(vehicle_data_path, usecols=col_names, index_col=index_col_name)
+
+
+def axle_array_and_count(axle_array_str: str) -&gt; int:
+    &#34;&#34;&#34;Return an axle array of non zero values from a string.&#34;&#34;&#34;
+    axle_array_str = axle_array_str.replace(&#34;&#39;&#34;, &#34;&#34;).replace(&#34;[&#34;, &#34;&#34;).replace(&#34;]&#34;, &#34;&#34;)
+    axle_array = list(map(float, axle_array_str.split(&#34;,&#34;)))
+    return list(filter(lambda x: x != 0, axle_array))
+
+
+def vehicle_density_stats(c: Config):
+    &#34;&#34;&#34;Human readable statistics on vehicles density.&#34;&#34;&#34;
+    num_bins = len(c.vehicle_density)
+    groups = vehicle_pdf_groups(c)
+    lengths_dict = {i: 0 for i in range(num_bins)}
+    for i, group in groups:
+        lengths_dict[i] = len(group)
+    lengths_list = list(lengths_dict.values())
+    return (
+        &#34;Vehicle density info:&#34;
+        + &#34;\n&#34;
+        + &#34;\n&#34;.join(
+            [
+                f&#34;Vehicles &lt; than {length} in {c.vehicle_density_col}:&#34;
+                + f&#34; {lengths_dict[i]}&#34;
+                for i, length in enumerate(map(lambda x: x[0], c.vehicle_density))
+            ]
+        )
+        + f&#34;\nmean vehicles per group: {int(np.mean(lengths_list))}&#34;
+        + f&#34;\nmin vehicles per group: {np.min(lengths_list)}&#34;
+        + f&#34;\nmax vehicles per group: {np.max(lengths_list)}&#34;
+        + f&#34;\nstd vehicles per group: {np.std(lengths_list):.2f}&#34;
+    )
+
+
+def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_names):
+    &#34;&#34;&#34;Human readable statistics on noise for vehicles data columns.&#34;&#34;&#34;
+    noise_data = noise_per_column(c, noise_col_names)
+    data_len = len(c.vehicle_data[noise_col_names[0]])
+    return (
+        &#34;Noise info:&#34;
+        + &#34;\n&#34;
+        + &#34;\n&#34;.join(
+            [
+                f&#39;&#34;{col_name}&#34;:&#39;
+                + f&#34;\n\tremoved {noise_data[i][0]}&#34;
+                + f&#34; or {noise_data[i][0] / data_len:.4f}% outliers&#34;
+                + f&#34;\n\tstd. dev. of remaining is {noise_data[i][1]:.4f}&#34;
+                for i, col_name in enumerate(noise_col_names)
+            ]
+        )
+    )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.vehicles.sample.axle_array_and_count"><code class="name flex">
+<span>def <span class="ident">axle_array_and_count</span></span>(<span>axle_array_str: str) -> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return an axle array of non zero values from a string.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def axle_array_and_count(axle_array_str: str) -&gt; int:
+    &#34;&#34;&#34;Return an axle array of non zero values from a string.&#34;&#34;&#34;
+    axle_array_str = axle_array_str.replace(&#34;&#39;&#34;, &#34;&#34;).replace(&#34;[&#34;, &#34;&#34;).replace(&#34;]&#34;, &#34;&#34;)
+    axle_array = list(map(float, axle_array_str.split(&#34;,&#34;)))
+    return list(filter(lambda x: x != 0, axle_array))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.load_vehicle_data"><code class="name flex">
+<span>def <span class="ident">load_vehicle_data</span></span>(<span>vehicle_data_path) -> <function NewType.<locals>.new_type at 0x101f550e0></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load the vehicles data from disk.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_vehicle_data(vehicle_data_path) -&gt; VehicleData:
+    &#34;&#34;&#34;Load the vehicles data from disk.&#34;&#34;&#34;
+    return pd.read_csv(vehicle_data_path, usecols=col_names, index_col=index_col_name)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.noise_per_column"><code class="name flex">
+<span>def <span class="ident">noise_per_column</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, col_names: List[str])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return (#outliers removed, stddev of remaining) for each column.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def noise_per_column(c: Config, col_names: List[str]):
+    &#34;&#34;&#34;Return (#outliers removed, stddev of remaining) for each column.&#34;&#34;&#34;
+    data = c.vehicle_data
+    result = []
+    for col_name in col_names:
+        col = data[col_name]
+        amount_before_removal = len(col)
+        col = col[np.abs(stats.zscore(col)) &lt; 3]
+        amount_removed = amount_before_removal - len(col)
+        result.append((amount_removed, np.std(col)))
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.sample_vehicle"><code class="name flex">
+<span>def <span class="ident">sample_vehicle</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, group_index: int = None, noise_col_names: List[str] = [], pd_row: bool = False) -> Union[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>, Tuple[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>, pandas.core.frame.DataFrame]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sample a vehicles from a c.vehicle_density group.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, config from which to load vehicles data and density info.</dd>
+<dt><strong><code>init_group_index</code></strong></dt>
+<dd>int, sample from a given group index or all (None).</dd>
+<dt><strong><code>noise_col_names</code></strong></dt>
+<dd>List[str], a list of columns to apply noise to.</dd>
+<dt><strong><code>pd_row</code></strong></dt>
+<dd>bool, if true return a tuple of Vehicle and the corresponding
+row from the Pandas DataFrame, else return just a Vehicle.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sample_vehicle(
+    c: Config,
+    group_index: int = None,
+    noise_col_names: List[str] = [],
+    pd_row: bool = False,
+) -&gt; Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
+    &#34;&#34;&#34;Sample a vehicles from a c.vehicle_density group.
+
+    Args:
+        c: Config, config from which to load vehicles data and density info.
+        init_group_index: int, sample from a given group index or all (None).
+        noise_col_names: List[str], a list of columns to apply noise to.
+        pd_row: bool, if true return a tuple of Vehicle and the corresponding
+            row from the Pandas DataFrame, else return just a Vehicle.
+
+    &#34;&#34;&#34;
+    # Select a vehicles group randomly, if no group is specified.
+    if group_index is None:
+        rand = np.random.uniform()
+        # print(rand)
+        # print_d(D, f&#34;Vehicle PDF = {c.vehicle_pdf}&#34;)
+        # Group&#39;s are tuples of group maximum and percentage of all groups.
+        min, max = 0, c.vehicle_pdf[-1][0]
+        print_d(D, f&#34;rand = {rand}&#34;)
+        print_d(D, f&#34;min = {min}, max = {max}&#34;)
+        running_fraction = 0
+        # Iterate through group percentage&#39;s until the randomly selected one.
+        # print(c.vehicle_pdf)
+        for i, (_, group_fraction) in enumerate(c.vehicle_pdf):
+            running_fraction += group_fraction
+            # print(f&#34;running fraction = {running_fraction}&#34;)
+            # print(f&#34;i = {i}, running_fraction = {running_fraction}&#34;)
+            if rand &lt; running_fraction:
+                group_index = i
+                break
+    # print(D, f&#34;group_index = {group_index}&#34;)
+
+    # Sample a vehicles uniformly randomly from the group.
+    groups_dict = {i: None for i in range(len(c.vehicle_pdf))}
+    print_d(D, groups_dict.items())
+    for i, (_, group) in enumerate(vehicle_pdf_groups(c)):
+        # print(D, f&#34;i = {i}&#34;)
+        groups_dict[i] = group
+    group = groups_dict[group_index]
+
+    # print(f&#34;group = {type(group)}&#34;)
+    if group is None:
+        print_w(f&#34;Sampled group is None, resampling...&#34;)
+        return sample_vehicle(c, group_index)
+    sample = c.vehicle_data.loc[group.sample().index]
+
+    # Add noise to the sample if requested.
+    if c.perturb_stddev:
+        # print(f&#34;perturb&#34;)
+        for col_name, (_, stddev) in zip(
+            noise_col_names, noise_per_column(c, noise_col_names)
+        ):
+            print_d(
+                D,
+                f&#34;col_name = {col_name}, stddev = {stddev:.2f}&#34;
+                + f&#34;,{c.perturb_stddev} x stddev&#34;
+                + f&#34; {c.perturb_stddev * stddev:.2f}&#34;,
+            )
+            noise = np.random.normal(loc=0, scale=c.perturb_stddev * stddev)
+            print_d(D, f&#34;before =\n{sample[col_name]},\nnoise = {noise}&#34;)
+            sample[col_name] = sample[col_name] + noise
+            print_d(D, f&#34;after =\n{sample[col_name]}&#34;)
+
+    # Convert sample to Vehicle and return it.
+    row = sample.iloc[0]
+    axle_distances = axle_array_and_count(row[&#34;axle_distance&#34;])
+    axle_weights = axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    # TODO: Fix units in database.
+    # print(axle_distances)
+    # print(axle_weights)
+    # print(row[&#34;total_weight&#34;])
+    vehicle = Vehicle(
+        kmph=40,
+        kn=axle_weights,
+        axle_width=c.axle_width,
+        axle_distances=np.array(axle_distances) / 100,
+    )
+    return (vehicle, sample) if pd_row else vehicle</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.vehicle_data_noise_stats"><code class="name flex">
+<span>def <span class="ident">vehicle_data_noise_stats</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, noise_col_names: List[str] = [])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Human readable statistics on noise for vehicles data columns.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_names):
+    &#34;&#34;&#34;Human readable statistics on noise for vehicles data columns.&#34;&#34;&#34;
+    noise_data = noise_per_column(c, noise_col_names)
+    data_len = len(c.vehicle_data[noise_col_names[0]])
+    return (
+        &#34;Noise info:&#34;
+        + &#34;\n&#34;
+        + &#34;\n&#34;.join(
+            [
+                f&#39;&#34;{col_name}&#34;:&#39;
+                + f&#34;\n\tremoved {noise_data[i][0]}&#34;
+                + f&#34; or {noise_data[i][0] / data_len:.4f}% outliers&#34;
+                + f&#34;\n\tstd. dev. of remaining is {noise_data[i][1]:.4f}&#34;
+                for i, col_name in enumerate(noise_col_names)
+            ]
+        )
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.vehicle_density_stats"><code class="name flex">
+<span>def <span class="ident">vehicle_density_stats</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Human readable statistics on vehicles density.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def vehicle_density_stats(c: Config):
+    &#34;&#34;&#34;Human readable statistics on vehicles density.&#34;&#34;&#34;
+    num_bins = len(c.vehicle_density)
+    groups = vehicle_pdf_groups(c)
+    lengths_dict = {i: 0 for i in range(num_bins)}
+    for i, group in groups:
+        lengths_dict[i] = len(group)
+    lengths_list = list(lengths_dict.values())
+    return (
+        &#34;Vehicle density info:&#34;
+        + &#34;\n&#34;
+        + &#34;\n&#34;.join(
+            [
+                f&#34;Vehicles &lt; than {length} in {c.vehicle_density_col}:&#34;
+                + f&#34; {lengths_dict[i]}&#34;
+                for i, length in enumerate(map(lambda x: x[0], c.vehicle_density))
+            ]
+        )
+        + f&#34;\nmean vehicles per group: {int(np.mean(lengths_list))}&#34;
+        + f&#34;\nmin vehicles per group: {np.min(lengths_list)}&#34;
+        + f&#34;\nmax vehicles per group: {np.max(lengths_list)}&#34;
+        + f&#34;\nstd vehicles per group: {np.std(lengths_list):.2f}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.vehicles.sample.vehicle_pdf_groups"><code class="name flex">
+<span>def <span class="ident">vehicle_pdf_groups</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return vehicles PDF groups, only ever calculated once.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def vehicle_pdf_groups(c: Config):
+    &#34;&#34;&#34;Return vehicles PDF groups, only ever calculated once.&#34;&#34;&#34;
+    if not hasattr(c, &#34;_vehicle_pdf_groups&#34;):
+        start = timer()
+        c._vehicle_pdf_groups = _vehicle_pdf_groups(
+            c.vehicle_data, c.vehicle_pdf_col, list(map(lambda x: x[0], c.vehicle_pdf)),
+        )
+        print_s(f&#34;Vehicle PDF groups loaded in {timer() - start}&#34;)
+    return c._vehicle_pdf_groups</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.vehicles" href="index.html">bridge_sim.vehicles</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.vehicles.sample.axle_array_and_count" href="#bridge_sim.vehicles.sample.axle_array_and_count">axle_array_and_count</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.load_vehicle_data" href="#bridge_sim.vehicles.sample.load_vehicle_data">load_vehicle_data</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.noise_per_column" href="#bridge_sim.vehicles.sample.noise_per_column">noise_per_column</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.sample_vehicle" href="#bridge_sim.vehicles.sample.sample_vehicle">sample_vehicle</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.vehicle_data_noise_stats" href="#bridge_sim.vehicles.sample.vehicle_data_noise_stats">vehicle_data_noise_stats</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.vehicle_density_stats" href="#bridge_sim.vehicles.sample.vehicle_density_stats">vehicle_density_stats</a></code></li>
+<li><code><a title="bridge_sim.vehicles.sample.vehicle_pdf_groups" href="#bridge_sim.vehicles.sample.vehicle_pdf_groups">vehicle_pdf_groups</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

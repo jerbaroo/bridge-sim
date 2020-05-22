@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.cli API documentation</title>
+<meta name="description" content="Command line interface to bridge-sim." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.cli</code></h1>
+</header>
+<section id="section-intro">
+<p>Command line interface to bridge-sim.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Command line interface to bridge-sim.&#34;&#34;&#34;
+
+import os
+import pdb
+
+import bridge_sim.run
+import pathos.multiprocessing as multiprocessing
+import sys
+import traceback
+
+import click
+
+from bridge_sim.configs import opensees_default
+from bridge_sim.model import ResponseType
+from bridge_sim.vehicles import truck1
+from bridge_sim.validate import truck1_x_pos
+from lib.make import paramselect
+from lib.make.plot import classification as classification_
+from lib.make.plot import contour as contour_
+from lib.make.plot import geometry as geometry_
+from lib.make.plot import vehicle, verification
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.util import clean_generated, print_i, remove_except_npy
+
+# Storing CLI parameters here as global variables.
+pdb_ = &#34;--pdb&#34; in sys.argv
+b_func = None
+c_func = opensees_default
+two_materials_ = None
+parallel_ = None
+parallel_ulm_ = None
+save_to_ = None
+shorten_paths_ = None
+il_num_loads_ = None
+
+
+def c():
+    &#34;&#34;&#34;Construct a &#39;Config&#39; based on CLI parameters.&#34;&#34;&#34;
+    new_c = c_func(b_func)
+    new_c.parallel = parallel_
+    new_c.parallel_ulm = parallel_ulm_
+    new_c.shorten_paths = shorten_paths_
+    new_c.il_num_loads = il_num_loads_
+    new_c.root_generated_data_dir = os.path.join(
+        save_to_, new_c.root_generated_data_dir
+    )
+    return new_c
+
+
+@click.group()
+@click.option(
+    &#34;--uls&#34;, type=int, default=600, help=&#34;Unit load simulations per wheel track&#34;,
+)
+@click.option(
+    &#34;--msl&#34;, type=float, required=True, help=&#34;Maximum shell length of the bridge.&#34;,
+)
+@click.option(
+    &#34;--two-materials&#34;,
+    is_flag=True,
+    help=&#34;One material for the deck and one for piers.&#34;,
+)
+@click.option(
+    &#34;--parallel&#34;, type=int, default=1, help=&#34;Run experiment simulations in parallel&#34;,
+)
+@click.option(
+    &#34;--parallel-ulm&#34;,
+    type=bool,
+    default=True,
+    help=f&#34;One process per wheel track (max {multiprocessing.cpu_count()} processes).&#34;,
+)
+@click.option(
+    &#34;--save-to&#34;, type=str, default=&#34;&#34;, help=&#34;Save/load data from a given folder.&#34;,
+)
+@click.option(
+    &#34;--shorten-paths&#34;, is_flag=True, help=&#34;Save responses at shorter filepaths.&#34;,
+)
+@click.option(
+    &#34;--pdb&#34;, is_flag=True, help=&#34;Jump into the debugger on exception.&#34;,
+)
+def cli(
+    uls: int,
+    msl: str,
+    two_materials: bool,
+    parallel: int,
+    parallel_ulm: bool,
+    save_to: bool,
+    shorten_paths: bool,
+    pdb: bool,
+):
+    global b_func
+    global two_materials_
+    global save_to_
+    global parallel_
+    global parallel_ulm_
+    global shorten_paths_
+    global il_num_loads_
+    b_func = bridge_705(msl)
+    two_materials_ = two_materials
+    save_to_ = save_to
+    parallel_ = parallel
+    parallel_ulm_ = parallel_ulm
+    shorten_paths_ = shorten_paths
+    il_num_loads_ = uls
+
+    click.echo(f&#34;Bridge: {b_func().name}&#34;)
+    click.echo(f&#34;ULS: {il_num_loads_}&#34;)
+    click.echo(f&#34;MSL: {msl}&#34;)
+    click.echo(f&#34;Two materials: {two_materials_}&#34;)
+    click.echo(f&#34;Parallel: {parallel_}&#34;)
+    click.echo(f&#34;Parallel wheel tracks: {parallel_ulm_}&#34;)
+    click.echo(f&#34;Save to: {save_to_}&#34;)
+    click.echo(f&#34;Shorten paths: {shorten_paths_}&#34;)
+
+
+################
+##### Util #####
+################
+
+
+@cli.command(help=&#34;Remove all simulation data for a bridge.&#34;)
+def remove():
+    clean_generated(c())
+
+
+@cli.command(help=&#34;Remove simulation data except for result files.&#34;)
+@click.option(
+    &#34;--keep&#34;,
+    type=str,
+    default=&#34;y-translation strain&#34;,
+    help=&#34;Words required in the filename.&#34;,
+)
+def clean(keep):
+    from lib.classify.scenario.bridge import transverse_crack
+
+    remove_except_npy(c=c(), keep=keep)
+    c_ = transverse_crack().use(c())[0]
+    remove_except_npy(c=c_, keep=keep)
+
+
+################
+##### Info #####
+################
+
+
+@cli.group(help=&#34;Print and plot useful information.&#34;)
+def info():
+    pass
+
+
+@info.command(help=&#34;Print information about this bridge.&#34;)
+@click.option(&#34;--piers&#34;, is_flag=True)
+def bridge(piers):
+    c().bridge.print_info(c=c(), pier_fix_info=piers)
+
+
+@info.command(help=&#34;Z positions of the wheel tracks, in meters.&#34;)
+def wheel_tracks():
+    config = c()
+    print_i(f&#34;Wheel tracks: {config.bridge.wheel_tracks(config)}&#34;)
+
+
+@info.command(help=&#34;Print and plot information on Truck 1.&#34;)
+def truck_1():
+    vehicle.wagen1_plot(c())
+    print_i(f&#34;Truck 1 x positions: {truck1_x_pos()}&#34;)
+
+
+@info.command(help=&#34;Load position and intensity per wheel of Truck 1.&#34;)
+@click.option(
+    &#34;--x&#34;,
+    type=float,
+    required=True,
+    help=&#34;X position of front axle of Truck 1, in meters.&#34;,
+)
+def truck_1_loads(x: float):
+    config = c()
+    time = truck1.time_at(x=x, bridge=config.bridge)
+    print_i(f&#34;Time = {time:.4f}s&#34;)
+    axle_loads = truck1.to_point_loads(time=time, bridge=config.bridge)
+    for i in range(len(axle_loads)):
+        print_i(
+            f&#34;Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), &#34;
+            f&#34; ({axle_loads[i][1].repr(config.bridge)})&#34;
+        )
+
+
+@info.command(help=&#34;Make and plot the vehicles database.&#34;)
+def vehicle_dist():
+    from plot.vehicles import plot_dist
+
+    plot_dist(c())
+
+
+@info.command(help=&#34;Shells in 3D coloured by material properties.&#34;)
+def shells_3d():
+    geometry_.make_shell_properties_3d(c())
+
+
+@info.command(help=&#34;Top view of shells coloured by material properties.&#34;)
+@click.option(&#34;--shells&#34;, type=click.Choice([&#34;deck&#34;, &#34;pier&#34;]), default=&#34;deck&#34;)
+@click.option(
+    &#34;--prop&#34;,
+    type=click.Choice([&#34;mesh&#34;, &#34;thickness&#34;, &#34;density&#34;, &#34;poisson&#34;, &#34;young&#34;]),
+    required=True,
+)
+@click.option(&#34;--refined&#34;, is_flag=True)
+@click.option(&#34;--outline&#34;, is_flag=True)
+@click.option(&#34;--lanes&#34;, is_flag=True)
+def shells_top(shells, prop, refined, outline, lanes):
+    geometry_.make_shell_properties_top_view(
+        c=c(),
+        shells_name_=shells,
+        prop_name_=prop,
+        refined_=refined,
+        outline=outline,
+        lanes=lanes,
+    )
+
+
+@info.command(help=&#34;3D scatter plot of FEM nodes.&#34;)
+def nodes():
+    geometry_.make_node_plots(c())
+
+
+@info.command(help=&#34;Plot of model geometry and boundary conditions.&#34;)
+def boundary():
+    geometry_.make_boundary_plot(c())
+
+
+@info.command(help=&#34;Plot available sensors on the deck.&#34;)
+@click.option(
+    &#34;--pier-radius&#34;,
+    type=float,
+    required=True,
+    help=&#34;Radius around pier lines to ignore.&#34;,
+)
+@click.option(
+    &#34;--track-radius&#34;,
+    type=float,
+    required=True,
+    help=&#34;Radius around wheel tracks to ignore.&#34;,
+)
+@click.option(
+    &#34;--edge-radius&#34;,
+    type=float,
+    required=True,
+    help=&#34;Radius around bridge edges to ignore.&#34;,
+)
+def avail_sensors(pier_radius, track_radius, edge_radius):
+    geometry_.make_available_sensors_plot(
+        c=c(),
+        pier_radius=pier_radius,
+        track_radius=track_radius,
+        edge_radius=edge_radius,
+    )
+
+
+######################
+##### Simulation #####
+######################
+
+
+@cli.group(help=&#34;Run simulations and generate data.&#34;)
+def simulate():
+    pass
+
+
+@simulate.command(help=&#34;Run unit load simulations.&#34;)
+@click.option(&#34;--piers&#34;, is_flag=True, help=&#34;Run pier settlement simulations.&#34;)
+@click.option(&#34;--healthy&#34;, is_flag=True, help=&#34;Run unit load simulations (healthy).&#34;)
+@click.option(&#34;--cracked&#34;, is_flag=True, help=&#34;Run unit load simulations (cracked).&#34;)
+@click.option(&#34;--crack-x&#34;, type=float, help=&#34;Set crack zone at this X position.&#34;)
+@click.option(
+    &#34;--crack-length&#34;, type=float, help=&#34;Set length of crack zone in X direction.&#34;
+)
+def uls(piers, healthy, cracked, crack_x, crack_length):
+    bridge_sim.run.run_uls(
+        c=c(),
+        piers=piers,
+        healthy=healthy,
+        cracked=cracked,
+        crack_x=crack_x,
+        crack_length=crack_length,
+    )
+
+
+@simulate.command(help=&#34;Generate unit load matrices&#34;)
+@click.option(&#34;--healthy&#34;, is_flag=True, help=&#34;Run unit load simulations (healthy).&#34;)
+@click.option(&#34;--cracked&#34;, is_flag=True, help=&#34;Run unit load simulations (cracked).&#34;)
+@click.option(
+    &#34;--x-i&#34;, type=int, default=302, help=&#34;Index into wheel track (lowest x is 0).&#34;
+)
+@click.option(
+    &#34;--z-i&#34;, type=int, default=0, help=&#34;Index of wheel track (lowest z is 0).&#34;
+)
+def ulm(healthy, cracked, x_i, z_i):
+    bridge_sim.run.run_ulm(c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i)
+
+
+@simulate.command(help=&#34;Record information for convergence plots.&#34;)
+def converge():
+    verification.make_convergence_data(c())
+
+
+####################
+##### Validate #####
+####################
+
+
+@cli.group(help=&#34;Validate the generated FEM of bridge 705.&#34;)
+def validate():
+    pass
+
+
+@validate.command(help=&#34;Plots of temperature against sensor fem.&#34;)
+def temp_sensors():
+    verification.temp_plots()
+
+
+@validate.command(help=&#34;Contour plots comparing OpenSees and Diana.&#34;)
+@click.option(&#34;--run-only&#34;, is_flag=True, help=&#34;Only run simulations, don&#39;t plot.&#34;)
+@click.option(&#34;--scatter&#34;, is_flag=True, help=&#34;Scatter instead of contour plot.&#34;)
+def diana_comp(run_only: float, scatter: bool):
+    contour_.comparison_plots_705(c=c(), run_only=run_only, scatter=scatter)
+
+
+@validate.command(help=&#34;Regression plots against bridge 705 measurements.&#34;)
+def r2():
+    verification.r2_plots(c())
+
+
+@validate.command(help=&#34;Plot convergence as model size increases.&#34;)
+def convergence():
+    verification.plot_convergence(c())
+
+
+@validate.command(help=&#34;Plot NESW convergence around a point load.&#34;)
+@click.option(&#34;--fp&#34;, type=str, help=&#34;Filepath of results file.&#34;)
+@click.option(&#34;--at&#34;, type=str, help=&#34;Named point for plot title&#34;)
+@click.option(&#34;--to&#34;, type=str, help=&#34;Filepath extension for saving plot.&#34;)
+def convergence_nesw(fp, at, to):
+    verification.plot_nesw_strain_convergence(
+        c=c(), filepath=fp, from_=at, label=to,
+    )
+
+
+@validate.command(help=&#34;Plot strain convergence for pier settlement.&#34;)
+@click.option(&#34;--pier&#34;, type=int, required=True, help=&#34;Index of the pier to settle.&#34;)
+@click.option(
+    &#34;--max-nodes&#34;,
+    type=int,
+    required=True,
+    help=&#34;Maximum number of nodes in a simulation.&#34;,
+)
+@click.option(
+    &#34;--without-radius&#34;,
+    type=float,
+    required=True,
+    help=&#34;Radius around pier lines to ignore.&#34;,
+)
+@click.option(
+    &#34;--nesw-loc&#34;, type=int, required=True, help=&#34;Location of pier to plot NESW around.&#34;
+)
+@click.option(
+    &#34;--nesw-max-dist&#34;,
+    type=float,
+    required=True,
+    help=&#34;Maximum distance to plot NESW around.&#34;,
+)
+@click.option(&#34;--process&#34;, type=int, default=0, help=&#34;Results identifier.&#34;)
+@click.option(
+    &#34;--min-shell-len&#34;, type=float, default=0, help=&#34;Minimum shell len considered.&#34;
+)
+@click.option(
+    &#34;--max-shell-len&#34;, type=float, required=True, help=&#34;Maximum shell len considered.&#34;
+)
+def pier_conv(
+    pier: int,
+    max_nodes: int,
+    without_radius: float,
+    nesw_loc: int,
+    nesw_max_dist: float,
+    process: int,
+    min_shell_len: float,
+    max_shell_len: float,
+):
+    verification.plot_pier_convergence(
+        c=c(),
+        process=process,
+        pier_i=pier,
+        max_nodes=max_nodes,
+        strain_ignore_radius=without_radius,
+        nesw_location=nesw_loc,
+        nesw_max_dist=nesw_max_dist,
+        min_shell_len=min_shell_len,
+        max_shell_len=max_shell_len,
+    )
+
+
+@validate.command(help=&#34;Contour plots of unit thermal deck loading.&#34;)
+@click.option(&#34;--run&#34;, is_flag=True, help=&#34;Run the simulations before plotting.&#34;)
+def thermal(run):
+    from make.plot.contour import thermal
+
+    if not two_materials_:
+        raise ValueError(&#34;You need the --two-materials option!&#34;)
+    thermal.unit_moment_thermal_deck_load(c=c(), run=run)
+    thermal.unit_axial_thermal_deck_load(c=c(), run=run)
+
+
+@validate.command(help=&#34;Influence lines from OpenSees and measurements.&#34;)
+@click.option(
+    &#34;--strain-sensors&#34;,
+    required=True,
+    type=click.Choice([&#34;O&#34;, &#34;T&#34;]),
+    help=&#34;Prefix of strain sensors to plot.&#34;,
+)
+def inflines(strain_sensors):
+    if not shorten_paths_:
+        raise ValueError(&#34;--shorten-paths option is required&#34;)
+    verification.per_sensor_plots(c=c(), strain_sensors_startwith=strain_sensors)
+
+
+@validate.command(help=&#34;Contour plots of unit pier displacement.&#34;)
+def pier_disp():
+    contour_.piers_displaced(c())
+
+
+@validate.command(help=&#34;Confirm that density has no effect on simulation.&#34;)
+def density():
+    from make import validate
+
+    validate.density_no_effect(c())
+
+
+@validate.command(help=&#34;Time series of 3 sensors to Truck 1&#39;s movement.&#34;)
+def truck_1_ts():
+    from make import validate
+
+    validate.truck_1_time_series(c())
+
+
+@validate.command(help=&#34;Plot stress for some high stress scenarios.&#34;)
+@click.option(&#34;--top&#34;, is_flag=True, help=&#34;Top or bottom stress.&#34;)
+def stress_strength(top):
+    from make import validate
+
+    validate.stress_strength_plot(c=c(), top=top)
+
+
+#################
+##### Param #####
+#################
+
+
+@cli.group(help=&#34;Information for parameter selection.&#34;)
+def params():
+    pass
+
+
+@params.command(help=&#34;Plot to select the amount of ULS.&#34;)
+def param_uls():
+    paramselect.number_of_uls_plot(c())
+
+
+@params.command(help=&#34;Plot noise from dynamic test 1.&#34;)
+def noise():
+    paramselect.experiment_noise(c())
+
+
+###################
+##### Contour #####
+###################
+
+
+@cli.group(help=&#34;Contour plots for loading &amp; scenarios scenarios.&#34;)
+def contour():
+    pass
+
+
+@contour.command(help=&#34;3D angled contour plot of bridge 705.&#34;)
+@click.option(
+    &#34;--x&#34;,
+    type=float,
+    required=True,
+    help=&#34;X position of front axle of Truck 1, in meters.&#34;,
+)
+@click.option(
+    &#34;--deform&#34;, type=float, required=True, help=&#34;Deformation amplitude, in meters.&#34;
+)
+def cover_photo(x: float, deform: float):
+    contour_.cover_photo(c=c(), x=x, deformation_amp=deform)
+
+
+@contour.command(help=&#34;Response to traffic at multiple timesteps, per scenario.&#34;)
+def scenarios_traffic():
+    contour_.traffic_response_plots(c())
+
+
+@contour.command(help=&#34;Response to a 100 kN point load per scenario.&#34;)
+@click.option(&#34;--x&#34;, type=float, default=51.375, help=&#34;X position of the point load.&#34;)
+@click.option(&#34;--z&#34;, type=float, default=0, help=&#34;Z position of the point load.&#34;)
+@click.option(&#34;--run&#34;, is_flag=True, help=&#34;Force simulations to run.&#34;)
+def point_load(x, z, run):
+    contour_.point_load_response_plots(c=c(), x=x, z=z, run=run)
+
+
+@contour.command(help=&#34;Unit thermal deck load under normal traffic.&#34;)
+@click.option(&#34;--axial&#34;, type=float, required=True)
+@click.option(&#34;--moment&#34;, type=float, required=True)
+def traffic_thermal(axial, moment):
+    from make.plot.contour.traffic_thermal import thermal_deck_load
+
+    thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
+
+
+##################
+##### Verify #####
+##################
+
+
+@cli.group(help=&#34;Verify/debug this system.&#34;)
+def verify():
+    pass
+
+
+@verify.command(help=&#34;TCL files &amp; contour plots for mesh refinement.&#34;)
+@click.option(&#34;--build&#34;, type=bool, default=True)
+@click.option(&#34;--plot&#34;, type=bool, default=True)
+def refinement_tcls(build: bool, plot: bool):
+    from make import verify
+
+    verify.mesh_refinement(c=c(), build=build, plot=plot)
+
+
+@verify.command(help=&#34;Compare fem by direct simulation and matmul.&#34;)
+def comp_responses():
+    from make import verify
+
+    verify.compare_responses(c())
+
+
+@verify.command(help=&#34;Compare vehicles with different amount of axles.&#34;)
+def comp_axles():
+    from make import verify
+
+    verify.compare_axles(c())
+
+
+@verify.command(help=&#34;Compare load positions (normal vs. buckets).&#34;)
+def comp_load_positions():
+    from make.verify import compare_load_positions
+
+    compare_load_positions(c())
+
+
+@verify.command(help=&#34;Contour plot of a unit load simulation.&#34;)
+@click.option(
+    &#34;--x-i&#34;, type=int, default=302, help=&#34;Index into wheel track (lowest x is 0).&#34;
+)
+@click.option(
+    &#34;--z-i&#34;, type=int, default=0, help=&#34;Index of wheel track (lowest z is 0).&#34;
+)
+@click.option(&#34;--rt&#34;, required=True, type=click.Choice([&#34;strain&#34;, &#34;ytrans&#34;]))
+def uls_contour(x_i: int, z_i: int, rt: str):
+    from make.verify import uls_contour_plot
+
+    if rt == &#34;strain&#34;:
+        response_type = ResponseType.Strain
+    elif rt == &#34;ytrans&#34;:
+        response_type = ResponseType.YTranslation
+
+    uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
+
+
+@verify.command(help=&#34;Contour plot of truck 1, healthy &amp; cracked.&#34;)
+@click.option(&#34;--x&#34;, type=int, default=51.8, help=&#34;X position of Truck 1&#39;s front axle.&#34;)
+@click.option(
+    &#34;--crack-x&#34;, type=float, default=52, help=&#34;X position of start of crack area.&#34;
+)
+@click.option(
+    &#34;--rt&#34;, required=True, type=click.Choice([&#34;strain&#34;, &#34;strain-z&#34;, &#34;ytrans&#34;])
+)
+@click.option(&#34;--scatter&#34;, is_flag=True, help=&#34;Scatter plot instead of contour plot.&#34;)
+@click.option(&#34;--run&#34;, is_flag=True, help=&#34;Force the simulation to run again.&#34;)
+@click.option(&#34;--length&#34;, type=float, default=0.5, help=&#34;Length of transverse crack.&#34;)
+@click.option(&#34;--outline&#34;, is_flag=True, help=&#34;Plot an outline of the crack area.&#34;)
+@click.option(&#34;--wheels&#34;, is_flag=True, help=&#34;Plot position of vehicles&#39;s wheel.&#34;)
+@click.option(&#34;--temp&#34;, is_flag=True, help=&#34;Add temperature effect.&#34;)
+def truck1_contour(
+    x: int,
+    crack_x: float,
+    rt: str,
+    scatter: bool,
+    run: bool,
+    length: float,
+    outline: bool,
+    wheels: bool,
+    temp: bool,
+):
+    from make.verify import wagen_1_contour_plot
+
+    if rt == &#34;strain&#34;:
+        response_type = ResponseType.Strain
+    if rt == &#34;strain-z&#34;:
+        response_type = ResponseType.StrainZZB
+    elif rt == &#34;ytrans&#34;:
+        response_type = ResponseType.YTranslation
+
+    wagen_1_contour_plot(
+        c=c(),
+        x=x,
+        crack_x=crack_x,
+        response_type=response_type,
+        scatter=scatter,
+        run=run,
+        length=length,
+        outline=outline,
+        wheels=wheels,
+        temp=temp,
+    )
+
+
+@verify.command(help=&#34;Plot a time series where a crack occurs.&#34;)
+def cracked_concrete():
+    from make.verify import cracked_concrete_plot
+
+    cracked_concrete_plot(c())
+
+
+####################
+##### Classify #####
+####################
+
+
+@cli.group(help=&#34;Run classification experiments.&#34;)
+def classify():
+    pass
+
+
+@classify.command(help=&#34;Time series of fem with crack occuring.&#34;)
+@click.option(
+    &#34;--n&#34;, type=float, default=1, help=&#34;Meters sensor is in front of crack zone.&#34;
+)
+def crack_ts(n: float):
+    from classify.crack import time_series_plot
+
+    time_series_plot(c(), n=1)
+
+
+@classify.command(help=&#34;Responses to traffic with a top view.&#34;)
+@click.option(&#34;--mins&#34;, type=float, default=1, help=&#34;Minutes of traffic.&#34;)
+@click.option(&#34;--skip&#34;, type=int, default=50, help=&#34;Skip every n recorded fem.&#34;)
+@click.option(
+    &#34;--scenarios&#34;,
+    type=click.Choice([&#34;healthy&#34;, &#34;pier&#34;]),
+    default=&#34;healthy&#34;,
+    help=&#34;Damage scenario.&#34;,
+)
+def top_view(mins, skip, damage):
+    from classify.scenario.bridge import healthy_damage, pier_disp_damage
+    from make.classify.top_view import top_view_plot
+
+    if damage == &#34;healthy&#34;:
+        damage_scenario = healthy_damage
+    elif damage == &#34;pier&#34;:
+        damage_scenario = pier_disp_damage([(5, 1 / 1000)])
+
+    top_view_plot(
+        c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario
+    )
+
+
+@classify.command(help=&#34;&#34;)
+@click.option(&#34;--mins&#34;, type=float, default=1, help=&#34;Minutes of traffic.&#34;)
+def cluster(mins):
+    from make.classify.cluster import cluster_damage
+
+    cluster_damage(c=c(), mins=mins)
+
+
+@classify.command(help=&#34;Plot events due to normal traffic.&#34;)
+@click.option(&#34;--x&#34;, type=float, default=51.375)
+@click.option(&#34;--z&#34;, type=float, default=-8.4)
+def events(x, z):
+    classification_.events(c=c(), x=x, z=z)
+
+
+@classify.command(help=&#34;Plot temperature effect.&#34;)
+@click.option(
+    &#34;--date&#34;, type=str, default=&#34;holly-springs&#34;, help=&#34;Filename to plot effect for.&#34;
+)
+@click.option(&#34;--vert&#34;, type=bool, default=True, help=&#34;Vertical lines every 24 hours.&#34;)
+def temp_effect_date(date, vert):
+    classification_.temperature_effect_date(c=c(), month=date, vert=vert)
+
+
+@classify.command(help=&#34;Contour plot of temperature effect.&#34;)
+@click.option(
+    &#34;--bottom&#34;, type=float, required=True, help=&#34;Bottom temperature in celcius.&#34;
+)
+@click.option(&#34;--top&#34;, type=float, required=True, help=&#34;Top temperature in celcius.&#34;)
+def temp_contour(bottom, top):
+    from make.classify.temp import temp_contour_plot
+
+    temp_contour_plot(c=c(), temp_bottom=bottom, temp_top=top)
+
+
+@classify.command(help=&#34;Plot bridge deck temperature gradient.&#34;)
+@click.option(
+    &#34;--date&#34;,
+    type=str,
+    default=&#34;holly-springs&#34;,
+    help=&#34;Filename of year temperature data.&#34;,
+)
+def temp_gradient(date):
+    from make.classify.temp import temp_gradient_plot
+
+    temp_gradient_plot(c=c(), date=date)
+
+
+@classify.command(help=&#34;Plot removal of temperature effect.&#34;)
+@click.option(&#34;--name&#34;, type=str, default=&#34;may&#34;, help=&#34;Filename to plot effect for.&#34;)
+def temp_rm(name):
+    classification_.temperature_removal_month(c=c(), month=name)
+
+
+@classify.command()
+def oneclass():
+    classification_.oneclass(c())
+
+
+@classify.command()
+@click.option(
+    &#34;--load&#34;, type=bool, default=False, help=&#34;Load calculated features from disk.&#34;
+)
+def pairwise_cluster_2(load):
+    classification_.pairwise_cluster(c=c(), load=load)
+
+
+@classify.command()
+def pairwise_sensors():
+    classification_.pairwise_sensors(c())
+
+
+if __name__ == &#34;__main__&#34;:
+    if pdb_:
+        try:
+            cli()
+        except:
+            extype, value, tb = sys.exc_info()
+            traceback.print_exc()
+            pdb.post_mortem(tb)
+    else:
+        cli()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.cli.c"><code class="name flex">
+<span>def <span class="ident">c</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Construct a 'Config' based on CLI parameters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def c():
+    &#34;&#34;&#34;Construct a &#39;Config&#39; based on CLI parameters.&#34;&#34;&#34;
+    new_c = c_func(b_func)
+    new_c.parallel = parallel_
+    new_c.parallel_ulm = parallel_ulm_
+    new_c.shorten_paths = shorten_paths_
+    new_c.il_num_loads = il_num_loads_
+    new_c.root_generated_data_dir = os.path.join(
+        save_to_, new_c.root_generated_data_dir
+    )
+    return new_c</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim" href="index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.cli.c" href="#bridge_sim.cli.c">c</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
