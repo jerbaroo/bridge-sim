@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from typing import Dict, Tuple
 
-from config import Config
-from fem.run.build import ff_mod
-from fem.run.build.types import (
+from bridge_sim.model import Config
+from lib.fem.run.build import ff_mod
+from lib.fem.run.build.types import (
     AllSupportNodes,
     AllPierElements,
     DeckElements,
@@ -11,7 +11,7 @@ from fem.run.build.types import (
     Node,
     ShellElement,
 )
-from fem.run.build.elements.sections import (
+from lib.fem.run.build.elements.sections import (
     section_for_deck_element,
     section_for_pier_element,
 )

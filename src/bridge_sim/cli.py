@@ -1,4 +1,5 @@
 """Command line interface to bridge-sim."""
+
 import os
 import pdb
 import pathos.multiprocessing as multiprocessing
@@ -8,27 +9,22 @@ from typing import List
 
 import click
 
-from classify.vehicle import wagen1, wagen1_x_pos
-from make import paramselect
-from make.data import simulations
-from make.plot import classification as classification_
-from make.plot import contour as contour_
-from make.plot import geometry as geometry_
-from make.plot import vehicle, verification
-from model.response import ResponseType
-from model.bridge.bridge_705 import (
-    bridge_705_2d,
-    bridge_705_3d,
-    bridge_705_config,
-    bridge_705_low_config,
-    bridge_705_med_config,
-    bridge_705_single_sections,
-)
+from bridge_sim.configs import opensees_default
+from bridge_sim.model import ResponseType
+from lib.classify.vehicle import wagen1, wagen1_x_pos
+from lib.make import paramselect
+from lib.make.data import simulations
+from lib.make.plot import classification as classification_
+from lib.make.plot import contour as contour_
+from lib.make.plot import geometry as geometry_
+from lib.make.plot import vehicle, verification
+from lib.model.bridge.bridge_705 import bridge_705
 from util import clean_generated, print_i, remove_except_npy
 
+# Storing CLI parameters here as global variables.
 pdb_ = "--pdb" in sys.argv
 b_func = None
-c_func = None
+c_func = opensees_default
 two_materials_ = None
 parallel_ = None
 parallel_ulm_ = None
@@ -37,16 +33,8 @@ shorten_paths_ = None
 il_num_loads_ = None
 
 
-def bridge_705_3d_overload(*args, **kwargs):
-    new_c = bridge_705_3d(
-        *args,
-        **kwargs,
-        single_sections=(bridge_705_single_sections() if two_materials_ else None),
-    )
-    return new_c
-
-
 def c():
+    """Construct a 'Config' based on CLI parameters."""
     new_c = c_func(b_func)
     new_c.parallel = parallel_
     new_c.parallel_ulm = parallel_ulm_
@@ -60,19 +48,10 @@ def c():
 
 @click.group()
 @click.option(
-    "--dimensions",
-    type=click.Choice(["2", "3"]),
-    default="3",
-    help="2D or 3D bridge. (DEPRECATED)",
-)
-@click.option(
     "--uls", type=int, default=600, help="Unit load simulations per wheel track",
 )
 @click.option(
-    "--mesh",
-    type=click.Choice(["low", "med", "full"]),
-    default="low",
-    help="Mesh density of the bridge.",
+    "--msl", type=float, required=True, help="Maximum shell length of the bridge.",
 )
 @click.option(
     "--two-materials",
@@ -101,9 +80,8 @@ def c():
     "--pdb", is_flag=True, help="Jump into the debugger on exception.",
 )
 def cli(
-    dimensions: str,
     uls: int,
-    mesh: str,
+    msl: str,
     two_materials: bool,
     parallel: int,
     parallel_ulm: bool,
@@ -111,9 +89,6 @@ def cli(
     shorten_paths: bool,
     pdb: bool,
 ):
-    if dimensions == 2 and two_materials:
-        raise ValueError("--two-materials option only valid for a 3D bridge")
-    global c_func
     global b_func
     global two_materials_
     global save_to_
@@ -121,6 +96,7 @@ def cli(
     global parallel_ulm_
     global shorten_paths_
     global il_num_loads_
+    b_func = bridge_705(msl)
     two_materials_ = two_materials
     save_to_ = save_to
     parallel_ = parallel
@@ -128,30 +104,14 @@ def cli(
     shorten_paths_ = shorten_paths
     il_num_loads_ = uls
 
-    click.echo(f"Dimensions: {dimensions}")
-    click.echo(f"Mesh density: {mesh}")
+    click.echo(f"Bridge: {b_func().name}")
+    click.echo(f"ULS: {il_num_loads_}")
+    click.echo(f"MSL: {msl}")
     click.echo(f"Two materials: {two_materials_}")
-    click.echo(f"Save to: {save_to_}")
     click.echo(f"Parallel: {parallel_}")
     click.echo(f"Parallel wheel tracks: {parallel_ulm_}")
+    click.echo(f"Save to: {save_to_}")
     click.echo(f"Shorten paths: {shorten_paths_}")
-    click.echo(f"ULS: {il_num_loads_}")
-
-    if mesh == "low":
-        c_func = bridge_705_low_config
-    elif mesh == "med":
-        c_func = bridge_705_med_config
-    elif mesh == "full":
-        c_func = bridge_705_config
-    else:
-        raise ValueError(f"Unknown mesh {mesh}")
-
-    if dimensions == "3":
-        b_func = bridge_705_3d_overload
-    elif dimensions == "2":
-        b_func = bridge_705_2d
-    else:
-        raise ValueError(f"Unknown dimensions {dimensions}")
 
 
 ################
@@ -172,7 +132,7 @@ def remove():
     help="Words required in the filename.",
 )
 def clean(keep):
-    from classify.scenario.bridge import transverse_crack
+    from lib.classify.scenario.bridge import transverse_crack
 
     remove_except_npy(c=c(), keep=keep)
     c_ = transverse_crack().use(c())[0]

@@ -17,25 +17,22 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
-from classify.data.responses import responses_to_vehicles_d
-from classify.scenario.bridge import HealthyDamage, PierDispDamage
-from classify.vehicle import wagen1
-from classify import without
-from config import Config
-from fem.build import det_nodes, det_shells
-from fem.model import Shell
-from fem.params import SimParams
-from fem.responses import Responses, load_fem_responses
-from fem.run.build.elements import shells_by_id
-from fem.run.opensees import OSRunner
-from model.bridge import Point
-from model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-from model.load import PierSettlement, MvVehicle, PointLoad
-from model.response import ResponseType
-from plot import plt
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck, plot_deck_sensors
-from plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
+from bridge_sim.model import Config, PierSettlement, Point, PointLoad, Vehicle, ResponseType
+from lib.classify.data.responses import responses_to_vehicles_d
+from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
+from lib.classify.vehicle import wagen1
+from lib.classify import without
+from lib.fem.build import det_nodes, det_shells
+from lib.fem.model import Shell
+from lib.fem.params import SimParams
+from lib.fem.responses import Responses, load_fem_responses
+from lib.fem.run.build.elements import shells_by_id
+from lib.fem.run.opensees import OSRunner
+from lib.model.bridge.bridge_705 import bridge_705
+from lib.plot import plt
+from lib.plot.geometry import top_view_bridge
+from lib.plot.responses import plot_contour_deck, plot_deck_sensors
+from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
 from util import (
     clean_generated,
     flatten,
@@ -46,7 +43,7 @@ from util import (
     safe_str,
     scalar,
 )
-from validate.campaign import (
+from lib.validate.campaign import (
     meas,
     displa_sensors,
     strain_sensors,
@@ -57,7 +54,9 @@ from validate.campaign import (
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
 
-diana = pd.read_csv("data/verification/modelpredictions_april2019.csv")
+diana_path = "data/verification/modelpredictions_april2019.csv"
+if os.path.exists(diana_path):
+    diana = pd.read_csv(diana_path)
 
 # Interpolation function for each sensor position.
 diana_interp_funcs = dict()

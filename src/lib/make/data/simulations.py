@@ -1,13 +1,11 @@
 from typing import Optional
 
-from classify.scenario.bridge import HealthyDamage, transverse_crack
-from classify.scenario.bridge import healthy_damage_w_transverse_crack_nodes
-from config import Config
-from fem.responses.matrix.il import ILMatrix
-from fem.responses.matrix.dc import DCMatrix
-from fem.run.opensees import OSRunner
-from model.bridge import Point
-from model.response import ResponseType
+from bridge_sim.model import Config, Point, ResponseType
+from lib.classify.scenario.bridge import HealthyDamage, transverse_crack
+from lib.classify.scenario.bridge import healthy_damage_w_transverse_crack_nodes
+from lib.fem.responses.matrix.il import ILMatrix
+from lib.fem.responses.matrix.dc import DCMatrix
+from lib.fem.run.opensees import OSRunner
 from util import print_i
 
 

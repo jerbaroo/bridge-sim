@@ -1,6 +1,7 @@
 import itertools
 
-from classify.scenario.bridge import (
+from bridge_sim.model import PierSettlement
+from lib.classify.scenario.bridge import (
     HealthyDamage,
     PierDispDamage,
     ThermalDamage,
@@ -8,7 +9,6 @@ from classify.scenario.bridge import (
     longitudinal_pier_disp,
     transverse_crack,
 )
-from model.load import PierSettlement
 
 healthy_scenario = HealthyDamage()
 cracked_scenario = transverse_crack()

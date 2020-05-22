@@ -1,9 +1,19 @@
+import os
+
 import pandas as pd
 
 # TNO provided files.
-meas = pd.read_csv("data/verification/measurements_static_ZB.csv")
-displa_sensors = pd.read_csv("data/verification/displasensors.txt", index_col=0)
-strain_sensors = pd.read_csv("data/verification/strainsensors.txt", index_col=0)
+meas_path = "data/validation/measurements_static_ZB.csv"
+displa_path = "data/validation/displasensors.txt"
+strain_path = "data/validation/strainsensors.txt"
+
+meas, displa_sensors, strain_sensors = None, None, None
+if os.path.exists(meas_path):
+    meas = pd.read_csv(meas_path)
+if os.path.exists(displa_path):
+    displa_sensors = pd.read_csv( index_col=0)
+if os.path.exists(strain_path):
+    strain_sensors = pd.read_csv( index_col=0)
 
 
 def truck_1_expt_xs():

@@ -4,13 +4,12 @@ import matplotlib
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from config import Config
-from fem.build import det_shells, get_bridge_shells
-from fem.model import Shell
-from fem.responses import SimResponses
-from model.response import ResponseType
-from plot import default_cmap, plt
-from plot.geometry.angles import angles_3d
+from bridge_sim.model import Config, ResponseType
+from lib.fem.build import det_shells, get_bridge_shells
+from lib.fem.model import Shell
+from lib.fem.responses import SimResponses
+from lib.plot import default_cmap, plt
+from lib.plot.geometry.angles import angles_3d
 
 
 def contour_responses_3d(

@@ -5,8 +5,7 @@ from typing import Dict, List, NewType, Optional, Tuple
 import numpy as np
 from scipy.spatial import distance
 
-from bridge_sim.model import Support
-from bridge_sim.model import Point, Material
+from bridge_sim.model import Support, Point, Material
 from util import print_d, round_m
 
 

@@ -7,8 +7,8 @@ from typing import Optional
 import dill
 import numpy as np
 
-from config import Config
-from model.scenario import TrafficScenario, to_traffic, to_traffic_array
+from bridge_sim.model import Config
+from bridge_sim.traffic import TrafficScenario, to_traffic, to_traffic_array
 from util import print_i, safe_str
 
 

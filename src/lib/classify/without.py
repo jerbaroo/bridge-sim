@@ -2,8 +2,7 @@ import numpy as np
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import det, norm
 
-from config import Config
-from model.bridge import Point
+from bridge_sim.model import Config, Point
 
 
 # from: https://gist.github.com/nim65s/5e9902cd67f094ce65b0

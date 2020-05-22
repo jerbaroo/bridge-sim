@@ -153,87 +153,15 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
         )
 
 
-def bridge_705_3d(
-    name: str = "bridge-705",
-    accuracy: str = "full",
-    length: float = bridge_705_length,
-    width: float = bridge_705_width,
-    lanes: List[Lane] = bridge_705_lanes,
-    sections: Optional[List[Material]] = None,
-    supports: List[Support] = bridge_705_supports_3d,
-    base_mesh_deck_max_x: int = 0.5,
-    base_mesh_deck_max_z: int = 0.5,
-    base_mesh_pier_max_long: int = 0.5,
-    **kwargs,
-) -> Bridge:
-    """A constructor for a 3D model of bridge 705 in Amsterdam.
-
-    The arguments have default values that come from a Diana model, but allow
-    for being overridden if you want to change the mesh density or number of
-    piers etc.. For documentation of the arguments see the 'Bridge' class.
-
-    """
-    if sections is None:
-        sections = bridge_705_deck_sections()
-    return Bridge(
-        name=name,
-        data_id=accuracy,
-        length=length,
-        width=width,
-        lanes=lanes,
-        supports=supports,
-        materials=sections,
-        base_mesh_deck_max_x=base_mesh_deck_max_x,
-        base_mesh_deck_max_z=base_mesh_deck_max_z,
-        base_mesh_pier_max_long=base_mesh_pier_max_long,
-        **kwargs,
-    )
-
-
-# Configs for bridge 705.
-
-
-def bridge_705_low_config(bridge: Callable[..., Bridge]) -> Config:
-    """A low accuracy 'Config' for bridge 705 in Amsterdam."""
-    c = bridge_705_config(
-        bridge=lambda: bridge(
-            name="Bridge 705",
-            accuracy="low",
-            base_mesh_deck_max_x=10,
-            base_mesh_deck_max_z=10,
-            base_mesh_pier_max_long=3,
-        )
-    )
-    return c
-
-
-def bridge_705_med_config(bridge: Callable[..., Bridge]) -> Config:
-    """A less accurate 'Config' for bridge 705 in Amsterdam."""
-    return bridge_705_config(
-        bridge=lambda: bridge(
-            name="Bridge 705",
-            accuracy="med",
-            base_mesh_deck_max_x=1.5,
-            base_mesh_deck_max_z=1.5,
-            base_mesh_pier_max_long=0.5,
-        )
-    )
-
-
-def bridge_705_config(bridge: Callable[..., Bridge]) -> Config:
-    """A 'Config' for (bridge 705 in Amsterdam."""
-    return Config(
-        bridge=bridge,
-        vehicle_data_path=os.path.join(__dir__, "data/traffic/traffic.csv"),
-        vehicle_pdf=[
-            (2.4, 5),
-            (5.6, 45),
-            (7.5, 30),
-            (9, 15),
-            (11.5, 4),
-            (12.2, 0.5),
-            (43, 0),
-        ],
-        vehicle_pdf_col="length",
-        fem_runner=os_runner,
+def bridge_705(msl: float):
+    """A model of bridge 705 in Amsterdam."""
+    return lambda: Bridge(
+        name="bridge-705",
+        length=bridge_705_length,
+        width=bridge_705_width,
+        supports=bridge_705_supports_3d,
+        materials=bridge_705_deck_sections(),
+        lanes=bridge_705_lanes,
+        msl=msl,
+        data_id=msl,
     )

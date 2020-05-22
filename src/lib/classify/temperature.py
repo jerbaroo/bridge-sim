@@ -11,13 +11,11 @@ from scipy.signal import savgol_filter
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
-from classify.scenario.bridge import ThermalDamage
-from config import Config
-from fem.params import SimParams
-from fem.responses import load_fem_responses
-from fem.run.opensees import OSRunner
-from model.bridge import Point
-from model.response import ResponseType
+from bridge_sim.model import Config, Point, ResponseType
+from lib.classify.scenario.bridge import ThermalDamage
+from lib.fem.params import SimParams
+from lib.fem.responses import load_fem_responses
+from lib.fem.run.opensees import OSRunner
 from util import print_d, print_i
 
 D: str = "classify.temperature"

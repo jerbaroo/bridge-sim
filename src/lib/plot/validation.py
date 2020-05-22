@@ -6,10 +6,9 @@ import matplotlib
 import numpy as np
 import pandas as pd
 
-from config import Config
-from fem.responses import Responses
-from model.bridge import Point
-from plot import plt
+from bridge_sim.model import Config, Point
+from lib.fem.responses import Responses
+from lib.plot import plt
 from util import print_d, print_i, scalar
 
 

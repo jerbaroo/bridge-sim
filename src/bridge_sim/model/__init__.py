@@ -613,10 +613,7 @@ class Bridge:
         supports: List[Support],
         materials: List["MaterialDeck"],
         lanes: List[Lane],
-        msl: float = 0.25,
-        base_mesh_deck_max_x: Optional[int] = None,
-        base_mesh_deck_max_z: Optional[int] = None,
-        base_mesh_pier_max_long: Optional[int] = None,
+        msl: float,
         data_id: str = "default",
         single_sections: Optional[Tuple[Material, Material]] = None,
     ):
@@ -635,15 +632,9 @@ class Bridge:
         self._next_section_id = 1
 
         # Mesh.
-        self.base_mesh_deck_max_x = base_mesh_deck_max_x
-        self.base_mesh_deck_max_z = base_mesh_deck_max_z
-        self.base_mesh_pier_max_long = base_mesh_pier_max_long
-        if self.base_mesh_deck_max_x is None:
-            self.base_mesh_deck_max_x = msl
-        if self.base_mesh_deck_max_z is None:
-            self.base_mesh_deck_max_z = msl
-        if self.base_mesh_pier_max_long is None:
-            self.base_mesh_pier_max_long = msl
+        self.base_mesh_deck_max_x = msl
+        self.base_mesh_deck_max_z = msl
+        self.base_mesh_pier_max_long = msl
 
         # Attach single section option for asserts and printing info.
         self.single_sections = single_sections

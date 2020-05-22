@@ -10,8 +10,9 @@ import numpy as np
 import pandas as pd
 from matplotlib.cm import get_cmap
 
-from classify.data.responses import responses_to_traffic_array
-from classify.scenario.bridge import (
+from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
+from lib.classify.data.responses import responses_to_traffic_array
+from lib.classify.scenario.bridge import (
     CrackedDamage,
     HealthyDamage,
     PierDispDamage,
@@ -19,20 +20,16 @@ from classify.scenario.bridge import (
     longitudinal_pier_disp,
     transverse_crack,
 )
-from classify.scenarios import all_scenarios, cracked_scenario, unit_temp_scenario
-from classify.vehicle import wagen1
-from config import Config
-from fem.params import SimParams
-from fem.responses import Responses, load_fem_responses
-from fem.run.opensees import OSRunner
-from make.plot.distribution import load_normal_traffic_array
-from model.bridge import Point
-from model.load import PierSettlement, PointLoad
-from model.response import ResponseType
-from plot import axis_colors, diana_cmap, diana_cmap_r, parula_cmap, plt
-from plot.contour import contour_responses_3d
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
+from lib.classify.scenarios import all_scenarios, cracked_scenario, unit_temp_scenario
+from lib.classify.vehicle import wagen1
+from lib.fem.params import SimParams
+from lib.fem.responses import Responses, load_fem_responses
+from lib.fem.run.opensees import OSRunner
+from lib.make.plot.distribution import load_normal_traffic_array
+from lib.plot import axis_colors, diana_cmap, diana_cmap_r, parula_cmap, plt
+from lib.plot.contour import contour_responses_3d
+from lib.plot.geometry import top_view_bridge
+from lib.plot.responses import plot_contour_deck
 from util import print_d, print_i, resize_units, safe_str
 
 # Print debug information for this file.

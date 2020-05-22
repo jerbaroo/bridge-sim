@@ -6,12 +6,10 @@ from typing import List, Optional
 
 import numpy as np
 
+from bridge_sim.model import Config, Point, PointLoad, ResponseType
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
 from lib.fem.run import FEMRunner
-from bridge_sim.model import Point, Config
-from bridge_sim.model.vehicle import PointLoad
-from lib.model.response import ResponseType
 from util import log, print_d, print_i, round_m, shorten_path
 
 # Print debug information for this file.
@@ -146,7 +144,7 @@ class ILMatrix(ResponsesMatrix):
     @staticmethod
     def load_wheel_tracks(
         c: Config,
-        response_type: ResponseType.YTranslation,
+        response_type: ResponseType,
         sim_runner: FEMRunner,
         wheel_zs: List[float],
         run_only: bool = False,
