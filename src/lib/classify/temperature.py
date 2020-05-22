@@ -16,7 +16,7 @@ from lib.classify.scenario.bridge import ThermalDamage
 from lib.fem.params import SimParams
 from lib.fem.responses import load_fem_responses
 from lib.fem.run.opensees import OSRunner
-from util import print_d, print_i
+from bridge_sim.util import print_d, print_i
 
 D: str = "classify.temperature"
 D: bool = False
@@ -198,8 +198,8 @@ def effect(
             temperatures at the top of the bridge. If this argument is given
             then 'temps', 'solar', 'len_per_hour' must not be given.
         len_per_hour: Optional[int], if given then temps and solar must also be
-            given. The temperature responses are interpolated such that there
-            are 'len_per_hour' responses for every hour of temperature data. It
+            given. The temperature fem are interpolated such that there
+            are 'len_per_hour' fem for every hour of temperature data. It
             is assumed the temperature data is one data point per minute.
         temps: Optional[List[float]], first see 'len_per_hour'. Air temperature
             data given at one data point per minute.
@@ -226,9 +226,9 @@ def effect(
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
     )
-    print_i("Loaded unit uniform and linear temperature responses")
+    print_i("Loaded unit uniform and linear temperature fem")
 
-    # Convert uniform responses to correct type (thermal post-processing).
+    # Convert uniform fem to correct type (thermal post-processing).
     if response_type in [
         ResponseType.Strain,
         ResponseType.StrainT,
@@ -240,7 +240,7 @@ def effect(
     unit_uniforms = np.array(uniform_responses.at_decks(points))
     print(f"Unit uniform temperature per point, shape = {unit_uniforms.shape}")
 
-    # Convert linear responses to correct type (thermal post-processing).
+    # Convert linear fem to correct type (thermal post-processing).
     if response_type in [
         ResponseType.Strain,
         ResponseType.StrainT,
@@ -273,7 +273,7 @@ def effect(
     print_d(D, f"temps linear = {temps_linear[:3]}")
     print_d(D, f"temps uniform = {temps_uniform[:3]}")
 
-    # Combine uniform and linear responses.
+    # Combine uniform and linear fem.
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
@@ -282,8 +282,8 @@ def effect(
     )
     # print(f"uniform_responses.shape = {uniform_responses.shape}")
     # print(f"linear_responses.shape = {linear_responses.shape}")
-    print_d(D, f"uniform responses = {uniform_responses[:3]}")
-    print_d(D, f"linear responses = {linear_responses[:3]}")
+    print_d(D, f"uniform fem = {uniform_responses[:3]}")
+    print_d(D, f"linear fem = {linear_responses[:3]}")
     if d:
         return temps_uniform, temps_linear, uniform_responses + linear_responses
     if ret_temps_bt:
@@ -321,7 +321,7 @@ def resize(
 
 
 def apply(effect: List[float], responses: List[float]):
-    """Given effect interpolated across given responses."""
+    """Given effect interpolated across given fem."""
     i = interp1d(
         np.linspace(0, len(responses) - 1, 10000),
         np.linspace(0, len(effect) - 1, 10000),
@@ -339,11 +339,11 @@ def apply_effect(
 ) -> List[float]:
     """Time series of effect due to temperature at given points.
 
-    Returns: a NumPy array of shape the same as given responses. The effect due
+    Returns: a NumPy array of shape the same as given fem. The effect due
         to temperature is interpolated across the date range of the given
-        responses, this is calculated under the assumption that temperature
+        fem, this is calculated under the assumption that temperature
         effect is given at one data point per minute and that the sensor
-        responses are given at a rate of 'c.sensor_hz'.
+        fem are given at a rate of 'c.sensor_hz'.
 
     """
     raise ValueError("Deprecated")
@@ -352,8 +352,8 @@ def apply_effect(
     # effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
     assert len(effect) == len(points)
     # A temperature sample is available per minute. Here we calculate the
-    # number of responses between each pair of recorded temperatures and the
-    # number of temperature samples required for the given responses.
+    # number of fem between each pair of recorded temperatures and the
+    # number of temperature samples required for the given fem.
     len_per_min = get_len_per_min(c=c, speed_up=speed_up)
     print_i(f"Length per minute = {len_per_min}, speed_up = {speed_up}")
     num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
@@ -363,13 +363,11 @@ def apply_effect(
             f" (requires {num_temps_req})"
         )
     # If additional temperature data is available, then use it if requested and
-    # repeat the given responses. Here we calculate length, in terms of the
+    # repeat the given fem. Here we calculate length, in terms of the
     # sample frequency, recall that temperature is sampled every minute.
     avail_len = (len(effect[0]) - 1) * len_per_min
     if repeat_responses and (avail_len > len(responses[0])):
-        print_i(
-            f"Increasing length of responses from {len(responses[0])} to {avail_len}"
-        )
+        print_i(f"Increasing length of fem from {len(responses[0])} to {avail_len}")
         num_temps_req = len(effect[0])
         new_responses = np.empty((len(responses), avail_len))
         for i in range(len(responses)):
@@ -378,7 +376,7 @@ def apply_effect(
                 end = min(avail_len - 1, start + len(responses[0]))
                 new_responses[i][start:end] = responses[i][: end - start]
         responses = new_responses
-    # Fill in the responses array with the temperature effect.
+    # Fill in the fem array with the temperature effect.
     result = np.zeros((len(points), len(responses[0])))
     for i in range(len(points)):
         for j in range(num_temps_req - 1):

@@ -3,6 +3,9 @@
 *.swp
 *.tb
 
+# Validation
+data/validation
+
 # Python
 *.egg-info/
 .idea/

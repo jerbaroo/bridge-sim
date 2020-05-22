@@ -2,13 +2,13 @@ import numpy as np
 from scipy.signal import savgol_filter
 
 from bridge_sim.model import Config, Point, PointLoad, ResponseType
-from lib.classify.vehicle import wagen1, wagen1_x_pos
-from lib.fem.params import ExptParams, SimParams
+from bridge_sim.vehicles import truck1
+from bridge_sim.validate import displa_sensor_xz, strain_sensor_xz
+from lib.fem.params import SimParams
 from lib.fem.responses import load_fem_responses
 from lib.fem.run.opensees import OSRunner
 from lib.plot import plt
-from lib.validate.campaign import displa_sensor_xz, strain_sensor_xz
-from util import clean_generated, flatten, print_i, safe_str
+from bridge_sim.util import flatten, print_i
 
 
 def number_of_uls_plot(c: Config):
@@ -19,12 +19,12 @@ def number_of_uls_plot(c: Config):
     num_ulss = np.arange(100, 2000, 10)
     chosen_uls = 600
     point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
-    wagen1_time = wagen1.time_at(x=point.x, bridge=c.bridge)
+    wagen1_time = truck1.time_at(x=point.x, bridge=c.bridge)
     print_i(f"Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}")
 
     # Determine the reference value.
     truck_loads = flatten(
-        wagen1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad
+        truck1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad
     )
     print_i(f"Truck loads = {truck_loads}")
     sim_responses = load_fem_responses(
@@ -44,7 +44,7 @@ def number_of_uls_plot(c: Config):
         c.il_num_loads = num_uls
         # Nested in here because it depends on the setting of 'il_num_loads'.
         truck_loads = flatten(
-            wagen1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad
+            truck1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad
         )
         num_loads.append(len(truck_loads))
         total_load.append(sum(map(lambda l: l.kn, truck_loads)))
@@ -56,9 +56,9 @@ def number_of_uls_plot(c: Config):
         )
         responses.append(sim_responses.at_deck(point, interp=True) * 1000)
 
-    # Plot the raw responses, then error on the second axis.
+    # Plot the raw fem, then error on the second axis.
     plt.landscape()
-    # plt.plot(num_ulss, responses)
+    # plt.plot(num_ulss, fem)
     # plt.ylabel(f"{response_type.name().lower()} (mm)")
     plt.xlabel("ULS")
     error = np.abs(np.array(responses) - ref_value).flatten() * 100
@@ -90,7 +90,7 @@ def number_of_uls_plot(c: Config):
     #         plt.axhline(min_after_chosen, color="black")
     #         plt.axhline(max_after_chosen, color="black")
     #         plt.legend()
-    #         plt.plot(num_ulss, responses)
+    #         plt.plot(num_ulss, fem)
     #         plt.xlabel("Unit load simulations (ULS) per wheel track")
     #         plt.ylabel(f"{response_type.name()} ({units_str})")
     #         plt.title(

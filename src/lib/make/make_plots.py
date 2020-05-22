@@ -3,45 +3,25 @@
 These function provide data to functions in '/plot'.
 
 """
-import os
-from itertools import chain
 from typing import List, Optional
 
-import numpy as np
-
-from classify.scenario.bridge import HealthyDamage
+import bridge_sim.run
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
-from classify.data.responses import responses_to_traffic
 from config import Config
-from fem.params import SimParams
-from fem.responses import load_fem_responses
-from fem.responses.matrix.dc import DCMatrix
-from fem.responses.matrix.il import ILMatrix
-from fem.run import FEMRunner
 from fem.run.opensees import OSRunner
 from plot import (
-    animate_mv_vehicle,
     plot_bridge_deck_side,
     plot_bridge_first_section,
     plt,
 )
-from model.bridge import Dimensions, Point
-from model.bridge.util import wheel_tracks
-from model.load import PointLoad, MvVehicle
+from model.bridge import Point
+from model.load import MvVehicle
 from model.response import ResponseType
-from util import print_d, print_i, safe_str
+from bridge_sim.util import print_i, safe_str
 from vehicles.sample import sample_vehicle
 from vehicles.stats import vehicle_data_noise_stats, vehicle_density_stats
 
-from make.plot import (
-    animate,
-    contour,
-    matrix,
-    vehicle,
-    vehicles,
-    verification,
-    distribution,
-)
+from make.plot import contour
 
 from make.data import simulations
 
@@ -212,7 +192,7 @@ def make_all_3d(c: Config):
     ######################
     ##### Simulation #####
     ######################
-    simulations.run_uls(c)
+    bridge_sim.run.run_uls(c)
     # verification.make_convergence_data(c, run=True, plot=True)
 
     ########################

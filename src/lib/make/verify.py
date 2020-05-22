@@ -28,7 +28,7 @@ from model.response import ResponseType
 from plot import plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import flatten, print_i, round_m, safe_str
+from bridge_sim.util import flatten, print_i, round_m, safe_str
 
 uni_axle_vehicle = MvVehicle(
     kn=wagen1.total_kn(),
@@ -72,7 +72,7 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
                 expt_params=ExptParams([sim_params]),
                 os_runner=OSRunner(min_config),
             )
-        # Load and plot responses.
+        # Load and plot fem.
         if plot:
             sim_responses = load_fem_responses(
                 c=min_config,
@@ -105,7 +105,7 @@ def mesh_refinement(c: Config, build: bool, plot: bool):
 
 
 def compare_axles(c: Config):
-    """Compare responses between uniaxle vehicles and Truck 1."""
+    """Compare fem between uniaxle vehicles and Truck 1."""
     assert c.il_num_loads == 600
 
     point = Point(x=c.bridge.x_max / 2, y=0, z=-8.4)
@@ -127,7 +127,7 @@ def compare_axles(c: Config):
         sim_runner=OSRunner(c),
     )
     plt.subplot(3, 1, 1)
-    plt.title(f"{num_times} responses with ULS = {c.il_num_loads} (Wagen 1 (4 axles))")
+    plt.title(f"{num_times} fem with ULS = {c.il_num_loads} (Wagen 1 (4 axles))")
     plt.plot(wagen1_times, np.array(responses_ulm).reshape(-1, 1))
 
     bi_axle_loads = [
@@ -143,7 +143,7 @@ def compare_axles(c: Config):
         sim_runner=OSRunner(c),
     )
     plt.subplot(3, 1, 2)
-    plt.title(f"{num_times} responses with ULS = {c.il_num_loads} (2 axles)")
+    plt.title(f"{num_times} fem with ULS = {c.il_num_loads} (2 axles)")
     plt.plot(wagen1_times, np.array(responses_ulm).reshape(-1, 1))
 
     uni_axle_loads = [
@@ -159,7 +159,7 @@ def compare_axles(c: Config):
         sim_runner=OSRunner(c),
     )
     plt.subplot(3, 1, 3)
-    plt.title(f"{num_times} responses with ULS = {c.il_num_loads} (1 axle)")
+    plt.title(f"{num_times} fem with ULS = {c.il_num_loads} (1 axle)")
     plt.plot(wagen1_times, np.array(responses_ulm).reshape(-1, 1))
 
     plt.tight_layout()
@@ -167,7 +167,7 @@ def compare_axles(c: Config):
 
 
 def compare_responses(c: Config):
-    """Compare responses to Truck 1, direct simulation and matmul."""
+    """Compare fem to Truck 1, direct simulation and matmul."""
     assert c.il_num_loads == 600
     num_times = 50
     close_times = 200
@@ -191,7 +191,7 @@ def compare_responses(c: Config):
     wagen1_times = sorted(wagen1_times + more_wagen1_times)
     plt.portrait()
 
-    # Start with responses from direct simulation.
+    # Start with fem from direct simulation.
     responses_not_binned = responses_to_vehicles_d(
         c=c,
         response_type=ResponseType.YTranslation,
@@ -202,10 +202,10 @@ def compare_responses(c: Config):
         binned=False,
     )
     plt.subplot(4, 1, 1)
-    plt.title(f"{len(wagen1_times)} responses")
+    plt.title(f"{len(wagen1_times)} fem")
     plt.plot(wagen1_times, responses_not_binned)
 
-    # Then responses from direct simulation with binning.
+    # Then fem from direct simulation with binning.
     c.shorten_paths = True
     responses_binned = responses_to_vehicles_d(
         c=c,
@@ -218,14 +218,14 @@ def compare_responses(c: Config):
     )
     c.shorten_paths = False
     plt.subplot(4, 1, 2)
-    plt.title(f"{len(wagen1_times)} responses (binned)")
+    plt.title(f"{len(wagen1_times)} fem (binned)")
     plt.plot(wagen1_times, responses_binned)
     xlim = plt.xlim()
 
     num_times = int(end_time / c.sensor_hz)
     wagen1_times = np.linspace(0, end_time, num_times)
 
-    # Then from 'TrafficArray' we get responses, without binning.
+    # Then from 'TrafficArray' we get fem, without binning.
     wagen1_loads = [
         flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
         for time in wagen1_times
@@ -239,11 +239,11 @@ def compare_responses(c: Config):
         sim_runner=OSRunner(c),
     )
     plt.subplot(4, 1, 3)
-    plt.title(f"{num_times} responses with ULS = {c.il_num_loads} traffic_array")
+    plt.title(f"{num_times} fem with ULS = {c.il_num_loads} traffic_array")
     plt.plot(wagen1_times, np.array(responses_ulm).reshape(-1, 1))
     plt.xlim(xlim)
 
-    # # Then from 'TrafficArray' we get responses, with binning.
+    # # Then from 'TrafficArray' we get fem, with binning.
     wagen1_loads = [
         flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
@@ -258,7 +258,7 @@ def compare_responses(c: Config):
     )
     plt.subplot(4, 1, 4)
     plt.title(
-        f"{num_times} responses from {c.il_num_loads} il_num_loads\ntraffic_array binned"
+        f"{num_times} fem from {c.il_num_loads} il_num_loads\ntraffic_array binned"
     )
     plt.plot(wagen1_times, np.array(responses_ulm_binned).reshape(-1, 1))
     plt.xlim(xlim)
@@ -410,13 +410,13 @@ def wagen_1_contour_plot(
         run=run,
     ).at_shells(
         deck_shells
-    )  # Convert responses to one per shell.
+    )  # Convert fem to one per shell.
     if response_type in [ResponseType.Strain, ResponseType.StrainZZB]:
         # Resize by E-6 from microstrain to strain to match temperature units.
         healthy_responses = healthy_responses.resize()
     before_temp = healthy_responses.at_deck(Point(x=51, z=-8.4), interp=False)
     if temp:
-        healthy_deck_points = healthy_responses.deck_points()  # Point of responses.
+        healthy_deck_points = healthy_responses.deck_points()  # Point of fem.
         temp_effect = temperature.effect(
             c=c,
             response_type=response_type,
@@ -447,7 +447,7 @@ def wagen_1_contour_plot(
         crack_responses = crack_responses.resize()
     before_temp = crack_responses.at_deck(Point(x=51, z=-8.4), interp=False)
     if temp:
-        crack_deck_points = crack_responses.deck_points()  # Point of responses.
+        crack_deck_points = crack_responses.deck_points()  # Point of fem.
         temp_effect = temperature.effect(
             c=c,
             response_type=response_type,
@@ -563,9 +563,9 @@ def wagen_1_contour_plot(
                 )
             )
             # try:
-            #     responses.append((
-            #         healthy_responses.responses[0][x][0][z]
-            #         - crack_responses.responses[0][x][0][z],
+            #     fem.append((
+            #         healthy_responses.fem[0][x][0][z]
+            #         - crack_responses.fem[0][x][0][z],
             #         Point(x=x, z=z)
             #     ))
             # except KeyError:
@@ -602,14 +602,14 @@ def wagen_1_contour_plot(
     grid_z_len = c.bridge.width / grid_z
     grid_area = grid_x_len * grid_z_len
     print(f"Grid area = {grid_area}")
-    print("Interpolating diff responses")
+    print("Interpolating diff fem")
     interp_diff_responses = diff_responses.at_decks(grid_points)
     count_interp = len(interp_diff_responses)
     interp_diff_responses = interp_diff_responses[~np.isnan(interp_diff_responses)]
     print(
-        f"Removed {count_interp - len(interp_diff_responses)} of {count_interp} responses, remaining = {len(interp_diff_responses)}"
+        f"Removed {count_interp - len(interp_diff_responses)} of {count_interp} fem, remaining = {len(interp_diff_responses)}"
     )
-    print("Finished interpolating diff responses")
+    print("Finished interpolating diff fem")
     count_min, count_max = 0, 0
     d_min, d_max = min(diff_responses.values()), max(diff_responses.values())
     print(f"diff min, max = {d_min}, {d_max}")
@@ -664,7 +664,7 @@ def cracked_concrete_plot(c: Config):
     half_i = int(len(traffic_array) / 2)
     traffic_array_0, traffic_array_1 = traffic_array[:half_i], traffic_array[half_i:]
     assert len(traffic_array_0) + len(traffic_array_1) == len(traffic_array)
-    # Collect responses due to traffic.
+    # Collect fem due to traffic.
     responses = []
     for rt in response_types:
         responses_healthy_cracked = []
@@ -694,12 +694,12 @@ def cracked_concrete_plot(c: Config):
     plt.legend()
     plt.ylabel("Y translation (mm)")
     plt.xlabel("Time (minutes)")
-    # plt.plot(np.arange(half_i, len(responses[0])), responses[0][half_i:])
+    # plt.plot(np.arange(half_i, len(fem[0])), fem[0][half_i:])
     plt.subplot(2, 1, 2)
     plt.plot(x0, responses[1][:half_i], label="Healthy")
     plt.plot(x1, responses[1][half_i:], label="Cracked")
     plt.legend()
     plt.ylabel("Microstrain")
     plt.xlabel("Time (minutes)")
-    # plt.plot(np.arange(half_i, len(responses[1])), responses[1][half_i:])
+    # plt.plot(np.arange(half_i, len(fem[1])), fem[1][half_i:])
     plt.savefig(c.get_image_path("verify/cracked", "crack-time-series.pdf"))

@@ -10,12 +10,10 @@ from classify.data.events import events_from_traffic
 from config import Config
 from fem.run import FEMRunner
 from model.bridge import Bridge, Point
-from model.load import MvVehicle
 from model.response import Event, ResponseType
-from model.scenario import DamageScenario, TrafficScenario
+from model.scenario import DamageScenario
 from plot import plt
-from util import print_d, print_i, pstr
-from vehicles.sample import sample_vehicle
+from bridge_sim.util import print_i, pstr
 
 # Print debug information for this file.
 D: bool = False

@@ -13,7 +13,7 @@ from lib.fem.model import (
     Shell,
 )
 from bridge_sim.model import Bridge
-from util import flatten
+from bridge_sim.util import flatten
 
 
 def get_bridge_nodes(bridge: Bridge, ctx: Optional[BuildContext] = None) -> BridgeNodes:

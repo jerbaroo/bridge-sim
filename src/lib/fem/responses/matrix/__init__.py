@@ -8,19 +8,19 @@ from typing import List
 import numpy as np
 
 from bridge_sim.model import Config, ResponseType
-from lib.fem.params import ExptParams
+from lib.fem.params import SimParams
 from lib.fem.responses import SimResponses, load_fem_responses
 from lib.fem.run import FEMRunner
 
 
-class ResponsesMatrix:
-    """Indexed responses of one sensor type for a number of simulations."""
+class ExptResponses:
+    """Position indexed responses (one response type) for multiple simulations."""
 
     def __init__(
         self,
         c: Config,
         response_type: ResponseType,
-        expt_params: ExptParams,
+        expt_params: List[SimParams],
         fem_runner: FEMRunner,
         expt_responses: List[SimResponses],
     ):
@@ -32,7 +32,7 @@ class ResponsesMatrix:
         self.num_expts = len(expt_responses)
 
     # def file_paths(self):
-    #     """A unique file path for each simulation's responses."""
+    #     """A unique file path for each simulation's fem."""
     #     return [fem_responses_path(
     #             self.c, fem_params, self.response_type, self.fem_runner.name)
     #         for fem_params in self.expt_params.fem_params]
@@ -67,7 +67,7 @@ class ResponsesMatrix:
         )
 
         assert interp_sim
-        # Else interpolate responses between two experiment indices.
+        # Else interpolate fem between two experiment indices.
         expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
         expt_lo_frac, expt_hi_frac = np.interp(
             [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
@@ -97,19 +97,18 @@ class ResponsesMatrix:
 
 def load_expt_responses(
     c: Config,
-    expt_params: ExptParams,
+    expt_params: List[SimParams],
     response_type: ResponseType,
-    sim_runner: FEMRunner,
     run_only: bool = False,
 ) -> List[SimResponses]:
-    """Load responses of one sensor type for related simulations.
+    """Load fem of one sensor type for related simulations.
 
     The simulations will be run in parallel if 'Config.parallel > 1'. If the
     'run_only' option is passed, then the simulations will run but nothing will
     be loaded into memory.
 
     """
-    indices_and_params = list(zip(itertools.count(), expt_params.sim_params))
+    indices_and_params = list(zip(itertools.count(), expt_params))
 
     def process(index_and_params, _run_only: bool = True):
         i, sim_params = index_and_params
@@ -117,9 +116,8 @@ def load_expt_responses(
             c=deepcopy(c),
             sim_params=deepcopy(sim_params),
             response_type=response_type,
-            sim_runner=deepcopy(sim_runner),
             run_only=_run_only,
-            index=(i + 1, len(expt_params.sim_params)),
+            index=(i + 1, len(expt_params)),
         )
 
     # First run the simulations (if necessary), in parallel if requested.

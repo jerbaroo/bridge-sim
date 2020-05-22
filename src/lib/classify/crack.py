@@ -12,7 +12,7 @@ from classify import temperature
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
-from util import resize_units, safe_str
+from bridge_sim.util import resize_units, safe_str
 
 
 def crack_time_series(
@@ -25,7 +25,7 @@ def crack_time_series(
     temps: List[float],
     solar: List[float],
 ):
-    """Time series of sensor responses, vertical translation and strain XXB.
+    """Time series of sensor fem, vertical translation and strain XXB.
 
     Returns a NumPy array of dimensions (2 x len(traffic_array)).
 
@@ -33,7 +33,7 @@ def crack_time_series(
         c: Config, global configuration object.
         traffic_array: TrafficArray, traffic flowing over the bridge.
         traffic_array_mins: float, minutes of the the traffic flow.
-        sensor: Point, point at which to collect responses.
+        sensor: Point, point at which to collect fem.
         crack_frac: float, fraction of time series where crack occurs.
         damage: DamageScenario, scenarios that occurs at crack_frac.
         temps: List[float], list of air temperature, per temperature minute.
@@ -50,7 +50,7 @@ def crack_time_series(
     assert len(temps) == len(solar)
 
     # Get the effect of temperature for both response types and damages.
-    # In each case we have the full days worth of temperature responses.
+    # In each case we have the full days worth of temperature fem.
     temp_effect = []
     for response_type in response_types:
         temp_effect_damages = []
@@ -103,7 +103,7 @@ def crack_time_series(
                 ).T[0]
             )  # Responses from a single point.
         responses.append(np.concatenate(responses_healthy_cracked))
-        print(f"shape responses without temp = {responses[-1].shape}")
+        print(f"shape fem without temp = {responses[-1].shape}")
         print(f"shape of temp effect = {temp_effect[ri].shape}")
         if rt == ResponseType.Strain:
             responses[ri] = resize_units("")[0](responses[ri])
@@ -116,7 +116,7 @@ def crack_time_series(
 def time_series_plot(c: Config, n: float):
     """Plot 24min time series of cracking, for multiple cracked bridges.
 
-    For each bridge (hard-coded), a time series of strain responses is plotted.
+    For each bridge (hard-coded), a time series of strain fem is plotted.
     For each bridge it is initially in healthy condition, and the crack occurs
     halfway through.
 

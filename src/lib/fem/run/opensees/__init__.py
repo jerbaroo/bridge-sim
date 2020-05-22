@@ -1,16 +1,16 @@
-"""Run FEM simulations with OpenSees."""
+"""Run FE simulations with OpenSees."""
+
 import distutils.spawn as spawn
-import os
 from typing import Callable, List, Optional
 
-from bridge_sim.model import ResponseType, Config, Dimensions, Bridge
+from bridge_sim.model import ResponseType, Config, Bridge
 from lib.fem.params import SimParams
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees.build import build_model
 from lib.fem.run.opensees.convert import convert_responses
 from lib.fem.run.opensees.parse import parse_responses
 from lib.fem.run.opensees.run import run_model
-from util import print_i
+from bridge_sim.util import print_i
 
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:

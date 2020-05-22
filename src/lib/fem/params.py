@@ -1,9 +1,10 @@
 """Parameters for FEM simulations."""
+
 from typing import List, Optional
 
 from bridge_sim.model import PierSettlement, PointLoad, Bridge
 from lib.fem.model import BuildContext
-from util import safe_str
+from bridge_sim.util import safe_str
 
 
 class SimParams:
@@ -77,14 +78,3 @@ class SimParams:
         else:
             load_str = "no-loading"
         return safe_str(load_str)
-
-
-class ExptParams:
-    """Parameters for multiple simulations.
-
-    NOTE: Make into a NewType.
-
-    """
-
-    def __init__(self, sim_params: List[SimParams]):
-        self.sim_params = sim_params

@@ -8,7 +8,7 @@ from bridge_sim.model import Point, Config, Bridge, PierSettlement
 from bridge_sim.scenarios import DamageScenario
 from lib.fem.params import SimParams
 from lib.fem.responses import SimResponses
-from util import round_m, safe_str
+from bridge_sim.util import round_m, safe_str
 
 
 class HealthyDamage(DamageScenario):
@@ -27,7 +27,7 @@ class CrackedDamage(DamageScenario):
     ):
         def mod_bridge(bridge: Bridge):
             bridge = bridge
-            bridge.type = self.name
+            bridge.data_id = self.name
             self._crack_deck(bridge)
             c_x_start, c_z_start, c_x_end, c_z_end = list(
                 map(round_m, self.crack_area(bridge))
@@ -251,7 +251,7 @@ class ThermalDamage(DamageScenario):
         )
 
     def to_strain(self, c: Config, sim_responses: SimResponses):
-        """Convert responses, adding free and restrained strain."""
+        """Convert fem, adding free and restrained strain."""
         if sim_responses.response_type not in [
             ResponseType.Strain,
             ResponseType.StrainT,

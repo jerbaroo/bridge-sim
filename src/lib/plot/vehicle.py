@@ -6,7 +6,7 @@ from matplotlib.patches import Rectangle
 
 from bridge_sim.model import Vehicle
 from lib.plot import plt
-from util import kn_to_kg
+from bridge_sim.util import kn_to_kg
 
 # Length and width of a wheel print in meters.
 WheelPrint = Tuple[float, float]

@@ -20,13 +20,13 @@ def contour_responses_3d(
     cmap: matplotlib.colors.Colormap = default_cmap,
     new_fig: bool = True,
 ):
-    """3D contour plot of simulation responses over deformed shell elements.
+    """3D contour plot of simulation fem over deformed shell elements.
 
     Args:
         c: Config, global configuration object.
-        sim_responses: FEMResponses, simulation responses to plot.
+        sim_responses: FEMResponses, simulation fem to plot.
         shells: Optional[List[ShellElement]], shells of the FEM used to generate
-            the responses. If not given they will be generated.
+            the fem. If not given they will be generated.
         deformation_amp: float, the amplitude of deformation, in meters.
         cmap: matplotlib.colors.Colormap, the colormap to plot with.
         new_fig: bool, whether to plot on a new figure and axis.

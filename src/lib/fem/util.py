@@ -16,7 +16,7 @@ def unit_normal(a, b, c):
     y = det([[a[0], 1, a[2]], [b[0], 1, b[2]], [c[0], 1, c[2]]])
     z = det([[a[0], a[1], 1], [b[0], b[1], 1], [c[0], c[1], 1]])
     magnitude = (x ** 2 + y ** 2 + z ** 2) ** 0.5
-    return (x / magnitude, y / magnitude, z / magnitude)
+    return x / magnitude, y / magnitude, z / magnitude
 
 
 # dot product of vectors a and b
@@ -29,7 +29,7 @@ def cross(a, b):
     x = a[1] * b[2] - a[2] * b[1]
     y = a[2] * b[0] - a[0] * b[2]
     z = a[0] * b[1] - a[1] * b[0]
-    return (x, y, z)
+    return x, y, z
 
 
 # area of polygon poly

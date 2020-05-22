@@ -1,12 +1,13 @@
+import itertools
 from collections import defaultdict
-from typing import Callable, Dict, List, NewType, Optional, Tuple
+from typing import Dict, List, NewType, Optional, Tuple
 
 import numpy as np
 from scipy.spatial import distance
 
 from bridge_sim.model import Support
 from bridge_sim.model import Point, Material
-from util import round_m
+from bridge_sim.util import round_m, print_i
 
 
 class Node:
@@ -36,6 +37,7 @@ class Node:
         deck: bool,
         pier: Optional[Support] = None,
         comment: Optional[str] = None,
+        support: Optional[Support] = None,
     ):
         self.n_id = n_id
         self.x = round_m(x)
@@ -44,6 +46,7 @@ class Node:
         self.pier = pier
         self.deck = deck
         self.comment = comment
+        self.support = support
 
     def command_3d(self):
         """OpenSees node command."""
@@ -95,6 +98,8 @@ class Shell:
         section: Material, section that this shell element belongs to.
         pier: bool, whether this shell is on a pier.
         nodes_by_id: NodesById, nodes in this build context.
+        support_position_index: Optional[Tuple[int, int, int, int]], a 4-tuple
+            of the support index, support wall index, and z and y indices
 
     """
 
@@ -108,6 +113,7 @@ class Shell:
         section: Material,
         pier: bool,
         nodes_by_id: NodesById,
+        support_position_index: Optional[Tuple[int, int, int, int]] = None,
     ):
         self.e_id = e_id
         self.ni_id = ni_id
@@ -116,6 +122,7 @@ class Shell:
         self.nl_id = nl_id
         self.pier = pier
         self.section = section
+        self.support_position_index = support_position_index
         self.nodes_by_id = nodes_by_id
 
         # Attach a reference to the section to each 'Node' and note if the node
@@ -142,7 +149,7 @@ class Shell:
         nk = self.nodes_by_id[self.nk_id]
         nl = self.nodes_by_id[self.nl_id]
 
-        from fem.run.build.elements.util import poly_area
+        from lib.fem.util import poly_area
 
         return poly_area(
             [
@@ -298,3 +305,29 @@ class BuildContext:
     def get_nodes_at_xy(self, x: float, y: float):
         x, y = round_m(x), round_m(y)
         return self.nodes_by_pos_dict[x][y].values()
+
+
+def bridge_3d_nodes(deck_nodes: DeckNodes, all_support_nodes: PierNodes) -> List[Node]:
+    """All a bridge's nodes in a deterministic order."""
+    all_nodes = list(itertools.chain.from_iterable(deck_nodes))
+    for support_nodes in all_support_nodes:
+        for wall_nodes in support_nodes:
+            for y_nodes in wall_nodes:
+                for node in y_nodes:
+                    all_nodes.append(node)
+    assert isinstance(all_nodes[0], Node)
+    assert isinstance(all_nodes[-1], Node)
+    print_i(f"Total bridge nodes: {len(all_nodes)}")
+    return all_nodes
+
+
+def bridge_3d_elements(
+    deck_elements: DeckShells, all_pier_elements: PierShells
+) -> List[Shell]:
+    """All a bridge's shell elements in a deterministic order."""
+    all_elements = list(itertools.chain.from_iterable(deck_elements))
+    for pier_element in all_pier_elements:
+        all_elements.append(pier_element)
+    assert isinstance(all_elements[0], Shell)
+    assert isinstance(all_elements[-1], Shell)
+    return all_elements

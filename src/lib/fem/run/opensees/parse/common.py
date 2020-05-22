@@ -1,9 +1,9 @@
-"""Utilities for parsing responses from OpenSees simulations."""
+"""Utilities for parsing fem from OpenSees simulations."""
 from typing import List, NewType, Optional, Tuple
 
 import numpy as np
 
-from util import print_d
+from bridge_sim.util import print_d
 
 # Print debug information for this file.
 D: bool = False
@@ -28,7 +28,7 @@ SSTuple = NewType("SSTuple", Tuple[float, int, int])
 def opensees_to_stress_strain(
     path: str, parse_stress: bool, parse_strain: bool
 ) -> Tuple[Optional[List[SSTuple]], Optional[List[SSTuple]]]:
-    """Return a tuple of stress and/or strain responses.
+    """Return a tuple of stress and/or strain fem.
 
     For both stress and strain the value is None if the respective argument
     parse_stress or parse_strain is None. Otherwise the value in each case is a

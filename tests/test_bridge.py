@@ -1,13 +1,11 @@
 # """Test model.bridge."""
-# from typing import Optional, List
 
 import numpy as np
 
-# import pytest
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.configs import opensees_default
 
-from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-
-c = bridge_705_config(bridge_705_3d)
+c = opensees_default(bridge_705(0.5))
 c.il_num_loads = 10
 
 

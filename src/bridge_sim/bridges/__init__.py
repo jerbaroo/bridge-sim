@@ -1,9 +1,11 @@
 from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
 
 
-def bridge_example() -> Bridge:
+def narrow_bridge() -> Bridge:
+    """Narrow example bridge with one supporting pier."""
     return Bridge(
         name="example",
+        msl=0.2,
         length=20,
         width=5,
         supports=[
@@ -33,8 +35,10 @@ def bridge_example() -> Bridge:
 
 
 def bridge_wide() -> Bridge:
+    """Wide example bridge with two supporting piers."""
     return Bridge(
         name="wide",
+        msl=0.2,
         length=20,
         width=10,
         supports=[
@@ -78,8 +82,5 @@ def bridge_wide() -> Bridge:
             ),
         ],
         materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
-        lanes=[
-            Lane(-4, -1, True),
-            Lane(1, 4, True),
-        ],
+        lanes=[Lane(-4, -1, True), Lane(1, 4, True),],
     )

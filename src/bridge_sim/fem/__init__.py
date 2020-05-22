@@ -23,8 +23,8 @@ def responses(
     :param config: Global configuration object.
     :param response_type: Sensor response type to return.
     :param point_loads: Point loads to apply in simulation.
-    :param pier_settle: A pier settlement to apply.
-    :return: Sensor responses from the simulation.
+    :param pier_settlement: A pier settlement to apply.
+    :return: Sensor fem from the simulation.
     """
     return lib_load_fem_responses(
         c=config,

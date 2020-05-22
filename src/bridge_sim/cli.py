@@ -2,24 +2,25 @@
 
 import os
 import pdb
+
+import bridge_sim.run
 import pathos.multiprocessing as multiprocessing
 import sys
 import traceback
-from typing import List
 
 import click
 
 from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
-from lib.classify.vehicle import wagen1, wagen1_x_pos
+from bridge_sim.vehicles import truck1
+from bridge_sim.validate import truck1_x_pos
 from lib.make import paramselect
-from lib.make.data import simulations
 from lib.make.plot import classification as classification_
 from lib.make.plot import contour as contour_
 from lib.make.plot import geometry as geometry_
 from lib.make.plot import vehicle, verification
-from lib.model.bridge.bridge_705 import bridge_705
-from util import clean_generated, print_i, remove_except_npy
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.util import clean_generated, print_i, remove_except_npy
 
 # Storing CLI parameters here as global variables.
 pdb_ = "--pdb" in sys.argv
@@ -71,10 +72,7 @@ def c():
     "--save-to", type=str, default="", help="Save/load data from a given folder.",
 )
 @click.option(
-    "--shorten-paths",
-    type=bool,
-    default=False,
-    help="Save responses at shorter filepaths.",
+    "--shorten-paths", is_flag=True, help="Save responses at shorter filepaths.",
 )
 @click.option(
     "--pdb", is_flag=True, help="Jump into the debugger on exception.",
@@ -164,7 +162,7 @@ def wheel_tracks():
 @info.command(help="Print and plot information on Truck 1.")
 def truck_1():
     vehicle.wagen1_plot(c())
-    print_i(f"Truck 1 x positions: {wagen1_x_pos()}")
+    print_i(f"Truck 1 x positions: {truck1_x_pos()}")
 
 
 @info.command(help="Load position and intensity per wheel of Truck 1.")
@@ -176,9 +174,9 @@ def truck_1():
 )
 def truck_1_loads(x: float):
     config = c()
-    time = wagen1.time_at(x=x, bridge=config.bridge)
+    time = truck1.time_at(x=x, bridge=config.bridge)
     print_i(f"Time = {time:.4f}s")
-    axle_loads = wagen1.to_point_loads(time=time, bridge=config.bridge)
+    axle_loads = truck1.to_point_loads(time=time, bridge=config.bridge)
     for i in range(len(axle_loads)):
         print_i(
             f"Axle {i}: ({axle_loads[i][0].repr(config.bridge)}), "
@@ -276,7 +274,7 @@ def simulate():
     "--crack-length", type=float, help="Set length of crack zone in X direction."
 )
 def uls(piers, healthy, cracked, crack_x, crack_length):
-    simulations.run_uls(
+    bridge_sim.run.run_uls(
         c=c(),
         piers=piers,
         healthy=healthy,
@@ -296,7 +294,7 @@ def uls(piers, healthy, cracked, crack_x, crack_length):
     "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
 )
 def ulm(healthy, cracked, x_i, z_i):
-    simulations.run_ulm(c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i)
+    bridge_sim.run.run_ulm(c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i)
 
 
 @simulate.command(help="Record information for convergence plots.")
@@ -314,7 +312,7 @@ def validate():
     pass
 
 
-@validate.command(help="Plots of temperature against sensor responses.")
+@validate.command(help="Plots of temperature against sensor fem.")
 def temp_sensors():
     verification.temp_plots()
 
@@ -410,10 +408,17 @@ def thermal(run):
     thermal.unit_axial_thermal_deck_load(c=c(), run=run)
 
 
-@validate.command(help="Comparison of sensor measurements, OpenSees & Diana.")
-def sensors():
-    verification.per_sensor_plots(c=c(), strain_sensors_startwith="O")
-    verification.per_sensor_plots(c=c(), strain_sensors_startwith="T")
+@validate.command(help="Influence lines from OpenSees and measurements.")
+@click.option(
+    "--strain-sensors",
+    required=True,
+    type=click.Choice(["O", "T"]),
+    help="Prefix of strain sensors to plot.",
+)
+def inflines(strain_sensors):
+    if not shorten_paths_:
+        raise ValueError("--shorten-paths option is required")
+    verification.per_sensor_plots(c=c(), strain_sensors_startwith=strain_sensors)
 
 
 @validate.command(help="Contour plots of unit pier displacement.")
@@ -528,7 +533,7 @@ def refinement_tcls(build: bool, plot: bool):
     verify.mesh_refinement(c=c(), build=build, plot=plot)
 
 
-@verify.command(help="Compare responses by direct simulation and matmul.")
+@verify.command(help="Compare fem by direct simulation and matmul.")
 def comp_responses():
     from make import verify
 
@@ -633,7 +638,7 @@ def classify():
     pass
 
 
-@classify.command(help="Time series of responses with crack occuring.")
+@classify.command(help="Time series of fem with crack occuring.")
 @click.option(
     "--n", type=float, default=1, help="Meters sensor is in front of crack zone."
 )
@@ -645,7 +650,7 @@ def crack_ts(n: float):
 
 @classify.command(help="Responses to traffic with a top view.")
 @click.option("--mins", type=float, default=1, help="Minutes of traffic.")
-@click.option("--skip", type=int, default=50, help="Skip every n recorded responses.")
+@click.option("--skip", type=int, default=50, help="Skip every n recorded fem.")
 @click.option(
     "--scenarios",
     type=click.Choice(["healthy", "pier"]),

@@ -4,7 +4,7 @@
 
 *If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I do love feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.*
 
-[[./data/animation.png]]
+[[./data/images/animation.png]]
 
 ** Installation
 
@@ -81,7 +81,7 @@ Example bridge with a single point load applied.
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
 
-config = configs.opensees_default(bridges.bridge_example)
+config = configs.opensees_default(bridges.narrow_bridge)
 point_loads = [model.PointLoad(x=5, z=0, load=100)]
 responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
@@ -98,7 +98,7 @@ Example bridge with a 4-axled vehicle on it, each wheel is a point load.
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot, vehicle
 
-config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
+config = configs.opensees_default(bridges.narrow_bridge, shorten_paths=True)
 point_loads = vehicle.wagen1.to_point_load_pw(
     time=3.5, bridge=config.bridge, list=True)
 responses = fem.responses(config, model.RT.YTrans, point_loads)
@@ -227,7 +227,7 @@ new_vehicle = Vehicle(
     kmph=20,
 )
 
-config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
+config = configs.opensees_default(bridges.narrow_bridge, shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
 responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)

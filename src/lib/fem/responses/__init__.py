@@ -10,20 +10,20 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 from scipy.interpolate import griddata, interp1d, interp2d
 
-from bridge_sim.model import ResponseType, Point, Config, Dimensions, Bridge
+from bridge_sim.model import ResponseType, Point, Config, Bridge
 from lib.fem.model import Shell
-from lib.fem.params import ExptParams, SimParams
-from util import nearest_index, print_i, resize_units
+from lib.fem.params import SimParams
+from bridge_sim.util import nearest_index, print_i, resize_units
 
 # Print debug information for this file.
-D: str = "fem.responses"
+D: str = "fem.fem"
 # D: bool = False
 
 
 def _responses_path(
     sim_runner: "FEMRunner", sim_params: SimParams, response_type: ResponseType
 ) -> str:
-    """Path to responses that were generated with given parameters."""
+    """Path to fem that were generated with given parameters."""
     return sim_runner.sim_out_path(
         sim_params=sim_params, ext="npy", response_types=[response_type]
     )
@@ -36,8 +36,8 @@ def load_fem_responses(
     run: bool = False,
     run_only: bool = False,
     index: Optional[Tuple[int, int]] = None,
-) -> FEMResponses:
-    """Load responses of one sensor type from a FE simulation.
+) -> "FEMResponses":
+    """Load fem of one sensor type from a FE simulation.
 
     Responses are loaded from disk, the simulation is only run if necessary
 
@@ -50,7 +50,7 @@ def load_fem_responses(
         c: Config, global configuration object.
         sim_params: SimParams, simulation parameters. Response types are
             overridden, set to all supported response types.
-        response_type: ResponseType, responses to load from disk and return.
+        response_type: ResponseType, fem to load from disk and return.
         sim_runner: FEMRunner, FE program to run the simulation with.
         run: bool, run the simulation even if results are already saved.
         index: Optional[int], simulation progress (n/m) printed if given.
@@ -59,7 +59,7 @@ def load_fem_responses(
     'fem' module of this package should be separate from that abstraction.
 
     """
-    if response_type not in c.fem_runner.supported_response_types(c.bridge):
+    if response_type not in c.sim_runner.supported_response_types(c.bridge):
         raise ValueError(f"{response_type} not supported by FEMRunner")
 
     prog_str = "1/1: "
@@ -68,14 +68,14 @@ def load_fem_responses(
     print_prog = lambda s: print_i(prog_str + s, end="\r")
 
     path = _responses_path(
-        sim_runner=c.fem_runner, sim_params=sim_params, response_type=response_type,
+        sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
     )
-    print_i(f"Loading responses at {path}")
+    print_i(f"Loading fem at {path}")
 
     # Run the FEM simulation, and/or clean build artefacts, if requested.
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
-        c.fem_runner.run(ExptParams([sim_params]))
+        c.sim_runner.run([sim_params])
         if sim_params.clean_build:
             print_i("Cleaning SimParams of build artefacts")
             del sim_params.bridge_shells
@@ -112,7 +112,7 @@ def load_fem_responses(
     sim_responses = SimResponses(
         c=c,
         sim_params=sim_params,
-        sim_runner=c.fem_runner,
+        sim_runner=c.sim_runner,
         response_type=response_type,
         responses=responses,
     )
@@ -127,19 +127,19 @@ class Responses:
     def __init__(
         self,
         response_type: ResponseType,
-        responses: List[Response],
+        responses: List["Response"],
         build: bool = True,
         units: Optional[str] = None,
     ):
         assert isinstance(responses, list)
         if len(responses) == 0:
-            raise ValueError("No responses found")
+            raise ValueError("No fem found")
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
         self.units = response_type.units() if units is None else units
         self.raw_responses = responses
         self.num_sensors = len(responses)
-        # Nested dictionaries for indexing responses by position.
+        # Nested dictionaries for indexing fem by position.
         self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
         if build:
             for response, p in responses:
@@ -158,7 +158,7 @@ class Responses:
         }
 
     def deck_points(self) -> List[Point]:
-        """All the points on the deck where responses are collected."""
+        """All the points on the deck where fem are collected."""
         return [
             Point(x=x, y=0, z=z)
             for _, (x, y, z) in self.values(point=True)
@@ -168,7 +168,7 @@ class Responses:
     def add(self, values: List[float], points: List[Point]):
         """Add the values corresponding to given points.
 
-        The points must already be in the responses.
+        The points must already be in the fem.
 
         """
         assert len(values) == len(points)
@@ -180,7 +180,7 @@ class Responses:
         return self
 
     def map(self, f, xyz: bool = False):
-        """Map a function over the values of responses."""
+        """Map a function over the values of fem."""
         time = self.times[0]
         for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
@@ -192,7 +192,7 @@ class Responses:
         return self
 
     def resize(self):
-        """Returns the same responses, possibly resized."""
+        """Returns the same fem, possibly resized."""
         responses = self
         resize_f, units = resize_units(self.units)
         if resize_f is not None:
@@ -222,7 +222,7 @@ class Responses:
         elif self.response_type == ResponseType.StrainZZB:
             self.response_type = ResponseType.StressZZB
         else:
-            raise ValueError(f"Responses must be strain responses")
+            raise ValueError(f"Responses must be strain fem")
         if len(bridge.sections) == 1:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
@@ -381,7 +381,7 @@ class SimResponses(Responses):
         sim_params: SimParams,
         sim_runner: "FEMRunner",
         response_type: ResponseType,
-        responses: List[Response],
+        responses: List["Response"],
         build: bool = True,
     ):
         self.c = c
@@ -390,14 +390,13 @@ class SimResponses(Responses):
         super().__init__(response_type=response_type, responses=responses, build=build)
 
     def save(self):
-        """Save theses simulation responses to disk."""
+        """Save theses simulation fem to disk."""
         path = _responses_path(
             sim_runner=self.sim_runner,
             sim_params=self.sim_params,
             response_type=self.response_type,
         )
         try:
-            print("About to save raw responses")
             with open(path, "wb") as f:
                 dill.dump(self.raw_responses, f)
         except:

@@ -7,21 +7,21 @@ from typing import List, Optional
 import numpy as np
 
 from bridge_sim.model import Config, Point, PointLoad, ResponseType
-from lib.fem.params import ExptParams, SimParams
-from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
+from lib.fem.params import SimParams
+from lib.fem.responses.matrix import ExptResponses, load_expt_responses
 from lib.fem.run import FEMRunner
-from util import log, print_d, print_i, round_m, shorten_path
+from bridge_sim.util import log, print_d, print_i, round_m, shorten_path
 
 # Print debug information for this file.
 D: bool = False
 
 
-class ILMatrix(ResponsesMatrix):
+class ILExpt(ExptResponses):
     """Responses of one sensor type for influence line calculations.
 
     Each simulation is for a different loading position in the longitudinal
-    direction of the bridge. The z position is fixed for one ILMatrix, thus a
-    different ILMatrix should be used for each tire wheel on a bridge.
+    direction of the bridge. The z position is fixed for one ILExpt, thus a
+    different ILExpt should be used for each tire wheel on a bridge.
 
     """
 
@@ -38,7 +38,7 @@ class ILMatrix(ResponsesMatrix):
 
         NOTE: only the loading position in longitudinal direction can be chosen,
         with 'load_x_frac', the position in transverse direction is fixed for a
-        single ILMatrix.
+        single ILExpt.
 
         Args:
             x_frac: float, response position on x-axis in [0 1].
@@ -84,7 +84,7 @@ class ILMatrix(ResponsesMatrix):
         filepath = c.get_data_path(
             "ulms",
             (
-                ILMatrix.id_str(
+                ILExpt.id_str(
                     c=c,
                     response_type=response_type,
                     sim_runner=sim_runner,
@@ -102,7 +102,7 @@ class ILMatrix(ResponsesMatrix):
 
         def ulm_partial(wheel_z):
             """Slice of unit load matrix for one wheel track."""
-            wheel_track = ILMatrix.load_wheel_track(
+            wheel_track = ILExpt.load_wheel_track(
                 c=c,
                 response_type=response_type,
                 fem_runner=sim_runner,
@@ -163,7 +163,7 @@ class ILMatrix(ResponsesMatrix):
             left_only: bool = False,
             right_only: bool = False,
         ):
-            results = ILMatrix.load_wheel_track(
+            results = ILExpt.load_wheel_track(
                 c=deepcopy(c),
                 response_type=response_type,
                 fem_runner=deepcopy(sim_runner),
@@ -225,7 +225,7 @@ class ILMatrix(ResponsesMatrix):
         indices: Optional[List[int]] = None,
         left_only: bool = False,
         right_only: bool = False,
-    ) -> "ILMatrix":
+    ) -> "ILExpt":
         """Load a wheel track from disk, running simulations if necessary.
 
         NOTE: The result is a generator, not a list.
@@ -258,21 +258,19 @@ class ILMatrix(ResponsesMatrix):
 
         assert 0 <= load_z_frac <= 1
         # Determine experiment simulation parameters.
-        expt_params = ExptParams(
-            [
-                SimParams(
-                    ploads=[
-                        PointLoad(
-                            x_frac=c.bridge.x_frac(x),
-                            z_frac=load_z_frac,
-                            kn=c.il_unit_load_kn,
-                        )
-                    ],
-                    clean_build=True,
-                )
-                for x in wheel_xs
-            ]
-        )
+        expt_params = [
+            SimParams(
+                ploads=[
+                    PointLoad(
+                        x_frac=c.bridge.x_frac(x),
+                        z_frac=load_z_frac,
+                        kn=c.il_unit_load_kn,
+                    )
+                ],
+                clean_build=True,
+            )
+            for x in wheel_xs
+        ]
         # Filter simulations, only running those in 'indices'.
         if indices is not None:
             expt_params.sim_params = [

@@ -1,11 +1,11 @@
-"""Plot responses from the response matrices."""
+"""Plot fem from the response matrices."""
 import numpy as np
 
 from config import Config
 from fem.responses.matrix.il import ResponsesMatrix
 from fem.responses.matrix.il import ILMatrix
 from plot import plt, plot_bridge_deck_side, sci_format_y_axis
-from util import print_d, print_i, print_w, round_m
+from bridge_sim.util import print_w
 
 # Print debug information for this file.
 D: bool = False
@@ -113,7 +113,7 @@ def matrix_subplots(
     save: str = None,
     plot_func=None,
 ):
-    """For each subplot plot matrix responses using the given function."""
+    """For each subplot plot matrix fem using the given function."""
     cols = int(num_subplots / rows)
     if cols != num_subplots / rows:
         print_w(
@@ -129,7 +129,7 @@ def matrix_subplots(
         plot_bridge_deck_side(c.bridge, show=False, equal_axis=False)
         rs = plot_func(c, resp_matrix, i, response_frac, z_frac=z_frac, num_x=num_x)
         plt.axvline(x=c.bridge.x(x_frac=response_frac), color="red")
-        # Keep track of min and max on y axis (only when non-zero responses).
+        # Keep track of min and max on y axis (only when non-zero fem).
         if any(rs):
             _y_min, _y_max = plt.gca().get_ylim()
             y_min, y_max = min(y_min, _y_min), max(y_max, _y_max)
@@ -152,7 +152,7 @@ def imshow_il(
 
     Args:
         c: Config, global configuration object.
-        il_matrix: ILMatrix, responses for a number of unit load simulations.
+        il_matrix: ILExpt, fem for a number of unit load simulations.
         num_loads: int, number of loading positions/influence lines to plot.
         num_sensors: int, number of sensor positions in x direction to plot.
 

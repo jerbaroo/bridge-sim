@@ -2,7 +2,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot
 
-config = configs.opensees_default(bridges.bridge_example)
+config = configs.opensees_default(bridges.narrow_bridge)
 point_loads = [model.PointLoad(x=5, z=0, load=100)]
 responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)

@@ -16,7 +16,7 @@ from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
 from scipy import stats
 
-# from classify.data.responses import responses_to_mv_vehicles, times_on_bridge
+# from classify.data.fem import responses_to_mv_vehicles, times_on_bridge
 from bridge_sim.model import (
     ResponseType,
     Point,
@@ -27,7 +27,7 @@ from bridge_sim.model import (
     Material,
 )
 from lib.fem.run import FEMRunner
-from util import print_d, print_i, print_w, kde_sampler
+from bridge_sim.util import print_d, print_i, print_w, kde_sampler
 
 # Print debug information for this file.
 D: bool = False
@@ -436,7 +436,7 @@ def animate_bridge_response(
     Args:
         responses: a 3 or 4 dimensional list. The first index is the vehicles,
             followed by time, then x position. Then there is either a float
-            representing the response to the vehicles, or a list of responses for
+            representing the response to the vehicles, or a list of fem for
             each vehicles axle.
 
     """
@@ -444,7 +444,7 @@ def animate_bridge_response(
     responses_per_vehicle = (
         np.apply_along_axis(sum, axis=3, arr=responses) if per_axle else responses
     )
-    # Find max and min of all responses.
+    # Find max and min of all fem.
     top, bottom = np.amax(responses_per_vehicle), np.amin(responses_per_vehicle)
     # Ensure top == -bottom, so bridge is vertically centered.
     top, bottom = max(top, -bottom), min(bottom, -top)
@@ -461,12 +461,12 @@ def animate_bridge_response(
         update_vehicles(t)
         plt.ylim(top=top, bottom=bottom)
 
-        # Plot responses for each moving vehicles.
+        # Plot fem for each moving vehicles.
         for i in range(len(mv_vehicles)):
             t_vehicle_responses = responses[i][t]
             x_axis = c.bridge.x_axis_equi(len(t_vehicle_responses))
 
-            # Plot responses per axle and one sum of responses.
+            # Plot fem per axle and one sum of fem.
             if per_axle:
                 for axle in range(mv_vehicles[i].num_axles):
                     print_d(D, f"axle_num = {axle}")

@@ -15,7 +15,7 @@ from lib.plot.geometry import top_view_bridge
 from lib.plot.geometry.shell import shell_properties_3d, shell_properties_top_view
 from lib.plot.geometry.node import node_scatter_3d
 from lib.plot.responses import plot_deck_sensors
-from util import flatten, safe_str
+from bridge_sim.util import flatten, safe_str
 
 
 def make_shell_properties_3d(original_c: Config):

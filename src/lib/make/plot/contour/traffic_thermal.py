@@ -2,7 +2,7 @@ from classify.scenario.bridge import ThermalDamage
 from config import Config
 from make.plot.contour.common import damage_scenario_traffic_plot
 from model.response import ResponseType
-from util import safe_str
+from bridge_sim.util import safe_str
 
 
 def thermal_deck_load(c: Config, axial_delta_temp: float, moment_delta_temp: float):

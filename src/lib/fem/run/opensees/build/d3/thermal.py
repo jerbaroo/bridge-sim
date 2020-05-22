@@ -1,15 +1,15 @@
 from collections import defaultdict
 from enum import Enum
+from typing import Dict
 
 import numpy as np
 
 from bridge_sim.model import Config
 from lib.fem.build import det_shells
-from lib.fem.model import BuildContext, DeckShells
+from lib.fem.model import BuildContext, DeckShells, Node
 from lib.fem.params import SimParams
-from lib.fem.run.build.types import DeckElements, Node
 from lib.fem.run.opensees.build.d3.util import comment
-from util import print_d
+from bridge_sim.util import print_d
 
 # Print debug information for this file.
 D: str = "fem.run.opensees.build.d3.thermal"
@@ -135,7 +135,7 @@ def opensees_thermal_axial_deck_loads(
 
 
 def opensees_thermal_moment_deck_loads(
-    c: Config, sim_params: SimParams, deck_elements: DeckElements, ctx: BuildContext,
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext,
 ):
     """Thermal moment loads for deck shells, if in the simulation parameters."""
     if sim_params.moment_delta_temp is None:

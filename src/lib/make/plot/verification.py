@@ -1,12 +1,11 @@
 """Verification plots."""
+
 import glob
 import itertools
-import math
 import os
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
-from itertools import chain
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple
 
@@ -17,33 +16,26 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
-from bridge_sim.model import Config, PierSettlement, Point, PointLoad, Vehicle, ResponseType
+from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from lib.classify.data.responses import responses_to_vehicles_d
-from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
-from lib.classify.vehicle import wagen1
-from lib.classify import without
+from lib.classify.scenario.bridge import HealthyDamage
+from bridge_sim.vehicles import truck1
 from lib.fem.build import det_nodes, det_shells
-from lib.fem.model import Shell
 from lib.fem.params import SimParams
-from lib.fem.responses import Responses, load_fem_responses
-from lib.fem.run.build.elements import shells_by_id
+from lib.fem.responses import load_fem_responses
 from lib.fem.run.opensees import OSRunner
-from lib.model.bridge.bridge_705 import bridge_705
 from lib.plot import plt
 from lib.plot.geometry import top_view_bridge
-from lib.plot.responses import plot_contour_deck, plot_deck_sensors
+from lib.plot.responses import plot_contour_deck
 from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
-from util import (
-    clean_generated,
-    flatten,
+from bridge_sim.util import (
     print_i,
     print_w,
-    read_csv,
     round_m,
     safe_str,
     scalar,
 )
-from lib.validate.campaign import (
+from bridge_sim.validate import (
     meas,
     displa_sensors,
     strain_sensors,
@@ -54,7 +46,7 @@ from lib.validate.campaign import (
 # Positions of truck front axle.
 truck_front_x = np.arange(1, 116.1, 1)
 
-diana_path = "data/verification/modelpredictions_april2019.csv"
+diana_path = "data/validation/modelpredictions_april2019.csv"
 if os.path.exists(diana_path):
     diana = pd.read_csv(diana_path)
 
@@ -78,15 +70,16 @@ def per_sensor_plots(
     strain_sensors_startwith: str = "T",
     strain_sensors_ignore: List[str] = ["T0"],
     individual_sensors: List[str] = ["T4", "U3"],
+    plot_diana: bool = False,
 ):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
     plt.portrait()
     size = 30  # Size of scatter plot points.
     lw = 4  # Line width of plots.
 
-    ####################
-    ###### Strain ######
-    ####################
+    ##########
+    # Strain #
+    ##########
 
     print_i("All strain sensors = ")
     print_i(f"  {sorted(set(meas['sensorlabel']))}")
@@ -130,7 +123,7 @@ def per_sensor_plots(
     strain_sensor_xzs = list(map(strain_sensor_xz, strain_sensor_labels))
     print(f"strain sensor xsz = {strain_sensor_xzs}")
 
-    # Find the min and max responses.
+    # Find the min and max fem.
     amin, amax = np.inf, -np.inf
     for sensor_label, meas_group in strain_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
@@ -145,14 +138,13 @@ def per_sensor_plots(
     # Calculate displacement with OpenSees via direct simulation.
     os_strain = responses_to_vehicles_d(
         c=c,
-        mv_vehicles=[wagen1],
-        times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
-        response_type=ResponseType.Strain,
+        mv_vehicles=[truck1],
+        times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+        response_type=ResponseType.StrainXXB,
         points=[
             Point(x=sensor_x, y=0, z=sensor_z)
             for sensor_x, sensor_z in strain_sensor_xzs
         ],
-        sim_runner=OSRunner(c),
     ).T
     os_strain_shape = np.array(os_strain).shape
     if len(os_strain_shape) == 3 and os_strain_shape[0] == 1:
@@ -162,10 +154,14 @@ def per_sensor_plots(
 
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
-        diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.plot(
-            diana_group["xpostruck"], diana_group["infline1"], lw=lw, label="Diana",
-        )
+        if plot_diana:
+            diana_sensor_group = diana[diana["sensorlabel"] == sensor_label]
+            plt.plot(
+                diana_sensor_group["xpostruck"],
+                diana_sensor_group["infline1"],
+                lw=lw,
+                label="Diana",
+            )
 
         # Plot values from OpenSees.
         plt.plot(truck_front_x, os_strain[i], lw=lw, label="OpenSees")
@@ -232,9 +228,9 @@ def per_sensor_plots(
             plt.close()
             plt.portrait()
 
-    ##########################
-    ###### Vert. trans. ######
-    ##########################
+    ################
+    # Vert. trans. #
+    ################
 
     # All displacement measurements.
     displa_meas = pd.DataFrame(meas.loc[meas["sensortype"] == "displacements"])
@@ -246,7 +242,7 @@ def per_sensor_plots(
     displa_sensor_labels = [sensor_label for sensor_label, _ in displa_groupby]
     displa_sensor_xzs = list(map(displa_sensor_xz, displa_sensor_labels))
 
-    # Find the min and max responses.
+    # Find the min and max fem.
     amin, amax = np.inf, -np.inf
     for sensor_label, meas_group in displa_groupby:
         diana_group = diana[diana["sensorlabel"] == sensor_label]
@@ -262,14 +258,13 @@ def per_sensor_plots(
     os_displacement = (
         responses_to_vehicles_d(
             c=c,
-            mv_vehicles=[wagen1],
-            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
-            response_type=ResponseType.YTranslation,
+            mv_vehicles=[truck1],
+            times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+            response_type=ResponseType.YTrans,
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z)
                 for sensor_x, sensor_z in displa_sensor_xzs
             ],
-            sim_runner=OSRunner(c),
         ).T
         * 1000
     )
@@ -278,14 +273,17 @@ def per_sensor_plots(
 
     def plot(i, sensor_label, meas_group):
         # Plot Diana predictions for the given sensor.
-        diana_group = diana[diana["sensorlabel"] == sensor_label]
-        plt.plot(
-            diana_group["xpostruck"], diana_group["infline1"], lw=lw, label="Diana",
-        )
+        if plot_diana:
+            diana_sensor_group = diana[diana["sensorlabel"] == sensor_label]
+            plt.plot(
+                diana_sensor_group["xpostruck"],
+                diana_sensor_group["infline1"],
+                lw=lw,
+                label="Diana",
+            )
 
         # Plot values from OpenSees.
         plt.plot(truck_front_x, os_displacement[i], lw=lw, label="OpenSees")
-        print(f"Printing os_displacement i = {i}")
         if i == 0:
             print(os_displacement[i])
             print(f"Truck front (head) = {truck_front_x[:7]}")
@@ -311,11 +309,11 @@ def per_sensor_plots(
 
         plt.legend()
         plt.title(
-            f"{ResponseType.YTranslation.name()} at sensor {sensor_label} due to"
+            f"{ResponseType.YTrans.name()} at sensor {sensor_label} due to"
             f"\nTruck 1 moving across bridge 705"
         )
         plt.xlabel("X position of Truck 1's front axle (m)")
-        plt.ylabel(f"{ResponseType.YTranslation.name()} (mm)")
+        plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
         plt.ylim((amin, amax))
 
     # Create a subplot for each displacement sensor.
@@ -348,12 +346,12 @@ def per_sensor_plots(
 
 def r2_plots(c: Config):
     """R² plots for displacement and strain."""
-    rt_y = ResponseType.YTranslation
-    rt_s = ResponseType.Strain
+    rt_y = ResponseType.YTrans
+    rt_s = ResponseType.StrainXXB
 
-    ##########################
-    ###### Displacement ######
-    ##########################
+    ################
+    # Displacement #
+    ################
 
     # Sensor label, truck x position, and response value.
     displa_meas: List[Tuple[str, float, float]] = []
@@ -384,14 +382,13 @@ def r2_plots(c: Config):
     displa_os_meas = (
         responses_to_vehicles_d(
             c=c,
-            mv_vehicles=[wagen1],
-            times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
+            mv_vehicles=[truck1],
+            times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=rt_y,
             damage_scenario=HealthyDamage(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
-            sim_runner=OSRunner(c),
         )
         * 1000
     )
@@ -498,8 +495,8 @@ def r2_plots(c: Config):
     # Strain in OpenSees via direct simulation (measurement points).
     strain_os_meas = responses_to_vehicles_d(
         c=c,
-        mv_vehicles=[wagen1],
-        times=[wagen1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
+        mv_vehicles=[truck1],
+        times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
         response_type=rt_s,
         damage_scenario=HealthyDamage(),
         points=[
@@ -606,7 +603,7 @@ def plot_pier_convergence(
         raise ValueError("Invalid NESW plot location")
     if max_shell_len is None:
         max_shell_len = c.bridge.length / 10
-    # Construct a function to ignore responses, this is around pier lines.
+    # Construct a function to ignore fem, this is around pier lines.
     without = without.pier_lines(c=c, radius=strain_ignore_radius)
 
     def update_bridge():
@@ -653,7 +650,7 @@ def plot_pier_convergence(
     max_shell_lens = [msl for msl in max_shell_lens if msl >= min_shell_len]
     print_i(f"Max shell lens = {max_shell_lens}")
 
-    # Load responses for each parameter setting. If the simulation has not run
+    # Load fem for each parameter setting. If the simulation has not run
     # yet then it will be run and the parameter settings saved.
     all_displacements = dict()
     all_strains = dict()
@@ -715,11 +712,11 @@ def plot_pier_convergence(
             # for x in displacements.xs:
             #     if 0 in displacements.zs[x]:
             #         for z in displacements.zs[x][0]:
-            #             og = displacements.responses[0][x][0][z]
+            #             og = displacements.fem[0][x][0][z]
             #             ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
             #             assert np.isclose(og, ip)
         except ValueError as e:
-            if "No responses found" in str(e):
+            if "No fem found" in str(e):
                 print_i("Simulation failed. Time to plot results")
                 break
             else:
@@ -742,7 +739,7 @@ def plot_pier_convergence(
     plt.savefig(filepath)
     plt.close()
 
-    # For each set of responses remove the removed points.
+    # For each set of fem remove the removed points.
     # for key, displacements in all_displacements.items():
     #     all_displacements[key] = displacements.without(without)
     #     print(f"Filtering displacements with max shell len {key}", end="\r")
@@ -792,7 +789,7 @@ def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6
 
     # A grid of points over which to calculate the mean response. The reason for
     # this is because if the number of nodes increases, as model size increases,
-    # then there will be an increase in nodes where responses are large, thus
+    # then there will be an increase in nodes where fem are large, thus
     # model size will influence the mean/min calculation.
     grid = [
         Point(x=x, y=0, z=z)
@@ -924,7 +921,7 @@ def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6
                     )
 
         except ValueError as e:
-            if "No responses found" in str(e):
+            if "No fem found" in str(e):
                 print_i("Simulation failed. Time to plot results")
             else:
                 raise e
@@ -932,7 +929,7 @@ def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6
 
 def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: str):
     """Plot convergence of strain at different points around a load."""
-    headers = ["max_shell_len", "decknodes", "piernodes", "compass", "responses"]
+    headers = ["max_shell_len", "decknodes", "piernodes", "compass", "fem"]
     parsed_lines = []
     with open(filepath) as f:
         lines = list(map(lambda l: l.split(",", len(headers) - 1), f.readlines()[1:]))
@@ -959,7 +956,7 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
     max_distance = 0
     for compass in ["N", "S", "E", "W"]:
         compass_df = df[df["compass"] == compass]
-        responses = compass_df.iloc[0]["responses"]
+        responses = compass_df.iloc[0]["fem"]
         max_distance = max(len(responses) * delta_distance, max_distance)
     # Overriding maximum distance.
     # max_distance = 4
@@ -974,11 +971,11 @@ def plot_nesw_strain_convergence(c: Config, filepath: str, from_: str, label: st
     for ax, compass, compass_name, in zip(
         axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]
     ):
-        # Collect data into responses per max_shell_len.
+        # Collect data into fem per max_shell_len.
         lines = {}
         compass_df = df[df["compass"] == compass]
         for df_i, row in compass_df.iterrows():
-            lines[row["max_shell_len"]] = row["responses"]
+            lines[row["max_shell_len"]] = row["fem"]
         # Restructure data into lines for plotting.
         max_shell_lens = []
         sorted_lines = []
@@ -1511,7 +1508,7 @@ def temp_plots():
     plt.title("Time versus temperature")
     plt.show()
     for s_i, sensor in enumerate(sensors):
-        # sensor_responses = np.concatenate(responses[s_i])
+        # sensor_responses = np.concatenate(fem[s_i])
         sensor_responses = [responses[s_i][i][0] for i in range(13)]
         plot_temps = [temps[i][0] for i in range(13)]
         # assert len(sensor_responses) == len(all_times)

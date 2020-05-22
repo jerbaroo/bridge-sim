@@ -10,12 +10,12 @@ from model.response import ResponseType
 from plot import equal_lims, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import resize_units
+from bridge_sim.util import resize_units
 
 
 def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
     """Plot the effect of temperature at a given temperature."""
-    # Points on the deck to collect responses.
+    # Points on the deck to collect fem.
     deck_points = [
         Point(x=x, y=0, z=z)
         for x in np.linspace(
@@ -34,7 +34,7 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
             points=deck_points,
             temps_bt=([temp_bottom], [temp_top]),
         ).T[0]
-        # Resize responses if applicable to response type.
+        # Resize fem if applicable to response type.
         resize_f, units = resize_units(response_type.units())
         if response_type == ResponseType.YTranslation:
             temp_effect = resize_f(temp_effect)

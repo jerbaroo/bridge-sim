@@ -1,6 +1,8 @@
-* v0.0.4
+* v0.0.5
 - Simulations confirmed working with Singularity.
 - Influence line plots working via CLI in Docker container.
+
+* v0.0.4
 - Finish moving files to =src= folder.
 - Shorter paths in generated files (removing response types).
 - Use OpenSees if on PATH.
