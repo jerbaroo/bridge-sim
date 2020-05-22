@@ -100,7 +100,7 @@ def responses_to_traffic(
     for t in range(len(traffic)):
         traffic[t] = list(chain.from_iterable(traffic[t]))
 
-    # Wheel tracks the vehicle's drive on and an ILMatrix for each wheel track.
+    # Wheel tracks the vehicles's drive on and an ILMatrix for each wheel track.
     z_fracs = sorted(
         set(
             chain.from_iterable(
@@ -126,12 +126,12 @@ def responses_to_traffic(
         print_i(f"Responses at time = {time:.3f}", end="\r")
         result.append([[0, point] for point in points])
 
-        # For each vehicle on the bridge at this time step.
+        # For each vehicles on the bridge at this time step.
         for mv_vehicle in traffic[t]:
 
             # assert mv_vehicle.on_bridge(time=time, bridge=c.bridge)
-            # We get the x and z positions of this vehicle. There is one x
-            # position for each axle, and two z positions per vehicle.
+            # We get the x and z positions of this vehicles. There is one x
+            # position for each axle, and two z positions per vehicles.
             mv_vehicle_x_fracs = [
                 x_frac
                 for x_frac in mv_vehicle.x_fracs_at(time=time, bridge=c.bridge)
@@ -139,10 +139,10 @@ def responses_to_traffic(
             ]
             mv_vehicle_z_fracs = mv_vehicle.wheel_tracks(bridge=c.bridge, meters=False)
 
-            # Update the response at each point due to this vehicle..
+            # Update the response at each point due to this vehicles..
             for p, point in enumerate(points):
 
-                # Calculate a response to each wheel on this vehicle. We start
+                # Calculate a response to each wheel on this vehicles. We start
                 # by iterating through each wheel track, and then each wheel on
                 # that track.
                 mv_vehicle_responses = []

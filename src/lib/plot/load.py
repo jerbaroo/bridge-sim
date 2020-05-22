@@ -20,7 +20,7 @@ def top_view_vehicles(
     Args:
         bridge: Bridge, bridge on which to draw the vehicles.
         mv_vehicles: List[MvVehicle], vehicles currently on the bridge.
-        time: float, time at which to draw each vehicle.
+        time: float, time at which to draw each vehicles.
         all_vehicles: Optional[List[Vehicle]], vehicles from which to derive
             color scale, if None default is 'mv_vehicles'.
 
@@ -28,11 +28,11 @@ def top_view_vehicles(
     if all_vehicles is None:
         all_vehicles = mv_vehicles
     for mv_vehicle in mv_vehicles:
-        # Left-most position of each vehicle axle.
+        # Left-most position of each vehicles axle.
         xl = min(mv_vehicle.xs_at(time=time, bridge=bridge))
         # Center of the lane.
         z_center = bridge.lanes[mv_vehicle.lane].z_center
-        # Bottom position on z-axis of vehicle.
+        # Bottom position on z-axis of vehicles.
         zb = z_center - (mv_vehicle.axle_width / 2)
         # Length, not allowed to extend beyond the bridge.
         length = mv_vehicle.length

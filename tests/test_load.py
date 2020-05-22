@@ -166,8 +166,8 @@ def test_compare_to_wheel_track_and_to_point_load():
         sum_pw = np.around(sum_loads(pw), 5)
         assert sum_wt == sum_pw
         # Assert the shape of responses is as expected.
-        assert wt.shape[0] == 1  # One vehicle.
-        assert pw.shape[0] == 1  # One vehicle.
+        assert wt.shape[0] == 1  # One vehicles.
+        assert pw.shape[0] == 1  # One vehicles.
         # Assert that both loads have equal amount of axles.
         assert wt.shape[1] == pw.shape[1]
         # Assert that at each time, the shape of loads is as expected.

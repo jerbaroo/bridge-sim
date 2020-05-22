@@ -1,4 +1,4 @@
-"""Sample vehicles from the vehicle data."""
+"""Sample vehicles from the vehicles data."""
 from timeit import default_timer as timer
 from typing import List, Tuple, Union
 
@@ -14,7 +14,7 @@ from util import print_d, print_s, print_w
 # D: str = "vehicles.sample"
 D: bool = False
 
-# Column names of the vehicle data to add noise.
+# Column names of the vehicles data to add noise.
 noise_col_names = []
 
 
@@ -23,7 +23,7 @@ def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int])
     print_d(D, f"Vehicle PDF column is {repr(col)}")
     print_d(D, lengths)
     assert sorted(lengths) == lengths
-    # TODO Better vehicle data format, should be meters.
+    # TODO Better vehicles data format, should be meters.
     if col == "length":
         lengths = [l * 100 for l in lengths]
 
@@ -37,7 +37,7 @@ def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int])
 
 
 def vehicle_pdf_groups(c: Config):
-    """Return vehicle PDF groups, only ever calculated once."""
+    """Return vehicles PDF groups, only ever calculated once."""
     if not hasattr(c, "_vehicle_pdf_groups"):
         start = timer()
         c._vehicle_pdf_groups = _vehicle_pdf_groups(
@@ -66,17 +66,17 @@ def sample_vehicle(
     noise_col_names: List[str] = [],
     pd_row: bool = False,
 ) -> Union[Vehicle, Tuple[Vehicle, pd.DataFrame]]:
-    """Sample a vehicle from a c.vehicle_density group.
+    """Sample a vehicles from a c.vehicle_density group.
 
     Args:
-        c: Config, config from which to load vehicle data and density info.
+        c: Config, config from which to load vehicles data and density info.
         init_group_index: int, sample from a given group index or all (None).
         noise_col_names: List[str], a list of columns to apply noise to.
         pd_row: bool, if true return a tuple of Vehicle and the corresponding
             row from the Pandas DataFrame, else return just a Vehicle.
 
     """
-    # Select a vehicle group randomly, if no group is specified.
+    # Select a vehicles group randomly, if no group is specified.
     if group_index is None:
         rand = np.random.uniform()
         # print(rand)
@@ -97,7 +97,7 @@ def sample_vehicle(
                 break
     # print(D, f"group_index = {group_index}")
 
-    # Sample a vehicle uniformly randomly from the group.
+    # Sample a vehicles uniformly randomly from the group.
     groups_dict = {i: None for i in range(len(c.vehicle_pdf))}
     print_d(D, groups_dict.items())
     for i, (_, group) in enumerate(vehicle_pdf_groups(c)):

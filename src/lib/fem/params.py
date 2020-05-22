@@ -1,7 +1,7 @@
 """Parameters for FEM simulations."""
 from typing import List, Optional
 
-from bridge_sim.model import ResponseType, PierSettlement, PointLoad, Bridge
+from bridge_sim.model import PierSettlement, PointLoad, Bridge
 from lib.fem.model import BuildContext
 from util import safe_str
 
@@ -12,7 +12,6 @@ class SimParams:
     Point loads XOR displacement control, and response types to record.
 
     Args:
-        response_types: [ResponseType], response types to record.
         ploads: List[PointLoad], point loads to apply in the simulation.
         displacement_ctrl: PierSettlement, apply a load until the given
             displacement in meters is reached.
@@ -25,7 +24,6 @@ class SimParams:
 
     def __init__(
         self,
-        response_types: List[ResponseType] = ResponseType.all(),
         ploads: List[PointLoad] = [],
         displacement_ctrl: Optional[PierSettlement] = None,
         axial_delta_temp: Optional[float] = None,
@@ -33,7 +31,6 @@ class SimParams:
         refinement_radii: List[float] = [],
         clean_build: bool = False,
     ):
-        self.response_types = response_types
         self.ploads = ploads
         self.displacement_ctrl = displacement_ctrl
         self.axial_delta_temp = axial_delta_temp
@@ -62,8 +59,12 @@ class SimParams:
         assert len(load_types) <= 1
 
     def id_str(self):
-        """String representing the simulation parameters."""
-        responses_str = "".join(r.name() for r in self.response_types)
+        """String representing the simulation parameters.
+
+        NOTE: Response types are not included in the ID string because it is
+        currently assumed that a simulation saves all output files.
+
+        """
         if self.displacement_ctrl is not None:
             load_str = self.displacement_ctrl.id_str()
         elif self.axial_delta_temp is not None:
@@ -75,7 +76,7 @@ class SimParams:
             load_str = f"[{load_str}]"
         else:
             load_str = "no-loading"
-        return safe_str(f"{responses_str}-{load_str}")
+        return safe_str(load_str)
 
 
 class ExptParams:

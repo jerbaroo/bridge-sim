@@ -150,6 +150,7 @@ for subplot, response_type in enumerate([
     plt.subplot(2, 2, subplot + 1)
     plot.contour_responses(config, responses)
     plot.top_view_bridge(config, piers=True, lanes=True)
+    plt.title(response_type.name())
 
 plt.tight_layout()
 plt.show()

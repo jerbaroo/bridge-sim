@@ -1,23 +1,23 @@
 # Example 1.
 
-import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, fem, model, plot
 
-config = configs.opensees_default(bridges.bridge_example)
-point_loads = [model.PointLoad(x=5, z=0, load=100)]
-responses = fem.responses(config, model.RT.YTrans, point_loads)
-plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
-plt.tight_layout()
-plt.show()
+# config = configs.opensees_default(bridges.bridge_example)
+# point_loads = [model.PointLoad(x=5, z=0, load=100)]
+# responses = fem.responses(config, model.RT.YTrans, point_loads)
+# plot.contour_responses(config, responses, point_loads)
+# plot.top_view_bridge(config, piers=True)
+# plt.tight_layout()
+# plt.show()
 
 # Example 2.
 
 # import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot, vehicle
+# from bridge_sim import bridges, configs, fem, model, plot, vehicles
 
 # config = configs.opensees_default(bridges.bridge_example, shorten_paths=True)
-# point_loads = vehicle.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+# point_loads = vehicles.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
 # responses = fem.responses(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
 # plot.top_view_bridge(config, piers=True)
@@ -42,26 +42,27 @@ plt.show()
 
 # Example 4.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
+import matplotlib.pyplot as plt
+from bridge_sim import bridges, configs, fem, model, plot
 
-# config = configs.opensees_default(bridges.bridge_wide)
-# plt.figure(figsize=(16, 10))
-# for subplot, response_type in enumerate([
-#         model.RT.YTrans, model.RT.ZTrans,
-#         model.RT.StrainXXB, model.RT.StrainZZB,
-#     ]):
-#     responses = fem.responses(
-#         config,
-#         response_type,
-#         pier_settlement=model.PierSettlement(0, 1)
-#     ).resize()
-#     plt.subplot(2, 2, subplot + 1)
-#     plot.contour_responses(config, responses)
-#     plot.top_view_bridge(config, piers=True, lanes=True)
+config = configs.opensees_default(bridges.bridge_wide)
+plt.figure(figsize=(16, 10))
+for subplot, response_type in enumerate([
+        model.RT.YTrans, model.RT.ZTrans,
+        model.RT.StrainXXB, model.RT.StrainZZB,
+    ]):
+    responses = fem.responses(
+        config,
+        response_type,
+        pier_settlement=model.PierSettlement(0, 1)
+    ).resize()
+    plt.subplot(2, 2, subplot + 1)
+    plot.contour_responses(config, responses)
+    plot.top_view_bridge(config, piers=True, lanes=True)
+    plt.title(response_type.name())
 
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.show()
 
 # Example 5.
 
@@ -123,7 +124,7 @@ plt.show()
 #     axle_distances=[2, 2, 2, 1],
 #     # Width of each axle, distance between point loads.
 #     axle_width=2.5,
-#     # Speed of the vehicle.
+#     # Speed of the vehicles.
 #     kmph=20,
 # )
 

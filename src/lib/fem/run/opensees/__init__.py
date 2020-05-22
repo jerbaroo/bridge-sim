@@ -14,7 +14,11 @@ from util import print_i
 
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
-    """The response types supported by OpenSees for a given bridge."""
+    """The response types supported by OpenSees.
+
+    TODO: Remove Bridge argument.
+
+    """
     return [
         ResponseType.XTrans,
         ResponseType.YTrans,

@@ -1,4 +1,4 @@
-"""Responses to a load/vehicle across a bridge."""
+"""Responses to a load/vehicles across a bridge."""
 from __future__ import annotations
 
 import os
@@ -59,21 +59,8 @@ def load_fem_responses(
     'fem' module of this package should be separate from that abstraction.
 
     """
-    original_response_types = set(sim_params.response_types)
-    sim_params.response_types = [
-        rt
-        for rt in sim_params.response_types
-        if rt in c.fem_runner.supported_response_types(c.bridge)
-    ]
-    for rt in original_response_types:
-        if rt not in sim_params.response_types:
-            # print_w(
-            #     f"Removing response type from SimParams: {rt}"
-            #     f", not supported by {sim_runner.name} SimRunner"
-            # )
-            pass
-    if response_type not in sim_params.response_types:
-        raise ValueError(f"Can't load {response_type} if not in SimParams")
+    if response_type not in c.fem_runner.supported_response_types(c.bridge):
+        raise ValueError(f"{response_type} not supported by FEMRunner")
 
     prog_str = "1/1: "
     if index is not None:
@@ -83,6 +70,7 @@ def load_fem_responses(
     path = _responses_path(
         sim_runner=c.fem_runner, sim_params=sim_params, response_type=response_type,
     )
+    print_i(f"Loading responses at {path}")
 
     # Run the FEM simulation, and/or clean build artefacts, if requested.
     if run or not os.path.exists(path):

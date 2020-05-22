@@ -394,18 +394,18 @@ def opensees_translation_recorders(
     # A list of tuples of ResponseType and OpenSees direction index, for
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
-    if ResponseType.XTrans in fem_params.response_types:
-        x_path = os_runner.x_translation_path(fem_params)
-        translation_response_types.append((x_path, 1))
-        print_i(f"OpenSees: saving x translation at {x_path}")
-    if ResponseType.YTrans in fem_params.response_types:
-        y_path = os_runner.y_translation_path(fem_params)
-        translation_response_types.append((y_path, 2))
-        print_i(f"OpenSees: saving y translation at {y_path}")
-    if ResponseType.ZTrans in fem_params.response_types:
-        z_path = os_runner.z_translation_path(fem_params)
-        translation_response_types.append((z_path, 3))
-        print_i(f"OpenSees: saving z translation at {z_path}")
+    # X translation.
+    x_path = os_runner.x_translation_path(fem_params)
+    translation_response_types.append((x_path, 1))
+    print_i(f"OpenSees: saving x translation at {x_path}")
+    # Y translation.
+    y_path = os_runner.y_translation_path(fem_params)
+    translation_response_types.append((y_path, 2))
+    print_i(f"OpenSees: saving y translation at {y_path}")
+    # Z translation.
+    z_path = os_runner.z_translation_path(fem_params)
+    translation_response_types.append((z_path, 3))
+    print_i(f"OpenSees: saving z translation at {z_path}")
 
     # Append a recorder string for each response type (recording nodes).
     recorder_strs = []
@@ -619,7 +619,7 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
         )
 
         # Write the generated model file.
-        model_path = os_runner.sim_raw_path(sim_params=sim_params, ext="tcl")
+        model_path = os_runner.sim_model_path(sim_params=sim_params, ext="tcl")
         with open(model_path, "w") as f:
             f.write(out_tcl)
         num_nodes = len(set(flatten(bridge_nodes, Node)))

@@ -31,5 +31,5 @@ def wagen1_plot(c: Config):
     plt.xlabel("Width (m)")
     plt.ylabel("Length (m)")
 
-    plt.savefig(c.get_image_path("vehicle", "wagen-1", bridge=False) + ".pdf")
+    plt.savefig(c.get_image_path("vehicles", "wagen-1", bridge=False) + ".pdf")
     plt.close()

@@ -310,7 +310,7 @@ def stress_strength_plot(c: Config, top: bool):
     top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
     plot_contour_deck(c=c, responses=responses, decimals=2)
     plt.legend(loc="upper right", borderaxespad=0)
-    # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicle")
+    # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicles")
     plt.title(f"{int(wagen1.total_kn())} kN vehicle")
 
     plt.suptitle(f"Stress {response_type.ss_direction()} for 3 scenarios")
