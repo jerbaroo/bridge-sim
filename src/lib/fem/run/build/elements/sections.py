@@ -3,8 +3,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from config import Config
-from model.bridge import Section3D, Support3D
+from bridge_sim.model import Config, Material, Support
 from util import round_m
 
 
@@ -12,7 +11,7 @@ from util import round_m
 sections_by_value = dict()
 
 
-def get_section(section: Section3D) -> Section3D:
+def get_section(section: Material) -> Material:
     """An equivalent previously created Section if possible."""
     id_str = section.mat_id_str()
     if id_str not in sections_by_value:
@@ -22,7 +21,7 @@ def get_section(section: Section3D) -> Section3D:
 
 def section_for_deck_element(
     c: Config, element_x: float, element_z: float
-) -> Section3D:
+) -> Material:
     """Section for an element on the deck.
 
     Creates a dict (if not already created) of all section's x positions, to z
@@ -45,8 +44,8 @@ def section_for_deck_element(
 
 
 def section_for_pier_element(
-    c: Config, pier: Support3D, start_frac_len: float
-) -> Section3D:
+    c: Config, pier: Support, start_frac_len: float
+) -> Material:
     """Section for a shell element on a pier.
 
     Args:

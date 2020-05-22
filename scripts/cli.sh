@@ -1,1 +1,1 @@
-cd .. && pipenv run python code/cli.py "$@"
+pipenv run python src/bridge_sim/cli.py "$@"

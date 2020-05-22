@@ -4,8 +4,8 @@ from typing import List, Optional, Tuple
 
 from matplotlib.patches import Rectangle
 
-from model.load import Vehicle
-from plot import plt
+from bridge_sim.model import Vehicle
+from lib.plot import plt
 from util import kn_to_kg
 
 # Length and width of a wheel print in meters.

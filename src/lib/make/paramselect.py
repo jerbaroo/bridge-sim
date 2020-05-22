@@ -1,17 +1,14 @@
 import numpy as np
 from scipy.signal import savgol_filter
 
-from classify.vehicle import wagen1, wagen1_x_pos
-from config import Config
-from fem.params import ExptParams, SimParams
-from fem.responses import load_fem_responses
-from fem.run.opensees import OSRunner
-from model.bridge import Point
-from model.load import PointLoad
-from model.response import ResponseType
-from plot import plt
+from bridge_sim.model import Config, Point, PointLoad, ResponseType
+from lib.classify.vehicle import wagen1, wagen1_x_pos
+from lib.fem.params import ExptParams, SimParams
+from lib.fem.responses import load_fem_responses
+from lib.fem.run.opensees import OSRunner
+from lib.plot import plt
+from lib.validate.campaign import displa_sensor_xz, strain_sensor_xz
 from util import clean_generated, flatten, print_i, safe_str
-from validate.campaign import displa_sensor_xz, strain_sensor_xz
 
 
 def number_of_uls_plot(c: Config):

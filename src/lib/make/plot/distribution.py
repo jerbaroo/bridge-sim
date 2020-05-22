@@ -4,25 +4,22 @@ from typing import List
 import numpy as np
 from scipy.stats import chisquare
 
-from config import Config
-from classify.data.responses import responses_to_traffic_array
-from classify.data.traffic import load_traffic
-from classify.scenarios import all_scenarios
-from classify.scenario.bridge import (
+from bridge_sim.model import Config, PierSettlement, Point, ResponseType
+from bridge_sim.scenarios import DamageScenario
+from bridge_sim.traffic import normal_traffic
+from lib.classify.data.responses import responses_to_traffic_array
+from lib.classify.data.traffic import load_traffic
+from lib.classify.scenarios import all_scenarios
+from lib.classify.scenario.bridge import (
     HealthyDamage,
     PierDispDamage,
     equal_pier_disp,
     longitudinal_pier_disp,
 )
-from classify.scenario.traffic import normal_traffic
-from fem.responses import Responses
-from fem.run.opensees import OSRunner
-from model.bridge import Point
-from model.load import PierSettlement
-from model.response import ResponseType
-from model.scenario import DamageScenario
-from plot import plt
-from plot.responses import plot_contour_deck, plot_distributions
+from lib.fem.responses import Responses
+from lib.fem.run.opensees import OSRunner
+from lib.plot import plt
+from lib.plot.responses import plot_contour_deck, plot_distributions
 from util import print_i, safe_str
 
 

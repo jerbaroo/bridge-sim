@@ -7,26 +7,23 @@ from matplotlib.gridspec import GridSpec
 from scipy import stats
 from sklearn.svm import OneClassSVM
 
-from config import Config
-from classify.data.responses import responses_to_traffic_array
-from classify.noise import add_displa_noise
-from classify import temperature
-from classify.scenario.bridge import HealthyDamage
-from classify.scenario.traffic import normal_traffic
-from classify.scenarios import (
+from bridge_sim.model import Config, Point, ResponseType
+from bridge_sim.traffic import normal_traffic, to_traffic_array
+from lib.classify.data.responses import responses_to_traffic_array
+from lib.classify.noise import add_displa_noise
+from lib.classify import temperature
+from lib.classify.scenario.bridge import HealthyDamage
+from lib.classify.scenarios import (
     each_pier_scenarios,
     healthy_and_cracked_scenarios,
     healthy_scenario,
 )
-from fem.responses import Responses
-from fem.run.opensees import OSRunner
-from make.plot.distribution import load_normal_traffic_array
-from model.bridge import Point
-from model.response import ResponseType
-from model.scenario import to_traffic_array
-from plot import plt
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
+from lib.fem.responses import Responses
+from lib.fem.run.opensees import OSRunner
+from lib.make.plot.distribution import load_normal_traffic_array
+from lib.plot import plt
+from lib.plot.geometry import top_view_bridge
+from lib.plot.responses import plot_contour_deck
 from util import print_i, safe_str
 
 

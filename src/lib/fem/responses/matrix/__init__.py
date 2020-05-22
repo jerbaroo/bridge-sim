@@ -7,11 +7,10 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model import Config
+from bridge_sim.model import Config, ResponseType
 from lib.fem.params import ExptParams
 from lib.fem.responses import SimResponses, load_fem_responses
 from lib.fem.run import FEMRunner
-from lib.model.response import Response, ResponseType
 
 
 class ResponsesMatrix:
@@ -45,7 +44,7 @@ class ResponsesMatrix:
         z_frac: float,
         y_frac: float = 1,
         time_index: int = 0,
-    ) -> Response:
+    ) -> "Response":
         """The response at a position for a simulation.
 
         Args:

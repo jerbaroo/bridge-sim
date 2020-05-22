@@ -4,15 +4,15 @@ import matplotlib
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from fem.model import Shell
-from model.bridge import Section3D
-from plot import default_cmap, plt
-from plot.geometry.angles import ax_3d
+from bridge_sim.model import Material
+from lib.fem.model import Shell
+from lib.plot import default_cmap, plt
+from lib.plot.geometry.angles import ax_3d
 
 
 def shell_properties_3d(
     shells: List[Shell],
-    prop_f: Callable[[Section3D], float],
+    prop_f: Callable[[Material], float],
     prop_units: str,
     cmap: matplotlib.colors.Colormap = default_cmap,
     colorbar: bool = False,
@@ -84,7 +84,7 @@ def shell_properties_3d(
 
 def shell_properties_top_view(
     shells: List[Shell],
-    prop_f: Optional[Callable[[Section3D], float]] = None,
+    prop_f: Optional[Callable[[Material], float]] = None,
     prop_units: Optional[str] = None,
     cmap: matplotlib.colors.Colormap = default_cmap,
     colorbar: bool = False,

@@ -3,18 +3,18 @@ import itertools
 import numpy as np
 from matplotlib.cm import get_cmap
 
-from classify.scenarios import healthy_and_cracked_scenarios
-from classify import without
-from config import Config
-from fem.build import get_bridge_nodes, get_bridge_shells
-from fem.model import BuildContext, Node, Shell
-from fem.params import SimParams
-from model.bridge import Point
-from plot import default_cmap, legend_marker_size, parula_cmap, plt
-from plot.geometry import top_view_bridge
-from plot.geometry.shell import shell_properties_3d, shell_properties_top_view
-from plot.geometry.node import node_scatter_3d
-from plot.responses import plot_deck_sensors
+from bridge_sim.model import Config, Point
+
+from lib.classify.scenarios import healthy_and_cracked_scenarios
+from lib.classify import without
+from lib.fem.build import get_bridge_nodes, get_bridge_shells
+from lib.fem.model import BuildContext, Node, Shell
+from lib.fem.params import SimParams
+from lib.plot import default_cmap, legend_marker_size, parula_cmap, plt
+from lib.plot.geometry import top_view_bridge
+from lib.plot.geometry.shell import shell_properties_3d, shell_properties_top_view
+from lib.plot.geometry.node import node_scatter_3d
+from lib.plot.responses import plot_deck_sensors
 from util import flatten, safe_str
 
 

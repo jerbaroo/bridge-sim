@@ -6,6 +6,7 @@ from typing import Callable, List
 
 import numpy as np
 
+from bridge_sim.model import Point, Config, PointLoad, Vehicle, ResponseType
 from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
 from lib.fem.params import ExptParams, SimParams
 from lib.fem.responses import Responses
@@ -14,9 +15,6 @@ from lib.fem.responses.matrix.dc import DCMatrix
 from lib.fem.responses.matrix.il import ILMatrix
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees import OSRunner
-from bridge_sim.model import Point, Config
-from bridge_sim.model.vehicle import PointLoad, MvVehicle
-from lib.model.response import ResponseType
 from util import flatten, print_i, print_w
 
 # Comment/uncomment to print debug statements for this file.
@@ -220,7 +218,7 @@ def responses_to_vehicles_d(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
-    mv_vehicles: List[MvVehicle],
+    mv_vehicles: List[Vehicle],
     times: List[float],
     sim_runner: FEMRunner,
     binned: bool = True,

@@ -2,9 +2,9 @@ from typing import List
 
 import numpy as np
 
-from fem.model import Node
-from plot import plt
-from plot.geometry.angles import ax_3d
+from lib.fem.model import Node
+from lib.plot import plt
+from lib.plot.geometry.angles import ax_3d
 
 
 def node_scatter_3d(nodes: List[Node], new_fig: bool = True):

@@ -1,10 +1,10 @@
 """Plots for individual vehicles."""
 import matplotlib.image as mpimg
 
-from classify.vehicle import wagen1
-from config import Config
-from plot.vehicle import topview_vehicle
-from plot import plt
+from bridge_sim.model import Config
+from lib.classify.vehicle import wagen1
+from lib.plot.vehicle import topview_vehicle
+from lib.plot import plt
 
 
 def wagen1_plot(c: Config):

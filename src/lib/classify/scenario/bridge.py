@@ -4,12 +4,10 @@ from typing import Callable, List, NewType, Optional, Tuple
 
 import numpy as np
 
+from bridge_sim.model import Point, Config, Bridge, PierSettlement
+from bridge_sim.scenarios import DamageScenario
 from lib.fem.params import SimParams
 from lib.fem.responses import SimResponses
-from bridge_sim.model import Point, Config, Bridge
-from bridge_sim.model.vehicle import PierSettlement
-from lib.model.response import ResponseType
-from lib.model.scenario import DamageScenario
 from util import round_m, safe_str
 
 
