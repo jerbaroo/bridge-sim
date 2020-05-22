@@ -15,6 +15,7 @@ __pycache__/
 venv/
 
 # Generated
+build/
 *generated*/
 src/build/
 src/dist/

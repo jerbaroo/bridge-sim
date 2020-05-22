@@ -1,5 +1,3 @@
-cd ..
-sphinx-apidoc -o sphinx-docs/source/ public/model public/**/test_*.py
-cd sphinx-docs
-make clean
-make html
+rm -rf build/
+pipenv run pdoc --html --output-dir build bridge_sim
+mv build/bridge_sim docs/

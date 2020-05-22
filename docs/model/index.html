@@ -1,0 +1,4525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.model API documentation</title>
+<meta name="description" content="Core classes: bridges and different loads." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.model</code></h1>
+</header>
+<section id="section-intro">
+<p>Core classes: bridges and different loads.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Core classes: bridges and different loads.&#34;&#34;&#34;
+
+import os
+from enum import Enum
+from itertools import chain
+from timeit import default_timer as timer
+from typing import List, Union, Tuple, Optional, Callable
+
+import numpy as np
+
+from matplotlib import cm as cm, colors as colors, pyplot as plt
+from scipy.interpolate import interp1d
+from bridge_sim.util import (
+    safe_str,
+    round_m,
+    flatten,
+    print_i,
+    print_w,
+    print_s,
+    _get_dir,
+)
+
+DIST_DECIMALS = 6
+
+
+class PierSettlement:
+    def __init__(self, pier: int, settlement: float):
+        &#34;&#34;&#34;A vertical translation applied in simulation to a pier.
+
+        :param pier: index of a pier on a bridge.
+        :param settlement: amount of pier settlement to apply.
+        :return: A pier settlement object.
+        &#34;&#34;&#34;
+        self.pier = pier
+        self.settlement = settlement
+
+    def id_str(self):
+        return safe_str(f&#34;{np.around(self.settlement, 3)}-{self.pier}&#34;)
+
+
+class Point:
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+        &#34;&#34;&#34;A point described by three positions: (X, Y, Z).
+
+        :param x:
+        :param y:
+        :param z:
+        &#34;&#34;&#34;
+        self.x: float = np.around(x, DIST_DECIMALS)
+        self.y: float = np.around(y, DIST_DECIMALS)
+        self.z: float = np.around(z, DIST_DECIMALS)
+
+    def distance(self, point):
+        return np.around(
+            np.sqrt(
+                ((self.x - point.x) ** 2)
+                + ((self.y - point.y) ** 2)
+                + ((self.z - point.z) ** 2)
+            ),
+            DIST_DECIMALS,
+        )
+
+    def __str__(self):
+        return f&#34;({self.x}, {self.y}, {self.z})&#34;
+
+
+class PointLoad:
+    def __init__(self, x: float, z: float, load: float):
+        &#34;&#34;&#34;A point load applied in simulation.
+
+        :param x: X position on a bridge.
+        :param z: Z position on a bridge.
+        :param load: intensity of the point load.
+        :return: A point load object.
+        &#34;&#34;&#34;
+        self.x = x
+        self.z = z
+        self.load = load
+
+    def __repr__(self):
+        &#34;&#34;&#34;Human readable representation.&#34;&#34;&#34;
+        return f&#34;x = {self.x}, z = {self.z}, load = {self.load}&#34;
+
+    def id_str(self):
+        &#34;&#34;&#34;String uniquely representing this point load.&#34;&#34;&#34;
+        return safe_str(
+            f&#34;({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})&#34;
+        )
+
+    def point(self) -&gt; Point:
+        &#34;&#34;&#34;The &#39;Point&#39; part of this point load.&#34;&#34;&#34;
+        return Point(x=self.x, y=0, z=self.z)
+
+
+class ResponseType(Enum):
+    &#34;&#34;&#34;A simulation response type.&#34;&#34;&#34;
+
+    XTrans = &#34;xtrans&#34;
+    YTrans = &#34;ytrans&#34;
+    ZTrans = &#34;ztrans&#34;
+    StressXXB = &#34;stressxxb&#34;
+    StressXXT = &#34;stressxxt&#34;
+    StressZZB = &#34;stresszzb&#34;
+    StrainXXB = &#34;strainxxb&#34;
+    StrainXXT = &#34;strainxxt&#34;
+    StrainZZB = &#34;strainzzb&#34;
+
+    @staticmethod
+    def all() -&gt; List[&#34;ResponseType&#34;]:
+        &#34;&#34;&#34;A list of all response types.&#34;&#34;&#34;
+        return [rt for rt in ResponseType]
+
+    def is_stress(self):
+        &#34;&#34;&#34;Is this response type a stress type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StressXXB,
+            ResponseType.StressXXT,
+            ResponseType.StressZZB,
+        ]
+
+    def is_strain(self):
+        &#34;&#34;&#34;Is this response type a strain type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StrainXXB,
+            ResponseType.StrainXXT,
+            ResponseType.StrainZZB,
+        ]
+
+    def ss_direction(self) -&gt; str:
+        &#34;&#34;&#34;A stress or strain identifier e.g. XXB is applicable.&#34;&#34;&#34;
+        if self.is_stress() or self.is_strain():
+            return self.name()[-3:]
+        raise ValueError(&#34;Not stress or strain&#34;)
+
+    def name(self) -&gt; str:
+        &#34;&#34;&#34;Human readable name for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: &#34;X translation&#34;,
+            ResponseType.YTrans: &#34;Y translation&#34;,
+            ResponseType.ZTrans: &#34;Z translation&#34;,
+            ResponseType.StressXXB: &#34;Stress XXB&#34;,
+            ResponseType.StressXXT: &#34;Stress XXT&#34;,
+            ResponseType.StressZZB: &#34;Stress ZZB&#34;,
+            ResponseType.StrainXXB: &#34;Strain XXB&#34;,
+            ResponseType.StrainXXT: &#34;Strain XXT&#34;,
+            ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
+        }[self]
+
+    def units(self, short: bool = True) -&gt; str:
+        &#34;&#34;&#34;Human readable units (long or short) for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.YTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.ZTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.StressXXB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressXXT: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressZZB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StrainXXB: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainXXT: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainZZB: (&#34;kilo Newton&#34;, &#34;&#34;),
+        }[self][int(short)]
+
+
+# Shorthand for ResponseType.
+RT = ResponseType
+
+
+class Config:
+    def __init__(
+        self,
+        bridge: Callable[[], &#34;Bridge&#34;],
+        sim_runner: Callable[[], &#34;FEMRunner&#34;],
+        vehicle_data_path: str,
+        vehicle_pdf: List[Tuple[float, float]],
+        vehicle_pdf_col: str,
+        generated_data: str = &#34;generated-data&#34;,
+        shorten_paths: bool = False,
+    ):
+        &#34;&#34;&#34;Simulation configuration object.
+
+        Combines a Bridge and FEMRunner among other configuration.
+
+        :param bridge: function that returns a bridge.
+        :param sim_runner: simulation runner.
+        :param vehicle_data_path: path of the vehicles CSV file.
+        :param vehicle_pdf:
+            percentage of vehicles below a maximum value for that column.
+
+            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
+
+            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
+            This applies if &#39;vehicle_pdf_col&#39; is &#34;length&#34;.
+        :param vehicle_pdf_col: column of vehicle_data to group by.
+        :param generated_data: directory where to save generated files.
+        :param shorten_paths: shorten simulation paths.
+        &#34;&#34;&#34;
+        # Core.
+        self._bridge = bridge
+        self.bridge = self._bridge()
+        self._sim_runner = sim_runner
+        self.sim_runner = self._sim_runner(self)
+
+        # OpenSees
+        self.os_model_template_path: str = &#34;model-template.tcl&#34;
+        self.os_3d_model_template_path: str = &#34;model-template-3d.tcl&#34;
+
+        # Simulation performance.
+        self.parallel = 1
+        self.parallel_ulm = True
+        self.shorten_paths = shorten_paths
+        self.resp_matrices = dict()
+
+        # Unit loads.
+        self.il_num_loads: int = 600
+        self.il_unit_load_kn: float = 1000
+        self.pd_unit_disp: float = 1.0
+        self.pd_unit_load_kn: int = 10
+        self.unit_axial_delta_temp_c: int = 1
+        self.unit_moment_delta_temp_c: int = 1
+        self.cte = 12e-6
+
+        # Responses &amp; events.
+        self.sensor_hz: float = 1 / 100
+        self.event_time_s: float = 2  # Seconds.
+
+        # Vehicles.
+        self.perturb_stddev: float = 0.1
+        self.axle_width: float = 2.5
+        self.vehicle_pdf = vehicle_pdf
+        self.vehicle_pdf_col = vehicle_pdf_col
+        start = timer()
+        self.vehicle_data_path = vehicle_data_path
+        # Necessary to prevent a circular import.
+        from bridge_sim.vehicles.sample import load_vehicle_data
+
+        self.vehicle_data = load_vehicle_data(vehicle_data_path)
+        print_i(
+            f&#34;Loaded vehicles data from {vehicle_data_path} in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+
+        # Ensure vehicles probability density sums to 1.
+        pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+        if int(pdf_sum) != 100:
+            pre_pdf_sum = pdf_sum
+            for i in range(len(self.vehicle_pdf)):
+                self.vehicle_pdf[i] = (
+                    self.vehicle_pdf[i][0],
+                    self.vehicle_pdf[i][1] / pdf_sum,
+                )
+            pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+            print_w(f&#34;Vehicle PDF sums to {pre_pdf_sum}, adjusted to sum to 1&#34;)
+
+        # Root directories for generated data.
+        self.root_generated_data_dir = _get_dir(generated_data)
+        if self.root_generated_data_dir[-1] in &#34;/\\&#34;:
+            raise ValueError(&#34;generated_data must not end in path separator&#34;)
+        self.root_generated_images_dir = lambda: _get_dir(
+            os.path.join(self.root_generated_data_dir + &#34;-images&#34;)
+        )
+
+    # Bridge-specific directories for generated data.
+
+    def generated_data_dir(self):
+        return _get_dir(
+            os.path.join(self.root_generated_data_dir, self.bridge.id_str(),)
+        )
+
+    def generated_images_dir(self):
+        return _get_dir(
+            os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
+        )
+
+    # Bridge-specific but accuracy-independent directories.
+
+    def generated_data_dir_no_acc(self):
+        return _get_dir(
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(msl=False, data_id=False),
+            )
+        )
+
+    def generated_images_dir_no_acc(self):
+        return _get_dir(
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(msl=False, data_id=False),
+            )
+        )
+
+    def get_path_in(self, in_: str, dirname: str, filename: str):
+        &#34;&#34;&#34;Filepath in a directory in a directory (created if necessary).
+
+        TODO: Use safe_str here.
+
+        &#34;&#34;&#34;
+        dirpath = os.path.join(in_, dirname)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+        return os.path.join(dirpath, filename)
+
+    def get_data_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
+        &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+        dir_path = self.generated_data_dir()
+        if not bridge:
+            dir_path = self.root_generated_images_dir()
+        elif not acc:
+            dir_path = self.generated_data_dir_no_acc()
+        return self.get_path_in(dir_path, dirname, filename)
+
+    def get_image_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
+        &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+        dir_path = self.generated_images_dir()
+        if not bridge:
+            dir_path = self.root_generated_images_dir()
+        elif not acc:
+            dir_path = self.generated_images_dir_no_acc()
+        return self.get_path_in(dir_path, dirname, filename)
+
+
+class Dimensions(Enum):
+    D3 = &#34;D3&#34;
+
+    def name(self) -&gt; str:
+        &#34;&#34;&#34;Human readable name for dimensions.&#34;&#34;&#34;
+        return {Dimensions.D3: &#34;3D&#34;,}[self]
+
+
+class Support:
+    &#34;&#34;&#34;A support of the bridge deck, when 3D modeling.
+
+        SIDE_VIEW:
+        &lt;------------x-----------&gt;
+                           &lt;---length--&gt;
+        |------------------|-----------|----------------------| ↑ h
+                            \         /                         | e
+                             \       /                          | i
+                              \     /                           | g
+                               \   /                            | h
+                                \ /                             ↓ t
+
+        TOP_VIEW:
+        |-----------------------------------------------------| ↑+
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| 0
+        |------------------|-----------|----------------------| |
+        |------------------|-----------|----------------------| | z = -2
+        |------------------|-----------|----------------------| |
+        |-----------------------------------------------------| ↓-
+
+        FRONT_VIEW:
+                           &lt;---width-top----&gt;
+                           |----------------|
+                            \              /
+                             \            /
+                              \          /
+                               \        /
+                                \______/
+                                &lt;------&gt;
+                              width-bottom
+
+    Args:
+        x: float, x position of center of the support in meters.
+        z: float, z position of center of the support in meters.
+        length: float, length of the support in meters.
+        height: float, height of the support in meters.
+        width_top: float, width of the top of the support in meters.
+        width_bottom: float, width of the bottom of the support in meters.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        x: float,
+        z: float,
+        length: float,
+        height: float,
+        width_top: float,
+        width_bottom: float,
+        materials: Union[List[&#34;MaterialSupport&#34;], Callable[[float], &#34;MaterialSupport&#34;]],
+        fix_x_translation: bool,
+        fix_z_translation: bool,
+        fix_y_translation: bool = True,
+        fix_x_rotation: bool = False,
+        fix_z_rotation: bool = False,
+        fix_y_rotation: bool = False,
+    ):
+        self.x = x
+        self.z = z
+        self.length = length
+        self.height = height
+        self.width_top = width_top
+        self.width_bottom = width_bottom
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
+        self._sections = materials
+        # Must be callable or a list.
+        if not callable(self._sections):
+            assert isinstance(self._sections, list)
+            assert all(isinstance(s, MaterialSupport) for s in self._sections)
+        if self.width_top &lt; self.width_bottom:
+            raise ValueError(&#34;Support: top width must be &gt;= bottom width&#34;)
+
+    def x_min_max_top(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max x positions for the top of this pier.&#34;&#34;&#34;
+        half_length = self.length / 2
+        return round_m(self.x - half_length), round_m(self.x + half_length)
+
+    def y_min_max(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max y positions for this pier.&#34;&#34;&#34;
+        return round_m(-self.height), 0
+
+    def z_min_max_top(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max z positions for the top of this pier.&#34;&#34;&#34;
+        half_top = self.width_top / 2
+        return round_m(self.z - half_top), round_m(self.z + half_top)
+
+    def z_min_max_bottom(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max z positions for the bottom of this pier.&#34;&#34;&#34;
+        half_bottom = self.width_bottom / 2
+        return round_m(self.z - half_bottom), round_m(self.z + half_bottom)
+
+
+class Lane:
+    &#34;&#34;&#34;A traffic lane spanning the length of a bridge.
+
+    Args:
+        z0: float, z ordinate of one edge of the lane in meters.
+        z1: float, z ordinate of the other edge of the lane in meters.
+        ltr: bool, whether traffic moves left to right, or opposite.
+
+    Attrs:
+        z_min, float, lower z position of the bridge in meters.
+        z_min, float, upper z position of the bridge in meters.
+        width, float, Width of the lane in meters.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, z0: float, z1: float, ltr: bool):
+        self.z_min: float = round_m(min(z0, z1))
+        self.z_max: float = round_m(max(z0, z1))
+        self.ltr: bool = ltr
+        self.width = round_m(self.z_max - self.z_min)
+        self.z_center = round_m(self.z_min + (self.width / 2))
+
+
+class Material:
+    &#34;&#34;&#34;An abstract class for material properties.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young&#39;s modulus of the section in N/mm1.
+        youngs_x: Optional[float], Young&#39;s modulus in x direction, in N/mm2.
+        poisson: float, Poisson&#39;s ratio.
+        start_x_frac: float, start of the section as a fraction of x position.
+        start_z_frac: float, start of the section as a fraction of z position.
+        end_x_frac: float, end of the section as a fraction of x position.
+        end_z_frac: float, end of the section as a fraction of z position.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_x_frac: float = 0,
+        start_z_frac: float = 0,
+        end_x_frac: float = 1,
+        end_z_frac: float = 1,
+        density: float = 0,
+        youngs_x: Optional[float] = None,
+    ):
+        self.density = density
+        self.thickness = thickness
+        self.youngs = youngs
+        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self.poissons = poissons
+        self.start_x_frac = start_x_frac
+        self.start_z_frac = start_z_frac
+        self.end_x_frac = end_x_frac
+        self.end_z_frac = end_z_frac
+
+    def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
+        &#34;&#34;&#34;Whether this section contains the given point.&#34;&#34;&#34;
+        x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+        return (
+            (self.start_x_frac &lt; x_frac or np.isclose(self.start_x_frac, x_frac))
+            and (self.end_x_frac &gt; x_frac or np.isclose(self.end_x_frac, x_frac))
+            and (self.start_z_frac &lt; z_frac or np.isclose(self.start_z_frac, z_frac))
+            and (self.end_z_frac &gt; z_frac or np.isclose(self.end_z_frac, z_frac))
+        )
+
+    def mat_id_str(self):
+        &#34;&#34;&#34;Representation of this section by material properties.&#34;&#34;&#34;
+        return f&#34;{self.density}-{self.thickness}-{self.youngs}-{self.poissons}&#34;
+
+    def y_min_max(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
+        return -self.thickness, 0
+
+    def prop_str(self):
+        &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+        return (
+            &#34;Material&#34;
+            + f&#34;\n  starts at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})&#34;
+            + f&#34;\n  ends at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})&#34;
+            + f&#34;\n  density = {self.density} kg/m&#34;
+            + f&#34;\n  thickness = {self.thickness} m&#34;
+            + f&#34;\n  youngs = {self.youngs} MPa&#34;
+            + f&#34;\n  poissons = {self.poissons}&#34;
+        )
+
+
+MaterialDeck = Material
+
+
+class MaterialSupport(Material):
+    &#34;&#34;&#34;Like Material but intended for describing piers.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young&#39;s modulus of the section in MPa.
+        poisson: float, Poisson&#39;s ratio.
+        start_frac_len: start of the section as a fraction of pier length.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        density: float,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_frac_len: float,
+    ):
+        super().__init__(
+            density=density,
+            thickness=thickness,
+            youngs=youngs,
+            poissons=poissons,
+            start_x_frac=None,
+            start_z_frac=None,
+            end_x_frac=None,
+            end_z_frac=None,
+        )
+        self.start_frac_len = start_frac_len
+
+    def prop_str(self):
+        &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+        return (
+            &#34;Material&#34;
+            + f&#34;\n  starts at {round_m(self.start_frac_len)}&#34;
+            + f&#34;\n  density = {self.density} kg/m&#34;
+            + f&#34;\n  thickness = {self.thickness} m&#34;
+            + f&#34;\n  youngs = {self.youngs} MPa&#34;
+            + f&#34;\n  poissons = {self.poissons}&#34;
+        )
+
+
+class Bridge:
+    def __init__(
+        self,
+        name: str,
+        length: float,
+        width: float,
+        supports: List[Support],
+        materials: List[&#34;MaterialDeck&#34;],
+        lanes: List[Lane],
+        msl: float,
+        data_id: str = &#34;healthy&#34;,
+        single_sections: Optional[Tuple[Material, Material]] = None,
+    ):
+        &#34;&#34;&#34;A bridge&#39;s geometry, material properties and boundary conditions.
+
+        :param name: name of this bridge.
+        :param length: length of this bridge.
+        :param width: width of this bridge.
+        :param supports: a list of Support.
+        :param materials: a list of bridge deck Material.
+        :param lanes: a list of Lane for traffic to drive on.
+        :param msl: maximum shell length parameter.
+        :param data_id: additional identifier for saving/loading data.
+        :param single_sections: tuple of one deck and one support material.
+        &#34;&#34;&#34;
+        # Given arguments.
+        self.name = name
+        self.msl = msl
+        self.data_id = data_id
+
+        self.length = length
+        self.width = width
+        self.supports = supports
+        self.sections = materials
+        self.lanes = lanes
+        self.dimensions = Dimensions.D3
+        self.ref_temp_c = 17
+        self._next_section_id = 1
+
+        # Mesh.
+        self.base_mesh_deck_max_x = msl
+        self.base_mesh_deck_max_z = msl
+        self.base_mesh_pier_max_long = msl
+
+        # Attach single section option for asserts and printing info.
+        self.single_sections = single_sections
+        if self.single_sections is not None:
+            self.name += &#34;-single-sections&#34;
+            self.sections = [self.single_sections[0]]  # Set deck section.
+            for pier in self.supports:  # Set pier sections.
+                pier.sections = [self.single_sections[1]]
+
+        self.additional_xs = []
+
+        # Derived attributes.
+        #
+        # NOTE: The functions y_min_max and z_min_max calculate the min and max
+        # values of the bridge in y and z directions respectively, based on the
+        # supports and sections. For a 3D bridge neither supports nor sections
+        # contain information on the min or max values in z direction.
+        self.x_min, self.x_max = 0, length
+        self.y_min, self.y_max = self.y_min_max()
+        self.z_min, self.z_max = -width / 2, width / 2
+        self.x_center = (self.x_min + self.x_max) / 2
+        self.y_center = (self.y_min + self.y_max) / 2
+        self.z_center = (self.z_min + self.z_max) / 2
+        self.height = self.y_max - self.y_min
+        # All sections belonging to this bridge.
+        self._sections_dict = dict()
+        # Assert the bridge is fine and print info.
+        self._assert_bridge()
+
+    def _get_section(self, section: Material) -&gt; Material:
+        &#34;&#34;&#34;An equivalent section if exists, else the given one.&#34;&#34;&#34;
+
+        def with_id(s: Material) -&gt; Material:
+            s.id = self._next_section_id
+            self._next_section_id += 1
+            return s
+
+        section_prop_str = section.prop_str()
+        if section_prop_str in self._sections_dict:
+            return with_id(self._sections_dict[section_prop_str])
+        self._sections_dict[section_prop_str] = section
+        return with_id(self._sections_dict[section_prop_str])
+
+    def deck_section_at(self, x: float, z: float) -&gt; Material:
+        &#34;&#34;&#34;Return the deck section at given position.&#34;&#34;&#34;
+        if callable(self.sections):
+            raise NotImplementedError()
+        if len(self.sections) == 1:
+            return self._get_section(self.sections[0])
+        for section in self.sections:
+            if section.contains(bridge=self, x=x, z=z):
+                return self._get_section(section)
+        raise ValueError(&#34;No section for x, z = {x}, {z}&#34;)
+
+    def pier_section_at_len(self, p_i: int, section_frac_len: float) -&gt; Material:
+        &#34;&#34;&#34;Return the section at a fraction of a pier&#39;s length&#34;&#34;&#34;
+        assert 0 &lt;= section_frac_len &lt;= 1
+        pier = self.supports[p_i]
+        if callable(pier._sections):
+            return self._get_section(pier._sections(section_frac_len))
+        if len(pier._sections) == 1:
+            return self._get_section(pier._sections[0])
+        raise ValueError(f&#34;Pier {p_i} sections are not a function&#34;)
+
+    def print_info(self, c: &#34;Config&#34;, pier_fix_info: bool = False):
+        &#34;&#34;&#34;Print summary information about this bridge.
+
+        Args:
+            fix_info: print information on pier&#39;s fixed nodes.
+
+        &#34;&#34;&#34;
+        print_s(f&#34;Bridge dimensions:&#34;)
+        print_s(f&#34;  x = ({self.x_min}, {self.x_max})&#34;)
+        print_s(f&#34;  y = ({self.y_min}, {self.y_max})&#34;)
+        print_s(f&#34;  z = ({self.z_min}, {self.z_max})&#34;)
+
+        print_s(f&#34;Bridge lanes:&#34;)
+        wheel_tracks = self.wheel_tracks(c)
+        for l, lane in enumerate(self.lanes):
+            print_s(f&#34;  lane {l}: {lane.z_min} &lt;= z &lt;= {lane.z_max}&#34;)
+            print_s(f&#34;  lane {l}: center at z = {lane.z_center}&#34;)
+            track_0 = wheel_tracks[l * 2]
+            track_1 = wheel_tracks[l * 2 + 1]
+            print_s(f&#34;  lane {l}: wheel tracks at z = {track_0}, {track_1}&#34;)
+
+        if self.single_sections:
+            print_s(&#34;One section for the deck, one for piers:&#34;)
+            print_s(f&#34;Deck:&#34;)
+            list(map(print_s, str(self.sections[0]).split(&#34;\n&#34;)))
+            print_s(f&#34;Piers:&#34;)
+            list(map(print_s, str(self.supports[0].sections[0]).split(&#34;\n&#34;)))
+
+        if pier_fix_info:
+            for p, pier in enumerate(self.supports):
+                print_s(f&#34;Pier {p} fixed:&#34;)
+                print_s(f&#34;  x-trans {pier.fix_x_translation}&#34;)
+                print_s(f&#34;  y-trans {pier.fix_y_translation}&#34;)
+                print_s(f&#34;  z-trans {pier.fix_z_translation}&#34;)
+                print_s(f&#34;  x-rot   {pier.fix_x_rotation}&#34;)
+                print_s(f&#34;  y-rot   {pier.fix_y_rotation}&#34;)
+                print_s(f&#34;  z-rot   {pier.fix_z_rotation}&#34;)
+
+    def id_str(self, msl: bool = True, data_id: bool = True):
+        &#34;&#34;&#34;Name with accuracy information.
+
+        Args:
+            msl: bool, include msl in identifier.
+            data_id: bool, include data_id in identifier.
+
+        &#34;&#34;&#34;
+        acc_str = f&#34;-{self.msl}&#34; if msl else &#34;&#34;
+        data_id_str = f&#34;-{self.data_id}&#34; if data_id else &#34;&#34;
+        return safe_str(f&#34;{self.name}{acc_str}{data_id_str}&#34;)
+
+    def closest_lane(self, z: float):
+        &#34;&#34;&#34;Index of the lane closest to the point.&#34;&#34;&#34;
+        result = None
+        lane_dist = np.inf
+        for lane_ind, lane in enumerate(self.lanes):
+            this_dist = abs(lane.z_center - z)
+            if this_dist &lt; lane_dist:
+                result = lane_ind
+                lane_dist = this_dist
+        return result
+
+    def wheel_track_zs(self, c: &#34;Config&#34;):
+        &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
+        half_axle = c.axle_width / 2
+        return sorted(
+            chain.from_iterable(
+                [lane.z_center - half_axle, lane.z_center + half_axle]
+                for lane in self.lanes
+            )
+        )
+
+    def wheel_track_xs(self, c: &#34;Config&#34;):
+        &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
+        return round_m(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads))
+
+    def y_min_max(self):
+        &#34;&#34;&#34;The min and max values in y direction from supports and sections.&#34;&#34;&#34;
+        return self._min_max(lambda s: s.y_min_max())
+
+    def z_min_max(self):
+        &#34;&#34;&#34;The min and max values in z direction from supports and sections.&#34;&#34;&#34;
+        return self._min_max(lambda s: s.z_min_max())
+
+    def x_axis(self) -&gt; List[float]:
+        &#34;&#34;&#34;Position of supports in meters along the bridge&#39;s x-axis.&#34;&#34;&#34;
+        return np.interp([f.x_frac for f in self.supports], [0, 1], [0, self.length])
+
+    def x_axis_equi(self, n) -&gt; List[float]:
+        &#34;&#34;&#34;n equidistant values along the bridge&#39;s x-axis, in meters.&#34;&#34;&#34;
+        return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
+
+    def x_frac(self, x: float):
+        return float(
+            interp1d([self.x_min, self.x_max], [0, 1], fill_value=&#34;extrapolate&#34;)(x)
+        )
+
+    def x(self, x_frac: float):
+        return float(
+            interp1d([0, 1], [self.x_min, self.x_max], fill_value=&#34;extrapolate&#34;)(x_frac)
+        )
+
+    def y_frac(self, y: float):
+        assert self.y_min &lt;= y &lt;= self.y_max
+        return np.interp(y, [self.y_min, self.y_max], [0, 1])
+
+    def y(self, y_frac: float):
+        assert 0 &lt;= y_frac &lt;= 1
+        return np.interp(y_frac, [0, 1], [self.y_min, self.y_max])
+
+    def z_frac(self, z: float):
+        assert self.z_min &lt;= z &lt;= self.z_max
+        return np.interp(z, [self.z_min, self.z_max], [0, 1])
+
+    def z(self, z_frac: float):
+        assert 0 &lt;= z_frac &lt;= 1
+        return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+
+    def _min_max(
+        self,
+        f: Callable[
+            [Union[Support, Material]], Tuple[Optional[float], Optional[float]]
+        ],
+    ) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max values in a direction from supports and sections.&#34;&#34;&#34;
+        z_min, z_max = None, None
+
+        def set_z_min(z: float):
+            nonlocal z_min
+            if z is None:
+                return
+            z_min = z if z_min is None or z &lt; z_min else z_min
+
+        def set_z_max(z: float):
+            nonlocal z_max
+            if z is None:
+                return
+            z_max = z if z_max is None or z &gt; z_max else z_max
+
+        for section in self.sections:
+            s_z_min, s_z_max = f(section)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        for support in self.supports:
+            s_z_min, s_z_max = f(support)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        return z_min, z_max
+
+    def _assert_bridge(self):
+        &#34;&#34;&#34;Assert this bridge makes sense.&#34;&#34;&#34;
+        # Single section only in 3D.
+        if self.single_sections:
+            if self.dimensions != Dimensions.D3:
+                raise ValueError(&#34;Bridge.single_section only supported in 3D&#34;)
+            assert self.single_sections[0].start_x_frac == 0
+            assert self.single_sections[0].start_z_frac == 0
+            assert self.single_sections[1].start_x_frac == 0
+            assert self.single_sections[1].start_z_frac == 0
+            assert self.single_sections[1].start_frac_len == 0
+            assert len(self.sections) == 1
+            for pier in self.supports:
+                assert len(pier.sections) == 1
+
+        # Bridge boundaries should be correct in orientation.
+        assert self.x_min &lt; self.x_max
+        assert self.y_min &lt; self.y_max
+        assert self.z_min &lt; self.z_max
+
+        # Derived dimensions should make sense.
+        assert self.length == self.x_max - self.x_min
+        assert self.width == self.z_max - self.z_min
+
+        # Base mesh must be of a minimum size.
+        assert self.base_mesh_deck_max_x &lt;= self.length
+        if self.dimensions == Dimensions.D3:
+            assert self.base_mesh_deck_max_z &lt;= self.width
+            # for pier in self.supports:
+            # TODO: Improve this assert, piers are not vertical.
+            # assert self.base_mesh_pier_max_long &lt;= pier.height
+        self._assert_3d()
+
+    def _assert_3d(self):
+        # All sections are Material.
+        for section in self.sections:
+            if not isinstance(section, Material):
+                raise ValueError(&#34;3D bridge must use Material sections&#34;)
+
+        # First section must start at 0.
+        if self.sections[0].start_x_frac != 0:
+            raise ValueError(&#34;First section of 3D bridge must start at 0&#34;)
+
+        # Section must be in order.
+        last_start_x_frac = self.sections[0].start_x_frac
+        for section in self.sections[1:]:
+            if section.start_x_frac &lt; last_start_x_frac:
+                raise ValueError(&#34;Sections not in order of start_x_frac&#34;)
+            last_start_x_frac = section.start_x_frac
+
+        # Lanes must be in range.
+        for i, lane in enumerate(self.lanes):
+            if lane.z_min &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Lane {i} lower position {lane.z_min} less than bridge&#34;
+                    + f&#34; {self.z_min}&#34;
+                )
+            if lane.z_min &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Lane {i} lower position {lane.z_min} greater than bridge&#34;
+                    + f&#34; {self.z_max}&#34;
+                )
+            if lane.z_max &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Lane {i} upper position {lane.z_max} less than bridge&#34;
+                    + f&#34; {self.z_min}&#34;
+                )
+            if lane.z_max &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Lane {i} upper position {lane.z_max} greater than bridge&#34;
+                    + f&#34; {self.z_max}&#34;
+                )
+
+        # Supports must be in range.
+        for i, support in enumerate(self.supports):
+            support_z_min, support_z_max = support.z_min_max_top()
+            if support_z_min &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Support {i} lower position {support_z_min} less than&#34;
+                    + f&#34; bridge {self.z_min}&#34;
+                )
+            if support_z_min &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Support {i} lower position {support_z_min} greater than&#34;
+                    + f&#34; bridge {self.z_max}&#34;
+                )
+            if support_z_max &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Support {i} upper position {support_z_max} less than&#34;
+                    + f&#34; bridge {self.z_min}&#34;
+                )
+            if support_z_max &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Support {i} upper position {support_z_max} greater than&#34;
+                    + f&#34; bridge {self.z_max}&#34;
+                )
+
+
+class Vehicle:
+    def __init__(
+        self,
+        kn: Union[float, List[float], List[Tuple[float, float]]],
+        axle_distances: List[float],
+        axle_width: float,
+        kmph: float,
+        lane: int = 0,
+        init_x_frac: float = 0,
+    ):
+        &#34;&#34;&#34;A vehicles, load intensities, position and speed.
+
+        :param kn:
+            intensity, either for the entire vehicles or per axle, or as a list
+            of tuple (per wheel, each tuple is left then right wheel), in kilo
+            Newton.
+        :param axle_distances: distance between axles in meters.
+        :param axle_width: width of the vehicles&#39;s axles in meters.
+        :param kmph: speed of this vehicles.
+        :param lane: index of a lane on a bridge.
+        :param init_x_frac: position at time 0 in a simulation.
+        &#34;&#34;&#34;
+        self.kn = kn
+        self.axle_distances = axle_distances
+        self.axle_width = axle_width
+        self.length = sum(self.axle_distances)
+        self.num_axles = len(self.axle_distances) + 1
+        self.num_wheels = self.num_axles * 2
+        self.kmph = kmph
+        self.mps = self.kmph / 3.6  # Meters per second.
+        self.lane = lane
+        self.init_x_frac = init_x_frac
+        assert self.init_x_frac &lt;= 1
+
+        def total_kn():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return sum(chain.from_iterable(self.kn))
+                return sum(self.kn)
+            return self.kn
+
+        def kn_per_axle():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return list(map(sum, self.kn))
+                return self.kn
+            return [(self.kn / self.num_axles) for _ in range(self.num_axles)]
+
+        def kn_per_wheel():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return self.kn
+                return list(map(lambda kn: (kn / 2, kn / 2), self.kn))
+            wheel_kn = self.kn / self.num_wheels
+            return [(wheel_kn, wheel_kn) for _ in range(self.num_axles)]
+
+        self.total_kn = total_kn
+        self.kn_per_axle = kn_per_axle
+        self.kn_per_wheel = kn_per_wheel
+
+    def cmap_norm(self, all_vehicles: List[&#34;Vehicle&#34;], cmin=0, cmax=1):
+        &#34;&#34;&#34;The colormap and norm for coloring vehicles.&#34;&#34;&#34;
+        from plot import truncate_colormap
+
+        cmap = truncate_colormap(cm.get_cmap(&#34;YlGn&#34;), cmin, cmax)
+        total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
+        norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
+        return cmap, norm
+
+    def color(self, all_vehicles: List[&#34;Vehicle&#34;]):
+        &#34;&#34;&#34;Color of this vehicles scaled based on given vehicles.&#34;&#34;&#34;
+        cmap, norm = self.cmap_norm(all_vehicles)
+        if len(all_vehicles) == 0:
+            return cmap(0.5)
+        return cmap(norm(self.total_kn()))
+
+    def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;Positions of the vehicles&#39;s wheels in transverse direction.
+        Args:
+            bridge: Bridge, the bridge on which the vehicles is moving.
+            meters: bool, whether to return positions in meters (True) or
+                fractions (False) of the bridge width in [0 1].
+        &#34;&#34;&#34;
+        if not meters:
+            raise ValueError(&#34;Should not be doing this&#34;)
+        lane = bridge.lanes[self.lane]
+        tracks = [
+            lane.z_center - (self.axle_width / 2),
+            lane.z_center + (self.axle_width / 2),
+        ]
+        if meters:
+            return tracks
+        return list(map(lambda z: bridge.z_frac(z), tracks))
+
+    def x_frac_at(self, time: float, bridge: Bridge) -&gt; List[float]:
+        &#34;&#34;&#34;Fraction of x position of bridge in meters at given time.
+        Args:
+            time: float, time passed from initial position, in seconds.
+            bridge: Bridge, bridge the vehicles is moving on.
+        &#34;&#34;&#34;
+        delta_x_frac = (self.mps * time) / bridge.length
+        init_x_frac = self.init_x_frac
+        if bridge.lanes[self.lane].ltr:
+            return init_x_frac + delta_x_frac
+        else:
+            init_x_frac *= -1  # Make positive, move to right of bridge start.
+            init_x_frac += 1  # Move one bridge length to the right.
+            return init_x_frac - delta_x_frac
+
+    def x_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;X position of front axle on bridge at given time, in meters.
+        Args:
+            time: float, time passed from initial position, in seconds.
+            bridge: Bridge, bridge the vehicles is moving on.
+        &#34;&#34;&#34;
+        return bridge.x(self.x_frac_at(time=time, bridge=bridge))
+
+    def xs_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;X position on bridge for each axle in meters at given time.&#34;&#34;&#34;
+        if not hasattr(self, &#34;_xs_at_time&#34;):
+            xs = [self.x_at(time=time, bridge=bridge)]
+            # Determine the distance between each pair of axles.
+            delta_xs = np.array(self.axle_distances)
+            if bridge.lanes[self.lane].ltr:
+                delta_xs *= -1
+                delta_xs = reversed(delta_xs)
+            # Add the distance for each axle, after the front axle.
+            for delta_x in delta_xs:
+                xs.append(xs[-1] + delta_x)
+            self._xs_at_time = np.array(xs)
+        delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
+        return sorted(self._xs_at_time + delta_x_time)
+
+    def x_fracs_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;Fraction of x position of bridge for each axle at given time.&#34;&#34;&#34;
+        return list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+
+    def on_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+        &#34;&#34;&#34;Whether a moving load is on a bridge at a given time.&#34;&#34;&#34;
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicles positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        return 0 &lt;= xl_frac &lt;= 1 or 0 &lt;= xr_frac &lt;= 1
+
+    def full_lanes(self, time: float, bridge: Bridge) -&gt; float:
+        &#34;&#34;&#34;The amount of bridge lanes travelled by this vehicles.&#34;&#34;&#34;
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicles positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        if bridge.lanes[self.lane].ltr:
+            return xl_frac
+        else:
+            return abs(xr_frac - 1)
+
+    def passed_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+        &#34;&#34;&#34;Whether the current vehicles has travelled over the bridge.&#34;&#34;&#34;
+        return self.full_lanes(time=time, bridge=bridge) &gt; 1
+
+    def time_at(self, x, bridge: Bridge):
+        &#34;&#34;&#34;Time the front axle is at the given x position.&#34;&#34;&#34;
+        if not bridge.lanes[self.lane].ltr:
+            raise NotImplementedError()
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt; x
+        return float(abs(init_x - x)) / self.mps
+
+    def time_entering_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles begins to enter the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x)) / self.mps
+
+    def time_entered_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles has entered the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + self.length) / self.mps
+
+    def time_leaving_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles begins to leave the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + bridge.length) / self.mps
+
+    def time_left_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles has left the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + bridge.length + self.length) / self.mps
+
+    def to_wheel_track_xs(
+        self, c: &#34;Config&#34;, wheel_x: float, wheel_track_xs: Optional[List[float]] = None
+    ) -&gt; Tuple[Tuple[float, float], Tuple[float, float]]:
+        &#34;&#34;&#34;X positions (and weighting) of unit loads for a x position.
+        This implements wheel track bucketing!
+        &#34;&#34;&#34;
+        wheel_x = round_m(wheel_x)
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_x)
+        unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
+        if unit_load_x() &gt; wheel_x:
+            unit_load_x_ind -= 1
+        assert unit_load_x() &lt;= wheel_x
+        # If the unit load is an exact match just return it.
+        if np.isclose(wheel_x, unit_load_x()):
+            return ((wheel_x, 1), (0, 0))
+        # Otherwise, return a combination of two unit loads. In this case the
+        # unit load&#39;s position is less than the wheel.
+        unit_load_x_lo = unit_load_x()
+        unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
+        assert unit_load_x_hi &gt; wheel_x
+        dist_lo = abs(unit_load_x_lo - wheel_x)
+        dist_hi = abs(unit_load_x_hi - wheel_x)
+        dist = dist_lo + dist_hi
+        return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
+
+    def to_wheel_track_loads_(
+        self,
+        c: &#34;Config&#34;,
+        time: float,
+        flat: bool = False,
+        wheel_track_xs: Optional[List[float]] = None,
+    ):
+        &#34;&#34;&#34;Load intensities and positions per axle, per wheel.
+        &#34;Bucketed&#34; to fit onto wheel tracks.
+        NOTE: In each tuple of two point loads, one tuple per wheel, each point
+        load is for a unit load position in the wheel track. Each point load is
+        weighted by the distance to the unit load.
+        &#34;&#34;&#34;
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        xs = self.xs_at(time=time, bridge=c.bridge)
+        kns = self.kn_per_axle()
+        result = []
+        assert len(xs) == len(kns)
+        # For each axle.
+        for x, kn in zip(xs, kns):
+            # Skip axle if not on the bridge.
+            if (x &lt; c.bridge.x_min and not np.isclose(x, c.bridge.x_min)) or (
+                x &gt; c.bridge.x_max and not np.isclose(x, c.bridge.x_max)
+            ):
+                continue
+            left, right = [], []
+            for (load_x, load_frac) in self.to_wheel_track_xs(
+                c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
+            ):
+                if load_frac &gt; 0:
+                    bucket_kn = kn / 2 * load_frac
+                    left.append((load_x, bucket_kn))
+                    right.append((load_x, bucket_kn))
+            result.append((left, right))
+        if flat:
+            return flatten(result, PointLoad)
+        return result
+
+    def to_wheel_track_loads(
+        self, c: &#34;Config&#34;, time: float, flat: bool = False
+    ) -&gt; List[Tuple[List[PointLoad], List[PointLoad]]]:
+        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=True)
+        assert z0 &lt; z1
+        result = []
+        for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
+            left, right = [], []
+            left_loads, right_loads = axle_loads
+            for load_x, load_kn in left_loads:
+                left.append(PointLoad(x=load_x, z=z0, load=load_kn))
+            for load_x, load_kn in right_loads:
+                right.append(PointLoad(x=load_x, z=z1, load=load_kn))
+            result.append((left, right))
+        if flat:
+            return flatten(result, PointLoad)
+        return result
+
+    def to_point_load_pw(
+        self, time: float, bridge: Bridge, list: bool = False
+    ) -&gt; Union[List[Tuple[PointLoad, PointLoad]], List[PointLoad]]:
+        &#34;&#34;&#34;A tuple of point load per axle, one point load per wheel.&#34;&#34;&#34;
+        z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=True)
+        assert z0 &lt; z1
+        kn_per_axle = self.kn_per_axle()
+        result = []
+        # For each axle.
+        for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
+            # Skip axle if not on the bridge.
+            if (x &lt; bridge.x_min and not np.isclose(x, bridge.x_min)) or (
+                x &gt; bridge.x_max and not np.isclose(x, bridge.x_max)
+            ):
+                continue
+            # Two wheel load intensities.
+            kn_wheel = kn_per_axle[x_i] / 2
+            result.append(
+                (
+                    PointLoad(x=x, z=z0, load=kn_wheel),
+                    PointLoad(x=x, z=z1, load=kn_wheel),
+                )
+            )
+        if list:
+            return flatten(result, PointLoad)
+        return result
+
+    def plot_wheels(self, c: &#34;Config&#34;, time: float, label=None, **kwargs):
+        wheel_loads = self.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
+        for i, load in enumerate(wheel_loads):
+            x, z = c.bridge.x(load.x_frac), c.bridge.z(load.z_frac)
+            plt.scatter(
+                [x],
+                [z],
+                facecolors=&#34;none&#34;,
+                edgecolors=&#34;black&#34;,
+                label=None if i &gt; 0 else label,
+                **kwargs,
+            )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.model.Bridge"><code class="flex name class">
+<span>class <span class="ident">Bridge</span></span>
+<span>(</span><span>name: str, length: float, width: float, supports: List[<a title="bridge_sim.model.Support" href="#bridge_sim.model.Support">Support</a>], materials: List[ForwardRef('<a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a>')], lanes: List[<a title="bridge_sim.model.Lane" href="#bridge_sim.model.Lane">Lane</a>], msl: float, data_id: str = 'healthy', single_sections: Union[Tuple[bridge_sim.model.Material, bridge_sim.model.Material], NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A bridge's geometry, material properties and boundary conditions.</p>
+<p>:param name: name of this bridge.
+:param length: length of this bridge.
+:param width: width of this bridge.
+:param supports: a list of Support.
+:param materials: a list of bridge deck Material.
+:param lanes: a list of Lane for traffic to drive on.
+:param msl: maximum shell length parameter.
+:param data_id: additional identifier for saving/loading data.
+:param single_sections: tuple of one deck and one support material.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Bridge:
+    def __init__(
+        self,
+        name: str,
+        length: float,
+        width: float,
+        supports: List[Support],
+        materials: List[&#34;MaterialDeck&#34;],
+        lanes: List[Lane],
+        msl: float,
+        data_id: str = &#34;healthy&#34;,
+        single_sections: Optional[Tuple[Material, Material]] = None,
+    ):
+        &#34;&#34;&#34;A bridge&#39;s geometry, material properties and boundary conditions.
+
+        :param name: name of this bridge.
+        :param length: length of this bridge.
+        :param width: width of this bridge.
+        :param supports: a list of Support.
+        :param materials: a list of bridge deck Material.
+        :param lanes: a list of Lane for traffic to drive on.
+        :param msl: maximum shell length parameter.
+        :param data_id: additional identifier for saving/loading data.
+        :param single_sections: tuple of one deck and one support material.
+        &#34;&#34;&#34;
+        # Given arguments.
+        self.name = name
+        self.msl = msl
+        self.data_id = data_id
+
+        self.length = length
+        self.width = width
+        self.supports = supports
+        self.sections = materials
+        self.lanes = lanes
+        self.dimensions = Dimensions.D3
+        self.ref_temp_c = 17
+        self._next_section_id = 1
+
+        # Mesh.
+        self.base_mesh_deck_max_x = msl
+        self.base_mesh_deck_max_z = msl
+        self.base_mesh_pier_max_long = msl
+
+        # Attach single section option for asserts and printing info.
+        self.single_sections = single_sections
+        if self.single_sections is not None:
+            self.name += &#34;-single-sections&#34;
+            self.sections = [self.single_sections[0]]  # Set deck section.
+            for pier in self.supports:  # Set pier sections.
+                pier.sections = [self.single_sections[1]]
+
+        self.additional_xs = []
+
+        # Derived attributes.
+        #
+        # NOTE: The functions y_min_max and z_min_max calculate the min and max
+        # values of the bridge in y and z directions respectively, based on the
+        # supports and sections. For a 3D bridge neither supports nor sections
+        # contain information on the min or max values in z direction.
+        self.x_min, self.x_max = 0, length
+        self.y_min, self.y_max = self.y_min_max()
+        self.z_min, self.z_max = -width / 2, width / 2
+        self.x_center = (self.x_min + self.x_max) / 2
+        self.y_center = (self.y_min + self.y_max) / 2
+        self.z_center = (self.z_min + self.z_max) / 2
+        self.height = self.y_max - self.y_min
+        # All sections belonging to this bridge.
+        self._sections_dict = dict()
+        # Assert the bridge is fine and print info.
+        self._assert_bridge()
+
+    def _get_section(self, section: Material) -&gt; Material:
+        &#34;&#34;&#34;An equivalent section if exists, else the given one.&#34;&#34;&#34;
+
+        def with_id(s: Material) -&gt; Material:
+            s.id = self._next_section_id
+            self._next_section_id += 1
+            return s
+
+        section_prop_str = section.prop_str()
+        if section_prop_str in self._sections_dict:
+            return with_id(self._sections_dict[section_prop_str])
+        self._sections_dict[section_prop_str] = section
+        return with_id(self._sections_dict[section_prop_str])
+
+    def deck_section_at(self, x: float, z: float) -&gt; Material:
+        &#34;&#34;&#34;Return the deck section at given position.&#34;&#34;&#34;
+        if callable(self.sections):
+            raise NotImplementedError()
+        if len(self.sections) == 1:
+            return self._get_section(self.sections[0])
+        for section in self.sections:
+            if section.contains(bridge=self, x=x, z=z):
+                return self._get_section(section)
+        raise ValueError(&#34;No section for x, z = {x}, {z}&#34;)
+
+    def pier_section_at_len(self, p_i: int, section_frac_len: float) -&gt; Material:
+        &#34;&#34;&#34;Return the section at a fraction of a pier&#39;s length&#34;&#34;&#34;
+        assert 0 &lt;= section_frac_len &lt;= 1
+        pier = self.supports[p_i]
+        if callable(pier._sections):
+            return self._get_section(pier._sections(section_frac_len))
+        if len(pier._sections) == 1:
+            return self._get_section(pier._sections[0])
+        raise ValueError(f&#34;Pier {p_i} sections are not a function&#34;)
+
+    def print_info(self, c: &#34;Config&#34;, pier_fix_info: bool = False):
+        &#34;&#34;&#34;Print summary information about this bridge.
+
+        Args:
+            fix_info: print information on pier&#39;s fixed nodes.
+
+        &#34;&#34;&#34;
+        print_s(f&#34;Bridge dimensions:&#34;)
+        print_s(f&#34;  x = ({self.x_min}, {self.x_max})&#34;)
+        print_s(f&#34;  y = ({self.y_min}, {self.y_max})&#34;)
+        print_s(f&#34;  z = ({self.z_min}, {self.z_max})&#34;)
+
+        print_s(f&#34;Bridge lanes:&#34;)
+        wheel_tracks = self.wheel_tracks(c)
+        for l, lane in enumerate(self.lanes):
+            print_s(f&#34;  lane {l}: {lane.z_min} &lt;= z &lt;= {lane.z_max}&#34;)
+            print_s(f&#34;  lane {l}: center at z = {lane.z_center}&#34;)
+            track_0 = wheel_tracks[l * 2]
+            track_1 = wheel_tracks[l * 2 + 1]
+            print_s(f&#34;  lane {l}: wheel tracks at z = {track_0}, {track_1}&#34;)
+
+        if self.single_sections:
+            print_s(&#34;One section for the deck, one for piers:&#34;)
+            print_s(f&#34;Deck:&#34;)
+            list(map(print_s, str(self.sections[0]).split(&#34;\n&#34;)))
+            print_s(f&#34;Piers:&#34;)
+            list(map(print_s, str(self.supports[0].sections[0]).split(&#34;\n&#34;)))
+
+        if pier_fix_info:
+            for p, pier in enumerate(self.supports):
+                print_s(f&#34;Pier {p} fixed:&#34;)
+                print_s(f&#34;  x-trans {pier.fix_x_translation}&#34;)
+                print_s(f&#34;  y-trans {pier.fix_y_translation}&#34;)
+                print_s(f&#34;  z-trans {pier.fix_z_translation}&#34;)
+                print_s(f&#34;  x-rot   {pier.fix_x_rotation}&#34;)
+                print_s(f&#34;  y-rot   {pier.fix_y_rotation}&#34;)
+                print_s(f&#34;  z-rot   {pier.fix_z_rotation}&#34;)
+
+    def id_str(self, msl: bool = True, data_id: bool = True):
+        &#34;&#34;&#34;Name with accuracy information.
+
+        Args:
+            msl: bool, include msl in identifier.
+            data_id: bool, include data_id in identifier.
+
+        &#34;&#34;&#34;
+        acc_str = f&#34;-{self.msl}&#34; if msl else &#34;&#34;
+        data_id_str = f&#34;-{self.data_id}&#34; if data_id else &#34;&#34;
+        return safe_str(f&#34;{self.name}{acc_str}{data_id_str}&#34;)
+
+    def closest_lane(self, z: float):
+        &#34;&#34;&#34;Index of the lane closest to the point.&#34;&#34;&#34;
+        result = None
+        lane_dist = np.inf
+        for lane_ind, lane in enumerate(self.lanes):
+            this_dist = abs(lane.z_center - z)
+            if this_dist &lt; lane_dist:
+                result = lane_ind
+                lane_dist = this_dist
+        return result
+
+    def wheel_track_zs(self, c: &#34;Config&#34;):
+        &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
+        half_axle = c.axle_width / 2
+        return sorted(
+            chain.from_iterable(
+                [lane.z_center - half_axle, lane.z_center + half_axle]
+                for lane in self.lanes
+            )
+        )
+
+    def wheel_track_xs(self, c: &#34;Config&#34;):
+        &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
+        return round_m(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads))
+
+    def y_min_max(self):
+        &#34;&#34;&#34;The min and max values in y direction from supports and sections.&#34;&#34;&#34;
+        return self._min_max(lambda s: s.y_min_max())
+
+    def z_min_max(self):
+        &#34;&#34;&#34;The min and max values in z direction from supports and sections.&#34;&#34;&#34;
+        return self._min_max(lambda s: s.z_min_max())
+
+    def x_axis(self) -&gt; List[float]:
+        &#34;&#34;&#34;Position of supports in meters along the bridge&#39;s x-axis.&#34;&#34;&#34;
+        return np.interp([f.x_frac for f in self.supports], [0, 1], [0, self.length])
+
+    def x_axis_equi(self, n) -&gt; List[float]:
+        &#34;&#34;&#34;n equidistant values along the bridge&#39;s x-axis, in meters.&#34;&#34;&#34;
+        return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])
+
+    def x_frac(self, x: float):
+        return float(
+            interp1d([self.x_min, self.x_max], [0, 1], fill_value=&#34;extrapolate&#34;)(x)
+        )
+
+    def x(self, x_frac: float):
+        return float(
+            interp1d([0, 1], [self.x_min, self.x_max], fill_value=&#34;extrapolate&#34;)(x_frac)
+        )
+
+    def y_frac(self, y: float):
+        assert self.y_min &lt;= y &lt;= self.y_max
+        return np.interp(y, [self.y_min, self.y_max], [0, 1])
+
+    def y(self, y_frac: float):
+        assert 0 &lt;= y_frac &lt;= 1
+        return np.interp(y_frac, [0, 1], [self.y_min, self.y_max])
+
+    def z_frac(self, z: float):
+        assert self.z_min &lt;= z &lt;= self.z_max
+        return np.interp(z, [self.z_min, self.z_max], [0, 1])
+
+    def z(self, z_frac: float):
+        assert 0 &lt;= z_frac &lt;= 1
+        return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])
+
+    def _min_max(
+        self,
+        f: Callable[
+            [Union[Support, Material]], Tuple[Optional[float], Optional[float]]
+        ],
+    ) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max values in a direction from supports and sections.&#34;&#34;&#34;
+        z_min, z_max = None, None
+
+        def set_z_min(z: float):
+            nonlocal z_min
+            if z is None:
+                return
+            z_min = z if z_min is None or z &lt; z_min else z_min
+
+        def set_z_max(z: float):
+            nonlocal z_max
+            if z is None:
+                return
+            z_max = z if z_max is None or z &gt; z_max else z_max
+
+        for section in self.sections:
+            s_z_min, s_z_max = f(section)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        for support in self.supports:
+            s_z_min, s_z_max = f(support)
+            set_z_min(s_z_min)
+            set_z_max(s_z_max)
+
+        return z_min, z_max
+
+    def _assert_bridge(self):
+        &#34;&#34;&#34;Assert this bridge makes sense.&#34;&#34;&#34;
+        # Single section only in 3D.
+        if self.single_sections:
+            if self.dimensions != Dimensions.D3:
+                raise ValueError(&#34;Bridge.single_section only supported in 3D&#34;)
+            assert self.single_sections[0].start_x_frac == 0
+            assert self.single_sections[0].start_z_frac == 0
+            assert self.single_sections[1].start_x_frac == 0
+            assert self.single_sections[1].start_z_frac == 0
+            assert self.single_sections[1].start_frac_len == 0
+            assert len(self.sections) == 1
+            for pier in self.supports:
+                assert len(pier.sections) == 1
+
+        # Bridge boundaries should be correct in orientation.
+        assert self.x_min &lt; self.x_max
+        assert self.y_min &lt; self.y_max
+        assert self.z_min &lt; self.z_max
+
+        # Derived dimensions should make sense.
+        assert self.length == self.x_max - self.x_min
+        assert self.width == self.z_max - self.z_min
+
+        # Base mesh must be of a minimum size.
+        assert self.base_mesh_deck_max_x &lt;= self.length
+        if self.dimensions == Dimensions.D3:
+            assert self.base_mesh_deck_max_z &lt;= self.width
+            # for pier in self.supports:
+            # TODO: Improve this assert, piers are not vertical.
+            # assert self.base_mesh_pier_max_long &lt;= pier.height
+        self._assert_3d()
+
+    def _assert_3d(self):
+        # All sections are Material.
+        for section in self.sections:
+            if not isinstance(section, Material):
+                raise ValueError(&#34;3D bridge must use Material sections&#34;)
+
+        # First section must start at 0.
+        if self.sections[0].start_x_frac != 0:
+            raise ValueError(&#34;First section of 3D bridge must start at 0&#34;)
+
+        # Section must be in order.
+        last_start_x_frac = self.sections[0].start_x_frac
+        for section in self.sections[1:]:
+            if section.start_x_frac &lt; last_start_x_frac:
+                raise ValueError(&#34;Sections not in order of start_x_frac&#34;)
+            last_start_x_frac = section.start_x_frac
+
+        # Lanes must be in range.
+        for i, lane in enumerate(self.lanes):
+            if lane.z_min &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Lane {i} lower position {lane.z_min} less than bridge&#34;
+                    + f&#34; {self.z_min}&#34;
+                )
+            if lane.z_min &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Lane {i} lower position {lane.z_min} greater than bridge&#34;
+                    + f&#34; {self.z_max}&#34;
+                )
+            if lane.z_max &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Lane {i} upper position {lane.z_max} less than bridge&#34;
+                    + f&#34; {self.z_min}&#34;
+                )
+            if lane.z_max &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Lane {i} upper position {lane.z_max} greater than bridge&#34;
+                    + f&#34; {self.z_max}&#34;
+                )
+
+        # Supports must be in range.
+        for i, support in enumerate(self.supports):
+            support_z_min, support_z_max = support.z_min_max_top()
+            if support_z_min &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Support {i} lower position {support_z_min} less than&#34;
+                    + f&#34; bridge {self.z_min}&#34;
+                )
+            if support_z_min &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Support {i} lower position {support_z_min} greater than&#34;
+                    + f&#34; bridge {self.z_max}&#34;
+                )
+            if support_z_max &lt; self.z_min:
+                raise ValueError(
+                    f&#34;Support {i} upper position {support_z_max} less than&#34;
+                    + f&#34; bridge {self.z_min}&#34;
+                )
+            if support_z_max &gt; self.z_max:
+                raise ValueError(
+                    f&#34;Support {i} upper position {support_z_max} greater than&#34;
+                    + f&#34; bridge {self.z_max}&#34;
+                )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Bridge.closest_lane"><code class="name flex">
+<span>def <span class="ident">closest_lane</span></span>(<span>self, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Index of the lane closest to the point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def closest_lane(self, z: float):
+    &#34;&#34;&#34;Index of the lane closest to the point.&#34;&#34;&#34;
+    result = None
+    lane_dist = np.inf
+    for lane_ind, lane in enumerate(self.lanes):
+        this_dist = abs(lane.z_center - z)
+        if this_dist &lt; lane_dist:
+            result = lane_ind
+            lane_dist = this_dist
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.deck_section_at"><code class="name flex">
+<span>def <span class="ident">deck_section_at</span></span>(<span>self, x: float, z: float) -> <a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the deck section at given position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deck_section_at(self, x: float, z: float) -&gt; Material:
+    &#34;&#34;&#34;Return the deck section at given position.&#34;&#34;&#34;
+    if callable(self.sections):
+        raise NotImplementedError()
+    if len(self.sections) == 1:
+        return self._get_section(self.sections[0])
+    for section in self.sections:
+        if section.contains(bridge=self, x=x, z=z):
+            return self._get_section(section)
+    raise ValueError(&#34;No section for x, z = {x}, {z}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.id_str"><code class="name flex">
+<span>def <span class="ident">id_str</span></span>(<span>self, msl: bool = True, data_id: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Name with accuracy information.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>msl</code></strong></dt>
+<dd>bool, include msl in identifier.</dd>
+<dt><strong><code>data_id</code></strong></dt>
+<dd>bool, include data_id in identifier.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def id_str(self, msl: bool = True, data_id: bool = True):
+    &#34;&#34;&#34;Name with accuracy information.
+
+    Args:
+        msl: bool, include msl in identifier.
+        data_id: bool, include data_id in identifier.
+
+    &#34;&#34;&#34;
+    acc_str = f&#34;-{self.msl}&#34; if msl else &#34;&#34;
+    data_id_str = f&#34;-{self.data_id}&#34; if data_id else &#34;&#34;
+    return safe_str(f&#34;{self.name}{acc_str}{data_id_str}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.pier_section_at_len"><code class="name flex">
+<span>def <span class="ident">pier_section_at_len</span></span>(<span>self, p_i: int, section_frac_len: float) -> <a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the section at a fraction of a pier's length</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pier_section_at_len(self, p_i: int, section_frac_len: float) -&gt; Material:
+    &#34;&#34;&#34;Return the section at a fraction of a pier&#39;s length&#34;&#34;&#34;
+    assert 0 &lt;= section_frac_len &lt;= 1
+    pier = self.supports[p_i]
+    if callable(pier._sections):
+        return self._get_section(pier._sections(section_frac_len))
+    if len(pier._sections) == 1:
+        return self._get_section(pier._sections[0])
+    raise ValueError(f&#34;Pier {p_i} sections are not a function&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.print_info"><code class="name flex">
+<span>def <span class="ident">print_info</span></span>(<span>self, c: Config, pier_fix_info: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print summary information about this bridge.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fix_info</code></strong></dt>
+<dd>print information on pier's fixed nodes.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_info(self, c: &#34;Config&#34;, pier_fix_info: bool = False):
+    &#34;&#34;&#34;Print summary information about this bridge.
+
+    Args:
+        fix_info: print information on pier&#39;s fixed nodes.
+
+    &#34;&#34;&#34;
+    print_s(f&#34;Bridge dimensions:&#34;)
+    print_s(f&#34;  x = ({self.x_min}, {self.x_max})&#34;)
+    print_s(f&#34;  y = ({self.y_min}, {self.y_max})&#34;)
+    print_s(f&#34;  z = ({self.z_min}, {self.z_max})&#34;)
+
+    print_s(f&#34;Bridge lanes:&#34;)
+    wheel_tracks = self.wheel_tracks(c)
+    for l, lane in enumerate(self.lanes):
+        print_s(f&#34;  lane {l}: {lane.z_min} &lt;= z &lt;= {lane.z_max}&#34;)
+        print_s(f&#34;  lane {l}: center at z = {lane.z_center}&#34;)
+        track_0 = wheel_tracks[l * 2]
+        track_1 = wheel_tracks[l * 2 + 1]
+        print_s(f&#34;  lane {l}: wheel tracks at z = {track_0}, {track_1}&#34;)
+
+    if self.single_sections:
+        print_s(&#34;One section for the deck, one for piers:&#34;)
+        print_s(f&#34;Deck:&#34;)
+        list(map(print_s, str(self.sections[0]).split(&#34;\n&#34;)))
+        print_s(f&#34;Piers:&#34;)
+        list(map(print_s, str(self.supports[0].sections[0]).split(&#34;\n&#34;)))
+
+    if pier_fix_info:
+        for p, pier in enumerate(self.supports):
+            print_s(f&#34;Pier {p} fixed:&#34;)
+            print_s(f&#34;  x-trans {pier.fix_x_translation}&#34;)
+            print_s(f&#34;  y-trans {pier.fix_y_translation}&#34;)
+            print_s(f&#34;  z-trans {pier.fix_z_translation}&#34;)
+            print_s(f&#34;  x-rot   {pier.fix_x_rotation}&#34;)
+            print_s(f&#34;  y-rot   {pier.fix_y_rotation}&#34;)
+            print_s(f&#34;  z-rot   {pier.fix_z_rotation}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.wheel_track_xs"><code class="name flex">
+<span>def <span class="ident">wheel_track_xs</span></span>(<span>self, c: Config)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Unit load x positions for wheel tracks on this bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wheel_track_xs(self, c: &#34;Config&#34;):
+    &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
+    return round_m(np.linspace(c.bridge.x_min, c.bridge.x_max, c.il_num_loads))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.wheel_track_zs"><code class="name flex">
+<span>def <span class="ident">wheel_track_zs</span></span>(<span>self, c: Config)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Z positions of wheel track on the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wheel_track_zs(self, c: &#34;Config&#34;):
+    &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
+    half_axle = c.axle_width / 2
+    return sorted(
+        chain.from_iterable(
+            [lane.z_center - half_axle, lane.z_center + half_axle]
+            for lane in self.lanes
+        )
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.x"><code class="name flex">
+<span>def <span class="ident">x</span></span>(<span>self, x_frac: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x(self, x_frac: float):
+    return float(
+        interp1d([0, 1], [self.x_min, self.x_max], fill_value=&#34;extrapolate&#34;)(x_frac)
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.x_axis"><code class="name flex">
+<span>def <span class="ident">x_axis</span></span>(<span>self) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Position of supports in meters along the bridge's x-axis.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_axis(self) -&gt; List[float]:
+    &#34;&#34;&#34;Position of supports in meters along the bridge&#39;s x-axis.&#34;&#34;&#34;
+    return np.interp([f.x_frac for f in self.supports], [0, 1], [0, self.length])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.x_axis_equi"><code class="name flex">
+<span>def <span class="ident">x_axis_equi</span></span>(<span>self, n) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>n equidistant values along the bridge's x-axis, in meters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_axis_equi(self, n) -&gt; List[float]:
+    &#34;&#34;&#34;n equidistant values along the bridge&#39;s x-axis, in meters.&#34;&#34;&#34;
+    return np.interp(np.linspace(0, 1, n), [0, 1], [0, self.length])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.x_frac"><code class="name flex">
+<span>def <span class="ident">x_frac</span></span>(<span>self, x: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_frac(self, x: float):
+    return float(
+        interp1d([self.x_min, self.x_max], [0, 1], fill_value=&#34;extrapolate&#34;)(x)
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.y"><code class="name flex">
+<span>def <span class="ident">y</span></span>(<span>self, y_frac: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y(self, y_frac: float):
+    assert 0 &lt;= y_frac &lt;= 1
+    return np.interp(y_frac, [0, 1], [self.y_min, self.y_max])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.y_frac"><code class="name flex">
+<span>def <span class="ident">y_frac</span></span>(<span>self, y: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y_frac(self, y: float):
+    assert self.y_min &lt;= y &lt;= self.y_max
+    return np.interp(y, [self.y_min, self.y_max], [0, 1])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.y_min_max"><code class="name flex">
+<span>def <span class="ident">y_min_max</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max values in y direction from supports and sections.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y_min_max(self):
+    &#34;&#34;&#34;The min and max values in y direction from supports and sections.&#34;&#34;&#34;
+    return self._min_max(lambda s: s.y_min_max())</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.z"><code class="name flex">
+<span>def <span class="ident">z</span></span>(<span>self, z_frac: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def z(self, z_frac: float):
+    assert 0 &lt;= z_frac &lt;= 1
+    return np.interp(z_frac, [0, 1], [self.z_min, self.z_max])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.z_frac"><code class="name flex">
+<span>def <span class="ident">z_frac</span></span>(<span>self, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def z_frac(self, z: float):
+    assert self.z_min &lt;= z &lt;= self.z_max
+    return np.interp(z, [self.z_min, self.z_max], [0, 1])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Bridge.z_min_max"><code class="name flex">
+<span>def <span class="ident">z_min_max</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max values in z direction from supports and sections.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def z_min_max(self):
+    &#34;&#34;&#34;The min and max values in z direction from supports and sections.&#34;&#34;&#34;
+    return self._min_max(lambda s: s.z_min_max())</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Config"><code class="flex name class">
+<span>class <span class="ident">Config</span></span>
+<span>(</span><span>bridge: Callable[[], ForwardRef('Bridge')], sim_runner: Callable[[], ForwardRef('FEMRunner')], vehicle_data_path: str, vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str, generated_data: str = 'generated-data', shorten_paths: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simulation configuration object.</p>
+<p>Combines a Bridge and FEMRunner among other configuration.</p>
+<p>:param bridge: function that returns a bridge.
+:param sim_runner: simulation runner.
+:param vehicle_data_path: path of the vehicles CSV file.
+:param vehicle_pdf:
+percentage of vehicles below a maximum value for that column.</p>
+<pre><code>Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
+
+Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+2.4m and less than 5.6m, and the remaining 5% are less than 16m.
+This applies if 'vehicle_pdf_col' is "length".
+</code></pre>
+<p>:param vehicle_pdf_col: column of vehicle_data to group by.
+:param generated_data: directory where to save generated files.
+:param shorten_paths: shorten simulation paths.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Config:
+    def __init__(
+        self,
+        bridge: Callable[[], &#34;Bridge&#34;],
+        sim_runner: Callable[[], &#34;FEMRunner&#34;],
+        vehicle_data_path: str,
+        vehicle_pdf: List[Tuple[float, float]],
+        vehicle_pdf_col: str,
+        generated_data: str = &#34;generated-data&#34;,
+        shorten_paths: bool = False,
+    ):
+        &#34;&#34;&#34;Simulation configuration object.
+
+        Combines a Bridge and FEMRunner among other configuration.
+
+        :param bridge: function that returns a bridge.
+        :param sim_runner: simulation runner.
+        :param vehicle_data_path: path of the vehicles CSV file.
+        :param vehicle_pdf:
+            percentage of vehicles below a maximum value for that column.
+
+            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
+
+            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
+            This applies if &#39;vehicle_pdf_col&#39; is &#34;length&#34;.
+        :param vehicle_pdf_col: column of vehicle_data to group by.
+        :param generated_data: directory where to save generated files.
+        :param shorten_paths: shorten simulation paths.
+        &#34;&#34;&#34;
+        # Core.
+        self._bridge = bridge
+        self.bridge = self._bridge()
+        self._sim_runner = sim_runner
+        self.sim_runner = self._sim_runner(self)
+
+        # OpenSees
+        self.os_model_template_path: str = &#34;model-template.tcl&#34;
+        self.os_3d_model_template_path: str = &#34;model-template-3d.tcl&#34;
+
+        # Simulation performance.
+        self.parallel = 1
+        self.parallel_ulm = True
+        self.shorten_paths = shorten_paths
+        self.resp_matrices = dict()
+
+        # Unit loads.
+        self.il_num_loads: int = 600
+        self.il_unit_load_kn: float = 1000
+        self.pd_unit_disp: float = 1.0
+        self.pd_unit_load_kn: int = 10
+        self.unit_axial_delta_temp_c: int = 1
+        self.unit_moment_delta_temp_c: int = 1
+        self.cte = 12e-6
+
+        # Responses &amp; events.
+        self.sensor_hz: float = 1 / 100
+        self.event_time_s: float = 2  # Seconds.
+
+        # Vehicles.
+        self.perturb_stddev: float = 0.1
+        self.axle_width: float = 2.5
+        self.vehicle_pdf = vehicle_pdf
+        self.vehicle_pdf_col = vehicle_pdf_col
+        start = timer()
+        self.vehicle_data_path = vehicle_data_path
+        # Necessary to prevent a circular import.
+        from bridge_sim.vehicles.sample import load_vehicle_data
+
+        self.vehicle_data = load_vehicle_data(vehicle_data_path)
+        print_i(
+            f&#34;Loaded vehicles data from {vehicle_data_path} in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+
+        # Ensure vehicles probability density sums to 1.
+        pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+        if int(pdf_sum) != 100:
+            pre_pdf_sum = pdf_sum
+            for i in range(len(self.vehicle_pdf)):
+                self.vehicle_pdf[i] = (
+                    self.vehicle_pdf[i][0],
+                    self.vehicle_pdf[i][1] / pdf_sum,
+                )
+            pdf_sum = sum(map(lambda f: f[1], self.vehicle_pdf))
+            print_w(f&#34;Vehicle PDF sums to {pre_pdf_sum}, adjusted to sum to 1&#34;)
+
+        # Root directories for generated data.
+        self.root_generated_data_dir = _get_dir(generated_data)
+        if self.root_generated_data_dir[-1] in &#34;/\\&#34;:
+            raise ValueError(&#34;generated_data must not end in path separator&#34;)
+        self.root_generated_images_dir = lambda: _get_dir(
+            os.path.join(self.root_generated_data_dir + &#34;-images&#34;)
+        )
+
+    # Bridge-specific directories for generated data.
+
+    def generated_data_dir(self):
+        return _get_dir(
+            os.path.join(self.root_generated_data_dir, self.bridge.id_str(),)
+        )
+
+    def generated_images_dir(self):
+        return _get_dir(
+            os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
+        )
+
+    # Bridge-specific but accuracy-independent directories.
+
+    def generated_data_dir_no_acc(self):
+        return _get_dir(
+            os.path.join(
+                self.root_generated_data_dir,
+                self.bridge.id_str(msl=False, data_id=False),
+            )
+        )
+
+    def generated_images_dir_no_acc(self):
+        return _get_dir(
+            os.path.join(
+                self.root_generated_images_dir(),
+                self.bridge.id_str(msl=False, data_id=False),
+            )
+        )
+
+    def get_path_in(self, in_: str, dirname: str, filename: str):
+        &#34;&#34;&#34;Filepath in a directory in a directory (created if necessary).
+
+        TODO: Use safe_str here.
+
+        &#34;&#34;&#34;
+        dirpath = os.path.join(in_, dirname)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+        return os.path.join(dirpath, filename)
+
+    def get_data_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
+        &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+        dir_path = self.generated_data_dir()
+        if not bridge:
+            dir_path = self.root_generated_images_dir()
+        elif not acc:
+            dir_path = self.generated_data_dir_no_acc()
+        return self.get_path_in(dir_path, dirname, filename)
+
+    def get_image_path(
+        self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+    ):
+        &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+        dir_path = self.generated_images_dir()
+        if not bridge:
+            dir_path = self.root_generated_images_dir()
+        elif not acc:
+            dir_path = self.generated_images_dir_no_acc()
+        return self.get_path_in(dir_path, dirname, filename)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Config.generated_data_dir"><code class="name flex">
+<span>def <span class="ident">generated_data_dir</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generated_data_dir(self):
+    return _get_dir(
+        os.path.join(self.root_generated_data_dir, self.bridge.id_str(),)
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.generated_data_dir_no_acc"><code class="name flex">
+<span>def <span class="ident">generated_data_dir_no_acc</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generated_data_dir_no_acc(self):
+    return _get_dir(
+        os.path.join(
+            self.root_generated_data_dir,
+            self.bridge.id_str(msl=False, data_id=False),
+        )
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.generated_images_dir"><code class="name flex">
+<span>def <span class="ident">generated_images_dir</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generated_images_dir(self):
+    return _get_dir(
+        os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.generated_images_dir_no_acc"><code class="name flex">
+<span>def <span class="ident">generated_images_dir_no_acc</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generated_images_dir_no_acc(self):
+    return _get_dir(
+        os.path.join(
+            self.root_generated_images_dir(),
+            self.bridge.id_str(msl=False, data_id=False),
+        )
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.get_data_path"><code class="name flex">
+<span>def <span class="ident">get_data_path</span></span>(<span>self, dirname: str, filename: str, bridge: bool = True, acc: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a bridge-specific image path in a named directory.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_data_path(
+    self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+):
+    &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+    dir_path = self.generated_data_dir()
+    if not bridge:
+        dir_path = self.root_generated_images_dir()
+    elif not acc:
+        dir_path = self.generated_data_dir_no_acc()
+    return self.get_path_in(dir_path, dirname, filename)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.get_image_path"><code class="name flex">
+<span>def <span class="ident">get_image_path</span></span>(<span>self, dirname: str, filename: str, bridge: bool = True, acc: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get a bridge-specific image path in a named directory.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_image_path(
+    self, dirname: str, filename: str, bridge: bool = True, acc: bool = True
+):
+    &#34;&#34;&#34;Get a bridge-specific image path in a named directory.&#34;&#34;&#34;
+    dir_path = self.generated_images_dir()
+    if not bridge:
+        dir_path = self.root_generated_images_dir()
+    elif not acc:
+        dir_path = self.generated_images_dir_no_acc()
+    return self.get_path_in(dir_path, dirname, filename)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Config.get_path_in"><code class="name flex">
+<span>def <span class="ident">get_path_in</span></span>(<span>self, in_: str, dirname: str, filename: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filepath in a directory in a directory (created if necessary).</p>
+<p>TODO: Use safe_str here.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_path_in(self, in_: str, dirname: str, filename: str):
+    &#34;&#34;&#34;Filepath in a directory in a directory (created if necessary).
+
+    TODO: Use safe_str here.
+
+    &#34;&#34;&#34;
+    dirpath = os.path.join(in_, dirname)
+    if not os.path.exists(dirpath):
+        os.makedirs(dirpath)
+    return os.path.join(dirpath, filename)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Dimensions"><code class="flex name class">
+<span>class <span class="ident">Dimensions</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Dimensions(Enum):
+    D3 = &#34;D3&#34;
+
+    def name(self) -&gt; str:
+        &#34;&#34;&#34;Human readable name for dimensions.&#34;&#34;&#34;
+        return {Dimensions.D3: &#34;3D&#34;,}[self]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="bridge_sim.model.Dimensions.D3"><code class="name">var <span class="ident">D3</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Dimensions.name"><code class="name flex">
+<span>def <span class="ident">name</span></span>(<span>self) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Human readable name for dimensions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def name(self) -&gt; str:
+    &#34;&#34;&#34;Human readable name for dimensions.&#34;&#34;&#34;
+    return {Dimensions.D3: &#34;3D&#34;,}[self]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Lane"><code class="flex name class">
+<span>class <span class="ident">Lane</span></span>
+<span>(</span><span>z0: float, z1: float, ltr: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A traffic lane spanning the length of a bridge.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>z0</code></strong></dt>
+<dd>float, z ordinate of one edge of the lane in meters.</dd>
+<dt><strong><code>z1</code></strong></dt>
+<dd>float, z ordinate of the other edge of the lane in meters.</dd>
+<dt><strong><code>ltr</code></strong></dt>
+<dd>bool, whether traffic moves left to right, or opposite.</dd>
+</dl>
+<h2 id="attrs">Attrs</h2>
+<p>z_min, float, lower z position of the bridge in meters.
+z_min, float, upper z position of the bridge in meters.
+width, float, Width of the lane in meters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Lane:
+    &#34;&#34;&#34;A traffic lane spanning the length of a bridge.
+
+    Args:
+        z0: float, z ordinate of one edge of the lane in meters.
+        z1: float, z ordinate of the other edge of the lane in meters.
+        ltr: bool, whether traffic moves left to right, or opposite.
+
+    Attrs:
+        z_min, float, lower z position of the bridge in meters.
+        z_min, float, upper z position of the bridge in meters.
+        width, float, Width of the lane in meters.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, z0: float, z1: float, ltr: bool):
+        self.z_min: float = round_m(min(z0, z1))
+        self.z_max: float = round_m(max(z0, z1))
+        self.ltr: bool = ltr
+        self.width = round_m(self.z_max - self.z_min)
+        self.z_center = round_m(self.z_min + (self.width / 2))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material"><code class="flex name class">
+<span>class <span class="ident">Material</span></span>
+<span>(</span><span>thickness: float, youngs: float, poissons: float, start_x_frac: float = 0, start_z_frac: float = 0, end_x_frac: float = 1, end_z_frac: float = 1, density: float = 0, youngs_x: Union[float, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An abstract class for material properties.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>density</code></strong></dt>
+<dd>float, section density in kg/m.</dd>
+<dt><strong><code>thickness</code></strong></dt>
+<dd>float, section thickness in m.</dd>
+<dt><strong><code>youngs</code></strong></dt>
+<dd>float, Young's modulus of the section in N/mm1.</dd>
+<dt><strong><code>youngs_x</code></strong></dt>
+<dd>Optional[float], Young's modulus in x direction, in N/mm2.</dd>
+<dt><strong><code>poisson</code></strong></dt>
+<dd>float, Poisson's ratio.</dd>
+<dt><strong><code>start_x_frac</code></strong></dt>
+<dd>float, start of the section as a fraction of x position.</dd>
+<dt><strong><code>start_z_frac</code></strong></dt>
+<dd>float, start of the section as a fraction of z position.</dd>
+<dt><strong><code>end_x_frac</code></strong></dt>
+<dd>float, end of the section as a fraction of x position.</dd>
+<dt><strong><code>end_z_frac</code></strong></dt>
+<dd>float, end of the section as a fraction of z position.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Material:
+    &#34;&#34;&#34;An abstract class for material properties.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young&#39;s modulus of the section in N/mm1.
+        youngs_x: Optional[float], Young&#39;s modulus in x direction, in N/mm2.
+        poisson: float, Poisson&#39;s ratio.
+        start_x_frac: float, start of the section as a fraction of x position.
+        start_z_frac: float, start of the section as a fraction of z position.
+        end_x_frac: float, end of the section as a fraction of x position.
+        end_z_frac: float, end of the section as a fraction of z position.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_x_frac: float = 0,
+        start_z_frac: float = 0,
+        end_x_frac: float = 1,
+        end_z_frac: float = 1,
+        density: float = 0,
+        youngs_x: Optional[float] = None,
+    ):
+        self.density = density
+        self.thickness = thickness
+        self.youngs = youngs
+        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self.poissons = poissons
+        self.start_x_frac = start_x_frac
+        self.start_z_frac = start_z_frac
+        self.end_x_frac = end_x_frac
+        self.end_z_frac = end_z_frac
+
+    def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
+        &#34;&#34;&#34;Whether this section contains the given point.&#34;&#34;&#34;
+        x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+        return (
+            (self.start_x_frac &lt; x_frac or np.isclose(self.start_x_frac, x_frac))
+            and (self.end_x_frac &gt; x_frac or np.isclose(self.end_x_frac, x_frac))
+            and (self.start_z_frac &lt; z_frac or np.isclose(self.start_z_frac, z_frac))
+            and (self.end_z_frac &gt; z_frac or np.isclose(self.end_z_frac, z_frac))
+        )
+
+    def mat_id_str(self):
+        &#34;&#34;&#34;Representation of this section by material properties.&#34;&#34;&#34;
+        return f&#34;{self.density}-{self.thickness}-{self.youngs}-{self.poissons}&#34;
+
+    def y_min_max(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
+        return -self.thickness, 0
+
+    def prop_str(self):
+        &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+        return (
+            &#34;Material&#34;
+            + f&#34;\n  starts at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})&#34;
+            + f&#34;\n  ends at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})&#34;
+            + f&#34;\n  density = {self.density} kg/m&#34;
+            + f&#34;\n  thickness = {self.thickness} m&#34;
+            + f&#34;\n  youngs = {self.youngs} MPa&#34;
+            + f&#34;\n  poissons = {self.poissons}&#34;
+        )</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.model.MaterialSupport" href="#bridge_sim.model.MaterialSupport">MaterialSupport</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Material.contains"><code class="name flex">
+<span>def <span class="ident">contains</span></span>(<span>self, bridge: Bridge, x: float, z: float) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Whether this section contains the given point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
+    &#34;&#34;&#34;Whether this section contains the given point.&#34;&#34;&#34;
+    x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+    return (
+        (self.start_x_frac &lt; x_frac or np.isclose(self.start_x_frac, x_frac))
+        and (self.end_x_frac &gt; x_frac or np.isclose(self.end_x_frac, x_frac))
+        and (self.start_z_frac &lt; z_frac or np.isclose(self.start_z_frac, z_frac))
+        and (self.end_z_frac &gt; z_frac or np.isclose(self.end_z_frac, z_frac))
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.mat_id_str"><code class="name flex">
+<span>def <span class="ident">mat_id_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Representation of this section by material properties.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mat_id_str(self):
+    &#34;&#34;&#34;Representation of this section by material properties.&#34;&#34;&#34;
+    return f&#34;{self.density}-{self.thickness}-{self.youngs}-{self.poissons}&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.prop_str"><code class="name flex">
+<span>def <span class="ident">prop_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Textual representation of material properties.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prop_str(self):
+    &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+    return (
+        &#34;Material&#34;
+        + f&#34;\n  starts at (x_frac, z_frac) =&#34;
+        + f&#34; ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})&#34;
+        + f&#34;\n  ends at (x_frac, z_frac) =&#34;
+        + f&#34; ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})&#34;
+        + f&#34;\n  density = {self.density} kg/m&#34;
+        + f&#34;\n  thickness = {self.thickness} m&#34;
+        + f&#34;\n  youngs = {self.youngs} MPa&#34;
+        + f&#34;\n  poissons = {self.poissons}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.y_min_max"><code class="name flex">
+<span>def <span class="ident">y_min_max</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max values in y for this section.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y_min_max(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
+    return -self.thickness, 0</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Material"><code class="flex name class">
+<span>class <span class="ident">MaterialDeck</span></span>
+<span>(</span><span>thickness: float, youngs: float, poissons: float, start_x_frac: float = 0, start_z_frac: float = 0, end_x_frac: float = 1, end_z_frac: float = 1, density: float = 0, youngs_x: Union[float, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An abstract class for material properties.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>density</code></strong></dt>
+<dd>float, section density in kg/m.</dd>
+<dt><strong><code>thickness</code></strong></dt>
+<dd>float, section thickness in m.</dd>
+<dt><strong><code>youngs</code></strong></dt>
+<dd>float, Young's modulus of the section in N/mm1.</dd>
+<dt><strong><code>youngs_x</code></strong></dt>
+<dd>Optional[float], Young's modulus in x direction, in N/mm2.</dd>
+<dt><strong><code>poisson</code></strong></dt>
+<dd>float, Poisson's ratio.</dd>
+<dt><strong><code>start_x_frac</code></strong></dt>
+<dd>float, start of the section as a fraction of x position.</dd>
+<dt><strong><code>start_z_frac</code></strong></dt>
+<dd>float, start of the section as a fraction of z position.</dd>
+<dt><strong><code>end_x_frac</code></strong></dt>
+<dd>float, end of the section as a fraction of x position.</dd>
+<dt><strong><code>end_z_frac</code></strong></dt>
+<dd>float, end of the section as a fraction of z position.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Material:
+    &#34;&#34;&#34;An abstract class for material properties.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young&#39;s modulus of the section in N/mm1.
+        youngs_x: Optional[float], Young&#39;s modulus in x direction, in N/mm2.
+        poisson: float, Poisson&#39;s ratio.
+        start_x_frac: float, start of the section as a fraction of x position.
+        start_z_frac: float, start of the section as a fraction of z position.
+        end_x_frac: float, end of the section as a fraction of x position.
+        end_z_frac: float, end of the section as a fraction of z position.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_x_frac: float = 0,
+        start_z_frac: float = 0,
+        end_x_frac: float = 1,
+        end_z_frac: float = 1,
+        density: float = 0,
+        youngs_x: Optional[float] = None,
+    ):
+        self.density = density
+        self.thickness = thickness
+        self.youngs = youngs
+        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self.poissons = poissons
+        self.start_x_frac = start_x_frac
+        self.start_z_frac = start_z_frac
+        self.end_x_frac = end_x_frac
+        self.end_z_frac = end_z_frac
+
+    def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
+        &#34;&#34;&#34;Whether this section contains the given point.&#34;&#34;&#34;
+        x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+        return (
+            (self.start_x_frac &lt; x_frac or np.isclose(self.start_x_frac, x_frac))
+            and (self.end_x_frac &gt; x_frac or np.isclose(self.end_x_frac, x_frac))
+            and (self.start_z_frac &lt; z_frac or np.isclose(self.start_z_frac, z_frac))
+            and (self.end_z_frac &gt; z_frac or np.isclose(self.end_z_frac, z_frac))
+        )
+
+    def mat_id_str(self):
+        &#34;&#34;&#34;Representation of this section by material properties.&#34;&#34;&#34;
+        return f&#34;{self.density}-{self.thickness}-{self.youngs}-{self.poissons}&#34;
+
+    def y_min_max(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
+        return -self.thickness, 0
+
+    def prop_str(self):
+        &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+        return (
+            &#34;Material&#34;
+            + f&#34;\n  starts at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})&#34;
+            + f&#34;\n  ends at (x_frac, z_frac) =&#34;
+            + f&#34; ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})&#34;
+            + f&#34;\n  density = {self.density} kg/m&#34;
+            + f&#34;\n  thickness = {self.thickness} m&#34;
+            + f&#34;\n  youngs = {self.youngs} MPa&#34;
+            + f&#34;\n  poissons = {self.poissons}&#34;
+        )</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.model.MaterialSupport" href="#bridge_sim.model.MaterialSupport">MaterialSupport</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Material.contains"><code class="name flex">
+<span>def <span class="ident">contains</span></span>(<span>self, bridge: Bridge, x: float, z: float) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Whether this section contains the given point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
+    &#34;&#34;&#34;Whether this section contains the given point.&#34;&#34;&#34;
+    x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
+    return (
+        (self.start_x_frac &lt; x_frac or np.isclose(self.start_x_frac, x_frac))
+        and (self.end_x_frac &gt; x_frac or np.isclose(self.end_x_frac, x_frac))
+        and (self.start_z_frac &lt; z_frac or np.isclose(self.start_z_frac, z_frac))
+        and (self.end_z_frac &gt; z_frac or np.isclose(self.end_z_frac, z_frac))
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.mat_id_str"><code class="name flex">
+<span>def <span class="ident">mat_id_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Representation of this section by material properties.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mat_id_str(self):
+    &#34;&#34;&#34;Representation of this section by material properties.&#34;&#34;&#34;
+    return f&#34;{self.density}-{self.thickness}-{self.youngs}-{self.poissons}&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.prop_str"><code class="name flex">
+<span>def <span class="ident">prop_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Textual representation of material properties.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prop_str(self):
+    &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+    return (
+        &#34;Material&#34;
+        + f&#34;\n  starts at (x_frac, z_frac) =&#34;
+        + f&#34; ({round_m(self.start_x_frac)}, {round_m(self.start_z_frac)})&#34;
+        + f&#34;\n  ends at (x_frac, z_frac) =&#34;
+        + f&#34; ({round_m(self.end_x_frac)}, {round_m(self.end_z_frac)})&#34;
+        + f&#34;\n  density = {self.density} kg/m&#34;
+        + f&#34;\n  thickness = {self.thickness} m&#34;
+        + f&#34;\n  youngs = {self.youngs} MPa&#34;
+        + f&#34;\n  poissons = {self.poissons}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.y_min_max"><code class="name flex">
+<span>def <span class="ident">y_min_max</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max values in y for this section.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y_min_max(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
+    return -self.thickness, 0</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.MaterialSupport"><code class="flex name class">
+<span>class <span class="ident">MaterialSupport</span></span>
+<span>(</span><span>density: float, thickness: float, youngs: float, poissons: float, start_frac_len: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Like Material but intended for describing piers.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>density</code></strong></dt>
+<dd>float, section density in kg/m.</dd>
+<dt><strong><code>thickness</code></strong></dt>
+<dd>float, section thickness in m.</dd>
+<dt><strong><code>youngs</code></strong></dt>
+<dd>float, Young's modulus of the section in MPa.</dd>
+<dt><strong><code>poisson</code></strong></dt>
+<dd>float, Poisson's ratio.</dd>
+<dt><strong><code>start_frac_len</code></strong></dt>
+<dd>start of the section as a fraction of pier length.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MaterialSupport(Material):
+    &#34;&#34;&#34;Like Material but intended for describing piers.
+
+    Args:
+        density: float, section density in kg/m.
+        thickness: float, section thickness in m.
+        youngs: float, Young&#39;s modulus of the section in MPa.
+        poisson: float, Poisson&#39;s ratio.
+        start_frac_len: start of the section as a fraction of pier length.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        density: float,
+        thickness: float,
+        youngs: float,
+        poissons: float,
+        start_frac_len: float,
+    ):
+        super().__init__(
+            density=density,
+            thickness=thickness,
+            youngs=youngs,
+            poissons=poissons,
+            start_x_frac=None,
+            start_z_frac=None,
+            end_x_frac=None,
+            end_z_frac=None,
+        )
+        self.start_frac_len = start_frac_len
+
+    def prop_str(self):
+        &#34;&#34;&#34;Textual representation of material properties.&#34;&#34;&#34;
+        return (
+            &#34;Material&#34;
+            + f&#34;\n  starts at {round_m(self.start_frac_len)}&#34;
+            + f&#34;\n  density = {self.density} kg/m&#34;
+            + f&#34;\n  thickness = {self.thickness} m&#34;
+            + f&#34;\n  youngs = {self.youngs} MPa&#34;
+            + f&#34;\n  poissons = {self.poissons}&#34;
+        )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.model.Material.contains" href="#bridge_sim.model.Material.contains">contains</a></code></li>
+<li><code><a title="bridge_sim.model.Material.mat_id_str" href="#bridge_sim.model.Material.mat_id_str">mat_id_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.prop_str" href="#bridge_sim.model.Material.prop_str">prop_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.y_min_max" href="#bridge_sim.model.Material.y_min_max">y_min_max</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="bridge_sim.model.PierSettlement"><code class="flex name class">
+<span>class <span class="ident">PierSettlement</span></span>
+<span>(</span><span>pier: int, settlement: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A vertical translation applied in simulation to a pier.</p>
+<p>:param pier: index of a pier on a bridge.
+:param settlement: amount of pier settlement to apply.
+:return: A pier settlement object.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PierSettlement:
+    def __init__(self, pier: int, settlement: float):
+        &#34;&#34;&#34;A vertical translation applied in simulation to a pier.
+
+        :param pier: index of a pier on a bridge.
+        :param settlement: amount of pier settlement to apply.
+        :return: A pier settlement object.
+        &#34;&#34;&#34;
+        self.pier = pier
+        self.settlement = settlement
+
+    def id_str(self):
+        return safe_str(f&#34;{np.around(self.settlement, 3)}-{self.pier}&#34;)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.PierSettlement.id_str"><code class="name flex">
+<span>def <span class="ident">id_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def id_str(self):
+    return safe_str(f&#34;{np.around(self.settlement, 3)}-{self.pier}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Point"><code class="flex name class">
+<span>class <span class="ident">Point</span></span>
+<span>(</span><span>x: float = 0, y: float = 0, z: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A point described by three positions: (X, Y, Z).</p>
+<p>:param x:
+:param y:
+:param z:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Point:
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+        &#34;&#34;&#34;A point described by three positions: (X, Y, Z).
+
+        :param x:
+        :param y:
+        :param z:
+        &#34;&#34;&#34;
+        self.x: float = np.around(x, DIST_DECIMALS)
+        self.y: float = np.around(y, DIST_DECIMALS)
+        self.z: float = np.around(z, DIST_DECIMALS)
+
+    def distance(self, point):
+        return np.around(
+            np.sqrt(
+                ((self.x - point.x) ** 2)
+                + ((self.y - point.y) ** 2)
+                + ((self.z - point.z) ** 2)
+            ),
+            DIST_DECIMALS,
+        )
+
+    def __str__(self):
+        return f&#34;({self.x}, {self.y}, {self.z})&#34;</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Point.distance"><code class="name flex">
+<span>def <span class="ident">distance</span></span>(<span>self, point)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def distance(self, point):
+    return np.around(
+        np.sqrt(
+            ((self.x - point.x) ** 2)
+            + ((self.y - point.y) ** 2)
+            + ((self.z - point.z) ** 2)
+        ),
+        DIST_DECIMALS,
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.PointLoad"><code class="flex name class">
+<span>class <span class="ident">PointLoad</span></span>
+<span>(</span><span>x: float, z: float, load: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A point load applied in simulation.</p>
+<p>:param x: X position on a bridge.
+:param z: Z position on a bridge.
+:param load: intensity of the point load.
+:return: A point load object.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PointLoad:
+    def __init__(self, x: float, z: float, load: float):
+        &#34;&#34;&#34;A point load applied in simulation.
+
+        :param x: X position on a bridge.
+        :param z: Z position on a bridge.
+        :param load: intensity of the point load.
+        :return: A point load object.
+        &#34;&#34;&#34;
+        self.x = x
+        self.z = z
+        self.load = load
+
+    def __repr__(self):
+        &#34;&#34;&#34;Human readable representation.&#34;&#34;&#34;
+        return f&#34;x = {self.x}, z = {self.z}, load = {self.load}&#34;
+
+    def id_str(self):
+        &#34;&#34;&#34;String uniquely representing this point load.&#34;&#34;&#34;
+        return safe_str(
+            f&#34;({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})&#34;
+        )
+
+    def point(self) -&gt; Point:
+        &#34;&#34;&#34;The &#39;Point&#39; part of this point load.&#34;&#34;&#34;
+        return Point(x=self.x, y=0, z=self.z)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.PointLoad.id_str"><code class="name flex">
+<span>def <span class="ident">id_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>String uniquely representing this point load.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def id_str(self):
+    &#34;&#34;&#34;String uniquely representing this point load.&#34;&#34;&#34;
+    return safe_str(
+        f&#34;({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.PointLoad.point"><code class="name flex">
+<span>def <span class="ident">point</span></span>(<span>self) -> <a title="bridge_sim.model.Point" href="#bridge_sim.model.Point">Point</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>The 'Point' part of this point load.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def point(self) -&gt; Point:
+    &#34;&#34;&#34;The &#39;Point&#39; part of this point load.&#34;&#34;&#34;
+    return Point(x=self.x, y=0, z=self.z)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.ResponseType"><code class="flex name class">
+<span>class <span class="ident">ResponseType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A simulation response type.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ResponseType(Enum):
+    &#34;&#34;&#34;A simulation response type.&#34;&#34;&#34;
+
+    XTrans = &#34;xtrans&#34;
+    YTrans = &#34;ytrans&#34;
+    ZTrans = &#34;ztrans&#34;
+    StressXXB = &#34;stressxxb&#34;
+    StressXXT = &#34;stressxxt&#34;
+    StressZZB = &#34;stresszzb&#34;
+    StrainXXB = &#34;strainxxb&#34;
+    StrainXXT = &#34;strainxxt&#34;
+    StrainZZB = &#34;strainzzb&#34;
+
+    @staticmethod
+    def all() -&gt; List[&#34;ResponseType&#34;]:
+        &#34;&#34;&#34;A list of all response types.&#34;&#34;&#34;
+        return [rt for rt in ResponseType]
+
+    def is_stress(self):
+        &#34;&#34;&#34;Is this response type a stress type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StressXXB,
+            ResponseType.StressXXT,
+            ResponseType.StressZZB,
+        ]
+
+    def is_strain(self):
+        &#34;&#34;&#34;Is this response type a strain type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StrainXXB,
+            ResponseType.StrainXXT,
+            ResponseType.StrainZZB,
+        ]
+
+    def ss_direction(self) -&gt; str:
+        &#34;&#34;&#34;A stress or strain identifier e.g. XXB is applicable.&#34;&#34;&#34;
+        if self.is_stress() or self.is_strain():
+            return self.name()[-3:]
+        raise ValueError(&#34;Not stress or strain&#34;)
+
+    def name(self) -&gt; str:
+        &#34;&#34;&#34;Human readable name for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: &#34;X translation&#34;,
+            ResponseType.YTrans: &#34;Y translation&#34;,
+            ResponseType.ZTrans: &#34;Z translation&#34;,
+            ResponseType.StressXXB: &#34;Stress XXB&#34;,
+            ResponseType.StressXXT: &#34;Stress XXT&#34;,
+            ResponseType.StressZZB: &#34;Stress ZZB&#34;,
+            ResponseType.StrainXXB: &#34;Strain XXB&#34;,
+            ResponseType.StrainXXT: &#34;Strain XXT&#34;,
+            ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
+        }[self]
+
+    def units(self, short: bool = True) -&gt; str:
+        &#34;&#34;&#34;Human readable units (long or short) for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.YTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.ZTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.StressXXB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressXXT: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressZZB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StrainXXB: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainXXT: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainZZB: (&#34;kilo Newton&#34;, &#34;&#34;),
+        }[self][int(short)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="bridge_sim.model.ResponseType.StrainXXB"><code class="name">var <span class="ident">StrainXXB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StrainXXT"><code class="name">var <span class="ident">StrainXXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StrainZZB"><code class="name">var <span class="ident">StrainZZB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressXXB"><code class="name">var <span class="ident">StressXXB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressXXT"><code class="name">var <span class="ident">StressXXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressZZB"><code class="name">var <span class="ident">StressZZB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.XTrans"><code class="name">var <span class="ident">XTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.YTrans"><code class="name">var <span class="ident">YTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.ZTrans"><code class="name">var <span class="ident">ZTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.ResponseType.name"><code class="name flex">
+<span>def <span class="ident">name</span></span>(<span>self) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Human readable name for a response type.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def name(self) -&gt; str:
+    &#34;&#34;&#34;Human readable name for a response type.&#34;&#34;&#34;
+    return {
+        ResponseType.XTrans: &#34;X translation&#34;,
+        ResponseType.YTrans: &#34;Y translation&#34;,
+        ResponseType.ZTrans: &#34;Z translation&#34;,
+        ResponseType.StressXXB: &#34;Stress XXB&#34;,
+        ResponseType.StressXXT: &#34;Stress XXT&#34;,
+        ResponseType.StressZZB: &#34;Stress ZZB&#34;,
+        ResponseType.StrainXXB: &#34;Strain XXB&#34;,
+        ResponseType.StrainXXT: &#34;Strain XXT&#34;,
+        ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
+    }[self]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.ResponseType"><code class="flex name class">
+<span>class <span class="ident">RT</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A simulation response type.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ResponseType(Enum):
+    &#34;&#34;&#34;A simulation response type.&#34;&#34;&#34;
+
+    XTrans = &#34;xtrans&#34;
+    YTrans = &#34;ytrans&#34;
+    ZTrans = &#34;ztrans&#34;
+    StressXXB = &#34;stressxxb&#34;
+    StressXXT = &#34;stressxxt&#34;
+    StressZZB = &#34;stresszzb&#34;
+    StrainXXB = &#34;strainxxb&#34;
+    StrainXXT = &#34;strainxxt&#34;
+    StrainZZB = &#34;strainzzb&#34;
+
+    @staticmethod
+    def all() -&gt; List[&#34;ResponseType&#34;]:
+        &#34;&#34;&#34;A list of all response types.&#34;&#34;&#34;
+        return [rt for rt in ResponseType]
+
+    def is_stress(self):
+        &#34;&#34;&#34;Is this response type a stress type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StressXXB,
+            ResponseType.StressXXT,
+            ResponseType.StressZZB,
+        ]
+
+    def is_strain(self):
+        &#34;&#34;&#34;Is this response type a strain type?&#34;&#34;&#34;
+        return self in [
+            ResponseType.StrainXXB,
+            ResponseType.StrainXXT,
+            ResponseType.StrainZZB,
+        ]
+
+    def ss_direction(self) -&gt; str:
+        &#34;&#34;&#34;A stress or strain identifier e.g. XXB is applicable.&#34;&#34;&#34;
+        if self.is_stress() or self.is_strain():
+            return self.name()[-3:]
+        raise ValueError(&#34;Not stress or strain&#34;)
+
+    def name(self) -&gt; str:
+        &#34;&#34;&#34;Human readable name for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: &#34;X translation&#34;,
+            ResponseType.YTrans: &#34;Y translation&#34;,
+            ResponseType.ZTrans: &#34;Z translation&#34;,
+            ResponseType.StressXXB: &#34;Stress XXB&#34;,
+            ResponseType.StressXXT: &#34;Stress XXT&#34;,
+            ResponseType.StressZZB: &#34;Stress ZZB&#34;,
+            ResponseType.StrainXXB: &#34;Strain XXB&#34;,
+            ResponseType.StrainXXT: &#34;Strain XXT&#34;,
+            ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
+        }[self]
+
+    def units(self, short: bool = True) -&gt; str:
+        &#34;&#34;&#34;Human readable units (long or short) for a response type.&#34;&#34;&#34;
+        return {
+            ResponseType.XTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.YTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.ZTrans: (&#34;meters&#34;, &#34;m&#34;),
+            ResponseType.StressXXB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressXXT: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StressZZB: (&#34;kilo Newton&#34;, &#34;N/mm²&#34;),
+            ResponseType.StrainXXB: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainXXT: (&#34;kilo Newton&#34;, &#34;&#34;),
+            ResponseType.StrainZZB: (&#34;kilo Newton&#34;, &#34;&#34;),
+        }[self][int(short)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="bridge_sim.model.ResponseType.StrainXXB"><code class="name">var <span class="ident">StrainXXB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StrainXXT"><code class="name">var <span class="ident">StrainXXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StrainZZB"><code class="name">var <span class="ident">StrainZZB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressXXB"><code class="name">var <span class="ident">StressXXB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressXXT"><code class="name">var <span class="ident">StressXXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.StressZZB"><code class="name">var <span class="ident">StressZZB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.XTrans"><code class="name">var <span class="ident">XTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.YTrans"><code class="name">var <span class="ident">YTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.model.ResponseType.ZTrans"><code class="name">var <span class="ident">ZTrans</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.ResponseType.name"><code class="name flex">
+<span>def <span class="ident">name</span></span>(<span>self) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Human readable name for a response type.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def name(self) -&gt; str:
+    &#34;&#34;&#34;Human readable name for a response type.&#34;&#34;&#34;
+    return {
+        ResponseType.XTrans: &#34;X translation&#34;,
+        ResponseType.YTrans: &#34;Y translation&#34;,
+        ResponseType.ZTrans: &#34;Z translation&#34;,
+        ResponseType.StressXXB: &#34;Stress XXB&#34;,
+        ResponseType.StressXXT: &#34;Stress XXT&#34;,
+        ResponseType.StressZZB: &#34;Stress ZZB&#34;,
+        ResponseType.StrainXXB: &#34;Strain XXB&#34;,
+        ResponseType.StrainXXT: &#34;Strain XXT&#34;,
+        ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
+    }[self]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Support"><code class="flex name class">
+<span>class <span class="ident">Support</span></span>
+<span>(</span><span>x: float, z: float, length: float, height: float, width_top: float, width_bottom: float, materials: Union[List[ForwardRef('MaterialSupport')], Callable[[float], ForwardRef('MaterialSupport')]], fix_x_translation: bool, fix_z_translation: bool, fix_y_translation: bool = True, fix_x_rotation: bool = False, fix_z_rotation: bool = False, fix_y_rotation: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A support of the bridge deck, when 3D modeling.</p>
+<pre><code>SIDE_VIEW:
+&lt;------------x-----------&gt;
+                   &lt;---length--&gt;
+|------------------|-----------|----------------------| ↑ h
+                    \         /                         | e
+                     \       /                          | i
+                      \     /                           | g
+                       \   /                            | h
+                        \ /                             ↓ t
+
+TOP_VIEW:
+|-----------------------------------------------------| ↑+
+|-----------------------------------------------------| |
+|-----------------------------------------------------| |
+|-----------------------------------------------------| |
+|-----------------------------------------------------| 0
+|------------------|-----------|----------------------| |
+|------------------|-----------|----------------------| | z = -2
+|------------------|-----------|----------------------| |
+|-----------------------------------------------------| ↓-
+
+FRONT_VIEW:
+                   &lt;---width-top----&gt;
+                   |----------------|
+                    \              /
+                     \            /
+                      \          /
+                       \        /
+                        \______/
+                        &lt;------&gt;
+                      width-bottom
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>float, x position of center of the support in meters.</dd>
+<dt><strong><code>z</code></strong></dt>
+<dd>float, z position of center of the support in meters.</dd>
+<dt><strong><code>length</code></strong></dt>
+<dd>float, length of the support in meters.</dd>
+<dt><strong><code>height</code></strong></dt>
+<dd>float, height of the support in meters.</dd>
+<dt><strong><code>width_top</code></strong></dt>
+<dd>float, width of the top of the support in meters.</dd>
+<dt><strong><code>width_bottom</code></strong></dt>
+<dd>float, width of the bottom of the support in meters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Support:
+    &#34;&#34;&#34;A support of the bridge deck, when 3D modeling.
+
+        SIDE_VIEW:
+        &lt;------------x-----------&gt;
+                           &lt;---length--&gt;
+        |------------------|-----------|----------------------| ↑ h
+                            \         /                         | e
+                             \       /                          | i
+                              \     /                           | g
+                               \   /                            | h
+                                \ /                             ↓ t
+
+        TOP_VIEW:
+        |-----------------------------------------------------| ↑+
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| |
+        |-----------------------------------------------------| 0
+        |------------------|-----------|----------------------| |
+        |------------------|-----------|----------------------| | z = -2
+        |------------------|-----------|----------------------| |
+        |-----------------------------------------------------| ↓-
+
+        FRONT_VIEW:
+                           &lt;---width-top----&gt;
+                           |----------------|
+                            \              /
+                             \            /
+                              \          /
+                               \        /
+                                \______/
+                                &lt;------&gt;
+                              width-bottom
+
+    Args:
+        x: float, x position of center of the support in meters.
+        z: float, z position of center of the support in meters.
+        length: float, length of the support in meters.
+        height: float, height of the support in meters.
+        width_top: float, width of the top of the support in meters.
+        width_bottom: float, width of the bottom of the support in meters.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        x: float,
+        z: float,
+        length: float,
+        height: float,
+        width_top: float,
+        width_bottom: float,
+        materials: Union[List[&#34;MaterialSupport&#34;], Callable[[float], &#34;MaterialSupport&#34;]],
+        fix_x_translation: bool,
+        fix_z_translation: bool,
+        fix_y_translation: bool = True,
+        fix_x_rotation: bool = False,
+        fix_z_rotation: bool = False,
+        fix_y_rotation: bool = False,
+    ):
+        self.x = x
+        self.z = z
+        self.length = length
+        self.height = height
+        self.width_top = width_top
+        self.width_bottom = width_bottom
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
+        self._sections = materials
+        # Must be callable or a list.
+        if not callable(self._sections):
+            assert isinstance(self._sections, list)
+            assert all(isinstance(s, MaterialSupport) for s in self._sections)
+        if self.width_top &lt; self.width_bottom:
+            raise ValueError(&#34;Support: top width must be &gt;= bottom width&#34;)
+
+    def x_min_max_top(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max x positions for the top of this pier.&#34;&#34;&#34;
+        half_length = self.length / 2
+        return round_m(self.x - half_length), round_m(self.x + half_length)
+
+    def y_min_max(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max y positions for this pier.&#34;&#34;&#34;
+        return round_m(-self.height), 0
+
+    def z_min_max_top(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max z positions for the top of this pier.&#34;&#34;&#34;
+        half_top = self.width_top / 2
+        return round_m(self.z - half_top), round_m(self.z + half_top)
+
+    def z_min_max_bottom(self) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;The min and max z positions for the bottom of this pier.&#34;&#34;&#34;
+        half_bottom = self.width_bottom / 2
+        return round_m(self.z - half_bottom), round_m(self.z + half_bottom)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Support.x_min_max_top"><code class="name flex">
+<span>def <span class="ident">x_min_max_top</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max x positions for the top of this pier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_min_max_top(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max x positions for the top of this pier.&#34;&#34;&#34;
+    half_length = self.length / 2
+    return round_m(self.x - half_length), round_m(self.x + half_length)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Support.y_min_max"><code class="name flex">
+<span>def <span class="ident">y_min_max</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max y positions for this pier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def y_min_max(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max y positions for this pier.&#34;&#34;&#34;
+    return round_m(-self.height), 0</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Support.z_min_max_bottom"><code class="name flex">
+<span>def <span class="ident">z_min_max_bottom</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max z positions for the bottom of this pier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def z_min_max_bottom(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max z positions for the bottom of this pier.&#34;&#34;&#34;
+    half_bottom = self.width_bottom / 2
+    return round_m(self.z - half_bottom), round_m(self.z + half_bottom)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Support.z_min_max_top"><code class="name flex">
+<span>def <span class="ident">z_min_max_top</span></span>(<span>self) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The min and max z positions for the top of this pier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def z_min_max_top(self) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;The min and max z positions for the top of this pier.&#34;&#34;&#34;
+    half_top = self.width_top / 2
+    return round_m(self.z - half_top), round_m(self.z + half_top)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.model.Vehicle"><code class="flex name class">
+<span>class <span class="ident">Vehicle</span></span>
+<span>(</span><span>kn: Union[float, List[float], List[Tuple[float, float]]], axle_distances: List[float], axle_width: float, kmph: float, lane: int = 0, init_x_frac: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A vehicles, load intensities, position and speed.</p>
+<p>:param kn:
+intensity, either for the entire vehicles or per axle, or as a list
+of tuple (per wheel, each tuple is left then right wheel), in kilo
+Newton.
+:param axle_distances: distance between axles in meters.
+:param axle_width: width of the vehicles's axles in meters.
+:param kmph: speed of this vehicles.
+:param lane: index of a lane on a bridge.
+:param init_x_frac: position at time 0 in a simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Vehicle:
+    def __init__(
+        self,
+        kn: Union[float, List[float], List[Tuple[float, float]]],
+        axle_distances: List[float],
+        axle_width: float,
+        kmph: float,
+        lane: int = 0,
+        init_x_frac: float = 0,
+    ):
+        &#34;&#34;&#34;A vehicles, load intensities, position and speed.
+
+        :param kn:
+            intensity, either for the entire vehicles or per axle, or as a list
+            of tuple (per wheel, each tuple is left then right wheel), in kilo
+            Newton.
+        :param axle_distances: distance between axles in meters.
+        :param axle_width: width of the vehicles&#39;s axles in meters.
+        :param kmph: speed of this vehicles.
+        :param lane: index of a lane on a bridge.
+        :param init_x_frac: position at time 0 in a simulation.
+        &#34;&#34;&#34;
+        self.kn = kn
+        self.axle_distances = axle_distances
+        self.axle_width = axle_width
+        self.length = sum(self.axle_distances)
+        self.num_axles = len(self.axle_distances) + 1
+        self.num_wheels = self.num_axles * 2
+        self.kmph = kmph
+        self.mps = self.kmph / 3.6  # Meters per second.
+        self.lane = lane
+        self.init_x_frac = init_x_frac
+        assert self.init_x_frac &lt;= 1
+
+        def total_kn():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return sum(chain.from_iterable(self.kn))
+                return sum(self.kn)
+            return self.kn
+
+        def kn_per_axle():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return list(map(sum, self.kn))
+                return self.kn
+            return [(self.kn / self.num_axles) for _ in range(self.num_axles)]
+
+        def kn_per_wheel():
+            if isinstance(self.kn, list):
+                if isinstance(self.kn[0], tuple):
+                    return self.kn
+                return list(map(lambda kn: (kn / 2, kn / 2), self.kn))
+            wheel_kn = self.kn / self.num_wheels
+            return [(wheel_kn, wheel_kn) for _ in range(self.num_axles)]
+
+        self.total_kn = total_kn
+        self.kn_per_axle = kn_per_axle
+        self.kn_per_wheel = kn_per_wheel
+
+    def cmap_norm(self, all_vehicles: List[&#34;Vehicle&#34;], cmin=0, cmax=1):
+        &#34;&#34;&#34;The colormap and norm for coloring vehicles.&#34;&#34;&#34;
+        from plot import truncate_colormap
+
+        cmap = truncate_colormap(cm.get_cmap(&#34;YlGn&#34;), cmin, cmax)
+        total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
+        norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
+        return cmap, norm
+
+    def color(self, all_vehicles: List[&#34;Vehicle&#34;]):
+        &#34;&#34;&#34;Color of this vehicles scaled based on given vehicles.&#34;&#34;&#34;
+        cmap, norm = self.cmap_norm(all_vehicles)
+        if len(all_vehicles) == 0:
+            return cmap(0.5)
+        return cmap(norm(self.total_kn()))
+
+    def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -&gt; Tuple[float, float]:
+        &#34;&#34;&#34;Positions of the vehicles&#39;s wheels in transverse direction.
+        Args:
+            bridge: Bridge, the bridge on which the vehicles is moving.
+            meters: bool, whether to return positions in meters (True) or
+                fractions (False) of the bridge width in [0 1].
+        &#34;&#34;&#34;
+        if not meters:
+            raise ValueError(&#34;Should not be doing this&#34;)
+        lane = bridge.lanes[self.lane]
+        tracks = [
+            lane.z_center - (self.axle_width / 2),
+            lane.z_center + (self.axle_width / 2),
+        ]
+        if meters:
+            return tracks
+        return list(map(lambda z: bridge.z_frac(z), tracks))
+
+    def x_frac_at(self, time: float, bridge: Bridge) -&gt; List[float]:
+        &#34;&#34;&#34;Fraction of x position of bridge in meters at given time.
+        Args:
+            time: float, time passed from initial position, in seconds.
+            bridge: Bridge, bridge the vehicles is moving on.
+        &#34;&#34;&#34;
+        delta_x_frac = (self.mps * time) / bridge.length
+        init_x_frac = self.init_x_frac
+        if bridge.lanes[self.lane].ltr:
+            return init_x_frac + delta_x_frac
+        else:
+            init_x_frac *= -1  # Make positive, move to right of bridge start.
+            init_x_frac += 1  # Move one bridge length to the right.
+            return init_x_frac - delta_x_frac
+
+    def x_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;X position of front axle on bridge at given time, in meters.
+        Args:
+            time: float, time passed from initial position, in seconds.
+            bridge: Bridge, bridge the vehicles is moving on.
+        &#34;&#34;&#34;
+        return bridge.x(self.x_frac_at(time=time, bridge=bridge))
+
+    def xs_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;X position on bridge for each axle in meters at given time.&#34;&#34;&#34;
+        if not hasattr(self, &#34;_xs_at_time&#34;):
+            xs = [self.x_at(time=time, bridge=bridge)]
+            # Determine the distance between each pair of axles.
+            delta_xs = np.array(self.axle_distances)
+            if bridge.lanes[self.lane].ltr:
+                delta_xs *= -1
+                delta_xs = reversed(delta_xs)
+            # Add the distance for each axle, after the front axle.
+            for delta_x in delta_xs:
+                xs.append(xs[-1] + delta_x)
+            self._xs_at_time = np.array(xs)
+        delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
+        return sorted(self._xs_at_time + delta_x_time)
+
+    def x_fracs_at(self, time: float, bridge: Bridge):
+        &#34;&#34;&#34;Fraction of x position of bridge for each axle at given time.&#34;&#34;&#34;
+        return list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+
+    def on_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+        &#34;&#34;&#34;Whether a moving load is on a bridge at a given time.&#34;&#34;&#34;
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicles positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        return 0 &lt;= xl_frac &lt;= 1 or 0 &lt;= xr_frac &lt;= 1
+
+    def full_lanes(self, time: float, bridge: Bridge) -&gt; float:
+        &#34;&#34;&#34;The amount of bridge lanes travelled by this vehicles.&#34;&#34;&#34;
+        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+        # Left-most and right-most vehicles positions as fractions.
+        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+        if bridge.lanes[self.lane].ltr:
+            return xl_frac
+        else:
+            return abs(xr_frac - 1)
+
+    def passed_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+        &#34;&#34;&#34;Whether the current vehicles has travelled over the bridge.&#34;&#34;&#34;
+        return self.full_lanes(time=time, bridge=bridge) &gt; 1
+
+    def time_at(self, x, bridge: Bridge):
+        &#34;&#34;&#34;Time the front axle is at the given x position.&#34;&#34;&#34;
+        if not bridge.lanes[self.lane].ltr:
+            raise NotImplementedError()
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt; x
+        return float(abs(init_x - x)) / self.mps
+
+    def time_entering_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles begins to enter the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x)) / self.mps
+
+    def time_entered_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles has entered the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + self.length) / self.mps
+
+    def time_leaving_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles begins to leave the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + bridge.length) / self.mps
+
+    def time_left_bridge(self, bridge: Bridge):
+        &#34;&#34;&#34;Time the vehicles has left the bridge.&#34;&#34;&#34;
+        init_x = bridge.x(self.init_x_frac)
+        assert init_x &lt;= 0
+        return float(abs(init_x) + bridge.length + self.length) / self.mps
+
+    def to_wheel_track_xs(
+        self, c: &#34;Config&#34;, wheel_x: float, wheel_track_xs: Optional[List[float]] = None
+    ) -&gt; Tuple[Tuple[float, float], Tuple[float, float]]:
+        &#34;&#34;&#34;X positions (and weighting) of unit loads for a x position.
+        This implements wheel track bucketing!
+        &#34;&#34;&#34;
+        wheel_x = round_m(wheel_x)
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_x)
+        unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
+        if unit_load_x() &gt; wheel_x:
+            unit_load_x_ind -= 1
+        assert unit_load_x() &lt;= wheel_x
+        # If the unit load is an exact match just return it.
+        if np.isclose(wheel_x, unit_load_x()):
+            return ((wheel_x, 1), (0, 0))
+        # Otherwise, return a combination of two unit loads. In this case the
+        # unit load&#39;s position is less than the wheel.
+        unit_load_x_lo = unit_load_x()
+        unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
+        assert unit_load_x_hi &gt; wheel_x
+        dist_lo = abs(unit_load_x_lo - wheel_x)
+        dist_hi = abs(unit_load_x_hi - wheel_x)
+        dist = dist_lo + dist_hi
+        return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
+
+    def to_wheel_track_loads_(
+        self,
+        c: &#34;Config&#34;,
+        time: float,
+        flat: bool = False,
+        wheel_track_xs: Optional[List[float]] = None,
+    ):
+        &#34;&#34;&#34;Load intensities and positions per axle, per wheel.
+        &#34;Bucketed&#34; to fit onto wheel tracks.
+        NOTE: In each tuple of two point loads, one tuple per wheel, each point
+        load is for a unit load position in the wheel track. Each point load is
+        weighted by the distance to the unit load.
+        &#34;&#34;&#34;
+        if wheel_track_xs is None:
+            wheel_track_xs = c.bridge.wheel_track_xs(c)
+        xs = self.xs_at(time=time, bridge=c.bridge)
+        kns = self.kn_per_axle()
+        result = []
+        assert len(xs) == len(kns)
+        # For each axle.
+        for x, kn in zip(xs, kns):
+            # Skip axle if not on the bridge.
+            if (x &lt; c.bridge.x_min and not np.isclose(x, c.bridge.x_min)) or (
+                x &gt; c.bridge.x_max and not np.isclose(x, c.bridge.x_max)
+            ):
+                continue
+            left, right = [], []
+            for (load_x, load_frac) in self.to_wheel_track_xs(
+                c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
+            ):
+                if load_frac &gt; 0:
+                    bucket_kn = kn / 2 * load_frac
+                    left.append((load_x, bucket_kn))
+                    right.append((load_x, bucket_kn))
+            result.append((left, right))
+        if flat:
+            return flatten(result, PointLoad)
+        return result
+
+    def to_wheel_track_loads(
+        self, c: &#34;Config&#34;, time: float, flat: bool = False
+    ) -&gt; List[Tuple[List[PointLoad], List[PointLoad]]]:
+        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=True)
+        assert z0 &lt; z1
+        result = []
+        for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
+            left, right = [], []
+            left_loads, right_loads = axle_loads
+            for load_x, load_kn in left_loads:
+                left.append(PointLoad(x=load_x, z=z0, load=load_kn))
+            for load_x, load_kn in right_loads:
+                right.append(PointLoad(x=load_x, z=z1, load=load_kn))
+            result.append((left, right))
+        if flat:
+            return flatten(result, PointLoad)
+        return result
+
+    def to_point_load_pw(
+        self, time: float, bridge: Bridge, list: bool = False
+    ) -&gt; Union[List[Tuple[PointLoad, PointLoad]], List[PointLoad]]:
+        &#34;&#34;&#34;A tuple of point load per axle, one point load per wheel.&#34;&#34;&#34;
+        z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=True)
+        assert z0 &lt; z1
+        kn_per_axle = self.kn_per_axle()
+        result = []
+        # For each axle.
+        for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
+            # Skip axle if not on the bridge.
+            if (x &lt; bridge.x_min and not np.isclose(x, bridge.x_min)) or (
+                x &gt; bridge.x_max and not np.isclose(x, bridge.x_max)
+            ):
+                continue
+            # Two wheel load intensities.
+            kn_wheel = kn_per_axle[x_i] / 2
+            result.append(
+                (
+                    PointLoad(x=x, z=z0, load=kn_wheel),
+                    PointLoad(x=x, z=z1, load=kn_wheel),
+                )
+            )
+        if list:
+            return flatten(result, PointLoad)
+        return result
+
+    def plot_wheels(self, c: &#34;Config&#34;, time: float, label=None, **kwargs):
+        wheel_loads = self.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
+        for i, load in enumerate(wheel_loads):
+            x, z = c.bridge.x(load.x_frac), c.bridge.z(load.z_frac)
+            plt.scatter(
+                [x],
+                [z],
+                facecolors=&#34;none&#34;,
+                edgecolors=&#34;black&#34;,
+                label=None if i &gt; 0 else label,
+                **kwargs,
+            )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.model.Vehicle.cmap_norm"><code class="name flex">
+<span>def <span class="ident">cmap_norm</span></span>(<span>self, all_vehicles: List[ForwardRef('<a title="bridge_sim.model.Vehicle" href="#bridge_sim.model.Vehicle">Vehicle</a>')], cmin=0, cmax=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The colormap and norm for coloring vehicles.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cmap_norm(self, all_vehicles: List[&#34;Vehicle&#34;], cmin=0, cmax=1):
+    &#34;&#34;&#34;The colormap and norm for coloring vehicles.&#34;&#34;&#34;
+    from plot import truncate_colormap
+
+    cmap = truncate_colormap(cm.get_cmap(&#34;YlGn&#34;), cmin, cmax)
+    total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
+    norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
+    return cmap, norm</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.color"><code class="name flex">
+<span>def <span class="ident">color</span></span>(<span>self, all_vehicles: List[ForwardRef('<a title="bridge_sim.model.Vehicle" href="#bridge_sim.model.Vehicle">Vehicle</a>')])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Color of this vehicles scaled based on given vehicles.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def color(self, all_vehicles: List[&#34;Vehicle&#34;]):
+    &#34;&#34;&#34;Color of this vehicles scaled based on given vehicles.&#34;&#34;&#34;
+    cmap, norm = self.cmap_norm(all_vehicles)
+    if len(all_vehicles) == 0:
+        return cmap(0.5)
+    return cmap(norm(self.total_kn()))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.full_lanes"><code class="name flex">
+<span>def <span class="ident">full_lanes</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>) -> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The amount of bridge lanes travelled by this vehicles.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def full_lanes(self, time: float, bridge: Bridge) -&gt; float:
+    &#34;&#34;&#34;The amount of bridge lanes travelled by this vehicles.&#34;&#34;&#34;
+    x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+    # Left-most and right-most vehicles positions as fractions.
+    xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+    if bridge.lanes[self.lane].ltr:
+        return xl_frac
+    else:
+        return abs(xr_frac - 1)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.on_bridge"><code class="name flex">
+<span>def <span class="ident">on_bridge</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Whether a moving load is on a bridge at a given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+    &#34;&#34;&#34;Whether a moving load is on a bridge at a given time.&#34;&#34;&#34;
+    x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+    # Left-most and right-most vehicles positions as fractions.
+    xl_frac, xr_frac = min(x_fracs), max(x_fracs)
+    return 0 &lt;= xl_frac &lt;= 1 or 0 &lt;= xr_frac &lt;= 1</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.passed_bridge"><code class="name flex">
+<span>def <span class="ident">passed_bridge</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>) -> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Whether the current vehicles has travelled over the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def passed_bridge(self, time: float, bridge: Bridge) -&gt; bool:
+    &#34;&#34;&#34;Whether the current vehicles has travelled over the bridge.&#34;&#34;&#34;
+    return self.full_lanes(time=time, bridge=bridge) &gt; 1</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.plot_wheels"><code class="name flex">
+<span>def <span class="ident">plot_wheels</span></span>(<span>self, c: Config, time: float, label=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_wheels(self, c: &#34;Config&#34;, time: float, label=None, **kwargs):
+    wheel_loads = self.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
+    for i, load in enumerate(wheel_loads):
+        x, z = c.bridge.x(load.x_frac), c.bridge.z(load.z_frac)
+        plt.scatter(
+            [x],
+            [z],
+            facecolors=&#34;none&#34;,
+            edgecolors=&#34;black&#34;,
+            label=None if i &gt; 0 else label,
+            **kwargs,
+        )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.time_at"><code class="name flex">
+<span>def <span class="ident">time_at</span></span>(<span>self, x, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time the front axle is at the given x position.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_at(self, x, bridge: Bridge):
+    &#34;&#34;&#34;Time the front axle is at the given x position.&#34;&#34;&#34;
+    if not bridge.lanes[self.lane].ltr:
+        raise NotImplementedError()
+    init_x = bridge.x(self.init_x_frac)
+    assert init_x &lt; x
+    return float(abs(init_x - x)) / self.mps</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.time_entered_bridge"><code class="name flex">
+<span>def <span class="ident">time_entered_bridge</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time the vehicles has entered the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_entered_bridge(self, bridge: Bridge):
+    &#34;&#34;&#34;Time the vehicles has entered the bridge.&#34;&#34;&#34;
+    init_x = bridge.x(self.init_x_frac)
+    assert init_x &lt;= 0
+    return float(abs(init_x) + self.length) / self.mps</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.time_entering_bridge"><code class="name flex">
+<span>def <span class="ident">time_entering_bridge</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time the vehicles begins to enter the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_entering_bridge(self, bridge: Bridge):
+    &#34;&#34;&#34;Time the vehicles begins to enter the bridge.&#34;&#34;&#34;
+    init_x = bridge.x(self.init_x_frac)
+    assert init_x &lt;= 0
+    return float(abs(init_x)) / self.mps</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.time_leaving_bridge"><code class="name flex">
+<span>def <span class="ident">time_leaving_bridge</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time the vehicles begins to leave the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_leaving_bridge(self, bridge: Bridge):
+    &#34;&#34;&#34;Time the vehicles begins to leave the bridge.&#34;&#34;&#34;
+    init_x = bridge.x(self.init_x_frac)
+    assert init_x &lt;= 0
+    return float(abs(init_x) + bridge.length) / self.mps</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.time_left_bridge"><code class="name flex">
+<span>def <span class="ident">time_left_bridge</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time the vehicles has left the bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_left_bridge(self, bridge: Bridge):
+    &#34;&#34;&#34;Time the vehicles has left the bridge.&#34;&#34;&#34;
+    init_x = bridge.x(self.init_x_frac)
+    assert init_x &lt;= 0
+    return float(abs(init_x) + bridge.length + self.length) / self.mps</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.to_point_load_pw"><code class="name flex">
+<span>def <span class="ident">to_point_load_pw</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>, list: bool = False) -> Union[List[Tuple[<a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a>, <a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a>]], List[<a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a>]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A tuple of point load per axle, one point load per wheel.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_point_load_pw(
+    self, time: float, bridge: Bridge, list: bool = False
+) -&gt; Union[List[Tuple[PointLoad, PointLoad]], List[PointLoad]]:
+    &#34;&#34;&#34;A tuple of point load per axle, one point load per wheel.&#34;&#34;&#34;
+    z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=True)
+    assert z0 &lt; z1
+    kn_per_axle = self.kn_per_axle()
+    result = []
+    # For each axle.
+    for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
+        # Skip axle if not on the bridge.
+        if (x &lt; bridge.x_min and not np.isclose(x, bridge.x_min)) or (
+            x &gt; bridge.x_max and not np.isclose(x, bridge.x_max)
+        ):
+            continue
+        # Two wheel load intensities.
+        kn_wheel = kn_per_axle[x_i] / 2
+        result.append(
+            (
+                PointLoad(x=x, z=z0, load=kn_wheel),
+                PointLoad(x=x, z=z1, load=kn_wheel),
+            )
+        )
+    if list:
+        return flatten(result, PointLoad)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.to_wheel_track_loads"><code class="name flex">
+<span>def <span class="ident">to_wheel_track_loads</span></span>(<span>self, c: Config, time: float, flat: bool = False) -> List[Tuple[List[<a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a>], List[<a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a>]]]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_wheel_track_loads(
+    self, c: &#34;Config&#34;, time: float, flat: bool = False
+) -&gt; List[Tuple[List[PointLoad], List[PointLoad]]]:
+    z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=True)
+    assert z0 &lt; z1
+    result = []
+    for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
+        left, right = [], []
+        left_loads, right_loads = axle_loads
+        for load_x, load_kn in left_loads:
+            left.append(PointLoad(x=load_x, z=z0, load=load_kn))
+        for load_x, load_kn in right_loads:
+            right.append(PointLoad(x=load_x, z=z1, load=load_kn))
+        result.append((left, right))
+    if flat:
+        return flatten(result, PointLoad)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.to_wheel_track_loads_"><code class="name flex">
+<span>def <span class="ident">to_wheel_track_loads_</span></span>(<span>self, c: Config, time: float, flat: bool = False, wheel_track_xs: Union[List[float], NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load intensities and positions per axle, per wheel.
+"Bucketed" to fit onto wheel tracks.
+NOTE: In each tuple of two point loads, one tuple per wheel, each point
+load is for a unit load position in the wheel track. Each point load is
+weighted by the distance to the unit load.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_wheel_track_loads_(
+    self,
+    c: &#34;Config&#34;,
+    time: float,
+    flat: bool = False,
+    wheel_track_xs: Optional[List[float]] = None,
+):
+    &#34;&#34;&#34;Load intensities and positions per axle, per wheel.
+    &#34;Bucketed&#34; to fit onto wheel tracks.
+    NOTE: In each tuple of two point loads, one tuple per wheel, each point
+    load is for a unit load position in the wheel track. Each point load is
+    weighted by the distance to the unit load.
+    &#34;&#34;&#34;
+    if wheel_track_xs is None:
+        wheel_track_xs = c.bridge.wheel_track_xs(c)
+    xs = self.xs_at(time=time, bridge=c.bridge)
+    kns = self.kn_per_axle()
+    result = []
+    assert len(xs) == len(kns)
+    # For each axle.
+    for x, kn in zip(xs, kns):
+        # Skip axle if not on the bridge.
+        if (x &lt; c.bridge.x_min and not np.isclose(x, c.bridge.x_min)) or (
+            x &gt; c.bridge.x_max and not np.isclose(x, c.bridge.x_max)
+        ):
+            continue
+        left, right = [], []
+        for (load_x, load_frac) in self.to_wheel_track_xs(
+            c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
+        ):
+            if load_frac &gt; 0:
+                bucket_kn = kn / 2 * load_frac
+                left.append((load_x, bucket_kn))
+                right.append((load_x, bucket_kn))
+        result.append((left, right))
+    if flat:
+        return flatten(result, PointLoad)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.to_wheel_track_xs"><code class="name flex">
+<span>def <span class="ident">to_wheel_track_xs</span></span>(<span>self, c: Config, wheel_x: float, wheel_track_xs: Union[List[float], NoneType] = None) -> Tuple[Tuple[float, float], Tuple[float, float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>X positions (and weighting) of unit loads for a x position.
+This implements wheel track bucketing!</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_wheel_track_xs(
+    self, c: &#34;Config&#34;, wheel_x: float, wheel_track_xs: Optional[List[float]] = None
+) -&gt; Tuple[Tuple[float, float], Tuple[float, float]]:
+    &#34;&#34;&#34;X positions (and weighting) of unit loads for a x position.
+    This implements wheel track bucketing!
+    &#34;&#34;&#34;
+    wheel_x = round_m(wheel_x)
+    if wheel_track_xs is None:
+        wheel_track_xs = c.bridge.wheel_track_xs(c)
+    unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_x)
+    unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
+    if unit_load_x() &gt; wheel_x:
+        unit_load_x_ind -= 1
+    assert unit_load_x() &lt;= wheel_x
+    # If the unit load is an exact match just return it.
+    if np.isclose(wheel_x, unit_load_x()):
+        return ((wheel_x, 1), (0, 0))
+    # Otherwise, return a combination of two unit loads. In this case the
+    # unit load&#39;s position is less than the wheel.
+    unit_load_x_lo = unit_load_x()
+    unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
+    assert unit_load_x_hi &gt; wheel_x
+    dist_lo = abs(unit_load_x_lo - wheel_x)
+    dist_hi = abs(unit_load_x_hi - wheel_x)
+    dist = dist_lo + dist_hi
+    return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.wheel_tracks_zs"><code class="name flex">
+<span>def <span class="ident">wheel_tracks_zs</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>, meters: bool) -> Tuple[float, float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Positions of the vehicles's wheels in transverse direction.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>Bridge, the bridge on which the vehicles is moving.</dd>
+<dt><strong><code>meters</code></strong></dt>
+<dd>bool, whether to return positions in meters (True) or
+fractions (False) of the bridge width in [0 1].</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -&gt; Tuple[float, float]:
+    &#34;&#34;&#34;Positions of the vehicles&#39;s wheels in transverse direction.
+    Args:
+        bridge: Bridge, the bridge on which the vehicles is moving.
+        meters: bool, whether to return positions in meters (True) or
+            fractions (False) of the bridge width in [0 1].
+    &#34;&#34;&#34;
+    if not meters:
+        raise ValueError(&#34;Should not be doing this&#34;)
+    lane = bridge.lanes[self.lane]
+    tracks = [
+        lane.z_center - (self.axle_width / 2),
+        lane.z_center + (self.axle_width / 2),
+    ]
+    if meters:
+        return tracks
+    return list(map(lambda z: bridge.z_frac(z), tracks))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.x_at"><code class="name flex">
+<span>def <span class="ident">x_at</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>X position of front axle on bridge at given time, in meters.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>time</code></strong></dt>
+<dd>float, time passed from initial position, in seconds.</dd>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>Bridge, bridge the vehicles is moving on.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_at(self, time: float, bridge: Bridge):
+    &#34;&#34;&#34;X position of front axle on bridge at given time, in meters.
+    Args:
+        time: float, time passed from initial position, in seconds.
+        bridge: Bridge, bridge the vehicles is moving on.
+    &#34;&#34;&#34;
+    return bridge.x(self.x_frac_at(time=time, bridge=bridge))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.x_frac_at"><code class="name flex">
+<span>def <span class="ident">x_frac_at</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fraction of x position of bridge in meters at given time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>time</code></strong></dt>
+<dd>float, time passed from initial position, in seconds.</dd>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>Bridge, bridge the vehicles is moving on.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_frac_at(self, time: float, bridge: Bridge) -&gt; List[float]:
+    &#34;&#34;&#34;Fraction of x position of bridge in meters at given time.
+    Args:
+        time: float, time passed from initial position, in seconds.
+        bridge: Bridge, bridge the vehicles is moving on.
+    &#34;&#34;&#34;
+    delta_x_frac = (self.mps * time) / bridge.length
+    init_x_frac = self.init_x_frac
+    if bridge.lanes[self.lane].ltr:
+        return init_x_frac + delta_x_frac
+    else:
+        init_x_frac *= -1  # Make positive, move to right of bridge start.
+        init_x_frac += 1  # Move one bridge length to the right.
+        return init_x_frac - delta_x_frac</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.x_fracs_at"><code class="name flex">
+<span>def <span class="ident">x_fracs_at</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fraction of x position of bridge for each axle at given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_fracs_at(self, time: float, bridge: Bridge):
+    &#34;&#34;&#34;Fraction of x position of bridge for each axle at given time.&#34;&#34;&#34;
+    return list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Vehicle.xs_at"><code class="name flex">
+<span>def <span class="ident">xs_at</span></span>(<span>self, time: float, bridge: <a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>X position on bridge for each axle in meters at given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def xs_at(self, time: float, bridge: Bridge):
+    &#34;&#34;&#34;X position on bridge for each axle in meters at given time.&#34;&#34;&#34;
+    if not hasattr(self, &#34;_xs_at_time&#34;):
+        xs = [self.x_at(time=time, bridge=bridge)]
+        # Determine the distance between each pair of axles.
+        delta_xs = np.array(self.axle_distances)
+        if bridge.lanes[self.lane].ltr:
+            delta_xs *= -1
+            delta_xs = reversed(delta_xs)
+        # Add the distance for each axle, after the front axle.
+        for delta_x in delta_xs:
+            xs.append(xs[-1] + delta_x)
+        self._xs_at_time = np.array(xs)
+    delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
+    return sorted(self._xs_at_time + delta_x_time)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a></code></h4>
+<ul class="two-column">
+<li><code><a title="bridge_sim.model.Bridge.closest_lane" href="#bridge_sim.model.Bridge.closest_lane">closest_lane</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.deck_section_at" href="#bridge_sim.model.Bridge.deck_section_at">deck_section_at</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.id_str" href="#bridge_sim.model.Bridge.id_str">id_str</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.pier_section_at_len" href="#bridge_sim.model.Bridge.pier_section_at_len">pier_section_at_len</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.print_info" href="#bridge_sim.model.Bridge.print_info">print_info</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.wheel_track_xs" href="#bridge_sim.model.Bridge.wheel_track_xs">wheel_track_xs</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.wheel_track_zs" href="#bridge_sim.model.Bridge.wheel_track_zs">wheel_track_zs</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.x" href="#bridge_sim.model.Bridge.x">x</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.x_axis" href="#bridge_sim.model.Bridge.x_axis">x_axis</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.x_axis_equi" href="#bridge_sim.model.Bridge.x_axis_equi">x_axis_equi</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.x_frac" href="#bridge_sim.model.Bridge.x_frac">x_frac</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.y" href="#bridge_sim.model.Bridge.y">y</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.y_frac" href="#bridge_sim.model.Bridge.y_frac">y_frac</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.y_min_max" href="#bridge_sim.model.Bridge.y_min_max">y_min_max</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.z" href="#bridge_sim.model.Bridge.z">z</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.z_frac" href="#bridge_sim.model.Bridge.z_frac">z_frac</a></code></li>
+<li><code><a title="bridge_sim.model.Bridge.z_min_max" href="#bridge_sim.model.Bridge.z_min_max">z_min_max</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Config" href="#bridge_sim.model.Config">Config</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Config.generated_data_dir" href="#bridge_sim.model.Config.generated_data_dir">generated_data_dir</a></code></li>
+<li><code><a title="bridge_sim.model.Config.generated_data_dir_no_acc" href="#bridge_sim.model.Config.generated_data_dir_no_acc">generated_data_dir_no_acc</a></code></li>
+<li><code><a title="bridge_sim.model.Config.generated_images_dir" href="#bridge_sim.model.Config.generated_images_dir">generated_images_dir</a></code></li>
+<li><code><a title="bridge_sim.model.Config.generated_images_dir_no_acc" href="#bridge_sim.model.Config.generated_images_dir_no_acc">generated_images_dir_no_acc</a></code></li>
+<li><code><a title="bridge_sim.model.Config.get_data_path" href="#bridge_sim.model.Config.get_data_path">get_data_path</a></code></li>
+<li><code><a title="bridge_sim.model.Config.get_image_path" href="#bridge_sim.model.Config.get_image_path">get_image_path</a></code></li>
+<li><code><a title="bridge_sim.model.Config.get_path_in" href="#bridge_sim.model.Config.get_path_in">get_path_in</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Dimensions" href="#bridge_sim.model.Dimensions">Dimensions</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Dimensions.D3" href="#bridge_sim.model.Dimensions.D3">D3</a></code></li>
+<li><code><a title="bridge_sim.model.Dimensions.name" href="#bridge_sim.model.Dimensions.name">name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Lane" href="#bridge_sim.model.Lane">Lane</a></code></h4>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Material.contains" href="#bridge_sim.model.Material.contains">contains</a></code></li>
+<li><code><a title="bridge_sim.model.Material.mat_id_str" href="#bridge_sim.model.Material.mat_id_str">mat_id_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.prop_str" href="#bridge_sim.model.Material.prop_str">prop_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.y_min_max" href="#bridge_sim.model.Material.y_min_max">y_min_max</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Material.contains" href="#bridge_sim.model.Material.contains">contains</a></code></li>
+<li><code><a title="bridge_sim.model.Material.mat_id_str" href="#bridge_sim.model.Material.mat_id_str">mat_id_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.prop_str" href="#bridge_sim.model.Material.prop_str">prop_str</a></code></li>
+<li><code><a title="bridge_sim.model.Material.y_min_max" href="#bridge_sim.model.Material.y_min_max">y_min_max</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.MaterialSupport" href="#bridge_sim.model.MaterialSupport">MaterialSupport</a></code></h4>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.PierSettlement" href="#bridge_sim.model.PierSettlement">PierSettlement</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.PierSettlement.id_str" href="#bridge_sim.model.PierSettlement.id_str">id_str</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Point" href="#bridge_sim.model.Point">Point</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Point.distance" href="#bridge_sim.model.Point.distance">distance</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.PointLoad" href="#bridge_sim.model.PointLoad">PointLoad</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.PointLoad.id_str" href="#bridge_sim.model.PointLoad.id_str">id_str</a></code></li>
+<li><code><a title="bridge_sim.model.PointLoad.point" href="#bridge_sim.model.PointLoad.point">point</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.ResponseType" href="#bridge_sim.model.ResponseType">ResponseType</a></code></h4>
+<ul class="two-column">
+<li><code><a title="bridge_sim.model.ResponseType.StrainXXB" href="#bridge_sim.model.ResponseType.StrainXXB">StrainXXB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StrainXXT" href="#bridge_sim.model.ResponseType.StrainXXT">StrainXXT</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StrainZZB" href="#bridge_sim.model.ResponseType.StrainZZB">StrainZZB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressXXB" href="#bridge_sim.model.ResponseType.StressXXB">StressXXB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressXXT" href="#bridge_sim.model.ResponseType.StressXXT">StressXXT</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressZZB" href="#bridge_sim.model.ResponseType.StressZZB">StressZZB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.XTrans" href="#bridge_sim.model.ResponseType.XTrans">XTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.YTrans" href="#bridge_sim.model.ResponseType.YTrans">YTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.ZTrans" href="#bridge_sim.model.ResponseType.ZTrans">ZTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.name" href="#bridge_sim.model.ResponseType.name">name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.ResponseType" href="#bridge_sim.model.ResponseType">ResponseType</a></code></h4>
+<ul class="two-column">
+<li><code><a title="bridge_sim.model.ResponseType.StrainXXB" href="#bridge_sim.model.ResponseType.StrainXXB">StrainXXB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StrainXXT" href="#bridge_sim.model.ResponseType.StrainXXT">StrainXXT</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StrainZZB" href="#bridge_sim.model.ResponseType.StrainZZB">StrainZZB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressXXB" href="#bridge_sim.model.ResponseType.StressXXB">StressXXB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressXXT" href="#bridge_sim.model.ResponseType.StressXXT">StressXXT</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.StressZZB" href="#bridge_sim.model.ResponseType.StressZZB">StressZZB</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.XTrans" href="#bridge_sim.model.ResponseType.XTrans">XTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.YTrans" href="#bridge_sim.model.ResponseType.YTrans">YTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.ZTrans" href="#bridge_sim.model.ResponseType.ZTrans">ZTrans</a></code></li>
+<li><code><a title="bridge_sim.model.ResponseType.name" href="#bridge_sim.model.ResponseType.name">name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Support" href="#bridge_sim.model.Support">Support</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Support.x_min_max_top" href="#bridge_sim.model.Support.x_min_max_top">x_min_max_top</a></code></li>
+<li><code><a title="bridge_sim.model.Support.y_min_max" href="#bridge_sim.model.Support.y_min_max">y_min_max</a></code></li>
+<li><code><a title="bridge_sim.model.Support.z_min_max_bottom" href="#bridge_sim.model.Support.z_min_max_bottom">z_min_max_bottom</a></code></li>
+<li><code><a title="bridge_sim.model.Support.z_min_max_top" href="#bridge_sim.model.Support.z_min_max_top">z_min_max_top</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.model.Vehicle" href="#bridge_sim.model.Vehicle">Vehicle</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.model.Vehicle.cmap_norm" href="#bridge_sim.model.Vehicle.cmap_norm">cmap_norm</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.color" href="#bridge_sim.model.Vehicle.color">color</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.full_lanes" href="#bridge_sim.model.Vehicle.full_lanes">full_lanes</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.on_bridge" href="#bridge_sim.model.Vehicle.on_bridge">on_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.passed_bridge" href="#bridge_sim.model.Vehicle.passed_bridge">passed_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.plot_wheels" href="#bridge_sim.model.Vehicle.plot_wheels">plot_wheels</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.time_at" href="#bridge_sim.model.Vehicle.time_at">time_at</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.time_entered_bridge" href="#bridge_sim.model.Vehicle.time_entered_bridge">time_entered_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.time_entering_bridge" href="#bridge_sim.model.Vehicle.time_entering_bridge">time_entering_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.time_leaving_bridge" href="#bridge_sim.model.Vehicle.time_leaving_bridge">time_leaving_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.time_left_bridge" href="#bridge_sim.model.Vehicle.time_left_bridge">time_left_bridge</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.to_point_load_pw" href="#bridge_sim.model.Vehicle.to_point_load_pw">to_point_load_pw</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.to_wheel_track_loads" href="#bridge_sim.model.Vehicle.to_wheel_track_loads">to_wheel_track_loads</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.to_wheel_track_loads_" href="#bridge_sim.model.Vehicle.to_wheel_track_loads_">to_wheel_track_loads_</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.to_wheel_track_xs" href="#bridge_sim.model.Vehicle.to_wheel_track_xs">to_wheel_track_xs</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.wheel_tracks_zs" href="#bridge_sim.model.Vehicle.wheel_tracks_zs">wheel_tracks_zs</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.x_at" href="#bridge_sim.model.Vehicle.x_at">x_at</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.x_frac_at" href="#bridge_sim.model.Vehicle.x_frac_at">x_frac_at</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.x_fracs_at" href="#bridge_sim.model.Vehicle.x_fracs_at">x_fracs_at</a></code></li>
+<li><code><a title="bridge_sim.model.Vehicle.xs_at" href="#bridge_sim.model.Vehicle.xs_at">xs_at</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

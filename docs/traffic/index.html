@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.traffic API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.traffic</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from collections import deque
+from timeit import default_timer as timer
+from typing import NewType, List, Tuple, Callable
+
+import numpy as np
+from bridge_sim.vehicles.sample import sample_vehicle
+from scipy.interpolate import interp1d
+
+from bridge_sim.model import Bridge, Config, PointLoad, Vehicle
+from bridge_sim.util import print_i, print_d, st
+
+D = False
+
+# A list of vehicles, time they enter/leave the bridge, and a boolean if they are
+# entering (true) or leaving. This sequence should be time ordered. This is a
+# memory efficient representation of traffic.
+TrafficSequence = NewType(&#34;TrafficSequence&#34;, List[Tuple[Vehicle, float, bool]])
+
+# A list of vehicles per lane per time step. This representation naturally fits
+# the semantics of real life traffic on a bridge. Useful for plotting.
+Traffic = NewType(&#34;Traffic&#34;, List[List[List[Vehicle]]])
+
+# An array of time step (rows) * wheel position (columns). Each cell value is
+# load in kilo Newton. This representation is useful for matrix multiplication.
+# NOTE: a cell in a column is indexed as wheel track * x position.
+TrafficArray = NewType(&#34;TrafficArray&#34;, np.ndarray)
+
+
+class TrafficScenario:
+    &#34;&#34;&#34;A named traffic scenario that generates moving vehicles.
+
+    Args:
+        name: str, the name of this traffic scenario.
+
+        mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]], function that
+            returns a tuple of &#39;MvVehicle&#39; and the distance in meters to the
+            vehicles in front at time t = 0, note that the position (&#39;lane&#39; and
+            &#39;init_x_frac&#39;) of this &#39;MvVehicle&#39; will be overridden. A number of
+            keyword arguments will be passed to this function, for details see
+            the implementation of &#39;mv_vehicles&#39;.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, name: str, mv_vehicle_f: Callable[..., Tuple[Vehicle, float]]):
+        self.name = name
+        self.mv_vehicle_f = mv_vehicle_f
+
+    def mv_vehicles(self, bridge: Bridge, lane: int):
+        &#34;&#34;&#34;Moving vehicles on one lane at time t = 0.
+
+        This generator yields a function which returns the next vehicles on given
+        lane, at time t = 0, from the current time and full lanes traveled.
+
+        Remember that regardless of lane direction &#39;init_x_frac&#39; of 0 indicates
+        the point where the vehicles will enter on that lane.
+
+        Args:
+            bridge: Bridge, the bridge the vehicles drive on.
+            lane: int, index of the lane on the bridge the vehicles drive on.
+
+        &#34;&#34;&#34;
+        dist = 0  # Where the next vehicles is at time t = 0.
+        mv_vehicle, inter_vehicle_dist = None, None
+        while True:
+
+            def next_mv_vehicle(time: float, full_lanes: int):
+                &#34;&#34;&#34;The function to generate the next vehicles.&#34;&#34;&#34;
+                nonlocal mv_vehicle
+                nonlocal inter_vehicle_dist
+                mv_vehicle, inter_vehicle_dist = self.mv_vehicle_f(
+                    time=time, full_lanes=full_lanes
+                )
+                mv_vehicle.lane = lane
+                mv_vehicle.init_x_frac = -bridge.x_frac(x=dist)
+                return mv_vehicle
+
+            yield next_mv_vehicle
+            dist += inter_vehicle_dist
+            dist += mv_vehicle.length
+
+    def traffic_sequence(
+        self, bridge: Bridge, max_time: float, adjust: bool = True
+    ) -&gt; TrafficSequence:
+        &#34;&#34;&#34;Generate a &#39;TrafficSequence&#39; under this traffic scenario.
+
+        Returns a sequence of traffic events such that there is at least
+        &#39;max_time&#39; of traffic from when the traffic sequence has warmed up.
+        There is one additional event after &#39;max_time&#39; is reached.
+
+        Args:
+            bridge: Bridge, bridge the vehicles drive on.
+            max_time: float, simulation time after warm up, in seconds.
+
+        &#34;&#34;&#34;
+        result: TrafficSequence = []
+        time: float = 0
+
+        # Per lane, a vehicles generator.
+        mv_vehicle_gens = [
+            self.mv_vehicles(bridge=bridge, lane=lane)
+            for lane, _ in enumerate(bridge.lanes)
+        ]
+
+        # Per lane, next vehicles ready to drive onto the lane.
+        next_vehicles: List[Vehicle] = [
+            next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens
+        ]
+
+        # All vehicles must start at x = 0, sanity check.
+        if not all(v.init_x_frac == 0 for v in next_vehicles):
+            raise ValueError(&#34;Initial vehicles not starting at x = 0&#34;)
+
+        # Count the amount of full lanes traveled.
+        first_vehicle: Vehicle = next_vehicles[0]
+        full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
+
+        # Increase simulation by time taken to warm up.
+        warmed_up_at = first_vehicle.time_left_bridge(bridge)
+        print(f&#34;Trafic warmed up at = {warmed_up_at}&#34;)
+        max_time += warmed_up_at
+        print(f&#34;max_time = {max_time}&#34;)
+
+        # Time vehicles will leave the bridge, in order.
+        time_leave: List[Tuple[Vehicle, float]] = deque([])
+
+        # Until maximum time is reached, see below..
+        while True:
+            # The next event&#39;s vehicles, time, and event type (enter/leave).
+            vehicle, event_time, enter = None, np.inf, True
+
+            # Find next enter/leave event.
+            for v in next_vehicles:
+                t = v.time_entering_bridge(bridge)
+                if t &lt; event_time:
+                    vehicle, event_time = v, t
+            assert enter == True
+            # for v, t in time_leave:
+            # Check if the next leave event is ready.
+            if len(time_leave) &gt; 0 and time_leave[0][1] &lt; event_time:
+                vehicle, event_time, enter = time_leave[0][0], time_leave[0][1], False
+
+            # Add the enter/leave event to the sequence.
+            result.append((vehicle, event_time, enter))
+            time = event_time
+
+            # Stop if maximum time is reached.
+            if event_time &gt; max_time:
+                break
+            print_i(f&#34;Generating &#39;TrafficSequence&#39;, time = {time:.3f} s&#34;, end=&#34;\r&#34;)
+
+            # Update vehicles entering/leaving the bridge.
+            if enter:
+                time_leave.append((vehicle, vehicle.time_left_bridge(bridge)))
+                next_vehicles[vehicle.lane] = next(mv_vehicle_gens[vehicle.lane])(
+                    time=time, full_lanes=full_lanes()
+                )
+            else:
+                time_leave.popleft()
+
+        print_i(
+            f&#34;Generated {time:.3f} - {warmed_up_at:.3f} = {time - warmed_up_at:.3f} s of &#39;TrafficSequence&#39;&#34;
+        )
+        return result
+
+
+def to_traffic(
+    c: Config, traffic_sequence: TrafficSequence, max_time: float, warm_up: bool = True,
+) -&gt; Traffic:
+    &#34;&#34;&#34;Convert a &#39;TrafficSequence&#39; to &#39;Traffic&#39;.&#34;&#34;&#34;
+    result = deque([])
+    current = [deque([]) for _ in c.bridge.lanes]
+    time = 0
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
+
+    # If it is requested that traffic warm up first, then until time
+    # &#39;warmed_up_at&#39; is reached, nothing will be added to the &#39;TrafficArray&#39;.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    print(f&#34;warmed up at = {warmed_up_at}&#34;)
+
+    while len(result) &lt; int(max_time / c.sensor_hz) + 1:
+        # Make a copy of the current traffic.
+        current = [current_lane.copy() for current_lane in current]
+
+        # While events have occurred update current traffic.
+        while time &gt; next_event_time or np.isclose(time, next_event_time):
+            vehicle, _, enter = traffic_sequence[next_event_index]
+            if enter:
+                current[vehicle.lane].append(vehicle)
+            else:
+                current[vehicle.lane].popleft()
+            # Find the next event, if there is one.
+            next_event_index += 1
+            try:
+                next_event_time = traffic_sequence[next_event_index][1]
+            except IndexError:
+                next_event_time = np.inf
+
+        # Append current traffic and update time.
+        if not warm_up or time &gt; warmed_up_at or np.isclose(time, warmed_up_at):
+            result.append(current)
+        time += c.sensor_hz
+
+    return list(result)
+
+
+def to_traffic_array(
+    c: Config,
+    traffic_sequence: TrafficSequence,
+    max_time: float,
+    warm_up: bool = True,
+    new: bool = True,
+) -&gt; Traffic:
+    &#34;&#34;&#34;Convert a &#39;TrafficSequence&#39; to &#39;Traffic&#39;.
+
+    Args:
+        c: Config, global configuration object.
+        traffic_sequence: TrafficSequence, the sequence of traffic to convert
+            into a &#39;TrafficArray&#39;.
+        max_time: float, maximum time of &#39;TrafficArray&#39; to generate.
+        warm_up: bool, if true then begin generating the &#39;TrafficArray&#39; once the
+            first vehicles has passed over the bridge (traffic has warmed up).
+        new: bool, use the new &#34;bucketing&#34; method instead of the old method.
+
+    &#34;&#34;&#34;
+
+    # NOTE: If you are going to try understand the code in this function then
+    # start with looking at &#39;to_traffic&#39;, as that is almost a subset of this
+    # code.
+
+    print_i(&#34;Converting &#39;TrafficSequence&#39; to &#39;TrafficArray&#39;&#34;)
+    time_step = c.sensor_hz
+    print(
+        f&#34;array size = {int(max_time / time_step)}, {len(c.bridge.lanes) * 2 * c.il_num_loads}&#34;
+    )
+    # Initial traffic array, to be filled in.
+    result = np.zeros(
+        (
+            # &#39;+ 1&#39; to account for time t = 0.
+            int(max_time / time_step) + 1,
+            # 2 wheel tracks per lane.
+            len(c.bridge.lanes) * 2 * c.il_num_loads,
+        )
+    )
+    # Current traffic per lane.
+    current = [deque([]) for _ in c.bridge.lanes]
+    # Current time and timestep index.
+    time, time_i = 0, 0
+    # The next event and time the next event occurs.
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
+    # Interpolate from x position to wheel track bucket.
+    _interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
+
+    def interp(x):
+        return int(np.around(_interp(x), 0))
+
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+    # Column index where each wheel track starts.
+    j_indices = [
+        (l * 2 * c.il_num_loads, ((l * 2) + 1) * c.il_num_loads)
+        for l, _ in enumerate(current)
+    ]
+
+    # If it is requested that traffic warm up first, then until time
+    # &#39;warmed_up_at&#39; is reached, nothing will be added to the &#39;TrafficArray&#39;.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+
+    last_print_time, start_time = -np.inf, None
+    while time_i &lt; result.shape[0]:
+        # Print an update when at least 1 second has passed.
+        if time - last_print_time &gt; 1:
+            print_i(f&#34;Generating &#39;TrafficArray&#39;, time = {time:.4f} s&#34;, end=&#34;\r&#34;)
+            last_print_time = time
+
+        # While events have occurred, update current traffic.
+        while time &gt; next_event_time or np.isclose(time, next_event_time):
+            vehicle, _, enter = traffic_sequence[next_event_index]
+            if enter:
+                current[vehicle.lane].append(vehicle)
+                print(
+                    f&#34;Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}&#34;,
+                    end=&#34;\r&#34;,
+                )
+            else:
+                current[vehicle.lane].popleft()
+                print(
+                    f&#34;Vehicle left {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}&#34;
+                )
+            # Find the next event, if there is one.
+            next_event_index += 1
+            try:
+                next_event_time = traffic_sequence[next_event_index][1]
+            except IndexError:
+                next_event_time = np.inf
+
+        # Only add to the &#39;TrafficArray&#39; if the traffic is not required to warm
+        # up, or the traffic has already warmed up.
+        if not warm_up or time &gt; warmed_up_at or np.isclose(time, warmed_up_at):
+            # TODO: This bottom part of the loop should be parallelized!
+            if start_time is None:
+                start_time = time
+            # For each vehicles, find the lane it&#39;s on, and indices into the ULM.
+            if new:
+                for js, vehicles in zip(j_indices, current):
+                    for vehicle in vehicles:
+                        # Here the wheel track bucketing is implemented.
+                        for axle_loads in vehicle.to_wheel_track_loads_(
+                            c=c, time=time, wheel_track_xs=wheel_track_xs,
+                        ):
+                            # The x indices are equal per axle.
+                            x_inds = [interp(x) for x, _ in axle_loads[0]]
+                            for j, wheel_loads in zip(js, axle_loads):
+                                for x_ind, (load_x, load_kn) in zip(
+                                    x_inds, wheel_loads
+                                ):
+                                    result[time_i][j + x_ind] += load_kn
+            # The old method.
+            else:
+                # For each lane.
+                for (j0, j1), vehicles in zip(j_indices, current):
+                    # For each vehicles.
+                    for vehicle in vehicles:
+                        xs = vehicle.xs_at(time=time, bridge=c.bridge)
+                        kns = vehicle.kn_per_axle()
+                        # assert len(xs) == len(kns)
+                        # For each axle currently on the bridge.
+                        for x, kn in zip(xs, kns):
+                            if x &gt;= c.bridge.x_min and x &lt;= c.bridge.x_max:
+                                x_ind = interp(x)
+                                # For each wheel.
+                                for j in [j0, j1]:
+                                    # print(f&#34;lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}&#34;)
+                                    result[time_i][j + x_ind] = kn / 2
+            time_i += 1
+        time += time_step
+
+    print_i(
+        f&#34;Generated {time - start_time - time_step:.4f} s of &#39;TrafficArray&#39; from &#39;TrafficSequence&#39;&#34;
+    )
+    return result
+
+
+def arrival(beta: float, min_d: float):
+    &#34;&#34;&#34;Inter-arrival times of vehicles to a bridge.&#34;&#34;&#34;
+    result = np.random.exponential(beta)
+    assert isinstance(result, float)
+    if result &lt; min_d:
+        return arrival(beta=beta, min_d=min_d)
+    return result
+
+
+def normal_traffic(c: Config, lam: float, min_d: float):
+    &#34;&#34;&#34;Normal traffic scenario, arrives according to poisson process.&#34;&#34;&#34;
+    count = 0
+
+    def mv_vehicle_f(time: float, full_lanes: int):
+        start = timer()
+        vehicle = sample_vehicle(c), arrival(beta=lam, min_d=min_d)
+        nonlocal count
+        count += 1
+        print_i(f&#34;{count}{st(count)} sampled vehicles took {timer() - start}&#34;)
+        return vehicle
+
+    return TrafficScenario(name=f&#34;normal-lam-{lam}&#34;, mv_vehicle_f=mv_vehicle_f)
+
+
+def x_to_wheel_track_index(c: Config):
+    &#34;&#34;&#34;Return a function from x position to wheel track index.&#34;&#34;&#34;
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+
+    def wheel_track_index(x: float):
+        wheel_x_ind = np.searchsorted(wheel_track_xs, x)
+        if wheel_x_ind == 0:
+            return wheel_x_ind
+        wheel_x = wheel_track_xs[wheel_x_ind]
+        wheel_x_lo = wheel_track_xs[wheel_x_ind - 1]
+        if wheel_x_ind &lt; len(wheel_track_xs) - 1:
+            assert abs(x - wheel_track_xs[wheel_x_ind + 1]) &gt; abs(x - wheel_x)
+        if abs(x - wheel_x_lo) &lt; abs(x - wheel_x):
+            return wheel_x_ind - 1
+        return wheel_x_ind
+
+    return wheel_track_index
+
+
+def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
+    &#34;&#34;&#34;Convert a list of loads per timestep to a &#39;TrafficArray&#39;.&#34;&#34;&#34;
+    times = len(loads)
+    wheel_track_zs = c.bridge.wheel_track_zs(c)
+    num_load_positions = c.il_num_loads * len(wheel_track_zs)
+    traffic_array = np.zeros((times, num_load_positions))
+    wheel_track_index_f = x_to_wheel_track_index(c)
+    for time, time_loads in enumerate(loads):
+        # For each load, find the wheel track it&#39;s on, and then fill the ULM.
+        for load in time_loads:
+            wheel_track_found = False
+            for w, wheel_track_z in enumerate(wheel_track_zs):
+                if not wheel_track_found and np.isclose(wheel_track_z, load.z):
+                    wheel_track_found = True
+                    print_d(D, f&#34;load z = {load.z}&#34;)
+                    print_d(D, f&#34;load x = {load.x}&#34;)
+                    x_ind = wheel_track_index_f(load.x)
+                    j = (w * c.il_num_loads) + x_ind
+                    print_d(D, f&#34;x_ind = {x_ind}&#34;)
+                    print_d(D, f&#34;j = {j}&#34;)
+                    traffic_array[time][j] += load.load
+            if not wheel_track_found:
+                raise ValueError(f&#34;No wheel track for point load at z = {load.z}&#34;)
+    return traffic_array</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.traffic.arrival"><code class="name flex">
+<span>def <span class="ident">arrival</span></span>(<span>beta: float, min_d: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Inter-arrival times of vehicles to a bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def arrival(beta: float, min_d: float):
+    &#34;&#34;&#34;Inter-arrival times of vehicles to a bridge.&#34;&#34;&#34;
+    result = np.random.exponential(beta)
+    assert isinstance(result, float)
+    if result &lt; min_d:
+        return arrival(beta=beta, min_d=min_d)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.loads_to_traffic_array"><code class="name flex">
+<span>def <span class="ident">loads_to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, loads: List[List[<a title="bridge_sim.model.PointLoad" href="../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a list of loads per timestep to a 'TrafficArray'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
+    &#34;&#34;&#34;Convert a list of loads per timestep to a &#39;TrafficArray&#39;.&#34;&#34;&#34;
+    times = len(loads)
+    wheel_track_zs = c.bridge.wheel_track_zs(c)
+    num_load_positions = c.il_num_loads * len(wheel_track_zs)
+    traffic_array = np.zeros((times, num_load_positions))
+    wheel_track_index_f = x_to_wheel_track_index(c)
+    for time, time_loads in enumerate(loads):
+        # For each load, find the wheel track it&#39;s on, and then fill the ULM.
+        for load in time_loads:
+            wheel_track_found = False
+            for w, wheel_track_z in enumerate(wheel_track_zs):
+                if not wheel_track_found and np.isclose(wheel_track_z, load.z):
+                    wheel_track_found = True
+                    print_d(D, f&#34;load z = {load.z}&#34;)
+                    print_d(D, f&#34;load x = {load.x}&#34;)
+                    x_ind = wheel_track_index_f(load.x)
+                    j = (w * c.il_num_loads) + x_ind
+                    print_d(D, f&#34;x_ind = {x_ind}&#34;)
+                    print_d(D, f&#34;j = {j}&#34;)
+                    traffic_array[time][j] += load.load
+            if not wheel_track_found:
+                raise ValueError(f&#34;No wheel track for point load at z = {load.z}&#34;)
+    return traffic_array</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.normal_traffic"><code class="name flex">
+<span>def <span class="ident">normal_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, lam: float, min_d: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Normal traffic scenario, arrives according to poisson process.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normal_traffic(c: Config, lam: float, min_d: float):
+    &#34;&#34;&#34;Normal traffic scenario, arrives according to poisson process.&#34;&#34;&#34;
+    count = 0
+
+    def mv_vehicle_f(time: float, full_lanes: int):
+        start = timer()
+        vehicle = sample_vehicle(c), arrival(beta=lam, min_d=min_d)
+        nonlocal count
+        count += 1
+        print_i(f&#34;{count}{st(count)} sampled vehicles took {timer() - start}&#34;)
+        return vehicle
+
+    return TrafficScenario(name=f&#34;normal-lam-{lam}&#34;, mv_vehicle_f=mv_vehicle_f)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.to_traffic"><code class="name flex">
+<span>def <span class="ident">to_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x101ec0e60>, max_time: float, warm_up: bool = True) -> <function NewType.<locals>.new_type at 0x115d333b0></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_traffic(
+    c: Config, traffic_sequence: TrafficSequence, max_time: float, warm_up: bool = True,
+) -&gt; Traffic:
+    &#34;&#34;&#34;Convert a &#39;TrafficSequence&#39; to &#39;Traffic&#39;.&#34;&#34;&#34;
+    result = deque([])
+    current = [deque([]) for _ in c.bridge.lanes]
+    time = 0
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
+
+    # If it is requested that traffic warm up first, then until time
+    # &#39;warmed_up_at&#39; is reached, nothing will be added to the &#39;TrafficArray&#39;.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+    print(f&#34;warmed up at = {warmed_up_at}&#34;)
+
+    while len(result) &lt; int(max_time / c.sensor_hz) + 1:
+        # Make a copy of the current traffic.
+        current = [current_lane.copy() for current_lane in current]
+
+        # While events have occurred update current traffic.
+        while time &gt; next_event_time or np.isclose(time, next_event_time):
+            vehicle, _, enter = traffic_sequence[next_event_index]
+            if enter:
+                current[vehicle.lane].append(vehicle)
+            else:
+                current[vehicle.lane].popleft()
+            # Find the next event, if there is one.
+            next_event_index += 1
+            try:
+                next_event_time = traffic_sequence[next_event_index][1]
+            except IndexError:
+                next_event_time = np.inf
+
+        # Append current traffic and update time.
+        if not warm_up or time &gt; warmed_up_at or np.isclose(time, warmed_up_at):
+            result.append(current)
+        time += c.sensor_hz
+
+    return list(result)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.to_traffic_array"><code class="name flex">
+<span>def <span class="ident">to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x101ec0e60>, max_time: float, warm_up: bool = True, new: bool = True) -> <function NewType.<locals>.new_type at 0x115d333b0></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, global configuration object.</dd>
+<dt><strong><code>traffic_sequence</code></strong></dt>
+<dd>TrafficSequence, the sequence of traffic to convert
+into a 'TrafficArray'.</dd>
+<dt><strong><code>max_time</code></strong></dt>
+<dd>float, maximum time of 'TrafficArray' to generate.</dd>
+<dt><strong><code>warm_up</code></strong></dt>
+<dd>bool, if true then begin generating the 'TrafficArray' once the
+first vehicles has passed over the bridge (traffic has warmed up).</dd>
+<dt><strong><code>new</code></strong></dt>
+<dd>bool, use the new "bucketing" method instead of the old method.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_traffic_array(
+    c: Config,
+    traffic_sequence: TrafficSequence,
+    max_time: float,
+    warm_up: bool = True,
+    new: bool = True,
+) -&gt; Traffic:
+    &#34;&#34;&#34;Convert a &#39;TrafficSequence&#39; to &#39;Traffic&#39;.
+
+    Args:
+        c: Config, global configuration object.
+        traffic_sequence: TrafficSequence, the sequence of traffic to convert
+            into a &#39;TrafficArray&#39;.
+        max_time: float, maximum time of &#39;TrafficArray&#39; to generate.
+        warm_up: bool, if true then begin generating the &#39;TrafficArray&#39; once the
+            first vehicles has passed over the bridge (traffic has warmed up).
+        new: bool, use the new &#34;bucketing&#34; method instead of the old method.
+
+    &#34;&#34;&#34;
+
+    # NOTE: If you are going to try understand the code in this function then
+    # start with looking at &#39;to_traffic&#39;, as that is almost a subset of this
+    # code.
+
+    print_i(&#34;Converting &#39;TrafficSequence&#39; to &#39;TrafficArray&#39;&#34;)
+    time_step = c.sensor_hz
+    print(
+        f&#34;array size = {int(max_time / time_step)}, {len(c.bridge.lanes) * 2 * c.il_num_loads}&#34;
+    )
+    # Initial traffic array, to be filled in.
+    result = np.zeros(
+        (
+            # &#39;+ 1&#39; to account for time t = 0.
+            int(max_time / time_step) + 1,
+            # 2 wheel tracks per lane.
+            len(c.bridge.lanes) * 2 * c.il_num_loads,
+        )
+    )
+    # Current traffic per lane.
+    current = [deque([]) for _ in c.bridge.lanes]
+    # Current time and timestep index.
+    time, time_i = 0, 0
+    # The next event and time the next event occurs.
+    next_event_index = 0
+    next_event_time = traffic_sequence[next_event_index][1]
+    # Interpolate from x position to wheel track bucket.
+    _interp = interp1d([c.bridge.x_min, c.bridge.x_max], [0, c.il_num_loads - 1])
+
+    def interp(x):
+        return int(np.around(_interp(x), 0))
+
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+    # Column index where each wheel track starts.
+    j_indices = [
+        (l * 2 * c.il_num_loads, ((l * 2) + 1) * c.il_num_loads)
+        for l, _ in enumerate(current)
+    ]
+
+    # If it is requested that traffic warm up first, then until time
+    # &#39;warmed_up_at&#39; is reached, nothing will be added to the &#39;TrafficArray&#39;.
+    warmed_up_at = traffic_sequence[0][0].time_left_bridge(c.bridge)
+
+    last_print_time, start_time = -np.inf, None
+    while time_i &lt; result.shape[0]:
+        # Print an update when at least 1 second has passed.
+        if time - last_print_time &gt; 1:
+            print_i(f&#34;Generating &#39;TrafficArray&#39;, time = {time:.4f} s&#34;, end=&#34;\r&#34;)
+            last_print_time = time
+
+        # While events have occurred, update current traffic.
+        while time &gt; next_event_time or np.isclose(time, next_event_time):
+            vehicle, _, enter = traffic_sequence[next_event_index]
+            if enter:
+                current[vehicle.lane].append(vehicle)
+                print(
+                    f&#34;Vehicle entered {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}&#34;,
+                    end=&#34;\r&#34;,
+                )
+            else:
+                current[vehicle.lane].popleft()
+                print(
+                    f&#34;Vehicle left {vehicle.lane} at t = {time:.3f}, sum = {len(current[vehicle.lane])}&#34;
+                )
+            # Find the next event, if there is one.
+            next_event_index += 1
+            try:
+                next_event_time = traffic_sequence[next_event_index][1]
+            except IndexError:
+                next_event_time = np.inf
+
+        # Only add to the &#39;TrafficArray&#39; if the traffic is not required to warm
+        # up, or the traffic has already warmed up.
+        if not warm_up or time &gt; warmed_up_at or np.isclose(time, warmed_up_at):
+            # TODO: This bottom part of the loop should be parallelized!
+            if start_time is None:
+                start_time = time
+            # For each vehicles, find the lane it&#39;s on, and indices into the ULM.
+            if new:
+                for js, vehicles in zip(j_indices, current):
+                    for vehicle in vehicles:
+                        # Here the wheel track bucketing is implemented.
+                        for axle_loads in vehicle.to_wheel_track_loads_(
+                            c=c, time=time, wheel_track_xs=wheel_track_xs,
+                        ):
+                            # The x indices are equal per axle.
+                            x_inds = [interp(x) for x, _ in axle_loads[0]]
+                            for j, wheel_loads in zip(js, axle_loads):
+                                for x_ind, (load_x, load_kn) in zip(
+                                    x_inds, wheel_loads
+                                ):
+                                    result[time_i][j + x_ind] += load_kn
+            # The old method.
+            else:
+                # For each lane.
+                for (j0, j1), vehicles in zip(j_indices, current):
+                    # For each vehicles.
+                    for vehicle in vehicles:
+                        xs = vehicle.xs_at(time=time, bridge=c.bridge)
+                        kns = vehicle.kn_per_axle()
+                        # assert len(xs) == len(kns)
+                        # For each axle currently on the bridge.
+                        for x, kn in zip(xs, kns):
+                            if x &gt;= c.bridge.x_min and x &lt;= c.bridge.x_max:
+                                x_ind = interp(x)
+                                # For each wheel.
+                                for j in [j0, j1]:
+                                    # print(f&#34;lane = {l}, w = {w}, x = {x}, x_interp = {x_interp(x)}, j = {j}, kn = {kn / 2}&#34;)
+                                    result[time_i][j + x_ind] = kn / 2
+            time_i += 1
+        time += time_step
+
+    print_i(
+        f&#34;Generated {time - start_time - time_step:.4f} s of &#39;TrafficArray&#39; from &#39;TrafficSequence&#39;&#34;
+    )
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.x_to_wheel_track_index"><code class="name flex">
+<span>def <span class="ident">x_to_wheel_track_index</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a function from x position to wheel track index.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def x_to_wheel_track_index(c: Config):
+    &#34;&#34;&#34;Return a function from x position to wheel track index.&#34;&#34;&#34;
+    wheel_track_xs = c.bridge.wheel_track_xs(c)
+
+    def wheel_track_index(x: float):
+        wheel_x_ind = np.searchsorted(wheel_track_xs, x)
+        if wheel_x_ind == 0:
+            return wheel_x_ind
+        wheel_x = wheel_track_xs[wheel_x_ind]
+        wheel_x_lo = wheel_track_xs[wheel_x_ind - 1]
+        if wheel_x_ind &lt; len(wheel_track_xs) - 1:
+            assert abs(x - wheel_track_xs[wheel_x_ind + 1]) &gt; abs(x - wheel_x)
+        if abs(x - wheel_x_lo) &lt; abs(x - wheel_x):
+            return wheel_x_ind - 1
+        return wheel_x_ind
+
+    return wheel_track_index</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.traffic.TrafficScenario"><code class="flex name class">
+<span>class <span class="ident">TrafficScenario</span></span>
+<span>(</span><span>name: str, mv_vehicle_f: Callable[..., Tuple[bridge_sim.model.Vehicle, float]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A named traffic scenario that generates moving vehicles.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>str, the name of this traffic scenario.</dd>
+<dt><strong><code>mv_vehicle_f</code></strong></dt>
+<dd>Callable[&hellip;, Tuple[MvVehicle, float]], function that
+returns a tuple of 'MvVehicle' and the distance in meters to the
+vehicles in front at time t = 0, note that the position ('lane' and
+'init_x_frac') of this 'MvVehicle' will be overridden. A number of
+keyword arguments will be passed to this function, for details see
+the implementation of 'mv_vehicles'.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TrafficScenario:
+    &#34;&#34;&#34;A named traffic scenario that generates moving vehicles.
+
+    Args:
+        name: str, the name of this traffic scenario.
+
+        mv_vehicle_f: Callable[..., Tuple[MvVehicle, float]], function that
+            returns a tuple of &#39;MvVehicle&#39; and the distance in meters to the
+            vehicles in front at time t = 0, note that the position (&#39;lane&#39; and
+            &#39;init_x_frac&#39;) of this &#39;MvVehicle&#39; will be overridden. A number of
+            keyword arguments will be passed to this function, for details see
+            the implementation of &#39;mv_vehicles&#39;.
+
+    &#34;&#34;&#34;
+
+    def __init__(self, name: str, mv_vehicle_f: Callable[..., Tuple[Vehicle, float]]):
+        self.name = name
+        self.mv_vehicle_f = mv_vehicle_f
+
+    def mv_vehicles(self, bridge: Bridge, lane: int):
+        &#34;&#34;&#34;Moving vehicles on one lane at time t = 0.
+
+        This generator yields a function which returns the next vehicles on given
+        lane, at time t = 0, from the current time and full lanes traveled.
+
+        Remember that regardless of lane direction &#39;init_x_frac&#39; of 0 indicates
+        the point where the vehicles will enter on that lane.
+
+        Args:
+            bridge: Bridge, the bridge the vehicles drive on.
+            lane: int, index of the lane on the bridge the vehicles drive on.
+
+        &#34;&#34;&#34;
+        dist = 0  # Where the next vehicles is at time t = 0.
+        mv_vehicle, inter_vehicle_dist = None, None
+        while True:
+
+            def next_mv_vehicle(time: float, full_lanes: int):
+                &#34;&#34;&#34;The function to generate the next vehicles.&#34;&#34;&#34;
+                nonlocal mv_vehicle
+                nonlocal inter_vehicle_dist
+                mv_vehicle, inter_vehicle_dist = self.mv_vehicle_f(
+                    time=time, full_lanes=full_lanes
+                )
+                mv_vehicle.lane = lane
+                mv_vehicle.init_x_frac = -bridge.x_frac(x=dist)
+                return mv_vehicle
+
+            yield next_mv_vehicle
+            dist += inter_vehicle_dist
+            dist += mv_vehicle.length
+
+    def traffic_sequence(
+        self, bridge: Bridge, max_time: float, adjust: bool = True
+    ) -&gt; TrafficSequence:
+        &#34;&#34;&#34;Generate a &#39;TrafficSequence&#39; under this traffic scenario.
+
+        Returns a sequence of traffic events such that there is at least
+        &#39;max_time&#39; of traffic from when the traffic sequence has warmed up.
+        There is one additional event after &#39;max_time&#39; is reached.
+
+        Args:
+            bridge: Bridge, bridge the vehicles drive on.
+            max_time: float, simulation time after warm up, in seconds.
+
+        &#34;&#34;&#34;
+        result: TrafficSequence = []
+        time: float = 0
+
+        # Per lane, a vehicles generator.
+        mv_vehicle_gens = [
+            self.mv_vehicles(bridge=bridge, lane=lane)
+            for lane, _ in enumerate(bridge.lanes)
+        ]
+
+        # Per lane, next vehicles ready to drive onto the lane.
+        next_vehicles: List[Vehicle] = [
+            next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens
+        ]
+
+        # All vehicles must start at x = 0, sanity check.
+        if not all(v.init_x_frac == 0 for v in next_vehicles):
+            raise ValueError(&#34;Initial vehicles not starting at x = 0&#34;)
+
+        # Count the amount of full lanes traveled.
+        first_vehicle: Vehicle = next_vehicles[0]
+        full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
+
+        # Increase simulation by time taken to warm up.
+        warmed_up_at = first_vehicle.time_left_bridge(bridge)
+        print(f&#34;Trafic warmed up at = {warmed_up_at}&#34;)
+        max_time += warmed_up_at
+        print(f&#34;max_time = {max_time}&#34;)
+
+        # Time vehicles will leave the bridge, in order.
+        time_leave: List[Tuple[Vehicle, float]] = deque([])
+
+        # Until maximum time is reached, see below..
+        while True:
+            # The next event&#39;s vehicles, time, and event type (enter/leave).
+            vehicle, event_time, enter = None, np.inf, True
+
+            # Find next enter/leave event.
+            for v in next_vehicles:
+                t = v.time_entering_bridge(bridge)
+                if t &lt; event_time:
+                    vehicle, event_time = v, t
+            assert enter == True
+            # for v, t in time_leave:
+            # Check if the next leave event is ready.
+            if len(time_leave) &gt; 0 and time_leave[0][1] &lt; event_time:
+                vehicle, event_time, enter = time_leave[0][0], time_leave[0][1], False
+
+            # Add the enter/leave event to the sequence.
+            result.append((vehicle, event_time, enter))
+            time = event_time
+
+            # Stop if maximum time is reached.
+            if event_time &gt; max_time:
+                break
+            print_i(f&#34;Generating &#39;TrafficSequence&#39;, time = {time:.3f} s&#34;, end=&#34;\r&#34;)
+
+            # Update vehicles entering/leaving the bridge.
+            if enter:
+                time_leave.append((vehicle, vehicle.time_left_bridge(bridge)))
+                next_vehicles[vehicle.lane] = next(mv_vehicle_gens[vehicle.lane])(
+                    time=time, full_lanes=full_lanes()
+                )
+            else:
+                time_leave.popleft()
+
+        print_i(
+            f&#34;Generated {time:.3f} - {warmed_up_at:.3f} = {time - warmed_up_at:.3f} s of &#39;TrafficSequence&#39;&#34;
+        )
+        return result</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.traffic.TrafficScenario.mv_vehicles"><code class="name flex">
+<span>def <span class="ident">mv_vehicles</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, lane: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Moving vehicles on one lane at time t = 0.</p>
+<p>This generator yields a function which returns the next vehicles on given
+lane, at time t = 0, from the current time and full lanes traveled.</p>
+<p>Remember that regardless of lane direction 'init_x_frac' of 0 indicates
+the point where the vehicles will enter on that lane.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>Bridge, the bridge the vehicles drive on.</dd>
+<dt><strong><code>lane</code></strong></dt>
+<dd>int, index of the lane on the bridge the vehicles drive on.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mv_vehicles(self, bridge: Bridge, lane: int):
+    &#34;&#34;&#34;Moving vehicles on one lane at time t = 0.
+
+    This generator yields a function which returns the next vehicles on given
+    lane, at time t = 0, from the current time and full lanes traveled.
+
+    Remember that regardless of lane direction &#39;init_x_frac&#39; of 0 indicates
+    the point where the vehicles will enter on that lane.
+
+    Args:
+        bridge: Bridge, the bridge the vehicles drive on.
+        lane: int, index of the lane on the bridge the vehicles drive on.
+
+    &#34;&#34;&#34;
+    dist = 0  # Where the next vehicles is at time t = 0.
+    mv_vehicle, inter_vehicle_dist = None, None
+    while True:
+
+        def next_mv_vehicle(time: float, full_lanes: int):
+            &#34;&#34;&#34;The function to generate the next vehicles.&#34;&#34;&#34;
+            nonlocal mv_vehicle
+            nonlocal inter_vehicle_dist
+            mv_vehicle, inter_vehicle_dist = self.mv_vehicle_f(
+                time=time, full_lanes=full_lanes
+            )
+            mv_vehicle.lane = lane
+            mv_vehicle.init_x_frac = -bridge.x_frac(x=dist)
+            return mv_vehicle
+
+        yield next_mv_vehicle
+        dist += inter_vehicle_dist
+        dist += mv_vehicle.length</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.TrafficScenario.traffic_sequence"><code class="name flex">
+<span>def <span class="ident">traffic_sequence</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, max_time: float, adjust: bool = True) -> <function NewType.<locals>.new_type at 0x101ec0e60></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a 'TrafficSequence' under this traffic scenario.</p>
+<p>Returns a sequence of traffic events such that there is at least
+'max_time' of traffic from when the traffic sequence has warmed up.
+There is one additional event after 'max_time' is reached.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>Bridge, bridge the vehicles drive on.</dd>
+<dt><strong><code>max_time</code></strong></dt>
+<dd>float, simulation time after warm up, in seconds.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def traffic_sequence(
+    self, bridge: Bridge, max_time: float, adjust: bool = True
+) -&gt; TrafficSequence:
+    &#34;&#34;&#34;Generate a &#39;TrafficSequence&#39; under this traffic scenario.
+
+    Returns a sequence of traffic events such that there is at least
+    &#39;max_time&#39; of traffic from when the traffic sequence has warmed up.
+    There is one additional event after &#39;max_time&#39; is reached.
+
+    Args:
+        bridge: Bridge, bridge the vehicles drive on.
+        max_time: float, simulation time after warm up, in seconds.
+
+    &#34;&#34;&#34;
+    result: TrafficSequence = []
+    time: float = 0
+
+    # Per lane, a vehicles generator.
+    mv_vehicle_gens = [
+        self.mv_vehicles(bridge=bridge, lane=lane)
+        for lane, _ in enumerate(bridge.lanes)
+    ]
+
+    # Per lane, next vehicles ready to drive onto the lane.
+    next_vehicles: List[Vehicle] = [
+        next(gen)(time=time, full_lanes=0) for gen in mv_vehicle_gens
+    ]
+
+    # All vehicles must start at x = 0, sanity check.
+    if not all(v.init_x_frac == 0 for v in next_vehicles):
+        raise ValueError(&#34;Initial vehicles not starting at x = 0&#34;)
+
+    # Count the amount of full lanes traveled.
+    first_vehicle: Vehicle = next_vehicles[0]
+    full_lanes = lambda: first_vehicle.full_lanes(time=time, bridge=bridge)
+
+    # Increase simulation by time taken to warm up.
+    warmed_up_at = first_vehicle.time_left_bridge(bridge)
+    print(f&#34;Trafic warmed up at = {warmed_up_at}&#34;)
+    max_time += warmed_up_at
+    print(f&#34;max_time = {max_time}&#34;)
+
+    # Time vehicles will leave the bridge, in order.
+    time_leave: List[Tuple[Vehicle, float]] = deque([])
+
+    # Until maximum time is reached, see below..
+    while True:
+        # The next event&#39;s vehicles, time, and event type (enter/leave).
+        vehicle, event_time, enter = None, np.inf, True
+
+        # Find next enter/leave event.
+        for v in next_vehicles:
+            t = v.time_entering_bridge(bridge)
+            if t &lt; event_time:
+                vehicle, event_time = v, t
+        assert enter == True
+        # for v, t in time_leave:
+        # Check if the next leave event is ready.
+        if len(time_leave) &gt; 0 and time_leave[0][1] &lt; event_time:
+            vehicle, event_time, enter = time_leave[0][0], time_leave[0][1], False
+
+        # Add the enter/leave event to the sequence.
+        result.append((vehicle, event_time, enter))
+        time = event_time
+
+        # Stop if maximum time is reached.
+        if event_time &gt; max_time:
+            break
+        print_i(f&#34;Generating &#39;TrafficSequence&#39;, time = {time:.3f} s&#34;, end=&#34;\r&#34;)
+
+        # Update vehicles entering/leaving the bridge.
+        if enter:
+            time_leave.append((vehicle, vehicle.time_left_bridge(bridge)))
+            next_vehicles[vehicle.lane] = next(mv_vehicle_gens[vehicle.lane])(
+                time=time, full_lanes=full_lanes()
+            )
+        else:
+            time_leave.popleft()
+
+    print_i(
+        f&#34;Generated {time:.3f} - {warmed_up_at:.3f} = {time - warmed_up_at:.3f} s of &#39;TrafficSequence&#39;&#34;
+    )
+    return result</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.traffic.arrival" href="#bridge_sim.traffic.arrival">arrival</a></code></li>
+<li><code><a title="bridge_sim.traffic.loads_to_traffic_array" href="#bridge_sim.traffic.loads_to_traffic_array">loads_to_traffic_array</a></code></li>
+<li><code><a title="bridge_sim.traffic.normal_traffic" href="#bridge_sim.traffic.normal_traffic">normal_traffic</a></code></li>
+<li><code><a title="bridge_sim.traffic.to_traffic" href="#bridge_sim.traffic.to_traffic">to_traffic</a></code></li>
+<li><code><a title="bridge_sim.traffic.to_traffic_array" href="#bridge_sim.traffic.to_traffic_array">to_traffic_array</a></code></li>
+<li><code><a title="bridge_sim.traffic.x_to_wheel_track_index" href="#bridge_sim.traffic.x_to_wheel_track_index">x_to_wheel_track_index</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.traffic.TrafficScenario" href="#bridge_sim.traffic.TrafficScenario">TrafficScenario</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.traffic.TrafficScenario.mv_vehicles" href="#bridge_sim.traffic.TrafficScenario.mv_vehicles">mv_vehicles</a></code></li>
+<li><code><a title="bridge_sim.traffic.TrafficScenario.traffic_sequence" href="#bridge_sim.traffic.TrafficScenario.traffic_sequence">traffic_sequence</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

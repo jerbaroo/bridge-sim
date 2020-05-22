@@ -6,11 +6,9 @@ verify_ssl = true
 [dev-packages]
 black = "*"
 jupyterlab = "*"
+pdoc3 = "*"
 pypandoc = "*"
 pytest = "*"
-pydeps = "*"
-sphinx = "*"
-sphinx-rtd-theme = "*"
 twine = "*"
 
 [packages]
