@@ -9,7 +9,7 @@ from model.response import ResponseType
 
 
 def test_parse_3d():
-    """Test parsing of responses from a 3D OpenSees simulation."""
+    """Test parsing of fem from a 3D OpenSees simulation."""
     c = bridge_705_test_config(bridge_705_3d)
     fem_runner = OSRunner(c)
     fem_params = SimParams(
@@ -18,7 +18,7 @@ def test_parse_3d():
     parsed = fem_runner.run(
         ExptParams([fem_params]), return_parsed=True, simple_mesh=True
     )
-    # Index parsed responses by simulation, here is only one simulation.
+    # Index parsed fem by simulation, here is only one simulation.
     parsed_y_responses = parsed[0][ResponseType.YTranslation]
     # There should only be one time step.
     assert len(parsed_y_responses) == 1

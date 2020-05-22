@@ -1,4 +1,4 @@
-"""Plot responses on a bridge.
+"""Plot fem on a bridge.
 
 Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
@@ -12,7 +12,7 @@ from bridge_sim.model import ResponseType, Point, Config, PointLoad
 from lib.fem.build import get_bridge_nodes, det_nodes
 from lib.fem.responses import Responses
 from lib.plot import default_cmap, legend_marker_size, plt
-from util import print_w
+from bridge_sim.util import print_w
 
 
 def plot_deck_sensors(c: Config, without: Callable[[Point], bool], label: bool = False):
@@ -86,7 +86,7 @@ def plot_distributions(
         print_w(f"Cols don't divide number of points {num_points}, cols = {cols}")
         rows += 1
 
-    # Plot responses.
+    # Plot fem.
     for i in range(num_points):
         plt.subplot(rows, cols, i + 1)
         plt.xlim((amin, amax))
@@ -123,7 +123,7 @@ def plot_contour_deck(
     sci_format: bool = False,
     decimals: int = 4,
 ):
-    """Contour plot of given responses. Iterate over x and z for a fixed y.
+    """Contour plot of given fem. Iterate over x and z for a fixed y.
 
     Args:
         mm_legend_without_f: Optional[Callable[[Point], bool]], If given then
@@ -168,9 +168,9 @@ def plot_contour_deck(
 
     structure_data(responses)
     if len(X) == 0:
-        raise ValueError(f"No responses for contour plot")
+        raise ValueError(f"No fem for contour plot")
 
-    # Plot responses, contour or scatter plot.
+    # Plot fem, contour or scatter plot.
     if scatter:
         cs = plt.scatter(
             x=np.array(X).flatten(),
@@ -200,7 +200,7 @@ def plot_contour_deck(
     if mm_legend or mm_legend_without_f is not None:
         if mm_legend_without_f is not None:
             structure_data(responses.without(mm_legend_without_f))
-        # Plot min and max responses.
+        # Plot min and max fem.
         amin_s = (
             f"{amin:.{decimals}g}" if sci_format else f"{np.around(amin, decimals)}"
         )

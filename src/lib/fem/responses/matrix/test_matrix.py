@@ -7,7 +7,7 @@ from fem.responses.matrix.il import ILMatrix
 from fem.run.opensees import OSRunner
 from model.bridge.bridge_705 import bridge_705_2d, bridge_705_test_config
 from model.response import ResponseType
-from util import print_d
+from bridge_sim.util import print_d
 
 # TODO: Very bad test!
 
@@ -46,7 +46,7 @@ def test_os_il_matrix():
     # Test file is created.
     assert os.path.exists(path)
 
-    # Test time for saving all responses.
+    # Test time for saving all fem.
     clean()
     start = timer()
     ILMatrix.load(c, response_type, fem_runner, num_loads=1, save_all=True)

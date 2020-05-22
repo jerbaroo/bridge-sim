@@ -1,9 +1,7 @@
 """Make contour plots."""
 import itertools
 from itertools import chain
-from typing import List, Tuple
 
-import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.image as mpimg
 import numpy as np
@@ -13,24 +11,23 @@ from matplotlib.cm import get_cmap
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from lib.classify.data.responses import responses_to_traffic_array
 from lib.classify.scenario.bridge import (
-    CrackedDamage,
     HealthyDamage,
     PierDispDamage,
     equal_pier_disp,
     longitudinal_pier_disp,
     transverse_crack,
 )
-from lib.classify.scenarios import all_scenarios, cracked_scenario, unit_temp_scenario
-from lib.classify.vehicle import wagen1
+from lib.classify.scenarios import cracked_scenario, unit_temp_scenario
+from bridge_sim.vehicles import truck1
 from lib.fem.params import SimParams
 from lib.fem.responses import Responses, load_fem_responses
 from lib.fem.run.opensees import OSRunner
 from lib.make.plot.distribution import load_normal_traffic_array
-from lib.plot import axis_colors, diana_cmap, diana_cmap_r, parula_cmap, plt
+from lib.plot import diana_cmap_r, parula_cmap, plt
 from lib.plot.contour import contour_responses_3d
 from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
-from util import print_d, print_i, resize_units, safe_str
+from bridge_sim.util import safe_str
 
 # Print debug information for this file.
 D: str = "make.plots.contour"
@@ -54,8 +51,8 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
             response_types=[response_type],
             ploads=list(
                 chain.from_iterable(
-                    wagen1.to_point_loads(
-                        bridge=c.bridge, time=wagen1.time_at(x=x, bridge=c.bridge),
+                    truck1.to_point_loads(
+                        bridge=c.bridge, time=truck1.time_at(x=x, bridge=c.bridge),
                     )
                 )
             ),
@@ -89,7 +86,7 @@ def cover_photo(c: Config, x: float, deformation_amp: float):
 def traffic_response_plots(c: Config, times: int = 3):
     """Response to normal traffic per scenarios scenario at multiple time steps."""
     response_type = ResponseType.YTranslation
-    # 10 x 10 grid of points on the bridge deck where to record responses.
+    # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -141,7 +138,7 @@ def point_load_response_plots(
     # scenarios = all_scenarios(c)
     damage_scenarios = [HealthyDamage(), transverse_crack()]
 
-    # 10 x 10 grid of points on the bridge deck where to record responses.
+    # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -202,7 +199,7 @@ def point_load_response_plots(
 def cracked_concrete_plots(c: Config):
     """Contour plots of cracked concrete scenarios."""
     response_type = ResponseType.YTranslation
-    # 10 x 10 grid of points on the bridge deck where to record responses.
+    # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -211,7 +208,7 @@ def cracked_concrete_plots(c: Config):
         )
     ]
 
-    # Create empty traffic array and collect responses.
+    # Create empty traffic array and collect fem.
     response_array = responses_to_traffic_array(
         c=c,
         traffic_array=load_normal_traffic_array(c)[0],
@@ -240,7 +237,7 @@ def piers_displaced(c: Config):
     axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
     for r_i, response_type in enumerate(response_types):
         for p in pier_indices:
-            # Run the simulation and collect responses.
+            # Run the simulation and collect fem.
             sim_responses = load_fem_responses(
                 c=c,
                 response_type=response_type,
@@ -367,7 +364,7 @@ def gradient_pier_displacement_plot(
 ):
     """Contour plot of piers displaced in an increasing gradient."""
 
-    # 10 x 10 grid of points on the bridge deck where to record responses.
+    # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -376,7 +373,7 @@ def gradient_pier_displacement_plot(
         )
     ]
 
-    # Create empty traffic array and collect responses.
+    # Create empty traffic array and collect fem.
     response_array = responses_to_traffic_array(
         c=c,
         traffic_array=np.zeros((1, len(c.bridge.wheel_tracks(c)) * c.il_num_loads)),

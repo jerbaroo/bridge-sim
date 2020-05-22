@@ -1,22 +1,23 @@
-"""Test classify.data.responses."""
+"""Test classify.data.fem."""
 import numpy as np
 
-from bridge_sim.traffic import x_to_wheel_track_index, loads_to_traffic_array
-from lib.classify.vehicle import wagen1
-from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.configs import opensees_default
 from bridge_sim.model import PointLoad
-from util import flatten
+from bridge_sim.vehicles import truck1
+from bridge_sim.traffic import x_to_wheel_track_index, loads_to_traffic_array
+from bridge_sim.util import flatten
 
 # Comment/uncomment to print debug statements for this file.
 D: str = "classify.data.test_responses"
 D: bool = False
 
-c = bridge_705_config(bridge_705_3d)
+c = opensees_default(bridge_705(0.5))
 c.il_num_loads = 10
-entering_time = wagen1.time_entering_bridge(bridge=c.bridge)
-entered_time = wagen1.time_entered_bridge(bridge=c.bridge)
-leaving_time = wagen1.time_leaving_bridge(bridge=c.bridge)
-left_time = wagen1.time_left_bridge(bridge=c.bridge)
+entering_time = truck1.time_entering_bridge(bridge=c.bridge)
+entered_time = truck1.time_entered_bridge(bridge=c.bridge)
+leaving_time = truck1.time_leaving_bridge(bridge=c.bridge)
+left_time = truck1.time_left_bridge(bridge=c.bridge)
 
 
 def test_x_to_wheel_track_index():
@@ -43,18 +44,18 @@ def test_x_to_wheel_track_index():
 def test_loads_to_traffic_array():
     # First with one point load per wheel.
     wagen1_loads = [
-        flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
+        flatten(truck1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
         for time in np.linspace(entered_time, leaving_time, 1000)
     ]
     for row in loads_to_traffic_array(c=c, loads=wagen1_loads):
-        assert sum(row) == wagen1.total_kn()
+        assert sum(row) == truck1.total_kn()
     # Then with point loads based on wheel tracks.
     wagen1_loads = [
-        flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
+        flatten(truck1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in np.linspace(entered_time, leaving_time, 1000)
     ]
     for row in loads_to_traffic_array(c=c, loads=wagen1_loads):
-        assert np.isclose(sum(row), wagen1.total_kn())
+        assert np.isclose(sum(row), truck1.total_kn())
 
 
 # def test_response_to_mv_vehicles():

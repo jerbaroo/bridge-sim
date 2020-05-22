@@ -1,5 +1,4 @@
 import math
-from itertools import chain
 from typing import List, NewType, Tuple
 
 import numpy as np
@@ -10,10 +9,9 @@ from lib.fem.model import (
     DeckShellNodes,
     DeckShells,
     Node,
-    Shell,
 )
-from bridge_sim.model import Material, Bridge
-from util import assert_sorted, flatten, print_i, round_m
+from bridge_sim.model import Bridge
+from bridge_sim.util import assert_sorted, flatten, print_i, print_w, round_m
 
 # A list of x positions, and a list of z positions.
 DeckGrid = NewType("DeckPositions", Tuple[List[float], List[float]])

@@ -1,18 +1,14 @@
 """Plot vehicles distributions."""
-from itertools import count
-from math import ceil
-from typing import Callable, List, Tuple, TypeVar
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from scipy import stats
 
 from config import Config
 from vehicles import axle_array_and_count, load_vehicle_data
-from vehicles.sample import sample_vehicle, vehicle_pdf_groups
-from util import print_d, print_i
+from vehicles.sample import sample_vehicle
+from bridge_sim.util import print_i
 
 # Print debug information for this file.
 D: bool = False

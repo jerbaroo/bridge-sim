@@ -13,7 +13,7 @@ from model.response import ResponseType
 from plot import axis_cmap_r, axis_colors, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import safe_str
+from bridge_sim.util import safe_str
 
 
 def unit_axial_thermal_deck_load(c: Config, run: bool):
@@ -40,7 +40,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
         except:
             levels = None
         levels = None
-        # Load responses, strain in case of stress.
+        # Load fem, strain in case of stress.
         sim_type = ResponseType.YTranslation
         if response_type == ResponseType.Stress:
             sim_type = ResponseType.Strain
@@ -59,7 +59,7 @@ def unit_axial_thermal_deck_load(c: Config, run: bool):
             # for response, (x, y, z) in og_sim_responses.values(point=True):
             #     assert np.isclose(
             #         (response * 1E-6 - (c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
-            #         sim_responses.responses[0][x][y][z]
+            #         sim_responses.fem[0][x][y][z]
             #     )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
@@ -138,7 +138,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
         # .. but if these values are not available we don't use levels.
         except:
             levels = None
-        # Load responses, strain in case of stress.
+        # Load fem, strain in case of stress.
         sim_type = ResponseType.YTranslation
         if response_type == ResponseType.Stress:
             sim_type = ResponseType.Strain
@@ -157,7 +157,7 @@ def unit_moment_thermal_deck_load(c: Config, run: bool):
             # for response, (x, y, z) in og_sim_responses.values(point=True):
             #     assert np.isclose(
             #         (response * 1E-6 + (0.5 * c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
-            #         sim_responses.responses[0][x][y][z]
+            #         sim_responses.fem[0][x][y][z]
             #     )
         sim_responses = sim_responses.resize()
         top_view_bridge(bridge=c.bridge, abutments=True, piers=True)

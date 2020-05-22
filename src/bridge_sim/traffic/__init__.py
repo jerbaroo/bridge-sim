@@ -3,11 +3,11 @@ from timeit import default_timer as timer
 from typing import NewType, List, Tuple, Callable
 
 import numpy as np
-from lib.vehicles.sample import sample_vehicle
+from bridge_sim.vehicles.sample import sample_vehicle
 from scipy.interpolate import interp1d
 
 from bridge_sim.model import Bridge, Config, PointLoad, Vehicle
-from util import print_i, print_d, st
+from bridge_sim.util import print_i, print_d, st
 
 D = False
 

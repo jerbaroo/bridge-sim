@@ -1,4 +1,4 @@
-"""Plots based on the ResponsesMatrix classes."""
+"""Plots based on the ExptResponses classes."""
 from typing import Optional
 
 from config import Config
@@ -87,7 +87,7 @@ def dc_plots(
     num_subplot_ils: int = 12,
     fem_runner: Optional[FEMRunner] = None,
 ):
-    """Make plots of the displacement control responses.
+    """Make plots of the displacement control fem.
 
     Args:
         c: Config, global configuration object.

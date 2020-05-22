@@ -14,7 +14,7 @@ def plot_pier_displacement(c: Config):
     response_type = ResponseType.YTranslation
     pier_displacement = DisplacementCtrl(displacement=c.pd_unit_disp, pier=pier_index)
 
-    # Plot responses captured directly from a pier displacement simualtion.
+    # Plot fem captured directly from a pier displacement simualtion.
     sim_params = SimParams(
         response_types=[response_type], displacement_ctrl=pier_displacement,
     )

@@ -8,7 +8,6 @@ import matplotlib.colors as colors
 
 from config import Config
 from classify.data.responses import responses_to_traffic
-from classify.scenario.bridge import HealthyDamage
 from fem.run import FEMRunner
 from model.bridge import Bridge, Point
 from model.load import MvVehicle
@@ -18,7 +17,7 @@ from plot import animate_plot, plt
 from plot.geom import top_view_bridge
 from plot.load import top_view_vehicles
 from plot.responses import plot_contour_deck
-from util import print_i
+from bridge_sim.util import print_i
 
 
 def animate_traffic_top_view(

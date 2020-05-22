@@ -1,13 +1,13 @@
 """Test model.scenario and classify.data.scenarios."""
 import numpy as np
 
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.configs import opensees_default
 from bridge_sim.traffic import normal_traffic, to_traffic_array
-from lib.model.bridge.bridge_705 import bridge_705_3d, bridge_705_config
-
-c = bridge_705_config(bridge_705_3d)
 
 
 def test_traffic_sequence_not_adjusted():
+    c = opensees_default(bridge_705(0.5))
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence = traffic_scenario.traffic_sequence(
@@ -40,6 +40,7 @@ def test_traffic_sequence_not_adjusted():
 
 
 def test_to_traffic_array():
+    c = opensees_default(bridge_705(0.5))
     max_time = 10
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence = traffic_scenario.traffic_sequence(
@@ -65,6 +66,7 @@ def test_to_traffic_array():
 
 
 def test_to_traffic_array_methods():
+    c = opensees_default(bridge_705(0.5))
     max_time = 1
     traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
     traffic_sequence = traffic_scenario.traffic_sequence(
@@ -147,7 +149,7 @@ def test_to_traffic_array_methods():
 #         + f" ({len(traffic)} steps) took {timer() - start}"
 #     )
 
-#     from classify.data.responses import (
+#     from classify.data.fem import (
 #         responses_to_traffic_array,
 #         responses_to_traffic,
 #     )
@@ -156,14 +158,14 @@ def test_to_traffic_array_methods():
 #     from model.response import ResponseType
 
 #     points = [Point(x=35, y=0, z=9.4)]
-#     responses = responses_to_traffic_array(
+#     fem = responses_to_traffic_array(
 #         c=c,
 #         traffic_array=traffic_array,
 #         response_type=ResponseType.YTranslation,
 #         points=points,
 #         fem_runner=OSRunner(c),
 #     )
-#     print(responses.shape)
+#     print(fem.shape)
 
 #     responses_2 = responses_to_traffic(
 #         c,
@@ -175,10 +177,10 @@ def test_to_traffic_array_methods():
 #         response_type=ResponseType.YTranslation,
 #         fem_runner=OSRunner(c),
 #     )
-#     responses_2 = [r.responses[0][35][0][9.4] for r in responses_2]
+#     responses_2 = [r.fem[0][35][0][9.4] for r in responses_2]
 
 #     from plot import plt
 
-#     plt.plot(responses.T[0])
+#     plt.plot(fem.T[0])
 #     plt.plot(responses_2)
 #     plt.show()

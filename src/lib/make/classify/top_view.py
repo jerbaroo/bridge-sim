@@ -19,7 +19,7 @@ from plot import plt
 from plot.geometry import top_view_bridge
 from plot.load import top_view_vehicles
 from plot.responses import plot_contour_deck
-from util import flatten, resize_units
+from bridge_sim.util import flatten, resize_units
 
 
 def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
@@ -30,7 +30,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         c=c, traffic_scenario=traffic_scenario, max_time=max_time,
     )
     assert len(traffic) == traffic_array.shape[0]
-    # Points on the deck to collect responses.
+    # Points on the deck to collect fem.
     deck_points = [
         Point(x=x, y=0, z=z)
         for x in np.linspace(
@@ -44,7 +44,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     ]
     point = Point(x=21, y=0, z=-8.4)  # Point to plot
     deck_points.append(point)
-    # Traffic array to responses array.
+    # Traffic array to fem array.
     responses_array = responses_to_traffic_array(
         c=c,
         traffic_array=traffic_array,
@@ -97,7 +97,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
             pd_response_at_point += pd_sim_responses.at_deck(point, interp=False) * (
                 pier_displacement.displacement / c.pd_unit_disp
             )
-    # Resize responses if applicable to response type.
+    # Resize fem if applicable to response type.
     resize_f, units = resize_units(response_type.units())
     if resize_f is not None:
         responses_array = resize_f(responses_array)
@@ -146,7 +146,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         plt.title(
             f"{response_type.name()} after {np.around(t_ind * c.sensor_hz, 4)} seconds"
         )
-        # Plot the responses at a point.
+        # Plot the fem at a point.
         plt.subplot2grid((3, 1), (2, 0))
         time = t_ind * c.sensor_hz
         plt.axvline(

@@ -1,4 +1,5 @@
 """Build OpenSees 3D model files."""
+
 import os
 from collections import OrderedDict, defaultdict
 from itertools import chain
@@ -6,8 +7,8 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from bridge_sim.model import ResponseType, PierSettlement, PointLoad, Config, Material
-from lib.fem.params import ExptParams, SimParams
+from bridge_sim.model import PierSettlement, PointLoad, Config, Material
+from lib.fem.params import SimParams
 from lib.fem.build import (
     det_nodes_id_str,
     det_shells_id_str,
@@ -28,12 +29,12 @@ from lib.fem.run.opensees.build.d3.thermal import (
     opensees_thermal_moment_deck_loads,
 )
 from lib.fem.run.opensees.build.d3.util import comment
-from util import flatten, print_d, print_i, print_w, round_m
+from bridge_sim.util import flatten, print_d, print_i, print_w, round_m
 
 
 # Print debug information for this file.
-D: str = "fem.run.opensees.build.d3"
-# D: bool = False
+# D: str = "fem.run.opensees.build.d3"
+D: bool = False
 
 ##### Begin nodes #####
 
@@ -459,9 +460,7 @@ def opensees_integrator(c: Config, pier_disp: Optional[PierSettlement]):
     if pier_disp is None:
         return "integrator LoadControl 1"
     node = c.bridge.supports[pier_disp.pier].disp_node
-    return (
-        f"integrator DisplacementControl {node.n_id} 2" + f" {pier_disp.settlement}"
-    )
+    return f"integrator DisplacementControl {node.n_id} 2" + f" {pier_disp.settlement}"
 
 
 def opensees_algorithm(pier_disp: Optional[PierSettlement]):
@@ -481,7 +480,7 @@ def opensees_test(pier_disp: Optional[PierSettlement]):
 ##### End recorders #####
 
 
-def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
+def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner"):
     """Build OpenSees 3D model files.
 
     TODO: ExptParams -> SimParams.
@@ -496,7 +495,7 @@ def build_model_3d(c: Config, expt_params: ExptParams, os_runner: "OSRunner"):
         in_tcl = f.read()
 
     # Build a model file for each simulation.
-    for sim_params in expt_params.sim_params:
+    for sim_params in expt_params:
 
         # Setup the 'BuildContext' for this simulation.
         sim_ctx = sim_params.build_ctx(c.bridge)

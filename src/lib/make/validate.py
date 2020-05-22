@@ -2,7 +2,6 @@ import numpy as np
 
 from classify.data.responses import responses_to_traffic_array
 from classify.data.responses.convert import loads_to_traffic_array
-from classify.noise import add_displa_noise, add_strain_noise
 from classify.scenario.bridge import HealthyDamage, pier_disp_damage, transverse_crack
 from classify.scenarios import healthy_scenario
 from classify.vehicle import wagen1
@@ -11,18 +10,18 @@ from config import Config
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
-from fem.params import ExptParams, SimParams
+from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
 from plot import equal_lims, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from util import clean_generated, flatten, print_i, print_s
+from bridge_sim.util import clean_generated, flatten, print_i, print_s
 from validate.campaign import displa_sensor_xz, strain_sensor_xz
 
 
 def density_no_effect(c: Config):
-    """Output maximum and minimum responses with different density values."""
+    """Output maximum and minimum fem with different density values."""
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     pload = PointLoad(x_frac=0.5, z_frac=0.5, kn=100)
     c.bridge.type = "debugging"

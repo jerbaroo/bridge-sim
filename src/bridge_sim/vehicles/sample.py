@@ -1,14 +1,13 @@
 """Sample vehicles from the vehicles data."""
 from timeit import default_timer as timer
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, NewType
 
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
 from bridge_sim.model import Vehicle, Config
-from lib.vehicles import VehicleData, axle_array_and_count
-from util import print_d, print_s, print_w
+from bridge_sim.util import print_d, print_s, print_w
 
 # Print debug information for this file.
 # D: str = "vehicles.sample"
@@ -17,15 +16,17 @@ D: bool = False
 # Column names of the vehicles data to add noise.
 noise_col_names = []
 
+VehicleData = NewType("VehicleData", pd.DataFrame)
+
 
 def _vehicle_pdf_groups(vehicle_data: VehicleData, col: str, lengths: List[int]):
     """Vehicle data grouped by a maximum value per group."""
     print_d(D, f"Vehicle PDF column is {repr(col)}")
-    print_d(D, lengths)
+    print_d(D, str(lengths))
     assert sorted(lengths) == lengths
     # TODO Better vehicles data format, should be meters.
     if col == "length":
-        lengths = [l * 100 for l in lengths]
+        lengths = [length * 100 for length in lengths]
 
     def group_by(x):
         length = vehicle_data.loc[x, col]
@@ -143,3 +144,79 @@ def sample_vehicle(
         axle_distances=np.array(axle_distances) / 100,
     )
     return (vehicle, sample) if pd_row else vehicle
+
+
+col_names = [
+    # "month",
+    # "day",
+    # "year",
+    # "hour",
+    # "min",
+    # "sec",
+    # "number",
+    # "lane",
+    # "type",
+    # "speed",
+    "number",
+    "length",
+    "total_weight",
+    "weight_per_axle",
+    "axle_distance",
+]
+index_col_name = "number"
+
+
+def load_vehicle_data(vehicle_data_path) -> VehicleData:
+    """Load the vehicles data from disk."""
+    return pd.read_csv(vehicle_data_path, usecols=col_names, index_col=index_col_name)
+
+
+def axle_array_and_count(axle_array_str: str) -> int:
+    """Return an axle array of non zero values from a string."""
+    axle_array_str = axle_array_str.replace("'", "").replace("[", "").replace("]", "")
+    axle_array = list(map(float, axle_array_str.split(",")))
+    return list(filter(lambda x: x != 0, axle_array))
+
+
+def vehicle_density_stats(c: Config):
+    """Human readable statistics on vehicles density."""
+    num_bins = len(c.vehicle_density)
+    groups = vehicle_pdf_groups(c)
+    lengths_dict = {i: 0 for i in range(num_bins)}
+    for i, group in groups:
+        lengths_dict[i] = len(group)
+    lengths_list = list(lengths_dict.values())
+    return (
+        "Vehicle density info:"
+        + "\n"
+        + "\n".join(
+            [
+                f"Vehicles < than {length} in {c.vehicle_density_col}:"
+                + f" {lengths_dict[i]}"
+                for i, length in enumerate(map(lambda x: x[0], c.vehicle_density))
+            ]
+        )
+        + f"\nmean vehicles per group: {int(np.mean(lengths_list))}"
+        + f"\nmin vehicles per group: {np.min(lengths_list)}"
+        + f"\nmax vehicles per group: {np.max(lengths_list)}"
+        + f"\nstd vehicles per group: {np.std(lengths_list):.2f}"
+    )
+
+
+def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_names):
+    """Human readable statistics on noise for vehicles data columns."""
+    noise_data = noise_per_column(c, noise_col_names)
+    data_len = len(c.vehicle_data[noise_col_names[0]])
+    return (
+        "Noise info:"
+        + "\n"
+        + "\n".join(
+            [
+                f'"{col_name}":'
+                + f"\n\tremoved {noise_data[i][0]}"
+                + f" or {noise_data[i][0] / data_len:.4f}% outliers"
+                + f"\n\tstd. dev. of remaining is {noise_data[i][1]:.4f}"
+                for i, col_name in enumerate(noise_col_names)
+            ]
+        )
+    )

@@ -1,31 +1,22 @@
-"""Specification and Config for bridge 705 in Amsterdam."""
+"""A model of bridge 705 in Amsterdam."""
+
 import os
 from copy import deepcopy
-from typing import Callable, List, Optional
 
-import findup
 import numpy as np
 
 from bridge_sim.model import (
-    Config,
-    Dimensions,
     Lane,
     Material,
     MaterialSupport,
     Bridge,
     Support,
 )
-from lib.fem.run.opensees import os_runner
-from util import round_m
+from bridge_sim.util import project_dir, round_m
 
-
-__dir__ = os.path.dirname(findup.glob(".git"))
-
-
-#################################
-##### Length, width & lanes #####
-#################################
-
+#########################
+# Length, width & lanes #
+#########################
 
 bridge_705_length = 102.75
 bridge_705_width = 33.2
@@ -35,11 +26,9 @@ bridge_705_lanes = [
     Lane(z0=20.8 - half_width, z1=29.2 - half_width, ltr=False),
 ]
 
-
-#######################
-##### 2D supports #####
-#######################
-
+############
+# Supports #
+############
 
 # Pier locations in meters (includes bridge beginning and end).
 bridge_705_piers = [0]
@@ -47,14 +36,13 @@ bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
 
-
-############################
-##### 3D deck sections #####
-############################
+##################
+# deck materials #
+##################
 
 
 def bridge_705_deck_sections():
-    with open(os.path.join(__dir__, "data/bridge705/bridge-705.org")) as f:
+    with open(os.path.join(project_dir(), "data/bridge705/bridge-705.org")) as f:
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
         )
@@ -78,27 +66,31 @@ def bridge_705_deck_sections():
     return _deck_sections
 
 
-############################
-##### 3D pier sections #####
-############################
+##################
+# Pier materials #
+##################
 
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 
-# Function to generate material properties from fraction of pier length.
-pier_section_f = lambda start_frac_len: MaterialSupport(
-    density=2.724,
-    thickness=round_m(
-        np.interp(start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top])
-    ),
-    youngs=38400,
-    poissons=0.2,
-    start_frac_len=start_frac_len,
-)
+
+def pier_section_f(start_frac_len: float) -> MaterialSupport:
+    """Material properties from fraction of pier length."""
+    return MaterialSupport(
+        density=2.724,
+        thickness=round_m(
+            np.interp(
+                start_frac_len, [0, 1], [pier_thickness_bottom, pier_thickness_top]
+            )
+        ),
+        youngs=38400,
+        poissons=0.2,
+        start_frac_len=start_frac_len,
+    )
 
 
-##################################
-##### single section variant #####
-##################################
+########################
+# Two material variant #
+########################
 
 
 def bridge_705_single_sections():
@@ -113,10 +105,9 @@ def bridge_705_single_sections():
     return result
 
 
-#######################
-##### 3D supports #####
-#######################
-
+############
+# Supports #
+############
 
 bridge_705_supports_z = [2.167 + 3.666 / 2]  # To first support + half support.
 # For remaining supports add space between support and support width.
@@ -126,10 +117,6 @@ bridge_705_supports_z = list(map(lambda x: x - half_width, bridge_705_supports_z
 # Ignoring beginning and end of bridge.
 bridge_705_supports_3d = []
 for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
-    # The x_index goes from 0 to 5.
-    # Only indices 2 and 3 (middle 2 rows) have x translation fixed.
-    # print(f"*******************")
-    # print(f"x_index = {x_index}")
     for z_index, _support_z in enumerate(bridge_705_supports_z):
         bridge_705_supports_3d.append(
             Support(
@@ -140,12 +127,9 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 width_top=3.666,
                 width_bottom=1.8,
                 materials=pier_section_f,
-                # sections=bridge_705_pier_sections,
                 fix_x_translation=(x_index in [2, 3]),
                 fix_y_translation=True,
                 fix_z_translation=True,
-                # fix_z_translation=z_index == 0,
-                # fix_z_translation=z_index == (len(bridge_705_supports_z) // 2),
                 fix_x_rotation=False,
                 fix_y_rotation=False,
                 fix_z_rotation=False,
@@ -163,5 +147,4 @@ def bridge_705(msl: float):
         materials=bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,
-        data_id=msl,
     )

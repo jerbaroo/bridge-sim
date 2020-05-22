@@ -39,4 +39,3 @@ class DamageScenario:
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
         sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
         return config_copy, sim_params_copy
-

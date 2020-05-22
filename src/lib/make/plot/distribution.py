@@ -2,25 +2,18 @@ import itertools
 from typing import List
 
 import numpy as np
-from scipy.stats import chisquare
 
-from bridge_sim.model import Config, PierSettlement, Point, ResponseType
+from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.scenarios import DamageScenario
 from bridge_sim.traffic import normal_traffic
 from lib.classify.data.responses import responses_to_traffic_array
-from lib.classify.data.traffic import load_traffic
 from lib.classify.scenarios import all_scenarios
-from lib.classify.scenario.bridge import (
-    HealthyDamage,
-    PierDispDamage,
-    equal_pier_disp,
-    longitudinal_pier_disp,
-)
+from lib.classify.scenario.bridge import HealthyDamage
 from lib.fem.responses import Responses
 from lib.fem.run.opensees import OSRunner
 from lib.plot import plt
 from lib.plot.responses import plot_contour_deck, plot_distributions
-from util import print_i, safe_str
+from bridge_sim.util import print_i, safe_str
 
 
 def load_normal_traffic_array(c: Config, mins: float, lam: float, min_d: float):
@@ -58,10 +51,10 @@ def lane_distribution_plots(
     Args:
         c: Config, global configuration object.
         bridge_scenarios: List[DamageScenario], each bridge scenario for which
-            to plot the distribution of responses. The first scenario must be
+            to plot the distribution of fem. The first scenario must be
             the healthy scenario.
         response_type: ResponseType, the type of sensor response to record.
-        num: int, the number of points at which to record responses.
+        num: int, the number of points at which to record fem.
 
     """
     assert isinstance(bridge_scenarios[0], HealthyDamage)
@@ -79,7 +72,7 @@ def lane_distribution_plots(
     response_arrays = []
     amin, amax = np.inf, -np.inf
 
-    # Collect responses for each bridge scenario and lane combination.
+    # Collect fem for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
         print_i(f"Lane distribution plots: bridge scenario {bridge_scenario.name}")
         for lane_index, lane in enumerate(c.bridge.lanes):
@@ -135,7 +128,7 @@ def lane_distribution_plots(
 def pier_displacement_distribution_plots(
     c: Config, response_type: ResponseType, num: int = 19
 ):
-    """Distribution of responses in x direction along each displaced pier.
+    """Distribution of fem in x direction along each displaced pier.
 
     All simulations are under the normal traffic scenario.
 
@@ -149,7 +142,7 @@ def pier_displacement_distribution_plots(
 
     response_arrays, all_points = [], []
     amin, amax = np.inf, -np.inf
-    # Collect responses for each displaced pier...
+    # Collect fem for each displaced pier...
     for bridge_scenario in pier_disp_scenarios(c):
         pier = c.bridge.supports[bridge_scenario.displacement_ctrl.pier]
         # ...for points along the pier.
@@ -223,7 +216,7 @@ def pier_displacement_distribution_plots(
 #         fem_runner=OSRunner(c),
 #     )
 #     heavy_responses_values = [
-#         [r.responses[0][point.x][point.y][point.z] for r in heavy_responses]
+#         [r.fem[0][point.x][point.y][point.z] for r in heavy_responses]
 #         for point in points
 #     ]
 
@@ -277,7 +270,7 @@ def standardized(response_array):
     mean = np.mean(response_array, axis=0)
     std = np.std(response_array, axis=0)
     # assert len(mean) == normal_traffic_array.shape[0]
-    # Standardize the responses at each point.
+    # Standardize the fem at each point.
     assert len(response_array) < len(response_array[0])
     return [np.abs(x - mean) / std for x in response_array]
 
@@ -297,7 +290,7 @@ def deck_distribution_plots(c: Config):
     Args:
         c: Config, global configuration object.
         bridge_scenarios: List[DamageScenario], each bridge scenario for which
-            to plot the distribution of responses. The first scenario must be
+            to plot the distribution of fem. The first scenario must be
             the healthy scenario.
         response_type: ResponseType, the type of sensor response to record.
 
@@ -310,7 +303,7 @@ def deck_distribution_plots(c: Config):
     print_i("Deck distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 
-    # 10 x 10 grid of points on the bridge deck where to record responses.
+    # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -320,7 +313,7 @@ def deck_distribution_plots(c: Config):
     ]
 
     response_arrays = []
-    # Collect responses for each bridge scenario and lane combination.
+    # Collect fem for each bridge scenario and lane combination.
     for b, bridge_scenario in enumerate(bridge_scenarios):
         print_i(f"Deck distribution plots: bridge scenario {bridge_scenario.name}")
         response_arrays.append(

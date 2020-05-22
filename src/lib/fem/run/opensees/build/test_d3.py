@@ -8,11 +8,9 @@ from fem.params import ExptParams, SimParams
 from fem.run.opensees import OSRunner
 from fem.run.opensees.build.d3 import (
     build_model_3d,
-    next_node_id,
     get_node,
     reset_elem_ids,
     reset_nodes,
-    ff_node_ids,
     opensees_deck_nodes,
     opensees_pier_elements,
     opensees_support_nodes,
@@ -24,11 +22,10 @@ from fem.run.opensees.build.d3 import (
     get_deck_positions,
     get_pier_elements,
 )
-from model.bridge import Dimensions
 from model.bridge.bridge_705 import bridge_705_3d, bridge_705_test_config
-from model.load import PierSettlement, PointLoad
+from model.load import PointLoad
 from model.response import ResponseType
-from util import round_m
+from bridge_sim.util import round_m
 
 
 def get_lines(

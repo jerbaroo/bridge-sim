@@ -1,6 +1,5 @@
 import itertools
-from collections import defaultdict
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, Optional
 
 import matplotlib
 import numpy as np
@@ -9,7 +8,7 @@ import pandas as pd
 from bridge_sim.model import Config, Point
 from lib.fem.responses import Responses
 from lib.plot import plt
-from util import print_d, print_i, scalar
+from bridge_sim.util import print_i, scalar
 
 
 def plot_mmm_strain_convergence(
@@ -21,8 +20,8 @@ def plot_mmm_strain_convergence(
     without: Optional[Callable[[Point], bool]] = None,
     append: Optional[str] = None,
 ):
-    """Plot convergence of given responses as model size grows."""
-    # A grid of points 1m apart, over which to calculate responses.
+    """Plot convergence of given fem as model size grows."""
+    # A grid of points 1m apart, over which to calculate fem.
     grid = [
         Point(x=x, y=0, z=z)
         for x, z in itertools.product(
@@ -30,13 +29,13 @@ def plot_mmm_strain_convergence(
             np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
         )
     ]
-    # If requested, remove some values from the responses.
+    # If requested, remove some values from the fem.
     if without is not None:
         grid = [point for point in grid if not without(point)]
         for msl, strains in all_strains.items():
             print(f"Removing points from strains with max_shell_len = {msl}")
             all_strains[msl] = strains.without(without)
-    # Collect responses over all responses, and over the grid. Iterate by
+    # Collect fem over all fem, and over the grid. Iterate by
     # decreasing max_shell_len.
     mins, maxes, means = [], [], []
     gmins, gmaxes, gmeans = [], [], []
@@ -128,7 +127,7 @@ def plot_nesw_convergence(
     for ax, compass, compass_name, in zip(
         axes.flat, ["N", "S", "E", "W"], ["North", "South", "East", "West"]
     ):
-        # Collect data into responses.
+        # Collect data into fem.
         x_mul, z_mul = compass_dir[compass]
         for distance in np.arange(0, max_distance, step=delta_distance)[::skip]:
             dist_point = Point(

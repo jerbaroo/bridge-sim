@@ -8,10 +8,17 @@ from typing import List, Union, Tuple, Optional, Callable
 
 import numpy as np
 
-from lib.vehicles import load_vehicle_data
 from matplotlib import cm as cm, colors as colors, pyplot as plt
 from scipy.interpolate import interp1d
-from util import safe_str, round_m, flatten, print_i, print_w, print_s
+from bridge_sim.util import (
+    safe_str,
+    round_m,
+    flatten,
+    print_i,
+    print_w,
+    print_s,
+    _get_dir,
+)
 
 DIST_DECIMALS = 6
 
@@ -158,17 +165,11 @@ class ResponseType(Enum):
 RT = ResponseType
 
 
-def _get_dir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    return directory
-
-
 class Config:
     def __init__(
         self,
         bridge: Callable[[], "Bridge"],
-        fem_runner: Callable[[], "FEMRunner"],
+        sim_runner: Callable[[], "FEMRunner"],
         vehicle_data_path: str,
         vehicle_pdf: List[Tuple[float, float]],
         vehicle_pdf_col: str,
@@ -180,7 +181,7 @@ class Config:
         Combines a Bridge and FEMRunner among other configuration.
 
         :param bridge: function that returns a bridge.
-        :param fem_runner:
+        :param sim_runner: simulation runner.
         :param vehicle_data_path: path of the vehicles CSV file.
         :param vehicle_pdf:
             percentage of vehicles below a maximum value for that column.
@@ -197,8 +198,8 @@ class Config:
         # Core.
         self._bridge = bridge
         self.bridge = self._bridge()
-        self._fem_runner = fem_runner
-        self.fem_runner = self._fem_runner(self)
+        self._sim_runner = sim_runner
+        self.sim_runner = self._sim_runner(self)
 
         # OpenSees
         self.os_model_template_path: str = "model-template.tcl"
@@ -230,6 +231,9 @@ class Config:
         self.vehicle_pdf_col = vehicle_pdf_col
         start = timer()
         self.vehicle_data_path = vehicle_data_path
+        # Necessary to prevent a circular import.
+        from bridge_sim.vehicles.sample import load_vehicle_data
+
         self.vehicle_data = load_vehicle_data(vehicle_data_path)
         print_i(
             f"Loaded vehicles data from {vehicle_data_path} in"
@@ -260,20 +264,12 @@ class Config:
 
     def generated_data_dir(self):
         return _get_dir(
-            os.path.join(
-                self.root_generated_data_dir,
-                self.bridge.id_str(),
-                self.bridge.type if self.bridge.type is not None else "healthy",
-            )
+            os.path.join(self.root_generated_data_dir, self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
         return _get_dir(
-            os.path.join(
-                self.root_generated_images_dir(),
-                self.bridge.id_str(),
-                self.bridge.type if self.bridge.type is not None else "healthy",
-            )
+            os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
         )
 
     # Bridge-specific but accuracy-independent directories.
@@ -282,8 +278,7 @@ class Config:
         return _get_dir(
             os.path.join(
                 self.root_generated_data_dir,
-                self.bridge.id_str(acc=False),
-                self.bridge.type if self.bridge.type is not None else "healthy",
+                self.bridge.id_str(msl=False, data_id=False),
             )
         )
 
@@ -291,8 +286,7 @@ class Config:
         return _get_dir(
             os.path.join(
                 self.root_generated_images_dir(),
-                self.bridge.id_str(acc=False),
-                self.bridge.type if self.bridge.type is not None else "healthy",
+                self.bridge.id_str(msl=False, data_id=False),
             )
         )
 
@@ -581,30 +575,6 @@ class MaterialSupport(Material):
 
 
 class Bridge:
-    """A bridge specification.
-
-    Args:
-        name: str, the name of the bridge.
-        length: float, length of the bridge in meters.
-        width: float, width of the bridge in meters.
-        supports: List[Support], a list of supports in 2D or 3D.
-        sections: List[Section], the bridge's cross section in 2D or 3D.
-        lanes: List[Lane], lanes that span the bridge, where to place loads.
-        dimensions: Dimensions, whether the model is 2D or 3D.
-        base_mesh_deck_nodes_x: int, number of nodes of the base mesh in
-            longitudinal direction of the bridge deck, minimum is 2.
-        base_mesh_deck_nodes_z: Optional[int], number of nodes of the base mesh
-            in transverse direction of the bridge deck, minimum is 2.
-        base_mesh_pier_nodes_y: Optional[int], number of nodes of the base mesh
-            in vertical direction of the piers, minimum is 2.
-        base_mesh_pier_nodes_z: Optional[int], number of nodes of the base mesh
-            in transverse direction of the piers, minimum is 2.
-        single_sections: Optional[Tuple[Section, Section]], if given then
-            override the bridge's deck and each pier sections with the given
-            values respectively in the tuple, only applies to a 3D model.
-
-    """
-
     def __init__(
         self,
         name: str,
@@ -614,12 +584,24 @@ class Bridge:
         materials: List["MaterialDeck"],
         lanes: List[Lane],
         msl: float,
-        data_id: str = "default",
+        data_id: str = "healthy",
         single_sections: Optional[Tuple[Material, Material]] = None,
     ):
-        self.type = None
+        """A bridge's geometry, material properties and boundary conditions.
+
+        :param name: name of this bridge.
+        :param length: length of this bridge.
+        :param width: width of this bridge.
+        :param supports: a list of Support.
+        :param materials: a list of bridge deck Material.
+        :param lanes: a list of Lane for traffic to drive on.
+        :param msl: maximum shell length parameter.
+        :param data_id: additional identifier for saving/loading data.
+        :param single_sections: tuple of one deck and one support material.
+        """
         # Given arguments.
         self.name = name
+        self.msl = msl
         self.data_id = data_id
 
         self.length = length
@@ -737,15 +719,17 @@ class Bridge:
                 print_s(f"  y-rot   {pier.fix_y_rotation}")
                 print_s(f"  z-rot   {pier.fix_z_rotation}")
 
-    def id_str(self, acc: bool = True):
-        """Name with dimensions attached.
+    def id_str(self, msl: bool = True, data_id: bool = True):
+        """Name with accuracy information.
 
         Args:
-            acc: bool, whether to include (True) or ignore bridge accuracy.
+            msl: bool, include msl in identifier.
+            data_id: bool, include data_id in identifier.
 
         """
-        acc_str = f"-{self.data_id}" if acc else ""
-        return safe_str(f"{self.name}{acc_str}-{self.dimensions.name()}")
+        acc_str = f"-{self.msl}" if msl else ""
+        data_id_str = f"-{self.data_id}" if data_id else ""
+        return safe_str(f"{self.name}{acc_str}{data_id_str}")
 
     def closest_lane(self, z: float):
         """Index of the lane closest to the point."""
@@ -1221,7 +1205,7 @@ class Vehicle:
 
     def to_point_load_pw(
         self, time: float, bridge: Bridge, list: bool = False
-    ) -> List[Tuple[PointLoad, PointLoad]]:
+    ) -> Union[List[Tuple[PointLoad, PointLoad]], List[PointLoad]]:
         """A tuple of point load per axle, one point load per wheel."""
         z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=True)
         assert z0 < z1

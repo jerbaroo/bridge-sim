@@ -1,4 +1,5 @@
-"""Parse responses from a 3D OpenSees simulation."""
+"""Parse responses from an OpenSees simulation."""
+
 from collections import defaultdict
 from timeit import default_timer as timer
 from typing import List
@@ -6,10 +7,10 @@ from typing import List
 import numpy as np
 
 from bridge_sim.model import Config, ResponseType, RT
-from lib.fem.params import ExptParams, SimParams
+from lib.fem.params import SimParams
 from lib.fem.run import Parsed
 from lib.fem.run.opensees.parse.common import opensees_to_numpy
-from util import print_i
+from bridge_sim.util import print_i
 
 
 def parse_translation_responses_3d(
@@ -19,7 +20,7 @@ def parse_translation_responses_3d(
     responses_path: str,
     response_type: ResponseType,
 ):
-    """Parse translation responses from a 3D OpenSees simulation."""
+    """Parse translation fem from a 3D OpenSees simulation."""
     print(f"response_type = {response_type}")
     if response_type not in [RT.XTrans, RT.YTrans, RT.ZTrans]:
         raise ValueError("Must be translation response type")
@@ -27,8 +28,7 @@ def parse_translation_responses_3d(
     translation_responses = opensees_to_numpy(responses_path)
     translation_responses *= -1
     print_i(
-        f"OpenSees: Parsed {response_type.name()} responses in"
-        + f" {timer() - start:.2f}s"
+        f"OpenSees: Parsed {response_type.name()} fem in" + f" {timer() - start:.2f}s"
     )
     results_dict[sim_ind][response_type] = translation_responses
 
@@ -36,7 +36,7 @@ def parse_translation_responses_3d(
 def parse_stress_strain_responses_3d(
     results_dict, sim_params: SimParams, sim_ind: int, response_paths: List[str],
 ):
-    """Parse stress or strain responses from a 3D OpenSees simulation."""
+    """Parse stress or strain fem from a 3D OpenSees simulation."""
     lines = []
     for response_path in response_paths:
         with open(response_path) as f:
@@ -55,14 +55,14 @@ def parse_stress_strain_responses_3d(
 
 
 def parse_responses_3d(
-    c: Config, expt_params: ExptParams, os_runner: "OSRunner"
+    c: Config, expt_params: List[SimParams], os_runner: "OSRunner"
 ) -> Parsed:
-    """Parse responses from a 3D OpenSees simulation."""
-    # A dictionary of simulation index to ResponseType to parsed responses.
+    """Parse fem from a 3D OpenSees simulation."""
+    # A dictionary of simulation index to ResponseType to parsed fem.
     results_dict = defaultdict(dict)
-    for sim_ind, fem_params in enumerate(expt_params.sim_params):
+    for sim_ind, fem_params in enumerate(expt_params):
         print(f"Parsing, sim_ind = {sim_ind}")
-        # Parse x translation responses if necessary.
+        # Parse x translation fem if necessary.
         parse_translation_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
@@ -70,7 +70,7 @@ def parse_responses_3d(
             responses_path=os_runner.x_translation_path(fem_params),
             response_type=ResponseType.XTrans,
         )
-        # Parse y translation responses if necessary.
+        # Parse y translation fem if necessary.
         parse_translation_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
@@ -78,7 +78,7 @@ def parse_responses_3d(
             responses_path=os_runner.y_translation_path(fem_params),
             response_type=ResponseType.YTrans,
         )
-        # Parse z translation responses if necessary.
+        # Parse z translation fem if necessary.
         parse_translation_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
@@ -86,7 +86,7 @@ def parse_responses_3d(
             responses_path=os_runner.z_translation_path(fem_params),
             response_type=ResponseType.ZTrans,
         )
-        # Parse strain responses if necessary.
+        # Parse strain fem if necessary.
         parse_stress_strain_responses_3d(
             results_dict=results_dict,
             sim_params=fem_params,

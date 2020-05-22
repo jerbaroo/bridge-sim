@@ -1,16 +1,13 @@
 import itertools
-from typing import Tuple
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib.gridspec import GridSpec
 from scipy import stats
 from sklearn.svm import OneClassSVM
 
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.traffic import normal_traffic, to_traffic_array
 from lib.classify.data.responses import responses_to_traffic_array
-from lib.classify.noise import add_displa_noise
 from lib.classify import temperature
 from lib.classify.scenario.bridge import HealthyDamage
 from lib.classify.scenarios import (
@@ -24,7 +21,7 @@ from lib.make.plot.distribution import load_normal_traffic_array
 from lib.plot import plt
 from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
-from util import print_i, safe_str
+from bridge_sim.util import print_i
 
 
 def events(c: Config, x: float, z: float):
@@ -83,7 +80,7 @@ def events(c: Config, x: float, z: float):
         )
         * 1000
     )
-    # responses = add_displa_noise(responses)
+    # fem = add_displa_noise(fem)
     print(responses.shape)
     plt.portrait()
     for event_ind, (event_start, event_end) in enumerate(event_indices):

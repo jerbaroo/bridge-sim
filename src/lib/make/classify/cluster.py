@@ -12,7 +12,7 @@ from fem.run.opensees import OSRunner
 from model.bridge import Point
 from model.response import ResponseType
 from plot import plt
-from util import print_i
+from bridge_sim.util import print_i
 
 
 def cluster_damage(c: Config, mins: float):

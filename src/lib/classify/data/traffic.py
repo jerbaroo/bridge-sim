@@ -1,7 +1,5 @@
 """Load and save traffic information."""
 import os
-import pickle
-from timeit import default_timer as timer
 from typing import Optional
 
 import dill
@@ -9,7 +7,7 @@ import numpy as np
 
 from bridge_sim.model import Config
 from bridge_sim.traffic import TrafficScenario, to_traffic, to_traffic_array
-from util import print_i, safe_str
+from bridge_sim.util import safe_str
 
 
 def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float):
@@ -58,12 +56,3 @@ def load_traffic(
     with open(path + ".arr", "rb") as f:
         traffic_array = np.load(f)
     return traffic_sequence, traffic, traffic_array
-
-
-if __name__ == "__main__":
-    from classify.scenario.traffic import normal_traffic
-    from model.bridge.bridge_705 import bridge_705_config, bridge_705_3d
-
-    c = bridge_705_config(bridge_705_3d)
-    traffic_scenario = normal_traffic(c, 5, 2)
-    load_traffic_array(c=c, traffic_scenario=traffic_scenario, max_time=60 * 0.5)

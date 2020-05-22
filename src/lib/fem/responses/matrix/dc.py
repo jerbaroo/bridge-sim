@@ -1,10 +1,10 @@
 from bridge_sim.model import Config, PierSettlement, ResponseType
-from lib.fem.params import ExptParams, SimParams
-from lib.fem.responses.matrix import ResponsesMatrix, load_expt_responses
+from lib.fem.params import SimParams
+from lib.fem.responses.matrix import ExptResponses, load_expt_responses
 from lib.fem.run import FEMRunner
 
 
-class DCMatrix(ResponsesMatrix):
+class DCExpt(ExptResponses):
     """Responses of one sensor type for displacement control simulations."""
 
     @staticmethod
@@ -14,7 +14,7 @@ class DCMatrix(ResponsesMatrix):
         fem_runner: FEMRunner,
         save_all: bool = True,
     ):
-        """Load a DCMatrix from disk, running simulations first if necessary.
+        """Load a DCExpt from disk, running simulations first if necessary.
 
         Args:
             c: Config, global configuration object.
@@ -26,12 +26,10 @@ class DCMatrix(ResponsesMatrix):
         # id_str = f"dc-{response_type.name()}-{fem_runner.name}"
 
         # Determine experiment simulation parameters.
-        expt_params = ExptParams(
-            [
-                SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
-                for i in range(len(c.bridge.supports))
-            ]
-        )
+        expt_params = [
+            SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
+            for i in range(len(c.bridge.supports))
+        ]
 
         return load_expt_responses(
             c=c,
@@ -41,14 +39,14 @@ class DCMatrix(ResponsesMatrix):
         )
 
         # def load_func(expt_params):
-        #     return DCMatrix(
+        #     return DCExpt(
         #         c=c,
         #         response_type=response_type,
         #         expt_params=expt_params,
         #         fem_runner=fem_runner,
         #         save_all=save_all,
         #     )
-        # return ResponsesMatrix.load(
+        # return ExptResponses.load(
         #     c=c,
         #     id_str=id_str,
         #     expt_params=_expt_params,
