@@ -253,18 +253,19 @@ class Config:
             print_w(f"Vehicle PDF sums to {pre_pdf_sum}, adjusted to sum to 1")
 
         # Root directories for generated data.
-        self.root_generated_data_dir = _get_dir(generated_data)
-        if self.root_generated_data_dir[-1] in "/\\":
+        self._root_generated_data_dir = generated_data
+        self.root_generated_data_dir = lambda: _get_dir(self._root_generated_data_dir)
+        if self._root_generated_data_dir[-1] in "/\\":
             raise ValueError("generated_data must not end in path separator")
         self.root_generated_images_dir = lambda: _get_dir(
-            os.path.join(self.root_generated_data_dir + "-images")
+            os.path.join(self.root_generated_data_dir() + "-images")
         )
 
     # Bridge-specific directories for generated data.
 
     def generated_data_dir(self):
         return _get_dir(
-            os.path.join(self.root_generated_data_dir, self.bridge.id_str(),)
+            os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
@@ -277,7 +278,7 @@ class Config:
     def generated_data_dir_no_acc(self):
         return _get_dir(
             os.path.join(
-                self.root_generated_data_dir,
+                self.root_generated_data_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
             )
         )

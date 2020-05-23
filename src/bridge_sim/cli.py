@@ -41,8 +41,9 @@ def c():
     new_c.parallel_ulm = parallel_ulm_
     new_c.shorten_paths = shorten_paths_
     new_c.il_num_loads = il_num_loads_
-    new_c.root_generated_data_dir = os.path.join(
-        save_to_, new_c.root_generated_data_dir
+    old_c_root_generated_data_dir = new_c._root_generated_data_dir
+    new_c.root_generated_data_dir = lambda: os.path.join(
+        save_to_, old_c_root_generated_data_dir
     )
     return new_c
 
