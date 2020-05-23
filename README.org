@@ -8,7 +8,7 @@
 
 ** Installation
 
-*** tl;dr (too long; didn't read)
+*** tl;dr
 
 If you know what you're doing and just want to see something run:
 
@@ -68,6 +68,8 @@ A package is in the works.
 A brief introduction to some of the Python classes provided. A =Bridge= describes the material properties and geometry of a bridge. A =FEMRunner= is capable of transforming a =Bridge= along with some additional simulation parameters into a model file, running that file, and returning the responses from simulation. This project currently provides one instance of =FEMRunner= which is called =OSRunner= and is capable of running simulations with OpenSees. A =Config= contains some additional global configuration but is also used as a container for a =Bridge= and =FEMRunner=. This is useful because all three of these objects are required in many situations and combining them into one object makes life a bit easier than passing these three objects around separately.
 
 # [[./data/images/config-composition.png]]
+
+API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]].
 
 ** Examples
 

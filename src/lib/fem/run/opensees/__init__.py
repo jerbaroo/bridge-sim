@@ -1,4 +1,5 @@
 """Run FE simulations with OpenSees."""
+import os
 
 import distutils.spawn as spawn
 from typing import Callable, List, Optional
@@ -10,15 +11,11 @@ from lib.fem.run.opensees.build import build_model
 from lib.fem.run.opensees.convert import convert_responses
 from lib.fem.run.opensees.parse import parse_responses
 from lib.fem.run.opensees.run import run_model
-from bridge_sim.util import print_i
+from bridge_sim.util import print_i, print_w
 
 
 def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
-    """The response types supported by OpenSees.
-
-    TODO: Remove Bridge argument.
-
-    """
+    """The response types supported by OpenSees."""
     return [
         ResponseType.XTrans,
         ResponseType.YTrans,
@@ -89,6 +86,14 @@ def os_runner(exe_path: Optional[str] = None) -> Callable[["Config"], OSRunner]:
         exe_path = spawn.find_executable("OpenSees")
         if exe_path is not None:
             print_i(f"Found Opensees at: {exe_path}")
+    # Else try a few hardcoded possibilities e.g. for Singularity.
+    try_exes = ["/opensees/bin/OpenSees"]
     if exe_path is None:
-        raise ValueError("Could't find OpenSees executable")
+        for path in try_exes:
+            if os.path.exists(path):
+                print_i(f"Found Opensees at: {path}")
+                exe_path = path
+                break
+    if exe_path is None:
+        print_w("Could't find OpenSees executable")
     return lambda c: OSRunner(c=c, exe_path=exe_path)

@@ -31,24 +31,23 @@ import findup
 
 from bridge_sim.model import Config, Bridge
 from lib.fem.run.opensees import os_runner
-
-project_dir = os.path.dirname(findup.glob(&#34;.git&#34;))
+from bridge_sim.util import project_dir
 
 
 def opensees_default(
     bridge: Callable[[], Bridge], os_exe: Optional[str] = None, **kwargs
 ) -&gt; Config:
-    &#34;&#34;&#34;A config using OpenSees for the given Bridge.
+    &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
 
-    :param bridge: function to return a new bridge.
-    :param os_exe: absolute path to OpenSees binary.
-    :param kwargs: passed on to Config constructor.
-    :return: a new Config.
+    Args:
+        bridge: function to return a new bridge.
+        os_exe: absolute path to OpenSees binary.
+        kwargs: passed on to Config constructor.
     &#34;&#34;&#34;
     return Config(
         bridge=bridge,
         sim_runner=os_runner(os_exe),
-        vehicle_data_path=os.path.join(project_dir, &#34;data/traffic/traffic.csv&#34;),
+        vehicle_data_path=os.path.join(project_dir(), &#34;data/traffic/traffic.csv&#34;),
         vehicle_pdf=[
             (2.4, 5),
             (5.6, 45),
@@ -74,11 +73,16 @@ def opensees_default(
 <span>def <span class="ident">opensees_default</span></span>(<span>bridge: Callable[[], bridge_sim.model.Bridge], os_exe: Union[str, NoneType] = None, **kwargs) -> <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>A config using OpenSees for the given Bridge.</p>
-<p>:param bridge: function to return a new bridge.
-:param os_exe: absolute path to OpenSees binary.
-:param kwargs: passed on to Config constructor.
-:return: a new Config.</p></div>
+<div class="desc"><p>A Config using OpenSees for a given Bridge.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>function to return a new bridge.</dd>
+<dt><strong><code>os_exe</code></strong></dt>
+<dd>absolute path to OpenSees binary.</dd>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>passed on to Config constructor.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -86,17 +90,17 @@ def opensees_default(
 <pre><code class="python">def opensees_default(
     bridge: Callable[[], Bridge], os_exe: Optional[str] = None, **kwargs
 ) -&gt; Config:
-    &#34;&#34;&#34;A config using OpenSees for the given Bridge.
+    &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
 
-    :param bridge: function to return a new bridge.
-    :param os_exe: absolute path to OpenSees binary.
-    :param kwargs: passed on to Config constructor.
-    :return: a new Config.
+    Args:
+        bridge: function to return a new bridge.
+        os_exe: absolute path to OpenSees binary.
+        kwargs: passed on to Config constructor.
     &#34;&#34;&#34;
     return Config(
         bridge=bridge,
         sim_runner=os_runner(os_exe),
-        vehicle_data_path=os.path.join(project_dir, &#34;data/traffic/traffic.csv&#34;),
+        vehicle_data_path=os.path.join(project_dir(), &#34;data/traffic/traffic.csv&#34;),
         vehicle_pdf=[
             (2.4, 5),
             (5.6, 45),
