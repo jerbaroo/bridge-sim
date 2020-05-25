@@ -32,7 +32,5 @@ class PSResponses(ManyResponses):
         ]
 
         return load_expt_responses(
-            c=c,
-            expt_params=expt_params,
-            response_type=response_type,
+            c=c, expt_params=expt_params, response_type=response_type,
         )
