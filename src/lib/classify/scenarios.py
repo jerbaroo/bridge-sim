@@ -2,20 +2,20 @@ import itertools
 
 from bridge_sim.model import PierSettlement
 from lib.classify.scenario.bridge import (
-    HealthyDamage,
-    PierDispDamage,
-    ThermalDamage,
+    Healthy,
+    PierDisp,
+    Thermal,
     equal_pier_disp,
     longitudinal_pier_disp,
     transverse_crack,
 )
 
-healthy_scenario = HealthyDamage()
+healthy_scenario = Healthy()
 cracked_scenario = transverse_crack()
 
 # Each pier displaced by 1mm.
 each_pier_scenarios = lambda c: [
-    PierDispDamage([PierSettlement(displacement=0.001, pier=p)])
+    PierDisp([PierSettlement(displacement=0.001, pier=p)])
     for p, _ in enumerate(c.bridge.supports)
 ]
 
@@ -31,7 +31,7 @@ gradient_pier_scenarios = lambda c: [
 
 healthy_and_cracked_scenarios = [healthy_scenario, cracked_scenario]
 
-unit_temp_scenario = ThermalDamage(axial_delta_temp=1, moment_delta_temp=1)
+unit_temp_scenario = Thermal(axial_delta_temp=1, moment_delta_temp=1)
 
 all_scenarios = lambda c: (
     healthy_and_cracked_scenarios

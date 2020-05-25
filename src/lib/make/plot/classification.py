@@ -9,7 +9,7 @@ from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.traffic import normal_traffic, to_traffic_array
 from lib.classify.data.responses import responses_to_traffic_array
 from lib.classify import temperature
-from lib.classify.scenario.bridge import HealthyDamage
+from lib.classify.scenario.bridge import Healthy
 from lib.classify.scenarios import (
     each_pier_scenarios,
     healthy_and_cracked_scenarios,
@@ -150,7 +150,7 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
 
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
-    bridge_scenarios = [HealthyDamage()] + each_pier_scenarios(c)
+    bridge_scenarios = [Healthy()] + each_pier_scenarios(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
@@ -278,7 +278,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
         )
     ]
 
-    bridge_scenario = HealthyDamage()
+    bridge_scenario = Healthy()
     responses = responses_to_traffic_array(
         c=c,
         traffic_array=normal_traffic_array,

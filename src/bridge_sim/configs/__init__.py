@@ -1,7 +1,7 @@
+"""Provided instances of the Config class."""
+
 import os
 from typing import Callable, Optional
-
-import findup
 
 from bridge_sim.model import Config, Bridge
 from lib.fem.run.opensees import os_runner
@@ -14,9 +14,10 @@ def opensees_default(
     """A Config using OpenSees for a given Bridge.
 
     Args:
-        bridge: function to return a new bridge.
-        os_exe: absolute path to OpenSees binary.
-        kwargs: passed on to Config constructor.
+        bridge: function to return a new Bridge.
+        os_exe: absolute path to OpenSees binary. Optional, if not given this
+            will look for OpenSees on the $PATH.
+        kwargs: keyword arguments passed to the Config constructor.
     """
     return Config(
         bridge=bridge,

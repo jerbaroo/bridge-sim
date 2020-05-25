@@ -1,7 +1,9 @@
+"""Provided instances of the Bridge class."""
+from bridge_sim.bridges.bridge_705 import bridge_705
 from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
 
 
-def narrow_bridge() -> Bridge:
+def bridge_narrow() -> Bridge:
     """Narrow example bridge with one supporting pier."""
     return Bridge(
         name="example",
@@ -84,3 +86,6 @@ def bridge_wide() -> Bridge:
         materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
         lanes=[Lane(-4, -1, True), Lane(1, 4, True),],
     )
+
+
+__all__ = ["bridge_705", "bridge_narrow", "bridge_wide"]

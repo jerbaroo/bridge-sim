@@ -128,7 +128,7 @@ new_vehicle = Vehicle(
     kmph=20,
 )
 
-config = configs.opensees_default(bridges.narrow_bridge, shorten_paths=True)
+config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
 responses = fem.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)

@@ -5,13 +5,13 @@ from typing import Callable, List, NewType, Optional, Tuple
 import numpy as np
 
 from bridge_sim.model import Point, Config, Bridge, PierSettlement
-from bridge_sim.scenarios import DamageScenario
+from bridge_sim.scenarios import Scenario
 from lib.fem.params import SimParams
 from lib.fem.responses import SimResponses
 from bridge_sim.util import round_m, safe_str
 
 
-class HealthyDamage(DamageScenario):
+class Healthy(Scenario):
     def __init__(self):
         super().__init__(name="normal")
 
@@ -19,7 +19,7 @@ class HealthyDamage(DamageScenario):
 CrackArea = NewType("CrackArea", Tuple[float, float, float, float])
 
 
-class CrackedDamage(DamageScenario):
+class Cracked(Scenario):
     """A cracked bridge, defined by an area of a bridge's deck to crack."""
 
     def __init__(
@@ -163,7 +163,7 @@ def transverse_crack(
     width: Optional[float] = None,
     at_x: Optional[float] = None,
     at_z: Optional[float] = None,
-) -> CrackedDamage:
+) -> Cracked:
     """A bridge with a transverse crack."""
 
     def crack_area(bridge: Bridge) -> CrackArea:
@@ -178,13 +178,13 @@ def transverse_crack(
             at_z = bridge.z_min
         return at_x, at_z, at_x + length, at_z + width
 
-    return CrackedDamage(
+    return Cracked(
         name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"),
         crack_area=crack_area,
     )
 
 
-class PierDispDamage(DamageScenario):
+class PierDisp(Scenario):
     def __init__(self, pier_disps: [PierSettlement], name_prefix: str = ""):
         if len(pier_disps) < 1:
             raise ValueError("At least 1 PierDisp required")
@@ -200,9 +200,9 @@ class PierDispDamage(DamageScenario):
         super().__init__(name=name, mod_sim_params=mod_sim_params)
 
 
-def pier_disp_damage(pier_disps: List[Tuple[int, float]]) -> PierDispDamage:
+def pier_disp_damage(pier_disps: List[Tuple[int, float]]) -> PierDisp:
     """All piers with equal given displacement."""
-    return PierDispDamage(
+    return PierDisp(
         pier_disps=[
             PierSettlement(pier=p_ind, displacement=displacement)
             for p_ind, displacement in pier_disps
@@ -210,9 +210,9 @@ def pier_disp_damage(pier_disps: List[Tuple[int, float]]) -> PierDispDamage:
     )
 
 
-def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispDamage:
+def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDisp:
     """All piers with equal given displacement."""
-    return PierDispDamage(
+    return PierDisp(
         pier_disps=[
             PierSettlement(displacement=displacement, pier=p)
             for p in range(len(bridge.supports))
@@ -221,7 +221,7 @@ def equal_pier_disp(bridge: Bridge, displacement: float) -> PierDispDamage:
     )
 
 
-def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDispDamage:
+def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDisp:
     """Pier displacement that increases in longitudinal direction."""
     increase_every = len(set(pier.z for pier in bridge.supports))
     pier_disps = []
@@ -230,10 +230,10 @@ def longitudinal_pier_disp(bridge: Bridge, start: float, step: float) -> PierDis
         if p != 0 and p % increase_every == 0:
             displacement += step
         pier_disps.append(PierSettlement(displacement=displacement, pier=p))
-    return PierDispDamage(pier_disps=pier_disps, name_prefix="long-piers")
+    return PierDisp(pier_disps=pier_disps, name_prefix="long-piers")
 
 
-class ThermalDamage(DamageScenario):
+class Thermal(Scenario):
     """Thermal expansion, with axial and bending moment components."""
 
     def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
@@ -285,7 +285,7 @@ def thermal_damage(
     axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6
 ):
     """Like ThermalDamage, but also modifies the bridge's MSL parameter."""
-    td = ThermalDamage(
+    td = Thermal(
         axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp
     )
     og_mod_bridge = td.mod_bridge
@@ -307,7 +307,7 @@ def healthy_damage_w_transverse_crack_nodes(crack_f=transverse_crack):
 
     """
 
-    healthy_damage = HealthyDamage()
+    healthy_damage = Healthy()
     crack_damage = crack_f()
 
     def mod_bridge(bridge: Bridge):

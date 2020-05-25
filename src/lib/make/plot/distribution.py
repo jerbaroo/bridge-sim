@@ -4,11 +4,11 @@ from typing import List
 import numpy as np
 
 from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.scenarios import DamageScenario
+from bridge_sim.scenarios import Scenario
 from bridge_sim.traffic import normal_traffic
 from lib.classify.data.responses import responses_to_traffic_array
 from lib.classify.scenarios import all_scenarios
-from lib.classify.scenario.bridge import HealthyDamage
+from lib.classify.scenario.bridge import Healthy
 from lib.fem.responses import Responses
 from lib.fem.run.opensees import OSRunner
 from lib.plot import plt
@@ -40,7 +40,7 @@ def distribution_plots(c: Config):
 
 def lane_distribution_plots(
     c: Config,
-    bridge_scenarios: List[DamageScenario],
+    bridge_scenarios: List[Scenario],
     response_type: ResponseType,
     num: int = 25,
 ):
@@ -57,7 +57,7 @@ def lane_distribution_plots(
         num: int, the number of points at which to record fem.
 
     """
-    assert isinstance(bridge_scenarios[0], HealthyDamage)
+    assert isinstance(bridge_scenarios[0], Healthy)
     print_i("Lane distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 
@@ -296,10 +296,10 @@ def deck_distribution_plots(c: Config):
 
     """
     bridge_scenarios = (
-        [HealthyDamage()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
+            [Healthy()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
     )
     response_type = ResponseType.YTranslation
-    assert isinstance(bridge_scenarios[0], HealthyDamage)
+    assert isinstance(bridge_scenarios[0], Healthy)
     print_i("Deck distribution plots: loading traffic")
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
 

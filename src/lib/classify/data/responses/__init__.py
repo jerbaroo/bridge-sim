@@ -7,8 +7,8 @@ from typing import Callable, List
 import numpy as np
 
 from bridge_sim.model import Point, Config, PointLoad, Vehicle, ResponseType
-from bridge_sim.scenarios import DamageScenario
-from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
+from bridge_sim.scenarios import Scenario
+from lib.classify.scenario.bridge import Healthy, PierDisp
 from lib.fem.params import SimParams
 from lib.fem.responses.many import load_expt_responses
 from lib.fem.responses.many.ps import PSResponses
@@ -31,7 +31,7 @@ def responses_to_traffic_array(
     c: Config,
     traffic_array: "TrafficArray",
     response_type: ResponseType,
-    damage_scenario: "DamageScenario",
+    damage_scenario: "Scenario",
     points: List[Point],
     sim_runner: Callable[[Config], FEMRunner] = OSRunner,
 ):
@@ -61,7 +61,7 @@ def responses_to_traffic_array(
     # Calculate the response at each point due to pier settlement.
     pd_responses = np.zeros(responses.shape).T
     assert len(pd_responses) == len(points)
-    if isinstance(damage_scenario, PierDispDamage):
+    if isinstance(damage_scenario, PierDisp):
         pd_expt = list(
             PSResponses.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
         )
@@ -85,7 +85,7 @@ def responses_to_loads_d(
     response_type: ResponseType,
     points: List[Point],
     loads: List[List[PointLoad]],
-    damage_scenario: DamageScenario = HealthyDamage(),
+    damage_scenario: Scenario = Healthy(),
 ):
     """Responses to loads via direct simulation.
 
@@ -93,7 +93,7 @@ def responses_to_loads_d(
     take into account wheel track bins.
 
     """
-    if not isinstance(damage_scenario, HealthyDamage):
+    if not isinstance(damage_scenario, Healthy):
         raise ValueError("Only HealthyDamage supported in direct simulation")
     expt_responses = load_expt_responses(
         c=c,
@@ -114,7 +114,7 @@ def responses_to_vehicles_d(
     mv_vehicles: List[Vehicle],
     times: List[float],
     binned: bool = True,
-    damage_scenario: DamageScenario = HealthyDamage(),
+    damage_scenario: Scenario = Healthy(),
 ):
     """Response at points to vehicles via direct simulation.
 
@@ -122,7 +122,7 @@ def responses_to_vehicles_d(
     wheel. This function doesn't take into account wheel track buckets.
 
     """
-    if not isinstance(damage_scenario, HealthyDamage):
+    if not isinstance(damage_scenario, Healthy):
         raise ValueError("Only HealthyDamage supported in direct simulation")
     if binned:
         print("binned")

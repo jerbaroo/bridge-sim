@@ -34,7 +34,7 @@ from bridge_sim.model import Config, Bridge
 from lib.fem.params import SimParams
 
 
-class DamageScenario:
+class Scenario:
     def __init__(
         self,
         name: str,
@@ -43,9 +43,10 @@ class DamageScenario:
     ):
         &#34;&#34;&#34;Base class for bridge scenarios.
 
-        :param name: unique identifier for this bridge scenario.
-        :param mod_bridge: function to modify a Bridge.
-        :param mod_sim_params: function to modify simulation parameters.
+        Args:
+            name: unique identifier for this scenario.
+            mod_bridge: function to modify a Bridge.
+            mod_sim_params: function to modify simulation parameters.
         &#34;&#34;&#34;
         self.name = name
         self.mod_bridge = mod_bridge
@@ -58,9 +59,9 @@ class DamageScenario:
 
         The returned values are deep copies of the given objects.
 
-        :param c: simulation configuration object to maybe modify.
-        :param sim_params: simulation parameters to maybe modify.
-        :return: a tuple of Config and SimParams.
+        Args:
+            c: simulation configuration object to maybe modify.
+            sim_params: simulation parameters to maybe modify.
         &#34;&#34;&#34;
         config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
@@ -77,20 +78,26 @@ class DamageScenario:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="bridge_sim.scenarios.DamageScenario"><code class="flex name class">
-<span>class <span class="ident">DamageScenario</span></span>
-<span>(</span><span>name: str, mod_bridge: Callable[[bridge_sim.model.Bridge], bridge_sim.model.Bridge] = &lt;function DamageScenario.&lt;lambda&gt;&gt;, mod_sim_params: Callable[[lib.fem.params.SimParams], lib.fem.params.SimParams] = &lt;function DamageScenario.&lt;lambda&gt;&gt;)</span>
+<dt id="bridge_sim.scenarios.Scenario"><code class="flex name class">
+<span>class <span class="ident">Scenario</span></span>
+<span>(</span><span>name: str, mod_bridge: Callable[[bridge_sim.model.Bridge], bridge_sim.model.Bridge] = &lt;function Scenario.&lt;lambda&gt;&gt;, mod_sim_params: Callable[[lib.fem.params.SimParams], lib.fem.params.SimParams] = &lt;function Scenario.&lt;lambda&gt;&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for bridge scenarios.</p>
-<p>:param name: unique identifier for this bridge scenario.
-:param mod_bridge: function to modify a Bridge.
-:param mod_sim_params: function to modify simulation parameters.</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>unique identifier for this scenario.</dd>
+<dt><strong><code>mod_bridge</code></strong></dt>
+<dd>function to modify a Bridge.</dd>
+<dt><strong><code>mod_sim_params</code></strong></dt>
+<dd>function to modify simulation parameters.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DamageScenario:
+<pre><code class="python">class Scenario:
     def __init__(
         self,
         name: str,
@@ -99,9 +106,10 @@ class DamageScenario:
     ):
         &#34;&#34;&#34;Base class for bridge scenarios.
 
-        :param name: unique identifier for this bridge scenario.
-        :param mod_bridge: function to modify a Bridge.
-        :param mod_sim_params: function to modify simulation parameters.
+        Args:
+            name: unique identifier for this scenario.
+            mod_bridge: function to modify a Bridge.
+            mod_sim_params: function to modify simulation parameters.
         &#34;&#34;&#34;
         self.name = name
         self.mod_bridge = mod_bridge
@@ -114,9 +122,9 @@ class DamageScenario:
 
         The returned values are deep copies of the given objects.
 
-        :param c: simulation configuration object to maybe modify.
-        :param sim_params: simulation parameters to maybe modify.
-        :return: a tuple of Config and SimParams.
+        Args:
+            c: simulation configuration object to maybe modify.
+            sim_params: simulation parameters to maybe modify.
         &#34;&#34;&#34;
         config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
@@ -125,22 +133,26 @@ class DamageScenario:
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li>lib.classify.scenario.bridge.CrackedDamage</li>
-<li>lib.classify.scenario.bridge.HealthyDamage</li>
-<li>lib.classify.scenario.bridge.PierDispDamage</li>
-<li>lib.classify.scenario.bridge.ThermalDamage</li>
+<li>lib.classify.scenario.bridge.Cracked</li>
+<li>lib.classify.scenario.bridge.Healthy</li>
+<li>lib.classify.scenario.bridge.PierDisp</li>
+<li>lib.classify.scenario.bridge.Thermal</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="bridge_sim.scenarios.DamageScenario.use"><code class="name flex">
+<dt id="bridge_sim.scenarios.Scenario.use"><code class="name flex">
 <span>def <span class="ident">use</span></span>(<span>self, c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: lib.fem.params.SimParams = &lt;lib.fem.params.SimParams object&gt;) -> Tuple[<a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, lib.fem.params.SimParams]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Modify given Config and SimParams under this Scenario.</p>
 <p>The returned values are deep copies of the given objects.</p>
-<p>:param c: simulation configuration object to maybe modify.
-:param sim_params: simulation parameters to maybe modify.
-:return: a tuple of Config and SimParams.</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>simulation configuration object to maybe modify.</dd>
+<dt><strong><code>sim_params</code></strong></dt>
+<dd>simulation parameters to maybe modify.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -152,9 +164,9 @@ class DamageScenario:
 
     The returned values are deep copies of the given objects.
 
-    :param c: simulation configuration object to maybe modify.
-    :param sim_params: simulation parameters to maybe modify.
-    :return: a tuple of Config and SimParams.
+    Args:
+        c: simulation configuration object to maybe modify.
+        sim_params: simulation parameters to maybe modify.
     &#34;&#34;&#34;
     config_copy = copy(c)
     config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
@@ -181,9 +193,9 @@ class DamageScenario:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="bridge_sim.scenarios.DamageScenario" href="#bridge_sim.scenarios.DamageScenario">DamageScenario</a></code></h4>
+<h4><code><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></code></h4>
 <ul class="">
-<li><code><a title="bridge_sim.scenarios.DamageScenario.use" href="#bridge_sim.scenarios.DamageScenario.use">use</a></code></li>
+<li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
 </ul>
 </li>
 </ul>

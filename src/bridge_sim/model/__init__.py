@@ -1,4 +1,4 @@
-"""Core classes: bridges and different loads."""
+"""A number of core classes: Bridge, Config, PointLoad etc."""
 
 import os
 from enum import Enum
@@ -590,15 +590,16 @@ class Bridge:
     ):
         """A bridge's geometry, material properties and boundary conditions.
 
-        :param name: name of this bridge.
-        :param length: length of this bridge.
-        :param width: width of this bridge.
-        :param supports: a list of Support.
-        :param materials: a list of bridge deck Material.
-        :param lanes: a list of Lane for traffic to drive on.
-        :param msl: maximum shell length parameter.
-        :param data_id: additional identifier for saving/loading data.
-        :param single_sections: tuple of one deck and one support material.
+        Args:
+            name: name of this bridge.
+            length: length of this bridge.
+            width: width of this bridge.
+            supports: a list of Support.
+            materials: a list of bridge deck Material.
+            lanes: a list of Lane for traffic to drive on.
+            msl: maximum shell length.
+            data_id: additional identifier for saving/loading data.
+            single_sections: tuple of one deck and one material for supports.
         """
         # Given arguments.
         self.name = name

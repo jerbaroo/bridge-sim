@@ -7,7 +7,7 @@ from bridge_sim.model import Config, Bridge
 from lib.fem.params import SimParams
 
 
-class DamageScenario:
+class Scenario:
     def __init__(
         self,
         name: str,
@@ -16,9 +16,10 @@ class DamageScenario:
     ):
         """Base class for bridge scenarios.
 
-        :param name: unique identifier for this bridge scenario.
-        :param mod_bridge: function to modify a Bridge.
-        :param mod_sim_params: function to modify simulation parameters.
+        Args:
+            name: unique identifier for this scenario.
+            mod_bridge: function to modify a Bridge.
+            mod_sim_params: function to modify simulation parameters.
         """
         self.name = name
         self.mod_bridge = mod_bridge
@@ -31,9 +32,9 @@ class DamageScenario:
 
         The returned values are deep copies of the given objects.
 
-        :param c: simulation configuration object to maybe modify.
-        :param sim_params: simulation parameters to maybe modify.
-        :return: a tuple of Config and SimParams.
+        Args:
+            c: simulation configuration object to maybe modify.
+            sim_params: simulation parameters to maybe modify.
         """
         config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))

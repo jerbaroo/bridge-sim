@@ -1,4 +1,4 @@
-"""A model of bridge 705 in Amsterdam."""
+"""The bridge 705 in Amsterdam."""
 
 import os
 from copy import deepcopy
@@ -9,9 +9,8 @@ from bridge_sim.model import (
     Lane,
     Material,
     MaterialSupport,
-    Bridge,
     Support,
-)
+    Bridge)
 from bridge_sim.util import project_dir, round_m
 
 #########################
@@ -41,7 +40,7 @@ for _span_distance in bridge_705_spans:
 ##################
 
 
-def bridge_705_deck_sections():
+def _bridge_705_deck_sections():
     with open(os.path.join(project_dir(), "data/bridge705/bridge-705.org")) as f:
         values = list(
             map(lambda l: list(map(float, l.split("|")[1:-1])), f.readlines()[2:],)
@@ -73,7 +72,7 @@ def bridge_705_deck_sections():
 pier_thickness_top, pier_thickness_bottom = 1.266, 0.362
 
 
-def pier_section_f(start_frac_len: float) -> MaterialSupport:
+def _pier_section_f(start_frac_len: float) -> MaterialSupport:
     """Material properties from fraction of pier length."""
     return MaterialSupport(
         density=2.724,
@@ -93,10 +92,10 @@ def pier_section_f(start_frac_len: float) -> MaterialSupport:
 ########################
 
 
-def bridge_705_single_sections():
+def _bridge_705_single_sections():
     result = (
-        deepcopy(bridge_705_deck_sections()[len(bridge_705_deck_sections()) // 2]),
-        deepcopy(pier_section_f(0.5)),
+        deepcopy(_bridge_705_deck_sections()[len(_bridge_705_deck_sections()) // 2]),
+        deepcopy(_pier_section_f(0.5)),
     )
     for section in result:
         section.start_x_frac = 0
@@ -126,7 +125,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 height=3.5,
                 width_top=3.666,
                 width_bottom=1.8,
-                materials=pier_section_f,
+                materials=_pier_section_f,
                 fix_x_translation=(x_index in [2, 3]),
                 fix_y_translation=True,
                 fix_z_translation=True,
@@ -138,13 +137,18 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
 
 
 def bridge_705(msl: float):
-    """A model of bridge 705 in Amsterdam."""
+    """The bridge 705 in Amsterdam.
+
+    Args:
+        msl: maximum shell length.
+
+    """
     return lambda: Bridge(
         name="bridge-705",
         length=bridge_705_length,
         width=bridge_705_width,
         supports=bridge_705_supports_3d,
-        materials=bridge_705_deck_sections(),
+        materials=_bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,
     )

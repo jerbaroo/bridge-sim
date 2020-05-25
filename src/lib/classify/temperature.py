@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
 from bridge_sim.model import Config, Point, ResponseType
-from lib.classify.scenario.bridge import ThermalDamage
+from lib.classify.scenario.bridge import Thermal
 from lib.fem.params import SimParams
 from lib.fem.responses import load_fem_responses
 from lib.fem.run.opensees import OSRunner
@@ -215,13 +215,13 @@ def effect(
 
     original_c = c
     # Unit effect from uniform temperature loading.
-    unit_uniform = ThermalDamage(axial_delta_temp=c.unit_axial_delta_temp_c)
+    unit_uniform = Thermal(axial_delta_temp=c.unit_axial_delta_temp_c)
     c, sim_params = unit_uniform.use(original_c)
     uniform_responses = load_fem_responses(
         c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
     )
     # Unit effect from linear temperature loading.
-    unit_linear = ThermalDamage(moment_delta_temp=c.unit_moment_delta_temp_c)
+    unit_linear = Thermal(moment_delta_temp=c.unit_moment_delta_temp_c)
     c, sim_params = unit_linear.use(original_c)
     linear_responses = load_fem_responses(
         c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
