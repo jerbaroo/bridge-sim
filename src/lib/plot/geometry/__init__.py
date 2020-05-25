@@ -12,8 +12,8 @@ D: str = "plot.geometry"
 
 def top_view_bridge(
     config: Config,
-    edges: bool = False,
     abutments: bool = False,
+    edges: bool = False,
     piers: bool = False,
     lanes: bool = False,
     lane_fill: bool = False,
@@ -23,14 +23,14 @@ def top_view_bridge(
     """Plot the top view of a bridge's geometry.
 
     Args:
-        bridge: Bridge, the bridge top to plot.
-        landscape: bool, whether to orient the plot in landscape.
-        edges: bool, whether to plot the longitudinal edges.
-        abutments: bool, whether to plot the bridge's abutments.
-        piers: bool, whether to plot where the piers connect to the deck.
-        lanes: bool, whether to plot lanes on the bridge.
-        lane_fill: bool, whether to plot fill or only outline.
-        compass: bool, whether to plot a compass rose.
+        bridge: the bridge top to plot.
+        landscape: orient the plot in landscape (16 x 10) ?
+        abutments: plot the bridge's abutments?
+        edges: plot the longitudinal edges?
+        piers: plot where the piers connect to the deck?
+        lanes: plot lanes on the bridge?
+        lane_fill: plot fill or only outline?
+        compass: plot a compass rose?
 
     """
     bridge = config.bridge

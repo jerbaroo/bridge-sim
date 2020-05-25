@@ -129,15 +129,17 @@ def nearest_index(array, value):
 
 
 def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -&gt; str:
-    &#34;&#34;&#34;Shorten path by mapping to shorter filepath saved on disk.&#34;&#34;&#34;
+    &#34;&#34;&#34;Shorten path by mapping to a shorter filepath via a metadata file.&#34;&#34;&#34;
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path(&#34;metadata&#34;, &#34;filepath-shortening-map.txt&#34;)
     lock_path = df_path + &#34;.lock&#34;
-    # with FileLock(df_path + &#34;.lock&#34;):
+
+    # Acquire an exclusive file lock.
     with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
 
         def flush():
+            &#34;&#34;&#34;Ensure all results are written back before exiting &#39;with&#39;.&#34;&#34;&#34;
             f.flush()
             os.fsync(f.fileno())
 
@@ -149,7 +151,7 @@ def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -&gt; st
         if len(existing_row) == 1:
             return str(existing_row[&#34;short&#34;].iloc[0])
         elif len(existing_row) &gt; 1:
-            raise ValueError(&#34;Oops&#34;)
+            raise ValueError(f&#34;Duplicate rows in metadata file: row = {filepath}&#34;)
         short = len(df.index) + 1
         short = os.path.join(
             os.path.dirname(filepath),
@@ -623,21 +625,23 @@ def _get_dir(directory):
 <span>def <span class="ident">shorten_path</span></span>(<span>c: Config, filepath: str, bypass_config: bool = False) -> 'str'</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Shorten path by mapping to shorter filepath saved on disk.</p></div>
+<div class="desc"><p>Shorten path by mapping to a shorter filepath via a metadata file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -&gt; str:
-    &#34;&#34;&#34;Shorten path by mapping to shorter filepath saved on disk.&#34;&#34;&#34;
+    &#34;&#34;&#34;Shorten path by mapping to a shorter filepath via a metadata file.&#34;&#34;&#34;
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path(&#34;metadata&#34;, &#34;filepath-shortening-map.txt&#34;)
     lock_path = df_path + &#34;.lock&#34;
-    # with FileLock(df_path + &#34;.lock&#34;):
+
+    # Acquire an exclusive file lock.
     with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
 
         def flush():
+            &#34;&#34;&#34;Ensure all results are written back before exiting &#39;with&#39;.&#34;&#34;&#34;
             f.flush()
             os.fsync(f.fileno())
 
@@ -649,7 +653,7 @@ def _get_dir(directory):
         if len(existing_row) == 1:
             return str(existing_row[&#34;short&#34;].iloc[0])
         elif len(existing_row) &gt; 1:
-            raise ValueError(&#34;Oops&#34;)
+            raise ValueError(f&#34;Duplicate rows in metadata file: row = {filepath}&#34;)
         short = len(df.index) + 1
         short = os.path.join(
             os.path.dirname(filepath),

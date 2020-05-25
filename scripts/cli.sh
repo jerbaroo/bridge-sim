@@ -1,1 +1,1 @@
-pipenv run python src/bridge_sim/cli.py "$@"
+pipenv run python src/lib/cli.py "$@"

@@ -1,3 +1,5 @@
+"""Generate and load responses from FE simulation."""
+
 from typing import List, Optional
 
 from bridge_sim.model import (
@@ -18,13 +20,13 @@ def responses(
 ):
     """Responses from a single linear simulation.
 
-    The simulation is only run if necessary (results not on disk).
+    The simulation is only run if results are not found on disk.
 
     Args:
-        config: Global configuration object.
-        response_type: Sensor response type to return.
-        point_loads: Point loads to apply in simulation.
-        pier_settlement: A pier settlement to apply.
+        config: simulation configuration object.
+        response_type: sensor response type to return.
+        point_loads: a list of point-loads to apply.
+        pier_settlement: a pier settlement to apply.
     """
     return lib_load_fem_responses(
         c=config,

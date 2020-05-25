@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.bridges API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Provided instances of the Bridge class." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,14 +20,17 @@
 <h1 class="title">Module <code>bridge_sim.bridges</code></h1>
 </header>
 <section id="section-intro">
+<p>Provided instances of the Bridge class.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
+<pre><code class="python">&#34;&#34;&#34;Provided instances of the Bridge class.&#34;&#34;&#34;
+from bridge_sim.bridges.bridge_705 import bridge_705
+from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
 
 
-def narrow_bridge() -&gt; Bridge:
+def bridge_narrow() -&gt; Bridge:
     &#34;&#34;&#34;Narrow example bridge with one supporting pier.&#34;&#34;&#34;
     return Bridge(
         name=&#34;example&#34;,
@@ -109,23 +112,93 @@ def bridge_wide() -&gt; Bridge:
         ],
         materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
         lanes=[Lane(-4, -1, True), Lane(1, 4, True),],
-    )</code></pre>
+    )
+
+
+__all__ = [&#34;bridge_705&#34;, &#34;bridge_narrow&#34;, &#34;bridge_wide&#34;]</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="bridge_sim.bridges.bridge_705" href="bridge_705.html">bridge_sim.bridges.bridge_705</a></code></dt>
-<dd>
-<div class="desc"><p>A model of bridge 705 in Amsterdam.</p></div>
-</dd>
-</dl>
 </section>
 <section>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="bridge_sim.bridges.bridge_705"><code class="name flex">
+<span>def <span class="ident">bridge_705</span></span>(<span>msl: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The bridge 705 in Amsterdam.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>msl</code></strong></dt>
+<dd>maximum shell length.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bridge_705(msl: float):
+    &#34;&#34;&#34;The bridge 705 in Amsterdam.
+
+    Args:
+        msl: maximum shell length.
+
+    &#34;&#34;&#34;
+    return lambda: Bridge(
+        name=&#34;bridge-705&#34;,
+        length=bridge_705_length,
+        width=bridge_705_width,
+        supports=bridge_705_supports_3d,
+        materials=_bridge_705_deck_sections(),
+        lanes=bridge_705_lanes,
+        msl=msl,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.bridges.bridge_narrow"><code class="name flex">
+<span>def <span class="ident">bridge_narrow</span></span>(<span>) -> <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Narrow example bridge with one supporting pier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bridge_narrow() -&gt; Bridge:
+    &#34;&#34;&#34;Narrow example bridge with one supporting pier.&#34;&#34;&#34;
+    return Bridge(
+        name=&#34;example&#34;,
+        msl=0.2,
+        length=20,
+        width=5,
+        supports=[
+            Support(
+                x=10,
+                z=0,
+                length=2,
+                height=2,
+                width_top=2,
+                width_bottom=2,
+                materials=[
+                    MaterialSupport(
+                        density=0.7,
+                        thickness=0.7,
+                        youngs=40000,
+                        poissons=0.2,
+                        start_frac_len=0,
+                    )
+                ],
+                fix_z_translation=True,
+                fix_x_translation=True,
+            )
+        ],
+        materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
+        lanes=[Lane(-1, 1, True)],
+    )</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.bridges.bridge_wide"><code class="name flex">
 <span>def <span class="ident">bridge_wide</span></span>(<span>) -> <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a></span>
 </code></dt>
@@ -187,48 +260,6 @@ def bridge_wide() -&gt; Bridge:
     )</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.bridges.narrow_bridge"><code class="name flex">
-<span>def <span class="ident">narrow_bridge</span></span>(<span>) -> <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Narrow example bridge with one supporting pier.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def narrow_bridge() -&gt; Bridge:
-    &#34;&#34;&#34;Narrow example bridge with one supporting pier.&#34;&#34;&#34;
-    return Bridge(
-        name=&#34;example&#34;,
-        msl=0.2,
-        length=20,
-        width=5,
-        supports=[
-            Support(
-                x=10,
-                z=0,
-                length=2,
-                height=2,
-                width_top=2,
-                width_bottom=2,
-                materials=[
-                    MaterialSupport(
-                        density=0.7,
-                        thickness=0.7,
-                        youngs=40000,
-                        poissons=0.2,
-                        start_frac_len=0,
-                    )
-                ],
-                fix_z_translation=True,
-                fix_x_translation=True,
-            )
-        ],
-        materials=[MaterialDeck(thickness=0.7, youngs=40000, poissons=0.2,)],
-        lanes=[Lane(-1, 1, True)],
-    )</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -245,15 +276,11 @@ def bridge_wide() -&gt; Bridge:
 <li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="bridge_sim.bridges.bridge_705" href="bridge_705.html">bridge_sim.bridges.bridge_705</a></code></li>
-</ul>
-</li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="bridge_sim.bridges.bridge_705" href="#bridge_sim.bridges.bridge_705">bridge_705</a></code></li>
+<li><code><a title="bridge_sim.bridges.bridge_narrow" href="#bridge_sim.bridges.bridge_narrow">bridge_narrow</a></code></li>
 <li><code><a title="bridge_sim.bridges.bridge_wide" href="#bridge_sim.bridges.bridge_wide">bridge_wide</a></code></li>
-<li><code><a title="bridge_sim.bridges.narrow_bridge" href="#bridge_sim.bridges.narrow_bridge">narrow_bridge</a></code></li>
 </ul>
 </li>
 </ul>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.fem API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Generate and load responses from FE simulation." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,14 @@
 <h1 class="title">Module <code>bridge_sim.fem</code></h1>
 </header>
 <section id="section-intro">
+<p>Generate and load responses from FE simulation.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import List, Optional
+<pre><code class="python">&#34;&#34;&#34;Generate and load responses from FE simulation.&#34;&#34;&#34;
+
+from typing import List, Optional
 
 from bridge_sim.model import (
     PierSettlement,
@@ -44,13 +47,13 @@ def responses(
 ):
     &#34;&#34;&#34;Responses from a single linear simulation.
 
-    The simulation is only run if necessary (results not on disk).
+    The simulation is only run if results are not found on disk.
 
-    :param config: Global configuration object.
-    :param response_type: Sensor response type to return.
-    :param point_loads: Point loads to apply in simulation.
-    :param pier_settlement: A pier settlement to apply.
-    :return: Sensor fem from the simulation.
+    Args:
+        config: simulation configuration object.
+        response_type: sensor response type to return.
+        point_loads: a list of point-loads to apply.
+        pier_settlement: a pier settlement to apply.
     &#34;&#34;&#34;
     return lib_load_fem_responses(
         c=config,
@@ -71,12 +74,18 @@ def responses(
 </code></dt>
 <dd>
 <div class="desc"><p>Responses from a single linear simulation.</p>
-<p>The simulation is only run if necessary (results not on disk).</p>
-<p>:param config: Global configuration object.
-:param response_type: Sensor response type to return.
-:param point_loads: Point loads to apply in simulation.
-:param pier_settlement: A pier settlement to apply.
-:return: Sensor fem from the simulation.</p></div>
+<p>The simulation is only run if results are not found on disk.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>sensor response type to return.</dd>
+<dt><strong><code>point_loads</code></strong></dt>
+<dd>a list of point-loads to apply.</dd>
+<dt><strong><code>pier_settlement</code></strong></dt>
+<dd>a pier settlement to apply.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -89,13 +98,13 @@ def responses(
 ):
     &#34;&#34;&#34;Responses from a single linear simulation.
 
-    The simulation is only run if necessary (results not on disk).
+    The simulation is only run if results are not found on disk.
 
-    :param config: Global configuration object.
-    :param response_type: Sensor response type to return.
-    :param point_loads: Point loads to apply in simulation.
-    :param pier_settlement: A pier settlement to apply.
-    :return: Sensor fem from the simulation.
+    Args:
+        config: simulation configuration object.
+        response_type: sensor response type to return.
+        point_loads: a list of point-loads to apply.
+        pier_settlement: a pier settlement to apply.
     &#34;&#34;&#34;
     return lib_load_fem_responses(
         c=config,

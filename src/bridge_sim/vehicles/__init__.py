@@ -16,3 +16,6 @@ truck1 = Vehicle(
 )
 assert truck1.lane == 0
 assert truck1.init_x_frac == 0
+
+
+__all__ = ["truck1"]

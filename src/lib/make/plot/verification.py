@@ -18,7 +18,7 @@ from sklearn.linear_model import LinearRegression
 
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from lib.classify.data.responses import responses_to_vehicles_d
-from lib.classify.scenario.bridge import HealthyDamage
+from lib.classify.scenario.bridge import Healthy
 from bridge_sim.vehicles import truck1
 from lib.fem.build import det_nodes, det_shells
 from lib.fem.params import SimParams
@@ -381,7 +381,7 @@ def r2_plots(c: Config):
             mv_vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=rt_y,
-            damage_scenario=HealthyDamage(),
+            damage_scenario=Healthy(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
@@ -494,7 +494,7 @@ def r2_plots(c: Config):
         mv_vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
         response_type=rt_s,
-        damage_scenario=HealthyDamage(),
+        damage_scenario=Healthy(),
         points=[
             Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
         ],

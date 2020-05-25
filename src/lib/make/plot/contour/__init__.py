@@ -11,8 +11,8 @@ from matplotlib.cm import get_cmap
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from lib.classify.data.responses import responses_to_traffic_array
 from lib.classify.scenario.bridge import (
-    HealthyDamage,
-    PierDispDamage,
+    Healthy,
+    PierDisp,
     equal_pier_disp,
     longitudinal_pier_disp,
     transverse_crack,
@@ -136,7 +136,7 @@ def point_load_response_plots(
     """Response to a point load per scenarios scenario."""
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # scenarios = all_scenarios(c)
-    damage_scenarios = [HealthyDamage(), transverse_crack()]
+    damage_scenarios = [Healthy(), transverse_crack()]
 
     # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
@@ -360,7 +360,7 @@ def gradient_pier_displacement_plots(c: Config):
 
 
 def gradient_pier_displacement_plot(
-    c: Config, pier_disp: PierDispDamage, response_type: ResponseType, title: str,
+    c: Config, pier_disp: PierDisp, response_type: ResponseType, title: str,
 ):
     """Contour plot of piers displaced in an increasing gradient."""
 

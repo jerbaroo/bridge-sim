@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.plot API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Plot responses from simulation." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,12 +20,17 @@
 <h1 class="title">Module <code>bridge_sim.plot</code></h1>
 </header>
 <section id="section-intro">
+<p>Plot responses from simulation.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from lib.plot.responses import plot_contour_deck as contour_responses
-from lib.plot.geometry import top_view_bridge</code></pre>
+<pre><code class="python">&#34;&#34;&#34;Plot responses from simulation.&#34;&#34;&#34;
+
+from lib.plot.responses import plot_contour_deck as contour_responses
+from lib.plot.geometry import top_view_bridge
+
+__all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -33,6 +38,265 @@ from lib.plot.geometry import top_view_bridge</code></pre>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.plot.contour_responses"><code class="name flex">
+<span>def <span class="ident">contour_responses</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, responses: lib.fem.responses.Responses, point_loads: List[<a title="bridge_sim.model.PointLoad" href="../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], units: Union[str, NoneType] = None, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, norm=None, scatter: bool = False, levels: int = 14, mm_legend: bool = True, mm_legend_without_f: Union[Callable[[bridge_sim.model.Point], bool], NoneType] = None, sci_format: bool = False, decimals: int = 4, y: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Contour or scatter plot of simulation responses.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>responses</code></strong></dt>
+<dd>the simulation responses to plot.</dd>
+<dt><strong><code>units</code></strong></dt>
+<dd>optional units string for the colourbar.</dd>
+<dt><strong><code>cmap</code></strong></dt>
+<dd>Matplotlib colormap to use for colouring responses.</dd>
+<dt><strong><code>norm</code></strong></dt>
+<dd>Matplotlib norm to use for colouring responses.</dd>
+<dt><strong><code>scatter</code></strong></dt>
+<dd>scatter plot instead of contour plot?</dd>
+<dt><strong><code>levels</code></strong></dt>
+<dd>levels in the contour plot.</dd>
+<dt><strong><code>mm_legend</code></strong></dt>
+<dd>plot a legend of min and max values?</dd>
+<dt><strong><code>mm_legend_without_f</code></strong></dt>
+<dd>function to filter points considered in the legend.</dd>
+<dt><strong><code>sci_format</code></strong></dt>
+<dd>force scientific formatting (E) in the legend.</dd>
+<dt><strong><code>decimals</code></strong></dt>
+<dd>round legend values to this many decimals.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_contour_deck(
+    c: Config,
+    responses: Responses,
+    point_loads: List[PointLoad] = [],
+    units: Optional[str] = None,
+    cmap=default_cmap,
+    norm=None,
+    scatter: bool = False,
+    levels: int = 14,
+    mm_legend: bool = True,
+    mm_legend_without_f: Optional[Callable[[Point], bool]] = None,
+    sci_format: bool = False,
+    decimals: int = 4,
+    y: float = 0,
+):
+    &#34;&#34;&#34;Contour or scatter plot of simulation responses.
+
+    Args:
+        config: simulation configuration object.
+        responses: the simulation responses to plot.
+        units: optional units string for the colourbar.
+        cmap: Matplotlib colormap to use for colouring responses.
+        norm: Matplotlib norm to use for colouring responses.
+        scatter: scatter plot instead of contour plot?
+        levels: levels in the contour plot.
+        mm_legend: plot a legend of min and max values?
+        mm_legend_without_f: function to filter points considered in the legend.
+        sci_format: force scientific formatting (E) in the legend.
+        decimals: round legend values to this many decimals.
+
+    &#34;&#34;&#34;
+    amax, amax_x, amax_z = -np.inf, None, None
+    amin, amin_x, amin_z = np.inf, None, None
+    X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
+    # Begin structure data.
+    def structure_data(responses):
+        nonlocal amax
+        nonlocal amax_x
+        nonlocal amax_z
+        nonlocal amin
+        nonlocal amin_x
+        nonlocal amin_z
+        nonlocal X
+        nonlocal Z
+        nonlocal H
+        # First reset the maximums and minimums.
+        amax, amax_x, amax_z = -np.inf, None, None
+        amin, amin_x, amin_z = np.inf, None, None
+        X, Z, H = [], [], []
+        for x in responses.xs:
+            # There is a chance that no sensors exist at given y position for every
+            # x position, thus we must check.
+            if y in responses.zs[x]:
+                for z in responses.zs[x][y]:
+                    X.append(x)
+                    Z.append(z)
+                    H.append(responses.responses[0][x][y][z])
+                    if H[-1] &gt; amax:
+                        amax = H[-1]
+                        amax_x, amax_z = X[-1], Z[-1]
+                    if H[-1] &lt; amin:
+                        amin = H[-1]
+                        amin_x, amin_z = X[-1], Z[-1]
+        print(f&#34;amin, amax = {amin}, {amax}&#34;)
+
+    structure_data(responses)
+    if len(X) == 0:
+        raise ValueError(f&#34;No fem for contour plot&#34;)
+
+    # Plot fem, contour or scatter plot.
+    if scatter:
+        cs = plt.scatter(
+            x=np.array(X).flatten(),
+            y=np.array(Z).flatten(),
+            c=np.array(H).flatten(),
+            cmap=cmap,
+            norm=norm,
+            s=1,
+        )
+    else:
+        cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
+
+    # Colourbar, maybe using given norm.
+    clb = plt.colorbar(cs, norm=norm)
+    if units is not None:
+        clb.ax.set_title(units)
+
+    # Plot point loads.
+    for pload in point_loads:
+        x = pload.x
+        z = pload.z
+        plt.scatter(
+            [x], [z], label=f&#34;{pload.load} kN load&#34;, marker=&#34;o&#34;, color=&#34;black&#34;,
+        )
+
+    # Begin: min, max legend.
+    if mm_legend or mm_legend_without_f is not None:
+        if mm_legend_without_f is not None:
+            structure_data(responses.without(mm_legend_without_f))
+        # Plot min and max fem.
+        amin_s = (
+            f&#34;{amin:.{decimals}g}&#34; if sci_format else f&#34;{np.around(amin, decimals)}&#34;
+        )
+        amax_s = (
+            f&#34;{amax:.{decimals}g}&#34; if sci_format else f&#34;{np.around(amax, decimals)}&#34;
+        )
+        aabs_s = (
+            f&#34;{amin - amax:.{decimals}g}&#34;
+            if sci_format
+            else f&#34;{np.around(abs(amin - amax), decimals)}&#34;
+        )
+        units_str = &#34;&#34; if units is None else f&#34; {units}&#34;
+        print(units_str)
+        for point, label, color, alpha in [
+            ((amin_x, amin_z), f&#34;min = {amin_s} {units_str}&#34;, &#34;orange&#34;, 0),
+            ((amax_x, amax_z), f&#34;max = {amax_s} {units_str}&#34;, &#34;green&#34;, 0),
+            ((amin_x, amin_z), f&#34;|min-max| = {aabs_s} {units_str}&#34;, &#34;red&#34;, 0),
+        ]:
+            plt.scatter(
+                [point[0]],
+                [point[1]],
+                label=label,
+                marker=&#34;o&#34;,
+                color=color,
+                alpha=alpha,
+            )
+    # End: min, max legend.
+
+    plt.xlabel(&#34;X position&#34;)
+    plt.ylabel(&#34;Z position&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.plot.top_view_bridge"><code class="name flex">
+<span>def <span class="ident">top_view_bridge</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, abutments: bool = False, edges: bool = False, piers: bool = False, lanes: bool = False, lane_fill: bool = False, landscape: bool = True, compass: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot the top view of a bridge's geometry.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bridge</code></strong></dt>
+<dd>the bridge top to plot.</dd>
+<dt><strong><code>landscape</code></strong></dt>
+<dd>orient the plot in landscape (16 x 10) ?</dd>
+<dt><strong><code>abutments</code></strong></dt>
+<dd>plot the bridge's abutments?</dd>
+<dt><strong><code>edges</code></strong></dt>
+<dd>plot the longitudinal edges?</dd>
+<dt><strong><code>piers</code></strong></dt>
+<dd>plot where the piers connect to the deck?</dd>
+<dt><strong><code>lanes</code></strong></dt>
+<dd>plot lanes on the bridge?</dd>
+<dt><strong><code>lane_fill</code></strong></dt>
+<dd>plot fill or only outline?</dd>
+<dt><strong><code>compass</code></strong></dt>
+<dd>plot a compass rose?</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def top_view_bridge(
+    config: Config,
+    abutments: bool = False,
+    edges: bool = False,
+    piers: bool = False,
+    lanes: bool = False,
+    lane_fill: bool = False,
+    landscape: bool = True,
+    compass: bool = False,
+):
+    &#34;&#34;&#34;Plot the top view of a bridge&#39;s geometry.
+
+    Args:
+        bridge: the bridge top to plot.
+        landscape: orient the plot in landscape (16 x 10) ?
+        abutments: plot the bridge&#39;s abutments?
+        edges: plot the longitudinal edges?
+        piers: plot where the piers connect to the deck?
+        lanes: plot lanes on the bridge?
+        lane_fill: plot fill or only outline?
+        compass: plot a compass rose?
+
+    &#34;&#34;&#34;
+    bridge = config.bridge
+    if landscape:
+        plt.landscape()
+    plt.axis(&#34;equal&#34;)
+    if edges:
+        plt.hlines([bridge.z_min, bridge.z_max], 0, bridge.length)
+    if abutments:
+        plt.vlines([0, bridge.length], bridge.z_min, bridge.z_max)
+    if piers:
+        for pier in bridge.supports:
+            z_min_top, z_max_top = pier.z_min_max_top()
+            x_min, x_max = pier.x_min_max_top()
+            plt.vlines([x_min, x_max], z_min_top, z_max_top)
+    if lanes:
+        for lane in bridge.lanes:
+            plt.gca().add_patch(
+                matplotlib.patches.Rectangle(
+                    (0, lane.z_min),
+                    bridge.length,
+                    lane.z_max - lane.z_min,
+                    facecolor=&#34;black&#34; if lane_fill else &#34;none&#34;,
+                    edgecolor=&#34;black&#34;,
+                )
+            )
+    if compass:
+        ax = plt.gca()  # Reference to the original axis.
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        compass_img = plt.imread(os.path.join(dir_path, &#34;compass-rose.png&#34;))
+        c_len = max(bridge.width, bridge.length) * 0.2
+        ax_c = ax.inset_axes(
+            [0, bridge.z_max + (c_len * 0.05), c_len, c_len], transform=ax.transData,
+        )
+        ax_c.imshow(compass_img)
+        ax_c.axis(&#34;off&#34;)
+        plt.sca(ax)  # Return control to the original axis.
+    plt.xlabel(&#34;X position&#34;)
+    plt.ylabel(&#34;Z position&#34;)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -46,6 +310,12 @@ from lib.plot.geometry import top_view_bridge</code></pre>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.plot.contour_responses" href="#bridge_sim.plot.contour_responses">contour_responses</a></code></li>
+<li><code><a title="bridge_sim.plot.top_view_bridge" href="#bridge_sim.plot.top_view_bridge">top_view_bridge</a></code></li>
 </ul>
 </li>
 </ul>

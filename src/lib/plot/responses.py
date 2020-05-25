@@ -113,7 +113,6 @@ def plot_contour_deck(
     responses: Responses,
     point_loads: List[PointLoad] = [],
     units: Optional[str] = None,
-    y: float = 0,
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
@@ -122,14 +121,22 @@ def plot_contour_deck(
     mm_legend_without_f: Optional[Callable[[Point], bool]] = None,
     sci_format: bool = False,
     decimals: int = 4,
+    y: float = 0,
 ):
-    """Contour plot of given fem. Iterate over x and z for a fixed y.
+    """Contour or scatter plot of simulation responses.
 
     Args:
-        mm_legend_without_f: Optional[Callable[[Point], bool]], If given then
-            the legend values are computed using points using this filtering
-            function. Passing in this function will override 'mm_legend' set to
-            false.
+        config: simulation configuration object.
+        responses: the simulation responses to plot.
+        units: optional units string for the colourbar.
+        cmap: Matplotlib colormap to use for colouring responses.
+        norm: Matplotlib norm to use for colouring responses.
+        scatter: scatter plot instead of contour plot?
+        levels: levels in the contour plot.
+        mm_legend: plot a legend of min and max values?
+        mm_legend_without_f: function to filter points considered in the legend.
+        sci_format: force scientific formatting (E) in the legend.
+        decimals: round legend values to this many decimals.
 
     """
     amax, amax_x, amax_z = -np.inf, None, None

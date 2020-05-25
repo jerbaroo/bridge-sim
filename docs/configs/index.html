@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.configs API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Provided instances of the Config class." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,14 +20,15 @@
 <h1 class="title">Module <code>bridge_sim.configs</code></h1>
 </header>
 <section id="section-intro">
+<p>Provided instances of the Config class.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import os
-from typing import Callable, Optional
+<pre><code class="python">&#34;&#34;&#34;Provided instances of the Config class.&#34;&#34;&#34;
 
-import findup
+import os
+from typing import Callable, Optional
 
 from bridge_sim.model import Config, Bridge
 from lib.fem.run.opensees import os_runner
@@ -40,9 +41,10 @@ def opensees_default(
     &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
 
     Args:
-        bridge: function to return a new bridge.
-        os_exe: absolute path to OpenSees binary.
-        kwargs: passed on to Config constructor.
+        bridge: function to return a new Bridge.
+        os_exe: absolute path to OpenSees binary. Optional, if not given this
+            will look for OpenSees on the $PATH.
+        kwargs: keyword arguments passed to the Config constructor.
     &#34;&#34;&#34;
     return Config(
         bridge=bridge,
@@ -77,11 +79,12 @@ def opensees_default(
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>bridge</code></strong></dt>
-<dd>function to return a new bridge.</dd>
+<dd>function to return a new Bridge.</dd>
 <dt><strong><code>os_exe</code></strong></dt>
-<dd>absolute path to OpenSees binary.</dd>
+<dd>absolute path to OpenSees binary. Optional, if not given this
+will look for OpenSees on the $PATH.</dd>
 <dt><strong><code>kwargs</code></strong></dt>
-<dd>passed on to Config constructor.</dd>
+<dd>keyword arguments passed to the Config constructor.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -93,9 +96,10 @@ def opensees_default(
     &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
 
     Args:
-        bridge: function to return a new bridge.
-        os_exe: absolute path to OpenSees binary.
-        kwargs: passed on to Config constructor.
+        bridge: function to return a new Bridge.
+        os_exe: absolute path to OpenSees binary. Optional, if not given this
+            will look for OpenSees on the $PATH.
+        kwargs: keyword arguments passed to the Config constructor.
     &#34;&#34;&#34;
     return Config(
         bridge=bridge,
