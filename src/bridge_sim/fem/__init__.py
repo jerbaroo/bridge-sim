@@ -20,11 +20,11 @@ def responses(
 
     The simulation is only run if necessary (results not on disk).
 
-    :param config: Global configuration object.
-    :param response_type: Sensor response type to return.
-    :param point_loads: Point loads to apply in simulation.
-    :param pier_settlement: A pier settlement to apply.
-    :return: Sensor fem from the simulation.
+    Args:
+        config: Global configuration object.
+        response_type: Sensor response type to return.
+        point_loads: Point loads to apply in simulation.
+        pier_settlement: A pier settlement to apply.
     """
     return lib_load_fem_responses(
         c=config,

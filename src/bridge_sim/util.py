@@ -102,18 +102,18 @@ def nearest_index(array, value):
 
 
 def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -> str:
-    """Shorten path by mapping to shorter filepath saved on disk."""
+    """Shorten path by mapping to a shorter filepath via a metadata file."""
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path("metadata", "filepath-shortening-map.txt")
     lock_path = df_path + ".lock"
-    # with FileLock(df_path + ".lock"):
-    with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
 
+    # Acquire an exclusive file lock.
+    with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
         def flush():
+            """Ensure all results are written back before exiting 'with'."""
             f.flush()
             os.fsync(f.fileno())
-
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0)
         else:
@@ -122,7 +122,7 @@ def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -> str:
         if len(existing_row) == 1:
             return str(existing_row["short"].iloc[0])
         elif len(existing_row) > 1:
-            raise ValueError("Oops")
+            raise ValueError(f"Duplicate rows in metadata file: row = {filepath}")
         short = len(df.index) + 1
         short = os.path.join(
             os.path.dirname(filepath),

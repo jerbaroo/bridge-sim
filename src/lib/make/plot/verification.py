@@ -136,6 +136,7 @@ def per_sensor_plots(
     amax *= 1.1
 
     # Calculate displacement with OpenSees via direct simulation.
+    print(f"Parallel {c.parallel}")
     os_strain = responses_to_vehicles_d(
         c=c,
         mv_vehicles=[truck1],

@@ -1,11 +1,11 @@
 from bridge_sim.model import Config, PierSettlement, ResponseType
 from lib.fem.params import SimParams
-from lib.fem.responses.matrix import ExptResponses, load_expt_responses
+from lib.fem.responses.many import ManyResponses, load_expt_responses
 from lib.fem.run import FEMRunner
 
 
-class DCExpt(ExptResponses):
-    """Responses of one sensor type for displacement control simulations."""
+class PSResponses(ManyResponses):
+    """Responses of one sensor type for pier settlement simulations."""
 
     @staticmethod
     def load(
@@ -35,22 +35,4 @@ class DCExpt(ExptResponses):
             c=c,
             expt_params=expt_params,
             response_type=response_type,
-            sim_runner=fem_runner,
         )
-
-        # def load_func(expt_params):
-        #     return DCExpt(
-        #         c=c,
-        #         response_type=response_type,
-        #         expt_params=expt_params,
-        #         fem_runner=fem_runner,
-        #         save_all=save_all,
-        #     )
-        # return ExptResponses.load(
-        #     c=c,
-        #     id_str=id_str,
-        #     expt_params=_expt_params,
-        #     load_func=load_func,
-        #     fem_runner=fem_runner,
-        #     save_all=save_all,
-        # )

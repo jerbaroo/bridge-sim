@@ -40,7 +40,12 @@ class SimParams:
         self.clean_build = clean_build
         self._assert()
 
-    def build_ctx(self, bridge: Bridge) -> BuildContext:
+    def build_ctx(self) -> BuildContext:
+        """Build context from these simulation parameters.
+
+        The build context only requires information on geometry.
+
+        """
         return BuildContext(
             add_loads=[pload.point() for pload in self.ploads],
             refinement_radii=self.refinement_radii,
