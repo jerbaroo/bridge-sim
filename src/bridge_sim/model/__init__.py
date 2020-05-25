@@ -1056,7 +1056,6 @@ class Vehicle:
             delta_xs = np.array(self.axle_distances)
             if bridge.lanes[self.lane].ltr:
                 delta_xs *= -1
-                delta_xs = reversed(delta_xs)
             # Add the distance for each axle, after the front axle.
             for delta_x in delta_xs:
                 xs.append(xs[-1] + delta_x)

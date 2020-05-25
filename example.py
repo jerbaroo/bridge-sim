@@ -3,7 +3,7 @@
 # import matplotlib.pyplot as plt
 # from bridge_sim import bridges, configs, fem, model, plot
 
-# config = configs.opensees_default(bridges.narrow_bridge)
+# config = configs.opensees_default(bridges.bridge_narrow)
 # point_loads = [model.PointLoad(x=5, z=0, load=100)]
 # responses = fem.responses(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
@@ -13,16 +13,16 @@
 
 # Example 2.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot, vehicles
+import matplotlib.pyplot as plt
+from bridge_sim import bridges, configs, fem, model, plot, vehicles
 
-# config = configs.opensees_default(bridges.narrow_bridge, shorten_paths=True)
-# point_loads = vehicles.wagen1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-# responses = fem.responses(config, model.RT.YTrans, point_loads)
-# plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config, piers=True)
-# plt.tight_layout()
-# plt.show()
+config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
+point_loads = vehicles.truck1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+responses = fem.responses(config, model.RT.YTrans, point_loads)
+plot.contour_responses(config, responses, point_loads)
+plot.top_view_bridge(config, piers=True)
+plt.tight_layout()
+plt.show()
 
 # Example 3.
 
@@ -113,25 +113,25 @@
 
 # Example 6.
 
-import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot
-from bridge_sim.model import Vehicle
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, fem, model, plot
+# from bridge_sim.model import Vehicle
 
-new_vehicle = Vehicle(
-    # Load intensity of each axle.
-    kn=[5000, 4000, 4000, 5000, 7000],
-    # Distance between each pair of axles.
-    axle_distances=[2, 2, 2, 1],
-    # Width of each axle, distance between point loads.
-    axle_width=2.5,
-    # Speed of the vehicles.
-    kmph=20,
-)
+# new_vehicle = Vehicle(
+#     # Load intensity of each axle.
+#     kn=[5000, 4000, 4000, 5000, 7000],
+#     # Distance between each pair of axles.
+#     axle_distances=[2, 2, 2, 1],
+#     # Width of each axle, distance between point loads.
+#     axle_width=2.5,
+#     # Speed of the vehicles.
+#     kmph=20,
+# )
 
-config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTrans, point_loads)
-plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
-plt.tight_layout()
-plt.show()
+# config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
+# point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+# responses = fem.responses(config, model.RT.YTrans, point_loads)
+# plot.contour_responses(config, responses, point_loads)
+# plot.top_view_bridge(config, piers=True)
+# plt.tight_layout()
+# plt.show()
