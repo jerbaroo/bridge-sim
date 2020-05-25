@@ -154,6 +154,8 @@ def convert_responses_3d(
         sim_params = expt_params[sim_ind]
         nodes = det_nodes(sim_params.bridge_nodes)
         elements = det_shells(sim_params.bridge_shells)
+        del sim_params.bridge_nodes
+        del sim_params.bridge_shells
         # Parse x, y, and z translation fem if necessary.
         for response_type in [
             ResponseType.XTrans,

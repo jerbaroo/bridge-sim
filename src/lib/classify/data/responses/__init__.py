@@ -10,9 +10,9 @@ from bridge_sim.model import Point, Config, PointLoad, Vehicle, ResponseType
 from bridge_sim.scenarios import DamageScenario
 from lib.classify.scenario.bridge import HealthyDamage, PierDispDamage
 from lib.fem.params import SimParams
-from lib.fem.responses.matrix import load_expt_responses
-from lib.fem.responses.matrix.dc import DCExpt
-from lib.fem.responses.matrix.il import ILExpt
+from lib.fem.responses.many import load_expt_responses
+from lib.fem.responses.many.ps import PSResponses
+from lib.fem.responses.many.ul import ULResponses
 from lib.fem.run import FEMRunner
 from lib.fem.run.opensees import OSRunner
 from bridge_sim.util import flatten, print_i, print_w
@@ -48,7 +48,7 @@ def responses_to_traffic_array(
 
     """
     use_c = damage_scenario.use(c)[0]
-    unit_load_matrix = ILExpt.load_ulm(
+    unit_load_matrix = ULResponses.load_ulm(
         c=use_c,
         response_type=response_type,
         points=points,
@@ -63,7 +63,7 @@ def responses_to_traffic_array(
     assert len(pd_responses) == len(points)
     if isinstance(damage_scenario, PierDispDamage):
         pd_expt = list(
-            DCExpt.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
+            PSResponses.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
         )
         for point_i, point in enumerate(points):
             for pier_displacement in damage_scenario.pier_disps:

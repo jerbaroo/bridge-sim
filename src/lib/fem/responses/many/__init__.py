@@ -1,4 +1,5 @@
 """Responses of one type for a number of related simulations."""
+
 import itertools
 from collections import deque
 from copy import deepcopy
@@ -13,7 +14,7 @@ from lib.fem.responses import SimResponses, load_fem_responses
 from lib.fem.run import FEMRunner
 
 
-class ExptResponses:
+class ManyResponses:
     """Position indexed responses (one response type) for multiple simulations."""
 
     def __init__(
@@ -120,9 +121,11 @@ def load_expt_responses(
             index=(i + 1, len(expt_params)),
         )
 
-    # First run the simulations (if necessary), in parallel if requested.
+    # First run the simulations (if necessary), in parallel if requested. To
+    # free resources as quickly as possible only 1 task is run per process.
     if c.parallel > 1:
-        with Pool(processes=c.parallel) as pool:
+        print(f"Running in parallel")
+        with Pool(processes=c.parallel, maxtasksperchild=1) as pool:
             pool.map(process, indices_and_params)
     else:
         deque(map(process, indices_and_params), maxlen=0)

@@ -6,8 +6,8 @@ from lib.classify.scenario.bridge import (
     transverse_crack,
     healthy_damage_w_transverse_crack_nodes,
 )
-from lib.fem.responses.matrix.dc import DCExpt
-from lib.fem.responses.matrix.il import ILExpt
+from lib.fem.responses.many.ps import PSResponses
+from lib.fem.responses.many.ul import ULResponses
 from lib.fem.run.opensees import OSRunner
 
 
@@ -31,11 +31,11 @@ def run_uls(
     response_type = ResponseType.YTranslation
     if piers:
         # Pier settlement.
-        list(DCExpt.load(c=c, response_type=response_type, fem_runner=OSRunner(c)))
+        list(PSResponses.load(c=c, response_type=response_type, fem_runner=OSRunner(c)))
     if healthy:
         c = healthy_damage_w_transverse_crack_nodes(crack_f=crack_f).use(c)[0]
         # Unit load simulations (healthy bridge).
-        ILExpt.load_wheel_tracks(
+        ULResponses.load_wheel_tracks(
             c=c,
             response_type=response_type,
             sim_runner=OSRunner(c),
@@ -45,7 +45,7 @@ def run_uls(
     elif cracked:
         # Unit load simulations (cracked bridge).
         c = crack_f().use(c)[0]
-        ILExpt.load_wheel_tracks(
+        ULResponses.load_wheel_tracks(
             c=c,
             response_type=response_type,
             sim_runner=OSRunner(c),
@@ -64,11 +64,11 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
     print_i(f"Wheel (x, z) = ({wheel_x}, {wheel_z})")
     point = Point(x=wheel_x, y=0, z=wheel_z)
     if healthy:
-        ILExpt.load_ulm(
+        ULResponses.load_ulm(
             c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
         )
     if cracked:
         c = transverse_crack().use(c)[0]
-        ILExpt.load_ulm(
+        ULResponses.load_ulm(
             c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
         )

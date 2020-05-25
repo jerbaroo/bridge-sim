@@ -8,7 +8,8 @@ import numpy as np
 
 from bridge_sim.model import Config, Point, PointLoad, ResponseType
 from lib.fem.params import SimParams
-from lib.fem.responses.matrix import ExptResponses, load_expt_responses
+from lib.fem.responses import Responses
+from lib.fem.responses.many import ManyResponses, load_expt_responses
 from lib.fem.run import FEMRunner
 from bridge_sim.util import log, print_d, print_i, round_m, shorten_path
 
@@ -16,7 +17,7 @@ from bridge_sim.util import log, print_d, print_i, round_m, shorten_path
 D: bool = False
 
 
-class ILExpt(ExptResponses):
+class ULResponses(ManyResponses):
     """Responses of one sensor type for influence line calculations.
 
     Each simulation is for a different loading position in the longitudinal
@@ -84,13 +85,13 @@ class ILExpt(ExptResponses):
         filepath = c.get_data_path(
             "ulms",
             (
-                ILExpt.id_str(
+                    ULResponses.id_str(
                     c=c,
                     response_type=response_type,
                     sim_runner=sim_runner,
                     wheel_zs=wheel_zs,
                 )
-                + str([str(point) for point in points])
+                    + str([str(point) for point in points])
             )
             + ".ulm",
         )
@@ -102,7 +103,7 @@ class ILExpt(ExptResponses):
 
         def ulm_partial(wheel_z):
             """Slice of unit load matrix for one wheel track."""
-            wheel_track = ILExpt.load_wheel_track(
+            wheel_track = ULResponses.load_wheel_track(
                 c=c,
                 response_type=response_type,
                 fem_runner=sim_runner,
@@ -163,7 +164,7 @@ class ILExpt(ExptResponses):
             left_only: bool = False,
             right_only: bool = False,
         ):
-            results = ILExpt.load_wheel_track(
+            results = ULResponses.load_wheel_track(
                 c=deepcopy(c),
                 response_type=response_type,
                 fem_runner=deepcopy(sim_runner),
@@ -225,7 +226,7 @@ class ILExpt(ExptResponses):
         indices: Optional[List[int]] = None,
         left_only: bool = False,
         right_only: bool = False,
-    ) -> "ILExpt":
+    ) -> List[Responses]:
         """Load a wheel track from disk, running simulations if necessary.
 
         NOTE: The result is a generator, not a list.

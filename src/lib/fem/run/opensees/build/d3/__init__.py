@@ -498,30 +498,19 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
     for sim_params in expt_params:
 
         # Setup the 'BuildContext' for this simulation.
-        sim_ctx = sim_params.build_ctx(c.bridge)
-        sim_params.ctx = sim_ctx
-        for load in sim_params.ploads:
-            print(f"Load in build_model_3d = {load.point()}")
-            sim_ctx.add_loads.append(load.point())
-        if len(sim_ctx.refinement_radii) == 0:
-            print_i("Not refining loads")
-        else:
-            print_i("Refining {len(sim_ctx.add_loads)} loads")
-            print_i("Refining at radii {sim_ctx.refinement_radii}")
-
-        # Attach deck and pier nodes and elements to the SimParams.
+        sim_ctx = sim_params.build_ctx()
+        # Determine nodes and shells.
         bridge_shells, bridge_nodes = get_bridge_shells_and_nodes(
             bridge=c.bridge, ctx=sim_ctx
         )
         deck_shells, pier_shells = bridge_shells
         deck_shell_nodes, pier_nodes = bridge_nodes
         deck_nodes = to_deck_nodes(deck_shell_nodes)
+        # Attaching nodes and shells to the 'SimParams'. This allows the convert
+        # process to build a deterministic list of nodes and shells. They should
+        # be deleted again at that point.
         sim_params.bridge_shells = bridge_shells
-        sim_params.deck_shells = deck_shells
-        sim_params.pier_shells = pier_shells
         sim_params.bridge_nodes = bridge_nodes
-        sim_params.deck_nodes = deck_nodes
-        sim_params.pier_nodes = pier_nodes
 
         # Build the 3D model file by replacements in the template model file.
         out_tcl = (

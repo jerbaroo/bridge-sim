@@ -1,4 +1,4 @@
-"""Responses to a load/vehicles across a bridge."""
+"""Responses to a loads on a bridge."""
 from __future__ import annotations
 
 import os
@@ -47,13 +47,12 @@ def load_fem_responses(
     memory error when running many simulations.
 
     Args:
-        c: Config, global configuration object.
-        sim_params: SimParams, simulation parameters. Response types are
-            overridden, set to all supported response types.
-        response_type: ResponseType, fem to load from disk and return.
-        sim_runner: FEMRunner, FE program to run the simulation with.
-        run: bool, run the simulation even if results are already saved.
-        index: Optional[int], simulation progress (n/m) printed if given.
+        c: simulation configuration object.
+        sim_params: simulation parameters.
+        response_type: responses to load from disk and return.
+        run: run the simulation even if results are already saved.
+        run_only: don't bother returning results
+        index: simulation progress (n/m) printed if given.
 
     NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
     'fem' module of this package should be separate from that abstraction.
@@ -76,14 +75,6 @@ def load_fem_responses(
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         c.sim_runner.run([sim_params])
-        if sim_params.clean_build:
-            print_i("Cleaning SimParams of build artefacts")
-            del sim_params.bridge_shells
-            del sim_params.deck_shells
-            del sim_params.pier_shells
-            del sim_params.bridge_nodes
-            del sim_params.deck_nodes
-            del sim_params.pier_nodes
     else:
         print_prog(f"Not running simulation")
     # If only running was requested then we are done.
@@ -94,6 +85,7 @@ def load_fem_responses(
     try:
         with open(path, "rb") as f:
             responses = dill.load(f)
+    # Try again on Exception.
     except Exception as e:
         print_i(f"\n{str(e)}\nremoving and re-running sim. {index} at {path}")
         os.remove(path)
