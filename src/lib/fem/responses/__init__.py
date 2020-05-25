@@ -69,7 +69,7 @@ def load_fem_responses(
     path = _responses_path(
         sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
     )
-    print_i(f"Loading fem at {path}")
+    print_i(f"Loading responses from: {path}")
 
     # Run the FEM simulation, and/or clean build artefacts, if requested.
     if run or not os.path.exists(path):

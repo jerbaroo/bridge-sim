@@ -20,6 +20,7 @@ build/
 src/build/
 src/dist/
 docker.png
+lisa-results/
 
 # Diana
 diana*.out

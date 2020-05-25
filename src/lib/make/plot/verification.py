@@ -24,7 +24,7 @@ from lib.fem.build import det_nodes, det_shells
 from lib.fem.params import SimParams
 from lib.fem.responses import load_fem_responses
 from lib.fem.run.opensees import OSRunner
-from lib.plot import plt
+from lib.plot import legend_marker_size, plt
 from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
 from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
@@ -74,7 +74,7 @@ def per_sensor_plots(
 ):
     """Compare the bridge 705 measurement campaign to Diana and OpenSees."""
     plt.portrait()
-    size = 30  # Size of scatter plot points.
+    size = 80  # Size of scatter plot points.
     lw = 4  # Line width of plots.
 
     ##########
@@ -176,7 +176,7 @@ def per_sensor_plots(
             s=size,
             label="Measurement",
             zorder=3,
-            color="tab:green",
+            color="tab:red",
         )
 
         plt.scatter(
@@ -186,14 +186,8 @@ def per_sensor_plots(
             alpha=0,
             zorder=4,
         )
-
-        plt.legend()
-        plt.title(
-            f"Strain at sensor {sensor_label} due to"
-            f"\nTruck 1 moving across bridge 705"
-        )
-        plt.xlabel("X position of Truck 1's front axle (m)")
-        plt.ylabel("Strain")
+        legend_marker_size(plt.legend(), 80)
+        plt.ylabel("Strain XXB")
         plt.ylim((amin, amax))
 
     # Create a subplot for each strain sensor.
@@ -202,7 +196,9 @@ def per_sensor_plots(
         plt.subplot(rows, 1, subplot_i + 1)
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
-            plt.tight_layout()
+            plt.xlabel("X position of Truck 1's front axle (m)")
+            plt.suptitle("Strain XXB from Truck 1 on bridge 705")
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
             plt.savefig(
                 c.get_image_path(
                     "validation/sensors",
@@ -213,6 +209,7 @@ def per_sensor_plots(
             subplot_i = 0
             plot_i += 1
         else:
+            plt.tick_params(axis="x", bottom=False, labelbottom=False)
             subplot_i += 1
 
     # Create any plots for individual strain sensors.
@@ -298,7 +295,7 @@ def per_sensor_plots(
             s=size,
             label="Measurement",
             zorder=3,
-            color="tab:green",
+            color="tab:red",
         )
 
         plt.scatter(
@@ -308,12 +305,7 @@ def per_sensor_plots(
             alpha=0,
         )
 
-        plt.legend()
-        plt.title(
-            f"{ResponseType.YTrans.name()} at sensor {sensor_label} due to"
-            f"\nTruck 1 moving across bridge 705"
-        )
-        plt.xlabel("X position of Truck 1's front axle (m)")
+        legend_marker_size(plt.legend(), 80)
         plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
         plt.ylim((amin, amax))
 
@@ -323,12 +315,15 @@ def per_sensor_plots(
         plt.subplot(rows, 1, subplot_i + 1)
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
-            plt.tight_layout()
+            plt.xlabel("X position of Truck 1's front axle (m)")
+            plt.suptitle("Y translation from Truck 1 on bridge 705")
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
             plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}.pdf"))
             plt.close()
             subplot_i = 0
             plot_i += 1
         else:
+            plt.tick_params(axis="x", bottom=False, labelbottom=False)
             subplot_i += 1
 
     # Create any plots for individual sensors.
