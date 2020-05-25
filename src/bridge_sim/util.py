@@ -110,10 +110,12 @@ def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -> str:
 
     # Acquire an exclusive file lock.
     with portalocker.Lock(lock_path, flags=portalocker.LOCK_EX) as f:
+
         def flush():
             """Ensure all results are written back before exiting 'with'."""
             f.flush()
             os.fsync(f.fileno())
+
         if os.path.exists(df_path):
             df = pd.read_csv(df_path, index_col=0)
         else:
