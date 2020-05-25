@@ -5,12 +5,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from bridge_sim.model import (
-    Lane,
-    Material,
-    MaterialSupport,
-    Support,
-    Bridge)
+from bridge_sim.model import Lane, Material, MaterialSupport, Support, Bridge
 from bridge_sim.util import project_dir, round_m
 
 #########################

@@ -125,12 +125,10 @@ def responses_to_vehicles_d(
     if not isinstance(damage_scenario, Healthy):
         raise ValueError("Only HealthyDamage supported in direct simulation")
     if binned:
-        print("binned")
         loads = [
             [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
             for time in times
         ]
-        print(loads[4])
     else:
         print_w(f"Not using fractions of wheel track bins in simulation")
         loads = [

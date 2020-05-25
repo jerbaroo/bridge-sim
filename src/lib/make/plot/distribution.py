@@ -296,7 +296,7 @@ def deck_distribution_plots(c: Config):
 
     """
     bridge_scenarios = (
-            [Healthy()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
+        [Healthy()] + pier_disp_scenarios(c) + additional_pier_scenarios(c)
     )
     response_type = ResponseType.YTranslation
     assert isinstance(bridge_scenarios[0], Healthy)

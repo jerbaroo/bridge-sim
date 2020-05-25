@@ -30,7 +30,7 @@ support for another finite element program other than OpenSees is possible.
 `bridge-sim` makes the process of generating time series data via simulation of
 concrete slab bridges much faster and easier than with OpenSees, OpenSees has no
 knowledge of concepts such as bridges, traffic or temperature. `bridge-sim`
-accomplishes this by providing a high-based API with classes such as `Bridge`,
+accomplishes this by providing a high-level API with classes such as `Bridge`,
 `Material` and `Vehicle`. Functionality includes generation of finite element
 models based on a `Bridge` specification including mesh generation, traffic flow
 generation, settlement of piers and simulation of temperature effect. More
@@ -59,7 +59,7 @@ load tests (a truck parked on the bridge) is shown in \autoref{fig:val}.
   simulations.
 - **Shrinkage**
 - **Graphics** Support for collecting and displaying simulation results
-  including generation of time series animation e.g. \autoref{fig:val}.
+  including generation of time series animation e.g. \autoref{fig:time}.
 
 ![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](../data/images/animation.png) 
 

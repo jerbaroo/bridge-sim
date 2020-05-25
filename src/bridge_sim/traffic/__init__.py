@@ -55,8 +55,8 @@ class TrafficScenario:
         the point where the vehicles will enter on that lane.
 
         Args:
-            bridge: Bridge, the bridge the vehicles drive on.
-            lane: int, index of the lane on the bridge the vehicles drive on.
+            bridge: the bridge the vehicles drive on.
+            lane: index of the lane on the bridge the vehicles drive on.
 
         """
         dist = 0  # Where the next vehicles is at time t = 0.

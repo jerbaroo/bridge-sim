@@ -285,9 +285,7 @@ def thermal_damage(
     axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6
 ):
     """Like ThermalDamage, but also modifies the bridge's MSL parameter."""
-    td = Thermal(
-        axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp
-    )
+    td = Thermal(axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp)
     og_mod_bridge = td.mod_bridge
 
     def mod_bridge(b: Bridge):

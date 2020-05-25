@@ -1,4 +1,5 @@
 """Provided instances of the Bridge class."""
+
 from bridge_sim.bridges.bridge_705 import bridge_705
 from bridge_sim.model import Support, Lane, MaterialDeck, MaterialSupport, Bridge
 
