@@ -331,12 +331,12 @@ class SimParams:
     def __init__(
         self,
         ploads: List[PointLoad] = [],
-        displacement_ctrl: Optional[PierSettlement] = None,
+        pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
     ):
         self.ploads = ploads
-        self.displacement_ctrl = displacement_ctrl
+        self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
 
@@ -355,17 +355,18 @@ class SimParams:
         currently assumed that a simulation saves all output files.
 
         """
-        if self.displacement_ctrl is not None:
-            load_str = self.displacement_ctrl.id_str()
-        elif self.axial_delta_temp is not None:
-            load_str = f"temp-axial-{self.axial_delta_temp}"
-        elif self.moment_delta_temp is not None:
-            load_str = f"temp-moment-{self.moment_delta_temp}"
-        elif len(self.ploads) > 0:
-            load_str = ",".join(pl.id_str() for pl in self.ploads)
-            load_str = f"[{load_str}]"
-        else:
-            load_str = "no-loading"
+        load_str = ""
+        for pier_settlement in self.pier_settlement:
+            load_str += pier_settlement.id_str()
+        if self.axial_delta_temp is not None:
+            load_str += f"temp-axial-{self.axial_delta_temp}"
+        if self.moment_delta_temp is not None:
+            load_str += f"temp-moment-{self.moment_delta_temp}"
+        if len(self.ploads) > 0:
+            pl_str = ",".join(pl.id_str() for pl in self.ploads)
+            load_str += f"[{pl_str}]"
+        if len(self.pier_settlement) > 0:
+            load_str += ",".join(ps.id_str() for ps in self.pier_settlement)
         return safe_str(load_str)
 
 

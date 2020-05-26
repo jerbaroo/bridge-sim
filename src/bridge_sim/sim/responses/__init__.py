@@ -155,11 +155,11 @@ def responses_to_vehicles_d(
     )
 
 
-def responses(
+def load(
     config: LibConfig,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
-    pier_settlement: Optional[PierSettlement] = None,
+    pier_settlement: List[PierSettlement] = [],
 ):
     """Responses from a single linear simulation.
 
@@ -173,7 +173,7 @@ def responses(
     """
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, displacement_ctrl=pier_settlement),
+        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
         response_type=response_type,
     )
 

@@ -1,49 +1,49 @@
 # Example 1.
 
 # import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
-
+# from bridge_sim import bridges, configs, model, plot, sim
+#
 # config = configs.opensees_default(bridges.bridge_narrow)
 # point_loads = [model.PointLoad(x=5, z=0, load=100)]
-# responses = fem.responses(config, model.RT.YTrans, point_loads)
+# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
 # plot.top_view_bridge(config, piers=True)
 # plt.tight_layout()
 # plt.show()
 
 # Example 2.
-import bridge_sim.sim.responses
-import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, model, plot, sim, vehicles
 
-config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-point_loads = vehicles.truck1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = bridge_sim.sim.responses.responses(config, model.RT.YTrans, point_loads)
-plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
-plt.tight_layout()
-plt.show()
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, model, plot, sim, vehicles
+#
+# config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
+# point_loads = vehicles.truck1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
+# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
+# plot.contour_responses(config, responses, point_loads)
+# plot.top_view_bridge(config, piers=True)
+# plt.tight_layout()
+# plt.show()
 
 # Example 3.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
+import matplotlib.pyplot as plt
+from bridge_sim import bridges, configs, sim, model, plot
 
-# config = configs.opensees_default(bridges.bridge_wide)
-# responses = fem.responses(
-#     config,
-#     model.RT.YTrans,
-#     pier_settlement=model.PierSettlement(0, 1.2)
-# )
-# plot.contour_responses(config, responses)
-# plot.top_view_bridge(config, piers=True, lanes=True)
-# plt.tight_layout()
-# plt.show()
+config = configs.opensees_default(bridges.bridge_wide)
+responses = sim.responses.load(
+    config,
+    model.RT.YTrans,
+    pier_settlement=[model.PierSettlement(0, 1.2), model.PierSettlement(1, 0.5)]
+)
+plot.contour_responses(config, responses)
+plot.top_view_bridge(config, piers=True, lanes=True)
+plt.tight_layout()
+plt.show()
 
 # Example 4.
 
 # import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
+# from bridge_sim import bridges, configs, model, plot, sim
 #
 # config = configs.opensees_default(bridges.bridge_wide)
 # plt.figure(figsize=(16, 10))
@@ -51,10 +51,10 @@ plt.show()
 #         model.RT.YTrans, model.RT.ZTrans,
 #         model.RT.StrainXXB, model.RT.StrainZZB,
 #     ]):
-#     responses = fem.responses(
+#     responses = sim.responses.load(
 #         config,
 #         response_type,
-#         pier_settlement=model.PierSettlement(0, 1)
+#         pier_settlement=[model.PierSettlement(0, 1)],
 #     ).resize()
 #     plt.subplot(2, 2, subplot + 1)
 #     plot.contour_responses(config, responses)
@@ -67,7 +67,7 @@ plt.show()
 # Example 5.
 
 # import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
+# from bridge_sim import bridges, configs, model, plot, sim
 # from bridge_sim.bridges import Bridge, Lane, MaterialDeck, MaterialSupport, Support
 
 
@@ -105,7 +105,7 @@ plt.show()
 
 # config = configs.opensees_default(new_bridge)
 # point_loads = [model.PointLoad(x=18, z=0, load=100)]
-# responses = fem.responses(config, model.RT.YTrans, point_loads)
+# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
 # plot.top_view_bridge(config, piers=True)
 # plt.tight_layout()
@@ -114,7 +114,7 @@ plt.show()
 # Example 6.
 
 # import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, fem, model, plot
+# from bridge_sim import bridges, configs, model, plot, sim
 # from bridge_sim.model import Vehicle
 
 # new_vehicle = Vehicle(
@@ -130,7 +130,7 @@ plt.show()
 
 # config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 # point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-# responses = fem.responses(config, model.RT.YTrans, point_loads)
+# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
 # plot.top_view_bridge(config, piers=True)
 # plt.tight_layout()
