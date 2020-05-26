@@ -1,7 +1,8 @@
+"""Provided instances of the Vehicle class."""
+
 from bridge_sim.model import Vehicle
 from bridge_sim.util import kg_to_kn
 
-# Truck 1 from the experimental campaign.
 truck1 = Vehicle(
     kn=[
         (5050 * kg_to_kn, 5300 * kg_to_kn),
@@ -14,6 +15,8 @@ truck1 = Vehicle(
     # In dynamic test 'D1a' the speed was 20 kmph.
     kmph=20,
 )
+"""Truck 1 from the experimental campaign."""
+
 assert truck1.lane == 0
 assert truck1.init_x_frac == 0
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.scenarios API documentation</title>
-<meta name="description" content="Bridge scenarios, damage, temperature etc." />
+<meta name="description" content="DEPRECATED. Will be removed in a future version." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,18 +20,20 @@
 <h1 class="title">Module <code>bridge_sim.scenarios</code></h1>
 </header>
 <section id="section-intro">
-<p>Bridge scenarios, damage, temperature etc.</p>
+<p>DEPRECATED. Will be removed in a future version.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Bridge scenarios, damage, temperature etc.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;DEPRECATED. Will be removed in a future version.&#34;&#34;&#34;
 
-from copy import copy, deepcopy
-from typing import Callable, Tuple
+from copy import deepcopy, copy
+from typing import NewType, Tuple, Callable, List, Optional
 
-from bridge_sim.model import Config, Bridge
-from lib.fem.params import SimParams
+import numpy as np
+from bridge_sim.model import Bridge, Config, Point, PierSettlement
+from bridge_sim.sim.model import SimParams, SimResponses
+from bridge_sim.util import round_m, safe_str
 
 
 class Scenario:
@@ -66,7 +68,280 @@ class Scenario:
         config_copy = copy(c)
         config_copy.bridge = self.mod_bridge(deepcopy(config_copy.bridge))
         sim_params_copy = self.mod_sim_params(deepcopy(sim_params))
-        return config_copy, sim_params_copy</code></pre>
+        return config_copy, sim_params_copy
+
+
+class HealthyScenario(Scenario):
+    def __init__(self):
+        super().__init__(name=&#34;normal&#34;)
+
+
+CrackArea = NewType(&#34;CrackArea&#34;, Tuple[float, float, float, float])
+
+
+class CrackedScenario(Scenario):
+    &#34;&#34;&#34;A cracked bridge, defined by an area of a bridge&#39;s deck to crack.&#34;&#34;&#34;
+
+    def __init__(
+        self, name: str, crack_area: Callable[[Bridge], CrackArea],
+    ):
+        def mod_bridge(bridge: Bridge):
+            bridge = bridge
+            bridge.data_id = self.name
+            self._crack_deck(bridge)
+            c_x_start, c_z_start, c_x_end, c_z_end = list(
+                map(round_m, self.crack_area(bridge))
+            )
+            # Three meters below.
+            lowest = max(bridge.x_min, c_x_start - 3)
+            highest = min(bridge.x_max, c_x_end + 3)
+            # Half a meter below.
+            lower = max(bridge.x_min, c_x_start - 0.5)
+            # 10 cm below.
+            lowerer = max(bridge.x_min, c_x_start - 0.1)
+            # print()
+            # print(f&#34;lowest, highest, lower, lowerer, c_x_start, c_x_end = {lowest, highest, lower, lowerer, c_x_start, c_x_end}&#34;)
+            bridge.additional_xs = sorted(
+                set(
+                    map(
+                        round_m,
+                        np.concatenate(
+                            (
+                                np.arange(lowest, c_x_start + 0.01, 0.1),
+                                np.arange(c_x_end, highest + 0.01, 0.1),
+                                # np.arange(lowest, lower + 0.01, 0.1),
+                                # np.arange(lower, lowerer + 0.01, 0.05),
+                                # np.arange(lowerer, c_x_start + 0.01, 0.01),
+                            )
+                        ),
+                    )
+                )
+            )
+            # print(&#34;bridge.additional_xs&#34;)
+            # print(bridge.additional_xs)
+            # exit()
+            # bridge.additional_xs = sorted(map(round_m, np.arange(lowest, highest, 0.05)))
+            # print(bridge.additional_xs)
+            # print(len(bridge.additional_xs))
+            return bridge
+
+        super().__init__(name=name, mod_bridge=mod_bridge)
+        self.crack_area = crack_area
+
+    def _crack_deck(self, bridge: Bridge):
+        &#34;&#34;&#34;Adds cracked sections to the given bridge&#39;s deck.&#34;&#34;&#34;
+        c_x_start, c_z_start, c_x_end, c_z_end = list(
+            map(round_m, self.crack_area(bridge))
+        )
+        # print(f&#34;crack x: (start, end) = ({c_x_start}, {c_x_end})&#34;)
+        # print(f&#34;crack z: (start, end) = ({c_z_start}, {c_z_end})&#34;)
+
+        if callable(bridge.sections):
+            raise NotImplementedError()
+
+        # Find where the cracked area and current sections overlap.
+        overlaps: List[Tuple[Section3D, float, float, float, float]] = []
+        for section in bridge.sections:
+            s_x_start = round_m(bridge.x(section.start_x_frac))
+            s_z_start = round_m(bridge.z(section.start_z_frac))
+            s_x_end = round_m(bridge.x(section.end_x_frac))
+            s_z_end = round_m(bridge.z(section.end_z_frac))
+
+            # print()
+            # print(f&#34;section x: (start, end) = ({s_x_start}, {s_x_end})&#34;)
+            # print(f&#34;section z: (start, end) = ({s_z_start}, {s_z_end})&#34;)
+
+            overlap_x_start = max(c_x_start, s_x_start)
+            overlap_z_start = max(c_z_start, s_z_start)
+            overlap_x_end = min(c_x_end, s_x_end)
+            overlap_z_end = min(c_z_end, s_z_end)
+
+            # print(f&#34;overlap x (start, end) = ({overlap_x_start}, {overlap_x_end})&#34;)
+            # print(f&#34;overlap z (start, end) = ({overlap_z_start}, {overlap_z_end})&#34;)
+
+            overlap_x = overlap_x_end - overlap_x_start
+            overlap_z = overlap_z_end - overlap_z_start
+
+            # print(f&#34;overlap x = {overlap_x}&#34;)
+            # print(f&#34;overlap z = {overlap_z}&#34;)
+
+            if overlap_x &gt; 0 and overlap_z &gt; 0:
+                overlaps.append(
+                    (
+                        section,
+                        overlap_x_start,
+                        overlap_z_start,
+                        overlap_x_end,
+                        overlap_z_end,
+                    )
+                )
+
+        # Create new cracked sections for each of these overlaps.
+        cracked_sections, max_id = [], 1000000
+        for i, (section, x_start, z_start, x_end, z_end) in enumerate(overlaps):
+            # print(f&#34;x (start, end) = ({x_start}, {x_end})&#34;)
+            # print(f&#34;z (start, end) = ({z_start}, {z_end})&#34;)
+            cracked_section = deepcopy(section)
+            cracked_section.id = max_id + i + 1
+            y_x = cracked_section.youngs_x()
+            cracked_section.youngs_x = lambda: 0.5 * y_x
+            cracked_section.start_x_frac = bridge.x_frac(x_start)
+            cracked_section.start_z_frac = bridge.z_frac(z_start)
+            cracked_section.end_x_frac = bridge.x_frac(x_end)
+            cracked_section.end_z_frac = bridge.z_frac(z_end)
+            cracked_sections.append(cracked_section)
+
+        bridge.sections = cracked_sections + bridge.sections
+
+    def without(self, bridge: Bridge, thresh: float = 0):
+        &#34;&#34;&#34;Return a function to reject non crack area points.&#34;&#34;&#34;
+        c_x_start, c_z_start, c_x_end, c_z_end = list(
+            map(round_m, self.crack_area(bridge))
+        )
+        if thresh != 0:
+            c_x_start -= thresh
+            c_z_start -= thresh
+            c_x_end += thresh
+            c_z_end += thresh
+
+        def reject(point: Point) -&gt; Point:
+            if point.x &lt; c_x_start:
+                return True
+            if point.x &gt; c_x_end:
+                return True
+            if point.z &lt; c_z_start:
+                return True
+            if point.z &gt; c_z_end:
+                return True
+            return False
+
+        return reject
+
+
+def transverse_crack(
+    length: float = 0.5,
+    width: Optional[float] = None,
+    at_x: Optional[float] = None,
+    at_z: Optional[float] = None,
+) -&gt; CrackedScenario:
+    &#34;&#34;&#34;A bridge with a transverse crack.&#34;&#34;&#34;
+
+    def crack_area(bridge: Bridge) -&gt; CrackArea:
+        nonlocal width
+        nonlocal at_x
+        nonlocal at_z
+        if width is None:
+            width = bridge.width / 2
+        if at_x is None:
+            at_x = bridge.x_min + (bridge.length / 2)
+        if at_z is None:
+            at_z = bridge.z_min
+        return at_x, at_z, at_x + length, at_z + width
+
+    return CrackedScenario(
+        name=safe_str(f&#34;transverse-{length}-{width}-{at_x}-{at_z}&#34;),
+        crack_area=crack_area,
+    )
+
+
+class PierSettlementScenario(Scenario):
+    def __init__(self, pier_disps: [PierSettlement], name_prefix: str = &#34;&#34;):
+        if len(pier_disps) &lt; 1:
+            raise ValueError(&#34;At least 1 PierDisp required&#34;)
+        name = name_prefix + &#34;-&#34;.join(list(map(lambda pd: pd.id_str(), pier_disps)))
+        self.pier_disps = pier_disps
+
+        def mod_sim_params(sim_params: SimParams):
+            if len(self.pier_disps) &gt; 1:
+                raise ValueError(&#34;Cannot have SimParams with &gt; 1 pier settlement&#34;)
+            sim_params.displacement_ctrl = self.pier_disps[0]
+            return sim_params
+
+        super().__init__(name=name, mod_sim_params=mod_sim_params)
+
+
+class ThermalScenario(Scenario):
+    &#34;&#34;&#34;Thermal expansion, with axial and bending moment components.&#34;&#34;&#34;
+
+    def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
+
+        def mod_sim_params(sim_params: SimParams):
+            sim_params.axial_delta_temp = self.axial_delta_temp
+            sim_params.moment_delta_temp = self.moment_delta_temp
+            return sim_params
+
+        super().__init__(
+            name=f&#34;thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}&#34;,
+            mod_sim_params=mod_sim_params,
+        )
+
+    def to_strain(self, c: Config, sim_responses: SimResponses):
+        &#34;&#34;&#34;Convert fem, adding free and restrained strain.&#34;&#34;&#34;
+        if not sim_responses.response_type.is_strain():
+            raise ValueError(
+                f&#34;Can only convert Strain not {sim_responses.response_type}&#34;
+            )
+        if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
+            raise ValueError(&#34;Must be only axial or moment loading&#34;)
+        # Uniform temperature load.
+        if self.axial_delta_temp != 0:
+            sim_responses = sim_responses.map(
+                lambda r: (r * 1e-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
+            )
+        # Linear temperature load.
+        elif self.moment_delta_temp != 0:
+            sim_responses = sim_responses.map(
+                lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
+            )
+        else:
+            raise ValueError(&#34;Don&#39;t know how to convert to strain&#34;)
+        return sim_responses
+
+    def to_stress(self, c: Config, sim_responses: SimResponses):
+        sim_responses = self.to_strain(c=c, sim_responses=sim_responses)
+        return sim_responses.to_stress(c.bridge)
+
+
+def thermal_damage(
+    axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6
+):
+    &#34;&#34;&#34;Like ThermalDamage, but also modifies the bridge&#39;s MSL parameter.&#34;&#34;&#34;
+    td = ThermalScenario(
+        axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp
+    )
+    og_mod_bridge = td.mod_bridge
+
+    def mod_bridge(b: Bridge):
+        b = og_mod_bridge(b)
+        b.base_mesh_deck_max_x *= mod_msl
+        b.base_mesh_deck_max_z *= mod_msl
+        b.base_mesh_pier_max_long *= mod_msl
+        return b
+
+    td.mod_bridge = mod_bridge
+    return td
+
+
+def healthy_damage_w_crack_nodes(crack_f=transverse_crack):
+    &#34;&#34;&#34;Like &#39;HealthyDamage&#39; but with additional nodes around near a non-existant
+    crack zone. Such that both healthy and cracked bridges can have equal nodes.
+
+    &#34;&#34;&#34;
+
+    healthy_damage = HealthyScenario()
+    crack_damage = crack_f()
+
+    def mod_bridge(bridge: Bridge):
+        # A copy of the bridge is modified under the cracking scenario.
+        some_bridge = crack_damage.mod_bridge(deepcopy(bridge))
+        # And the additional nodes are copied into the original given bridge.
+        bridge.additional_xs = some_bridge.additional_xs
+        return bridge
+
+    healthy_damage.mod_bridge = mod_bridge
+    return healthy_damage</code></pre>
 </details>
 </section>
 <section>
@@ -74,13 +349,400 @@ class Scenario:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.scenarios.healthy_damage_w_crack_nodes"><code class="name flex">
+<span>def <span class="ident">healthy_damage_w_crack_nodes</span></span>(<span>crack_f=&lt;function transverse_crack&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Like 'HealthyDamage' but with additional nodes around near a non-existant
+crack zone. Such that both healthy and cracked bridges can have equal nodes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def healthy_damage_w_crack_nodes(crack_f=transverse_crack):
+    &#34;&#34;&#34;Like &#39;HealthyDamage&#39; but with additional nodes around near a non-existant
+    crack zone. Such that both healthy and cracked bridges can have equal nodes.
+
+    &#34;&#34;&#34;
+
+    healthy_damage = HealthyScenario()
+    crack_damage = crack_f()
+
+    def mod_bridge(bridge: Bridge):
+        # A copy of the bridge is modified under the cracking scenario.
+        some_bridge = crack_damage.mod_bridge(deepcopy(bridge))
+        # And the additional nodes are copied into the original given bridge.
+        bridge.additional_xs = some_bridge.additional_xs
+        return bridge
+
+    healthy_damage.mod_bridge = mod_bridge
+    return healthy_damage</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.scenarios.thermal_damage"><code class="name flex">
+<span>def <span class="ident">thermal_damage</span></span>(<span>axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Like ThermalDamage, but also modifies the bridge's MSL parameter.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def thermal_damage(
+    axial_delta_temp: float = 0, moment_delta_temp: float = 0, mod_msl: float = 0.6
+):
+    &#34;&#34;&#34;Like ThermalDamage, but also modifies the bridge&#39;s MSL parameter.&#34;&#34;&#34;
+    td = ThermalScenario(
+        axial_delta_temp=axial_delta_temp, moment_delta_temp=moment_delta_temp
+    )
+    og_mod_bridge = td.mod_bridge
+
+    def mod_bridge(b: Bridge):
+        b = og_mod_bridge(b)
+        b.base_mesh_deck_max_x *= mod_msl
+        b.base_mesh_deck_max_z *= mod_msl
+        b.base_mesh_pier_max_long *= mod_msl
+        return b
+
+    td.mod_bridge = mod_bridge
+    return td</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.scenarios.transverse_crack"><code class="name flex">
+<span>def <span class="ident">transverse_crack</span></span>(<span>length: float = 0.5, width: Union[float, NoneType] = None, at_x: Union[float, NoneType] = None, at_z: Union[float, NoneType] = None) -> <a title="bridge_sim.scenarios.CrackedScenario" href="#bridge_sim.scenarios.CrackedScenario">CrackedScenario</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A bridge with a transverse crack.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def transverse_crack(
+    length: float = 0.5,
+    width: Optional[float] = None,
+    at_x: Optional[float] = None,
+    at_z: Optional[float] = None,
+) -&gt; CrackedScenario:
+    &#34;&#34;&#34;A bridge with a transverse crack.&#34;&#34;&#34;
+
+    def crack_area(bridge: Bridge) -&gt; CrackArea:
+        nonlocal width
+        nonlocal at_x
+        nonlocal at_z
+        if width is None:
+            width = bridge.width / 2
+        if at_x is None:
+            at_x = bridge.x_min + (bridge.length / 2)
+        if at_z is None:
+            at_z = bridge.z_min
+        return at_x, at_z, at_x + length, at_z + width
+
+    return CrackedScenario(
+        name=safe_str(f&#34;transverse-{length}-{width}-{at_x}-{at_z}&#34;),
+        crack_area=crack_area,
+    )</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="bridge_sim.scenarios.CrackedScenario"><code class="flex name class">
+<span>class <span class="ident">CrackedScenario</span></span>
+<span>(</span><span>name: str, crack_area: Callable[[bridge_sim.model.Bridge], CrackArea])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A cracked bridge, defined by an area of a bridge's deck to crack.</p>
+<p>Base class for bridge scenarios.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>unique identifier for this scenario.</dd>
+<dt><strong><code>mod_bridge</code></strong></dt>
+<dd>function to modify a Bridge.</dd>
+<dt><strong><code>mod_sim_params</code></strong></dt>
+<dd>function to modify simulation parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CrackedScenario(Scenario):
+    &#34;&#34;&#34;A cracked bridge, defined by an area of a bridge&#39;s deck to crack.&#34;&#34;&#34;
+
+    def __init__(
+        self, name: str, crack_area: Callable[[Bridge], CrackArea],
+    ):
+        def mod_bridge(bridge: Bridge):
+            bridge = bridge
+            bridge.data_id = self.name
+            self._crack_deck(bridge)
+            c_x_start, c_z_start, c_x_end, c_z_end = list(
+                map(round_m, self.crack_area(bridge))
+            )
+            # Three meters below.
+            lowest = max(bridge.x_min, c_x_start - 3)
+            highest = min(bridge.x_max, c_x_end + 3)
+            # Half a meter below.
+            lower = max(bridge.x_min, c_x_start - 0.5)
+            # 10 cm below.
+            lowerer = max(bridge.x_min, c_x_start - 0.1)
+            # print()
+            # print(f&#34;lowest, highest, lower, lowerer, c_x_start, c_x_end = {lowest, highest, lower, lowerer, c_x_start, c_x_end}&#34;)
+            bridge.additional_xs = sorted(
+                set(
+                    map(
+                        round_m,
+                        np.concatenate(
+                            (
+                                np.arange(lowest, c_x_start + 0.01, 0.1),
+                                np.arange(c_x_end, highest + 0.01, 0.1),
+                                # np.arange(lowest, lower + 0.01, 0.1),
+                                # np.arange(lower, lowerer + 0.01, 0.05),
+                                # np.arange(lowerer, c_x_start + 0.01, 0.01),
+                            )
+                        ),
+                    )
+                )
+            )
+            # print(&#34;bridge.additional_xs&#34;)
+            # print(bridge.additional_xs)
+            # exit()
+            # bridge.additional_xs = sorted(map(round_m, np.arange(lowest, highest, 0.05)))
+            # print(bridge.additional_xs)
+            # print(len(bridge.additional_xs))
+            return bridge
+
+        super().__init__(name=name, mod_bridge=mod_bridge)
+        self.crack_area = crack_area
+
+    def _crack_deck(self, bridge: Bridge):
+        &#34;&#34;&#34;Adds cracked sections to the given bridge&#39;s deck.&#34;&#34;&#34;
+        c_x_start, c_z_start, c_x_end, c_z_end = list(
+            map(round_m, self.crack_area(bridge))
+        )
+        # print(f&#34;crack x: (start, end) = ({c_x_start}, {c_x_end})&#34;)
+        # print(f&#34;crack z: (start, end) = ({c_z_start}, {c_z_end})&#34;)
+
+        if callable(bridge.sections):
+            raise NotImplementedError()
+
+        # Find where the cracked area and current sections overlap.
+        overlaps: List[Tuple[Section3D, float, float, float, float]] = []
+        for section in bridge.sections:
+            s_x_start = round_m(bridge.x(section.start_x_frac))
+            s_z_start = round_m(bridge.z(section.start_z_frac))
+            s_x_end = round_m(bridge.x(section.end_x_frac))
+            s_z_end = round_m(bridge.z(section.end_z_frac))
+
+            # print()
+            # print(f&#34;section x: (start, end) = ({s_x_start}, {s_x_end})&#34;)
+            # print(f&#34;section z: (start, end) = ({s_z_start}, {s_z_end})&#34;)
+
+            overlap_x_start = max(c_x_start, s_x_start)
+            overlap_z_start = max(c_z_start, s_z_start)
+            overlap_x_end = min(c_x_end, s_x_end)
+            overlap_z_end = min(c_z_end, s_z_end)
+
+            # print(f&#34;overlap x (start, end) = ({overlap_x_start}, {overlap_x_end})&#34;)
+            # print(f&#34;overlap z (start, end) = ({overlap_z_start}, {overlap_z_end})&#34;)
+
+            overlap_x = overlap_x_end - overlap_x_start
+            overlap_z = overlap_z_end - overlap_z_start
+
+            # print(f&#34;overlap x = {overlap_x}&#34;)
+            # print(f&#34;overlap z = {overlap_z}&#34;)
+
+            if overlap_x &gt; 0 and overlap_z &gt; 0:
+                overlaps.append(
+                    (
+                        section,
+                        overlap_x_start,
+                        overlap_z_start,
+                        overlap_x_end,
+                        overlap_z_end,
+                    )
+                )
+
+        # Create new cracked sections for each of these overlaps.
+        cracked_sections, max_id = [], 1000000
+        for i, (section, x_start, z_start, x_end, z_end) in enumerate(overlaps):
+            # print(f&#34;x (start, end) = ({x_start}, {x_end})&#34;)
+            # print(f&#34;z (start, end) = ({z_start}, {z_end})&#34;)
+            cracked_section = deepcopy(section)
+            cracked_section.id = max_id + i + 1
+            y_x = cracked_section.youngs_x()
+            cracked_section.youngs_x = lambda: 0.5 * y_x
+            cracked_section.start_x_frac = bridge.x_frac(x_start)
+            cracked_section.start_z_frac = bridge.z_frac(z_start)
+            cracked_section.end_x_frac = bridge.x_frac(x_end)
+            cracked_section.end_z_frac = bridge.z_frac(z_end)
+            cracked_sections.append(cracked_section)
+
+        bridge.sections = cracked_sections + bridge.sections
+
+    def without(self, bridge: Bridge, thresh: float = 0):
+        &#34;&#34;&#34;Return a function to reject non crack area points.&#34;&#34;&#34;
+        c_x_start, c_z_start, c_x_end, c_z_end = list(
+            map(round_m, self.crack_area(bridge))
+        )
+        if thresh != 0:
+            c_x_start -= thresh
+            c_z_start -= thresh
+            c_x_end += thresh
+            c_z_end += thresh
+
+        def reject(point: Point) -&gt; Point:
+            if point.x &lt; c_x_start:
+                return True
+            if point.x &gt; c_x_end:
+                return True
+            if point.z &lt; c_z_start:
+                return True
+            if point.z &gt; c_z_end:
+                return True
+            return False
+
+        return reject</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.scenarios.CrackedScenario.without"><code class="name flex">
+<span>def <span class="ident">without</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, thresh: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a function to reject non crack area points.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def without(self, bridge: Bridge, thresh: float = 0):
+    &#34;&#34;&#34;Return a function to reject non crack area points.&#34;&#34;&#34;
+    c_x_start, c_z_start, c_x_end, c_z_end = list(
+        map(round_m, self.crack_area(bridge))
+    )
+    if thresh != 0:
+        c_x_start -= thresh
+        c_z_start -= thresh
+        c_x_end += thresh
+        c_z_end += thresh
+
+    def reject(point: Point) -&gt; Point:
+        if point.x &lt; c_x_start:
+            return True
+        if point.x &gt; c_x_end:
+            return True
+        if point.z &lt; c_z_start:
+            return True
+        if point.z &gt; c_z_end:
+            return True
+        return False
+
+    return reject</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="bridge_sim.scenarios.HealthyScenario"><code class="flex name class">
+<span>class <span class="ident">HealthyScenario</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for bridge scenarios.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>unique identifier for this scenario.</dd>
+<dt><strong><code>mod_bridge</code></strong></dt>
+<dd>function to modify a Bridge.</dd>
+<dt><strong><code>mod_sim_params</code></strong></dt>
+<dd>function to modify simulation parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HealthyScenario(Scenario):
+    def __init__(self):
+        super().__init__(name=&#34;normal&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="bridge_sim.scenarios.PierSettlementScenario"><code class="flex name class">
+<span>class <span class="ident">PierSettlementScenario</span></span>
+<span>(</span><span>pier_disps: [<class 'bridge_sim.model.PierSettlement'>], name_prefix: str = '')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for bridge scenarios.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>unique identifier for this scenario.</dd>
+<dt><strong><code>mod_bridge</code></strong></dt>
+<dd>function to modify a Bridge.</dd>
+<dt><strong><code>mod_sim_params</code></strong></dt>
+<dd>function to modify simulation parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PierSettlementScenario(Scenario):
+    def __init__(self, pier_disps: [PierSettlement], name_prefix: str = &#34;&#34;):
+        if len(pier_disps) &lt; 1:
+            raise ValueError(&#34;At least 1 PierDisp required&#34;)
+        name = name_prefix + &#34;-&#34;.join(list(map(lambda pd: pd.id_str(), pier_disps)))
+        self.pier_disps = pier_disps
+
+        def mod_sim_params(sim_params: SimParams):
+            if len(self.pier_disps) &gt; 1:
+                raise ValueError(&#34;Cannot have SimParams with &gt; 1 pier settlement&#34;)
+            sim_params.displacement_ctrl = self.pier_disps[0]
+            return sim_params
+
+        super().__init__(name=name, mod_sim_params=mod_sim_params)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="bridge_sim.scenarios.Scenario"><code class="flex name class">
 <span>class <span class="ident">Scenario</span></span>
-<span>(</span><span>name: str, mod_bridge: Callable[[bridge_sim.model.Bridge], bridge_sim.model.Bridge] = &lt;function Scenario.&lt;lambda&gt;&gt;, mod_sim_params: Callable[[lib.fem.params.SimParams], lib.fem.params.SimParams] = &lt;function Scenario.&lt;lambda&gt;&gt;)</span>
+<span>(</span><span>name: str, mod_bridge: Callable[[bridge_sim.model.Bridge], bridge_sim.model.Bridge] = &lt;function Scenario.&lt;lambda&gt;&gt;, mod_sim_params: Callable[[bridge_sim.sim.model.SimParams], bridge_sim.sim.model.SimParams] = &lt;function Scenario.&lt;lambda&gt;&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for bridge scenarios.</p>
@@ -133,15 +795,15 @@ class Scenario:
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li>lib.classify.scenario.bridge.Cracked</li>
-<li>lib.classify.scenario.bridge.Healthy</li>
-<li>lib.classify.scenario.bridge.PierDisp</li>
-<li>lib.classify.scenario.bridge.Thermal</li>
+<li><a title="bridge_sim.scenarios.CrackedScenario" href="#bridge_sim.scenarios.CrackedScenario">CrackedScenario</a></li>
+<li><a title="bridge_sim.scenarios.HealthyScenario" href="#bridge_sim.scenarios.HealthyScenario">HealthyScenario</a></li>
+<li><a title="bridge_sim.scenarios.PierSettlementScenario" href="#bridge_sim.scenarios.PierSettlementScenario">PierSettlementScenario</a></li>
+<li><a title="bridge_sim.scenarios.ThermalScenario" href="#bridge_sim.scenarios.ThermalScenario">ThermalScenario</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="bridge_sim.scenarios.Scenario.use"><code class="name flex">
-<span>def <span class="ident">use</span></span>(<span>self, c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: lib.fem.params.SimParams = &lt;lib.fem.params.SimParams object&gt;) -> Tuple[<a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, lib.fem.params.SimParams]</span>
+<span>def <span class="ident">use</span></span>(<span>self, c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: bridge_sim.sim.model.SimParams = &lt;<a title="bridge_sim.sim.model.SimParams" href="../sim/model/index.html#bridge_sim.sim.model.SimParams">SimParams</a> object&gt;) -> Tuple[<a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, <a title="bridge_sim.sim.model.SimParams" href="../sim/model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Modify given Config and SimParams under this Scenario.</p>
@@ -176,6 +838,131 @@ class Scenario:
 </dd>
 </dl>
 </dd>
+<dt id="bridge_sim.scenarios.ThermalScenario"><code class="flex name class">
+<span>class <span class="ident">ThermalScenario</span></span>
+<span>(</span><span>axial_delta_temp: float = 0, moment_delta_temp: float = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Thermal expansion, with axial and bending moment components.</p>
+<p>Base class for bridge scenarios.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>unique identifier for this scenario.</dd>
+<dt><strong><code>mod_bridge</code></strong></dt>
+<dd>function to modify a Bridge.</dd>
+<dt><strong><code>mod_sim_params</code></strong></dt>
+<dd>function to modify simulation parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ThermalScenario(Scenario):
+    &#34;&#34;&#34;Thermal expansion, with axial and bending moment components.&#34;&#34;&#34;
+
+    def __init__(self, axial_delta_temp: float = 0, moment_delta_temp: float = 0):
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
+
+        def mod_sim_params(sim_params: SimParams):
+            sim_params.axial_delta_temp = self.axial_delta_temp
+            sim_params.moment_delta_temp = self.moment_delta_temp
+            return sim_params
+
+        super().__init__(
+            name=f&#34;thermal-axial-{self.axial_delta_temp}-moment-{self.moment_delta_temp}&#34;,
+            mod_sim_params=mod_sim_params,
+        )
+
+    def to_strain(self, c: Config, sim_responses: SimResponses):
+        &#34;&#34;&#34;Convert fem, adding free and restrained strain.&#34;&#34;&#34;
+        if not sim_responses.response_type.is_strain():
+            raise ValueError(
+                f&#34;Can only convert Strain not {sim_responses.response_type}&#34;
+            )
+        if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
+            raise ValueError(&#34;Must be only axial or moment loading&#34;)
+        # Uniform temperature load.
+        if self.axial_delta_temp != 0:
+            sim_responses = sim_responses.map(
+                lambda r: (r * 1e-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
+            )
+        # Linear temperature load.
+        elif self.moment_delta_temp != 0:
+            sim_responses = sim_responses.map(
+                lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
+            )
+        else:
+            raise ValueError(&#34;Don&#39;t know how to convert to strain&#34;)
+        return sim_responses
+
+    def to_stress(self, c: Config, sim_responses: SimResponses):
+        sim_responses = self.to_strain(c=c, sim_responses=sim_responses)
+        return sim_responses.to_stress(c.bridge)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.scenarios.ThermalScenario.to_strain"><code class="name flex">
+<span>def <span class="ident">to_strain</span></span>(<span>self, c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_responses: <a title="bridge_sim.sim.model.SimResponses" href="../sim/model/index.html#bridge_sim.sim.model.SimResponses">SimResponses</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert fem, adding free and restrained strain.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_strain(self, c: Config, sim_responses: SimResponses):
+    &#34;&#34;&#34;Convert fem, adding free and restrained strain.&#34;&#34;&#34;
+    if not sim_responses.response_type.is_strain():
+        raise ValueError(
+            f&#34;Can only convert Strain not {sim_responses.response_type}&#34;
+        )
+    if self.axial_delta_temp != 0 and self.moment_delta_temp != 0:
+        raise ValueError(&#34;Must be only axial or moment loading&#34;)
+    # Uniform temperature load.
+    if self.axial_delta_temp != 0:
+        sim_responses = sim_responses.map(
+            lambda r: (r * 1e-6) - (1 * c.cte * c.unit_axial_delta_temp_c)
+        )
+    # Linear temperature load.
+    elif self.moment_delta_temp != 0:
+        sim_responses = sim_responses.map(
+            lambda r: r * 1e-6 + (0.5 * c.cte * c.unit_moment_delta_temp_c)
+        )
+    else:
+        raise ValueError(&#34;Don&#39;t know how to convert to strain&#34;)
+    return sim_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.scenarios.ThermalScenario.to_stress"><code class="name flex">
+<span>def <span class="ident">to_stress</span></span>(<span>self, c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_responses: <a title="bridge_sim.sim.model.SimResponses" href="../sim/model/index.html#bridge_sim.sim.model.SimResponses">SimResponses</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_stress(self, c: Config, sim_responses: SimResponses):
+    sim_responses = self.to_strain(c=c, sim_responses=sim_responses)
+    return sim_responses.to_stress(c.bridge)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -190,12 +977,38 @@ class Scenario:
 <li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.scenarios.healthy_damage_w_crack_nodes" href="#bridge_sim.scenarios.healthy_damage_w_crack_nodes">healthy_damage_w_crack_nodes</a></code></li>
+<li><code><a title="bridge_sim.scenarios.thermal_damage" href="#bridge_sim.scenarios.thermal_damage">thermal_damage</a></code></li>
+<li><code><a title="bridge_sim.scenarios.transverse_crack" href="#bridge_sim.scenarios.transverse_crack">transverse_crack</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="bridge_sim.scenarios.CrackedScenario" href="#bridge_sim.scenarios.CrackedScenario">CrackedScenario</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.scenarios.CrackedScenario.without" href="#bridge_sim.scenarios.CrackedScenario.without">without</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.scenarios.HealthyScenario" href="#bridge_sim.scenarios.HealthyScenario">HealthyScenario</a></code></h4>
+</li>
+<li>
+<h4><code><a title="bridge_sim.scenarios.PierSettlementScenario" href="#bridge_sim.scenarios.PierSettlementScenario">PierSettlementScenario</a></code></h4>
+</li>
 <li>
 <h4><code><a title="bridge_sim.scenarios.Scenario" href="#bridge_sim.scenarios.Scenario">Scenario</a></code></h4>
 <ul class="">
 <li><code><a title="bridge_sim.scenarios.Scenario.use" href="#bridge_sim.scenarios.Scenario.use">use</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.scenarios.ThermalScenario" href="#bridge_sim.scenarios.ThermalScenario">ThermalScenario</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.scenarios.ThermalScenario.to_strain" href="#bridge_sim.scenarios.ThermalScenario.to_strain">to_strain</a></code></li>
+<li><code><a title="bridge_sim.scenarios.ThermalScenario.to_stress" href="#bridge_sim.scenarios.ThermalScenario.to_stress">to_stress</a></code></li>
 </ul>
 </li>
 </ul>

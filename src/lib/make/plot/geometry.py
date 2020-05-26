@@ -5,11 +5,9 @@ from matplotlib.cm import get_cmap
 
 from bridge_sim.model import Config, Point
 
-from lib.classify.scenarios import healthy_and_cracked_scenarios
-from lib.classify import without
-from lib.fem.build import get_bridge_nodes, get_bridge_shells
-from lib.fem.model import BuildContext, Node, Shell
-from lib.fem.params import SimParams
+from bridge_sim.sim import without
+from bridge_sim.sim.build import get_bridge_nodes, get_bridge_shells
+from bridge_sim.sim.model import BuildContext, Node, Shell, SimParams
 from lib.plot import default_cmap, legend_marker_size, parula_cmap, plt
 from lib.plot.geometry import top_view_bridge
 from lib.plot.geometry.shell import shell_properties_3d, shell_properties_top_view

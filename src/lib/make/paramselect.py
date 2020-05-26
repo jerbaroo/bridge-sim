@@ -3,10 +3,10 @@ from scipy.signal import savgol_filter
 
 from bridge_sim.model import Config, Point, PointLoad, ResponseType
 from bridge_sim.vehicles import truck1
-from bridge_sim.validate import displa_sensor_xz, strain_sensor_xz
-from lib.fem.params import SimParams
-from lib.fem.responses import load_fem_responses
-from lib.fem.run.opensees import OSRunner
+from lib.validate import _displa_sensor_xz, _strain_sensor_xz
+from bridge_sim.sim.model import SimParams
+from bridge_sim.sim.responses import load_fem_responses
+from bridge_sim.sim.run.opensees import OSRunner
 from lib.plot import plt
 from bridge_sim.util import flatten, print_i
 
@@ -109,7 +109,7 @@ def experiment_noise(c: Config):
     displa_labels = ["U13", "U26", "U29"]
     displa_points = []
     for displa_label in displa_labels:
-        sensor_x, sensor_z = displa_sensor_xz(displa_label)
+        sensor_x, sensor_z = _displa_sensor_xz(displa_label)
         displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
     # For each sensor plot and estimate noise.
     side = 700
@@ -148,7 +148,7 @@ def experiment_noise(c: Config):
     strain_labels = ["T1", "T10", "T11"]
     strain_points = []
     for strain_label in strain_labels:
-        sensor_x, sensor_z = strain_sensor_xz(strain_label)
+        sensor_x, sensor_z = _strain_sensor_xz(strain_label)
         strain_points.append(Point(x=sensor_x, y=0, z=sensor_z))
     # For each sensor plot and estimate noise.
     side = 700

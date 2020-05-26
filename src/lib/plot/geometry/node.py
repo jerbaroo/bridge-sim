@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from lib.fem.model import Node
+from bridge_sim.sim.model import Node
 from lib.plot import plt
 from lib.plot.geometry.angles import ax_3d
 

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from bridge_sim.model import Config, Point
-from lib.fem.responses import Responses
+from bridge_sim.sim.model import Responses
 from lib.plot import plt
 from bridge_sim.util import print_i, scalar
 
@@ -74,7 +74,7 @@ def plot_mmm_strain_convergence(
     plt.plot(num_nodes, gmeans, label="gmeans")
     plt.grid(axis="y")
     plt.xlabel("Nodes in FEM")
-    plt.ylabel("Strain (m\m)")
+    plt.ylabel("Strain")
     plt.title(title)
     plt.tight_layout()
     plt.legend()
@@ -90,7 +90,7 @@ def plot_mmm_strain_convergence(
     plt.grid(axis="y")
     plt.title(title)
     plt.xlabel("Nodes in FEM")
-    plt.ylabel("Strain (m\m)")
+    plt.ylabel("Strain")
     plt.legend()
     plt.tight_layout()
     plt.savefig(

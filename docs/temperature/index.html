@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.temperature API documentation</title>
+<meta name="description" content="Time series of temperature and responses to temperature." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.temperature</code></h1>
+</header>
+<section id="section-intro">
+<p>Time series of temperature and responses to temperature.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Time series of temperature and responses to temperature.&#34;&#34;&#34;
+
+import datetime
+import math
+import os
+from copy import deepcopy
+from datetime import datetime, timedelta
+from typing import List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
+from scipy.signal import savgol_filter
+from scipy.interpolate import interp1d
+from sklearn.linear_model import LinearRegression
+
+from bridge_sim.model import Config, Point, ResponseType
+from bridge_sim.scenarios import ThermalScenario
+from bridge_sim.sim.responses import load_fem_responses
+from bridge_sim.sim.run.opensees import OSRunner
+from bridge_sim.util import print_d, print_i, project_dir
+
+# D: str = &#34;classify.temperature&#34;
+D: bool = False
+
+# https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
+
+
+def remove_sampled(num_samples, signal):
+    &#34;&#34;&#34;Interpolate between num_samples and subtract.
+
+    Data must be of shape n samples x f features.
+    &#34;&#34;&#34;
+    # &#39;num_samples + 1&#39; indices into given signal.
+    indices = list(map(int, np.linspace(0, len(signal) - 1, num_samples + 1)))
+    # Mean value of the signal between each pair of indices,
+    # and new indices, at center between each pair of indices.
+    y_samples, new_indices = [], []
+    for i_lo, i_hi in zip(indices[:-1], indices[1:]):
+        y_samples.append(np.mean(signal[i_lo:i_hi]))
+        new_indices.append(int((i_lo + i_hi) / 2))
+    rm = interp1d(new_indices, y_samples, fill_value=&#34;extrapolate&#34;)(
+        np.arange(len(signal))
+    )
+    return rm, deepcopy(rm) - rm[0]
+
+
+def parse_line(line):
+    # 23803 20190101 0005 20181231 1805      3  -89.43   34.82    12.4
+    # 0.0      0 0    10.9 C 0    88 0 -99.000 -9999.0  1115 0   0.79 0
+    line = line.split()
+    ds = line[1]  # Date string.
+    ts = line[2]  # Time string.
+    year, mon, day, hr, mn = (ds[0:4], ds[4:6], ds[6:8], ts[0:2], ts[2:4])
+    # 2011-11-04T00:05
+    dt = datetime.fromisoformat(f&#34;{year}-{mon}-{day}T{hr}:{mn}&#34;)
+    return [dt, float(line[-15]), float(line[-13])]
+
+
+def load(
+    name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)
+) -&gt; pd.DataFrame:
+    # If the file is already parsed, return it..
+    name_path = os.path.join(project_dir(), &#34;data/temperature&#34;, name + &#34;.txt&#34;)
+    saved_path = name_path + &#34;.parsed&#34;
+    if os.path.exists(saved_path):
+        df = pd.read_csv(saved_path, index_col=0, parse_dates=[&#34;datetime&#34;])
+        lq = df[&#34;temp&#34;].quantile(temp_quantile[0])
+        hq = df[&#34;temp&#34;].quantile(temp_quantile[1])
+        print(f&#34;Temperature {temp_quantile} quantiles = {lq}, {hq}&#34;)
+        df = df[(df[&#34;temp&#34;] &gt;= lq) &amp; (df[&#34;temp&#34;] &lt;= hq)]
+        return df
+    # ..otherwise read and parse the data.
+    with open(name_path) as f:
+        temps = list(map(parse_line, f.readlines()))
+    # Remove NANs.
+    for line_ind, [dt, temp, solar] in enumerate(temps):
+        if np.isnan(temp):
+            print_i(f&#34;NAN in {name} temperature&#34;)
+            temps[line_ind][1] = temps[line_ind - 1][1]
+        if np.isnan(solar):
+            print_i(f&#34;NAN in {name} solar radiation&#34;)
+            temps[line_ind][2] = temps[line_ind - 1][2]
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(temps, columns=[&#34;datetime&#34;, &#34;temp&#34;, &#34;solar&#34;])
+    # Convert to celcius.
+    # df[&#34;temp&#34;] = (df[&#34;temp&#34;] - 32) * (5 / 9)
+    # Remove duplicate times.
+    len_before = len(df)
+    df = df.drop_duplicates(subset=[&#34;datetime&#34;], keep=&#34;first&#34;)
+    len_after = len(df)
+    print_i(f&#34;Removed {len_before - len_after} duplicates, now {len_after} rows&#34;)
+    # Sort.
+    df = df.sort_values(by=[&#34;datetime&#34;])
+    # Save.
+    df.to_csv(saved_path)
+    return load(name=name)
+
+
+def from_to_mins(df, from_, to, smooth: bool = False):
+    # Create times and temperatures from given data.
+    dates, temps, solar = df[&#34;datetime&#34;], df[&#34;temp&#34;], df[&#34;solar&#34;]
+    times = dates.apply(lambda d: datetime.timestamp(d))
+    # Create times that are expected to return.
+    result_dates, result_times = [], []
+    curr = from_
+    while curr &lt;= to:
+        result_dates.append(curr)
+        result_times.append(datetime.timestamp(curr))
+        curr += timedelta(minutes=1)
+    # Interpolate to get results.
+    result_temps = interp1d(times, temps, fill_value=&#34;extrapolate&#34;)(result_times)
+    result_solar = interp1d(times, solar, fill_value=&#34;extrapolate&#34;)(result_times)
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(
+        np.array([result_dates, result_temps, result_solar]).T,
+        columns=[&#34;datetime&#34;, &#34;temp&#34;, &#34;solar&#34;],
+    )
+    # Sort.
+    df = df.sort_values(by=[&#34;datetime&#34;])
+    df[&#34;temp&#34;] = pd.to_numeric(df[&#34;temp&#34;])
+    df[&#34;solar&#34;] = pd.to_numeric(df[&#34;solar&#34;])
+    # Smooth.
+    if smooth:
+        df[&#34;temp&#34;] = savgol_filter(df[&#34;temp&#34;], 20, 3)
+    return df
+
+
+def from_to_indices(df, from_, to):
+    &#34;&#34;&#34;Indices of temperatures that correspond to the given range.&#34;&#34;&#34;
+    start, end = None, None
+    for i, date in enumerate(df[&#34;datetime&#34;]):
+        if start is None and date &gt;= from_:
+            start = i
+        if date &gt;= to:
+            return start, i
+    raise ValueError(&#34;End date not found&#34;)
+
+
+def temps_bottom_top(c: Config, temps: List[float], solar: List[float], len_per_hour):
+    &#34;&#34;&#34;The top and bottom bridge temperatures for given air temperatures.&#34;&#34;&#34;
+
+    # temps_bottom = np.array(temps) - c.bridge.ref_temp_c
+    # temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    # return temps_bottom, temps_top
+
+    bd = 0.001
+    # bn = 0.008
+
+    temps_b = [temps[0]]
+    for i, temp_a in enumerate(temps[1:]):
+        temps_b.append((1 - bd) * temps_b[i - 1] + bd * temp_a)
+
+    recent_hours = 3
+    sd = 0.008
+    sn = 0.008
+    ss = 0.0001
+    temps_s = [temps[0]]
+
+    for i, (temp_a, solar) in enumerate(zip(temps[1:], solar[1:])):
+        recent_start = i - (len_per_hour * recent_hours)
+        # if i &gt; 1 and temps_b[i - 1] &gt; temps_b[i - 2]:
+        if False:
+            recent_max = np.max(temps[max(0, recent_start) : i])
+            temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
+        else:
+            temps_s.append((1 - sn - ss) * temps_s[i - 1] + sn * temp_a + ss * solar)
+
+    return np.array(temps_b), np.array(temps_s)
+
+
+def effect(
+    c: Config,
+    response_type: ResponseType,
+    points: List[Point],
+    temps_bt: Optional[Tuple[List[float], List[float]]] = None,
+    len_per_hour: Optional[int] = None,
+    temps: Optional[List[float]] = None,
+    solar: Optional[List[float]] = None,
+    d: bool = False,
+    ret_temps_bt: bool = False,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Temperature effect at given points for a number of given temperatures.
+
+    The result is of shape (number of points, number of temperatures).
+
+    NOTE: The &#39;ThermalDamage&#39; method &#39;to_strain&#39; multiplies the results by E-6,
+        which is called by this function. So take note that the strain values
+        are already multiplied by E-6 (from microstrain to strain), and do not
+        need to be resized.
+
+    Args:
+        c: Config, global configuration object.
+        response_type: ResponseType, type of sensor response to temp. effect.
+        points: List[Point], points at which to calculate temperature effect.
+        temps_bt: A 2-tuple of arrays, the first array is for the temperatures
+            at the bottom of the bridge, and the second array is for the
+            temperatures at the top of the bridge. If this argument is given
+            then &#39;temps&#39;, &#39;solar&#39;, &#39;len_per_hour&#39; must not be given.
+        len_per_hour: Optional[int], if given then temps and solar must also be
+            given. The temperature fem are interpolated such that there
+            are &#39;len_per_hour&#39; fem for every hour of temperature data. It
+            is assumed the temperature data is one data point per minute.
+        temps: Optional[List[float]], first see &#39;len_per_hour&#39;. Air temperature
+            data given at one data point per minute.
+        solar: Optional[List[float]], first see &#39;len_per_hour&#39;. Solar irradiance
+            data given at one data point per minute, same as &#39;temps&#39;.
+
+    &#34;&#34;&#34;
+    if temps_bt is not None:
+        if any(x is not None for x in [len_per_hour, temps, solar]):
+            raise ValueError(
+                &#34;Must only pass &#39;temps_bt&#39;, or (&#39;len_per_hour&#39;, &#39;temps&#39; &amp; &#39;solar&#39;)&#34;
+            )
+
+    original_c = c
+    # Unit effect from uniform temperature loading.
+    unit_uniform = ThermalScenario(axial_delta_temp=c.unit_axial_delta_temp_c)
+    c, sim_params = unit_uniform.use(original_c)
+    uniform_responses = load_fem_responses(
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
+    )
+    # Unit effect from linear temperature loading.
+    unit_linear = ThermalScenario(moment_delta_temp=c.unit_moment_delta_temp_c)
+    c, sim_params = unit_linear.use(original_c)
+    linear_responses = load_fem_responses(
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
+    )
+    print_i(&#34;Loaded unit uniform and linear temperature fem&#34;)
+
+    # Convert uniform fem to correct type (thermal post-processing).
+    if response_type in [
+        ResponseType.Strain,
+        ResponseType.StrainT,
+        ResponseType.StrainZZB,
+    ]:
+        uniform_responses = unit_uniform.to_strain(c=c, sim_responses=uniform_responses)
+    elif response_type == ResponseType.Stress:
+        uniform_responses = unit_uniform.to_stress(c=c, sim_responses=uniform_responses)
+    unit_uniforms = np.array(uniform_responses.at_decks(points))
+    print(f&#34;Unit uniform temperature per point, shape = {unit_uniforms.shape}&#34;)
+
+    # Convert linear fem to correct type (thermal post-processing).
+    if response_type in [
+        ResponseType.Strain,
+        ResponseType.StrainT,
+        ResponseType.StrainZZB,
+    ]:
+        linear_responses = unit_linear.to_strain(c=c, sim_responses=linear_responses)
+    elif response_type == ResponseType.Stress:
+        linear_responses = unit_linear.to_stress(c=c, sim_responses=linear_responses)
+    unit_linears = np.array(linear_responses.at_decks(points))
+
+    # Determine temperature gradient throughout the bridge.
+    if temps_bt is None:
+        temps_bottom, temps_top = temps_bottom_top(
+            c=c, temps=temps, solar=solar, len_per_hour=len_per_hour
+        )
+    else:
+        temps_bottom, temps_top = temps_bt
+        temps_bottom, temps_top = np.array(temps_bottom), np.array(temps_top)
+
+    temps_half = (temps_bottom + temps_top) / 2
+    temps_linear = temps_top - temps_bottom
+    temps_uniform = temps_half - c.bridge.ref_temp_c
+
+    # print(f&#34;temps_bottom.shape = {temps_bottom.shape}&#34;)
+    # print(f&#34;temps_top.shape = {temps_top.shape}&#34;)
+    # print(f&#34;temps_half.shape = {temps_half.shape}&#34;)
+    print_d(D, f&#34;tb = {temps_bottom[:3]}&#34;)
+    print_d(D, f&#34;tt = {temps_top[:3]}&#34;)
+    print_d(D, f&#34;th = {temps_half[:3]}&#34;)
+    print_d(D, f&#34;temps linear = {temps_linear[:3]}&#34;)
+    print_d(D, f&#34;temps uniform = {temps_uniform[:3]}&#34;)
+
+    # Combine uniform and linear fem.
+    uniform_responses = np.array(
+        [unit_uniform * temps_half for unit_uniform in unit_uniforms]
+    )
+    linear_responses = np.array(
+        [unit_linear * temps_linear for unit_linear in unit_linears]
+    )
+    # print(f&#34;uniform_responses.shape = {uniform_responses.shape}&#34;)
+    # print(f&#34;linear_responses.shape = {linear_responses.shape}&#34;)
+    print_d(D, f&#34;uniform fem = {uniform_responses[:3]}&#34;)
+    print_d(D, f&#34;linear fem = {linear_responses[:3]}&#34;)
+    if d:
+        return temps_uniform, temps_linear, uniform_responses + linear_responses
+    if ret_temps_bt:
+        return ((temps_bottom, temps_top), uniform_responses + linear_responses)
+    return uniform_responses + linear_responses
+    # return (np.array(temps) - c.bridge.ref_temp_c) * unit_response
+
+
+def get_len_per_min(c: Config, speed_up: float):
+    &#34;&#34;&#34;Length of time series corresponding to 1 minute of temperature.&#34;&#34;&#34;
+    return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))
+
+
+def resize(
+    temps,
+    tmin: Optional[int] = None,
+    tmax: Optional[int] = None,
+    year: Optional[int] = None,
+):
+    &#34;&#34;&#34;Resize temperatures into a range.&#34;&#34;&#34;
+    if year is not None:
+        if year == 2018:
+            tmin, tmax = -2, 32
+        elif year == 2019:
+            tmin, tmax = -5, 35
+        else:
+            raise NotImplementedError(f&#34;Uknown year {year}&#34;)
+    # TODO: Remove, just a sanity check while I write my thesis.
+    assert tmin &lt; 0
+    assert tmax &gt; 30
+    print(tmin, tmax)
+    return interp1d(
+        np.linspace(min(temps), max(temps), 1000), np.linspace(tmin, tmax, 1000)
+    )(temps)
+
+
+def apply(effect: List[float], responses: List[float]):
+    &#34;&#34;&#34;Given effect interpolated across given fem.&#34;&#34;&#34;
+    i = interp1d(
+        np.linspace(0, len(responses) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000),
+    )(np.arange(len(responses)))
+    return interp1d(np.arange(len(effect)), effect)(i)
+
+
+def apply_effect(
+    c: Config,
+    points: List[Point],
+    responses: List[List[float]],
+    effect: List[List[float]],
+    speed_up: int = 1,
+    repeat_responses: bool = False,
+) -&gt; List[float]:
+    &#34;&#34;&#34;Time series of effect due to temperature at given points.
+
+    Returns: a NumPy array of shape the same as given fem. The effect due
+        to temperature is interpolated across the date range of the given
+        fem, this is calculated under the assumption that temperature
+        effect is given at one data point per minute and that the sensor
+        fem are given at a rate of &#39;c.sensor_hz&#39;.
+
+    &#34;&#34;&#34;
+    raise ValueError(&#34;Deprecated&#34;)
+    assert len(responses) == len(points)
+    # Convert the temperature data into temperature effect at each point.
+    # effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
+    assert len(effect) == len(points)
+    # A temperature sample is available per minute. Here we calculate the
+    # number of fem between each pair of recorded temperatures and the
+    # number of temperature samples required for the given fem.
+    len_per_min = get_len_per_min(c=c, speed_up=speed_up)
+    print_i(f&#34;Length per minute = {len_per_min}, speed_up = {speed_up}&#34;)
+    num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
+    if num_temps_req &gt; len(effect[0]):
+        raise ValueError(
+            f&#34;Not enough temperatures ({len(effect[0])}) for data&#34;
+            f&#34; (requires {num_temps_req})&#34;
+        )
+    # If additional temperature data is available, then use it if requested and
+    # repeat the given fem. Here we calculate length, in terms of the
+    # sample frequency, recall that temperature is sampled every minute.
+    avail_len = (len(effect[0]) - 1) * len_per_min
+    if repeat_responses and (avail_len &gt; len(responses[0])):
+        print_i(f&#34;Increasing length of fem from {len(responses[0])} to {avail_len}&#34;)
+        num_temps_req = len(effect[0])
+        new_responses = np.empty((len(responses), avail_len))
+        for i in range(len(responses)):
+            for j in range(math.ceil(avail_len / len(responses[0]))):
+                start = j * len(responses[0])
+                end = min(avail_len - 1, start + len(responses[0]))
+                new_responses[i][start:end] = responses[i][: end - start]
+        responses = new_responses
+    # Fill in the fem array with the temperature effect.
+    result = np.zeros((len(points), len(responses[0])))
+    for i in range(len(points)):
+        for j in range(num_temps_req - 1):
+            start = j * len_per_min
+            end = min(len(result[i]), start + len_per_min)
+            print_d(D, f&#34;start = {start}&#34;)
+            print_d(D, f&#34;end = {end}&#34;)
+            print_d(D, f&#34;end - start = {end - start}&#34;)
+            # print_d(D, f&#34;temp_start, temp_end = {temps[j]}, {temps[j + 1]}&#34;)
+            print_d(D, f&#34;effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}&#34;)
+            result[i][start:end] = np.linspace(
+                effect[i][j], effect[i][j + 1], end - start
+            )
+    if repeat_responses:
+        return responses, result
+    return result
+
+
+# Shorthand.
+ij = lambda _t, _i, _j: from_to_indices(
+    _t, datetime.fromisoformat(_i), datetime.fromisoformat(_j)
+)
+
+
+def regress_and_errors(x, y):
+    &#34;&#34;&#34;Linear regression predictor, and error from each given point.&#34;&#34;&#34;
+    lr = LinearRegression().fit(x.reshape(-1, 1), y)
+    errors = []
+    for x_, y_ in zip(x, y):
+        errors.append(abs(y_ - lr.predict([[x_]])[0]))
+    return lr, np.array(errors)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.temperature.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>effect: List[float], responses: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given effect interpolated across given fem.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(effect: List[float], responses: List[float]):
+    &#34;&#34;&#34;Given effect interpolated across given fem.&#34;&#34;&#34;
+    i = interp1d(
+        np.linspace(0, len(responses) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000),
+    )(np.arange(len(responses)))
+    return interp1d(np.arange(len(effect)), effect)(i)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.apply_effect"><code class="name flex">
+<span>def <span class="ident">apply_effect</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], responses: List[List[float]], effect: List[List[float]], speed_up: int = 1, repeat_responses: bool = False) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time series of effect due to temperature at given points.</p>
+<p>Returns: a NumPy array of shape the same as given fem. The effect due
+to temperature is interpolated across the date range of the given
+fem, this is calculated under the assumption that temperature
+effect is given at one data point per minute and that the sensor
+fem are given at a rate of 'c.sensor_hz'.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply_effect(
+    c: Config,
+    points: List[Point],
+    responses: List[List[float]],
+    effect: List[List[float]],
+    speed_up: int = 1,
+    repeat_responses: bool = False,
+) -&gt; List[float]:
+    &#34;&#34;&#34;Time series of effect due to temperature at given points.
+
+    Returns: a NumPy array of shape the same as given fem. The effect due
+        to temperature is interpolated across the date range of the given
+        fem, this is calculated under the assumption that temperature
+        effect is given at one data point per minute and that the sensor
+        fem are given at a rate of &#39;c.sensor_hz&#39;.
+
+    &#34;&#34;&#34;
+    raise ValueError(&#34;Deprecated&#34;)
+    assert len(responses) == len(points)
+    # Convert the temperature data into temperature effect at each point.
+    # effect_ = effect(c=c, response_type=response_type, points=points, temps=temps)
+    assert len(effect) == len(points)
+    # A temperature sample is available per minute. Here we calculate the
+    # number of fem between each pair of recorded temperatures and the
+    # number of temperature samples required for the given fem.
+    len_per_min = get_len_per_min(c=c, speed_up=speed_up)
+    print_i(f&#34;Length per minute = {len_per_min}, speed_up = {speed_up}&#34;)
+    num_temps_req = math.ceil(len(responses[0]) / len_per_min) + 1
+    if num_temps_req &gt; len(effect[0]):
+        raise ValueError(
+            f&#34;Not enough temperatures ({len(effect[0])}) for data&#34;
+            f&#34; (requires {num_temps_req})&#34;
+        )
+    # If additional temperature data is available, then use it if requested and
+    # repeat the given fem. Here we calculate length, in terms of the
+    # sample frequency, recall that temperature is sampled every minute.
+    avail_len = (len(effect[0]) - 1) * len_per_min
+    if repeat_responses and (avail_len &gt; len(responses[0])):
+        print_i(f&#34;Increasing length of fem from {len(responses[0])} to {avail_len}&#34;)
+        num_temps_req = len(effect[0])
+        new_responses = np.empty((len(responses), avail_len))
+        for i in range(len(responses)):
+            for j in range(math.ceil(avail_len / len(responses[0]))):
+                start = j * len(responses[0])
+                end = min(avail_len - 1, start + len(responses[0]))
+                new_responses[i][start:end] = responses[i][: end - start]
+        responses = new_responses
+    # Fill in the fem array with the temperature effect.
+    result = np.zeros((len(points), len(responses[0])))
+    for i in range(len(points)):
+        for j in range(num_temps_req - 1):
+            start = j * len_per_min
+            end = min(len(result[i]), start + len_per_min)
+            print_d(D, f&#34;start = {start}&#34;)
+            print_d(D, f&#34;end = {end}&#34;)
+            print_d(D, f&#34;end - start = {end - start}&#34;)
+            # print_d(D, f&#34;temp_start, temp_end = {temps[j]}, {temps[j + 1]}&#34;)
+            print_d(D, f&#34;effect_start, effect_end = {effect[i][j]}, {effect[i][j + 1]}&#34;)
+            result[i][start:end] = np.linspace(
+                effect[i][j], effect[i][j + 1], end - start
+            )
+    if repeat_responses:
+        return responses, result
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.effect"><code class="name flex">
+<span>def <span class="ident">effect</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], temps_bt: Union[Tuple[List[float], List[float]], NoneType] = None, len_per_hour: Union[int, NoneType] = None, temps: Union[List[float], NoneType] = None, solar: Union[List[float], NoneType] = None, d: bool = False, ret_temps_bt: bool = False) -> List[List[float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Temperature effect at given points for a number of given temperatures.</p>
+<p>The result is of shape (number of points, number of temperatures).</p>
+<p>NOTE: The 'ThermalDamage' method 'to_strain' multiplies the results by E-6,
+which is called by this function. So take note that the strain values
+are already multiplied by E-6 (from microstrain to strain), and do not
+need to be resized.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, global configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>ResponseType, type of sensor response to temp. effect.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>List[Point], points at which to calculate temperature effect.</dd>
+<dt><strong><code>temps_bt</code></strong></dt>
+<dd>A 2-tuple of arrays, the first array is for the temperatures
+at the bottom of the bridge, and the second array is for the
+temperatures at the top of the bridge. If this argument is given
+then 'temps', 'solar', 'len_per_hour' must not be given.</dd>
+<dt><strong><code>len_per_hour</code></strong></dt>
+<dd>Optional[int], if given then temps and solar must also be
+given. The temperature fem are interpolated such that there
+are 'len_per_hour' fem for every hour of temperature data. It
+is assumed the temperature data is one data point per minute.</dd>
+<dt><strong><code>temps</code></strong></dt>
+<dd>Optional[List[float]], first see 'len_per_hour'. Air temperature
+data given at one data point per minute.</dd>
+<dt><strong><code>solar</code></strong></dt>
+<dd>Optional[List[float]], first see 'len_per_hour'. Solar irradiance
+data given at one data point per minute, same as 'temps'.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def effect(
+    c: Config,
+    response_type: ResponseType,
+    points: List[Point],
+    temps_bt: Optional[Tuple[List[float], List[float]]] = None,
+    len_per_hour: Optional[int] = None,
+    temps: Optional[List[float]] = None,
+    solar: Optional[List[float]] = None,
+    d: bool = False,
+    ret_temps_bt: bool = False,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Temperature effect at given points for a number of given temperatures.
+
+    The result is of shape (number of points, number of temperatures).
+
+    NOTE: The &#39;ThermalDamage&#39; method &#39;to_strain&#39; multiplies the results by E-6,
+        which is called by this function. So take note that the strain values
+        are already multiplied by E-6 (from microstrain to strain), and do not
+        need to be resized.
+
+    Args:
+        c: Config, global configuration object.
+        response_type: ResponseType, type of sensor response to temp. effect.
+        points: List[Point], points at which to calculate temperature effect.
+        temps_bt: A 2-tuple of arrays, the first array is for the temperatures
+            at the bottom of the bridge, and the second array is for the
+            temperatures at the top of the bridge. If this argument is given
+            then &#39;temps&#39;, &#39;solar&#39;, &#39;len_per_hour&#39; must not be given.
+        len_per_hour: Optional[int], if given then temps and solar must also be
+            given. The temperature fem are interpolated such that there
+            are &#39;len_per_hour&#39; fem for every hour of temperature data. It
+            is assumed the temperature data is one data point per minute.
+        temps: Optional[List[float]], first see &#39;len_per_hour&#39;. Air temperature
+            data given at one data point per minute.
+        solar: Optional[List[float]], first see &#39;len_per_hour&#39;. Solar irradiance
+            data given at one data point per minute, same as &#39;temps&#39;.
+
+    &#34;&#34;&#34;
+    if temps_bt is not None:
+        if any(x is not None for x in [len_per_hour, temps, solar]):
+            raise ValueError(
+                &#34;Must only pass &#39;temps_bt&#39;, or (&#39;len_per_hour&#39;, &#39;temps&#39; &amp; &#39;solar&#39;)&#34;
+            )
+
+    original_c = c
+    # Unit effect from uniform temperature loading.
+    unit_uniform = ThermalScenario(axial_delta_temp=c.unit_axial_delta_temp_c)
+    c, sim_params = unit_uniform.use(original_c)
+    uniform_responses = load_fem_responses(
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
+    )
+    # Unit effect from linear temperature loading.
+    unit_linear = ThermalScenario(moment_delta_temp=c.unit_moment_delta_temp_c)
+    c, sim_params = unit_linear.use(original_c)
+    linear_responses = load_fem_responses(
+        c=c, sim_runner=OSRunner, response_type=response_type, sim_params=sim_params,
+    )
+    print_i(&#34;Loaded unit uniform and linear temperature fem&#34;)
+
+    # Convert uniform fem to correct type (thermal post-processing).
+    if response_type in [
+        ResponseType.Strain,
+        ResponseType.StrainT,
+        ResponseType.StrainZZB,
+    ]:
+        uniform_responses = unit_uniform.to_strain(c=c, sim_responses=uniform_responses)
+    elif response_type == ResponseType.Stress:
+        uniform_responses = unit_uniform.to_stress(c=c, sim_responses=uniform_responses)
+    unit_uniforms = np.array(uniform_responses.at_decks(points))
+    print(f&#34;Unit uniform temperature per point, shape = {unit_uniforms.shape}&#34;)
+
+    # Convert linear fem to correct type (thermal post-processing).
+    if response_type in [
+        ResponseType.Strain,
+        ResponseType.StrainT,
+        ResponseType.StrainZZB,
+    ]:
+        linear_responses = unit_linear.to_strain(c=c, sim_responses=linear_responses)
+    elif response_type == ResponseType.Stress:
+        linear_responses = unit_linear.to_stress(c=c, sim_responses=linear_responses)
+    unit_linears = np.array(linear_responses.at_decks(points))
+
+    # Determine temperature gradient throughout the bridge.
+    if temps_bt is None:
+        temps_bottom, temps_top = temps_bottom_top(
+            c=c, temps=temps, solar=solar, len_per_hour=len_per_hour
+        )
+    else:
+        temps_bottom, temps_top = temps_bt
+        temps_bottom, temps_top = np.array(temps_bottom), np.array(temps_top)
+
+    temps_half = (temps_bottom + temps_top) / 2
+    temps_linear = temps_top - temps_bottom
+    temps_uniform = temps_half - c.bridge.ref_temp_c
+
+    # print(f&#34;temps_bottom.shape = {temps_bottom.shape}&#34;)
+    # print(f&#34;temps_top.shape = {temps_top.shape}&#34;)
+    # print(f&#34;temps_half.shape = {temps_half.shape}&#34;)
+    print_d(D, f&#34;tb = {temps_bottom[:3]}&#34;)
+    print_d(D, f&#34;tt = {temps_top[:3]}&#34;)
+    print_d(D, f&#34;th = {temps_half[:3]}&#34;)
+    print_d(D, f&#34;temps linear = {temps_linear[:3]}&#34;)
+    print_d(D, f&#34;temps uniform = {temps_uniform[:3]}&#34;)
+
+    # Combine uniform and linear fem.
+    uniform_responses = np.array(
+        [unit_uniform * temps_half for unit_uniform in unit_uniforms]
+    )
+    linear_responses = np.array(
+        [unit_linear * temps_linear for unit_linear in unit_linears]
+    )
+    # print(f&#34;uniform_responses.shape = {uniform_responses.shape}&#34;)
+    # print(f&#34;linear_responses.shape = {linear_responses.shape}&#34;)
+    print_d(D, f&#34;uniform fem = {uniform_responses[:3]}&#34;)
+    print_d(D, f&#34;linear fem = {linear_responses[:3]}&#34;)
+    if d:
+        return temps_uniform, temps_linear, uniform_responses + linear_responses
+    if ret_temps_bt:
+        return ((temps_bottom, temps_top), uniform_responses + linear_responses)
+    return uniform_responses + linear_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.from_to_indices"><code class="name flex">
+<span>def <span class="ident">from_to_indices</span></span>(<span>df, from_, to)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Indices of temperatures that correspond to the given range.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def from_to_indices(df, from_, to):
+    &#34;&#34;&#34;Indices of temperatures that correspond to the given range.&#34;&#34;&#34;
+    start, end = None, None
+    for i, date in enumerate(df[&#34;datetime&#34;]):
+        if start is None and date &gt;= from_:
+            start = i
+        if date &gt;= to:
+            return start, i
+    raise ValueError(&#34;End date not found&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.from_to_mins"><code class="name flex">
+<span>def <span class="ident">from_to_mins</span></span>(<span>df, from_, to, smooth: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def from_to_mins(df, from_, to, smooth: bool = False):
+    # Create times and temperatures from given data.
+    dates, temps, solar = df[&#34;datetime&#34;], df[&#34;temp&#34;], df[&#34;solar&#34;]
+    times = dates.apply(lambda d: datetime.timestamp(d))
+    # Create times that are expected to return.
+    result_dates, result_times = [], []
+    curr = from_
+    while curr &lt;= to:
+        result_dates.append(curr)
+        result_times.append(datetime.timestamp(curr))
+        curr += timedelta(minutes=1)
+    # Interpolate to get results.
+    result_temps = interp1d(times, temps, fill_value=&#34;extrapolate&#34;)(result_times)
+    result_solar = interp1d(times, solar, fill_value=&#34;extrapolate&#34;)(result_times)
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(
+        np.array([result_dates, result_temps, result_solar]).T,
+        columns=[&#34;datetime&#34;, &#34;temp&#34;, &#34;solar&#34;],
+    )
+    # Sort.
+    df = df.sort_values(by=[&#34;datetime&#34;])
+    df[&#34;temp&#34;] = pd.to_numeric(df[&#34;temp&#34;])
+    df[&#34;solar&#34;] = pd.to_numeric(df[&#34;solar&#34;])
+    # Smooth.
+    if smooth:
+        df[&#34;temp&#34;] = savgol_filter(df[&#34;temp&#34;], 20, 3)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.get_len_per_min"><code class="name flex">
+<span>def <span class="ident">get_len_per_min</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, speed_up: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Length of time series corresponding to 1 minute of temperature.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_len_per_min(c: Config, speed_up: float):
+    &#34;&#34;&#34;Length of time series corresponding to 1 minute of temperature.&#34;&#34;&#34;
+    return int(np.around(((1 / c.sensor_hz) * 60) / speed_up, 0))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.ij"><code class="name flex">
+<span>def <span class="ident">ij</span></span>(<span>_t, _i, _j)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">ij = lambda _t, _i, _j: from_to_indices(
+    _t, datetime.fromisoformat(_i), datetime.fromisoformat(_j)
+)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)) -> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(
+    name: str, temp_quantile: Tuple[float, float] = (0.001, 0.999)
+) -&gt; pd.DataFrame:
+    # If the file is already parsed, return it..
+    name_path = os.path.join(project_dir(), &#34;data/temperature&#34;, name + &#34;.txt&#34;)
+    saved_path = name_path + &#34;.parsed&#34;
+    if os.path.exists(saved_path):
+        df = pd.read_csv(saved_path, index_col=0, parse_dates=[&#34;datetime&#34;])
+        lq = df[&#34;temp&#34;].quantile(temp_quantile[0])
+        hq = df[&#34;temp&#34;].quantile(temp_quantile[1])
+        print(f&#34;Temperature {temp_quantile} quantiles = {lq}, {hq}&#34;)
+        df = df[(df[&#34;temp&#34;] &gt;= lq) &amp; (df[&#34;temp&#34;] &lt;= hq)]
+        return df
+    # ..otherwise read and parse the data.
+    with open(name_path) as f:
+        temps = list(map(parse_line, f.readlines()))
+    # Remove NANs.
+    for line_ind, [dt, temp, solar] in enumerate(temps):
+        if np.isnan(temp):
+            print_i(f&#34;NAN in {name} temperature&#34;)
+            temps[line_ind][1] = temps[line_ind - 1][1]
+        if np.isnan(solar):
+            print_i(f&#34;NAN in {name} solar radiation&#34;)
+            temps[line_ind][2] = temps[line_ind - 1][2]
+    # Pack it into a DataFrame.
+    df = pd.DataFrame(temps, columns=[&#34;datetime&#34;, &#34;temp&#34;, &#34;solar&#34;])
+    # Convert to celcius.
+    # df[&#34;temp&#34;] = (df[&#34;temp&#34;] - 32) * (5 / 9)
+    # Remove duplicate times.
+    len_before = len(df)
+    df = df.drop_duplicates(subset=[&#34;datetime&#34;], keep=&#34;first&#34;)
+    len_after = len(df)
+    print_i(f&#34;Removed {len_before - len_after} duplicates, now {len_after} rows&#34;)
+    # Sort.
+    df = df.sort_values(by=[&#34;datetime&#34;])
+    # Save.
+    df.to_csv(saved_path)
+    return load(name=name)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.parse_line"><code class="name flex">
+<span>def <span class="ident">parse_line</span></span>(<span>line)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_line(line):
+    # 23803 20190101 0005 20181231 1805      3  -89.43   34.82    12.4
+    # 0.0      0 0    10.9 C 0    88 0 -99.000 -9999.0  1115 0   0.79 0
+    line = line.split()
+    ds = line[1]  # Date string.
+    ts = line[2]  # Time string.
+    year, mon, day, hr, mn = (ds[0:4], ds[4:6], ds[6:8], ts[0:2], ts[2:4])
+    # 2011-11-04T00:05
+    dt = datetime.fromisoformat(f&#34;{year}-{mon}-{day}T{hr}:{mn}&#34;)
+    return [dt, float(line[-15]), float(line[-13])]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.regress_and_errors"><code class="name flex">
+<span>def <span class="ident">regress_and_errors</span></span>(<span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Linear regression predictor, and error from each given point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def regress_and_errors(x, y):
+    &#34;&#34;&#34;Linear regression predictor, and error from each given point.&#34;&#34;&#34;
+    lr = LinearRegression().fit(x.reshape(-1, 1), y)
+    errors = []
+    for x_, y_ in zip(x, y):
+        errors.append(abs(y_ - lr.predict([[x_]])[0]))
+    return lr, np.array(errors)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.remove_sampled"><code class="name flex">
+<span>def <span class="ident">remove_sampled</span></span>(<span>num_samples, signal)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interpolate between num_samples and subtract.</p>
+<p>Data must be of shape n samples x f features.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_sampled(num_samples, signal):
+    &#34;&#34;&#34;Interpolate between num_samples and subtract.
+
+    Data must be of shape n samples x f features.
+    &#34;&#34;&#34;
+    # &#39;num_samples + 1&#39; indices into given signal.
+    indices = list(map(int, np.linspace(0, len(signal) - 1, num_samples + 1)))
+    # Mean value of the signal between each pair of indices,
+    # and new indices, at center between each pair of indices.
+    y_samples, new_indices = [], []
+    for i_lo, i_hi in zip(indices[:-1], indices[1:]):
+        y_samples.append(np.mean(signal[i_lo:i_hi]))
+        new_indices.append(int((i_lo + i_hi) / 2))
+    rm = interp1d(new_indices, y_samples, fill_value=&#34;extrapolate&#34;)(
+        np.arange(len(signal))
+    )
+    return rm, deepcopy(rm) - rm[0]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.resize"><code class="name flex">
+<span>def <span class="ident">resize</span></span>(<span>temps, tmin: Union[int, NoneType] = None, tmax: Union[int, NoneType] = None, year: Union[int, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Resize temperatures into a range.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resize(
+    temps,
+    tmin: Optional[int] = None,
+    tmax: Optional[int] = None,
+    year: Optional[int] = None,
+):
+    &#34;&#34;&#34;Resize temperatures into a range.&#34;&#34;&#34;
+    if year is not None:
+        if year == 2018:
+            tmin, tmax = -2, 32
+        elif year == 2019:
+            tmin, tmax = -5, 35
+        else:
+            raise NotImplementedError(f&#34;Uknown year {year}&#34;)
+    # TODO: Remove, just a sanity check while I write my thesis.
+    assert tmin &lt; 0
+    assert tmax &gt; 30
+    print(tmin, tmax)
+    return interp1d(
+        np.linspace(min(temps), max(temps), 1000), np.linspace(tmin, tmax, 1000)
+    )(temps)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.temperature.temps_bottom_top"><code class="name flex">
+<span>def <span class="ident">temps_bottom_top</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, temps: List[float], solar: List[float], len_per_hour)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The top and bottom bridge temperatures for given air temperatures.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def temps_bottom_top(c: Config, temps: List[float], solar: List[float], len_per_hour):
+    &#34;&#34;&#34;The top and bottom bridge temperatures for given air temperatures.&#34;&#34;&#34;
+
+    # temps_bottom = np.array(temps) - c.bridge.ref_temp_c
+    # temps_top = temps_bottom + c.bridge.air_surface_temp_delta_c
+    # return temps_bottom, temps_top
+
+    bd = 0.001
+    # bn = 0.008
+
+    temps_b = [temps[0]]
+    for i, temp_a in enumerate(temps[1:]):
+        temps_b.append((1 - bd) * temps_b[i - 1] + bd * temp_a)
+
+    recent_hours = 3
+    sd = 0.008
+    sn = 0.008
+    ss = 0.0001
+    temps_s = [temps[0]]
+
+    for i, (temp_a, solar) in enumerate(zip(temps[1:], solar[1:])):
+        recent_start = i - (len_per_hour * recent_hours)
+        # if i &gt; 1 and temps_b[i - 1] &gt; temps_b[i - 2]:
+        if False:
+            recent_max = np.max(temps[max(0, recent_start) : i])
+            temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
+        else:
+            temps_s.append((1 - sn - ss) * temps_s[i - 1] + sn * temp_a + ss * solar)
+
+    return np.array(temps_b), np.array(temps_s)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="bridge_sim.temperature.apply" href="#bridge_sim.temperature.apply">apply</a></code></li>
+<li><code><a title="bridge_sim.temperature.apply_effect" href="#bridge_sim.temperature.apply_effect">apply_effect</a></code></li>
+<li><code><a title="bridge_sim.temperature.effect" href="#bridge_sim.temperature.effect">effect</a></code></li>
+<li><code><a title="bridge_sim.temperature.from_to_indices" href="#bridge_sim.temperature.from_to_indices">from_to_indices</a></code></li>
+<li><code><a title="bridge_sim.temperature.from_to_mins" href="#bridge_sim.temperature.from_to_mins">from_to_mins</a></code></li>
+<li><code><a title="bridge_sim.temperature.get_len_per_min" href="#bridge_sim.temperature.get_len_per_min">get_len_per_min</a></code></li>
+<li><code><a title="bridge_sim.temperature.ij" href="#bridge_sim.temperature.ij">ij</a></code></li>
+<li><code><a title="bridge_sim.temperature.load" href="#bridge_sim.temperature.load">load</a></code></li>
+<li><code><a title="bridge_sim.temperature.parse_line" href="#bridge_sim.temperature.parse_line">parse_line</a></code></li>
+<li><code><a title="bridge_sim.temperature.regress_and_errors" href="#bridge_sim.temperature.regress_and_errors">regress_and_errors</a></code></li>
+<li><code><a title="bridge_sim.temperature.remove_sampled" href="#bridge_sim.temperature.remove_sampled">remove_sampled</a></code></li>
+<li><code><a title="bridge_sim.temperature.resize" href="#bridge_sim.temperature.resize">resize</a></code></li>
+<li><code><a title="bridge_sim.temperature.temps_bottom_top" href="#bridge_sim.temperature.temps_bottom_top">temps_bottom_top</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

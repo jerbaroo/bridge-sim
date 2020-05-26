@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import bridge_sim.sim
+import bridge_sim.sim.responses
 import matplotlib as mpl
 import numpy as np
 
@@ -557,7 +559,7 @@ def wagen_1_contour_plot(
         for z in healthy_responses.zs[x][0]:
             responses.append(
                 (
-                    healthy_responses.responses[0][x][0][z]
+                    bridge_sim.sim.responses.responses[0][x][0][z]
                     - crack_responses.at_deck(Point(x=x, z=z), interp=False),
                     Point(x=x, z=z),
                 )

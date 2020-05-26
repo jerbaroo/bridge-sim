@@ -1,0 +1,2509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.model API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.model</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import itertools
+from collections import defaultdict
+from typing import Optional, NewType, Dict, List, Tuple, Callable
+
+import dill
+
+import numpy as np
+from bridge_sim.model import (
+    Support,
+    Material,
+    Point,
+    PointLoad,
+    PierSettlement,
+    ResponseType,
+    Bridge,
+    Config,
+)
+from bridge_sim.sim.util import _responses_path
+from bridge_sim.util import round_m, safe_str, resize_units, nearest_index, print_i
+from scipy.interpolate import griddata, interp1d, interp2d
+from scipy.spatial import distance
+
+
+class Node:
+    &#34;&#34;&#34;A node in a FE model.
+
+    Args:
+        n_id: the ID of this node.
+        x: x position of this node on the bridge.
+        y: y position of this node on the bridge.
+        z: z position of this node on the bridge.
+        deck: whether this node belongs to the bridge deck.
+        pier: a pier that this node may belong to.
+        comment: an optional comment for the .tcl file.
+        support: a support that this node may belong to.
+
+    Attrs:
+        section: Material, a section that may be attached, or not.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        n_id: int,
+        x: float,
+        y: float,
+        z: float,
+        deck: bool,
+        pier: Optional[Support] = None,
+        comment: Optional[str] = None,
+        support: Optional[Support] = None,
+    ):
+        self.n_id = n_id
+        self.x = round_m(x)
+        self.y = round_m(y)
+        self.z = round_m(z)
+        self.pier = pier
+        self.deck = deck
+        self.comment = comment
+        self.support = support
+
+    def command_3d(self):
+        &#34;&#34;&#34;OpenSees node command.&#34;&#34;&#34;
+        comment = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+        return (
+            f&#34;node {self.n_id} {round_m(self.x)} {round_m(self.y)}&#34;
+            + f&#34; {round_m(self.z)}{comment}&#34;
+        )
+
+    def distance(self, x: float, y: float, z: float):
+        &#34;&#34;&#34;Distance (with direction) from this node to coordinates.&#34;&#34;&#34;
+        return distance.euclidean((self.x, self.y, self.z), (x, y, z))
+
+    def distance_n(self, node):
+        &#34;&#34;&#34;Distance (with direction) from this node to another node.&#34;&#34;&#34;
+        return self.distance(x=node.x, y=node.y, z=node.z)
+
+
+NodesById = NewType(&#34;NodesById&#34;, Dict[int, Node])
+# Nodes for a bridge deck.
+DeckNodes = NewType(&#34;DeckNodes&#34;, List[List[Node]])
+# A list of nodes for each shell.
+DeckShellNodes = NewType(&#34;DeckShellNodes&#34;, List[Tuple[Node, Node, Node, Node]])
+# Nodes for one wall of a pier. Indexed first by z then by x index.
+WallNodes = NewType(&#34;WallNodes&#34;, List[List[Node]])
+# Nodes for both walls of a single pier.
+APierNodes = NewType(&#34;APierNodes&#34;, Tuple[WallNodes, WallNodes])
+# Nodes for every pier.
+PierNodes = NewType(&#34;PierNodes&#34;, List[APierNodes])
+# Deck and pier nodes.
+BridgeNodes = NewType(&#34;BridgeNodes&#34;, Tuple[DeckShellNodes, PierNodes])
+
+
+class Shell:
+    &#34;&#34;&#34;A shell element in a FE model.
+
+    NOTE: When this constructor is called additional work is done in setting a
+    reference to the given section to all given nodes. Thus associating to each
+    given node a section, this information that is attached to nodes is useful
+    for creating colored plots of properties of the 3D model.
+
+    Args:
+        e_id: index for this shell element.
+        ni_id: index of the node at corner i of this shell element.
+        nj_id: index of the node at corner j of this shell element.
+        nk_id: index of the node at corner k of this shell element.
+        nl_id: index of the node at corner l of this shell element.
+        section: section that this shell element belongs to.
+        pier: whether this shell is on a pier.
+        nodes_by_id: nodes in this build context.
+        support_position_index: a 4-tuple of the support index, support wall
+            index, and z and y indices
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        e_id: int,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        section: Material,
+        pier: bool,
+        nodes_by_id: NodesById,
+        support_position_index: Optional[Tuple[int, int, int, int]] = None,
+    ):
+        self.e_id = e_id
+        self.ni_id = ni_id
+        self.nj_id = nj_id
+        self.nk_id = nk_id
+        self.nl_id = nl_id
+        self.pier = pier
+        self.section = section
+        self.support_position_index = support_position_index
+        self.nodes_by_id = nodes_by_id
+
+        # Attach a reference to the section to each &#39;Node&#39; and note if the node
+        # belongs to a pier or to the bridge deck.
+        for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+            node = self.nodes_by_id[n_id]
+            if pier:
+                node.pier_section = self.section
+            else:
+                node.deck_section = self.section
+
+    def node_ids(self):
+        &#34;&#34;&#34;IDs of this element&#39;s nodes.&#34;&#34;&#34;
+        return [self.ni_id, self.nj_id, self.nk_id, self.nl_id]
+
+    def nodes(self):
+        &#34;&#34;&#34;This element&#39;s nodes.&#34;&#34;&#34;
+        return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
+
+    def area(self):
+        &#34;&#34;&#34;Assumes a tetrahedron shape.&#34;&#34;&#34;
+        ni = self.nodes_by_id[self.ni_id]
+        nj = self.nodes_by_id[self.nj_id]
+        nk = self.nodes_by_id[self.nk_id]
+        nl = self.nodes_by_id[self.nl_id]
+
+        from lib.fem.util import poly_area
+
+        return poly_area(
+            [
+                (ni.x, ni.y, ni.z),
+                (nj.x, nj.y, nj.z),
+                (nk.x, nk.y, nk.z),
+                (nl.x, nl.y, nl.z),
+            ]
+        )
+
+    def center(self) -&gt; Point:
+        &#34;&#34;&#34;Point at the center of the element.&#34;&#34;&#34;
+        if not hasattr(self, &#34;_center&#34;):
+            node_0 = self.nodes_by_id[self.ni_id]
+            node_1 = self.nodes_by_id[self.nk_id]
+            delta_x = abs(node_0.x - node_1.x)
+            delta_y = abs(node_0.y - node_1.y)
+            delta_z = abs(node_0.z - node_1.z)
+            min_x = min(node_0.x, node_1.x)
+            min_y = min(node_0.y, node_1.y)
+            min_z = min(node_0.z, node_1.z)
+            self._center = Point(
+                x=min_x + delta_x / 2, y=min_y + delta_y / 2, z=min_z + delta_z / 2
+            )
+        return self._center
+
+    def length(self) -&gt; float:
+        &#34;&#34;&#34;The length of this element (longitudinal direction).&#34;&#34;&#34;
+        if not hasattr(self, &#34;_length&#34;):
+            min_x, max_x = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_x = self.nodes_by_id[n_id].x
+                if node_x &lt; min_x:
+                    min_x = node_x
+                if node_x &gt; max_x:
+                    max_x = node_x
+            self._length = max_x - min_x
+        return self._length
+
+    def width(self) -&gt; float:
+        &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
+        if not hasattr(self, &#34;_width&#34;):
+            min_z, max_z = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_z = self.nodes_by_id[n_id].z
+                if node_z &lt; min_z:
+                    min_z = node_z
+                if node_z &gt; max_z:
+                    max_z = node_z
+            self._width = max_z - min_z
+        return self._width
+
+    def command_3d(self):
+        &#34;&#34;&#34;OpenSees element command.&#34;&#34;&#34;
+        repr_section = repr(self.section).replace(&#34;\n&#34;, &#34; &#34;)
+        return (
+            f&#34;element ShellMITC4 {self.e_id} {self.ni_id} {self.nj_id}&#34;
+            + f&#34; {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}&#34;
+        )
+
+
+ShellsById = NewType(&#34;ShellsById&#34;, Dict[int, Shell])
+# Shells for a bridge deck.
+DeckShells = NewType(&#34;DeckShells&#34;, List[List[Shell]])
+# Shells for one wall of a pier. Indexed first by z then by x index.
+WallShells = NewType(&#34;WallShells&#34;, List[List[Shell]])
+# Shells for both walls of a pier.
+APierShells = NewType(&#34;APierShells&#34;, Tuple[WallShells, WallShells])
+# Shells for every pier.
+PierShells = NewType(&#34;PierShells&#34;, List[APierShells])
+# Deck and pier shells.
+BridgeShells = NewType(&#34;BridgeShells&#34;, Tuple[DeckShells, PierShells])
+
+
+class BuildContext:
+    &#34;&#34;&#34;Stores nodes and shells for a FEM being built.
+
+    Args:
+        add_loads: List[Point], additional grid lines where to add nodes.
+        refinement_radii: List[float], radii for sweeps to refine around loads.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        add_loads: List[Point],
+        refinement_radii: List[float] = [],
+        # refinement_radii: List[float] = [2, 1, 0.5],
+    ):
+        self.next_n_id = 1
+        self.nodes_by_id: NodesById = dict()
+        self.nodes_by_pos = dict()
+        # A dict of x to dict of y to dict of z to Node.
+        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(dict))
+
+        self.next_s_id = 1
+        self.shells_by_id: ShellsById = dict()
+        self.shells_by_n_ids = dict()
+
+        self.add_loads = add_loads
+        for point in self.add_loads:
+            assert point.y == 0
+        self.refinement_radii = refinement_radii
+
+    def new_n_id(self):
+        self.next_n_id += 1
+        return self.next_n_id - 1
+
+    def new_s_id(self):
+        self.next_s_id += 1
+        return self.next_s_id - 1
+
+    def get_node(
+        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+    ) -&gt; Node:
+        x, y, z = round_m(x), round_m(y), round_m(z)
+        pos = (x, y, z)
+        if pos not in self.nodes_by_pos:
+            n_id = self.new_n_id()
+            node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
+            self.nodes_by_id[n_id] = node
+            self.nodes_by_pos[pos] = node
+            self.nodes_by_pos_dict[x][y][z] = node
+        return self.nodes_by_pos[pos]
+
+    def get_shell(
+        self,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        pier: bool,
+        section: Material,
+    ) -&gt; Shell:
+        n_ids = (ni_id, nj_id, nk_id, nl_id)
+        if n_ids not in self.shells_by_n_ids:
+            s_id = self.new_s_id()
+            shell = Shell(
+                e_id=s_id,
+                ni_id=ni_id,
+                nj_id=nj_id,
+                nk_id=nk_id,
+                nl_id=nl_id,
+                pier=pier,
+                section=section,
+                nodes_by_id=self.nodes_by_id,
+            )
+            self.shells_by_n_ids[n_ids] = shell
+            self.shells_by_id[s_id] = shell
+        return self.shells_by_n_ids[n_ids]
+
+    def get_nodes_at_xy(self, x: float, y: float):
+        x, y = round_m(x), round_m(y)
+        return self.nodes_by_pos_dict[x][y].values()
+
+
+class SimParams:
+    &#34;&#34;&#34;Parameters for one FE simulation.
+
+    Args:
+        ploads: List[PointLoad], point loads to apply in the simulation.
+        displacement_ctrl: PierSettlement, apply a load until the given
+            displacement in meters is reached.
+        axial_delta_temp: Optional[float], axial thermal loading in celcius.
+        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ploads: List[PointLoad] = [],
+        displacement_ctrl: Optional[PierSettlement] = None,
+        axial_delta_temp: Optional[float] = None,
+        moment_delta_temp: Optional[float] = None,
+    ):
+        self.ploads = ploads
+        self.displacement_ctrl = displacement_ctrl
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
+
+    def build_ctx(self) -&gt; BuildContext:
+        &#34;&#34;&#34;Build context from these simulation parameters.
+
+        The build context only requires information on geometry.
+
+        &#34;&#34;&#34;
+        return BuildContext(add_loads=[pload.point() for pload in self.ploads])
+
+    def id_str(self):
+        &#34;&#34;&#34;String representing the simulation parameters.
+
+        NOTE: Response types are not included in the ID string because it is
+        currently assumed that a simulation saves all output files.
+
+        &#34;&#34;&#34;
+        if self.displacement_ctrl is not None:
+            load_str = self.displacement_ctrl.id_str()
+        elif self.axial_delta_temp is not None:
+            load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
+        elif self.moment_delta_temp is not None:
+            load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
+        elif len(self.ploads) &gt; 0:
+            load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+            load_str = f&#34;[{load_str}]&#34;
+        else:
+            load_str = &#34;no-loading&#34;
+        return safe_str(load_str)
+
+
+class Responses:
+    &#34;&#34;&#34;Responses of one sensor type for one FE simulation.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        response_type: ResponseType,
+        responses: List[&#34;Response&#34;],
+        build: bool = True,
+        units: Optional[str] = None,
+    ):
+        assert isinstance(responses, list)
+        if len(responses) == 0:
+            raise ValueError(&#34;No fem found&#34;)
+        assert isinstance(responses[0][1], Point)
+        self.response_type = response_type
+        self.units = response_type.units() if units is None else units
+        self.raw_responses = responses
+        self.num_sensors = len(responses)
+        # Nested dictionaries for indexing fem by position.
+        self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+        if build:
+            for response, p in responses:
+                self.responses[0][p.x][p.y][p.z] = response
+            self.index()
+
+    def index(self):
+        &#34;&#34;&#34;Create attributes for fast indexing of times and positions.&#34;&#34;&#34;
+        self.times = sorted(self.responses.keys())
+        points = self.responses[self.times[0]]
+        self.xs = sorted(points.keys())
+        self.ys = {x: sorted(points[x].keys()) for x in self.xs}
+        self.deck_xs = [x for x in self.xs if 0 in points[x].keys()]
+        self.zs = {
+            x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
+        }
+
+    def deck_points(self) -&gt; List[Point]:
+        &#34;&#34;&#34;All the points on the deck where fem are collected.&#34;&#34;&#34;
+        return [
+            Point(x=x, y=0, z=z)
+            for _, (x, y, z) in self.values(point=True)
+            if np.isclose(y, 0)
+        ]
+
+    def add(self, values: List[float], points: List[Point]):
+        &#34;&#34;&#34;Add the values corresponding to given points.
+
+        The points must already be in the fem.
+
+        &#34;&#34;&#34;
+        assert len(values) == len(points)
+        for v, p in zip(values, points):
+            before = self.responses[0][p.x][p.y][p.z]
+            self.responses[0][p.x][p.y][p.z] += v
+            after = self.responses[0][p.x][p.y][p.z]
+            # print(before, after)
+        return self
+
+    def map(self, f, xyz: bool = False):
+        &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if xyz:
+                        self.responses[time][x][y][z] = f(response, x, y, z)
+                    else:
+                        self.responses[time][x][y][z] = f(response)
+        return self
+
+    def resize(self):
+        &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
+        responses = self
+        resize_f, units = resize_units(self.units)
+        if resize_f is not None:
+            responses = responses.map(resize_f)
+            responses.units = units
+        return responses
+
+    def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+        responses = []
+        for x, y_dict in self.responses[self.times[0]].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    p = Point(x=x, y=y, z=z)
+                    if not remove(p):
+                        responses.append((response, p))
+                    # if abs(p.distance(of)) &gt; radius:
+        return Responses(
+            response_type=self.response_type, responses=responses, units=self.units
+        )
+
+    def to_stress(self, bridge: Bridge):
+        &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
+        if self.response_type == ResponseType.Strain:
+            self.response_type = ResponseType.Stress
+        elif self.response_type == ResponseType.StrainT:
+            self.response_type = ResponseType.StressT
+        elif self.response_type == ResponseType.StrainZZB:
+            self.response_type = ResponseType.StressZZB
+        else:
+            raise ValueError(f&#34;Responses must be strain fem&#34;)
+        if len(bridge.sections) == 1:
+            youngs = bridge.sections[0].youngs
+            self.map(lambda r: r * youngs)
+        else:
+
+            def _map(r, x, y, z):
+                return r * bridge.deck_section_at(x=x, z=z).youngs
+
+            self.map(_map, xyz=True)
+        self.units = self.response_type.units()
+        return self
+
+    def values(self, point: bool = False):
+        &#34;&#34;&#34;Yield each response value.&#34;&#34;&#34;
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if point:
+                        yield response, (x, y, z)
+                    else:
+                        yield response
+
+    def at_shells(self, shells: List[&#34;Shell&#34;]) -&gt; &#34;Responses&#34;:
+        responses = []
+        for shell in shells:
+            shell_center = shell.center()
+            if shell_center.y != 0:
+                raise ValueError(&#34;Can only get response on deck&#34;)
+            responses.append((self.at_deck(shell_center, interp=False), shell_center))
+        return Responses(response_type=self.response_type, responses=responses,)
+
+    def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
+        &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
+
+        NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+        &#34;&#34;&#34;
+        assert point.y == 0
+        if not interp:
+            return self._at_deck_snap(x=point.x, z=point.z)
+        return self._at_deck_interp(x=point.x, z=point.z, grid_interp=grid_interp)
+
+    def at_decks(self, points: List[Point]) -&gt; List[float]:
+        &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
+
+        NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+        &#34;&#34;&#34;
+        self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
+        xzs = np.array([[point.x, point.z] for point in points])
+        points, values = self.griddata
+        return griddata(points, values, xzs)
+        # result = self.grid_interp2d(xzs[0].flatten(), xzs[1].flatten())[0]
+        # return result
+
+    def _at_deck_interp(self, x: float, z: float, grid_interp=True):
+        # Assign to new variables, so they are not overwritten in loop.
+        _x, _z = x, z
+        # Determine grid of point and values for interpolation.
+        if not hasattr(self, &#34;griddata&#34;):
+            points = []
+            values = []
+            # For each x on the deck..
+            for x in self.deck_xs:
+                # for each z, for that x, determine value.
+                for z in self.zs[x][0]:
+                    points.append([x, z])
+                    values.append(self.responses[0][x][0][z])
+            self.griddata = np.array(points), np.array(values)
+            # points = self.griddata[0].T
+            # self.grid_interp2d = interp2d(points[0], points[1], values)
+        # If grid interpolation selected then perform it.
+        if grid_interp:
+            points, values = self.griddata
+            result = griddata(points, values, [[_x, _z]])[0]
+            # result = self.grid_interp2d([_x], [_z])[0]
+            # print(f&#34;x = {_x}, z = {_z}, result = {result}&#34;)
+            return result
+        # Else (old method), needs update.
+        assert False
+        # _x, _z = x, z
+
+        x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
+        z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
+        xs = [x_lo, x_lo, x_hi, x_hi]
+        zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        vs = [
+            bridge_sim.sim.responses.responses[0][xs[i]][0][zs[i]]
+            for i in range(len(xs))
+        ]
+        # In the case of strain collection in the 3D OpenSees simulation the
+        # values collected are not at the nodes but at the integration points.
+        # Thus at the perimeter of the bridge no values will be collected and
+        # extrapolation is necessary.
+        if np.isclose(x_lo, x_hi):
+            if np.isclose(z_lo_x_lo, z_hi_x_lo):
+                # print(&#34;interp1d, x == x, z == z&#34;)
+                return vs[0]
+            # print(&#34;interp1d, x == x&#34;)
+            return interp1d(
+                [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value=&#34;extrapolate&#34;
+            )(z)
+        if np.isclose(z_lo_x_lo, z_hi_x_lo):
+            # print(&#34;interp1d, z == z&#34;)
+            return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value=&#34;extrapolate&#34;)(x)
+        # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
+        # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        # print(x, z)
+        # print(xs)
+        # print(self.zs[x_lo][0])
+        # print(self.zs[x_hi][0])
+        # print(zs)
+        # print(xs)
+        # print(zs)
+        # print(vs)
+        # print(&#34;interp2d&#34;)
+        return interp2d(x=xs, y=zs, z=vs)(x, z)
+
+    def _lo_hi(self, a: List[float], b: float) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34;Indices of the z positions of sensors either side of z.
+
+        TODO: Assert sorted.
+        TODO: Test this.
+        TODO: Switch to numpy.searchsorted for performance.
+
+        &#34;&#34;&#34;
+        # print(f&#34;b = {b}&#34;)
+        # If only one point, return that.
+        if len(a) == 1:
+            return a[0], a[0]
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(a)):
+            if np.isclose(a[i], b):
+                return a[i], a[i]
+            if a[i] &gt; b and i &gt; 0:
+                return a[i - 1], a[i]
+        # Else the last point.
+        return a[i], a[i]
+
+    def _at_deck_snap(self, x: float, z: float):
+        &#34;&#34;&#34;Deck response from nearest available sensor.&#34;&#34;&#34;
+        y = 0
+        x_ind = nearest_index(self.deck_xs, x)
+        x_near = self.deck_xs[x_ind]
+        z_ind = nearest_index(self.zs[x_near][y], z)
+        z_near = self.zs[x_near][y][z_ind]
+        return self.responses[0][x_near][y][z_near]
+
+
+class SimResponses(Responses):
+    &#34;&#34;&#34;Responses of one sensor type for one FE simulation.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: Config,
+        sim_params: SimParams,
+        sim_runner: &#34;FEMRunner&#34;,
+        response_type: ResponseType,
+        responses: List[&#34;Response&#34;],
+        build: bool = True,
+    ):
+        self.c = c
+        self.sim_params = sim_params
+        self.sim_runner = sim_runner
+        super().__init__(response_type=response_type, responses=responses, build=build)
+
+    def save(self):
+        &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
+        path = _responses_path(
+            sim_runner=self.sim_runner,
+            sim_params=self.sim_params,
+            response_type=self.response_type,
+        )
+        try:
+            with open(path, &#34;wb&#34;) as f:
+                dill.dump(self.raw_responses, f)
+        except:
+            print(&#34;Could not save raw responses&#34;, flush=True)
+
+
+def bridge_3d_nodes(deck_nodes: DeckNodes, all_support_nodes: PierNodes) -&gt; List[Node]:
+    &#34;&#34;&#34;All a bridge&#39;s nodes in a deterministic order.&#34;&#34;&#34;
+    all_nodes = list(itertools.chain.from_iterable(deck_nodes))
+    for support_nodes in all_support_nodes:
+        for wall_nodes in support_nodes:
+            for y_nodes in wall_nodes:
+                for node in y_nodes:
+                    all_nodes.append(node)
+    assert isinstance(all_nodes[0], Node)
+    assert isinstance(all_nodes[-1], Node)
+    print_i(f&#34;Total bridge nodes: {len(all_nodes)}&#34;)
+    return all_nodes
+
+
+def bridge_3d_elements(
+    deck_elements: DeckShells, all_pier_elements: PierShells
+) -&gt; List[Shell]:
+    &#34;&#34;&#34;All a bridge&#39;s shell elements in a deterministic order.&#34;&#34;&#34;
+    all_elements = list(itertools.chain.from_iterable(deck_elements))
+    for pier_element in all_pier_elements:
+        all_elements.append(pier_element)
+    assert isinstance(all_elements[0], Shell)
+    assert isinstance(all_elements[-1], Shell)
+    return all_elements
+
+
+class ManyResponses:
+    &#34;&#34;&#34;Position indexed responses (one response type) for multiple simulations.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: Config,
+        response_type: ResponseType,
+        expt_params: List[SimParams],
+        fem_runner: &#34;FEMRunner&#34;,
+        expt_responses: List[SimResponses],
+    ):
+        self.c = c
+        self.response_type = response_type
+        self.expt_params = expt_params
+        self.fem_runner = fem_runner
+        self.expt_responses = expt_responses
+        self.num_expts = len(expt_responses)
+
+    # def file_paths(self):
+    #     &#34;&#34;&#34;A unique file path for each simulation&#39;s fem.&#34;&#34;&#34;
+    #     return [fem_responses_path(
+    #             self.c, fem_params, self.response_type, self.fem_runner.name)
+    #         for fem_params in self.expt_params.fem_params]
+
+    def sim_response(
+        self,
+        expt_frac: float,
+        x_frac: float,
+        z_frac: float,
+        y_frac: float = 1,
+        time_index: int = 0,
+    ) -&gt; &#34;Response&#34;:
+        &#34;&#34;&#34;The response at a position for a simulation.
+
+        Args:
+            expt_frac: float, fraction of experiments in [0 1].
+            x_frac: float, response position on x-axis in [0 1].
+            y_frac: float, response position on y-axis in [0 1].
+            z_frac: float, response position on z-axis in [0 1].
+            time_index: float, response position on z-axis in [0 1].
+
+        &#34;&#34;&#34;
+        assert 0 &lt;= expt_frac &lt;= 1
+        assert 0 &lt;= x_frac &lt;= 1
+
+        # If an experiment index matches exactly, or not interpolating.
+        # if expt_ind == int(expt_ind) or not interp_sim:
+
+        expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
+        return self.expt_responses[int(np.rint(expt_ind))].at(
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
+        )
+
+        assert interp_sim
+        # Else interpolate fem between two experiment indices.
+        expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
+        expt_lo_frac, expt_hi_frac = np.interp(
+            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
+        )
+        # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
+        # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
+        response_lo = self.expt_responses[expt_ind_lo].at(
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
+        response_hi = self.expt_responses[expt_ind_hi].at(
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
+        response = np.interp(
+            expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
+        )
+        # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
+        return response</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11d920b90>, all_pier_elements: <function NewType.<locals>.new_type at 0x11d920d40>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bridge_3d_elements(
+    deck_elements: DeckShells, all_pier_elements: PierShells
+) -&gt; List[Shell]:
+    &#34;&#34;&#34;All a bridge&#39;s shell elements in a deterministic order.&#34;&#34;&#34;
+    all_elements = list(itertools.chain.from_iterable(deck_elements))
+    for pier_element in all_pier_elements:
+        all_elements.append(pier_element)
+    assert isinstance(all_elements[0], Shell)
+    assert isinstance(all_elements[-1], Shell)
+    return all_elements</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11d920320>, all_support_nodes: <function NewType.<locals>.new_type at 0x11d920560>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bridge_3d_nodes(deck_nodes: DeckNodes, all_support_nodes: PierNodes) -&gt; List[Node]:
+    &#34;&#34;&#34;All a bridge&#39;s nodes in a deterministic order.&#34;&#34;&#34;
+    all_nodes = list(itertools.chain.from_iterable(deck_nodes))
+    for support_nodes in all_support_nodes:
+        for wall_nodes in support_nodes:
+            for y_nodes in wall_nodes:
+                for node in y_nodes:
+                    all_nodes.append(node)
+    assert isinstance(all_nodes[0], Node)
+    assert isinstance(all_nodes[-1], Node)
+    print_i(f&#34;Total bridge nodes: {len(all_nodes)}&#34;)
+    return all_nodes</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.sim.model.BuildContext"><code class="flex name class">
+<span>class <span class="ident">BuildContext</span></span>
+<span>(</span><span>add_loads: List[<a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>], refinement_radii: List[float] = [])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Stores nodes and shells for a FEM being built.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>add_loads</code></strong></dt>
+<dd>List[Point], additional grid lines where to add nodes.</dd>
+<dt><strong><code>refinement_radii</code></strong></dt>
+<dd>List[float], radii for sweeps to refine around loads.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BuildContext:
+    &#34;&#34;&#34;Stores nodes and shells for a FEM being built.
+
+    Args:
+        add_loads: List[Point], additional grid lines where to add nodes.
+        refinement_radii: List[float], radii for sweeps to refine around loads.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        add_loads: List[Point],
+        refinement_radii: List[float] = [],
+        # refinement_radii: List[float] = [2, 1, 0.5],
+    ):
+        self.next_n_id = 1
+        self.nodes_by_id: NodesById = dict()
+        self.nodes_by_pos = dict()
+        # A dict of x to dict of y to dict of z to Node.
+        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(dict))
+
+        self.next_s_id = 1
+        self.shells_by_id: ShellsById = dict()
+        self.shells_by_n_ids = dict()
+
+        self.add_loads = add_loads
+        for point in self.add_loads:
+            assert point.y == 0
+        self.refinement_radii = refinement_radii
+
+    def new_n_id(self):
+        self.next_n_id += 1
+        return self.next_n_id - 1
+
+    def new_s_id(self):
+        self.next_s_id += 1
+        return self.next_s_id - 1
+
+    def get_node(
+        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+    ) -&gt; Node:
+        x, y, z = round_m(x), round_m(y), round_m(z)
+        pos = (x, y, z)
+        if pos not in self.nodes_by_pos:
+            n_id = self.new_n_id()
+            node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
+            self.nodes_by_id[n_id] = node
+            self.nodes_by_pos[pos] = node
+            self.nodes_by_pos_dict[x][y][z] = node
+        return self.nodes_by_pos[pos]
+
+    def get_shell(
+        self,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        pier: bool,
+        section: Material,
+    ) -&gt; Shell:
+        n_ids = (ni_id, nj_id, nk_id, nl_id)
+        if n_ids not in self.shells_by_n_ids:
+            s_id = self.new_s_id()
+            shell = Shell(
+                e_id=s_id,
+                ni_id=ni_id,
+                nj_id=nj_id,
+                nk_id=nk_id,
+                nl_id=nl_id,
+                pier=pier,
+                section=section,
+                nodes_by_id=self.nodes_by_id,
+            )
+            self.shells_by_n_ids[n_ids] = shell
+            self.shells_by_id[s_id] = shell
+        return self.shells_by_n_ids[n_ids]
+
+    def get_nodes_at_xy(self, x: float, y: float):
+        x, y = round_m(x), round_m(y)
+        return self.nodes_by_pos_dict[x][y].values()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.BuildContext.get_node"><code class="name flex">
+<span>def <span class="ident">get_node</span></span>(<span>self, x: float, y: float, z: float, deck: bool, comment: Union[str, NoneType] = None) -> <a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_node(
+    self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+) -&gt; Node:
+    x, y, z = round_m(x), round_m(y), round_m(z)
+    pos = (x, y, z)
+    if pos not in self.nodes_by_pos:
+        n_id = self.new_n_id()
+        node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
+        self.nodes_by_id[n_id] = node
+        self.nodes_by_pos[pos] = node
+        self.nodes_by_pos_dict[x][y][z] = node
+    return self.nodes_by_pos[pos]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.BuildContext.get_nodes_at_xy"><code class="name flex">
+<span>def <span class="ident">get_nodes_at_xy</span></span>(<span>self, x: float, y: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_nodes_at_xy(self, x: float, y: float):
+    x, y = round_m(x), round_m(y)
+    return self.nodes_by_pos_dict[x][y].values()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.BuildContext.get_shell"><code class="name flex">
+<span>def <span class="ident">get_shell</span></span>(<span>self, ni_id: int, nj_id: int, nk_id: int, nl_id: int, pier: bool, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>) -> <a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shell(
+    self,
+    ni_id: int,
+    nj_id: int,
+    nk_id: int,
+    nl_id: int,
+    pier: bool,
+    section: Material,
+) -&gt; Shell:
+    n_ids = (ni_id, nj_id, nk_id, nl_id)
+    if n_ids not in self.shells_by_n_ids:
+        s_id = self.new_s_id()
+        shell = Shell(
+            e_id=s_id,
+            ni_id=ni_id,
+            nj_id=nj_id,
+            nk_id=nk_id,
+            nl_id=nl_id,
+            pier=pier,
+            section=section,
+            nodes_by_id=self.nodes_by_id,
+        )
+        self.shells_by_n_ids[n_ids] = shell
+        self.shells_by_id[s_id] = shell
+    return self.shells_by_n_ids[n_ids]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.BuildContext.new_n_id"><code class="name flex">
+<span>def <span class="ident">new_n_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_n_id(self):
+    self.next_n_id += 1
+    return self.next_n_id - 1</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.BuildContext.new_s_id"><code class="name flex">
+<span>def <span class="ident">new_s_id</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_s_id(self):
+    self.next_s_id += 1
+    return self.next_s_id - 1</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.ManyResponses"><code class="flex name class">
+<span>class <span class="ident">ManyResponses</span></span>
+<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="#bridge_sim.sim.model.SimParams">SimParams</a>], fem_runner: FEMRunner, expt_responses: List[<a title="bridge_sim.sim.model.SimResponses" href="#bridge_sim.sim.model.SimResponses">SimResponses</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Position indexed responses (one response type) for multiple simulations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ManyResponses:
+    &#34;&#34;&#34;Position indexed responses (one response type) for multiple simulations.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: Config,
+        response_type: ResponseType,
+        expt_params: List[SimParams],
+        fem_runner: &#34;FEMRunner&#34;,
+        expt_responses: List[SimResponses],
+    ):
+        self.c = c
+        self.response_type = response_type
+        self.expt_params = expt_params
+        self.fem_runner = fem_runner
+        self.expt_responses = expt_responses
+        self.num_expts = len(expt_responses)
+
+    # def file_paths(self):
+    #     &#34;&#34;&#34;A unique file path for each simulation&#39;s fem.&#34;&#34;&#34;
+    #     return [fem_responses_path(
+    #             self.c, fem_params, self.response_type, self.fem_runner.name)
+    #         for fem_params in self.expt_params.fem_params]
+
+    def sim_response(
+        self,
+        expt_frac: float,
+        x_frac: float,
+        z_frac: float,
+        y_frac: float = 1,
+        time_index: int = 0,
+    ) -&gt; &#34;Response&#34;:
+        &#34;&#34;&#34;The response at a position for a simulation.
+
+        Args:
+            expt_frac: float, fraction of experiments in [0 1].
+            x_frac: float, response position on x-axis in [0 1].
+            y_frac: float, response position on y-axis in [0 1].
+            z_frac: float, response position on z-axis in [0 1].
+            time_index: float, response position on z-axis in [0 1].
+
+        &#34;&#34;&#34;
+        assert 0 &lt;= expt_frac &lt;= 1
+        assert 0 &lt;= x_frac &lt;= 1
+
+        # If an experiment index matches exactly, or not interpolating.
+        # if expt_ind == int(expt_ind) or not interp_sim:
+
+        expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
+        return self.expt_responses[int(np.rint(expt_ind))].at(
+            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
+        )
+
+        assert interp_sim
+        # Else interpolate fem between two experiment indices.
+        expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
+        expt_lo_frac, expt_hi_frac = np.interp(
+            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
+        )
+        # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
+        # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
+        response_lo = self.expt_responses[expt_ind_lo].at(
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
+        response_hi = self.expt_responses[expt_ind_hi].at(
+            x_frac=x_frac,
+            y_frac=y_frac,
+            z_frac=z_frac,
+            time_index=time_index,
+            interpolate=interp_response,
+        )
+        response = np.interp(
+            expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
+        )
+        # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
+        return response</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.sim.responses.PSResponses" href="../responses/index.html#bridge_sim.sim.responses.PSResponses">PSResponses</a></li>
+<li><a title="bridge_sim.sim.responses.ULResponses" href="../responses/index.html#bridge_sim.sim.responses.ULResponses">ULResponses</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.ManyResponses.sim_response"><code class="name flex">
+<span>def <span class="ident">sim_response</span></span>(<span>self, expt_frac: float, x_frac: float, z_frac: float, y_frac: float = 1, time_index: int = 0) -> 'Response'</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The response at a position for a simulation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>expt_frac</code></strong></dt>
+<dd>float, fraction of experiments in [0 1].</dd>
+<dt><strong><code>x_frac</code></strong></dt>
+<dd>float, response position on x-axis in [0 1].</dd>
+<dt><strong><code>y_frac</code></strong></dt>
+<dd>float, response position on y-axis in [0 1].</dd>
+<dt><strong><code>z_frac</code></strong></dt>
+<dd>float, response position on z-axis in [0 1].</dd>
+<dt><strong><code>time_index</code></strong></dt>
+<dd>float, response position on z-axis in [0 1].</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sim_response(
+    self,
+    expt_frac: float,
+    x_frac: float,
+    z_frac: float,
+    y_frac: float = 1,
+    time_index: int = 0,
+) -&gt; &#34;Response&#34;:
+    &#34;&#34;&#34;The response at a position for a simulation.
+
+    Args:
+        expt_frac: float, fraction of experiments in [0 1].
+        x_frac: float, response position on x-axis in [0 1].
+        y_frac: float, response position on y-axis in [0 1].
+        z_frac: float, response position on z-axis in [0 1].
+        time_index: float, response position on z-axis in [0 1].
+
+    &#34;&#34;&#34;
+    assert 0 &lt;= expt_frac &lt;= 1
+    assert 0 &lt;= x_frac &lt;= 1
+
+    # If an experiment index matches exactly, or not interpolating.
+    # if expt_ind == int(expt_ind) or not interp_sim:
+
+    expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
+    return self.expt_responses[int(np.rint(expt_ind))].at(
+        x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
+    )
+
+    assert interp_sim
+    # Else interpolate fem between two experiment indices.
+    expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
+    expt_lo_frac, expt_hi_frac = np.interp(
+        [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
+    )
+    # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
+    # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
+    response_lo = self.expt_responses[expt_ind_lo].at(
+        x_frac=x_frac,
+        y_frac=y_frac,
+        z_frac=z_frac,
+        time_index=time_index,
+        interpolate=interp_response,
+    )
+    response_hi = self.expt_responses[expt_ind_hi].at(
+        x_frac=x_frac,
+        y_frac=y_frac,
+        z_frac=z_frac,
+        time_index=time_index,
+        interpolate=interp_response,
+    )
+    response = np.interp(
+        expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
+    )
+    # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
+    return response</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.Node"><code class="flex name class">
+<span>class <span class="ident">Node</span></span>
+<span>(</span><span>n_id: int, x: float, y: float, z: float, deck: bool, pier: Union[bridge_sim.model.Support, NoneType] = None, comment: Union[str, NoneType] = None, support: Union[bridge_sim.model.Support, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A node in a FE model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>n_id</code></strong></dt>
+<dd>the ID of this node.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>x position of this node on the bridge.</dd>
+<dt><strong><code>y</code></strong></dt>
+<dd>y position of this node on the bridge.</dd>
+<dt><strong><code>z</code></strong></dt>
+<dd>z position of this node on the bridge.</dd>
+<dt><strong><code>deck</code></strong></dt>
+<dd>whether this node belongs to the bridge deck.</dd>
+<dt><strong><code>pier</code></strong></dt>
+<dd>a pier that this node may belong to.</dd>
+<dt><strong><code>comment</code></strong></dt>
+<dd>an optional comment for the .tcl file.</dd>
+<dt><strong><code>support</code></strong></dt>
+<dd>a support that this node may belong to.</dd>
+</dl>
+<h2 id="attrs">Attrs</h2>
+<p>section: Material, a section that may be attached, or not.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Node:
+    &#34;&#34;&#34;A node in a FE model.
+
+    Args:
+        n_id: the ID of this node.
+        x: x position of this node on the bridge.
+        y: y position of this node on the bridge.
+        z: z position of this node on the bridge.
+        deck: whether this node belongs to the bridge deck.
+        pier: a pier that this node may belong to.
+        comment: an optional comment for the .tcl file.
+        support: a support that this node may belong to.
+
+    Attrs:
+        section: Material, a section that may be attached, or not.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        n_id: int,
+        x: float,
+        y: float,
+        z: float,
+        deck: bool,
+        pier: Optional[Support] = None,
+        comment: Optional[str] = None,
+        support: Optional[Support] = None,
+    ):
+        self.n_id = n_id
+        self.x = round_m(x)
+        self.y = round_m(y)
+        self.z = round_m(z)
+        self.pier = pier
+        self.deck = deck
+        self.comment = comment
+        self.support = support
+
+    def command_3d(self):
+        &#34;&#34;&#34;OpenSees node command.&#34;&#34;&#34;
+        comment = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+        return (
+            f&#34;node {self.n_id} {round_m(self.x)} {round_m(self.y)}&#34;
+            + f&#34; {round_m(self.z)}{comment}&#34;
+        )
+
+    def distance(self, x: float, y: float, z: float):
+        &#34;&#34;&#34;Distance (with direction) from this node to coordinates.&#34;&#34;&#34;
+        return distance.euclidean((self.x, self.y, self.z), (x, y, z))
+
+    def distance_n(self, node):
+        &#34;&#34;&#34;Distance (with direction) from this node to another node.&#34;&#34;&#34;
+        return self.distance(x=node.x, y=node.y, z=node.z)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.Node.command_3d"><code class="name flex">
+<span>def <span class="ident">command_3d</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees node command.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def command_3d(self):
+    &#34;&#34;&#34;OpenSees node command.&#34;&#34;&#34;
+    comment = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+    return (
+        f&#34;node {self.n_id} {round_m(self.x)} {round_m(self.y)}&#34;
+        + f&#34; {round_m(self.z)}{comment}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Node.distance"><code class="name flex">
+<span>def <span class="ident">distance</span></span>(<span>self, x: float, y: float, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Distance (with direction) from this node to coordinates.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def distance(self, x: float, y: float, z: float):
+    &#34;&#34;&#34;Distance (with direction) from this node to coordinates.&#34;&#34;&#34;
+    return distance.euclidean((self.x, self.y, self.z), (x, y, z))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Node.distance_n"><code class="name flex">
+<span>def <span class="ident">distance_n</span></span>(<span>self, node)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Distance (with direction) from this node to another node.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def distance_n(self, node):
+    &#34;&#34;&#34;Distance (with direction) from this node to another node.&#34;&#34;&#34;
+    return self.distance(x=node.x, y=node.y, z=node.z)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.Responses"><code class="flex name class">
+<span>class <span class="ident">Responses</span></span>
+<span>(</span><span>response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, responses: List[ForwardRef('Response')], build: bool = True, units: Union[str, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses of one sensor type for one FE simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Responses:
+    &#34;&#34;&#34;Responses of one sensor type for one FE simulation.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        response_type: ResponseType,
+        responses: List[&#34;Response&#34;],
+        build: bool = True,
+        units: Optional[str] = None,
+    ):
+        assert isinstance(responses, list)
+        if len(responses) == 0:
+            raise ValueError(&#34;No fem found&#34;)
+        assert isinstance(responses[0][1], Point)
+        self.response_type = response_type
+        self.units = response_type.units() if units is None else units
+        self.raw_responses = responses
+        self.num_sensors = len(responses)
+        # Nested dictionaries for indexing fem by position.
+        self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+        if build:
+            for response, p in responses:
+                self.responses[0][p.x][p.y][p.z] = response
+            self.index()
+
+    def index(self):
+        &#34;&#34;&#34;Create attributes for fast indexing of times and positions.&#34;&#34;&#34;
+        self.times = sorted(self.responses.keys())
+        points = self.responses[self.times[0]]
+        self.xs = sorted(points.keys())
+        self.ys = {x: sorted(points[x].keys()) for x in self.xs}
+        self.deck_xs = [x for x in self.xs if 0 in points[x].keys()]
+        self.zs = {
+            x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
+        }
+
+    def deck_points(self) -&gt; List[Point]:
+        &#34;&#34;&#34;All the points on the deck where fem are collected.&#34;&#34;&#34;
+        return [
+            Point(x=x, y=0, z=z)
+            for _, (x, y, z) in self.values(point=True)
+            if np.isclose(y, 0)
+        ]
+
+    def add(self, values: List[float], points: List[Point]):
+        &#34;&#34;&#34;Add the values corresponding to given points.
+
+        The points must already be in the fem.
+
+        &#34;&#34;&#34;
+        assert len(values) == len(points)
+        for v, p in zip(values, points):
+            before = self.responses[0][p.x][p.y][p.z]
+            self.responses[0][p.x][p.y][p.z] += v
+            after = self.responses[0][p.x][p.y][p.z]
+            # print(before, after)
+        return self
+
+    def map(self, f, xyz: bool = False):
+        &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if xyz:
+                        self.responses[time][x][y][z] = f(response, x, y, z)
+                    else:
+                        self.responses[time][x][y][z] = f(response)
+        return self
+
+    def resize(self):
+        &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
+        responses = self
+        resize_f, units = resize_units(self.units)
+        if resize_f is not None:
+            responses = responses.map(resize_f)
+            responses.units = units
+        return responses
+
+    def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+        responses = []
+        for x, y_dict in self.responses[self.times[0]].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    p = Point(x=x, y=y, z=z)
+                    if not remove(p):
+                        responses.append((response, p))
+                    # if abs(p.distance(of)) &gt; radius:
+        return Responses(
+            response_type=self.response_type, responses=responses, units=self.units
+        )
+
+    def to_stress(self, bridge: Bridge):
+        &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
+        if self.response_type == ResponseType.Strain:
+            self.response_type = ResponseType.Stress
+        elif self.response_type == ResponseType.StrainT:
+            self.response_type = ResponseType.StressT
+        elif self.response_type == ResponseType.StrainZZB:
+            self.response_type = ResponseType.StressZZB
+        else:
+            raise ValueError(f&#34;Responses must be strain fem&#34;)
+        if len(bridge.sections) == 1:
+            youngs = bridge.sections[0].youngs
+            self.map(lambda r: r * youngs)
+        else:
+
+            def _map(r, x, y, z):
+                return r * bridge.deck_section_at(x=x, z=z).youngs
+
+            self.map(_map, xyz=True)
+        self.units = self.response_type.units()
+        return self
+
+    def values(self, point: bool = False):
+        &#34;&#34;&#34;Yield each response value.&#34;&#34;&#34;
+        time = self.times[0]
+        for x, y_dict in self.responses[time].items():
+            for y, z_dict in y_dict.items():
+                for z, response in z_dict.items():
+                    if point:
+                        yield response, (x, y, z)
+                    else:
+                        yield response
+
+    def at_shells(self, shells: List[&#34;Shell&#34;]) -&gt; &#34;Responses&#34;:
+        responses = []
+        for shell in shells:
+            shell_center = shell.center()
+            if shell_center.y != 0:
+                raise ValueError(&#34;Can only get response on deck&#34;)
+            responses.append((self.at_deck(shell_center, interp=False), shell_center))
+        return Responses(response_type=self.response_type, responses=responses,)
+
+    def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
+        &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
+
+        NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+        &#34;&#34;&#34;
+        assert point.y == 0
+        if not interp:
+            return self._at_deck_snap(x=point.x, z=point.z)
+        return self._at_deck_interp(x=point.x, z=point.z, grid_interp=grid_interp)
+
+    def at_decks(self, points: List[Point]) -&gt; List[float]:
+        &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
+
+        NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+        &#34;&#34;&#34;
+        self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
+        xzs = np.array([[point.x, point.z] for point in points])
+        points, values = self.griddata
+        return griddata(points, values, xzs)
+        # result = self.grid_interp2d(xzs[0].flatten(), xzs[1].flatten())[0]
+        # return result
+
+    def _at_deck_interp(self, x: float, z: float, grid_interp=True):
+        # Assign to new variables, so they are not overwritten in loop.
+        _x, _z = x, z
+        # Determine grid of point and values for interpolation.
+        if not hasattr(self, &#34;griddata&#34;):
+            points = []
+            values = []
+            # For each x on the deck..
+            for x in self.deck_xs:
+                # for each z, for that x, determine value.
+                for z in self.zs[x][0]:
+                    points.append([x, z])
+                    values.append(self.responses[0][x][0][z])
+            self.griddata = np.array(points), np.array(values)
+            # points = self.griddata[0].T
+            # self.grid_interp2d = interp2d(points[0], points[1], values)
+        # If grid interpolation selected then perform it.
+        if grid_interp:
+            points, values = self.griddata
+            result = griddata(points, values, [[_x, _z]])[0]
+            # result = self.grid_interp2d([_x], [_z])[0]
+            # print(f&#34;x = {_x}, z = {_z}, result = {result}&#34;)
+            return result
+        # Else (old method), needs update.
+        assert False
+        # _x, _z = x, z
+
+        x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
+        z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
+        xs = [x_lo, x_lo, x_hi, x_hi]
+        zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        vs = [
+            bridge_sim.sim.responses.responses[0][xs[i]][0][zs[i]]
+            for i in range(len(xs))
+        ]
+        # In the case of strain collection in the 3D OpenSees simulation the
+        # values collected are not at the nodes but at the integration points.
+        # Thus at the perimeter of the bridge no values will be collected and
+        # extrapolation is necessary.
+        if np.isclose(x_lo, x_hi):
+            if np.isclose(z_lo_x_lo, z_hi_x_lo):
+                # print(&#34;interp1d, x == x, z == z&#34;)
+                return vs[0]
+            # print(&#34;interp1d, x == x&#34;)
+            return interp1d(
+                [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value=&#34;extrapolate&#34;
+            )(z)
+        if np.isclose(z_lo_x_lo, z_hi_x_lo):
+            # print(&#34;interp1d, z == z&#34;)
+            return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value=&#34;extrapolate&#34;)(x)
+        # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
+        # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
+        # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
+        # print(x, z)
+        # print(xs)
+        # print(self.zs[x_lo][0])
+        # print(self.zs[x_hi][0])
+        # print(zs)
+        # print(xs)
+        # print(zs)
+        # print(vs)
+        # print(&#34;interp2d&#34;)
+        return interp2d(x=xs, y=zs, z=vs)(x, z)
+
+    def _lo_hi(self, a: List[float], b: float) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34;Indices of the z positions of sensors either side of z.
+
+        TODO: Assert sorted.
+        TODO: Test this.
+        TODO: Switch to numpy.searchsorted for performance.
+
+        &#34;&#34;&#34;
+        # print(f&#34;b = {b}&#34;)
+        # If only one point, return that.
+        if len(a) == 1:
+            return a[0], a[0]
+        # Points are sorted, so find the first equal or greater.
+        for i in range(len(a)):
+            if np.isclose(a[i], b):
+                return a[i], a[i]
+            if a[i] &gt; b and i &gt; 0:
+                return a[i - 1], a[i]
+        # Else the last point.
+        return a[i], a[i]
+
+    def _at_deck_snap(self, x: float, z: float):
+        &#34;&#34;&#34;Deck response from nearest available sensor.&#34;&#34;&#34;
+        y = 0
+        x_ind = nearest_index(self.deck_xs, x)
+        x_near = self.deck_xs[x_ind]
+        z_ind = nearest_index(self.zs[x_near][y], z)
+        z_near = self.zs[x_near][y][z_ind]
+        return self.responses[0][x_near][y][z_near]</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.sim.model.SimResponses" href="#bridge_sim.sim.model.SimResponses">SimResponses</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.Responses.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, values: List[float], points: List[<a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add the values corresponding to given points.</p>
+<p>The points must already be in the fem.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, values: List[float], points: List[Point]):
+    &#34;&#34;&#34;Add the values corresponding to given points.
+
+    The points must already be in the fem.
+
+    &#34;&#34;&#34;
+    assert len(values) == len(points)
+    for v, p in zip(values, points):
+        before = self.responses[0][p.x][p.y][p.z]
+        self.responses[0][p.x][p.y][p.z] += v
+        after = self.responses[0][p.x][p.y][p.z]
+        # print(before, after)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.at_deck"><code class="name flex">
+<span>def <span class="ident">at_deck</span></span>(<span>self, point: <a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>, interp: bool, grid_interp: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Response at the deck (y = 0) with optional interpolation.</p>
+<p>NOTE: Interpolation cannot exptrapolate to points outside known data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
+    &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
+
+    NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+    &#34;&#34;&#34;
+    assert point.y == 0
+    if not interp:
+        return self._at_deck_snap(x=point.x, z=point.z)
+    return self._at_deck_interp(x=point.x, z=point.z, grid_interp=grid_interp)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.at_decks"><code class="name flex">
+<span>def <span class="ident">at_decks</span></span>(<span>self, points: List[<a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>]) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Like 'at_deck' with grid interpolation, but more efficient for many points.</p>
+<p>NOTE: Interpolation cannot exptrapolate to points outside known data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at_decks(self, points: List[Point]) -&gt; List[float]:
+    &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
+
+    NOTE: Interpolation cannot exptrapolate to points outside known data.
+
+    &#34;&#34;&#34;
+    self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
+    xzs = np.array([[point.x, point.z] for point in points])
+    points, values = self.griddata
+    return griddata(points, values, xzs)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.at_shells"><code class="name flex">
+<span>def <span class="ident">at_shells</span></span>(<span>self, shells: List[ForwardRef('<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>')]) -> <a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def at_shells(self, shells: List[&#34;Shell&#34;]) -&gt; &#34;Responses&#34;:
+    responses = []
+    for shell in shells:
+        shell_center = shell.center()
+        if shell_center.y != 0:
+            raise ValueError(&#34;Can only get response on deck&#34;)
+        responses.append((self.at_deck(shell_center, interp=False), shell_center))
+    return Responses(response_type=self.response_type, responses=responses,)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.deck_points"><code class="name flex">
+<span>def <span class="ident">deck_points</span></span>(<span>self) -> List[<a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>All the points on the deck where fem are collected.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deck_points(self) -&gt; List[Point]:
+    &#34;&#34;&#34;All the points on the deck where fem are collected.&#34;&#34;&#34;
+    return [
+        Point(x=x, y=0, z=z)
+        for _, (x, y, z) in self.values(point=True)
+        if np.isclose(y, 0)
+    ]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.index"><code class="name flex">
+<span>def <span class="ident">index</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create attributes for fast indexing of times and positions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def index(self):
+    &#34;&#34;&#34;Create attributes for fast indexing of times and positions.&#34;&#34;&#34;
+    self.times = sorted(self.responses.keys())
+    points = self.responses[self.times[0]]
+    self.xs = sorted(points.keys())
+    self.ys = {x: sorted(points[x].keys()) for x in self.xs}
+    self.deck_xs = [x for x in self.xs if 0 in points[x].keys()]
+    self.zs = {
+        x: {y: sorted(points[x][y].keys()) for y in self.ys[x]} for x in self.xs
+    }</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.map"><code class="name flex">
+<span>def <span class="ident">map</span></span>(<span>self, f, xyz: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Map a function over the values of fem.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def map(self, f, xyz: bool = False):
+    &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+    time = self.times[0]
+    for x, y_dict in self.responses[time].items():
+        for y, z_dict in y_dict.items():
+            for z, response in z_dict.items():
+                if xyz:
+                    self.responses[time][x][y][z] = f(response, x, y, z)
+                else:
+                    self.responses[time][x][y][z] = f(response)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.resize"><code class="name flex">
+<span>def <span class="ident">resize</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the same fem, possibly resized.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resize(self):
+    &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
+    responses = self
+    resize_f, units = resize_units(self.units)
+    if resize_f is not None:
+        responses = responses.map(resize_f)
+        responses.units = units
+    return responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.to_stress"><code class="name flex">
+<span>def <span class="ident">to_stress</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert strains to stresses.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_stress(self, bridge: Bridge):
+    &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
+    if self.response_type == ResponseType.Strain:
+        self.response_type = ResponseType.Stress
+    elif self.response_type == ResponseType.StrainT:
+        self.response_type = ResponseType.StressT
+    elif self.response_type == ResponseType.StrainZZB:
+        self.response_type = ResponseType.StressZZB
+    else:
+        raise ValueError(f&#34;Responses must be strain fem&#34;)
+    if len(bridge.sections) == 1:
+        youngs = bridge.sections[0].youngs
+        self.map(lambda r: r * youngs)
+    else:
+
+        def _map(r, x, y, z):
+            return r * bridge.deck_section_at(x=x, z=z).youngs
+
+        self.map(_map, xyz=True)
+    self.units = self.response_type.units()
+    return self</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.values"><code class="name flex">
+<span>def <span class="ident">values</span></span>(<span>self, point: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yield each response value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def values(self, point: bool = False):
+    &#34;&#34;&#34;Yield each response value.&#34;&#34;&#34;
+    time = self.times[0]
+    for x, y_dict in self.responses[time].items():
+        for y, z_dict in y_dict.items():
+            for z, response in z_dict.items():
+                if point:
+                    yield response, (x, y, z)
+                else:
+                    yield response</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Responses.without"><code class="name flex">
+<span>def <span class="ident">without</span></span>(<span>self, remove: Callable[[bridge_sim.model.Point], bool]) -> <a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+    responses = []
+    for x, y_dict in self.responses[self.times[0]].items():
+        for y, z_dict in y_dict.items():
+            for z, response in z_dict.items():
+                p = Point(x=x, y=y, z=z)
+                if not remove(p):
+                    responses.append((response, p))
+                # if abs(p.distance(of)) &gt; radius:
+    return Responses(
+        response_type=self.response_type, responses=responses, units=self.units
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
+<span>class <span class="ident">Shell</span></span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11d8f1f80>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A shell element in a FE model.</p>
+<p>NOTE: When this constructor is called additional work is done in setting a
+reference to the given section to all given nodes. Thus associating to each
+given node a section, this information that is attached to nodes is useful
+for creating colored plots of properties of the 3D model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>e_id</code></strong></dt>
+<dd>index for this shell element.</dd>
+<dt><strong><code>ni_id</code></strong></dt>
+<dd>index of the node at corner i of this shell element.</dd>
+<dt><strong><code>nj_id</code></strong></dt>
+<dd>index of the node at corner j of this shell element.</dd>
+<dt><strong><code>nk_id</code></strong></dt>
+<dd>index of the node at corner k of this shell element.</dd>
+<dt><strong><code>nl_id</code></strong></dt>
+<dd>index of the node at corner l of this shell element.</dd>
+<dt><strong><code>section</code></strong></dt>
+<dd>section that this shell element belongs to.</dd>
+<dt><strong><code>pier</code></strong></dt>
+<dd>whether this shell is on a pier.</dd>
+<dt><strong><code>nodes_by_id</code></strong></dt>
+<dd>nodes in this build context.</dd>
+<dt><strong><code>support_position_index</code></strong></dt>
+<dd>a 4-tuple of the support index, support wall
+index, and z and y indices</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Shell:
+    &#34;&#34;&#34;A shell element in a FE model.
+
+    NOTE: When this constructor is called additional work is done in setting a
+    reference to the given section to all given nodes. Thus associating to each
+    given node a section, this information that is attached to nodes is useful
+    for creating colored plots of properties of the 3D model.
+
+    Args:
+        e_id: index for this shell element.
+        ni_id: index of the node at corner i of this shell element.
+        nj_id: index of the node at corner j of this shell element.
+        nk_id: index of the node at corner k of this shell element.
+        nl_id: index of the node at corner l of this shell element.
+        section: section that this shell element belongs to.
+        pier: whether this shell is on a pier.
+        nodes_by_id: nodes in this build context.
+        support_position_index: a 4-tuple of the support index, support wall
+            index, and z and y indices
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        e_id: int,
+        ni_id: int,
+        nj_id: int,
+        nk_id: int,
+        nl_id: int,
+        section: Material,
+        pier: bool,
+        nodes_by_id: NodesById,
+        support_position_index: Optional[Tuple[int, int, int, int]] = None,
+    ):
+        self.e_id = e_id
+        self.ni_id = ni_id
+        self.nj_id = nj_id
+        self.nk_id = nk_id
+        self.nl_id = nl_id
+        self.pier = pier
+        self.section = section
+        self.support_position_index = support_position_index
+        self.nodes_by_id = nodes_by_id
+
+        # Attach a reference to the section to each &#39;Node&#39; and note if the node
+        # belongs to a pier or to the bridge deck.
+        for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+            node = self.nodes_by_id[n_id]
+            if pier:
+                node.pier_section = self.section
+            else:
+                node.deck_section = self.section
+
+    def node_ids(self):
+        &#34;&#34;&#34;IDs of this element&#39;s nodes.&#34;&#34;&#34;
+        return [self.ni_id, self.nj_id, self.nk_id, self.nl_id]
+
+    def nodes(self):
+        &#34;&#34;&#34;This element&#39;s nodes.&#34;&#34;&#34;
+        return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
+
+    def area(self):
+        &#34;&#34;&#34;Assumes a tetrahedron shape.&#34;&#34;&#34;
+        ni = self.nodes_by_id[self.ni_id]
+        nj = self.nodes_by_id[self.nj_id]
+        nk = self.nodes_by_id[self.nk_id]
+        nl = self.nodes_by_id[self.nl_id]
+
+        from lib.fem.util import poly_area
+
+        return poly_area(
+            [
+                (ni.x, ni.y, ni.z),
+                (nj.x, nj.y, nj.z),
+                (nk.x, nk.y, nk.z),
+                (nl.x, nl.y, nl.z),
+            ]
+        )
+
+    def center(self) -&gt; Point:
+        &#34;&#34;&#34;Point at the center of the element.&#34;&#34;&#34;
+        if not hasattr(self, &#34;_center&#34;):
+            node_0 = self.nodes_by_id[self.ni_id]
+            node_1 = self.nodes_by_id[self.nk_id]
+            delta_x = abs(node_0.x - node_1.x)
+            delta_y = abs(node_0.y - node_1.y)
+            delta_z = abs(node_0.z - node_1.z)
+            min_x = min(node_0.x, node_1.x)
+            min_y = min(node_0.y, node_1.y)
+            min_z = min(node_0.z, node_1.z)
+            self._center = Point(
+                x=min_x + delta_x / 2, y=min_y + delta_y / 2, z=min_z + delta_z / 2
+            )
+        return self._center
+
+    def length(self) -&gt; float:
+        &#34;&#34;&#34;The length of this element (longitudinal direction).&#34;&#34;&#34;
+        if not hasattr(self, &#34;_length&#34;):
+            min_x, max_x = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_x = self.nodes_by_id[n_id].x
+                if node_x &lt; min_x:
+                    min_x = node_x
+                if node_x &gt; max_x:
+                    max_x = node_x
+            self._length = max_x - min_x
+        return self._length
+
+    def width(self) -&gt; float:
+        &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
+        if not hasattr(self, &#34;_width&#34;):
+            min_z, max_z = np.inf, -np.inf
+            for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+                node_z = self.nodes_by_id[n_id].z
+                if node_z &lt; min_z:
+                    min_z = node_z
+                if node_z &gt; max_z:
+                    max_z = node_z
+            self._width = max_z - min_z
+        return self._width
+
+    def command_3d(self):
+        &#34;&#34;&#34;OpenSees element command.&#34;&#34;&#34;
+        repr_section = repr(self.section).replace(&#34;\n&#34;, &#34; &#34;)
+        return (
+            f&#34;element ShellMITC4 {self.e_id} {self.ni_id} {self.nj_id}&#34;
+            + f&#34; {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}&#34;
+        )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.Shell.area"><code class="name flex">
+<span>def <span class="ident">area</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Assumes a tetrahedron shape.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def area(self):
+    &#34;&#34;&#34;Assumes a tetrahedron shape.&#34;&#34;&#34;
+    ni = self.nodes_by_id[self.ni_id]
+    nj = self.nodes_by_id[self.nj_id]
+    nk = self.nodes_by_id[self.nk_id]
+    nl = self.nodes_by_id[self.nl_id]
+
+    from lib.fem.util import poly_area
+
+    return poly_area(
+        [
+            (ni.x, ni.y, ni.z),
+            (nj.x, nj.y, nj.z),
+            (nk.x, nk.y, nk.z),
+            (nl.x, nl.y, nl.z),
+        ]
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.center"><code class="name flex">
+<span>def <span class="ident">center</span></span>(<span>self) -> <a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Point at the center of the element.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def center(self) -&gt; Point:
+    &#34;&#34;&#34;Point at the center of the element.&#34;&#34;&#34;
+    if not hasattr(self, &#34;_center&#34;):
+        node_0 = self.nodes_by_id[self.ni_id]
+        node_1 = self.nodes_by_id[self.nk_id]
+        delta_x = abs(node_0.x - node_1.x)
+        delta_y = abs(node_0.y - node_1.y)
+        delta_z = abs(node_0.z - node_1.z)
+        min_x = min(node_0.x, node_1.x)
+        min_y = min(node_0.y, node_1.y)
+        min_z = min(node_0.z, node_1.z)
+        self._center = Point(
+            x=min_x + delta_x / 2, y=min_y + delta_y / 2, z=min_z + delta_z / 2
+        )
+    return self._center</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.command_3d"><code class="name flex">
+<span>def <span class="ident">command_3d</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees element command.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def command_3d(self):
+    &#34;&#34;&#34;OpenSees element command.&#34;&#34;&#34;
+    repr_section = repr(self.section).replace(&#34;\n&#34;, &#34; &#34;)
+    return (
+        f&#34;element ShellMITC4 {self.e_id} {self.ni_id} {self.nj_id}&#34;
+        + f&#34; {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.length"><code class="name flex">
+<span>def <span class="ident">length</span></span>(<span>self) -> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The length of this element (longitudinal direction).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def length(self) -&gt; float:
+    &#34;&#34;&#34;The length of this element (longitudinal direction).&#34;&#34;&#34;
+    if not hasattr(self, &#34;_length&#34;):
+        min_x, max_x = np.inf, -np.inf
+        for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+            node_x = self.nodes_by_id[n_id].x
+            if node_x &lt; min_x:
+                min_x = node_x
+            if node_x &gt; max_x:
+                max_x = node_x
+        self._length = max_x - min_x
+    return self._length</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.node_ids"><code class="name flex">
+<span>def <span class="ident">node_ids</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>IDs of this element's nodes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def node_ids(self):
+    &#34;&#34;&#34;IDs of this element&#39;s nodes.&#34;&#34;&#34;
+    return [self.ni_id, self.nj_id, self.nk_id, self.nl_id]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.nodes"><code class="name flex">
+<span>def <span class="ident">nodes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This element's nodes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nodes(self):
+    &#34;&#34;&#34;This element&#39;s nodes.&#34;&#34;&#34;
+    return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.Shell.width"><code class="name flex">
+<span>def <span class="ident">width</span></span>(<span>self) -> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The width of this element (longitudinal direction).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def width(self) -&gt; float:
+    &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
+    if not hasattr(self, &#34;_width&#34;):
+        min_z, max_z = np.inf, -np.inf
+        for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
+            node_z = self.nodes_by_id[n_id].z
+            if node_z &lt; min_z:
+                min_z = node_z
+            if node_z &gt; max_z:
+                max_z = node_z
+        self._width = max_z - min_z
+    return self._width</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.SimParams"><code class="flex name class">
+<span>class <span class="ident">SimParams</span></span>
+<span>(</span><span>ploads: List[<a title="bridge_sim.model.PointLoad" href="../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], displacement_ctrl: Union[bridge_sim.model.PierSettlement, NoneType] = None, axial_delta_temp: Union[float, NoneType] = None, moment_delta_temp: Union[float, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parameters for one FE simulation.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ploads</code></strong></dt>
+<dd>List[PointLoad], point loads to apply in the simulation.</dd>
+<dt><strong><code>displacement_ctrl</code></strong></dt>
+<dd>PierSettlement, apply a load until the given
+displacement in meters is reached.</dd>
+<dt><strong><code>axial_delta_temp</code></strong></dt>
+<dd>Optional[float], axial thermal loading in celcius.</dd>
+<dt><strong><code>moment_delta_temp</code></strong></dt>
+<dd>Optional[float], moment thermal loading in celcius.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimParams:
+    &#34;&#34;&#34;Parameters for one FE simulation.
+
+    Args:
+        ploads: List[PointLoad], point loads to apply in the simulation.
+        displacement_ctrl: PierSettlement, apply a load until the given
+            displacement in meters is reached.
+        axial_delta_temp: Optional[float], axial thermal loading in celcius.
+        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        ploads: List[PointLoad] = [],
+        displacement_ctrl: Optional[PierSettlement] = None,
+        axial_delta_temp: Optional[float] = None,
+        moment_delta_temp: Optional[float] = None,
+    ):
+        self.ploads = ploads
+        self.displacement_ctrl = displacement_ctrl
+        self.axial_delta_temp = axial_delta_temp
+        self.moment_delta_temp = moment_delta_temp
+
+    def build_ctx(self) -&gt; BuildContext:
+        &#34;&#34;&#34;Build context from these simulation parameters.
+
+        The build context only requires information on geometry.
+
+        &#34;&#34;&#34;
+        return BuildContext(add_loads=[pload.point() for pload in self.ploads])
+
+    def id_str(self):
+        &#34;&#34;&#34;String representing the simulation parameters.
+
+        NOTE: Response types are not included in the ID string because it is
+        currently assumed that a simulation saves all output files.
+
+        &#34;&#34;&#34;
+        if self.displacement_ctrl is not None:
+            load_str = self.displacement_ctrl.id_str()
+        elif self.axial_delta_temp is not None:
+            load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
+        elif self.moment_delta_temp is not None:
+            load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
+        elif len(self.ploads) &gt; 0:
+            load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+            load_str = f&#34;[{load_str}]&#34;
+        else:
+            load_str = &#34;no-loading&#34;
+        return safe_str(load_str)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.SimParams.build_ctx"><code class="name flex">
+<span>def <span class="ident">build_ctx</span></span>(<span>self) -> <a title="bridge_sim.sim.model.BuildContext" href="#bridge_sim.sim.model.BuildContext">BuildContext</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build context from these simulation parameters.</p>
+<p>The build context only requires information on geometry.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_ctx(self) -&gt; BuildContext:
+    &#34;&#34;&#34;Build context from these simulation parameters.
+
+    The build context only requires information on geometry.
+
+    &#34;&#34;&#34;
+    return BuildContext(add_loads=[pload.point() for pload in self.ploads])</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.model.SimParams.id_str"><code class="name flex">
+<span>def <span class="ident">id_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>String representing the simulation parameters.</p>
+<p>NOTE: Response types are not included in the ID string because it is
+currently assumed that a simulation saves all output files.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def id_str(self):
+    &#34;&#34;&#34;String representing the simulation parameters.
+
+    NOTE: Response types are not included in the ID string because it is
+    currently assumed that a simulation saves all output files.
+
+    &#34;&#34;&#34;
+    if self.displacement_ctrl is not None:
+        load_str = self.displacement_ctrl.id_str()
+    elif self.axial_delta_temp is not None:
+        load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
+    elif self.moment_delta_temp is not None:
+        load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
+    elif len(self.ploads) &gt; 0:
+        load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+        load_str = f&#34;[{load_str}]&#34;
+    else:
+        load_str = &#34;no-loading&#34;
+    return safe_str(load_str)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="bridge_sim.sim.model.SimResponses"><code class="flex name class">
+<span>class <span class="ident">SimResponses</span></span>
+<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="#bridge_sim.sim.model.SimParams">SimParams</a>, sim_runner: FEMRunner, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, responses: List[ForwardRef('Response')], build: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses of one sensor type for one FE simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimResponses(Responses):
+    &#34;&#34;&#34;Responses of one sensor type for one FE simulation.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: Config,
+        sim_params: SimParams,
+        sim_runner: &#34;FEMRunner&#34;,
+        response_type: ResponseType,
+        responses: List[&#34;Response&#34;],
+        build: bool = True,
+    ):
+        self.c = c
+        self.sim_params = sim_params
+        self.sim_runner = sim_runner
+        super().__init__(response_type=response_type, responses=responses, build=build)
+
+    def save(self):
+        &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
+        path = _responses_path(
+            sim_runner=self.sim_runner,
+            sim_params=self.sim_params,
+            response_type=self.response_type,
+        )
+        try:
+            with open(path, &#34;wb&#34;) as f:
+                dill.dump(self.raw_responses, f)
+        except:
+            print(&#34;Could not save raw responses&#34;, flush=True)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.model.SimResponses.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save theses simulation fem to disk.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self):
+    &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
+    path = _responses_path(
+        sim_runner=self.sim_runner,
+        sim_params=self.sim_params,
+        response_type=self.response_type,
+    )
+    try:
+        with open(path, &#34;wb&#34;) as f:
+            dill.dump(self.raw_responses, f)
+    except:
+        print(&#34;Could not save raw responses&#34;, flush=True)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></b></code>:
+<ul class="hlist">
+<li><code><a title="bridge_sim.sim.model.Responses.add" href="#bridge_sim.sim.model.Responses.add">add</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.at_deck" href="#bridge_sim.sim.model.Responses.at_deck">at_deck</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.at_decks" href="#bridge_sim.sim.model.Responses.at_decks">at_decks</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.deck_points" href="#bridge_sim.sim.model.Responses.deck_points">deck_points</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.index" href="#bridge_sim.sim.model.Responses.index">index</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.map" href="#bridge_sim.sim.model.Responses.map">map</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.resize" href="#bridge_sim.sim.model.Responses.resize">resize</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.to_stress" href="#bridge_sim.sim.model.Responses.to_stress">to_stress</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.values" href="#bridge_sim.sim.model.Responses.values">values</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim" href="../index.html">bridge_sim.sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.bridge_3d_elements" href="#bridge_sim.sim.model.bridge_3d_elements">bridge_3d_elements</a></code></li>
+<li><code><a title="bridge_sim.sim.model.bridge_3d_nodes" href="#bridge_sim.sim.model.bridge_3d_nodes">bridge_3d_nodes</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.sim.model.BuildContext" href="#bridge_sim.sim.model.BuildContext">BuildContext</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.BuildContext.get_node" href="#bridge_sim.sim.model.BuildContext.get_node">get_node</a></code></li>
+<li><code><a title="bridge_sim.sim.model.BuildContext.get_nodes_at_xy" href="#bridge_sim.sim.model.BuildContext.get_nodes_at_xy">get_nodes_at_xy</a></code></li>
+<li><code><a title="bridge_sim.sim.model.BuildContext.get_shell" href="#bridge_sim.sim.model.BuildContext.get_shell">get_shell</a></code></li>
+<li><code><a title="bridge_sim.sim.model.BuildContext.new_n_id" href="#bridge_sim.sim.model.BuildContext.new_n_id">new_n_id</a></code></li>
+<li><code><a title="bridge_sim.sim.model.BuildContext.new_s_id" href="#bridge_sim.sim.model.BuildContext.new_s_id">new_s_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.ManyResponses" href="#bridge_sim.sim.model.ManyResponses">ManyResponses</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.ManyResponses.sim_response" href="#bridge_sim.sim.model.ManyResponses.sim_response">sim_response</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.Node.command_3d" href="#bridge_sim.sim.model.Node.command_3d">command_3d</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Node.distance" href="#bridge_sim.sim.model.Node.distance">distance</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Node.distance_n" href="#bridge_sim.sim.model.Node.distance_n">distance_n</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></code></h4>
+<ul class="two-column">
+<li><code><a title="bridge_sim.sim.model.Responses.add" href="#bridge_sim.sim.model.Responses.add">add</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.at_deck" href="#bridge_sim.sim.model.Responses.at_deck">at_deck</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.at_decks" href="#bridge_sim.sim.model.Responses.at_decks">at_decks</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.at_shells" href="#bridge_sim.sim.model.Responses.at_shells">at_shells</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.deck_points" href="#bridge_sim.sim.model.Responses.deck_points">deck_points</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.index" href="#bridge_sim.sim.model.Responses.index">index</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.map" href="#bridge_sim.sim.model.Responses.map">map</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.resize" href="#bridge_sim.sim.model.Responses.resize">resize</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.to_stress" href="#bridge_sim.sim.model.Responses.to_stress">to_stress</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.values" href="#bridge_sim.sim.model.Responses.values">values</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.without" href="#bridge_sim.sim.model.Responses.without">without</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a></code></h4>
+<ul class="two-column">
+<li><code><a title="bridge_sim.sim.model.Shell.area" href="#bridge_sim.sim.model.Shell.area">area</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.center" href="#bridge_sim.sim.model.Shell.center">center</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.command_3d" href="#bridge_sim.sim.model.Shell.command_3d">command_3d</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.length" href="#bridge_sim.sim.model.Shell.length">length</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.node_ids" href="#bridge_sim.sim.model.Shell.node_ids">node_ids</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.nodes" href="#bridge_sim.sim.model.Shell.nodes">nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.width" href="#bridge_sim.sim.model.Shell.width">width</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.SimParams" href="#bridge_sim.sim.model.SimParams">SimParams</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.SimParams.build_ctx" href="#bridge_sim.sim.model.SimParams.build_ctx">build_ctx</a></code></li>
+<li><code><a title="bridge_sim.sim.model.SimParams.id_str" href="#bridge_sim.sim.model.SimParams.id_str">id_str</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="bridge_sim.sim.model.SimResponses" href="#bridge_sim.sim.model.SimResponses">SimResponses</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.model.SimResponses.save" href="#bridge_sim.sim.model.SimResponses.save">save</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

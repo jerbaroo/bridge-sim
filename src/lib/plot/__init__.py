@@ -26,13 +26,13 @@ from bridge_sim.model import (
     Bridge,
     Material,
 )
-from lib.fem.run import FEMRunner
+from bridge_sim.sim.run import FEMRunner
 from bridge_sim.util import print_d, print_i, print_w, kde_sampler
 
 # Print debug information for this file.
 D: bool = False
 
-###### Apply modifications to matplotlib.pyplot. ##############################
+# Apply modifications to matplotlib.pyplot. #
 
 
 def _portrait():

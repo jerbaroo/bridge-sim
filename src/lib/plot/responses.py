@@ -9,8 +9,8 @@ import numpy as np
 from scipy.stats import chisquare
 
 from bridge_sim.model import ResponseType, Point, Config, PointLoad
-from lib.fem.build import get_bridge_nodes, det_nodes
-from lib.fem.responses import Responses
+from bridge_sim.sim.build import get_bridge_nodes, det_nodes
+from bridge_sim.sim.model import Responses
 from lib.plot import default_cmap, legend_marker_size, plt
 from bridge_sim.util import print_w
 
