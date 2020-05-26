@@ -5,7 +5,7 @@ import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from bridge_sim.model import Material
-from lib.fem.model import Shell
+from bridge_sim.sim.model import Shell
 from lib.plot import default_cmap, plt
 from lib.plot.geometry.angles import ax_3d
 

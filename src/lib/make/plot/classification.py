@@ -7,16 +7,11 @@ from sklearn.svm import OneClassSVM
 
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.traffic import normal_traffic, to_traffic_array
-from lib.classify.data.responses import responses_to_traffic_array
-from lib.classify import temperature
-from lib.classify.scenario.bridge import Healthy
-from lib.classify.scenarios import (
-    each_pier_scenarios,
-    healthy_and_cracked_scenarios,
-    healthy_scenario,
-)
-from lib.fem.responses import Responses
-from lib.fem.run.opensees import OSRunner
+from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.temperature import __init__
+from bridge_sim.scenarios import HealthyScenario
+from bridge_sim.sim.model import Responses
+from bridge_sim.sim.run.opensees import OSRunner
 from lib.make.plot.distribution import load_normal_traffic_array
 from lib.plot import plt
 from lib.plot.geometry import top_view_bridge
@@ -92,7 +87,7 @@ def events(c: Config, x: float, z: float):
 
 
 def temperature_effect_date(c: Config, month: str, vert: bool):
-    temp = temperature.load(name=month)
+    temp = __init__.load(name=month)
     point = Point(x=51, y=0, z=-8.4)
     plt.landscape()
 
@@ -127,7 +122,7 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
     response_type = ResponseType.YTranslation
     plt.subplot(2, 1, 2)
     plot_hours()
-    effect = temperature.effect(
+    effect = __init__.effect(
         c=c, response_type=response_type, points=[point], temps=temp["temp"]
     )[0]
     plt.scatter(
@@ -150,7 +145,7 @@ def temperature_effect_date(c: Config, month: str, vert: bool):
 
 def oneclass(c: Config):
     normal_traffic_array, traffic_scenario = load_normal_traffic_array(c)
-    bridge_scenarios = [Healthy()] + each_pier_scenarios(c)
+    bridge_scenarios = [HealthyScenario()] + each_pier_scenarios(c)
     response_type = ResponseType.YTranslation
     points = [
         Point(x=x, y=0, z=z)
@@ -278,7 +273,7 @@ def pairwise_sensors(c: Config, dist_measure=ks_no_outliers):
         )
     ]
 
-    bridge_scenario = Healthy()
+    bridge_scenario = HealthyScenario()
     responses = responses_to_traffic_array(
         c=c,
         traffic_array=normal_traffic_array,

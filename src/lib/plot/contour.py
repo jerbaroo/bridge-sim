@@ -5,9 +5,8 @@ import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from bridge_sim.model import Config, ResponseType
-from lib.fem.build import det_shells, get_bridge_shells
-from lib.fem.model import Shell
-from lib.fem.responses import SimResponses
+from bridge_sim.sim.build import det_shells, get_bridge_shells
+from bridge_sim.sim.model import Shell, SimResponses
 from lib.plot import default_cmap, plt
 from lib.plot.geometry.angles import angles_3d
 

@@ -9,19 +9,16 @@ import pandas as pd
 from matplotlib.cm import get_cmap
 
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
-from lib.classify.data.responses import responses_to_traffic_array
-from lib.classify.scenario.bridge import (
-    Healthy,
-    PierDisp,
-    equal_pier_disp,
-    longitudinal_pier_disp,
+from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.scenarios import (
+    HealthyScenario,
     transverse_crack,
+    PierSettlementScenario,
 )
-from lib.classify.scenarios import cracked_scenario, unit_temp_scenario
 from bridge_sim.vehicles import truck1
-from lib.fem.params import SimParams
-from lib.fem.responses import Responses, load_fem_responses
-from lib.fem.run.opensees import OSRunner
+from bridge_sim.sim.model import SimParams
+from bridge_sim.sim.responses import Responses, load_fem_responses
+from bridge_sim.sim.run.opensees import OSRunner
 from lib.make.plot.distribution import load_normal_traffic_array
 from lib.plot import diana_cmap_r, parula_cmap, plt
 from lib.plot.contour import contour_responses_3d
@@ -136,7 +133,7 @@ def point_load_response_plots(
     """Response to a point load per scenarios scenario."""
     response_types = [ResponseType.YTranslation, ResponseType.Strain]
     # scenarios = all_scenarios(c)
-    damage_scenarios = [Healthy(), transverse_crack()]
+    damage_scenarios = [HealthyScenario(), transverse_crack()]
 
     # 10 x 10 grid of points on the bridge deck where to record fem.
     points = [
@@ -360,7 +357,10 @@ def gradient_pier_displacement_plots(c: Config):
 
 
 def gradient_pier_displacement_plot(
-    c: Config, pier_disp: PierDisp, response_type: ResponseType, title: str,
+    c: Config,
+    pier_disp: PierSettlementScenario,
+    response_type: ResponseType,
+    title: str,
 ):
     """Contour plot of piers displaced in an increasing gradient."""
 

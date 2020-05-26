@@ -6,6 +6,8 @@ These function provide data to functions in '/plot'.
 from typing import List, Optional
 
 import bridge_sim.run
+import bridge_sim.sim.responses
+import bridge_sim.sim.run
 from classify.scenario.traffic import heavy_traffic_1, normal_traffic
 from config import Config
 from fem.run.opensees import OSRunner
@@ -192,7 +194,7 @@ def make_all_3d(c: Config):
     ######################
     ##### Simulation #####
     ######################
-    bridge_sim.run.run_uls(c)
+    bridge_sim.sim.responses.run_uls(c)
     # verification.make_convergence_data(c, run=True, plot=True)
 
     ########################

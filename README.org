@@ -1,6 +1,6 @@
 * Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg]]
 
-This document provide installation instructions and usage examples.
+This document provides installation instructions and usage examples.
 
 API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]].
 
@@ -13,7 +13,7 @@ API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]
 - [[#introduction][Introduction]]
 - [[#examples][Examples]]
 
-*If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I do love feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.*
+If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.
 
 [[./data/images/animation.png]]
 

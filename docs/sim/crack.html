@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.crack API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.crack</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+from typing import List
+
+import numpy as np
+
+from bridge_sim.model import Config, PierSettlement, Point
+from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.traffic import load_traffic, normal_traffic
+from bridge_sim import temperature
+from lib.plot import plt
+from bridge_sim.util import resize_units, safe_str
+
+
+def crack_time_series(
+    c: Config,
+    traffic_array,
+    traffic_array_mins: float,
+    sensor: Point,
+    crack_frac: float,
+    damage,
+    temps: List[float],
+    solar: List[float],
+):
+    &#34;&#34;&#34;Time series of sensor fem, vertical translation and strain XXB.
+
+    Returns a NumPy array of dimensions (2 x len(traffic_array)).
+
+    Args:
+        c: Config, global configuration object.
+        traffic_array: TrafficArray, traffic flowing over the bridge.
+        traffic_array_mins: float, minutes of the the traffic flow.
+        sensor: Point, point at which to collect fem.
+        crack_frac: float, fraction of time series where crack occurs.
+        damage: DamageScenario, scenarios that occurs at crack_frac.
+        temps: List[float], list of air temperature, per temperature minute.
+        solar: List[float], list of solar radiance, per temperature minute.
+
+    &#34;&#34;&#34;
+    assert 0 &lt;= crack_frac &lt;= 1
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
+    half_i = int(len(traffic_array) * crack_frac)
+    traffic_array_0, traffic_array_1 = traffic_array[:half_i], traffic_array[half_i:]
+    assert len(traffic_array_0) + len(traffic_array_1) == len(traffic_array)
+
+    half_t = int(len(temps) * crack_frac)
+    assert len(temps) == len(solar)
+
+    # Get the effect of temperature for both response types and damages.
+    # In each case we have the full days worth of temperature fem.
+    temp_effect = []
+    for response_type in response_types:
+        temp_effect_damages = []
+        for di, ds in enumerate([HealthyDamage(), damage]):
+            bots_tops, new_temp_effect = temperature.effect(
+                c=ds.use(c)[0],
+                response_type=response_type,
+                points=[sensor],
+                # One hour temperature data per minute of traffic data.
+                len_per_hour=int(len(traffic_array) / traffic_array_mins)
+                if di == 0
+                else None,
+                temps=temps if di == 0 else None,
+                solar=solar if di == 0 else None,
+                temps_bt=bots_tops.T[int(len(bots_tops.T) / 2) :].T
+                if di == 1
+                else None,
+                ret_temps_bt=True,
+            )
+            bots_tops = np.array(bots_tops)
+            temp_effect_damages.append(
+                new_temp_effect[0]
+                if di == 1
+                else new_temp_effect[0][: int(len(new_temp_effect[0]) / 2)]
+            )
+        temp_effect.append(np.concatenate(temp_effect_damages))
+        print(f&#34;len(temps) = {len(temps)}&#34;)
+        print(f&#34;len_per_hour = {int(len(traffic_array) / traffic_array_mins)}&#34;)
+        print(f&#34;Temperature shape = {temp_effect[-1].shape}&#34;)
+        plt.plot(temp_effect[-1])
+        plt.savefig(
+            c.get_image_path(&#34;crack&#34;, safe_str(f&#34;save-temps-{response_type}.pdf&#34;))
+        )
+        plt.close()
+
+    responses = []
+    for ri, rt in enumerate(response_types):
+        responses_healthy_cracked = []
+        for ds, ta in [(HealthyDamage(), traffic_array_0), (damage, traffic_array_1)]:
+            print(
+                f&#34;Sections in scenarios scenario = {len(ds.use(c)[0].bridge.sections)}&#34;
+            )
+            responses_healthy_cracked.append(
+                responses_to_traffic_array(
+                    c=c,
+                    traffic_array=ta,
+                    response_type=rt,
+                    damage_scenario=ds,
+                    points=[sensor],
+                ).T[0]
+            )  # Responses from a single point.
+        responses.append(np.concatenate(responses_healthy_cracked))
+        print(f&#34;shape fem without temp = {responses[-1].shape}&#34;)
+        print(f&#34;shape of temp effect = {temp_effect[ri].shape}&#34;)
+        if rt == ResponseType.Strain:
+            responses[ri] = resize_units(&#34;&#34;)[0](responses[ri])
+        responses[ri] += temperature.apply(temp_effect[ri], responses[ri])
+    responses = np.array(responses)
+    print(f&#34;Responses shape = {responses.shape}&#34;)
+    return responses
+
+
+def time_series_plot(c: Config, n: float):
+    &#34;&#34;&#34;Plot 24min time series of cracking, for multiple cracked bridges.
+
+    For each bridge (hard-coded), a time series of strain fem is plotted.
+    For each bridge it is initially in healthy condition, and the crack occurs
+    halfway through.
+
+    Args:
+        n: float, meters in front of the crack zone where to place sensor.
+
+    &#34;&#34;&#34;
+
+    # First construct one day (24 minutes) of traffic.
+    total_mins = 24
+    total_seconds = total_mins * 60
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence, traffic, traffic_array = load_traffic(
+        c=c, traffic_scenario=traffic_scenario, max_time=total_seconds,
+    )
+    traffic_array.shape
+
+    # Temperatures for one day.
+    temps_day = temperature.from_to_mins(
+        temperature.load(&#34;holly-springs&#34;),
+        datetime.fromisoformat(f&#34;2019-07-03T00:00&#34;),
+        datetime.fromisoformat(f&#34;2019-07-03T23:59&#34;),
+    )
+    print(f&#34;len temps = {len(temps_day[&#39;solar&#39;])}&#34;)
+    print(f&#34;len temps = {len(temps_day[&#39;temp&#39;])}&#34;)
+
+    # Then generate some cracking time series.
+    damages = [
+        HealthyDamage(),
+        transverse_crack(),
+        transverse_crack(length=14.0, at_x=48.0),
+    ]
+    sensors = [
+        Point(x=52, z=-8.4),  # Sensor in middle of lane.
+        Point(
+            x=damages[1].crack_area(c.bridge)[0] - n, z=-8.4
+        ),  # Sensor in front of crack zone.
+        Point(
+            x=damages[2].crack_area(c.bridge)[0] - n, z=-8.4
+        ),  # Sensor in front of crack zone.
+    ]
+    [print(f&#34;Sensor {i} = {sensors[i]}&#34;) for i in range(len(sensors))]
+    time_series = [
+        crack_time_series(
+            c=c,
+            traffic_array=traffic_array,
+            traffic_array_mins=total_mins,
+            sensor=sensor,
+            crack_frac=0.5,
+            damage=damage,
+            temps=temps_day[&#34;temp&#34;],
+            solar=temps_day[&#34;solar&#34;],
+        )
+        for damage, sensor in zip(damages, sensors)
+    ]
+    plt.portrait()
+    for i, (y_trans, strain) in enumerate(time_series):
+        x = np.arange(len(strain)) * c.sensor_hz / 60
+        x_m = sensors[i].x
+        damage_str = &#34;Healthy Bridge&#34;
+        if i == 1:
+            damage_str = &#34;0.5 m crack zone&#34;
+        if i == 2:
+            damage_str = &#34;14 m crack zone&#34;
+        plt.subplot(len(time_series), 2, i * 2 + 1)
+        plt.plot(x, y_trans * 1000, color=&#34;tab:blue&#34;)
+        if i &lt; len(time_series) - 1:
+            plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+        else:
+            plt.xlabel(&#34;Hours&#34;)
+        plt.title(f&#34;At x = {x_m} m\n{damage_str}&#34;)
+        plt.ylabel(&#34;Y trans. (mm)&#34;)
+
+        plt.subplot(len(time_series), 2, i * 2 + 2)
+        plt.plot(x, strain * 1e6, color=&#34;tab:orange&#34;)
+        if i &lt; len(time_series) - 1:
+            plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+        else:
+            plt.xlabel(&#34;Hours&#34;)
+        plt.title(f&#34;At x = {x_m} m,\n{damage_str}&#34;)
+        plt.ylabel(&#34;Microstrain XXB&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;crack&#34;, &#34;time-series-q5.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.crack.crack_time_series"><code class="name flex">
+<span>def <span class="ident">crack_time_series</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_array, traffic_array_mins: float, sensor: <a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>, crack_frac: float, damage, temps: List[float], solar: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time series of sensor fem, vertical translation and strain XXB.</p>
+<p>Returns a NumPy array of dimensions (2 x len(traffic_array)).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, global configuration object.</dd>
+<dt><strong><code>traffic_array</code></strong></dt>
+<dd>TrafficArray, traffic flowing over the bridge.</dd>
+<dt><strong><code>traffic_array_mins</code></strong></dt>
+<dd>float, minutes of the the traffic flow.</dd>
+<dt><strong><code>sensor</code></strong></dt>
+<dd>Point, point at which to collect fem.</dd>
+<dt><strong><code>crack_frac</code></strong></dt>
+<dd>float, fraction of time series where crack occurs.</dd>
+<dt><strong><code>damage</code></strong></dt>
+<dd>DamageScenario, scenarios that occurs at crack_frac.</dd>
+<dt><strong><code>temps</code></strong></dt>
+<dd>List[float], list of air temperature, per temperature minute.</dd>
+<dt><strong><code>solar</code></strong></dt>
+<dd>List[float], list of solar radiance, per temperature minute.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def crack_time_series(
+    c: Config,
+    traffic_array,
+    traffic_array_mins: float,
+    sensor: Point,
+    crack_frac: float,
+    damage,
+    temps: List[float],
+    solar: List[float],
+):
+    &#34;&#34;&#34;Time series of sensor fem, vertical translation and strain XXB.
+
+    Returns a NumPy array of dimensions (2 x len(traffic_array)).
+
+    Args:
+        c: Config, global configuration object.
+        traffic_array: TrafficArray, traffic flowing over the bridge.
+        traffic_array_mins: float, minutes of the the traffic flow.
+        sensor: Point, point at which to collect fem.
+        crack_frac: float, fraction of time series where crack occurs.
+        damage: DamageScenario, scenarios that occurs at crack_frac.
+        temps: List[float], list of air temperature, per temperature minute.
+        solar: List[float], list of solar radiance, per temperature minute.
+
+    &#34;&#34;&#34;
+    assert 0 &lt;= crack_frac &lt;= 1
+    response_types = [ResponseType.YTranslation, ResponseType.Strain]
+    half_i = int(len(traffic_array) * crack_frac)
+    traffic_array_0, traffic_array_1 = traffic_array[:half_i], traffic_array[half_i:]
+    assert len(traffic_array_0) + len(traffic_array_1) == len(traffic_array)
+
+    half_t = int(len(temps) * crack_frac)
+    assert len(temps) == len(solar)
+
+    # Get the effect of temperature for both response types and damages.
+    # In each case we have the full days worth of temperature fem.
+    temp_effect = []
+    for response_type in response_types:
+        temp_effect_damages = []
+        for di, ds in enumerate([HealthyDamage(), damage]):
+            bots_tops, new_temp_effect = temperature.effect(
+                c=ds.use(c)[0],
+                response_type=response_type,
+                points=[sensor],
+                # One hour temperature data per minute of traffic data.
+                len_per_hour=int(len(traffic_array) / traffic_array_mins)
+                if di == 0
+                else None,
+                temps=temps if di == 0 else None,
+                solar=solar if di == 0 else None,
+                temps_bt=bots_tops.T[int(len(bots_tops.T) / 2) :].T
+                if di == 1
+                else None,
+                ret_temps_bt=True,
+            )
+            bots_tops = np.array(bots_tops)
+            temp_effect_damages.append(
+                new_temp_effect[0]
+                if di == 1
+                else new_temp_effect[0][: int(len(new_temp_effect[0]) / 2)]
+            )
+        temp_effect.append(np.concatenate(temp_effect_damages))
+        print(f&#34;len(temps) = {len(temps)}&#34;)
+        print(f&#34;len_per_hour = {int(len(traffic_array) / traffic_array_mins)}&#34;)
+        print(f&#34;Temperature shape = {temp_effect[-1].shape}&#34;)
+        plt.plot(temp_effect[-1])
+        plt.savefig(
+            c.get_image_path(&#34;crack&#34;, safe_str(f&#34;save-temps-{response_type}.pdf&#34;))
+        )
+        plt.close()
+
+    responses = []
+    for ri, rt in enumerate(response_types):
+        responses_healthy_cracked = []
+        for ds, ta in [(HealthyDamage(), traffic_array_0), (damage, traffic_array_1)]:
+            print(
+                f&#34;Sections in scenarios scenario = {len(ds.use(c)[0].bridge.sections)}&#34;
+            )
+            responses_healthy_cracked.append(
+                responses_to_traffic_array(
+                    c=c,
+                    traffic_array=ta,
+                    response_type=rt,
+                    damage_scenario=ds,
+                    points=[sensor],
+                ).T[0]
+            )  # Responses from a single point.
+        responses.append(np.concatenate(responses_healthy_cracked))
+        print(f&#34;shape fem without temp = {responses[-1].shape}&#34;)
+        print(f&#34;shape of temp effect = {temp_effect[ri].shape}&#34;)
+        if rt == ResponseType.Strain:
+            responses[ri] = resize_units(&#34;&#34;)[0](responses[ri])
+        responses[ri] += temperature.apply(temp_effect[ri], responses[ri])
+    responses = np.array(responses)
+    print(f&#34;Responses shape = {responses.shape}&#34;)
+    return responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.crack.time_series_plot"><code class="name flex">
+<span>def <span class="ident">time_series_plot</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, n: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot 24min time series of cracking, for multiple cracked bridges.</p>
+<p>For each bridge (hard-coded), a time series of strain fem is plotted.
+For each bridge it is initially in healthy condition, and the crack occurs
+halfway through.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>n</code></strong></dt>
+<dd>float, meters in front of the crack zone where to place sensor.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_series_plot(c: Config, n: float):
+    &#34;&#34;&#34;Plot 24min time series of cracking, for multiple cracked bridges.
+
+    For each bridge (hard-coded), a time series of strain fem is plotted.
+    For each bridge it is initially in healthy condition, and the crack occurs
+    halfway through.
+
+    Args:
+        n: float, meters in front of the crack zone where to place sensor.
+
+    &#34;&#34;&#34;
+
+    # First construct one day (24 minutes) of traffic.
+    total_mins = 24
+    total_seconds = total_mins * 60
+    traffic_scenario = normal_traffic(c=c, lam=5, min_d=2)
+    traffic_sequence, traffic, traffic_array = load_traffic(
+        c=c, traffic_scenario=traffic_scenario, max_time=total_seconds,
+    )
+    traffic_array.shape
+
+    # Temperatures for one day.
+    temps_day = temperature.from_to_mins(
+        temperature.load(&#34;holly-springs&#34;),
+        datetime.fromisoformat(f&#34;2019-07-03T00:00&#34;),
+        datetime.fromisoformat(f&#34;2019-07-03T23:59&#34;),
+    )
+    print(f&#34;len temps = {len(temps_day[&#39;solar&#39;])}&#34;)
+    print(f&#34;len temps = {len(temps_day[&#39;temp&#39;])}&#34;)
+
+    # Then generate some cracking time series.
+    damages = [
+        HealthyDamage(),
+        transverse_crack(),
+        transverse_crack(length=14.0, at_x=48.0),
+    ]
+    sensors = [
+        Point(x=52, z=-8.4),  # Sensor in middle of lane.
+        Point(
+            x=damages[1].crack_area(c.bridge)[0] - n, z=-8.4
+        ),  # Sensor in front of crack zone.
+        Point(
+            x=damages[2].crack_area(c.bridge)[0] - n, z=-8.4
+        ),  # Sensor in front of crack zone.
+    ]
+    [print(f&#34;Sensor {i} = {sensors[i]}&#34;) for i in range(len(sensors))]
+    time_series = [
+        crack_time_series(
+            c=c,
+            traffic_array=traffic_array,
+            traffic_array_mins=total_mins,
+            sensor=sensor,
+            crack_frac=0.5,
+            damage=damage,
+            temps=temps_day[&#34;temp&#34;],
+            solar=temps_day[&#34;solar&#34;],
+        )
+        for damage, sensor in zip(damages, sensors)
+    ]
+    plt.portrait()
+    for i, (y_trans, strain) in enumerate(time_series):
+        x = np.arange(len(strain)) * c.sensor_hz / 60
+        x_m = sensors[i].x
+        damage_str = &#34;Healthy Bridge&#34;
+        if i == 1:
+            damage_str = &#34;0.5 m crack zone&#34;
+        if i == 2:
+            damage_str = &#34;14 m crack zone&#34;
+        plt.subplot(len(time_series), 2, i * 2 + 1)
+        plt.plot(x, y_trans * 1000, color=&#34;tab:blue&#34;)
+        if i &lt; len(time_series) - 1:
+            plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+        else:
+            plt.xlabel(&#34;Hours&#34;)
+        plt.title(f&#34;At x = {x_m} m\n{damage_str}&#34;)
+        plt.ylabel(&#34;Y trans. (mm)&#34;)
+
+        plt.subplot(len(time_series), 2, i * 2 + 2)
+        plt.plot(x, strain * 1e6, color=&#34;tab:orange&#34;)
+        if i &lt; len(time_series) - 1:
+            plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+        else:
+            plt.xlabel(&#34;Hours&#34;)
+        plt.title(f&#34;At x = {x_m} m,\n{damage_str}&#34;)
+        plt.ylabel(&#34;Microstrain XXB&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;crack&#34;, &#34;time-series-q5.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim" href="index.html">bridge_sim.sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.crack.crack_time_series" href="#bridge_sim.sim.crack.crack_time_series">crack_time_series</a></code></li>
+<li><code><a title="bridge_sim.sim.crack.time_series_plot" href="#bridge_sim.sim.crack.time_series_plot">time_series_plot</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-"""A number of core classes: Bridge, Config, PointLoad etc."""
+"""The core classes: Bridge, Config, PointLoad etc."""
 
 import os
 from enum import Enum
@@ -7,9 +7,9 @@ from timeit import default_timer as timer
 from typing import List, Union, Tuple, Optional, Callable
 
 import numpy as np
-
 from matplotlib import cm as cm, colors as colors, pyplot as plt
 from scipy.interpolate import interp1d
+
 from bridge_sim.util import (
     safe_str,
     round_m,

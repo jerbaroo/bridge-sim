@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.run API documentation</title>
+<meta name="description" content="Low-level API for saving/loading responses from FE simulation …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.run</code></h1>
+</header>
+<section id="section-intro">
+<p>Low-level API for saving/loading responses from FE simulation.</p>
+<p>This API is based on the 'bridge_sim.model.SimParams' class.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Low-level API for saving/loading responses from FE simulation.
+
+This API is based on the &#39;bridge_sim.model.SimParams&#39; class.
+
+&#34;&#34;&#34;
+
+from __future__ import annotations
+
+import itertools
+import os
+from collections import deque
+from copy import deepcopy
+from timeit import default_timer as timer
+from typing import Callable, Dict, List, TypeVar, Optional, Tuple
+
+import dill
+from pathos.multiprocessing import Pool
+
+from bridge_sim.model import Bridge, Config, ResponseType
+from bridge_sim.sim.model import SimParams, SimResponses
+from bridge_sim.sim.util import _responses_path
+from bridge_sim.util import print_d, print_i, safe_str, shorten_path
+
+# Print debug information for this file.
+
+D: str = &#34;fem.run&#34;
+# D: bool = False
+
+Parsed = TypeVar(&#34;Parsed&#34;)
+
+
+class FEMRunner:
+    &#34;&#34;&#34;An interface to run simulations with an external FE program.
+
+    NOTE: For running simulations and loading fem you probably want the
+    higher-level API in &#39;bridge_sim.sim.responses&#39;.
+
+    Args:
+        supported_response_types: Callable[[Bridge], List[ResponseType]], the
+            supported response types for a given bridge.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: &#34;Config&#34;,
+        name: str,
+        exe_path: str,
+        supported_response_types: Callable[[Bridge], List[ResponseType]],
+        build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
+        run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
+        parse: Callable[[Config, List[SimParams], FEMRunner], Parsed],
+        convert: Callable[
+            [Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]
+        ],
+    ):
+        self.c = c
+        self.name = name
+        self.exe_path = exe_path
+        self.supported_response_types = supported_response_types
+        self._build = build
+        self._run = run
+        self._parse = parse
+        self._convert = convert
+
+    def run(
+        self,
+        expt_params: List[SimParams],
+        return_parsed: bool = False,
+        return_converted: bool = False,
+    ):
+        &#34;&#34;&#34;Run multiple simulations and save responses.
+
+        TODO: Change ExptParams to SimParams.
+
+        Args:
+            expt_params: ExptParams, parameters for a number of simulations.
+            return_parsed: bool, for testing, return parsed fem.
+            return_converted: bool, for testing, return converted fem.
+
+        &#34;&#34;&#34;
+        # Building.
+        start = timer()
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+        print_i(
+            f&#34;FEMRunner: built {self.name} model file(s) in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+
+        # Running.
+        for sim_ind, _ in enumerate(expt_params):
+            start = timer()
+            expt_params = self._run(self.c, expt_params, self, sim_ind)
+            print_i(
+                f&#34;FEMRunner: ran {self.name}&#34;
+                + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
+                + f&#34; simulation in {timer() - start:.2f}s&#34;
+            )
+
+        # Parsing.
+        start = timer()
+        parsed_expt_responses = self._parse(self.c, expt_params, self)
+        print_i(f&#34;FEMRunner: parsed all fem in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+        if return_parsed:
+            return parsed_expt_responses
+        print(parsed_expt_responses[0].keys())
+
+        # Converting.
+        start = timer()
+        converted_expt_responses = self._convert(
+            c=self.c,
+            expt_params=expt_params,
+            parsed_expt_responses=parsed_expt_responses,
+        )
+        print_i(
+            f&#34;FEMRunner: converted all fem to [Response] in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+        if return_converted:
+            return converted_expt_responses
+        print(converted_expt_responses[0].keys())
+
+        # Saving.
+        for sim_ind in converted_expt_responses:
+            print_d(D, f&#34;sim_ind = {sim_ind}&#34;)
+            for response_type, responses in converted_expt_responses[sim_ind].items():
+                print_d(D, f&#34;response_type in converted = {response_type}&#34;)
+                print(len(responses))
+                fem_responses = SimResponses(
+                    c=self.c,
+                    sim_params=expt_params[sim_ind],
+                    sim_runner=self,
+                    response_type=response_type,
+                    responses=responses,
+                    build=False,
+                )
+
+                start = timer()
+                fem_responses.save()
+                print_i(
+                    f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
+                    + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
+                    + f&#34;({response_type})&#34;
+                )
+
+    def sim_model_path(
+        self,
+        sim_params: SimParams,
+        ext: str,
+        append: str = &#34;&#34;,
+        dirname: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Deterministic path for a FE model file.
+
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name.
+        :param append: append to the filename (before the extension).
+        :return: path for the output file.
+        &#34;&#34;&#34;
+        param_str = sim_params.id_str()
+        append = append if len(append) == 0 else f&#34;-{append}&#34;
+        filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+        if dirname is None:
+            dirname = self.name
+        dirname = safe_str(dirname)
+        return shorten_path(
+            self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+        )
+
+    def sim_out_path(
+        self,
+        sim_params: SimParams,
+        ext: str,
+        dirname: Optional[str] = None,
+        append: str = &#34;&#34;,
+        response_types: List[ResponseType] = [],
+    ) -&gt; str:
+        &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
+
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+        :param append: append to the filename (before the extension).
+        :param response_types: response types identifying the output file.
+        :return: path for the output file.
+        &#34;&#34;&#34;
+        sim_params_copy = deepcopy(sim_params)
+        sim_params_copy.response_types = response_types
+        # Output files are response type specific, so append to filename.
+        append += &#34;&#34;.join([rt.name() for rt in response_types])
+        if dirname is None:
+            dirname = self.name + &#34;-responses&#34;
+        return self.sim_model_path(
+            sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+        )
+
+
+def load_fem_responses(
+    c: Config,
+    sim_params: SimParams,
+    response_type: ResponseType,
+    run: bool = False,
+    run_only: bool = False,
+    index: Optional[Tuple[int, int]] = None,
+) -&gt; &#34;FEMResponses&#34;:
+    &#34;&#34;&#34;Load responses of one sensor type from a FE simulation.
+
+    This function is a layer over &#39;FEMRunner.run&#39; and additionally handles
+    saving/loading results to/from disk -- only running the simulation if
+    necessary.
+
+    Args:
+        c: simulation configuration object.
+        sim_params: simulation parameters.
+        response_type: responses to load from disk and return.
+        run: run the simulation even if results are already saved.
+        run_only: don&#39;t bother returning results
+        index: simulation progress (n/m) printed if given.
+
+    NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
+    &#39;fem&#39; module of this package should be separate from that abstraction.
+
+    &#34;&#34;&#34;
+    if response_type not in c.sim_runner.supported_response_types(c.bridge):
+        raise ValueError(f&#34;{response_type} not supported by FEMRunner&#34;)
+
+    prog_str = &#34;1/1: &#34;
+    if index is not None:
+        prog_str = f&#34;{index[0]}/{index[1]}: &#34;
+    print_prog = lambda s: print_i(prog_str + s, end=&#34;\r&#34;)
+
+    path = _responses_path(
+        sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
+    )
+    print_i(f&#34;Loading responses from: {path}&#34;)
+
+    # Run the FEM simulation, and/or clean build artefacts, if requested.
+    if run or not os.path.exists(path):
+        print_prog(f&#34;Running simulation&#34;)
+        c.sim_runner.run([sim_params])
+    else:
+        print_prog(f&#34;Not running simulation&#34;)
+    # If only running was requested then we are done.
+    if run_only:
+        return None
+
+    start = timer()
+    try:
+        with open(path, &#34;rb&#34;) as f:
+            responses = dill.load(f)
+    # Try again on Exception.
+    except Exception as e:
+        print_i(f&#34;\n{str(e)}\nremoving and re-running sim. {index} at {path}&#34;)
+        os.remove(path)
+        return load_fem_responses(
+            c=c,
+            sim_params=sim_params,
+            response_type=response_type,
+            run=run,
+            run_only=run_only,
+            index=index,
+        )
+
+    print_prog(f&#34;Loaded Responses in {timer() - start:.2f}s, ({response_type})&#34;)
+
+    start = timer()
+    sim_responses = SimResponses(
+        c=c,
+        sim_params=sim_params,
+        sim_runner=c.sim_runner,
+        response_type=response_type,
+        responses=responses,
+    )
+    print_prog(f&#34;Built FEMResponses in {timer() - start:.2f}s, ({response_type})&#34;)
+
+    return sim_responses
+
+
+def load_expt_responses(
+    c: Config,
+    expt_params: List[SimParams],
+    response_type: ResponseType,
+    run_only: bool = False,
+) -&gt; List[SimResponses]:
+    &#34;&#34;&#34;Save/load responses of one sensor type for multiple simulations.
+
+    The simulations will be run in parallel if &#39;Config.parallel &gt; 1&#39;. If the
+    &#39;run_only&#39; option is passed, then the simulations will run but nothing will
+    be returned.
+
+    &#34;&#34;&#34;
+    indices_and_params = list(zip(itertools.count(), expt_params))
+
+    def process(index_and_params, _run_only: bool = True):
+        i, sim_params = index_and_params
+        return load_fem_responses(
+            c=deepcopy(c),
+            sim_params=deepcopy(sim_params),
+            response_type=response_type,
+            run_only=_run_only,
+            index=(i + 1, len(expt_params)),
+        )
+
+    # First run the simulations (if necessary), in parallel if requested. To
+    # free resources as quickly as possible only 1 task is run per process.
+    if c.parallel &gt; 1:
+        print(f&#34;Running in parallel&#34;)
+        with Pool(processes=c.parallel, maxtasksperchild=1) as pool:
+            pool.map(process, indices_and_params)
+    else:
+        deque(map(process, indices_and_params), maxlen=0)
+    # Return after generating results if requested...
+    if run_only:
+        return
+    # ...otherwise yield all of the results.
+    for index_params in indices_and_params:
+        yield process(index_params, _run_only=False)</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="bridge_sim.sim.run.opensees" href="opensees/index.html">bridge_sim.sim.run.opensees</a></code></dt>
+<dd>
+<div class="desc"><p>Run FE simulations with OpenSees.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.run.load_expt_responses"><code class="name flex">
+<span>def <span class="ident">load_expt_responses</span></span>(<span>c: Config, expt_params: List[SimParams], response_type: ResponseType, run_only: bool = False) -> List[<a title="bridge_sim.sim.model.SimResponses" href="../model/index.html#bridge_sim.sim.model.SimResponses">SimResponses</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save/load responses of one sensor type for multiple simulations.</p>
+<p>The simulations will be run in parallel if 'Config.parallel &gt; 1'. If the
+'run_only' option is passed, then the simulations will run but nothing will
+be returned.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_expt_responses(
+    c: Config,
+    expt_params: List[SimParams],
+    response_type: ResponseType,
+    run_only: bool = False,
+) -&gt; List[SimResponses]:
+    &#34;&#34;&#34;Save/load responses of one sensor type for multiple simulations.
+
+    The simulations will be run in parallel if &#39;Config.parallel &gt; 1&#39;. If the
+    &#39;run_only&#39; option is passed, then the simulations will run but nothing will
+    be returned.
+
+    &#34;&#34;&#34;
+    indices_and_params = list(zip(itertools.count(), expt_params))
+
+    def process(index_and_params, _run_only: bool = True):
+        i, sim_params = index_and_params
+        return load_fem_responses(
+            c=deepcopy(c),
+            sim_params=deepcopy(sim_params),
+            response_type=response_type,
+            run_only=_run_only,
+            index=(i + 1, len(expt_params)),
+        )
+
+    # First run the simulations (if necessary), in parallel if requested. To
+    # free resources as quickly as possible only 1 task is run per process.
+    if c.parallel &gt; 1:
+        print(f&#34;Running in parallel&#34;)
+        with Pool(processes=c.parallel, maxtasksperchild=1) as pool:
+            pool.map(process, indices_and_params)
+    else:
+        deque(map(process, indices_and_params), maxlen=0)
+    # Return after generating results if requested...
+    if run_only:
+        return
+    # ...otherwise yield all of the results.
+    for index_params in indices_and_params:
+        yield process(index_params, _run_only=False)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.load_fem_responses"><code class="name flex">
+<span>def <span class="ident">load_fem_responses</span></span>(<span>c: Config, sim_params: SimParams, response_type: ResponseType, run: bool = False, run_only: bool = False, index: Optional[Tuple[int, int]] = None) -> ForwardRef('FEMResponses')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load responses of one sensor type from a FE simulation.</p>
+<p>This function is a layer over 'FEMRunner.run' and additionally handles
+saving/loading results to/from disk &ndash; only running the simulation if
+necessary.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>sim_params</code></strong></dt>
+<dd>simulation parameters.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>responses to load from disk and return.</dd>
+<dt><strong><code>run</code></strong></dt>
+<dd>run the simulation even if results are already saved.</dd>
+<dt><strong><code>run_only</code></strong></dt>
+<dd>don't bother returning results</dd>
+<dt><strong><code>index</code></strong></dt>
+<dd>simulation progress (n/m) printed if given.</dd>
+<dt><strong><code>NOTE</code></strong> :&ensp;<code>Note-to-self. This function is NOT to take a DamageScenario. The whole</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>'fem' module of this package should be separate from that abstraction.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_fem_responses(
+    c: Config,
+    sim_params: SimParams,
+    response_type: ResponseType,
+    run: bool = False,
+    run_only: bool = False,
+    index: Optional[Tuple[int, int]] = None,
+) -&gt; &#34;FEMResponses&#34;:
+    &#34;&#34;&#34;Load responses of one sensor type from a FE simulation.
+
+    This function is a layer over &#39;FEMRunner.run&#39; and additionally handles
+    saving/loading results to/from disk -- only running the simulation if
+    necessary.
+
+    Args:
+        c: simulation configuration object.
+        sim_params: simulation parameters.
+        response_type: responses to load from disk and return.
+        run: run the simulation even if results are already saved.
+        run_only: don&#39;t bother returning results
+        index: simulation progress (n/m) printed if given.
+
+    NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
+    &#39;fem&#39; module of this package should be separate from that abstraction.
+
+    &#34;&#34;&#34;
+    if response_type not in c.sim_runner.supported_response_types(c.bridge):
+        raise ValueError(f&#34;{response_type} not supported by FEMRunner&#34;)
+
+    prog_str = &#34;1/1: &#34;
+    if index is not None:
+        prog_str = f&#34;{index[0]}/{index[1]}: &#34;
+    print_prog = lambda s: print_i(prog_str + s, end=&#34;\r&#34;)
+
+    path = _responses_path(
+        sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
+    )
+    print_i(f&#34;Loading responses from: {path}&#34;)
+
+    # Run the FEM simulation, and/or clean build artefacts, if requested.
+    if run or not os.path.exists(path):
+        print_prog(f&#34;Running simulation&#34;)
+        c.sim_runner.run([sim_params])
+    else:
+        print_prog(f&#34;Not running simulation&#34;)
+    # If only running was requested then we are done.
+    if run_only:
+        return None
+
+    start = timer()
+    try:
+        with open(path, &#34;rb&#34;) as f:
+            responses = dill.load(f)
+    # Try again on Exception.
+    except Exception as e:
+        print_i(f&#34;\n{str(e)}\nremoving and re-running sim. {index} at {path}&#34;)
+        os.remove(path)
+        return load_fem_responses(
+            c=c,
+            sim_params=sim_params,
+            response_type=response_type,
+            run=run,
+            run_only=run_only,
+            index=index,
+        )
+
+    print_prog(f&#34;Loaded Responses in {timer() - start:.2f}s, ({response_type})&#34;)
+
+    start = timer()
+    sim_responses = SimResponses(
+        c=c,
+        sim_params=sim_params,
+        sim_runner=c.sim_runner,
+        response_type=response_type,
+        responses=responses,
+    )
+    print_prog(f&#34;Built FEMResponses in {timer() - start:.2f}s, ({response_type})&#34;)
+
+    return sim_responses</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.sim.run.FEMRunner"><code class="flex name class">
+<span>class <span class="ident">FEMRunner</span></span>
+<span>(</span><span>c: "'Config'", name: str, exe_path: str, supported_response_types: Callable[[Bridge], List[ResponseType]], build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]], run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]], parse: Callable[[Config, List[SimParams], FEMRunner], Parsed], convert: Callable[[Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An interface to run simulations with an external FE program.</p>
+<p>NOTE: For running simulations and loading fem you probably want the
+higher-level API in 'bridge_sim.sim.responses'.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>supported_response_types</code></strong></dt>
+<dd>Callable[[Bridge], List[ResponseType]], the
+supported response types for a given bridge.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FEMRunner:
+    &#34;&#34;&#34;An interface to run simulations with an external FE program.
+
+    NOTE: For running simulations and loading fem you probably want the
+    higher-level API in &#39;bridge_sim.sim.responses&#39;.
+
+    Args:
+        supported_response_types: Callable[[Bridge], List[ResponseType]], the
+            supported response types for a given bridge.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        c: &#34;Config&#34;,
+        name: str,
+        exe_path: str,
+        supported_response_types: Callable[[Bridge], List[ResponseType]],
+        build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
+        run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
+        parse: Callable[[Config, List[SimParams], FEMRunner], Parsed],
+        convert: Callable[
+            [Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]
+        ],
+    ):
+        self.c = c
+        self.name = name
+        self.exe_path = exe_path
+        self.supported_response_types = supported_response_types
+        self._build = build
+        self._run = run
+        self._parse = parse
+        self._convert = convert
+
+    def run(
+        self,
+        expt_params: List[SimParams],
+        return_parsed: bool = False,
+        return_converted: bool = False,
+    ):
+        &#34;&#34;&#34;Run multiple simulations and save responses.
+
+        TODO: Change ExptParams to SimParams.
+
+        Args:
+            expt_params: ExptParams, parameters for a number of simulations.
+            return_parsed: bool, for testing, return parsed fem.
+            return_converted: bool, for testing, return converted fem.
+
+        &#34;&#34;&#34;
+        # Building.
+        start = timer()
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+        print_i(
+            f&#34;FEMRunner: built {self.name} model file(s) in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+
+        # Running.
+        for sim_ind, _ in enumerate(expt_params):
+            start = timer()
+            expt_params = self._run(self.c, expt_params, self, sim_ind)
+            print_i(
+                f&#34;FEMRunner: ran {self.name}&#34;
+                + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
+                + f&#34; simulation in {timer() - start:.2f}s&#34;
+            )
+
+        # Parsing.
+        start = timer()
+        parsed_expt_responses = self._parse(self.c, expt_params, self)
+        print_i(f&#34;FEMRunner: parsed all fem in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+        if return_parsed:
+            return parsed_expt_responses
+        print(parsed_expt_responses[0].keys())
+
+        # Converting.
+        start = timer()
+        converted_expt_responses = self._convert(
+            c=self.c,
+            expt_params=expt_params,
+            parsed_expt_responses=parsed_expt_responses,
+        )
+        print_i(
+            f&#34;FEMRunner: converted all fem to [Response] in&#34;
+            + f&#34; {timer() - start:.2f}s&#34;
+        )
+        if return_converted:
+            return converted_expt_responses
+        print(converted_expt_responses[0].keys())
+
+        # Saving.
+        for sim_ind in converted_expt_responses:
+            print_d(D, f&#34;sim_ind = {sim_ind}&#34;)
+            for response_type, responses in converted_expt_responses[sim_ind].items():
+                print_d(D, f&#34;response_type in converted = {response_type}&#34;)
+                print(len(responses))
+                fem_responses = SimResponses(
+                    c=self.c,
+                    sim_params=expt_params[sim_ind],
+                    sim_runner=self,
+                    response_type=response_type,
+                    responses=responses,
+                    build=False,
+                )
+
+                start = timer()
+                fem_responses.save()
+                print_i(
+                    f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
+                    + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
+                    + f&#34;({response_type})&#34;
+                )
+
+    def sim_model_path(
+        self,
+        sim_params: SimParams,
+        ext: str,
+        append: str = &#34;&#34;,
+        dirname: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;Deterministic path for a FE model file.
+
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name.
+        :param append: append to the filename (before the extension).
+        :return: path for the output file.
+        &#34;&#34;&#34;
+        param_str = sim_params.id_str()
+        append = append if len(append) == 0 else f&#34;-{append}&#34;
+        filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+        if dirname is None:
+            dirname = self.name
+        dirname = safe_str(dirname)
+        return shorten_path(
+            self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+        )
+
+    def sim_out_path(
+        self,
+        sim_params: SimParams,
+        ext: str,
+        dirname: Optional[str] = None,
+        append: str = &#34;&#34;,
+        response_types: List[ResponseType] = [],
+    ) -&gt; str:
+        &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
+
+        :param sim_params: simulation parameters.
+        :param ext: extension of the output file without the dot.
+        :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+        :param append: append to the filename (before the extension).
+        :param response_types: response types identifying the output file.
+        :return: path for the output file.
+        &#34;&#34;&#34;
+        sim_params_copy = deepcopy(sim_params)
+        sim_params_copy.response_types = response_types
+        # Output files are response type specific, so append to filename.
+        append += &#34;&#34;.join([rt.name() for rt in response_types])
+        if dirname is None:
+            dirname = self.name + &#34;-responses&#34;
+        return self.sim_model_path(
+            sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+        )</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="bridge_sim.sim.run.opensees.OSRunner" href="opensees/index.html#bridge_sim.sim.run.opensees.OSRunner">OSRunner</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.run.FEMRunner.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, expt_params: List[SimParams], return_parsed: bool = False, return_converted: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run multiple simulations and save responses.</p>
+<p>TODO: Change ExptParams to SimParams.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>expt_params</code></strong></dt>
+<dd>ExptParams, parameters for a number of simulations.</dd>
+<dt><strong><code>return_parsed</code></strong></dt>
+<dd>bool, for testing, return parsed fem.</dd>
+<dt><strong><code>return_converted</code></strong></dt>
+<dd>bool, for testing, return converted fem.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(
+    self,
+    expt_params: List[SimParams],
+    return_parsed: bool = False,
+    return_converted: bool = False,
+):
+    &#34;&#34;&#34;Run multiple simulations and save responses.
+
+    TODO: Change ExptParams to SimParams.
+
+    Args:
+        expt_params: ExptParams, parameters for a number of simulations.
+        return_parsed: bool, for testing, return parsed fem.
+        return_converted: bool, for testing, return converted fem.
+
+    &#34;&#34;&#34;
+    # Building.
+    start = timer()
+    expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+    print_i(
+        f&#34;FEMRunner: built {self.name} model file(s) in&#34;
+        + f&#34; {timer() - start:.2f}s&#34;
+    )
+
+    # Running.
+    for sim_ind, _ in enumerate(expt_params):
+        start = timer()
+        expt_params = self._run(self.c, expt_params, self, sim_ind)
+        print_i(
+            f&#34;FEMRunner: ran {self.name}&#34;
+            + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
+            + f&#34; simulation in {timer() - start:.2f}s&#34;
+        )
+
+    # Parsing.
+    start = timer()
+    parsed_expt_responses = self._parse(self.c, expt_params, self)
+    print_i(f&#34;FEMRunner: parsed all fem in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+    if return_parsed:
+        return parsed_expt_responses
+    print(parsed_expt_responses[0].keys())
+
+    # Converting.
+    start = timer()
+    converted_expt_responses = self._convert(
+        c=self.c,
+        expt_params=expt_params,
+        parsed_expt_responses=parsed_expt_responses,
+    )
+    print_i(
+        f&#34;FEMRunner: converted all fem to [Response] in&#34;
+        + f&#34; {timer() - start:.2f}s&#34;
+    )
+    if return_converted:
+        return converted_expt_responses
+    print(converted_expt_responses[0].keys())
+
+    # Saving.
+    for sim_ind in converted_expt_responses:
+        print_d(D, f&#34;sim_ind = {sim_ind}&#34;)
+        for response_type, responses in converted_expt_responses[sim_ind].items():
+            print_d(D, f&#34;response_type in converted = {response_type}&#34;)
+            print(len(responses))
+            fem_responses = SimResponses(
+                c=self.c,
+                sim_params=expt_params[sim_ind],
+                sim_runner=self,
+                response_type=response_type,
+                responses=responses,
+                build=False,
+            )
+
+            start = timer()
+            fem_responses.save()
+            print_i(
+                f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
+                + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
+                + f&#34;({response_type})&#34;
+            )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.FEMRunner.sim_model_path"><code class="name flex">
+<span>def <span class="ident">sim_model_path</span></span>(<span>self, sim_params: SimParams, ext: str, append: str = '', dirname: Optional[str] = None) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deterministic path for a FE model file.</p>
+<p>:param sim_params: simulation parameters.
+:param ext: extension of the output file without the dot.
+:param dirname: directory name of output file. Defaults to FEMRunner.name.
+:param append: append to the filename (before the extension).
+:return: path for the output file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sim_model_path(
+    self,
+    sim_params: SimParams,
+    ext: str,
+    append: str = &#34;&#34;,
+    dirname: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;Deterministic path for a FE model file.
+
+    :param sim_params: simulation parameters.
+    :param ext: extension of the output file without the dot.
+    :param dirname: directory name of output file. Defaults to FEMRunner.name.
+    :param append: append to the filename (before the extension).
+    :return: path for the output file.
+    &#34;&#34;&#34;
+    param_str = sim_params.id_str()
+    append = append if len(append) == 0 else f&#34;-{append}&#34;
+    filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+    if dirname is None:
+        dirname = self.name
+    dirname = safe_str(dirname)
+    return shorten_path(
+        self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.FEMRunner.sim_out_path"><code class="name flex">
+<span>def <span class="ident">sim_out_path</span></span>(<span>self, sim_params: SimParams, ext: str, dirname: Optional[str] = None, append: str = '', response_types: List[ResponseType] = []) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deterministic path for unprocessed simulation output files.</p>
+<p>:param sim_params: simulation parameters.
+:param ext: extension of the output file without the dot.
+:param dirname: directory name of output file. Defaults to FEMRunner.name + "-fem".
+:param append: append to the filename (before the extension).
+:param response_types: response types identifying the output file.
+:return: path for the output file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sim_out_path(
+    self,
+    sim_params: SimParams,
+    ext: str,
+    dirname: Optional[str] = None,
+    append: str = &#34;&#34;,
+    response_types: List[ResponseType] = [],
+) -&gt; str:
+    &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
+
+    :param sim_params: simulation parameters.
+    :param ext: extension of the output file without the dot.
+    :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+    :param append: append to the filename (before the extension).
+    :param response_types: response types identifying the output file.
+    :return: path for the output file.
+    &#34;&#34;&#34;
+    sim_params_copy = deepcopy(sim_params)
+    sim_params_copy.response_types = response_types
+    # Output files are response type specific, so append to filename.
+    append += &#34;&#34;.join([rt.name() for rt in response_types])
+    if dirname is None:
+        dirname = self.name + &#34;-responses&#34;
+    return self.sim_model_path(
+        sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim" href="../index.html">bridge_sim.sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="bridge_sim.sim.run.opensees" href="opensees/index.html">bridge_sim.sim.run.opensees</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.load_expt_responses" href="#bridge_sim.sim.run.load_expt_responses">load_expt_responses</a></code></li>
+<li><code><a title="bridge_sim.sim.run.load_fem_responses" href="#bridge_sim.sim.run.load_fem_responses">load_fem_responses</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.sim.run.FEMRunner" href="#bridge_sim.sim.run.FEMRunner">FEMRunner</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.FEMRunner.run" href="#bridge_sim.sim.run.FEMRunner.run">run</a></code></li>
+<li><code><a title="bridge_sim.sim.run.FEMRunner.sim_model_path" href="#bridge_sim.sim.run.FEMRunner.sim_model_path">sim_model_path</a></code></li>
+<li><code><a title="bridge_sim.sim.run.FEMRunner.sim_out_path" href="#bridge_sim.sim.run.FEMRunner.sim_out_path">sim_out_path</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

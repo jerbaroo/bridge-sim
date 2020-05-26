@@ -16,6 +16,7 @@ venv/
 
 # Generated
 build/
+crack/
 *generated*/
 src/build/
 src/dist/

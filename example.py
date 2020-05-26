@@ -12,13 +12,13 @@
 # plt.show()
 
 # Example 2.
-
+import bridge_sim.sim.responses
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, fem, model, plot, vehicles
+from bridge_sim import bridges, configs, model, plot, sim, vehicles
 
 config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 point_loads = vehicles.truck1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTrans, point_loads)
+responses = bridge_sim.sim.responses.responses(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()

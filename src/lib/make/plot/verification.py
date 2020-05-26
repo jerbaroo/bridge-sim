@@ -9,6 +9,8 @@ from datetime import datetime
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple
 
+import bridge_sim.sim
+import bridge_sim.sim.responses
 import matplotlib
 import matplotlib.cm as cm
 import numpy as np
@@ -17,13 +19,13 @@ from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
-from lib.classify.data.responses import responses_to_vehicles_d
-from lib.classify.scenario.bridge import Healthy
+from bridge_sim.sim.responses import responses_to_vehicles_d
+from bridge_sim.scenarios import HealthyScenario
 from bridge_sim.vehicles import truck1
-from lib.fem.build import det_nodes, det_shells
-from lib.fem.params import SimParams
-from lib.fem.responses import load_fem_responses
-from lib.fem.run.opensees import OSRunner
+from bridge_sim.sim.build import det_nodes, det_shells
+from bridge_sim.sim.model import SimParams
+from bridge_sim.sim.responses import load_fem_responses
+from bridge_sim.sim.run.opensees import OSRunner
 from lib.plot import legend_marker_size, plt
 from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
@@ -35,12 +37,12 @@ from bridge_sim.util import (
     safe_str,
     scalar,
 )
-from bridge_sim.validate import (
-    meas,
-    displa_sensors,
-    strain_sensors,
-    strain_sensor_xz,
-    displa_sensor_xz,
+from lib.validate import (
+    _meas,
+    _displa_sensors,
+    _strain_sensors,
+    _strain_sensor_xz,
+    _displa_sensor_xz,
 )
 
 # Positions of truck front axle.
@@ -82,11 +84,11 @@ def per_sensor_plots(
     ##########
 
     print_i("All strain sensors = ")
-    print_i(f"  {sorted(set(meas['sensorlabel']))}")
+    print_i(f"  {sorted(set(_meas['sensorlabel']))}")
     # All strain measurements for a given sensor set (strain_sensors_startwith),
     # except ignore sensors in ignore set (strain_sensors_ignore).
-    tno_strain_meas = meas.loc[
-        meas["sensorlabel"].str.startswith(strain_sensors_startwith)
+    tno_strain_meas = _meas.loc[
+        _meas["sensorlabel"].str.startswith(strain_sensors_startwith)
     ]
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
     tno_strain_meas = tno_strain_meas.loc[
@@ -100,7 +102,7 @@ def per_sensor_plots(
 
     # Ignore sensors with missing positions.
     positions_available = set(
-        strain_sensors[strain_sensors["direction"] == "X"]["label"]
+        _strain_sensors[_strain_sensors["direction"] == "X"]["label"]
     )
     labels_before_ignore = set(tno_strain_meas["sensorlabel"])
     tno_strain_meas = tno_strain_meas.loc[
@@ -120,7 +122,7 @@ def per_sensor_plots(
     tno_strain_meas = tno_strain_meas.sort_values(by=["sort"])
     strain_groupby = tno_strain_meas.groupby("sensorlabel", sort=False)
     strain_sensor_labels = [sensor_label for sensor_label, _ in strain_groupby]
-    strain_sensor_xzs = list(map(strain_sensor_xz, strain_sensor_labels))
+    strain_sensor_xzs = list(map(_strain_sensor_xz, strain_sensor_labels))
     print(f"strain sensor xsz = {strain_sensor_xzs}")
 
     # Find the min and max fem.
@@ -231,14 +233,14 @@ def per_sensor_plots(
     ################
 
     # All displacement measurements.
-    displa_meas = pd.DataFrame(meas.loc[meas["sensortype"] == "displacements"])
+    displa_meas = pd.DataFrame(_meas.loc[_meas["sensortype"] == "displacements"])
 
     # Sort by sensor number and setup groupby sensor label.
     displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     displa_meas = displa_meas.sort_values(by=["sort"])
     displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
     displa_sensor_labels = [sensor_label for sensor_label, _ in displa_groupby]
-    displa_sensor_xzs = list(map(displa_sensor_xz, displa_sensor_labels))
+    displa_sensor_xzs = list(map(_displa_sensor_xz, displa_sensor_labels))
 
     # Find the min and max fem.
     amin, amax = np.inf, -np.inf
@@ -359,11 +361,11 @@ def r2_plots(c: Config):
 
     # For each sensor and truck x position plot the recorded measurement and
     # Diana response.
-    for row in displa_sensors.itertuples():
+    for row in _displa_sensors.itertuples():
         sensor_label = getattr(row, "label")
-        x, z = displa_sensor_xz(sensor_label)
+        x, z = _displa_sensor_xz(sensor_label)
         sensors.append((sensor_label, x, z))
-        responses = meas[meas["sensorlabel"] == sensor_label]
+        responses = _meas[_meas["sensorlabel"] == sensor_label]
         for sensor_row in responses.itertuples():
             truck_x = getattr(sensor_row, "xpostruck")
             truck_xs_meas.add(truck_x)
@@ -381,7 +383,7 @@ def r2_plots(c: Config):
             mv_vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=rt_y,
-            damage_scenario=Healthy(),
+            damage_scenario=HealthyScenario(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
@@ -470,11 +472,11 @@ def r2_plots(c: Config):
 
     # For each sensor and truck x position record measurment and Diana response.
     count_nan = 0
-    for row in strain_sensors.itertuples():
+    for row in _strain_sensors.itertuples():
         sensor_label = getattr(row, "label")
-        x, z = strain_sensor_xz(sensor_label)
+        x, z = _strain_sensor_xz(sensor_label)
         sensors.append((sensor_label, x, z))
-        responses = meas[meas["sensorlabel"] == sensor_label]
+        responses = _meas[_meas["sensorlabel"] == sensor_label]
         for sensor_row in responses.itertuples():
             truck_x = getattr(sensor_row, "xpostruck")
             response = getattr(sensor_row, "inflinedata")
@@ -494,7 +496,7 @@ def r2_plots(c: Config):
         mv_vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
         response_type=rt_s,
-        damage_scenario=Healthy(),
+        damage_scenario=HealthyScenario(),
         points=[
             Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
         ],
@@ -849,7 +851,7 @@ def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6
             for x in displacements.xs:
                 if 0 in displacements.zs[x]:
                     for z in displacements.zs[x][0]:
-                        og = displacements.responses[0][x][0][z].value
+                        og = bridge_sim.sim.responses.responses[0][x][0][z].value
                         ip = displacements.at_deck(Point(x=x, y=0, z=z), interp=True)
                         assert np.isclose(og, ip)
 

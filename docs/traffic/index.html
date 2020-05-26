@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.traffic API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Generate time series of traffic." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,20 +20,25 @@
 <h1 class="title">Module <code>bridge_sim.traffic</code></h1>
 </header>
 <section id="section-intro">
+<p>Generate time series of traffic.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from collections import deque
-from timeit import default_timer as timer
-from typing import NewType, List, Tuple, Callable
+<pre><code class="python">&#34;&#34;&#34;Generate time series of traffic.&#34;&#34;&#34;
 
+import os
+from collections import deque
+from timeit import default_timer as timer
+from typing import NewType, List, Tuple, Callable, Optional
+
+import dill
 import numpy as np
 from bridge_sim.vehicles.sample import sample_vehicle
 from scipy.interpolate import interp1d
 
 from bridge_sim.model import Bridge, Config, PointLoad, Vehicle
-from bridge_sim.util import print_i, print_d, st
+from bridge_sim.util import print_i, print_d, st, safe_str
 
 D = False
 
@@ -81,8 +86,8 @@ class TrafficScenario:
         the point where the vehicles will enter on that lane.
 
         Args:
-            bridge: Bridge, the bridge the vehicles drive on.
-            lane: int, index of the lane on the bridge the vehicles drive on.
+            bridge: the bridge the vehicles drive on.
+            lane: index of the lane on the bridge the vehicles drive on.
 
         &#34;&#34;&#34;
         dist = 0  # Where the next vehicles is at time t = 0.
@@ -433,7 +438,55 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
                     traffic_array[time][j] += load.load
             if not wheel_track_found:
                 raise ValueError(f&#34;No wheel track for point load at z = {load.z}&#34;)
-    return traffic_array</code></pre>
+    return traffic_array
+
+
+def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float):
+    return safe_str(
+        f&#34;{traffic_scenario.name} {c.il_num_loads} {max_time} {c.sensor_hz}&#34;
+    )
+
+
+def load_traffic(
+    c: Config,
+    traffic_scenario: TrafficScenario,
+    max_time: float,
+    add: Optional[str] = None,
+):
+    &#34;&#34;&#34;Load traffic from disk, generated if necessary.&#34;&#34;&#34;
+    path = (
+        c.get_data_path(
+            &#34;traffic&#34;,
+            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time),
+            acc=False,
+        )
+        + &#34;.npy&#34;
+    )
+    print(path)
+    if add is not None:
+        path += add
+    # Create the traffic if it doesn&#39;t exist.
+    if not os.path.exists(path + &#34;.arr&#34;):
+        traffic_sequence = traffic_scenario.traffic_sequence(
+            bridge=c.bridge, max_time=max_time
+        )
+        traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+        traffic_array = to_traffic_array(
+            c=c, traffic_sequence=traffic_sequence, max_time=max_time
+        )
+        with open(path + &#34;.seq&#34;, &#34;wb&#34;) as f:
+            dill.dump(traffic_sequence, f)
+        with open(path + &#34;.tra&#34;, &#34;wb&#34;) as f:
+            dill.dump(traffic, f)
+        with open(path + &#34;.arr&#34;, &#34;wb&#34;) as f:
+            np.save(f, traffic_array)
+    with open(path + &#34;.seq&#34;, &#34;rb&#34;) as f:
+        traffic_sequence = dill.load(f)
+    with open(path + &#34;.tra&#34;, &#34;rb&#34;) as f:
+        traffic = dill.load(f)
+    with open(path + &#34;.arr&#34;, &#34;rb&#34;) as f:
+        traffic_array = np.load(f)
+    return traffic_sequence, traffic, traffic_array</code></pre>
 </details>
 </section>
 <section>
@@ -459,6 +512,57 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
     if result &lt; min_d:
         return arrival(beta=beta, min_d=min_d)
     return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.traffic.load_traffic"><code class="name flex">
+<span>def <span class="ident">load_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_scenario: <a title="bridge_sim.traffic.TrafficScenario" href="#bridge_sim.traffic.TrafficScenario">TrafficScenario</a>, max_time: float, add: Union[str, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load traffic from disk, generated if necessary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_traffic(
+    c: Config,
+    traffic_scenario: TrafficScenario,
+    max_time: float,
+    add: Optional[str] = None,
+):
+    &#34;&#34;&#34;Load traffic from disk, generated if necessary.&#34;&#34;&#34;
+    path = (
+        c.get_data_path(
+            &#34;traffic&#34;,
+            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time),
+            acc=False,
+        )
+        + &#34;.npy&#34;
+    )
+    print(path)
+    if add is not None:
+        path += add
+    # Create the traffic if it doesn&#39;t exist.
+    if not os.path.exists(path + &#34;.arr&#34;):
+        traffic_sequence = traffic_scenario.traffic_sequence(
+            bridge=c.bridge, max_time=max_time
+        )
+        traffic = to_traffic(c=c, traffic_sequence=traffic_sequence, max_time=max_time)
+        traffic_array = to_traffic_array(
+            c=c, traffic_sequence=traffic_sequence, max_time=max_time
+        )
+        with open(path + &#34;.seq&#34;, &#34;wb&#34;) as f:
+            dill.dump(traffic_sequence, f)
+        with open(path + &#34;.tra&#34;, &#34;wb&#34;) as f:
+            dill.dump(traffic, f)
+        with open(path + &#34;.arr&#34;, &#34;wb&#34;) as f:
+            np.save(f, traffic_array)
+    with open(path + &#34;.seq&#34;, &#34;rb&#34;) as f:
+        traffic_sequence = dill.load(f)
+    with open(path + &#34;.tra&#34;, &#34;rb&#34;) as f:
+        traffic = dill.load(f)
+    with open(path + &#34;.arr&#34;, &#34;rb&#34;) as f:
+        traffic_array = np.load(f)
+    return traffic_sequence, traffic, traffic_array</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.traffic.loads_to_traffic_array"><code class="name flex">
@@ -521,7 +625,7 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
 </details>
 </dd>
 <dt id="bridge_sim.traffic.to_traffic"><code class="name flex">
-<span>def <span class="ident">to_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x10deb5e60>, max_time: float, warm_up: bool = True) -> <function NewType.<locals>.new_type at 0x121d1f5f0></span>
+<span>def <span class="ident">to_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x109941e60>, max_time: float, warm_up: bool = True) -> <function NewType.<locals>.new_type at 0x11d8025f0></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p></div>
@@ -571,7 +675,7 @@ def loads_to_traffic_array(c: Config, loads: List[List[PointLoad]]):
 </details>
 </dd>
 <dt id="bridge_sim.traffic.to_traffic_array"><code class="name flex">
-<span>def <span class="ident">to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x10deb5e60>, max_time: float, warm_up: bool = True, new: bool = True) -> <function NewType.<locals>.new_type at 0x121d1f5f0></span>
+<span>def <span class="ident">to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x109941e60>, max_time: float, warm_up: bool = True, new: bool = True) -> <function NewType.<locals>.new_type at 0x11d8025f0></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p>
@@ -815,8 +919,8 @@ the implementation of 'mv_vehicles'.</dd>
         the point where the vehicles will enter on that lane.
 
         Args:
-            bridge: Bridge, the bridge the vehicles drive on.
-            lane: int, index of the lane on the bridge the vehicles drive on.
+            bridge: the bridge the vehicles drive on.
+            lane: index of the lane on the bridge the vehicles drive on.
 
         &#34;&#34;&#34;
         dist = 0  # Where the next vehicles is at time t = 0.
@@ -936,9 +1040,9 @@ the point where the vehicles will enter on that lane.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>bridge</code></strong></dt>
-<dd>Bridge, the bridge the vehicles drive on.</dd>
+<dd>the bridge the vehicles drive on.</dd>
 <dt><strong><code>lane</code></strong></dt>
-<dd>int, index of the lane on the bridge the vehicles drive on.</dd>
+<dd>index of the lane on the bridge the vehicles drive on.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -954,8 +1058,8 @@ the point where the vehicles will enter on that lane.</p>
     the point where the vehicles will enter on that lane.
 
     Args:
-        bridge: Bridge, the bridge the vehicles drive on.
-        lane: int, index of the lane on the bridge the vehicles drive on.
+        bridge: the bridge the vehicles drive on.
+        lane: index of the lane on the bridge the vehicles drive on.
 
     &#34;&#34;&#34;
     dist = 0  # Where the next vehicles is at time t = 0.
@@ -979,7 +1083,7 @@ the point where the vehicles will enter on that lane.</p>
 </details>
 </dd>
 <dt id="bridge_sim.traffic.TrafficScenario.traffic_sequence"><code class="name flex">
-<span>def <span class="ident">traffic_sequence</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, max_time: float, adjust: bool = True) -> <function NewType.<locals>.new_type at 0x10deb5e60></span>
+<span>def <span class="ident">traffic_sequence</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, max_time: float, adjust: bool = True) -> <function NewType.<locals>.new_type at 0x109941e60></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate a 'TrafficSequence' under this traffic scenario.</p>
@@ -1101,6 +1205,7 @@ There is one additional event after 'max_time' is reached.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="bridge_sim.traffic.arrival" href="#bridge_sim.traffic.arrival">arrival</a></code></li>
+<li><code><a title="bridge_sim.traffic.load_traffic" href="#bridge_sim.traffic.load_traffic">load_traffic</a></code></li>
 <li><code><a title="bridge_sim.traffic.loads_to_traffic_array" href="#bridge_sim.traffic.loads_to_traffic_array">loads_to_traffic_array</a></code></li>
 <li><code><a title="bridge_sim.traffic.normal_traffic" href="#bridge_sim.traffic.normal_traffic">normal_traffic</a></code></li>
 <li><code><a title="bridge_sim.traffic.to_traffic" href="#bridge_sim.traffic.to_traffic">to_traffic</a></code></li>

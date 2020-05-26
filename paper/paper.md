@@ -96,6 +96,8 @@ is then generated with `bridge-sim` library functions, which are built upon the
 popular Matplotlib library.
 
 ```python
+import bridge_sim.sim.responses
+import bridge_sim.sim
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, fem, model, plot, vehicles
 from bridge_sim.model import Vehicle
@@ -114,7 +116,7 @@ new_vehicle = Vehicle(
 config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 point_loads = new_vehicle.to_point_load_pw(
     time=3.5, bridge=config.bridge, list=True)
-responses = fem.responses(config, model.RT.YTranslation, point_loads)
+responses = bridge_sim.sim.responses.responses(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.tight_layout()

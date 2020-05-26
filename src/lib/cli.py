@@ -1,9 +1,12 @@
-"""Command line interface to bridge-sim."""
+"""Command line interface to bridge-sim.
+
+Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' repository.
+
+"""
 
 import os
 import pdb
 
-import bridge_sim.run
 import pathos.multiprocessing as multiprocessing
 import sys
 import traceback
@@ -13,7 +16,7 @@ import click
 from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
 from bridge_sim.vehicles import truck1
-from bridge_sim.validate import truck1_x_pos
+from lib.validate import _truck1_x_pos
 from lib.make import paramselect
 from lib.make.plot import classification as classification_
 from lib.make.plot import contour as contour_
@@ -131,7 +134,7 @@ def remove():
     help="Words required in the filename.",
 )
 def clean(keep):
-    from lib.classify.scenario.bridge import transverse_crack
+    from bridge_sim.scenarios import transverse_crack
 
     remove_except_npy(c=c(), keep=keep)
     c_ = transverse_crack().use(c())[0]
@@ -163,7 +166,7 @@ def wheel_tracks():
 @info.command(help="Print and plot information on Truck 1.")
 def truck_1():
     vehicle.wagen1_plot(c())
-    print_i(f"Truck 1 x positions: {truck1_x_pos()}")
+    print_i(f"Truck 1 x positions: {_truck1_x_pos()}")
 
 
 @info.command(help="Load position and intensity per wheel of Truck 1.")
@@ -275,7 +278,7 @@ def simulate():
     "--crack-length", type=float, help="Set length of crack zone in X direction."
 )
 def uls(piers, healthy, cracked, crack_x, crack_length):
-    bridge_sim.run.run_uls(
+    bridge_sim.sim.responses.run_uls(
         c=c(),
         piers=piers,
         healthy=healthy,
@@ -295,7 +298,9 @@ def uls(piers, healthy, cracked, crack_x, crack_length):
     "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
 )
 def ulm(healthy, cracked, x_i, z_i):
-    bridge_sim.run.run_ulm(c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i)
+    bridge_sim.sim.responses.run_ulm(
+        c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i
+    )
 
 
 @simulate.command(help="Record information for convergence plots.")
@@ -754,3 +759,6 @@ if __name__ == "__main__":
             pdb.post_mortem(tb)
     else:
         cli()
+
+
+__all__ = []

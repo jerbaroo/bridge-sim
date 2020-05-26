@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.run.opensees.convert.d3 API documentation</title>
+<meta name="description" content="Convert parsed OpenSees responses to List[Response]." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.run.opensees.convert.d3</code></h1>
+</header>
+<section id="section-intro">
+<p>Convert parsed OpenSees responses to List[Response].</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Convert parsed OpenSees responses to List[Response].&#34;&#34;&#34;
+
+from collections import defaultdict
+from copy import deepcopy
+from typing import Dict, List
+
+import numpy as np
+
+from bridge_sim.model import ResponseType, Point, Config
+from bridge_sim.sim.build import det_nodes, det_shells
+from bridge_sim.sim.model import Node, Shell, SimParams
+from bridge_sim.sim.run import Parsed
+from bridge_sim.util import print_w
+
+# Print debug information for this file.
+D = &#34;fem.run.opensees.convert.d3&#34;
+# D = False
+
+
+def convert_sim_translation_responses(
+    nodes: List[Node],
+    sim_ind: int,
+    response_type: ResponseType,
+    parsed_sim_responses: Dict[ResponseType, List[List[float]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]],
+):
+    &#34;&#34;&#34;Convert parsed simulation translation fem to List[Response].
+
+    The converted fem will be entered into the given dictionary.
+
+    &#34;&#34;&#34;
+    # If the requested response type is not available do nothing.
+    # TODO: Should we not raise an Error?
+    if response_type not in parsed_sim_responses:
+        return
+    parsed_sim_trans_responses = parsed_sim_responses[response_type]
+    result = []  # The List[Response] that we are converting to.
+    node_index = 0  # Index of node corresponding to current response.
+    # For each time step in the simulation.
+    for time in range(len(parsed_sim_trans_responses)):
+        # For each collected response at that time.
+        for i in range(len(parsed_sim_trans_responses[time])):
+            node = nodes[node_index]
+            result.append(
+                (
+                    parsed_sim_trans_responses[time][i],
+                    Point(x=node.x, y=node.y, z=node.z),
+                )
+            )
+            node_index += 1
+    converted_expt_responses[sim_ind][response_type] = result
+
+
+def convert_strain_responses(
+    elements: List[Shell],
+    sim_ind: int,
+    parsed_sim_responses: Dict[ResponseType, List[List[float]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]],
+):
+    if not any(rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses):
+        return
+    parsed_sim_strain = parsed_sim_responses[ResponseType.StrainXXB]
+    result_bottom, result_bottom_z, result_top = [], [], []
+    print_w(&#34;Elements belonging to piers will not have strain recorded&#34;)
+    print_w(&#34;Strain fem are specified to be at y=0, but recorded lower&#34;)
+
+    # For each integration point..
+    assert len(parsed_sim_strain) == 4
+    for i_point in range(4):
+
+        # ..consider the fem for each element.
+        assert len(elements) == len(parsed_sim_strain[i_point])
+        for element, el_responses in zip(elements, parsed_sim_strain[i_point]):
+
+            # Skip any elements belonging to the pier.
+            if element.pier:
+                continue
+
+            # First calculate the center offset of the integration points..
+            if not hasattr(element, &#34;i_point_offset&#34;):
+                element.i_point_offset = (
+                    element.length() / 2 * (1 / np.sqrt(3)),
+                    element.width() / 2 * (1 / np.sqrt(3)),
+                )
+            i_point_x_offset, i_point_z_offset = element.i_point_offset
+
+            # ..then determine the position of each integration point.
+            response_point = deepcopy(element.center())
+            if i_point + 1 == 1:
+                response_point.x -= i_point_x_offset
+                response_point.z -= i_point_z_offset
+            elif i_point + 1 == 2:
+                response_point.x += i_point_x_offset
+                response_point.z -= i_point_z_offset
+            elif i_point + 1 == 3:
+                response_point.x += i_point_x_offset
+                response_point.z += i_point_z_offset
+            elif i_point + 1 == 4:
+                response_point.x -= i_point_x_offset
+                response_point.z += i_point_z_offset
+            else:
+                raise ValueError(&#34;Unknown integration point {i_point + 1}&#34;)
+
+            # if (
+            #     np.isclose(element.center().x, 2.170312) and
+            #     np.isclose(element.center().z, 12.8495)
+            # ):
+            #     print()
+            #     print(element.center())
+            #     print(element.length(), element.width())
+            #     print(element.i_point_offset)
+            #     print(response_point)
+
+            # Calculate and record the response.
+            eps11, eps22, _g12, theta11, theta22, theta33, _g13, _g23 = list(
+                el_responses
+            )
+            half_height = element.section.thickness / 2
+            # print(response_point.x, response_point.y, response_point.z)
+            # print(eps11)
+            result_bottom.append(
+                (
+                    (eps11 - (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+            result_bottom_z.append(
+                (
+                    (eps22 - (theta22 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+            result_top.append(
+                (
+                    (eps11 + (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+
+    converted_expt_responses[sim_ind][ResponseType.StrainXXB] = result_bottom
+    converted_expt_responses[sim_ind][ResponseType.StrainXXT] = result_top
+    converted_expt_responses[sim_ind][ResponseType.StrainZZB] = result_bottom_z
+    print(len(result_bottom))
+
+
+def convert_responses_3d(
+    c: Config, expt_params: List[SimParams], parsed_expt_responses: Parsed
+) -&gt; Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]:
+    &#34;&#34;&#34;Convert parsed OpenSees fem to List[Response].&#34;&#34;&#34;
+    # A dictionary of simulation index to ResponseType to [Response].
+    converted_expt_responses = defaultdict(dict)
+    for sim_ind, parsed_sim_responses in parsed_expt_responses.items():
+        sim_params = expt_params[sim_ind]
+        nodes = det_nodes(sim_params.bridge_nodes)
+        elements = det_shells(sim_params.bridge_shells)
+        del sim_params.bridge_nodes
+        del sim_params.bridge_shells
+        # Parse x, y, and z translation fem if necessary.
+        for response_type in [
+            ResponseType.XTrans,
+            ResponseType.YTrans,
+            ResponseType.ZTrans,
+        ]:
+            convert_sim_translation_responses(
+                nodes=nodes,
+                sim_ind=sim_ind,
+                response_type=response_type,
+                parsed_sim_responses=parsed_expt_responses[sim_ind],
+                converted_expt_responses=converted_expt_responses,
+            )
+        convert_strain_responses(
+            elements=elements,
+            sim_ind=sim_ind,
+            parsed_sim_responses=parsed_expt_responses[sim_ind],
+            converted_expt_responses=converted_expt_responses,
+        )
+    return converted_expt_responses</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.run.opensees.convert.d3.convert_responses_3d"><code class="name flex">
+<span>def <span class="ident">convert_responses_3d</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../model/index.html#bridge_sim.model.Config">Config</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>], parsed_expt_responses: ~Parsed) -> Dict[int, Dict[<a title="bridge_sim.model.ResponseType" href="../../../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, List[ForwardRef('Response')]]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert parsed OpenSees fem to List[Response].</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_responses_3d(
+    c: Config, expt_params: List[SimParams], parsed_expt_responses: Parsed
+) -&gt; Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]:
+    &#34;&#34;&#34;Convert parsed OpenSees fem to List[Response].&#34;&#34;&#34;
+    # A dictionary of simulation index to ResponseType to [Response].
+    converted_expt_responses = defaultdict(dict)
+    for sim_ind, parsed_sim_responses in parsed_expt_responses.items():
+        sim_params = expt_params[sim_ind]
+        nodes = det_nodes(sim_params.bridge_nodes)
+        elements = det_shells(sim_params.bridge_shells)
+        del sim_params.bridge_nodes
+        del sim_params.bridge_shells
+        # Parse x, y, and z translation fem if necessary.
+        for response_type in [
+            ResponseType.XTrans,
+            ResponseType.YTrans,
+            ResponseType.ZTrans,
+        ]:
+            convert_sim_translation_responses(
+                nodes=nodes,
+                sim_ind=sim_ind,
+                response_type=response_type,
+                parsed_sim_responses=parsed_expt_responses[sim_ind],
+                converted_expt_responses=converted_expt_responses,
+            )
+        convert_strain_responses(
+            elements=elements,
+            sim_ind=sim_ind,
+            parsed_sim_responses=parsed_expt_responses[sim_ind],
+            converted_expt_responses=converted_expt_responses,
+        )
+    return converted_expt_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.convert.d3.convert_sim_translation_responses"><code class="name flex">
+<span>def <span class="ident">convert_sim_translation_responses</span></span>(<span>nodes: List[<a title="bridge_sim.sim.model.Node" href="../../../model/index.html#bridge_sim.sim.model.Node">Node</a>], sim_ind: int, response_type: <a title="bridge_sim.model.ResponseType" href="../../../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, parsed_sim_responses: Dict[bridge_sim.model.ResponseType, List[List[float]]], converted_expt_responses: Dict[int, Dict[bridge_sim.model.ResponseType, List[ForwardRef('Response')]]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert parsed simulation translation fem to List[Response].</p>
+<p>The converted fem will be entered into the given dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_sim_translation_responses(
+    nodes: List[Node],
+    sim_ind: int,
+    response_type: ResponseType,
+    parsed_sim_responses: Dict[ResponseType, List[List[float]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]],
+):
+    &#34;&#34;&#34;Convert parsed simulation translation fem to List[Response].
+
+    The converted fem will be entered into the given dictionary.
+
+    &#34;&#34;&#34;
+    # If the requested response type is not available do nothing.
+    # TODO: Should we not raise an Error?
+    if response_type not in parsed_sim_responses:
+        return
+    parsed_sim_trans_responses = parsed_sim_responses[response_type]
+    result = []  # The List[Response] that we are converting to.
+    node_index = 0  # Index of node corresponding to current response.
+    # For each time step in the simulation.
+    for time in range(len(parsed_sim_trans_responses)):
+        # For each collected response at that time.
+        for i in range(len(parsed_sim_trans_responses[time])):
+            node = nodes[node_index]
+            result.append(
+                (
+                    parsed_sim_trans_responses[time][i],
+                    Point(x=node.x, y=node.y, z=node.z),
+                )
+            )
+            node_index += 1
+    converted_expt_responses[sim_ind][response_type] = result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.convert.d3.convert_strain_responses"><code class="name flex">
+<span>def <span class="ident">convert_strain_responses</span></span>(<span>elements: List[<a title="bridge_sim.sim.model.Shell" href="../../../model/index.html#bridge_sim.sim.model.Shell">Shell</a>], sim_ind: int, parsed_sim_responses: Dict[bridge_sim.model.ResponseType, List[List[float]]], converted_expt_responses: Dict[int, Dict[bridge_sim.model.ResponseType, List[ForwardRef('Response')]]])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_strain_responses(
+    elements: List[Shell],
+    sim_ind: int,
+    parsed_sim_responses: Dict[ResponseType, List[List[float]]],
+    converted_expt_responses: Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]],
+):
+    if not any(rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses):
+        return
+    parsed_sim_strain = parsed_sim_responses[ResponseType.StrainXXB]
+    result_bottom, result_bottom_z, result_top = [], [], []
+    print_w(&#34;Elements belonging to piers will not have strain recorded&#34;)
+    print_w(&#34;Strain fem are specified to be at y=0, but recorded lower&#34;)
+
+    # For each integration point..
+    assert len(parsed_sim_strain) == 4
+    for i_point in range(4):
+
+        # ..consider the fem for each element.
+        assert len(elements) == len(parsed_sim_strain[i_point])
+        for element, el_responses in zip(elements, parsed_sim_strain[i_point]):
+
+            # Skip any elements belonging to the pier.
+            if element.pier:
+                continue
+
+            # First calculate the center offset of the integration points..
+            if not hasattr(element, &#34;i_point_offset&#34;):
+                element.i_point_offset = (
+                    element.length() / 2 * (1 / np.sqrt(3)),
+                    element.width() / 2 * (1 / np.sqrt(3)),
+                )
+            i_point_x_offset, i_point_z_offset = element.i_point_offset
+
+            # ..then determine the position of each integration point.
+            response_point = deepcopy(element.center())
+            if i_point + 1 == 1:
+                response_point.x -= i_point_x_offset
+                response_point.z -= i_point_z_offset
+            elif i_point + 1 == 2:
+                response_point.x += i_point_x_offset
+                response_point.z -= i_point_z_offset
+            elif i_point + 1 == 3:
+                response_point.x += i_point_x_offset
+                response_point.z += i_point_z_offset
+            elif i_point + 1 == 4:
+                response_point.x -= i_point_x_offset
+                response_point.z += i_point_z_offset
+            else:
+                raise ValueError(&#34;Unknown integration point {i_point + 1}&#34;)
+
+            # if (
+            #     np.isclose(element.center().x, 2.170312) and
+            #     np.isclose(element.center().z, 12.8495)
+            # ):
+            #     print()
+            #     print(element.center())
+            #     print(element.length(), element.width())
+            #     print(element.i_point_offset)
+            #     print(response_point)
+
+            # Calculate and record the response.
+            eps11, eps22, _g12, theta11, theta22, theta33, _g13, _g23 = list(
+                el_responses
+            )
+            half_height = element.section.thickness / 2
+            # print(response_point.x, response_point.y, response_point.z)
+            # print(eps11)
+            result_bottom.append(
+                (
+                    (eps11 - (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+            result_bottom_z.append(
+                (
+                    (eps22 - (theta22 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+            result_top.append(
+                (
+                    (eps11 + (theta11 * half_height)) * -1e6,
+                    Point(x=response_point.x, y=response_point.y, z=response_point.z,),
+                )
+            )
+
+    converted_expt_responses[sim_ind][ResponseType.StrainXXB] = result_bottom
+    converted_expt_responses[sim_ind][ResponseType.StrainXXT] = result_top
+    converted_expt_responses[sim_ind][ResponseType.StrainZZB] = result_bottom_z
+    print(len(result_bottom))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim.run.opensees.convert" href="index.html">bridge_sim.sim.run.opensees.convert</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.opensees.convert.d3.convert_responses_3d" href="#bridge_sim.sim.run.opensees.convert.d3.convert_responses_3d">convert_responses_3d</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.convert.d3.convert_sim_translation_responses" href="#bridge_sim.sim.run.opensees.convert.d3.convert_sim_translation_responses">convert_sim_translation_responses</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.convert.d3.convert_strain_responses" href="#bridge_sim.sim.run.opensees.convert.d3.convert_strain_responses">convert_strain_responses</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
