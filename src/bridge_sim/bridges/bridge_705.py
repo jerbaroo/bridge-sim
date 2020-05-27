@@ -25,7 +25,7 @@ bridge_705_lanes = [
 ############
 
 # Pier locations in meters (includes bridge beginning and end).
-bridge_705_piers = [0]
+bridge_705_piers = [0.0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
     bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)

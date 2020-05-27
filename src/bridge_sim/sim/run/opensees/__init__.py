@@ -1,4 +1,5 @@
 """Run FE simulations with OpenSees."""
+
 import os
 
 import distutils.spawn as spawn

@@ -1,3 +1,5 @@
+"""Classes for simulation parameters, mesh and simulation responses."""
+
 import itertools
 from collections import defaultdict
 from typing import Optional, NewType, Dict, List, Tuple, Callable

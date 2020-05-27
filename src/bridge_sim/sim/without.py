@@ -1,3 +1,5 @@
+"""Functions to filter simulation responses."""
+
 import numpy as np
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import det, norm
