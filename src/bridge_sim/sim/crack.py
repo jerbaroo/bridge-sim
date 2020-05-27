@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-from bridge_sim.model import Config, PierSettlement, Point
+from bridge_sim.model import Config, Point
 from bridge_sim.sim.responses import responses_to_traffic_array
 from bridge_sim.traffic import load_traffic, normal_traffic
 from bridge_sim import temperature
