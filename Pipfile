@@ -10,6 +10,7 @@ pdoc3 = "*"
 pypandoc = "*"
 pytest = "*"
 twine = "*"
+mypy = "*"
 
 [packages]
 bridge_sim = {path = "./src",editable = true}

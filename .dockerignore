@@ -8,6 +8,7 @@ docs/
 generated-data/
 generated-data-images/
 lisa-results/
+out/
 paper/
 src/build/
 src/dist/

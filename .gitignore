@@ -18,6 +18,7 @@ venv/
 build/
 crack/
 *generated*/
+out/
 src/build/
 src/dist/
 docker.png
