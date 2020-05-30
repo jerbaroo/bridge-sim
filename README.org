@@ -1,4 +1,4 @@
-* Concrete slab bridge simulation [[https://circleci.com/gh/barischrooneyj/bridge-sim.svg?style=svg]]
+* Concrete slab bridge simulation [[https://img.shields.io/circleci/build/github/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/docker/pulls/barischrooneyj/bridge-sim.svg]]
 
 This document provides installation instructions and usage examples.
 

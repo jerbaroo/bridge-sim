@@ -25,11 +25,12 @@ DIST_DECIMALS = 6
 
 class PierSettlement:
     def __init__(self, pier: int, settlement: float):
-        """A vertical translation applied in simulation to a pier.
+        """A vertical translation applied to a pier in simulation.
 
-        :param pier: index of a pier on a bridge.
-        :param settlement: amount of pier settlement to apply.
-        :return: A pier settlement object.
+        Args:
+            pier: index of a pier on a bridge.
+            settlement: amount of pier settlement to apply.
+
         """
         self.pier = pier
         self.settlement = settlement
@@ -42,15 +43,22 @@ class Point:
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         """A point described by three positions: (X, Y, Z).
 
-        :param x:
-        :param y:
-        :param z:
+        Args:
+            x: X position of the point.
+            y: Y position of the point.
+            z: Z position of the point.
         """
         self.x: float = np.around(x, DIST_DECIMALS)
         self.y: float = np.around(y, DIST_DECIMALS)
         self.z: float = np.around(z, DIST_DECIMALS)
 
-    def distance(self, point):
+    def distance(self, point: "Point"):
+        """Distance from this Point to the given Point.
+
+        Args:
+            point: other Point to compute the distance to.
+
+        """
         return np.around(
             np.sqrt(
                 ((self.x - point.x) ** 2)
@@ -68,27 +76,27 @@ class PointLoad:
     def __init__(self, x: float, z: float, load: float):
         """A point load applied in simulation.
 
-        :param x: X position on a bridge.
-        :param z: Z position on a bridge.
-        :param load: intensity of the point load.
-        :return: A point load object.
+        Args:
+            x: X position of the point-load.
+            z: Z position of the point-load.
+            load: intensity of the point-load.
         """
         self.x = x
         self.z = z
         self.load = load
 
     def __repr__(self):
-        """Human readable representation."""
+        """Human readable representation of this point-load."""
         return f"x = {self.x}, z = {self.z}, load = {self.load}"
 
     def id_str(self):
-        """String uniquely representing this point load."""
+        """String uniquely representing this point-load."""
         return safe_str(
             f"({np.around(self.x, DIST_DECIMALS)}, {np.around(self.z, DIST_DECIMALS)}, {np.around(self.load, DIST_DECIMALS)})"
         )
 
     def point(self) -> Point:
-        """The 'Point' part of this point load."""
+        """The 'Point' part of this point-load."""
         return Point(x=self.x, y=0, z=self.z)
 
 
@@ -127,13 +135,13 @@ class ResponseType(Enum):
         ]
 
     def ss_direction(self) -> str:
-        """A stress or strain identifier e.g. XXB is applicable."""
+        """A stress or strain identifier e.g. XXB (if applicable)."""
         if self.is_stress() or self.is_strain():
             return self.name()[-3:]
         raise ValueError("Not stress or strain")
 
     def name(self) -> str:
-        """Human readable name for a response type."""
+        """Human readable name for this response type."""
         return {
             ResponseType.XTrans: "X translation",
             ResponseType.YTrans: "Y translation",
@@ -145,20 +153,6 @@ class ResponseType(Enum):
             ResponseType.StrainXXT: "Strain XXT",
             ResponseType.StrainZZB: "Strain ZZB",
         }[self]
-
-    def units(self, short: bool = True) -> str:
-        """Human readable units (long or short) for a response type."""
-        return {
-            ResponseType.XTrans: ("meters", "m"),
-            ResponseType.YTrans: ("meters", "m"),
-            ResponseType.ZTrans: ("meters", "m"),
-            ResponseType.StressXXB: ("kilo Newton", "N/mm²"),
-            ResponseType.StressXXT: ("kilo Newton", "N/mm²"),
-            ResponseType.StressZZB: ("kilo Newton", "N/mm²"),
-            ResponseType.StrainXXB: ("kilo Newton", ""),
-            ResponseType.StrainXXT: ("kilo Newton", ""),
-            ResponseType.StrainZZB: ("kilo Newton", ""),
-        }[self][int(short)]
 
 
 # Shorthand for ResponseType.
@@ -180,20 +174,21 @@ class Config:
 
         Combines a Bridge and FEMRunner among other configuration.
 
-        :param bridge: function that returns a bridge.
-        :param sim_runner: simulation runner.
-        :param vehicle_data_path: path of the vehicles CSV file.
-        :param vehicle_pdf:
-            percentage of vehicles below a maximum value for that column.
+        Args:
+            bridge: function that returns a bridge.
+            sim_runner: function that returns a simulation runner.
+            vehicle_data_path: path of the vehicles CSV file.
+            vehicle_pdf:
+                percentage of vehicles below a maximum value for that column.
 
-            Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
+                Example: [(2.4, 0.5), (5.6, 94.5), (16, 5)]
 
-            Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
-            2.4m and less than 5.6m, and the remaining 5% are less than 16m.
-            This applies if 'vehicle_pdf_col' is "length".
-        :param vehicle_pdf_col: column of vehicle_data to group by.
-        :param generated_data: directory where to save generated files.
-        :param shorten_paths: shorten simulation paths.
+                Here 5% of vehicles are 2.4m or less in length, 94.5% greater than
+                2.4m and less than 5.6m, and the remaining 5% are less than 16m.
+                This applies if 'vehicle_pdf_col' is "length".
+            vehicle_pdf_col: column name of vehicle_data to group by.
+            generated_data: path to directory where to save generated files.
+            shorten_paths: shorten simulation paths (to avoid OS limits).
         """
         # Core.
         self._bridge = bridge
@@ -264,11 +259,13 @@ class Config:
     # Bridge-specific directories for generated data.
 
     def generated_data_dir(self):
+        """Path to directory where data is saved."""
         return _get_dir(
             os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
+        """Path to directory where images are saved."""
         return _get_dir(
             os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
         )
@@ -276,6 +273,7 @@ class Config:
     # Bridge-specific but accuracy-independent directories.
 
     def generated_data_dir_no_acc(self):
+        """Like 'generated_data_dir' but doesn't use 'Bridge.msl' or 'Bridge.data_id'."""
         return _get_dir(
             os.path.join(
                 self.root_generated_data_dir(),
@@ -284,6 +282,7 @@ class Config:
         )
 
     def generated_images_dir_no_acc(self):
+        """Like 'generated_images_dir' but doesn't use 'Bridge.msl' or 'Bridge.data_id'."""
         return _get_dir(
             os.path.join(
                 self.root_generated_images_dir(),
@@ -369,12 +368,13 @@ class Support:
                               width-bottom
 
     Args:
-        x: float, x position of center of the support in meters.
-        z: float, z position of center of the support in meters.
-        length: float, length of the support in meters.
-        height: float, height of the support in meters.
-        width_top: float, width of the top of the support in meters.
-        width_bottom: float, width of the bottom of the support in meters.
+        x: X position of center of the support in meters.
+        z: Z position of center of the support in meters.
+        length: length of the support in meters.
+        height: height of the support in meters.
+        width_top: width of the top of the support in meters.
+        width_bottom: width of the bottom of the support in meters.
+        materials: deck materials, either a list or function from X position.
 
     """
 
@@ -438,14 +438,14 @@ class Lane:
     """A traffic lane spanning the length of a bridge.
 
     Args:
-        z0: float, z ordinate of one edge of the lane in meters.
-        z1: float, z ordinate of the other edge of the lane in meters.
-        ltr: bool, whether traffic moves left to right, or opposite.
+        z0: Z position of one edge of the lane.
+        z1: Z position of the other edge of the lane.
+        ltr: traffic moves in left to right direction?
 
     Attrs:
-        z_min, float, lower z position of the bridge in meters.
-        z_min, float, upper z position of the bridge in meters.
-        width, float, Width of the lane in meters.
+        z_min, lower Z position of the bridge.
+        z_min, greater Z position of the bridge.
+        width, width of the lane.
 
     """
 
@@ -461,15 +461,15 @@ class Material:
     """An abstract class for material properties.
 
     Args:
-        density: float, section density in kg/m.
-        thickness: float, section thickness in m.
-        youngs: float, Young's modulus of the section in N/mm1.
-        youngs_x: Optional[float], Young's modulus in x direction, in N/mm2.
-        poisson: float, Poisson's ratio.
-        start_x_frac: float, start of the section as a fraction of x position.
-        start_z_frac: float, start of the section as a fraction of z position.
-        end_x_frac: float, end of the section as a fraction of x position.
-        end_z_frac: float, end of the section as a fraction of z position.
+        density: density of the material.
+        thickness: thickness of the material.
+        youngs: Young's modulus of the material.
+        youngs_x: Young's modulus in x direction.
+        poissons: Poisson's ratio of the material.
+        start_x_frac: start of the material as a fraction of X position.
+        start_z_frac: start of the material as a fraction of Z position.
+        end_x_frac: end of the section as a fraction of X position.
+        end_z_frac: end of the section as a fraction of Z position.
 
     """
 
@@ -496,7 +496,7 @@ class Material:
         self.end_z_frac = end_z_frac
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
-        """Whether this section contains the given point."""
+        """Does this material contain the given point?"""
         x_frac, z_frac = bridge.x_frac(x), bridge.z_frac(z)
         return (
             (self.start_x_frac < x_frac or np.isclose(self.start_x_frac, x_frac))
@@ -535,10 +535,10 @@ class MaterialSupport(Material):
     """Like Material but intended for describing piers.
 
     Args:
-        density: float, section density in kg/m.
-        thickness: float, section thickness in m.
-        youngs: float, Young's modulus of the section in MPa.
-        poisson: float, Poisson's ratio.
+        density: density of the material.
+        thickness: thickness of the material.
+        youngs: Young's modulus of the material.
+        poissons: Poisson's ratio of the material.
         start_frac_len: start of the section as a fraction of pier length.
 
     """
@@ -600,6 +600,7 @@ class Bridge:
             msl: maximum shell length.
             data_id: additional identifier for saving/loading data.
             single_sections: tuple of one deck and one material for supports.
+
         """
         # Given arguments.
         self.name = name
@@ -943,15 +944,16 @@ class Vehicle:
     ):
         """A vehicles, load intensities, position and speed.
 
-        :param kn:
-            intensity, either for the entire vehicles or per axle, or as a list
-            of tuple (per wheel, each tuple is left then right wheel), in kilo
-            Newton.
-        :param axle_distances: distance between axles in meters.
-        :param axle_width: width of the vehicles's axles in meters.
-        :param kmph: speed of this vehicles.
-        :param lane: index of a lane on a bridge.
-        :param init_x_frac: position at time 0 in a simulation.
+        Args:
+            kn:
+                intensity, either for the entire vehicles or per axle, or as a
+                list of tuple (per wheel, each tuple is left then right wheel),
+                in kilo Newton.
+            axle_distances: distance between axles in meters.
+            axle_width: width of the vehicles's axles in meters.
+            kmph: speed of this vehicle.
+            lane: index of a lane on a bridge.
+            init_x_frac: position at time 0 in a simulation.
         """
         self.kn = kn
         self.axle_distances = axle_distances
@@ -1010,9 +1012,8 @@ class Vehicle:
     def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
         """Positions of the vehicles's wheels in transverse direction.
         Args:
-            bridge: Bridge, the bridge on which the vehicles is moving.
-            meters: bool, whether to return positions in meters (True) or
-                fractions (False) of the bridge width in [0 1].
+            bridge: the bridge on which the vehicles drive.
+            meters: return position or fraction of bridge length?
         """
         if not meters:
             raise ValueError("Should not be doing this")
@@ -1028,8 +1029,8 @@ class Vehicle:
     def x_frac_at(self, time: float, bridge: Bridge) -> List[float]:
         """Fraction of x position of bridge in meters at given time.
         Args:
-            time: float, time passed from initial position, in seconds.
-            bridge: Bridge, bridge the vehicles is moving on.
+            time: time passed from initial position, in seconds.
+            bridge: bridge the vehicles is moving on.
         """
         delta_x_frac = (self.mps * time) / bridge.length
         init_x_frac = self.init_x_frac
@@ -1043,8 +1044,8 @@ class Vehicle:
     def x_at(self, time: float, bridge: Bridge):
         """X position of front axle on bridge at given time, in meters.
         Args:
-            time: float, time passed from initial position, in seconds.
-            bridge: Bridge, bridge the vehicles is moving on.
+            time: time passed from initial position, in seconds.
+            bridge: bridge the vehicles is moving on.
         """
         return bridge.x(self.x_frac_at(time=time, bridge=bridge))
 
@@ -1145,7 +1146,7 @@ class Vehicle:
         dist_lo = abs(unit_load_x_lo - wheel_x)
         dist_hi = abs(unit_load_x_hi - wheel_x)
         dist = dist_lo + dist_hi
-        return ((unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist))
+        return (unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist)
 
     def to_wheel_track_loads_(
         self,
