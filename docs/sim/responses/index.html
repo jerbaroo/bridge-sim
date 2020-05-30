@@ -182,11 +182,11 @@ def responses_to_vehicles_d(
     )
 
 
-def responses(
+def load(
     config: LibConfig,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
-    pier_settlement: Optional[PierSettlement] = None,
+    pier_settlement: List[PierSettlement] = [],
 ):
     &#34;&#34;&#34;Responses from a single linear simulation.
 
@@ -200,7 +200,7 @@ def responses(
     &#34;&#34;&#34;
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, displacement_ctrl=pier_settlement),
+        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
         response_type=response_type,
     )
 
@@ -576,8 +576,8 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="bridge_sim.sim.responses.responses"><code class="name flex">
-<span>def <span class="ident">responses</span></span>(<span>config: LibConfig, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: Optional[PierSettlement] = None)</span>
+<dt id="bridge_sim.sim.responses.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>config: LibConfig, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses from a single linear simulation.</p>
@@ -597,11 +597,11 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def responses(
+<pre><code class="python">def load(
     config: LibConfig,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
-    pier_settlement: Optional[PierSettlement] = None,
+    pier_settlement: List[PierSettlement] = [],
 ):
     &#34;&#34;&#34;Responses from a single linear simulation.
 
@@ -615,7 +615,7 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
     &#34;&#34;&#34;
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, displacement_ctrl=pier_settlement),
+        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
         response_type=response_type,
     )</code></pre>
 </details>
@@ -1634,7 +1634,7 @@ single ILExpt.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="bridge_sim.sim.responses.responses" href="#bridge_sim.sim.responses.responses">responses</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.load" href="#bridge_sim.sim.responses.load">load</a></code></li>
 <li><code><a title="bridge_sim.sim.responses.responses_to_loads_d" href="#bridge_sim.sim.responses.responses_to_loads_d">responses_to_loads_d</a></code></li>
 <li><code><a title="bridge_sim.sim.responses.responses_to_traffic_array" href="#bridge_sim.sim.responses.responses_to_traffic_array">responses_to_traffic_array</a></code></li>
 <li><code><a title="bridge_sim.sim.responses.responses_to_vehicles_d" href="#bridge_sim.sim.responses.responses_to_vehicles_d">responses_to_vehicles_d</a></code></li>

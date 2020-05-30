@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.sim.model API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Classes for simulation parameters, mesh and simulation responses." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,14 @@
 <h1 class="title">Module <code>bridge_sim.sim.model</code></h1>
 </header>
 <section id="section-intro">
+<p>Classes for simulation parameters, mesh and simulation responses.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import itertools
+<pre><code class="python">&#34;&#34;&#34;Classes for simulation parameters, mesh and simulation responses.&#34;&#34;&#34;
+
+import itertools
 from collections import defaultdict
 from typing import Optional, NewType, Dict, List, Tuple, Callable
 
@@ -357,12 +360,12 @@ class SimParams:
     def __init__(
         self,
         ploads: List[PointLoad] = [],
-        displacement_ctrl: Optional[PierSettlement] = None,
+        pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
     ):
         self.ploads = ploads
-        self.displacement_ctrl = displacement_ctrl
+        self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
 
@@ -381,17 +384,18 @@ class SimParams:
         currently assumed that a simulation saves all output files.
 
         &#34;&#34;&#34;
-        if self.displacement_ctrl is not None:
-            load_str = self.displacement_ctrl.id_str()
-        elif self.axial_delta_temp is not None:
-            load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
-        elif self.moment_delta_temp is not None:
-            load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
-        elif len(self.ploads) &gt; 0:
-            load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
-            load_str = f&#34;[{load_str}]&#34;
-        else:
-            load_str = &#34;no-loading&#34;
+        load_str = &#34;&#34;
+        for pier_settlement in self.pier_settlement:
+            load_str += pier_settlement.id_str()
+        if self.axial_delta_temp is not None:
+            load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
+        if self.moment_delta_temp is not None:
+            load_str += f&#34;temp-moment-{self.moment_delta_temp}&#34;
+        if len(self.ploads) &gt; 0:
+            pl_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+            load_str += f&#34;[{pl_str}]&#34;
+        if len(self.pier_settlement) &gt; 0:
+            load_str += &#34;,&#34;.join(ps.id_str() for ps in self.pier_settlement)
         return safe_str(load_str)
 
 
@@ -796,7 +800,7 @@ class ManyResponses:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11d920b90>, all_pier_elements: <function NewType.<locals>.new_type at 0x11d920d40>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11f183f80>, all_pier_elements: <function NewType.<locals>.new_type at 0x11f181170>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -817,7 +821,7 @@ class ManyResponses:
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11d920320>, all_support_nodes: <function NewType.<locals>.new_type at 0x11d920560>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11f183710>, all_support_nodes: <function NewType.<locals>.new_type at 0x11f183950>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1879,7 +1883,7 @@ class ManyResponses:
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11d8f1f80>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11f17ddd0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>
@@ -2194,7 +2198,7 @@ index, and z and y indices</dd>
 </dd>
 <dt id="bridge_sim.sim.model.SimParams"><code class="flex name class">
 <span>class <span class="ident">SimParams</span></span>
-<span>(</span><span>ploads: List[<a title="bridge_sim.model.PointLoad" href="../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], displacement_ctrl: Union[bridge_sim.model.PierSettlement, NoneType] = None, axial_delta_temp: Union[float, NoneType] = None, moment_delta_temp: Union[float, NoneType] = None)</span>
+<span>(</span><span>ploads: List[<a title="bridge_sim.model.PointLoad" href="../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], pier_settlement: List[<a title="bridge_sim.model.PierSettlement" href="../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>] = [], axial_delta_temp: Union[float, NoneType] = None, moment_delta_temp: Union[float, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Parameters for one FE simulation.</p>
@@ -2229,12 +2233,12 @@ displacement in meters is reached.</dd>
     def __init__(
         self,
         ploads: List[PointLoad] = [],
-        displacement_ctrl: Optional[PierSettlement] = None,
+        pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
     ):
         self.ploads = ploads
-        self.displacement_ctrl = displacement_ctrl
+        self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
 
@@ -2253,17 +2257,18 @@ displacement in meters is reached.</dd>
         currently assumed that a simulation saves all output files.
 
         &#34;&#34;&#34;
-        if self.displacement_ctrl is not None:
-            load_str = self.displacement_ctrl.id_str()
-        elif self.axial_delta_temp is not None:
-            load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
-        elif self.moment_delta_temp is not None:
-            load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
-        elif len(self.ploads) &gt; 0:
-            load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
-            load_str = f&#34;[{load_str}]&#34;
-        else:
-            load_str = &#34;no-loading&#34;
+        load_str = &#34;&#34;
+        for pier_settlement in self.pier_settlement:
+            load_str += pier_settlement.id_str()
+        if self.axial_delta_temp is not None:
+            load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
+        if self.moment_delta_temp is not None:
+            load_str += f&#34;temp-moment-{self.moment_delta_temp}&#34;
+        if len(self.ploads) &gt; 0:
+            pl_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+            load_str += f&#34;[{pl_str}]&#34;
+        if len(self.pier_settlement) &gt; 0:
+            load_str += &#34;,&#34;.join(ps.id_str() for ps in self.pier_settlement)
         return safe_str(load_str)</code></pre>
 </details>
 <h3>Methods</h3>
@@ -2305,17 +2310,18 @@ currently assumed that a simulation saves all output files.</p></div>
     currently assumed that a simulation saves all output files.
 
     &#34;&#34;&#34;
-    if self.displacement_ctrl is not None:
-        load_str = self.displacement_ctrl.id_str()
-    elif self.axial_delta_temp is not None:
-        load_str = f&#34;temp-axial-{self.axial_delta_temp}&#34;
-    elif self.moment_delta_temp is not None:
-        load_str = f&#34;temp-moment-{self.moment_delta_temp}&#34;
-    elif len(self.ploads) &gt; 0:
-        load_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
-        load_str = f&#34;[{load_str}]&#34;
-    else:
-        load_str = &#34;no-loading&#34;
+    load_str = &#34;&#34;
+    for pier_settlement in self.pier_settlement:
+        load_str += pier_settlement.id_str()
+    if self.axial_delta_temp is not None:
+        load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
+    if self.moment_delta_temp is not None:
+        load_str += f&#34;temp-moment-{self.moment_delta_temp}&#34;
+    if len(self.ploads) &gt; 0:
+        pl_str = &#34;,&#34;.join(pl.id_str() for pl in self.ploads)
+        load_str += f&#34;[{pl_str}]&#34;
+    if len(self.pier_settlement) &gt; 0:
+        load_str += &#34;,&#34;.join(ps.id_str() for ps in self.pier_settlement)
     return safe_str(load_str)</code></pre>
 </details>
 </dd>
