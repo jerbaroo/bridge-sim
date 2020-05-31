@@ -19,9 +19,11 @@ If you are interested in using this library, please open an issue to ask any que
 
 ** Installation
 
+Currently two installation methods are provided. The Docker method is the easiest and will have you running some code as soon as possible. You can also clone this repository and run the source code directly. A Python package will be published on PyPI at some point, however hopefully one of the two available methods will suffice in the meantime.
+
 *** tl;dr
 
-If you know what you're doing and just want to see something run:
+If you have Docker installed and just want to get something runnning ASAP:
 
 #+BEGIN_SRC bash
 $ docker run -it barischrooneyj/bridge-sim:v0.0.5
@@ -54,8 +56,6 @@ To copy files to the =/root= directory of the Docker container you can run ~dock
 The Docker image that you enter with ~docker run~ has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are given [[Examples][below]].
 
 *** Directly
-
-These instructions are if you are interested in developing the =bridge-sim= software or if you cannot run =bridge-sim= via Docker. A Python package will be published on PyPI at some point however hopefully one of the available methods should suffice in the meantime.
 
 Make sure you have Python 3.7+ installed. And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with ~pip install --user pipenv~?
 
