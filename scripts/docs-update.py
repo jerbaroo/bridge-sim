@@ -1,5 +1,5 @@
 find = "</header>"
-link = "https://github.com/barischrooneyj/bridge-sim#concrete-slab-bridge-simulation-"
+link = "https://github.com/barischrooneyj/bridge-sim#concrete-slab-bridge-simulation--"
 replace = (
     f"This is the API documentation.<br><br>"
     f"The project homepage is <a href='{link}'>here</a>."
