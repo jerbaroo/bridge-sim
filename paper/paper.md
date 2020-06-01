@@ -88,37 +88,27 @@ for data collection from concrete slab bridge simulation.
 
 # Usage Example 
 
-The code below shows a simple example that can be run with `bridge-sim`, to give
-the reader an idea of the level of abstraction that is provided. This example
-uses a built-in `Bridge` instance and a simulation is run with a custom
-`Vehicle` placed on the bridge. A contour plot of vertical translation responses
-is then generated with `bridge-sim` library functions, which are built upon the
-popular Matplotlib library.
+To give the reader an idea of the level of abstraction that is provided by the
+`bridge-sim` library a code snippet is provided. The snippet is correct at the
+time of writing, but may be subject to change. In this snippet a contour plot of
+vertical translation responses is generated from a custom `Vehicle` placed on a
+built-in `Bridge`.
 
 ```python
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, model, plot, sim
-from bridge_sim.model import Vehicle
-
-new_vehicle = Vehicle(
-    # Load intensity of each axle.
-    kn=[5000, 4000, 4000, 5000, 7000],
-    # Distance between each pair of axles.
-    axle_distances=[2, 2, 2, 1],
-    # Width of each axle, distance between point loads.
-    axle_width=2.5,
-    # Speed of the vehicles.
-    kmph=20,
-)
 
 config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-point_loads = new_vehicle.to_point_load_pw(
-    time=3.5, bridge=config.bridge, list=True)
+point_loads = model.Vehicle(
+        load=[5000, 4000, 4000, 5000, 7000],
+        axle_distances=[2, 2, 2, 1],
+        axle_width=2.5,
+        kmph=20,
+    ).to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
 responses = sim.responses.load(config, model.RT.YTranslation, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
-plt.tight_layout()
-plt.show()
+plt.savefig("example.pdf")
 ```
 
 # Acknowledgements
