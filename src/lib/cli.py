@@ -330,6 +330,11 @@ def unit_loads(run_only: float, scatter: bool):
     lib.make.validation.unit_loads(c=c(), run_only=run_only, scatter=scatter)
 
 
+@validate.command(help="Contour plots of unit pier settlement.")
+def pier_settlement():
+    lib.make.validation.pier_settlement(c())
+
+
 @validate.command(help="Regression plots against bridge 705 measurements.")
 def r2():
     verification.r2_plots(c())
@@ -425,11 +430,6 @@ def inflines(strain_sensors):
     if not shorten_paths_:
         raise ValueError("--shorten-paths option is required")
     verification.per_sensor_plots(c=c(), strain_sensors_startwith=strain_sensors)
-
-
-@validate.command(help="Contour plots of unit pier displacement.")
-def pier_disp():
-    contour_.piers_displaced(c())
 
 
 @validate.command(help="Confirm that density has no effect on simulation.")

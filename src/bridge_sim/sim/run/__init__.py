@@ -100,7 +100,7 @@ class FEMRunner:
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(f"FEMRunner: parsed all fem in" + f" {timer() - start:.2f}s")
+        print_i(f"FEMRunner: parsed all responses in" + f" {timer() - start:.2f}s")
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
