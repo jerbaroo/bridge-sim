@@ -644,6 +644,17 @@ def classify():
     pass
 
 
+@classify.command(help="Time series shrinkage plots.")
+@click.option("--autogenous", is_flag=True, help="Drying or autogenous shrinkage.")
+def shrinkage(autogenous):
+    from lib.make import shrinkage
+
+    if autogenous:
+        shrinkage.plot_autogenous_shrinkage()
+    else:
+        shrinkage.plot_drying_shrinkage()
+
+
 @classify.command(help="Time series of fem with crack occuring.")
 @click.option(
     "--n", type=float, default=1, help="Meters sensor is in front of crack zone."
