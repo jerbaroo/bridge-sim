@@ -358,8 +358,6 @@ class SimParams:
 
         """
         load_str = ""
-        for pier_settlement in self.pier_settlement:
-            load_str += pier_settlement.id_str()
         if self.axial_delta_temp is not None:
             load_str += f"temp-axial-{self.axial_delta_temp}"
         if self.moment_delta_temp is not None:

@@ -47,6 +47,7 @@ class Point:
             x: X position of the point.
             y: Y position of the point.
             z: Z position of the point.
+
         """
         self.x: float = np.around(x, DIST_DECIMALS)
         self.y: float = np.around(y, DIST_DECIMALS)

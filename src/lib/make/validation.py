@@ -6,9 +6,6 @@ from matplotlib import image as mpimg
 
 from bridge_sim import sim
 from bridge_sim.model import Config, ResponseType, PointLoad, PierSettlement
-from bridge_sim.sim.model import SimParams
-from bridge_sim.sim.run import load_fem_responses
-from bridge_sim.sim.run.opensees import OSRunner
 from bridge_sim.util import safe_str, project_dir
 from lib.plot import axis_cmap_r, plt
 from lib.plot.geometry import top_view_bridge
@@ -66,7 +63,7 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
                 "validation/unit-load",
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
-            top_view_bridge(c.bridge, piers=True, abutments=True, units="M")
+            top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
             sci_format = False
             plot_contour_deck(
                 c=c,
@@ -92,9 +89,9 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
                 )
                 plt.cla()
                 # Then plot the bridge and Axis image.
-                top_view_bridge(c.bridge, piers=True, abutments=True, units="M")
+                top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
                 plt.imshow(
-                    mpimg.imread(os.path.join(project_dir(), f"data/validation/axis/{label}-{rt_str}.png")),
+                    mpimg.imread(os.path.join(project_dir(), f"data/validation/axis/{label}-{rt_str}.PNG")),
                     extent=(
                         c.bridge.x_min,
                         c.bridge.x_max,
@@ -128,69 +125,60 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
                 plt.xlabel("X position (m)")
                 plt.ylabel("Z position (m)")
                 plt.tight_layout()
-                plt.savefig(save(f"{label}-diana-"))
+                plt.savefig(save(f"{label}-axis-"))
                 plt.close()
 
 
 def pier_settlement(c: Config):
     """Contour plots of pier settlement, OpenSees and AxisVM."""
     pier_indices = [4, 5]
-    response_types = [ResponseType.YTranslation, ResponseType.Strain]
-    axis_values = pd.read_csv("validation/axis-screenshots/piers-min-max.csv")
+    response_types = [ResponseType.YTrans, ResponseType.StrainXXB]
+    axis_values = pd.read_csv(os.path.join(project_dir(), "data/validation/axis/piers-min-max.csv"))
     for r_i, response_type in enumerate(response_types):
         for p in pier_indices:
             # Run the simulation and collect fem.
-            sim_responses = load_fem_responses(
-                c=c,
+            sim_responses = sim.responses.load(
+                config=c,
                 response_type=response_type,
-                sim_runner=OSRunner(c),
-                sim_params=SimParams(
-                    displacement_ctrl=PierSettlement(
-                        displacement=c.pd_unit_disp, pier=p
-                    ),
-                ),
+                pier_settlement=[PierSettlement(pier=p, settlement=c.pd_unit_disp)],
             )
-
-            # In the case of stress we map from kn/m2 to kn/mm2 (E-6) and then
-            # divide by 1000, so (E-9).
             assert c.pd_unit_disp == 1
-            if response_type == ResponseType.Strain:
-                sim_responses.to_stress(c.bridge).map(lambda r: r * 1e-9)
-
+            if response_type.is_strain():
+                # First from strain -> stress, then kN/m2 -> N/mm2.
+                sim_responses.to_stress(c.bridge).map(lambda r: r * 1E-9)
+                sim_responses.units = "N/mm²"
+            else:
+                # sim_responses = sim_responses.map(lambda r: r * 1E6)
+                sim_responses.units = "mm"
             # Get min and max values for both Axis and OpenSees.
             rt_str = (
-                "displa" if response_type == ResponseType.YTranslation else "stress"
+                "displa" if response_type == ResponseType.YTrans else "stress"
             )
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
             dmin, dmax = float(row["dmin"]), float(row["dmax"])
             omin, omax = float(row["omin"]), float(row["omax"])
             amin, amax = max(dmin, omin), min(dmax, omax)
             levels = np.linspace(amin, amax, 16)
-
-            # Plot and save the image. If plotting strains use Axis values for
+            # Plot and save the image. If plotting stresses use Axis values for
             # colour normalization.
-
-            cmap = axis_cmap_r
-            top_view_bridge(c.bridge, abutments=True, piers=True)
-            plot_contour_deck(c=c, cmap=cmap, responses=sim_responses, levels=levels)
+            top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
+            plot_contour_deck(c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels)
+            plt.legend()
             plt.tight_layout()
             plt.title(
                 f"{sim_responses.response_type.name()} from 1mm pier settlement with OpenSees"
             )
+            filename = safe_str(f"pier-{p}-{sim_responses.response_type.name()}")
             plt.savefig(
-                c.get_image_path(
-                    "validation/pier-displacement",
-                    safe_str(f"pier-{p}-{sim_responses.response_type.name()}") + ".pdf",
-                )
+                c.get_image_path("validation/pier-settlement", filename + ".pdf")
             )
             plt.close()
-
             # First plot and clear, just to have the same colorbar.
-            plot_contour_deck(c=c, responses=sim_responses, cmap=cmap, levels=levels)
+            plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
             plt.cla()
             # Save the axis plots.
-            axis_img = mpimg.imread(f"validation/axis-screenshots/{p}-{rt_str}.png")
-            top_view_bridge(c.bridge, abutments=True)
+            axis_img = mpimg.imread(os.path.join(project_dir(), f"data/validation/axis/{p}-{rt_str}.PNG"))
+            top_view_bridge(c.bridge, abutments=True, units="m")
             plt.imshow(
                 axis_img,
                 extent=(
@@ -218,16 +206,13 @@ def pier_settlement(c: Config):
                     color=color,
                     alpha=0,
                 )
-            if response_type == ResponseType.YTranslation:
-                plt.legend()
+            plt.legend()
             # Title and save.
-            plt.title(f"{response_type.name()} from 1mm pier settlement with AxisVM")
-            plt.xlabel("X position (m)")
-            plt.ylabel("Z position (m)")
+            plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with AxisVM")
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                    "validation/pier-displacement", f"{p}-axis-{rt_str}.pdf",
+                   "validation/pier-settlement", filename + "-axis" + ".pdf"
                 )
             )
             plt.close()

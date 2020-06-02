@@ -60,11 +60,11 @@ The Docker image that you enter with ~docker run~ has OpenSees installed at =/ro
 
 These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
 
-Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://barischrooneyj/bridge-sim:v0.0.5=.
+Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://barischrooneyj/bridge-sim:v0.0.5=. If the =pull= command fails or the generated =.sif= file is corrupted then try deleting the =.sif= file and run the =pull= command again.
 
 To run a simulation you need a script to interact with the scheduler. See [[docker/run-lisa.sh][run-lisa.sh]] for an example of such a script and see the Lisa [[https://userinfo.surfsara.nl/systems/lisa/user-guide/creating-and-running-jobs][user guide]] for further instructions. The way I use the =run-lisa.sh= script, is I configure scheduling parameters in the =run-lisa.sh= script but define my actual job in a second script [[docker/sim.sh][sim.sh]].
 
-To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my username. Job output is saved in a =slurm-XXXXX.out= file where =XXXXX= is the job ID. I always delete the output from old jobs, so to delete the old output and run a new job I type =rm slurm*.out; sbatch run.sh=. Then the output can be viewed with =cat slurm-XXXXX.out=. To cancel a job run =scancel XXXXX=.
+To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my username. Job output is saved in a =slurm-XXXXX.out= file where =XXXXX= is the job ID. I always delete the output from old jobs, so to delete the old output and run a new job I type =rm slurm*.out; sbatch run-lisa.sh=. Then the output can be viewed with =cat slurm-XXXXX.out=. To cancel a job run =scancel XXXXX=.
 
 *** Directly
 
@@ -132,7 +132,7 @@ plt.show()
 
 *** Pier Settlement
 
-Wide bridge with two supporting piers, two piers are settled. The first by 1.2 m and the second by 0.5 m.
+Wide bridge with two supporting piers, the first pier settled by 1.2 m.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
@@ -142,7 +142,7 @@ config = configs.opensees_default(bridges.bridge_wide)
 responses = sim.responses.load(
     config,
     model.RT.YTrans,
-    pier_settlement=[model.PierSettlement(0, 1.2), model.PierSettlement(1, 0.5)]
+    pier_settlement=[model.PierSettlement(0, 1.2)]
 )
 plot.contour_responses(config, responses)
 plot.top_view_bridge(config, piers=True, lanes=True)

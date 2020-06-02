@@ -112,7 +112,6 @@ def plot_contour_deck(
     c: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
-    units: Optional[str] = None,
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
@@ -128,7 +127,6 @@ def plot_contour_deck(
     Args:
         config: simulation configuration object.
         responses: the simulation responses to plot.
-        units: optional units string for the colourbar.
         cmap: Matplotlib colormap to use for colouring responses.
         norm: Matplotlib norm to use for colouring responses.
         scatter: scatter plot instead of contour plot?
@@ -171,7 +169,6 @@ def plot_contour_deck(
                     if H[-1] < amin:
                         amin = H[-1]
                         amin_x, amin_z = X[-1], Z[-1]
-        print(f"amin, amax = {amin}, {amax}")
 
     structure_data(responses)
     if len(X) == 0:
@@ -192,8 +189,8 @@ def plot_contour_deck(
 
     # Colourbar, maybe using given norm.
     clb = plt.colorbar(cs, norm=norm)
-    if units is not None:
-        clb.ax.set_title(units)
+    if responses.units is not None:
+        clb.ax.set_title(responses.units)
 
     # Plot point loads.
     for pload in point_loads:
@@ -219,8 +216,7 @@ def plot_contour_deck(
             if sci_format
             else f"{np.around(abs(amin - amax), decimals)}"
         )
-        units_str = "" if units is None else f" {units}"
-        print(units_str)
+        units_str = "" if responses.units is None else f" {responses.units}"
         for point, label, color, alpha in [
             ((amin_x, amin_z), f"min = {amin_s} {units_str}", "orange", 0),
             ((amax_x, amax_z), f"max = {amax_s} {units_str}", "green", 0),
