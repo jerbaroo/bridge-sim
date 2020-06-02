@@ -7,6 +7,7 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 import os
 import pdb
 
+import lib.make.validation
 import pathos.multiprocessing as multiprocessing
 import sys
 import traceback
@@ -17,9 +18,8 @@ from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
 from bridge_sim.vehicles import truck1
 from lib.validate import _truck1_x_pos
-from lib.make import paramselect
-from lib.make.plot import classification as classification_
-from lib.make.plot import contour as contour_
+from lib.make import paramselect, validation
+from lib.make.plot import classification as classification_, contour as contour_
 from lib.make.plot import geometry as geometry_
 from lib.make.plot import vehicle, verification
 from bridge_sim.bridges.bridge_705 import bridge_705
@@ -325,9 +325,9 @@ def temp_sensors():
 
 @validate.command(help="Contour plots comparing OpenSees and Diana.")
 @click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
-@click.option("--scatter", is_flag=True, help="Scatter instead of contour plot.")
-def diana_comp(run_only: float, scatter: bool):
-    contour_.comparison_plots_705(c=c(), run_only=run_only, scatter=scatter)
+@click.option("--scatter", is_flag=True, help="Scatter plot instead of contour plot.")
+def unit_loads(run_only: float, scatter: bool):
+    lib.make.validation.unit_loads(c=c(), run_only=run_only, scatter=scatter)
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")

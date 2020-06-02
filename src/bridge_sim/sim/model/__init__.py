@@ -387,10 +387,10 @@ class Responses:
             raise ValueError("No fem found")
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
-        self.units = response_type.units() if units is None else units
+        self.units = units
         self.raw_responses = responses
         self.num_sensors = len(responses)
-        # Nested dictionaries for indexing fem by position.
+        # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
         if build:
             for response, p in responses:
@@ -465,25 +465,25 @@ class Responses:
         )
 
     def to_stress(self, bridge: Bridge):
-        """Convert strains to stresses."""
-        if self.response_type == ResponseType.Strain:
-            self.response_type = ResponseType.Stress
-        elif self.response_type == ResponseType.StrainT:
-            self.response_type = ResponseType.StressT
+        """Convert strain responses to stress responses."""
+        if self.response_type == ResponseType.StrainXXB:
+            self.response_type = ResponseType.StressXXB
+        elif self.response_type == ResponseType.StrainXXT:
+            self.response_type = ResponseType.StressXXT
         elif self.response_type == ResponseType.StrainZZB:
             self.response_type = ResponseType.StressZZB
+        elif self.response_type == ResponseType.StrainZZT:
+            self.response_type = ResponseType.StressZZT
         else:
-            raise ValueError(f"Responses must be strain fem")
+            raise ValueError(f"Responses must be a strain type")
         if len(bridge.sections) == 1:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
         else:
-
-            def _map(r, x, y, z):
-                return r * bridge.deck_section_at(x=x, z=z).youngs
-
+            def _map(response, x, y, z):
+                return response * bridge.deck_section_at(x=x, z=z).youngs
             self.map(_map, xyz=True)
-        self.units = self.response_type.units()
+        self.units = None  # We don't know units since strain is unit-less.
         return self
 
     def values(self, point: bool = False):
