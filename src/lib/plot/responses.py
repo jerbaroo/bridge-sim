@@ -235,6 +235,3 @@ def plot_contour_deck(
                 alpha=alpha,
             )
     # End: min, max legend.
-
-    plt.xlabel("X position")
-    plt.ylabel("Z position")

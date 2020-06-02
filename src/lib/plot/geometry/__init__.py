@@ -1,17 +1,18 @@
 """Plot geometry of a bridge."""
 import os
+from typing import Optional
 
 import matplotlib
-from bridge_sim.model import Config
+from bridge_sim.model import Bridge
 from lib.plot import plt
 
 # Print debug information for this file.
-D: str = "plot.geometry"
-# D: bool = False
+# D: str = "plot.geometry"
+D: bool = False
 
 
 def top_view_bridge(
-    config: Config,
+    bridge: Bridge,
     abutments: bool = False,
     edges: bool = False,
     piers: bool = False,
@@ -19,6 +20,7 @@ def top_view_bridge(
     lane_fill: bool = False,
     landscape: bool = True,
     compass: bool = False,
+    units: Optional[str] = None,
 ):
     """Plot the top view of a bridge's geometry.
 
@@ -31,9 +33,9 @@ def top_view_bridge(
         lanes: plot lanes on the bridge?
         lane_fill: plot fill or only outline?
         compass: plot a compass rose?
+        units: units of bridge width and height (axes labels).
 
     """
-    bridge = config.bridge
     if landscape:
         plt.landscape()
     plt.axis("equal")
@@ -68,5 +70,6 @@ def top_view_bridge(
         ax_c.imshow(compass_img)
         ax_c.axis("off")
         plt.sca(ax)  # Return control to the original axis.
-    plt.xlabel("X position")
-    plt.ylabel("Z position")
+    units_str = "" if units is None else f" ({units})"
+    plt.xlabel(f"X position{units_str}")
+    plt.ylabel(f"Z position{units_str}")
