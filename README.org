@@ -8,6 +8,7 @@ API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]
 - [[#installation][Installation]]
   - [[#tldr][tl;dr]]
   - [[#docker][Docker]]
+    - [[#lisa][Lisa]]
   - [[#directly][Directly]]
   - [[#pypi][PyPI]]
 - [[#introduction][Introduction]]
@@ -54,6 +55,16 @@ $ docker cp d297a50ff165:/root/docker.png docker.png
 To copy files to the =/root= directory of the Docker container you can run ~docker cp local-files/ d297a50ff165:/root~. Run ~docker cp --help~ or search the web for more information on Docker.
 
 The Docker image that you enter with ~docker run~ has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are given [[Examples][below]].
+
+**** Lisa
+
+These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
+
+Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://barischrooneyj/bridge-sim:v0.0.5=.
+
+To run a simulation you need a script to interact with the scheduler. See [[docker/run-lisa.sh][run-lisa.sh]] for an example of such a script and see the Lisa [[https://userinfo.surfsara.nl/systems/lisa/user-guide/creating-and-running-jobs][user guide]] for further instructions. The way I use the =run-lisa.sh= script, is I configure scheduling parameters in the =run-lisa.sh= script but define my actual job in a second script [[docker/sim.sh][sim.sh]].
+
+To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my username. Job output is saved in a =slurm-XXXXX.out= file where =XXXXX= is the job ID. I always delete the output from old jobs, so to delete the old output and run a new job I type =rm slurm*.out; sbatch run.sh=. Then the output can be viewed with =cat slurm-XXXXX.out=. To cancel a job run =scancel XXXXX=.
 
 *** Directly
 

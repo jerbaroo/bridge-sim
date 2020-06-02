@@ -32,3 +32,6 @@ diana*.dat
 # Axis
 *.axr
 **/Revisions/
+
+# Other
+TODOS.org
