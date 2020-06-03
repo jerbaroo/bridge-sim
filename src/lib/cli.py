@@ -318,21 +318,32 @@ def validate():
     pass
 
 
-@validate.command(help="Plots of temperature against sensor fem.")
-def temp_sensors():
-    verification.temp_plots()
-
-
-@validate.command(help="Contour plots comparing OpenSees and Diana.")
+@validate.command(help="Contour plots of point loads.")
 @click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
 @click.option("--scatter", is_flag=True, help="Scatter plot instead of contour plot.")
-def unit_loads(run_only: float, scatter: bool):
+def point_loads(run_only: float, scatter: bool):
+    if not two_materials_:
+        raise ValueError("You need the --two-materials option!")
     lib.make.validation.unit_loads(c=c(), run_only=run_only, scatter=scatter)
 
 
-@validate.command(help="Contour plots of unit pier settlement.")
+@validate.command(help="Contour plots of pier settlement.")
 def pier_settlement():
+    if not two_materials_:
+        raise ValueError("You need the --two-materials option!")
     lib.make.validation.pier_settlement(c())
+
+
+@validate.command(help="Contour plots of temperature deck loading.")
+def temp_loads():
+    if not two_materials_:
+        raise ValueError("You need the --two-materials option!")
+    lib.make.validation.temperature_load(c())
+
+
+@validate.command(help="Plots of temperature against sensor fem.")
+def temp_sensors():
+    verification.temp_plots()
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")
@@ -406,17 +417,6 @@ def pier_conv(
         min_shell_len=min_shell_len,
         max_shell_len=max_shell_len,
     )
-
-
-@validate.command(help="Contour plots of unit thermal deck loading.")
-@click.option("--run", is_flag=True, help="Run the simulations before plotting.")
-def thermal(run):
-    from make.plot.contour import thermal
-
-    if not two_materials_:
-        raise ValueError("You need the --two-materials option!")
-    thermal.unit_moment_thermal_deck_load(c=c(), run=run)
-    thermal.unit_axial_thermal_deck_load(c=c(), run=run)
 
 
 @validate.command(help="Influence lines from OpenSees and measurements.")

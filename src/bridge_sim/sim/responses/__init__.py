@@ -6,7 +6,7 @@ from __future__ import annotations
 import os
 from collections import deque
 from copy import deepcopy
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 from bridge_sim.model import (
@@ -160,6 +160,7 @@ def load(
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
+    temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
 ):
     """Responses from a single linear simulation.
 
@@ -170,10 +171,17 @@ def load(
         response_type: sensor response type to return.
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
+        temp_deltas: uniform and linear temperature components.
+
     """
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
+        sim_params=SimParams(
+            ploads=point_loads,
+            pier_settlement=pier_settlement,
+            axial_delta_temp=temp_deltas[0],
+            moment_delta_temp=temp_deltas[1],
+        ),
         response_type=response_type,
     )
 

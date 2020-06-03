@@ -1,12 +1,13 @@
 import os
 
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from matplotlib import image as mpimg
 
-from bridge_sim import sim
+from bridge_sim import sim, plot
 from bridge_sim.model import Config, ResponseType, PointLoad, PierSettlement
-from bridge_sim.util import safe_str, project_dir
+from bridge_sim.util import safe_str, project_dir, print_w, print_i
 from lib.plot import axis_cmap_r, plt
 from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
@@ -216,3 +217,105 @@ def pier_settlement(c: Config):
                 )
             )
             plt.close()
+
+
+def temperature_load(c: Config):
+    """Response to unit temperature deck loading."""
+    axis_values = pd.read_csv(os.path.join(project_dir(), "data/validation/axis/thermal-min-max.csv"))
+    for temp_deltas, temp_id, temp_name in [((1, None), "axial", "uniform"), ((None, 1), "moment", "linear")]:
+        for i, response_type in enumerate(
+            [ResponseType.StressXXB, ResponseType.YTrans, ResponseType.StressZZB]
+        ):
+            # Get min and max values for both Axis and OpenSees.
+            rt_name = "ytrans"
+            if response_type == ResponseType.StressXXB:
+                rt_name = "stress"
+            if response_type == ResponseType.StressZZB:
+                rt_name = "stress_zzb"
+            # The rt_name is used to extract min and max values for 'levels'..
+            try:
+                row = axis_values[axis_values["name"] == f"{rt_name}-{temp_id}"]
+                dmin, dmax = float(row["dmin"]), float(row["dmax"])
+                omin, omax = float(row["omin"]), float(row["omax"])
+                amin, amax = np.around(max(dmin, omin), 2), np.around(min(dmax, omax), 2)
+                levels = np.linspace(amin, amax, 16)
+            # .. but if these values are not available we don't use levels.
+            except:
+                print_w(f"Levels is None for response type {response_type.name()}")
+                levels = None
+            if levels is not None:
+                print_i(f"Min/max for {response_type.name()} = ({levels[0]}, {levels[-1]})")
+            # Load fem, strain in case of stress.
+            sim_type = ResponseType.YTrans
+            if response_type == ResponseType.StressXXB:
+                sim_type = ResponseType.StrainXXB
+            elif response_type == ResponseType.StressZZB:
+                sim_type = ResponseType.StrainZZB
+            sim_responses = sim.responses.load(
+                config=c, response_type=sim_type, temp_deltas=temp_deltas
+            )
+            if response_type.is_stress():
+                # og_sim_responses = deepcopy(sim_responses)
+                sim_responses = sim_responses.add_temp_strain(c, temp_deltas).to_stress(c.bridge)
+                sim_responses.units = "N/mm²"
+                # for response, (x, y, z) in og_sim_responses.values(point=True):
+                #     assert np.isclose(
+                #         (response * 1E-6 - (c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
+                #         sim_responses.fem[0][x][y][z]
+                #     )
+            else:
+                sim_responses = sim_responses.map(lambda r: r * 1E3)
+                sim_responses.units = "mm"
+            plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
+            plot.contour_responses(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+            plt.legend()
+            plt.title(
+                f"{sim_responses.response_type.name()} from 1 ‎°C {temp_name} temp. deck loading with OpenSees"
+            )
+            plt.tight_layout()
+            plt.savefig(
+                c.get_image_path(
+                    "validation/thermal",
+                    safe_str(f"thermal-deck-unit-{temp_name}-{rt_name})") + ".pdf",
+                )
+            )
+            plt.close()
+            ##################
+            # Now for AxisVM #
+            ##################
+            if response_type == ResponseType.StressZZB:
+                continue  # We didn't save Axis StressZZB.
+            # First plot and clear, just to have the same colorbar.
+            plot.contour_responses(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+            plt.cla()
+            # Then imshow the axis image.
+            plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
+            plt.imshow(
+                mpl.image.imread(
+                    os.path.join(project_dir(), f"data/validation/axis/thermal-{rt_name}-{temp_id}.png")
+                ),
+                extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
+            )
+            # Plot the min and max values.
+            for leg_label, color in [
+                (f"min = {dmin:.3f} {sim_responses.units}", "r"),
+                (f"max = {dmax:.3f} {sim_responses.units}", "r"),
+                (f"|min-max| = {abs(dmax - dmin):.3f} {sim_responses.units}", "r"),
+            ]:
+                plt.scatter(
+                    [0], [0], label=leg_label, marker="o", color=color, alpha=0,
+                )
+            plt.legend()
+            # Title and save.
+            plt.title(
+                f"{sim_type.name()} from 1‎°C {temp_name} temp. deck"
+                f" loading with AxisVM"
+            )
+            plt.xlabel("X position (m)")
+            plt.ylabel("Z position (m)")
+            plt.tight_layout()
+            plt.savefig(
+                c.get_image_path("validation/thermal", f"axis-{rt_name}-{temp_name}.pdf",)
+            )
+            plt.close()
+
