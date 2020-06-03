@@ -197,11 +197,11 @@ def effect(
             temperatures at the top of the bridge. If this argument is given
             then 'temps', 'solar', 'len_per_hour' must not be given.
         len_per_hour: Optional[int], if given then temps and solar must also be
-            given. The temperature fem are interpolated such that there
-            are 'len_per_hour' fem for every hour of temperature data. It
+            given. The temperature responses are interpolated such that there
+            are 'len_per_hour' responses for every hour of temperature data. It
             is assumed the temperature data is one data point per minute.
         temps: Optional[List[float]], first see 'len_per_hour'. Air temperature
-            data given at one data point per minute.
+            data is given at one data point per minute.
         solar: Optional[List[float]], first see 'len_per_hour'. Solar irradiance
             data given at one data point per minute, same as 'temps'.
 
@@ -228,11 +228,7 @@ def effect(
     print_i("Loaded unit uniform and linear temperature fem")
 
     # Convert uniform fem to correct type (thermal post-processing).
-    if response_type in [
-        ResponseType.Strain,
-        ResponseType.StrainT,
-        ResponseType.StrainZZB,
-    ]:
+    if response_type.is_strain():
         uniform_responses = unit_uniform.to_strain(c=c, sim_responses=uniform_responses)
     elif response_type == ResponseType.Stress:
         uniform_responses = unit_uniform.to_stress(c=c, sim_responses=uniform_responses)
@@ -240,11 +236,7 @@ def effect(
     print(f"Unit uniform temperature per point, shape = {unit_uniforms.shape}")
 
     # Convert linear fem to correct type (thermal post-processing).
-    if response_type in [
-        ResponseType.Strain,
-        ResponseType.StrainT,
-        ResponseType.StrainZZB,
-    ]:
+    if response_type.is_strain():
         linear_responses = unit_linear.to_strain(c=c, sim_responses=linear_responses)
     elif response_type == ResponseType.Stress:
         linear_responses = unit_linear.to_stress(c=c, sim_responses=linear_responses)

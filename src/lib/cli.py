@@ -56,7 +56,7 @@ def c():
     "--uls", type=int, default=600, help="Unit load simulations per wheel track",
 )
 @click.option(
-    "--msl", type=float, required=True, help="Maximum shell length of the bridge.",
+    "--msl", type=float, default=0.5, help="Maximum shell length of the bridge.",
 )
 @click.option(
     "--two-materials",
@@ -259,17 +259,17 @@ def avail_sensors(pier_radius, track_radius, edge_radius):
     )
 
 
-######################
-##### Simulation #####
-######################
+##############
+# Simulation #
+##############
 
 
-@cli.group(help="Run simulations and generate data.")
-def simulate():
+@cli.group(help="Run simulations, generate data.")
+def run():
     pass
 
 
-@simulate.command(help="Run unit load simulations.")
+@run.command(help="Run unit point load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
 @click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
 @click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
@@ -288,7 +288,7 @@ def uls(piers, healthy, cracked, crack_x, crack_length):
     )
 
 
-@simulate.command(help="Generate unit load matrices")
+@run.command(help="Generate unit load matrices")
 @click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
 @click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
 @click.option(
@@ -303,22 +303,22 @@ def ulm(healthy, cracked, x_i, z_i):
     )
 
 
-@simulate.command(help="Record information for convergence plots.")
+@run.command(help="Record information for convergence plots.")
 def converge():
     verification.make_convergence_data(c())
 
 
-####################
-##### Validate #####
-####################
+##########
+# Verify #
+##########
 
 
-@cli.group(help="Validate the generated FEM of bridge 705.")
-def validate():
+@cli.group(help="Verify a number of loads.")
+def verify():
     pass
 
 
-@validate.command(help="Contour plots of point loads.")
+@verify.command(help="Contour plots of point loads.")
 @click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
 @click.option("--scatter", is_flag=True, help="Scatter plot instead of contour plot.")
 def point_loads(run_only: float, scatter: bool):
@@ -327,18 +327,38 @@ def point_loads(run_only: float, scatter: bool):
     lib.make.validation.unit_loads(c=c(), run_only=run_only, scatter=scatter)
 
 
-@validate.command(help="Contour plots of pier settlement.")
+@verify.command(help="Contour plots of pier settlement.")
 def pier_settlement():
     if not two_materials_:
         raise ValueError("You need the --two-materials option!")
     lib.make.validation.pier_settlement(c())
 
 
-@validate.command(help="Contour plots of temperature deck loading.")
+@verify.command(help="Contour plots of temperature deck loading.")
 def temp_loads():
     if not two_materials_:
         raise ValueError("You need the --two-materials option!")
     lib.make.validation.temperature_load(c())
+
+
+@verify.command(help="Plots of time series of shrinkage.")
+@click.option("--autogenous", is_flag=True, help="Drying or autogenous shrinkage.")
+def shrinkage(autogenous):
+    from lib.make import shrinkage
+    if autogenous:
+        shrinkage.plot_autogenous_shrinkage(c())
+    else:
+        shrinkage.plot_drying_shrinkage(c())
+
+
+############
+# Validate #
+############
+
+
+@cli.group(help="Validate the generated FEM of bridge 705.")
+def validate():
+    pass
 
 
 @validate.command(help="Plots of temperature against sensor fem.")
@@ -520,17 +540,17 @@ def traffic_thermal(axial, moment):
     thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
 
 
-##################
-##### Verify #####
-##################
+#########
+# Debug #
+#########
 
 
 @cli.group(help="Verify/debug this system.")
-def verify():
+def debug():
     pass
 
 
-@verify.command(help="TCL files & contour plots for mesh refinement.")
+@debug.command(help="TCL files & contour plots for mesh refinement.")
 @click.option("--build", type=bool, default=True)
 @click.option("--plot", type=bool, default=True)
 def refinement_tcls(build: bool, plot: bool):
@@ -539,28 +559,28 @@ def refinement_tcls(build: bool, plot: bool):
     verify.mesh_refinement(c=c(), build=build, plot=plot)
 
 
-@verify.command(help="Compare fem by direct simulation and matmul.")
+@debug.command(help="Compare fem by direct simulation and matmul.")
 def comp_responses():
     from make import verify
 
     verify.compare_responses(c())
 
 
-@verify.command(help="Compare vehicles with different amount of axles.")
+@debug.command(help="Compare vehicles with different amount of axles.")
 def comp_axles():
     from make import verify
 
     verify.compare_axles(c())
 
 
-@verify.command(help="Compare load positions (normal vs. buckets).")
+@debug.command(help="Compare load positions (normal vs. buckets).")
 def comp_load_positions():
     from make.verify import compare_load_positions
 
     compare_load_positions(c())
 
 
-@verify.command(help="Contour plot of a unit load simulation.")
+@debug.command(help="Contour plot of a unit load simulation.")
 @click.option(
     "--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0)."
 )
@@ -579,7 +599,7 @@ def uls_contour(x_i: int, z_i: int, rt: str):
     uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
 
 
-@verify.command(help="Contour plot of truck 1, healthy & cracked.")
+@debug.command(help="Contour plot of truck 1, healthy & cracked.")
 @click.option("--x", type=int, default=51.8, help="X position of Truck 1's front axle.")
 @click.option(
     "--crack-x", type=float, default=52, help="X position of start of crack area."
@@ -627,7 +647,7 @@ def truck1_contour(
     )
 
 
-@verify.command(help="Plot a time series where a crack occurs.")
+@debug.command(help="Plot a time series where a crack occurs.")
 def cracked_concrete():
     from make.verify import cracked_concrete_plot
 
@@ -642,17 +662,6 @@ def cracked_concrete():
 @cli.group(help="Run classification experiments.")
 def classify():
     pass
-
-
-@classify.command(help="Time series shrinkage plots.")
-@click.option("--autogenous", is_flag=True, help="Drying or autogenous shrinkage.")
-def shrinkage(autogenous):
-    from lib.make import shrinkage
-
-    if autogenous:
-        shrinkage.plot_autogenous_shrinkage()
-    else:
-        shrinkage.plot_drying_shrinkage()
 
 
 @classify.command(help="Time series of fem with crack occuring.")

@@ -18,7 +18,7 @@ from bridge_sim.model import (
     Config,
 )
 from bridge_sim.sim.util import _responses_path
-from bridge_sim.util import round_m, safe_str, resize_units, nearest_index, print_i
+from bridge_sim.util import round_m, safe_str, nearest_index, print_i
 from scipy.interpolate import griddata, interp1d, interp2d
 from scipy.spatial import distance
 
@@ -439,15 +439,6 @@ class Responses:
                     else:
                         self.responses[time][x][y][z] = f(response)
         return self
-
-    def resize(self):
-        """Returns the same fem, possibly resized."""
-        responses = self
-        resize_f, units = resize_units(self.units)
-        if resize_f is not None:
-            responses = responses.map(resize_f)
-            responses.units = units
-        return responses
 
     def without(self, remove: Callable[[Point], bool]) -> "Responses":
         responses = []

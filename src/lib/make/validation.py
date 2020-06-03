@@ -292,7 +292,7 @@ def temperature_load(c: Config):
             plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
             plt.imshow(
                 mpl.image.imread(
-                    os.path.join(project_dir(), f"data/validation/axis/thermal-{rt_name}-{temp_id}.png")
+                    os.path.join(project_dir(), f"data/validation/axis/thermal-{rt_name}-{temp_id}.PNG")
                 ),
                 extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
             )

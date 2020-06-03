@@ -17,7 +17,7 @@ from bridge_sim.util import (
     print_i,
     print_w,
     print_s,
-    _get_dir,
+    get_dir,
 )
 
 DIST_DECIMALS = 6
@@ -265,10 +265,10 @@ class Config:
 
         # Root directories for generated data.
         self._root_generated_data_dir = generated_data
-        self.root_generated_data_dir = lambda: _get_dir(self._root_generated_data_dir)
+        self.root_generated_data_dir = lambda: get_dir(self._root_generated_data_dir)
         if self._root_generated_data_dir[-1] in "/\\":
             raise ValueError("generated_data must not end in path separator")
-        self.root_generated_images_dir = lambda: _get_dir(
+        self.root_generated_images_dir = lambda: get_dir(
             os.path.join(self.root_generated_data_dir() + "-images")
         )
 
@@ -276,13 +276,13 @@ class Config:
 
     def generated_data_dir(self):
         """Path to directory where data is saved."""
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
         """Path to directory where images are saved."""
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
         )
 
@@ -290,7 +290,7 @@ class Config:
 
     def generated_data_dir_no_acc(self):
         """Like 'generated_data_dir' but doesn't use 'Bridge.msl' or 'Bridge.data_id'."""
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_data_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
@@ -299,7 +299,7 @@ class Config:
 
     def generated_images_dir_no_acc(self):
         """Like 'generated_images_dir' but doesn't use 'Bridge.msl' or 'Bridge.data_id'."""
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_images_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
