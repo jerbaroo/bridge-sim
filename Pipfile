@@ -25,6 +25,7 @@ scipy = "*"
 sklearn = "*"
 termcolor = "*"
 findup = "*"
+numba = "*"
 
 [pipenv]
 allow_prereleases = true

@@ -1,9 +1,10 @@
 """Useful functions that don't belong anywhere else."""
+
 from __future__ import annotations
 
 import os
 import math
-from typing import Union
+from typing import Union, List
 
 import findup
 import numpy as np
@@ -15,28 +16,36 @@ from termcolor import colored
 
 init()
 
-# If set to False, then debug statements are disabled globally.
-DEBUG = True
+
+kg_to_kn = 0.00980665
+"""Multiply by this to convert kg to kN."""
+kn_to_kg = 1 / kg_to_kn
+"""Multiply by this to convert kN to kg."""
+
+
+def convert_times(f: str, t: str, times: List[float]):
+    """Convert time series from one unit to another."""
+    second, day = "second", "day"
+    if f == day and t == second:
+        return np.array(times) * 86400
+    if f == second and t == day:
+        return np.array(times) / 86400
+    raise ValueError(f"Unrecognized: {f}, {t}")
 
 
 def project_dir():
+    """Root directory of the project (looks for .git file)."""
     return os.path.dirname(findup.glob(".git"))
 
 
 def log(c: "Config", s):
+    """Write a string to a log file."""
     with open(c.get_data_path("log", "log.txt"), "a") as f:
         f.write("\n" + s)
 
 
-def resize_units(units):
-    if units == "m":
-        return (lambda r: r * 1e3), "mm"
-    if units == "":
-        return (lambda r: r * 1e-6), ""
-    return None, units
-
-
 def assert_sorted(l):
+    """Assert a list is sorted."""
     assert all(l[i] <= l[i + 1] for i in range(len(l) - 1))
 
 
@@ -46,7 +55,8 @@ st = lambda n: "%s" % (
 )
 
 
-def flatten(container, t):
+def flatten(container, t: type):
+    """Flatten into a list of elements of type t."""
     def _flatten(container, t):
         for i in container:
             if isinstance(i, t):
@@ -54,7 +64,6 @@ def flatten(container, t):
             else:
                 for j in _flatten(i, t):
                     yield j
-
     return list(_flatten(container, t))
 
 
@@ -63,12 +72,9 @@ def round_m(x):
     return np.around(x, decimals=6)
 
 
-# TODO: Debug argument only needs to be of type bool, we can get the calling
-#     module's name automatically.
-# https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
 def print_d(debug: Union[bool, str], s: str, *args, **kwargs):
     """Print some debug text."""
-    if DEBUG and debug:
+    if debug:
         path_str = ""
         if isinstance(debug, str):
             path_str = debug
@@ -177,6 +183,7 @@ def remove_except_npy(c: "Config", keep: str):
 
 
 def scalar(input):
+    """Accepts scalars and lists of length one, returns a scalar."""
     try:
         if len(input) == 1:
             return input[0]
@@ -196,23 +203,6 @@ def kde_sampler(data, print_: bool = False):
         yield kde.resample(1)[0][0]
 
 
-def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
-    """Read CSV data from a file.
-
-    'ignore' first lines are ignored as are lines with '<= min_spaces' spaces.
-
-    """
-    with open(path) as f:
-        return list(
-            map(
-                lambda line: list(map(float, line.split(","))),
-                filter(
-                    lambda line: len(line.split()) > min_spaces, f.readlines()[ignore],
-                ),
-            )
-        )
-
-
 def safe_str(s: str) -> str:
     """A lowercase string with some special characters replaced."""
     for char in "[]()'":
@@ -220,10 +210,6 @@ def safe_str(s: str) -> str:
     s = s.replace(" ", "-")
     s = s.replace(".", ",")
     return s.lower()
-
-
-kg_to_kn = 0.00980665
-kn_to_kg = 1 / kg_to_kn
 
 
 def flip(l, ref):
@@ -244,7 +230,9 @@ def flip(l, ref):
     return list(map(flip_, l))
 
 
-def _get_dir(directory):
+def get_dir(directory: str):
+    """The given directory path but creating the directories if necessary."""
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
+
