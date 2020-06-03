@@ -156,8 +156,8 @@ def plot_contour_deck(
         amin, amin_x, amin_z = np.inf, None, None
         X, Z, H = [], [], []
         for x in responses.xs:
-            # There is a chance that no sensors exist at given y position for every
-            # x position, thus we must check.
+            # There is a chance that no sensors exist at given y position for
+            # every x position, thus we must check.
             if y in responses.zs[x]:
                 for z in responses.zs[x][y]:
                     X.append(x)
@@ -231,3 +231,4 @@ def plot_contour_deck(
                 alpha=alpha,
             )
     # End: min, max legend.
+

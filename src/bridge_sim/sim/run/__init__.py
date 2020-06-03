@@ -218,24 +218,20 @@ def load_fem_responses(
         run_only: don't bother returning results
         index: simulation progress (n/m) printed if given.
 
-    NOTE: Note-to-self. This function is NOT to take a DamageScenario. The whole
-    'fem' module of this package should be separate from that abstraction.
-
     """
     if response_type not in c.sim_runner.supported_response_types(c.bridge):
-        raise ValueError(f"{response_type} not supported by FEMRunner")
+        raise ValueError(f"{response_type} not supported by {c.sim_runner.name}")
 
-    prog_str = "1/1: "
+    prog_str = ""
     if index is not None:
         prog_str = f"{index[0]}/{index[1]}: "
-    print_prog = lambda s: print_i(prog_str + s, end="\r")
+    print_prog = lambda s: print_i(prog_str + s, end="\n" if index is None else "\r")
 
     path = _responses_path(
         sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
     )
-    print_i(f"Loading responses from: {path}")
 
-    # Run the FEM simulation, and/or clean build artefacts, if requested.
+    # Run the FE simulation if requested.
     if run or not os.path.exists(path):
         print_prog(f"Running simulation")
         c.sim_runner.run([sim_params])
@@ -245,6 +241,7 @@ def load_fem_responses(
     if run_only:
         return None
 
+    print_i(f"Loading {response_type.name()} responses from: {path}")
     start = timer()
     try:
         with open(path, "rb") as f:
@@ -262,7 +259,7 @@ def load_fem_responses(
             index=index,
         )
 
-    print_prog(f"Loaded Responses in {timer() - start:.2f}s, ({response_type})")
+    print_prog(f"Loaded {response_type.name()} Responses in {timer() - start:.2f}s")
 
     start = timer()
     sim_responses = SimResponses(
@@ -272,7 +269,7 @@ def load_fem_responses(
         response_type=response_type,
         responses=responses,
     )
-    print_prog(f"Built FEMResponses in {timer() - start:.2f}s, ({response_type})")
+    print_prog(f"Indexed {response_type.name()} Responses in {timer() - start:.2f}s")
 
     return sim_responses
 

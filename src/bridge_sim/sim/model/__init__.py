@@ -462,18 +462,23 @@ class Responses:
             response_type=self.response_type, responses=responses, units=self.units
         )
 
+    def add_temp_strain(self, c: Config, temp_deltas: Tuple[Optional[float], Optional[float]]):
+        """Convert responses, adding free and restrained strain."""
+        if not self.response_type.is_strain():
+            raise ValueError(
+                f"Can only convert Strain not {self.response_type}"
+            )
+        uniform_delta, linear_delta = temp_deltas
+        if uniform_delta is not None and linear_delta is not None:
+            raise ValueError("Must be ONLY uniform or linear temperature delta")
+        if uniform_delta is not None:
+            return self.map(lambda r: (r * 1E-6) - (1 * c.cte * uniform_delta))
+        if linear_delta is not None:
+            return self.map(lambda r: r * 1E-6 + (0.5 * c.cte * linear_delta))
+
     def to_stress(self, bridge: Bridge):
         """Convert strain responses to stress responses."""
-        if self.response_type == ResponseType.StrainXXB:
-            self.response_type = ResponseType.StressXXB
-        elif self.response_type == ResponseType.StrainXXT:
-            self.response_type = ResponseType.StressXXT
-        elif self.response_type == ResponseType.StrainZZB:
-            self.response_type = ResponseType.StressZZB
-        elif self.response_type == ResponseType.StrainZZT:
-            self.response_type = ResponseType.StressZZT
-        else:
-            raise ValueError(f"Responses must be a strain type")
+        self.response_type = self.response_type.to_stress()
         if len(bridge.sections) == 1:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)

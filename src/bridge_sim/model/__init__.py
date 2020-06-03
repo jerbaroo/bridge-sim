@@ -155,6 +155,21 @@ class ResponseType(Enum):
             ResponseType.StrainZZB: "Strain ZZB",
         }[self]
 
+    def to_stress(self):
+        """The corresponding stress type for this strain type.
+
+        Raises a ValueError if this is not a strain response type.
+
+        """
+        if self == ResponseType.StrainXXB:
+            return ResponseType.StressXXB
+        if self == ResponseType.StrainXXT:
+            return ResponseType.StressXXT
+        if self == ResponseType.StrainZZB:
+            return ResponseType.StressZZB
+        if self == ResponseType.StrainZZT:
+            return ResponseType.StressZZT
+        raise ValueError(f"Responses must be a strain type")
 
 # Shorthand for ResponseType.
 RT = ResponseType
