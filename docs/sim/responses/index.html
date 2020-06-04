@@ -45,13 +45,6 @@ from bridge_sim.model import (
     Config as LibConfig,
     PierSettlement,
 )
-from bridge_sim.scenarios import (
-    PierSettlementScenario,
-    Scenario,
-    HealthyScenario,
-    transverse_crack,
-    healthy_damage_w_crack_nodes,
-)
 from bridge_sim.sim.model import SimParams, ManyResponses, Responses
 from bridge_sim.sim.run import FEMRunner, load_expt_responses, load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
@@ -74,48 +67,23 @@ def responses_to_traffic_array(
     c: Config,
     traffic_array: &#34;TrafficArray&#34;,
     response_type: ResponseType,
-    damage_scenario: &#34;Scenario&#34;,
     points: List[Point],
-    sim_runner: Callable[[Config], FEMRunner] = OSRunner,
 ):
     &#34;&#34;&#34;The magic function.
 
     Args:
         c: Config, global configuration object.
         traffic_array: TrafficArray, ....
-        damage_scenario: DamageScenario, the scenarios scenario of the bridge.
         response_type: ResponseType, the type of sensor response to calculate.
         points: List[Point], points on the bridge to calculate fem at.
-        sim_runner: Callable[[Config], FEMRunner], the FEM program to run
-            simulations with.
 
     &#34;&#34;&#34;
-    use_c = damage_scenario.use(c)[0]
     unit_load_matrix = ULResponses.load_ulm(
-        c=use_c,
-        response_type=response_type,
-        points=points,
-        sim_runner=sim_runner(use_c),
+        c=c, response_type=response_type, points=points,
     )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)
-    responses = np.matmul(traffic_array, unit_load_matrix)
-
-    # Calculate the response at each point due to pier settlement.
-    pd_responses = np.zeros(responses.shape).T
-    assert len(pd_responses) == len(points)
-    if isinstance(damage_scenario, PierSettlementScenario):
-        pd_expt = list(
-            PSResponses.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
-        )
-        for point_i, point in enumerate(points):
-            for pier_displacement in damage_scenario.pier_disps:
-                pd_sim_responses = pd_expt[pier_displacement.pier]
-                pd_responses[point_i] += pd_sim_responses.at_deck(
-                    point, interp=False
-                ) * (pier_displacement.displacement / c.pd_unit_disp)
-
-    return responses + pd_responses.T
+    return np.matmul(traffic_array, unit_load_matrix)
 
 
 def responses_to_loads_d(
@@ -123,12 +91,8 @@ def responses_to_loads_d(
     response_type: ResponseType,
     points: List[Point],
     loads: List[List[PointLoad]],
-    damage_scenario: Scenario = HealthyScenario(),
 ):
-    &#34;&#34;&#34;Responses to point-loads via direct simulation (not using superposition).
-    &#34;&#34;&#34;
-    if not isinstance(damage_scenario, HealthyScenario):
-        raise ValueError(&#34;Only HealthyDamage supported in direct simulation&#34;)
+    &#34;&#34;&#34;Responses to point-loads via direct simulation.&#34;&#34;&#34;
     expt_responses = load_expt_responses(
         c=c,
         expt_params=[SimParams(ploads=loads_) for loads_ in loads],
@@ -148,13 +112,8 @@ def responses_to_vehicles_d(
     mv_vehicles: List[Vehicle],
     times: List[float],
     binned: bool = True,
-    damage_scenario: Scenario = HealthyScenario(),
 ):
-    &#34;&#34;&#34;Response vehicles via direct simulation (not using superposition).
-
-    &#34;&#34;&#34;
-    if not isinstance(damage_scenario, HealthyScenario):
-        raise ValueError(&#34;Only HealthyDamage supported in direct simulation&#34;)
+    &#34;&#34;&#34;Response vehicles via direct simulation.&#34;&#34;&#34;
     if binned:
         loads = [
             [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
@@ -178,7 +137,6 @@ def responses_to_vehicles_d(
         response_type=response_type,
         points=points,
         loads=loads,
-        damage_scenario=damage_scenario,
     )
 
 
@@ -221,26 +179,18 @@ class PSResponses(ManyResponses):
     def load(
         c: Config,
         response_type: ResponseType,
-        fem_runner: FEMRunner,
-        save_all: bool = True,
     ):
         &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
 
         Args:
             c: Config, global configuration object.
             response_type: ResponseType, the type of sensor response to load.
-            fem_runner: FEMRunner, the FE program to run simulations with.
-            save_all: bool, save all response types when running a simulation.
 
         &#34;&#34;&#34;
-        # id_str = f&#34;dc-{response_type.name()}-{fem_runner.name}&#34;
-
-        # Determine experiment simulation parameters.
         expt_params = [
             SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
             for i in range(len(c.bridge.supports))
         ]
-
         return load_expt_responses(
             c=c, expt_params=expt_params, response_type=response_type,
         )
@@ -649,10 +599,10 @@ temperature loading no post-processing is done.</p>
 </details>
 </dd>
 <dt id="bridge_sim.sim.responses.responses_to_loads_d"><code class="name flex">
-<span>def <span class="ident">responses_to_loads_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], loads: List[List[PointLoad]], damage_scenario: Scenario = &lt;bridge_sim.scenarios.HealthyScenario object&gt;)</span>
+<span>def <span class="ident">responses_to_loads_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], loads: List[List[PointLoad]])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Responses to point-loads via direct simulation (not using superposition).</p></div>
+<div class="desc"><p>Responses to point-loads via direct simulation.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -662,12 +612,8 @@ temperature loading no post-processing is done.</p>
     response_type: ResponseType,
     points: List[Point],
     loads: List[List[PointLoad]],
-    damage_scenario: Scenario = HealthyScenario(),
 ):
-    &#34;&#34;&#34;Responses to point-loads via direct simulation (not using superposition).
-    &#34;&#34;&#34;
-    if not isinstance(damage_scenario, HealthyScenario):
-        raise ValueError(&#34;Only HealthyDamage supported in direct simulation&#34;)
+    &#34;&#34;&#34;Responses to point-loads via direct simulation.&#34;&#34;&#34;
     expt_responses = load_expt_responses(
         c=c,
         expt_params=[SimParams(ploads=loads_) for loads_ in loads],
@@ -681,7 +627,7 @@ temperature loading no post-processing is done.</p>
 </details>
 </dd>
 <dt id="bridge_sim.sim.responses.responses_to_traffic_array"><code class="name flex">
-<span>def <span class="ident">responses_to_traffic_array</span></span>(<span>c: Config, traffic_array: "'TrafficArray'", response_type: ResponseType, damage_scenario: "'Scenario'", points: List[Point], sim_runner: Callable[[Config], FEMRunner] = bridge_sim.sim.run.opensees.OSRunner)</span>
+<span>def <span class="ident">responses_to_traffic_array</span></span>(<span>c: Config, traffic_array: "'TrafficArray'", response_type: ResponseType, points: List[Point])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>The magic function.</p>
@@ -691,15 +637,10 @@ temperature loading no post-processing is done.</p>
 <dd>Config, global configuration object.</dd>
 <dt><strong><code>traffic_array</code></strong></dt>
 <dd>TrafficArray, ....</dd>
-<dt><strong><code>damage_scenario</code></strong></dt>
-<dd>DamageScenario, the scenarios scenario of the bridge.</dd>
 <dt><strong><code>response_type</code></strong></dt>
 <dd>ResponseType, the type of sensor response to calculate.</dd>
 <dt><strong><code>points</code></strong></dt>
 <dd>List[Point], points on the bridge to calculate fem at.</dd>
-<dt><strong><code>sim_runner</code></strong></dt>
-<dd>Callable[[Config], FEMRunner], the FEM program to run
-simulations with.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -709,55 +650,30 @@ simulations with.</dd>
     c: Config,
     traffic_array: &#34;TrafficArray&#34;,
     response_type: ResponseType,
-    damage_scenario: &#34;Scenario&#34;,
     points: List[Point],
-    sim_runner: Callable[[Config], FEMRunner] = OSRunner,
 ):
     &#34;&#34;&#34;The magic function.
 
     Args:
         c: Config, global configuration object.
         traffic_array: TrafficArray, ....
-        damage_scenario: DamageScenario, the scenarios scenario of the bridge.
         response_type: ResponseType, the type of sensor response to calculate.
         points: List[Point], points on the bridge to calculate fem at.
-        sim_runner: Callable[[Config], FEMRunner], the FEM program to run
-            simulations with.
 
     &#34;&#34;&#34;
-    use_c = damage_scenario.use(c)[0]
     unit_load_matrix = ULResponses.load_ulm(
-        c=use_c,
-        response_type=response_type,
-        points=points,
-        sim_runner=sim_runner(use_c),
+        c=c, response_type=response_type, points=points,
     )
     print(traffic_array.shape)
     print(unit_load_matrix.shape)
-    responses = np.matmul(traffic_array, unit_load_matrix)
-
-    # Calculate the response at each point due to pier settlement.
-    pd_responses = np.zeros(responses.shape).T
-    assert len(pd_responses) == len(points)
-    if isinstance(damage_scenario, PierSettlementScenario):
-        pd_expt = list(
-            PSResponses.load(c=c, response_type=response_type, fem_runner=sim_runner(c))
-        )
-        for point_i, point in enumerate(points):
-            for pier_displacement in damage_scenario.pier_disps:
-                pd_sim_responses = pd_expt[pier_displacement.pier]
-                pd_responses[point_i] += pd_sim_responses.at_deck(
-                    point, interp=False
-                ) * (pier_displacement.displacement / c.pd_unit_disp)
-
-    return responses + pd_responses.T</code></pre>
+    return np.matmul(traffic_array, unit_load_matrix)</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.responses.responses_to_vehicles_d"><code class="name flex">
-<span>def <span class="ident">responses_to_vehicles_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], mv_vehicles: List[Vehicle], times: List[float], binned: bool = True, damage_scenario: Scenario = &lt;bridge_sim.scenarios.HealthyScenario object&gt;)</span>
+<span>def <span class="ident">responses_to_vehicles_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], mv_vehicles: List[Vehicle], times: List[float], binned: bool = True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Response vehicles via direct simulation (not using superposition).</p></div>
+<div class="desc"><p>Response vehicles via direct simulation.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -769,13 +685,8 @@ simulations with.</dd>
     mv_vehicles: List[Vehicle],
     times: List[float],
     binned: bool = True,
-    damage_scenario: Scenario = HealthyScenario(),
 ):
-    &#34;&#34;&#34;Response vehicles via direct simulation (not using superposition).
-
-    &#34;&#34;&#34;
-    if not isinstance(damage_scenario, HealthyScenario):
-        raise ValueError(&#34;Only HealthyDamage supported in direct simulation&#34;)
+    &#34;&#34;&#34;Response vehicles via direct simulation.&#34;&#34;&#34;
     if binned:
         loads = [
             [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
@@ -799,7 +710,6 @@ simulations with.</dd>
         response_type=response_type,
         points=points,
         loads=loads,
-        damage_scenario=damage_scenario,
     )</code></pre>
 </details>
 </dd>
@@ -906,26 +816,18 @@ simulations with.</dd>
     def load(
         c: Config,
         response_type: ResponseType,
-        fem_runner: FEMRunner,
-        save_all: bool = True,
     ):
         &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
 
         Args:
             c: Config, global configuration object.
             response_type: ResponseType, the type of sensor response to load.
-            fem_runner: FEMRunner, the FE program to run simulations with.
-            save_all: bool, save all response types when running a simulation.
 
         &#34;&#34;&#34;
-        # id_str = f&#34;dc-{response_type.name()}-{fem_runner.name}&#34;
-
-        # Determine experiment simulation parameters.
         expt_params = [
             SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
             for i in range(len(c.bridge.supports))
         ]
-
         return load_expt_responses(
             c=c, expt_params=expt_params, response_type=response_type,
         )</code></pre>
@@ -937,7 +839,7 @@ simulations with.</dd>
 <h3>Static methods</h3>
 <dl>
 <dt id="bridge_sim.sim.responses.PSResponses.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>c: Config, response_type: ResponseType, fem_runner: FEMRunner, save_all: bool = True)</span>
+<span>def <span class="ident">load</span></span>(<span>c: Config, response_type: ResponseType)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load a DCExpt from disk, running simulations first if necessary.</p>
@@ -947,10 +849,6 @@ simulations with.</dd>
 <dd>Config, global configuration object.</dd>
 <dt><strong><code>response_type</code></strong></dt>
 <dd>ResponseType, the type of sensor response to load.</dd>
-<dt><strong><code>fem_runner</code></strong></dt>
-<dd>FEMRunner, the FE program to run simulations with.</dd>
-<dt><strong><code>save_all</code></strong></dt>
-<dd>bool, save all response types when running a simulation.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -960,26 +858,18 @@ simulations with.</dd>
 def load(
     c: Config,
     response_type: ResponseType,
-    fem_runner: FEMRunner,
-    save_all: bool = True,
 ):
     &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
 
     Args:
         c: Config, global configuration object.
         response_type: ResponseType, the type of sensor response to load.
-        fem_runner: FEMRunner, the FE program to run simulations with.
-        save_all: bool, save all response types when running a simulation.
 
     &#34;&#34;&#34;
-    # id_str = f&#34;dc-{response_type.name()}-{fem_runner.name}&#34;
-
-    # Determine experiment simulation parameters.
     expt_params = [
         SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
         for i in range(len(c.bridge.supports))
     ]
-
     return load_expt_responses(
         c=c, expt_params=expt_params, response_type=response_type,
     )</code></pre>
