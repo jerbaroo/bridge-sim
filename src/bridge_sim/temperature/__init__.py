@@ -142,7 +142,7 @@ def resize(
             raise NotImplementedError(f"Unknown year {year}")
     assert tmin < 0
     assert tmax > 30
-    print_i(f"T_min, T_max = ({tmin}, {tmax})")
+    print_i(f"Resizing temps into: T_min, T_max = ({tmin}, {tmax})")
     return interp1d(
         np.linspace(min(temps), max(temps), 10000), np.linspace(tmin, tmax, 10000)
     )(temps)
@@ -219,14 +219,21 @@ def effect(
     response_type: ResponseType,
     points: List[Point],
     weather: Optional[pd.DataFrame] = None,
+    temps_bt: Optional[Tuple[List[float], List[float]]] = None,
+    d: bool = False,
 ) -> List[List[float]]:
     """Temperature effect at points for some weather data.
+
+    The returned responses contain the post-processing necessary for strain.
 
     Args:
         config: Config, simulation configuration object.
         response_type: type of sensor response to temp. effect.
         points:  points at which to calculate temperature effect.
         weather: DataFrame to calculate temperature profile time series from.
+        temps_bt: if 'weather' is not provided you can pass in a tuple of the
+            temperature at the bottom and top of the bridge deck.
+        d: a flag for debugging.
 
     Returns: NumPy array of temperature effect, indexed by point then time.
 
@@ -234,10 +241,13 @@ def effect(
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
-    ).add_temp_strain(config=config, temp_deltas=(1, None))
+    )
     linear_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(None, 1)
-    ).add_temp_strain(config=config, temp_deltas=(None, 1))
+    )
+    if response_type.is_strain():
+        uniform_responses = uniform_responses.add_temp_strain(config=config, temp_deltas=(1, None))
+        linear_responses = linear_responses.add_temp_strain(config=config, temp_deltas=(None, 1))
     print_i("Loaded unit temperature responses")
 
     # Effect to unit temperature loading only at requested points.
@@ -247,7 +257,8 @@ def effect(
     assert unit_uniforms.shape[0] == len(points)
 
     # Determine temperature profile.
-    temps_bt = temp_profile(temps=weather["temp"], solar=weather["solar"])
+    if temps_bt is None:
+        temps_bt = temp_profile(temps=weather["temp"], solar=weather["solar"])
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
@@ -262,7 +273,7 @@ def effect(
     print_d(D, f"temps linear = {temps_linear[:3]}")
     print_d(D, f"temps uniform = {temps_uniform[:3]}")
 
-    # Combine uniform and linear fem.
+    # Combine uniform and linear responses.
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
@@ -273,6 +284,8 @@ def effect(
     # print(f"linear_responses.shape = {linear_responses.shape}")
     print_d(D, f"uniform responses = {uniform_responses[:3]}")
     print_d(D, f"linear responses = {linear_responses[:3]}")
+    if d:
+        return temps_uniform, temps_linear, uniform_responses + linear_responses
     return uniform_responses + linear_responses
 
 

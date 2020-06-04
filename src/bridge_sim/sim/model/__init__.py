@@ -440,18 +440,22 @@ class Responses:
                         self.responses[time][x][y][z] = f(response)
         return self
 
-    def without(self, remove: Callable[[Point], bool]) -> "Responses":
+    def without(self, remove: Callable[[Point, float], bool]) -> "Responses":
         responses = []
         for x, y_dict in self.responses[self.times[0]].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
                     p = Point(x=x, y=y, z=z)
-                    if not remove(p):
+                    if not remove(p, response):
                         responses.append((response, p))
                     # if abs(p.distance(of)) > radius:
         return Responses(
             response_type=self.response_type, responses=responses, units=self.units
         )
+
+    def without_nan_inf(self):
+        """Copy of these Responses without NaN or INF values."""
+        return self.without(lambda p, r: np.isnan(r) or np.isinf(r))
 
     def add_temp_strain(
         self, config: Config, temp_deltas: Tuple[Optional[float], Optional[float]]

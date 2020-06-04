@@ -514,6 +514,24 @@ def noise():
     paramselect.experiment_noise(c())
 
 
+@thesis.command(help="Contour plot of temperature effect.")
+@click.option(
+    "--bottom", type=float, default=17, help="Bottom temperature in celcius."
+)
+@click.option("--top", type=float, default=23, help="Top temperature in celcius.")
+def temp_contour(bottom, top):
+    from lib.make.temperature import temp_contour_plot
+
+    temp_contour_plot(c=c(), temp_bottom=bottom, temp_top=top)
+
+
+@thesis.command(help="Plot bridge deck temperature profile.")
+def temp_profile():
+    from lib.make.temperature import temp_profile_plot
+
+    temp_profile_plot(c=c(), fname="holly-springs")
+
+
 #########
 # Debug #
 #########
@@ -669,30 +687,6 @@ def top_view(mins, skip, damage):
     top_view_plot(
         c=c(), max_time=int(60 * mins), skip=skip, damage_scenario=damage_scenario
     )
-
-
-@classify.command(help="Contour plot of temperature effect.")
-@click.option(
-    "--bottom", type=float, required=True, help="Bottom temperature in celcius."
-)
-@click.option("--top", type=float, required=True, help="Top temperature in celcius.")
-def temp_contour(bottom, top):
-    from make.classify.temp import temp_contour_plot
-
-    temp_contour_plot(c=c(), temp_bottom=bottom, temp_top=top)
-
-
-@classify.command(help="Plot bridge deck temperature gradient.")
-@click.option(
-    "--date",
-    type=str,
-    default="holly-springs",
-    help="Filename of year temperature data.",
-)
-def temp_gradient(date):
-    from make.classify.temp import temp_gradient_plot
-
-    temp_gradient_plot(c=c(), date=date)
 
 
 @classify.command(help="Plot removal of temperature effect.")
