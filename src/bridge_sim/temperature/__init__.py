@@ -29,7 +29,6 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
-import bridge_sim.util
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -37,7 +36,7 @@ from sklearn.linear_model import LinearRegression
 
 from bridge_sim import sim
 from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.util import print_d, print_i, project_dir
+from bridge_sim.util import print_d, print_i, print_w, project_dir
 
 # D: str = "classify.temperature"
 D: bool = False
@@ -238,7 +237,7 @@ def effect(
     Returns: NumPy array of temperature effect, indexed by point then time.
 
     """
-    bridge_sim.print_w("Make sure calculating profile from entire year!!")
+    print_w("Make sure calculating profile from entire year!!")
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
