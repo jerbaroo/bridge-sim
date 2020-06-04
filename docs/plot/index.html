@@ -41,7 +41,7 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.plot.contour_responses"><code class="name flex">
-<span>def <span class="ident">contour_responses</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, responses: <a title="bridge_sim.sim.model.Responses" href="../sim/model/index.html#bridge_sim.sim.model.Responses">Responses</a>, point_loads: List[<a title="bridge_sim.model.PointLoad" href="../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], units: Union[str, NoneType] = None, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, norm=None, scatter: bool = False, levels: int = 14, mm_legend: bool = True, mm_legend_without_f: Union[Callable[[bridge_sim.model.Point], bool], NoneType] = None, sci_format: bool = False, decimals: int = 4, y: float = 0)</span>
+<span>def <span class="ident">contour_responses</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, responses: <a title="bridge_sim.sim.model.Responses" href="../sim/model/index.html#bridge_sim.sim.model.Responses">Responses</a>, point_loads: List[<a title="bridge_sim.model.PointLoad" href="../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, norm=None, scatter: bool = False, levels: int = 14, mm_legend: bool = True, mm_legend_without_f: Union[Callable[[bridge_sim.model.Point], bool], NoneType] = None, sci_format: bool = False, decimals: int = 4, y: float = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Contour or scatter plot of simulation responses.</p>
@@ -51,8 +51,6 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
 <dd>simulation configuration object.</dd>
 <dt><strong><code>responses</code></strong></dt>
 <dd>the simulation responses to plot.</dd>
-<dt><strong><code>units</code></strong></dt>
-<dd>optional units string for the colourbar.</dd>
 <dt><strong><code>cmap</code></strong></dt>
 <dd>Matplotlib colormap to use for colouring responses.</dd>
 <dt><strong><code>norm</code></strong></dt>
@@ -78,7 +76,6 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
     c: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
-    units: Optional[str] = None,
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
@@ -94,7 +91,6 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
     Args:
         config: simulation configuration object.
         responses: the simulation responses to plot.
-        units: optional units string for the colourbar.
         cmap: Matplotlib colormap to use for colouring responses.
         norm: Matplotlib norm to use for colouring responses.
         scatter: scatter plot instead of contour plot?
@@ -124,8 +120,8 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
         amin, amin_x, amin_z = np.inf, None, None
         X, Z, H = [], [], []
         for x in responses.xs:
-            # There is a chance that no sensors exist at given y position for every
-            # x position, thus we must check.
+            # There is a chance that no sensors exist at given y position for
+            # every x position, thus we must check.
             if y in responses.zs[x]:
                 for z in responses.zs[x][y]:
                     X.append(x)
@@ -137,7 +133,6 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
                     if H[-1] &lt; amin:
                         amin = H[-1]
                         amin_x, amin_z = X[-1], Z[-1]
-        print(f&#34;amin, amax = {amin}, {amax}&#34;)
 
     structure_data(responses)
     if len(X) == 0:
@@ -158,8 +153,8 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
 
     # Colourbar, maybe using given norm.
     clb = plt.colorbar(cs, norm=norm)
-    if units is not None:
-        clb.ax.set_title(units)
+    if responses.units is not None:
+        clb.ax.set_title(responses.units)
 
     # Plot point loads.
     for pload in point_loads:
@@ -185,8 +180,7 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
             if sci_format
             else f&#34;{np.around(abs(amin - amax), decimals)}&#34;
         )
-        units_str = &#34;&#34; if units is None else f&#34; {units}&#34;
-        print(units_str)
+        units_str = &#34;&#34; if responses.units is None else f&#34; {responses.units}&#34;
         for point, label, color, alpha in [
             ((amin_x, amin_z), f&#34;min = {amin_s} {units_str}&#34;, &#34;orange&#34;, 0),
             ((amax_x, amax_z), f&#34;max = {amax_s} {units_str}&#34;, &#34;green&#34;, 0),
@@ -199,15 +193,11 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
                 marker=&#34;o&#34;,
                 color=color,
                 alpha=alpha,
-            )
-    # End: min, max legend.
-
-    plt.xlabel(&#34;X position&#34;)
-    plt.ylabel(&#34;Z position&#34;)</code></pre>
+            )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.plot.top_view_bridge"><code class="name flex">
-<span>def <span class="ident">top_view_bridge</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, abutments: bool = False, edges: bool = False, piers: bool = False, lanes: bool = False, lane_fill: bool = False, landscape: bool = True, compass: bool = False)</span>
+<span>def <span class="ident">top_view_bridge</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, abutments: bool = False, edges: bool = False, piers: bool = False, lanes: bool = False, lane_fill: bool = False, landscape: bool = True, compass: bool = False, units: Union[str, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot the top view of a bridge's geometry.</p>
@@ -229,13 +219,15 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
 <dd>plot fill or only outline?</dd>
 <dt><strong><code>compass</code></strong></dt>
 <dd>plot a compass rose?</dd>
+<dt><strong><code>units</code></strong></dt>
+<dd>units of bridge width and height (axes labels).</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def top_view_bridge(
-    config: Config,
+    bridge: Bridge,
     abutments: bool = False,
     edges: bool = False,
     piers: bool = False,
@@ -243,6 +235,7 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
     lane_fill: bool = False,
     landscape: bool = True,
     compass: bool = False,
+    units: Optional[str] = None,
 ):
     &#34;&#34;&#34;Plot the top view of a bridge&#39;s geometry.
 
@@ -255,9 +248,9 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
         lanes: plot lanes on the bridge?
         lane_fill: plot fill or only outline?
         compass: plot a compass rose?
+        units: units of bridge width and height (axes labels).
 
     &#34;&#34;&#34;
-    bridge = config.bridge
     if landscape:
         plt.landscape()
     plt.axis(&#34;equal&#34;)
@@ -292,8 +285,9 @@ __all__ = [&#34;contour_responses&#34;, &#34;top_view_bridge&#34;]</code></pre>
         ax_c.imshow(compass_img)
         ax_c.axis(&#34;off&#34;)
         plt.sca(ax)  # Return control to the original axis.
-    plt.xlabel(&#34;X position&#34;)
-    plt.ylabel(&#34;Z position&#34;)</code></pre>
+    units_str = &#34;&#34; if units is None else f&#34; ({units})&#34;
+    plt.xlabel(f&#34;X position{units_str}&#34;)
+    plt.ylabel(f&#34;Z position{units_str}&#34;)</code></pre>
 </details>
 </dd>
 </dl>

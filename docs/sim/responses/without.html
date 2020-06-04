@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>bridge_sim.sim.without API documentation</title>
+<title>bridge_sim.sim.responses.without API documentation</title>
 <meta name="description" content="Functions to filter simulation responses." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>bridge_sim.sim.without</code></h1>
+<h1 class="title">Module <code>bridge_sim.sim.responses.without</code></h1>
 </header>
 <section id="section-intro">
 <p>Functions to filter simulation responses.</p>
@@ -135,8 +135,8 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="bridge_sim.sim.without.edges"><code class="name flex">
-<span>def <span class="ident">edges</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
+<dt id="bridge_sim.sim.responses.without.edges"><code class="name flex">
+<span>def <span class="ident">edges</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reject points on the bridge deck not close to edges.</p></div>
@@ -167,8 +167,8 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
     return _without_edges</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.without.pier_lines"><code class="name flex">
-<span>def <span class="ident">pier_lines</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
+<dt id="bridge_sim.sim.responses.without.pier_lines"><code class="name flex">
+<span>def <span class="ident">pier_lines</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reject points on the deck not close to pier lines.</p></div>
@@ -200,8 +200,8 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
     return _without_pier_lines</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.without.points"><code class="name flex">
-<span>def <span class="ident">points</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, pier_radius: float, track_radius: float, edge_radius: float)</span>
+<dt id="bridge_sim.sim.responses.without.points"><code class="name flex">
+<span>def <span class="ident">points</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, pier_radius: float, track_radius: float, edge_radius: float)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -220,8 +220,8 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
     return _without_points</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.without.wheel_tracks"><code class="name flex">
-<span>def <span class="ident">wheel_tracks</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
+<dt id="bridge_sim.sim.responses.without.wheel_tracks"><code class="name flex">
+<span>def <span class="ident">wheel_tracks</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, radius: float)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reject points on the deck not close to wheel tracks.</p></div>
@@ -266,15 +266,15 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="bridge_sim.sim" href="index.html">bridge_sim.sim</a></code></li>
+<li><code><a title="bridge_sim.sim.responses" href="index.html">bridge_sim.sim.responses</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="bridge_sim.sim.without.edges" href="#bridge_sim.sim.without.edges">edges</a></code></li>
-<li><code><a title="bridge_sim.sim.without.pier_lines" href="#bridge_sim.sim.without.pier_lines">pier_lines</a></code></li>
-<li><code><a title="bridge_sim.sim.without.points" href="#bridge_sim.sim.without.points">points</a></code></li>
-<li><code><a title="bridge_sim.sim.without.wheel_tracks" href="#bridge_sim.sim.without.wheel_tracks">wheel_tracks</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.without.edges" href="#bridge_sim.sim.responses.without.edges">edges</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.without.pier_lines" href="#bridge_sim.sim.responses.without.pier_lines">pier_lines</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.without.points" href="#bridge_sim.sim.responses.without.points">points</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.without.wheel_tracks" href="#bridge_sim.sim.responses.without.wheel_tracks">wheel_tracks</a></code></li>
 </ul>
 </li>
 </ul>

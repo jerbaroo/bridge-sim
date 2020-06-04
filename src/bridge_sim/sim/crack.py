@@ -9,7 +9,7 @@ from bridge_sim.sim.responses import responses_to_traffic_array
 from bridge_sim.traffic import load_traffic, normal_traffic
 from bridge_sim import temperature
 from lib.plot import plt
-from bridge_sim.util import resize_units, safe_str
+from bridge_sim.util import safe_str
 
 
 def crack_time_series(

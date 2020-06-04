@@ -33,7 +33,7 @@ from __future__ import annotations
 import os
 from collections import deque
 from copy import deepcopy
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 from bridge_sim.model import (
@@ -187,20 +187,29 @@ def load(
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
-):
+    temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
+) -&gt; Responses:
     &#34;&#34;&#34;Responses from a single linear simulation.
 
-    The simulation is only run if results are not found on disk.
+    The simulation is only run if results are not found on disk. Note that for
+    temperature loading no post-processing is done.
 
     Args:
         config: simulation configuration object.
         response_type: sensor response type to return.
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
+        temp_deltas: uniform and linear temperature components.
+
     &#34;&#34;&#34;
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
+        sim_params=SimParams(
+            ploads=point_loads,
+            pier_settlement=pier_settlement,
+            axial_delta_temp=temp_deltas[0],
+            moment_delta_temp=temp_deltas[1],
+        ),
         response_type=response_type,
     )
 
@@ -570,6 +579,13 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 </details>
 </section>
 <section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="bridge_sim.sim.responses.without" href="without.html">bridge_sim.sim.responses.without</a></code></dt>
+<dd>
+<div class="desc"><p>Functions to filter simulation responses.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -577,11 +593,12 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.responses.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>config: LibConfig, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [])</span>
+<span>def <span class="ident">load</span></span>(<span>config: LibConfig, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [], temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None)) -> <a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses from a single linear simulation.</p>
-<p>The simulation is only run if results are not found on disk.</p>
+<p>The simulation is only run if results are not found on disk. Note that for
+temperature loading no post-processing is done.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>config</code></strong></dt>
@@ -592,6 +609,8 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 <dd>a list of point-loads to apply.</dd>
 <dt><strong><code>pier_settlement</code></strong></dt>
 <dd>a pier settlement to apply.</dd>
+<dt><strong><code>temp_deltas</code></strong></dt>
+<dd>uniform and linear temperature components.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -602,20 +621,29 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
-):
+    temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
+) -&gt; Responses:
     &#34;&#34;&#34;Responses from a single linear simulation.
 
-    The simulation is only run if results are not found on disk.
+    The simulation is only run if results are not found on disk. Note that for
+    temperature loading no post-processing is done.
 
     Args:
         config: simulation configuration object.
         response_type: sensor response type to return.
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
+        temp_deltas: uniform and linear temperature components.
+
     &#34;&#34;&#34;
     return load_fem_responses(
         c=config,
-        sim_params=SimParams(ploads=point_loads, pier_settlement=pier_settlement),
+        sim_params=SimParams(
+            ploads=point_loads,
+            pier_settlement=pier_settlement,
+            axial_delta_temp=temp_deltas[0],
+            moment_delta_temp=temp_deltas[1],
+        ),
         response_type=response_type,
     )</code></pre>
 </details>
@@ -1630,6 +1658,11 @@ single ILExpt.</p>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="bridge_sim.sim" href="../index.html">bridge_sim.sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="bridge_sim.sim.responses.without" href="without.html">bridge_sim.sim.responses.without</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>

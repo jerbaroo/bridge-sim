@@ -27,6 +27,7 @@
 <pre><code class="python">from datetime import datetime
 from typing import List
 
+import bridge_sim.util
 import numpy as np
 
 from bridge_sim.model import Config, Point
@@ -34,7 +35,7 @@ from bridge_sim.sim.responses import responses_to_traffic_array
 from bridge_sim.traffic import load_traffic, normal_traffic
 from bridge_sim import temperature
 from lib.plot import plt
-from bridge_sim.util import resize_units, safe_str
+from bridge_sim.util import safe_str
 
 
 def crack_time_series(
@@ -129,7 +130,7 @@ def crack_time_series(
         print(f&#34;shape of temp effect = {temp_effect[ri].shape}&#34;)
         if rt == ResponseType.Strain:
             responses[ri] = resize_units(&#34;&#34;)[0](responses[ri])
-        responses[ri] += temperature.apply(temp_effect[ri], responses[ri])
+        responses[ri] += bridge_sim.util.apply(temp_effect[ri], responses[ri])
     responses = np.array(responses)
     print(f&#34;Responses shape = {responses.shape}&#34;)
     return responses
@@ -353,7 +354,7 @@ def time_series_plot(c: Config, n: float):
         print(f&#34;shape of temp effect = {temp_effect[ri].shape}&#34;)
         if rt == ResponseType.Strain:
             responses[ri] = resize_units(&#34;&#34;)[0](responses[ri])
-        responses[ri] += temperature.apply(temp_effect[ri], responses[ri])
+        responses[ri] += bridge_sim.util.apply(temp_effect[ri], responses[ri])
     responses = np.array(responses)
     print(f&#34;Responses shape = {responses.shape}&#34;)
     return responses</code></pre>

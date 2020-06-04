@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.model API documentation</title>
-<meta name="description" content="The core classes: Bridge, Config, PointLoad etc." />
+<meta name="description" content="Classes for building bridges and running simulations." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,12 +20,12 @@
 <h1 class="title">Module <code>bridge_sim.model</code></h1>
 </header>
 <section id="section-intro">
-<p>The core classes: Bridge, Config, PointLoad etc.</p>
+<p>Classes for building bridges and running simulations.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;The core classes: Bridge, Config, PointLoad etc.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;Classes for building bridges and running simulations.&#34;&#34;&#34;
 
 import os
 from enum import Enum
@@ -44,7 +44,7 @@ from bridge_sim.util import (
     print_i,
     print_w,
     print_s,
-    _get_dir,
+    get_dir,
 )
 
 DIST_DECIMALS = 6
@@ -74,6 +74,7 @@ class Point:
             x: X position of the point.
             y: Y position of the point.
             z: Z position of the point.
+
         &#34;&#34;&#34;
         self.x: float = np.around(x, DIST_DECIMALS)
         self.y: float = np.around(y, DIST_DECIMALS)
@@ -114,7 +115,7 @@ class PointLoad:
 
     def __repr__(self):
         &#34;&#34;&#34;Human readable representation of this point-load.&#34;&#34;&#34;
-        return f&#34;x = {self.x}, z = {self.z}, load = {self.load}&#34;
+        return f&#34;X = {self.x}, Z = {self.z}, load = {self.load}&#34;
 
     def id_str(self):
         &#34;&#34;&#34;String uniquely representing this point-load.&#34;&#34;&#34;
@@ -180,6 +181,22 @@ class ResponseType(Enum):
             ResponseType.StrainXXT: &#34;Strain XXT&#34;,
             ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
         }[self]
+
+    def to_stress(self):
+        &#34;&#34;&#34;The corresponding stress type for this strain type.
+
+        Raises a ValueError if this is not a strain response type.
+
+        &#34;&#34;&#34;
+        if self == ResponseType.StrainXXB:
+            return ResponseType.StressXXB
+        if self == ResponseType.StrainXXT:
+            return ResponseType.StressXXT
+        if self == ResponseType.StrainZZB:
+            return ResponseType.StressZZB
+        if self == ResponseType.StrainZZT:
+            return ResponseType.StressZZT
+        raise ValueError(f&#34;Responses must be a strain type&#34;)
 
 
 # Shorthand for ResponseType.
@@ -276,10 +293,10 @@ class Config:
 
         # Root directories for generated data.
         self._root_generated_data_dir = generated_data
-        self.root_generated_data_dir = lambda: _get_dir(self._root_generated_data_dir)
+        self.root_generated_data_dir = lambda: get_dir(self._root_generated_data_dir)
         if self._root_generated_data_dir[-1] in &#34;/\\&#34;:
             raise ValueError(&#34;generated_data must not end in path separator&#34;)
-        self.root_generated_images_dir = lambda: _get_dir(
+        self.root_generated_images_dir = lambda: get_dir(
             os.path.join(self.root_generated_data_dir() + &#34;-images&#34;)
         )
 
@@ -287,13 +304,13 @@ class Config:
 
     def generated_data_dir(self):
         &#34;&#34;&#34;Path to directory where data is saved.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
         &#34;&#34;&#34;Path to directory where images are saved.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
         )
 
@@ -301,7 +318,7 @@ class Config:
 
     def generated_data_dir_no_acc(self):
         &#34;&#34;&#34;Like &#39;generated_data_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_data_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
@@ -310,7 +327,7 @@ class Config:
 
     def generated_images_dir_no_acc(self):
         &#34;&#34;&#34;Like &#39;generated_images_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_images_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
@@ -2119,10 +2136,10 @@ This applies if 'vehicle_pdf_col' is "length".
 
         # Root directories for generated data.
         self._root_generated_data_dir = generated_data
-        self.root_generated_data_dir = lambda: _get_dir(self._root_generated_data_dir)
+        self.root_generated_data_dir = lambda: get_dir(self._root_generated_data_dir)
         if self._root_generated_data_dir[-1] in &#34;/\\&#34;:
             raise ValueError(&#34;generated_data must not end in path separator&#34;)
-        self.root_generated_images_dir = lambda: _get_dir(
+        self.root_generated_images_dir = lambda: get_dir(
             os.path.join(self.root_generated_data_dir() + &#34;-images&#34;)
         )
 
@@ -2130,13 +2147,13 @@ This applies if 'vehicle_pdf_col' is "length".
 
     def generated_data_dir(self):
         &#34;&#34;&#34;Path to directory where data is saved.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
         )
 
     def generated_images_dir(self):
         &#34;&#34;&#34;Path to directory where images are saved.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
         )
 
@@ -2144,7 +2161,7 @@ This applies if 'vehicle_pdf_col' is "length".
 
     def generated_data_dir_no_acc(self):
         &#34;&#34;&#34;Like &#39;generated_data_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_data_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
@@ -2153,7 +2170,7 @@ This applies if 'vehicle_pdf_col' is "length".
 
     def generated_images_dir_no_acc(self):
         &#34;&#34;&#34;Like &#39;generated_images_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-        return _get_dir(
+        return get_dir(
             os.path.join(
                 self.root_generated_images_dir(),
                 self.bridge.id_str(msl=False, data_id=False),
@@ -2206,7 +2223,7 @@ This applies if 'vehicle_pdf_col' is "length".
 </summary>
 <pre><code class="python">def generated_data_dir(self):
     &#34;&#34;&#34;Path to directory where data is saved.&#34;&#34;&#34;
-    return _get_dir(
+    return get_dir(
         os.path.join(self.root_generated_data_dir(), self.bridge.id_str(),)
     )</code></pre>
 </details>
@@ -2222,7 +2239,7 @@ This applies if 'vehicle_pdf_col' is "length".
 </summary>
 <pre><code class="python">def generated_data_dir_no_acc(self):
     &#34;&#34;&#34;Like &#39;generated_data_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-    return _get_dir(
+    return get_dir(
         os.path.join(
             self.root_generated_data_dir(),
             self.bridge.id_str(msl=False, data_id=False),
@@ -2241,7 +2258,7 @@ This applies if 'vehicle_pdf_col' is "length".
 </summary>
 <pre><code class="python">def generated_images_dir(self):
     &#34;&#34;&#34;Path to directory where images are saved.&#34;&#34;&#34;
-    return _get_dir(
+    return get_dir(
         os.path.join(self.root_generated_images_dir(), self.bridge.id_str(),)
     )</code></pre>
 </details>
@@ -2257,7 +2274,7 @@ This applies if 'vehicle_pdf_col' is "length".
 </summary>
 <pre><code class="python">def generated_images_dir_no_acc(self):
     &#34;&#34;&#34;Like &#39;generated_images_dir&#39; but doesn&#39;t use &#39;Bridge.msl&#39; or &#39;Bridge.data_id&#39;.&#34;&#34;&#34;
-    return _get_dir(
+    return get_dir(
         os.path.join(
             self.root_generated_images_dir(),
             self.bridge.id_str(msl=False, data_id=False),
@@ -2943,6 +2960,7 @@ width, width of the lane.</p></div>
             x: X position of the point.
             y: Y position of the point.
             z: Z position of the point.
+
         &#34;&#34;&#34;
         self.x: float = np.around(x, DIST_DECIMALS)
         self.y: float = np.around(y, DIST_DECIMALS)
@@ -3036,7 +3054,7 @@ width, width of the lane.</p></div>
 
     def __repr__(self):
         &#34;&#34;&#34;Human readable representation of this point-load.&#34;&#34;&#34;
-        return f&#34;x = {self.x}, z = {self.z}, load = {self.load}&#34;
+        return f&#34;X = {self.x}, Z = {self.z}, load = {self.load}&#34;
 
     def id_str(self):
         &#34;&#34;&#34;String uniquely representing this point-load.&#34;&#34;&#34;
@@ -3144,7 +3162,23 @@ width, width of the lane.</p></div>
             ResponseType.StrainXXB: &#34;Strain XXB&#34;,
             ResponseType.StrainXXT: &#34;Strain XXT&#34;,
             ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
-        }[self]</code></pre>
+        }[self]
+
+    def to_stress(self):
+        &#34;&#34;&#34;The corresponding stress type for this strain type.
+
+        Raises a ValueError if this is not a strain response type.
+
+        &#34;&#34;&#34;
+        if self == ResponseType.StrainXXB:
+            return ResponseType.StressXXB
+        if self == ResponseType.StrainXXT:
+            return ResponseType.StressXXT
+        if self == ResponseType.StrainZZB:
+            return ResponseType.StressZZB
+        if self == ResponseType.StrainZZT:
+            return ResponseType.StressZZT
+        raise ValueError(f&#34;Responses must be a strain type&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -3279,7 +3313,23 @@ width, width of the lane.</p></div>
             ResponseType.StrainXXB: &#34;Strain XXB&#34;,
             ResponseType.StrainXXT: &#34;Strain XXT&#34;,
             ResponseType.StrainZZB: &#34;Strain ZZB&#34;,
-        }[self]</code></pre>
+        }[self]
+
+    def to_stress(self):
+        &#34;&#34;&#34;The corresponding stress type for this strain type.
+
+        Raises a ValueError if this is not a strain response type.
+
+        &#34;&#34;&#34;
+        if self == ResponseType.StrainXXB:
+            return ResponseType.StressXXB
+        if self == ResponseType.StrainXXT:
+            return ResponseType.StressXXT
+        if self == ResponseType.StrainZZB:
+            return ResponseType.StressZZB
+        if self == ResponseType.StrainZZT:
+            return ResponseType.StressZZT
+        raise ValueError(f&#34;Responses must be a strain type&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
