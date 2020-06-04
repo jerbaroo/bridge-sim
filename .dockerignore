@@ -5,6 +5,7 @@
 build/
 crack/
 docs/
+data/validation/
 generated-data/
 generated-data-images/
 lisa-results/

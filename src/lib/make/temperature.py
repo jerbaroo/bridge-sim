@@ -5,11 +5,14 @@ import numpy as np
 
 from bridge_sim import temperature
 from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.util import plot_hours, print_i
+from bridge_sim.sim.model import Responses
+from bridge_sim.util import plot_hours, print_i, safe_str
+from bridge_sim.plot import contour_responses, top_view_bridge
+from lib.plot import equal_lims
 
 
-def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
-    """Plot the effect of temperature at a given temperature."""
+def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
+    """Contour plot of responses for a temperature profile."""
     # Points on the deck to collect fem.
     deck_points = [
         Point(x=x, y=0, z=z)
@@ -24,114 +27,119 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
     def plot_response_type(response_type: ResponseType):
         # Temperature effect.
         temp_effect = temperature.effect(
-            c=c,
+            config=c,
             response_type=response_type,
             points=deck_points,
             temps_bt=([temp_bottom], [temp_top]),
         ).T[0]
+        print_i(f"temp shape = {temp_effect.shape}")
         responses = Responses(
             response_type=response_type,
             responses=[
                 (temp_effect[p_ind], deck_points[p_ind])
                 for p_ind in range(len(deck_points))
             ],
-            units=units,
-        )
-        top_view_bridge(c.bridge, compass=False, lane_fill=False, piers=True)
-        plot_contour_deck(
-            c=c,
-            responses=responses,
-            decimals=6 if response_type == ResponseType.Strain else 2,
-            loc="upper right",
-        )
-        plt.title(
-            f"{response_type.name()} when Tref,Tb,Tt = {c.bridge.ref_temp_c}°C,{temp_bottom}°C,{temp_top}°C"
-        )
+        ).without_nan_inf()
+        if response_type.is_strain():
+            responses.units = "N/mm²"
+            responses = responses.map(lambda r: r * 1E6)
+        else:
+            responses.units = "mm"
+            responses = responses.map(lambda r: r * 1E3)
+        top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
+        contour_responses(c=c, responses=responses)
+        plt.title(response_type.name())
 
     plt.landscape()
     plt.subplot(2, 1, 1)
-    plot_response_type(ResponseType.YTranslation)
+    plot_response_type(ResponseType.YTrans)
     plt.subplot(2, 1, 2)
-    plot_response_type(ResponseType.Strain)
-    plt.tight_layout()
+    plot_response_type(ResponseType.StrainXXB)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.suptitle(f"T_REF, T_bot, T_top = {c.bridge.ref_temp_c} °C, {temp_bottom} °C, {temp_top} °C")
     plt.savefig(
-        c.get_image_path("classify", f"temp-effect-{temp_bottom}-{temp_top}.pdf")
+        c.get_image_path("thesis/temperature", safe_str(f"contour-{temp_bottom}-{temp_top}") + ".pdf")
     )
     plt.close()
 
 
-def temp_gradient_plot(c: Config, date: str):
-    """Plot the temperature gradient throughout the bridge deck."""
-    temp_loaded = temperature.load(name=date)
+def temp_profile_plot(c: Config, fname: str):
+    """Plot the temperature profile throughout the bridge deck."""
+    x, z = 21, -8.4
+    # Load weather data.
+    weather = temperature.load(name=fname)
+    weather["temp"] = temperature.resize(list(weather["temp"]), year=2019)
+    # Convert to minutely.
     from_ = datetime.fromisoformat(f"2019-01-01T00:00")
     to = datetime.fromisoformat(f"2019-12-31T23:59")
-    temp_year = temperature.from_to_mins(temp_loaded, from_, to)
-    from_ = datetime.fromisoformat(f"2019-07-01T00:00")
-    to = datetime.fromisoformat(f"2019-07-02T23:59")
-    temps_year = temperature.resize(list(temp_year["temp"]))
-    solar_year = temp_year["solar"]
-    dates_year = temp_year["datetime"]
-    temps_year_bottom, temps_year_top = temperature.temps_bottom_top(
-        c=c, temps=temps_year, solar=solar_year, len_per_hour=60
+    temp_year = temperature.from_to_mins(weather, from_, to)
+    # Temperature profile.
+    temps_year_bottom, temps_year_top = temperature.temp_profile(
+        temps=temp_year["temp"], solar=temp_year["solar"],
     )
-    x, z = 21, -8.4
+    # Calculate responses.
     uniform_year_y, linear_year_y, effect_year_y = temperature.effect(
-        c=c,
-        response_type=ResponseType.YTranslation,
+        config=c,
+        response_type=ResponseType.YTrans,
         points=[Point(x=x, y=0, z=z)],
-        temps=temps_year,
-        solar=solar_year,
-        len_per_hour=60,
+        weather=temp_year,
         d=True,
     )
-    uniform_year_s, linear_year_s, effect_year_s = temperature.effect(
-        c=c,
-        response_type=ResponseType.Strain,
+    effect_year_s = temperature.effect(
+        config=c,
+        response_type=ResponseType.StrainXXB,
         points=[Point(x=x, y=0, z=z)],
-        temps=temps_year,
-        solar=solar_year,
-        len_per_hour=60,
-        d=True,
+        weather=temp_year,
     )
 
     plt.portrait()
     plt.subplot(3, 2, 1)
-    plt.plot(dates_year, temps_year_top, label="Top of deck")
-    plt.plot(dates_year, temps_year, label="Air")
-    plt.plot(dates_year, temps_year_bottom, label="Bottom of deck")
-    plt.ylabel("Temperature °C ")
+    plt.plot(temp_year["datetime"], temps_year_top, label="Top of deck")
+    plt.plot(temp_year["datetime"], temp_year["temp"], label="Air")
+    plt.plot(temp_year["datetime"], temps_year_bottom, label="Bottom of deck")
+    plt.ylabel("Temperature °C")
     plt.legend(loc="lower right")
     plt.title("Annual temperature")
     plt.subplot(3, 2, 5)
-    plt.plot(dates_year, linear_year_y, label="Linear component")
-    plt.plot(dates_year, uniform_year_y, label="Uniform component")
-    plt.ylabel("Temperature °C ")
+    plt.plot(temp_year["datetime"], linear_year_y, label="Linear")
+    plt.plot(temp_year["datetime"], uniform_year_y, label="Uniform")
+    plt.ylabel("Temperature °C")
     plt.legend(loc="lower right")
     plt.title("Annual gradient")
     plt.subplot(3, 2, 3)
-    plt.plot(dates_year, solar_year)
-    plt.ylabel("Solar irradiance (W/m²)")
-    plt.title("Annual solar irradiance")
+    plt.plot(temp_year["datetime"], temp_year["solar"])
+    plt.ylabel("Solar radiation (W/m²)")
+    plt.title("Annual solar radiation")
 
-    i, j = temperature.from_to_indices(df=temp_year, from_=from_, to=to)
-    plt.subplot(3, 2, 2)
-    plt.plot(dates_year[i : j + 1], temps_year_top[i : j + 1], label="Top of deck")
-    plt.plot(dates_year[i : j + 1], temps_year[i : j + 1], label="Air")
-    plt.plot(
-        dates_year[i : j + 1], temps_year_bottom[i : j + 1], label="Bottom of deck"
+    from_ = datetime.fromisoformat(f"2019-07-01T00:00")
+    to = datetime.fromisoformat(f"2019-07-02T23:59")
+    temp_month = temperature.from_to_mins(df=temp_year, from_=from_, to=to)
+    # Temperature profile.
+    temps_month_bottom, temps_month_top = temperature.temp_profile(
+        temps=temp_month["temp"], solar=temp_month["solar"],
     )
+    uniform_month_y, linear_month_y, effect_month_y = temperature.effect(
+        config=c,
+        response_type=ResponseType.YTrans,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_month,
+        d=True,
+    )
+
+    plt.subplot(3, 2, 2)
+    plt.plot(temp_month["datetime"], temps_month_top, label="Top of deck")
+    plt.plot(temp_month["datetime"], temp_month["temp"], label="Air")
+    plt.plot(temp_month["datetime"], temps_month_bottom, label="Top of deck")
     plt.legend(loc="lower right")
     plt.title("Two day temperature")
     plt.subplot(3, 2, 6)
-    plt.plot(dates_year[i : j + 1], linear_year_y[i : j + 1], label="Linear component")
-    plt.plot(
-        dates_year[i : j + 1], uniform_year_y[i : j + 1], label="Uniform component"
-    )
+    plt.plot(temp_month["datetime"], linear_month_y, label="Linear")
+    plt.plot(temp_month["datetime"], uniform_month_y, label="Uniform")
     plt.legend(loc="lower right")
     plt.title("Two day gradient")
     plt.subplot(3, 2, 4)
-    plt.plot(dates_year[i : j + 1], solar_year[i : j + 1])
-    plt.title("Two day solar irradiance")
+    plt.plot(temp_year["datetime"], temp_year["solar"])
+    plt.title("Two day solar radiation")
 
     for ps in [(1, 2), (3, 4), (5, 6)]:
         plt.subplot(3, 2, ps[1])
@@ -140,36 +148,7 @@ def temp_gradient_plot(c: Config, date: str):
 
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
-    plt.savefig(
-        c.get_image_path("temperature", f"gradient-1-{c.bridge.ref_temp_c}.pdf")
-    )
-    plt.close()
-
-    plt.portrait()
-    plt.subplot(2, 2, 1)
-    plt.plot(dates_year, effect_year_y[0] * 1000)
-    plt.ylabel("Y translation (mm)")
-    plt.title(f"Annual Y translation\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
-    plt.subplot(2, 2, 3)
-    plt.plot(dates_year, effect_year_s[0])
-    plt.ylabel("Strain")
-    plt.title(f"Annual strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
-
-    plt.subplot(2, 2, 2)
-    plt.plot(dates_year[i : j + 1], effect_year_y[0][i : j + 1] * 1000)
-    plt.title(f"Two day strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
-    plt.subplot(2, 2, 4)
-    plt.plot(dates_year[i : j + 1], effect_year_s[0][i : j + 1])
-    plt.title(f"Two day strain\nat x={np.around(x, 1)} m, z={np.around(z, 1)} m")
-
-    for ps in [(1, 2), (3, 4)]:
-        plt.subplot(2, 2, ps[1])
-        plt.gca().set_yticklabels([])
-        equal_lims("y", 2, 2, ps)
-
-    plt.gcf().autofmt_xdate()
-    plt.tight_layout()
-    plt.savefig(c.get_image_path("temperature", "gradient-2.pdf"))
+    plt.savefig(c.get_image_path("temperature", "profile.pdf"))
     plt.close()
 
 
@@ -221,5 +200,5 @@ def temperature_effect(config: Config, fname: str):
 
     # Save.
     plt.tight_layout()
-    plt.savefig(config.get_image_path("verify/temperature", f"{fname}.pdf"))
+    plt.savefig(config.get_image_path("verification/temperature", f"{fname}.pdf"))
     plt.close()
