@@ -1,4 +1,4 @@
-"""Useful functions that don't belong anywhere else."""
+"""A collection of potentially useful functions."""
 
 from __future__ import annotations
 
@@ -57,6 +57,7 @@ st = lambda n: "%s" % (
 
 def flatten(container, t: type):
     """Flatten into a list of elements of type t."""
+
     def _flatten(container, t):
         for i in container:
             if isinstance(i, t):
@@ -64,6 +65,7 @@ def flatten(container, t: type):
             else:
                 for j in _flatten(i, t):
                     yield j
+
     return list(_flatten(container, t))
 
 
@@ -192,17 +194,6 @@ def scalar(input):
         return input
 
 
-def kde_sampler(data, print_: bool = False):
-    """A generator which returns samples from a KD estimate of the data."""
-    kde = stats.gaussian_kde(data)
-    i = 1
-    while True:
-        if print_ and i % 100 == 0:
-            print(i, end=", ", flush=True)
-        i += 1
-        yield kde.resample(1)[0][0]
-
-
 def safe_str(s: str) -> str:
     """A lowercase string with some special characters replaced."""
     for char in "[]()'":
@@ -235,4 +226,3 @@ def get_dir(directory: str):
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
-

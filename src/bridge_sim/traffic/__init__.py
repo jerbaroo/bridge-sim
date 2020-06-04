@@ -15,10 +15,14 @@ from bridge_sim.util import print_i, print_d, st, safe_str
 
 D = False
 
-# A list of vehicles, time they enter/leave the bridge, and a boolean if they are
-# entering (true) or leaving. This sequence should be time ordered. This is a
-# memory efficient representation of traffic.
 TrafficSequence = NewType("TrafficSequence", List[Tuple[Vehicle, float, bool]])
+"""Vehicles and times when they enter/leave a bridge.
+
+ A list of (vehicle, enter/leave time, E), where E is a boolean if they are
+ entering (true) or leaving. This sequence should be time ordered. This is a
+ memory efficient representation of traffic.
+ 
+"""
 
 # A list of vehicles per lane per time step. This representation naturally fits
 # the semantics of real life traffic on a bridge. Useful for plotting.

@@ -1,4 +1,4 @@
-"""Time series of temperature and responses to temperature."""
+"""Time series of responses to temperature."""
 
 import datetime
 import math

@@ -21,7 +21,9 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
         (92.4, -7.15, "c"),
         (101.75, -9.65, "d"),
     ]
-    min_max_values = pd.read_csv(os.path.join(project_dir(), "data/validation/axis/min-max.csv"))
+    min_max_values = pd.read_csv(
+        os.path.join(project_dir(), "data/validation/axis/min-max.csv")
+    )
     response_types = [ResponseType.YTrans, ResponseType.StrainXXB]
     # For each combination of response type and loading position.
     for load_x, load_z, label in positions:
@@ -44,16 +46,14 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
             # Create the OpenSees plot.
             point_loads = [PointLoad(x=load_x, z=load_z, load=100)]
             os_responses = sim.responses.load(
-                config=c,
-                response_type=response_type,
-                point_loads=point_loads,
+                config=c, response_type=response_type, point_loads=point_loads,
             )
             if response_type.is_strain():
-                os_responses = os_responses.to_stress(c.bridge).map(lambda x: x * 1E-6)
+                os_responses = os_responses.to_stress(c.bridge).map(lambda x: x * 1e-6)
                 os_responses.units = "N/mm²"
             else:
                 os_responses.units = "mm"
-                os_responses = os_responses.map(lambda x: x * 1E3)
+                os_responses = os_responses.map(lambda x: x * 1e3)
             if run_only:
                 continue
             title = (
@@ -92,7 +92,11 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
                 # Then plot the bridge and Axis image.
                 top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
                 plt.imshow(
-                    mpimg.imread(os.path.join(project_dir(), f"data/validation/axis/{label}-{rt_str}.PNG")),
+                    mpimg.imread(
+                        os.path.join(
+                            project_dir(), f"data/validation/axis/{label}-{rt_str}.PNG"
+                        )
+                    ),
                     extent=(
                         c.bridge.x_min,
                         c.bridge.x_max,
@@ -134,7 +138,9 @@ def pier_settlement(c: Config):
     """Contour plots of pier settlement, OpenSees and AxisVM."""
     pier_indices = [4, 5]
     response_types = [ResponseType.YTrans, ResponseType.StrainXXB]
-    axis_values = pd.read_csv(os.path.join(project_dir(), "data/validation/axis/piers-min-max.csv"))
+    axis_values = pd.read_csv(
+        os.path.join(project_dir(), "data/validation/axis/piers-min-max.csv")
+    )
     for r_i, response_type in enumerate(response_types):
         for p in pier_indices:
             # Run the simulation and collect fem.
@@ -146,15 +152,13 @@ def pier_settlement(c: Config):
             assert c.pd_unit_disp == 1
             if response_type.is_strain():
                 # First from strain -> stress, then kN/m2 -> N/mm2.
-                sim_responses.to_stress(c.bridge).map(lambda r: r * 1E-9)
+                sim_responses.to_stress(c.bridge).map(lambda r: r * 1e-9)
                 sim_responses.units = "N/mm²"
             else:
                 # sim_responses = sim_responses.map(lambda r: r * 1E6)
                 sim_responses.units = "mm"
             # Get min and max values for both Axis and OpenSees.
-            rt_str = (
-                "displa" if response_type == ResponseType.YTrans else "stress"
-            )
+            rt_str = "displa" if response_type == ResponseType.YTrans else "stress"
             row = axis_values[axis_values["name"] == f"{p}-{rt_str}"]
             dmin, dmax = float(row["dmin"]), float(row["dmax"])
             omin, omax = float(row["omin"]), float(row["omax"])
@@ -163,7 +167,9 @@ def pier_settlement(c: Config):
             # Plot and save the image. If plotting stresses use Axis values for
             # colour normalization.
             top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
-            plot_contour_deck(c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels)
+            plot_contour_deck(
+                c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels
+            )
             plt.legend()
             plt.tight_layout()
             plt.title(
@@ -175,10 +181,14 @@ def pier_settlement(c: Config):
             )
             plt.close()
             # First plot and clear, just to have the same colorbar.
-            plot_contour_deck(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+            plot_contour_deck(
+                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+            )
             plt.cla()
             # Save the axis plots.
-            axis_img = mpimg.imread(os.path.join(project_dir(), f"data/validation/axis/{p}-{rt_str}.PNG"))
+            axis_img = mpimg.imread(
+                os.path.join(project_dir(), f"data/validation/axis/{p}-{rt_str}.PNG")
+            )
             top_view_bridge(c.bridge, abutments=True, units="m")
             plt.imshow(
                 axis_img,
@@ -209,11 +219,13 @@ def pier_settlement(c: Config):
                 )
             plt.legend()
             # Title and save.
-            plt.title(f"{sim_responses.response_type.name()} from 1mm pier settlement with AxisVM")
+            plt.title(
+                f"{sim_responses.response_type.name()} from 1mm pier settlement with AxisVM"
+            )
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                   "validation/pier-settlement", filename + "-axis" + ".pdf"
+                    "validation/pier-settlement", filename + "-axis" + ".pdf"
                 )
             )
             plt.close()
@@ -221,8 +233,13 @@ def pier_settlement(c: Config):
 
 def temperature_load(c: Config):
     """Response to unit temperature deck loading."""
-    axis_values = pd.read_csv(os.path.join(project_dir(), "data/validation/axis/thermal-min-max.csv"))
-    for temp_deltas, temp_id, temp_name in [((1, None), "axial", "uniform"), ((None, 1), "moment", "linear")]:
+    axis_values = pd.read_csv(
+        os.path.join(project_dir(), "data/validation/axis/thermal-min-max.csv")
+    )
+    for temp_deltas, temp_id, temp_name in [
+        ((1, None), "axial", "uniform"),
+        ((None, 1), "moment", "linear"),
+    ]:
         for i, response_type in enumerate(
             [ResponseType.StressXXB, ResponseType.YTrans, ResponseType.StressZZB]
         ):
@@ -237,14 +254,19 @@ def temperature_load(c: Config):
                 row = axis_values[axis_values["name"] == f"{rt_name}-{temp_id}"]
                 dmin, dmax = float(row["dmin"]), float(row["dmax"])
                 omin, omax = float(row["omin"]), float(row["omax"])
-                amin, amax = np.around(max(dmin, omin), 2), np.around(min(dmax, omax), 2)
+                amin, amax = (
+                    np.around(max(dmin, omin), 2),
+                    np.around(min(dmax, omax), 2),
+                )
                 levels = np.linspace(amin, amax, 16)
             # .. but if these values are not available we don't use levels.
             except:
                 print_w(f"Levels is None for response type {response_type.name()}")
                 levels = None
             if levels is not None:
-                print_i(f"Min/max for {response_type.name()} = ({levels[0]}, {levels[-1]})")
+                print_i(
+                    f"Min/max for {response_type.name()} = ({levels[0]}, {levels[-1]})"
+                )
             # Load fem, strain in case of stress.
             sim_type = ResponseType.YTrans
             if response_type == ResponseType.StressXXB:
@@ -256,7 +278,9 @@ def temperature_load(c: Config):
             )
             if response_type.is_stress():
                 # og_sim_responses = deepcopy(sim_responses)
-                sim_responses = sim_responses.add_temp_strain(c, temp_deltas).to_stress(c.bridge)
+                sim_responses = sim_responses.add_temp_strain(c, temp_deltas).to_stress(
+                    c.bridge
+                )
                 sim_responses.units = "N/mm²"
                 # for response, (x, y, z) in og_sim_responses.values(point=True):
                 #     assert np.isclose(
@@ -264,10 +288,12 @@ def temperature_load(c: Config):
                 #         sim_responses.fem[0][x][y][z]
                 #     )
             else:
-                sim_responses = sim_responses.map(lambda r: r * 1E3)
+                sim_responses = sim_responses.map(lambda r: r * 1e3)
                 sim_responses.units = "mm"
             plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
-            plot.contour_responses(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+            plot.contour_responses(
+                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+            )
             plt.legend()
             plt.title(
                 f"{sim_responses.response_type.name()} from 1 ‎°C {temp_name} temp. deck loading with OpenSees"
@@ -286,15 +312,25 @@ def temperature_load(c: Config):
             if response_type == ResponseType.StressZZB:
                 continue  # We didn't save Axis StressZZB.
             # First plot and clear, just to have the same colorbar.
-            plot.contour_responses(c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels)
+            plot.contour_responses(
+                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+            )
             plt.cla()
             # Then imshow the axis image.
             plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
             plt.imshow(
                 mpl.image.imread(
-                    os.path.join(project_dir(), f"data/validation/axis/thermal-{rt_name}-{temp_id}.PNG")
+                    os.path.join(
+                        project_dir(),
+                        f"data/validation/axis/thermal-{rt_name}-{temp_id}.PNG",
+                    )
                 ),
-                extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
+                extent=(
+                    c.bridge.x_min,
+                    c.bridge.x_max,
+                    c.bridge.z_min,
+                    c.bridge.z_max,
+                ),
             )
             # Plot the min and max values.
             for leg_label, color in [
@@ -315,7 +351,8 @@ def temperature_load(c: Config):
             plt.ylabel("Z position (m)")
             plt.tight_layout()
             plt.savefig(
-                c.get_image_path("validation/thermal", f"axis-{rt_name}-{temp_name}.pdf",)
+                c.get_image_path(
+                    "validation/thermal", f"axis-{rt_name}-{temp_name}.pdf",
+                )
             )
             plt.close()
-

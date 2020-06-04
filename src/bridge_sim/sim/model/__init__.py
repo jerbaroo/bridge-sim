@@ -453,19 +453,19 @@ class Responses:
             response_type=self.response_type, responses=responses, units=self.units
         )
 
-    def add_temp_strain(self, c: Config, temp_deltas: Tuple[Optional[float], Optional[float]]):
+    def add_temp_strain(
+        self, c: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
+    ):
         """Convert responses, adding free and restrained strain."""
         if not self.response_type.is_strain():
-            raise ValueError(
-                f"Can only convert Strain not {self.response_type}"
-            )
+            raise ValueError(f"Can only convert Strain not {self.response_type}")
         uniform_delta, linear_delta = temp_deltas
         if uniform_delta is not None and linear_delta is not None:
             raise ValueError("Must be ONLY uniform or linear temperature delta")
         if uniform_delta is not None:
-            return self.map(lambda r: (r * 1E-6) - (1 * c.cte * uniform_delta))
+            return self.map(lambda r: (r * 1e-6) - (1 * c.cte * uniform_delta))
         if linear_delta is not None:
-            return self.map(lambda r: r * 1E-6 + (0.5 * c.cte * linear_delta))
+            return self.map(lambda r: r * 1e-6 + (0.5 * c.cte * linear_delta))
 
     def to_stress(self, bridge: Bridge):
         """Convert strain responses to stress responses."""
@@ -474,8 +474,10 @@ class Responses:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
         else:
+
             def _map(response, x, y, z):
                 return response * bridge.deck_section_at(x=x, z=z).youngs
+
             self.map(_map, xyz=True)
         self.units = None  # We don't know units since strain is unit-less.
         return self

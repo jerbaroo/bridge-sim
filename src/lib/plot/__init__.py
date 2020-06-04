@@ -3,6 +3,7 @@
 More specific plotting functions are found in other modules.
 
 """
+
 import copy
 from collections import OrderedDict
 from typing import Callable, List, Optional
@@ -11,12 +12,11 @@ import matplotlib
 import matplotlib.colors as colors
 import matplotlib.patches as patches
 import matplotlib.pyplot as _plt
-import numpy as np
 from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import ScalarFormatter
+import numpy as np
 from scipy import stats
 
-# from classify.data.fem import responses_to_mv_vehicles, times_on_bridge
 from bridge_sim.model import (
     ResponseType,
     Point,
@@ -27,7 +27,7 @@ from bridge_sim.model import (
     Material,
 )
 from bridge_sim.sim.run import FEMRunner
-from bridge_sim.util import print_d, print_i, print_w, kde_sampler
+from bridge_sim.util import print_d, print_i, print_w
 
 # Print debug information for this file.
 D: bool = False

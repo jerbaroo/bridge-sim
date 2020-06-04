@@ -231,4 +231,3 @@ def plot_contour_deck(
                 alpha=alpha,
             )
     # End: min, max legend.
-

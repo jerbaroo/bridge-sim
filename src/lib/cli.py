@@ -342,13 +342,19 @@ def temp_loads():
 
 
 @verify.command(help="Plots of time series of shrinkage.")
-@click.option("--autogenous", is_flag=True, help="Drying or autogenous shrinkage.")
-def shrinkage(autogenous):
+def shrinkage():
     from lib.make import shrinkage
-    if autogenous:
-        shrinkage.plot_autogenous_shrinkage(c())
-    else:
-        shrinkage.plot_drying_shrinkage(c())
+
+    shrinkage.plot_autogenous_shrinkage(c())
+    shrinkage.plot_drying_shrinkage(c())
+    shrinkage.plot_total_shrinkage(c())
+
+
+@verify.command(help="Plots of time series of shrinkage.")
+def creep():
+    from lib.make import creep
+
+    creep.plot_creep(c())
 
 
 ############
