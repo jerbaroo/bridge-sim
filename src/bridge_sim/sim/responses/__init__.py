@@ -161,10 +161,11 @@ def load(
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
     temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
-):
+) -> Responses:
     """Responses from a single linear simulation.
 
-    The simulation is only run if results are not found on disk.
+    The simulation is only run if results are not found on disk. Note that for
+    temperature loading no post-processing is done.
 
     Args:
         config: simulation configuration object.

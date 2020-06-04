@@ -1,3 +1,4 @@
+import bridge_sim.util
 import matplotlib as mpl
 import numpy as np
 from datetime import datetime
@@ -73,7 +74,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
     temp_effect = []
     for i in range(len(deck_points)):
         temp_effect.append(
-            temperature.apply(
+            bridge_sim.util.apply(
                 # Effect for July 1st, for the current point..
                 effect=effect_2019.T[i][july_2019_i:july_2019_j],
                 # ..for the length of the time series.

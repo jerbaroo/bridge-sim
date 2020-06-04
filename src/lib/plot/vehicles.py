@@ -1,5 +1,5 @@
 """Plot vehicles distributions."""
-
+import bridge_sim.util
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -116,7 +116,7 @@ def plot_dist(c: Config):
     vehicles = [sample_vehicle(c) for _ in range(n)]
     kns = list(map(lambda v: v.total_kn(), vehicles))
 
-    num_axles = a16["weight_per_axle"].apply(lambda s: len(axle_array_and_count(s)))
+    num_axles = bridge_sim.util.apply(lambda s: len(axle_array_and_count(s)))
     plt.landscape()
     plt.subplot(3, 1, 1)
     plt.scatter(a16["length"] / 100, a16["total_weight"], s=1)

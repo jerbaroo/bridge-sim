@@ -4,7 +4,6 @@
 .pytest_cache/
 build/
 crack/
-data/validation/
 docs/
 generated-data/
 generated-data-images/
