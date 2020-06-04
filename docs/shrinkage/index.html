@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.shrinkage API documentation</title>
+<meta name="description" content="Time series of responses to shrinkage." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.shrinkage</code></h1>
+</header>
+<section id="section-intro">
+<p>Time series of responses to shrinkage.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Time series of responses to shrinkage.&#34;&#34;&#34;
+
+from enum import Enum
+from math import sqrt
+from typing import List
+
+import numpy as np
+from numba import njit
+
+from bridge_sim import sim
+from bridge_sim.model import Config, Point, ResponseType
+from bridge_sim.util import convert_times, print_d
+
+D = &#34;bridge_sim.shrinkage&#34;
+
+
+class CementClass(Enum):
+    &#34;&#34;&#34;Cement class: BS EN 1992-1-1 31.2 (6).&#34;&#34;&#34;
+
+    Slow = &#34;S&#34;
+    Normal = &#34;N&#34;
+    Rapid = &#34;R&#34;
+
+
+a_ds1 = {
+    CementClass.Slow: 3,
+    CementClass.Normal: 4,
+    CementClass.Rapid: 6,
+}
+&#34;&#34;&#34;Coefficient depending on cement class.&#34;&#34;&#34;
+
+a_ds2 = {
+    CementClass.Slow: 0.13,
+    CementClass.Normal: 0.12,
+    CementClass.Rapid: 0.11,
+}
+&#34;&#34;&#34;Coefficient depending on cement class.&#34;&#34;&#34;
+
+f_ck = 30
+f_cm = f_ck + 8
+f_cmo = 10
+t_s = 1  # Age of concrete (days) at beginning of drying concrete.
+RH_0 = 1
+RH = 0.7  # Ambient relative humidity.
+h_0tab = [100, 200, 300, 500]
+k_htab = [1, 0.85, 0.75, 0.7]
+
+
+def drying(cement_class: CementClass, h_0: float, times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    Args:
+        cement_class: class of the cement.
+        h_0: notational size.
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
+    B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
+    print_d(D, f&#34;B_RH = {B_RH}&#34;)
+    E_cd0 = (
+        0.85
+        * (220 + 110 * a_ds1[cement_class])
+        * np.exp(-a_ds2[cement_class] * f_cm / f_cmo)
+        * 1e-6
+        * B_RH
+    )
+    print_d(D, f&#34;E_cd0 = {E_cd0}&#34;)
+    k_h = np.interp([h_0], h_0tab, k_htab)[0]
+    print_d(D, f&#34;k_h = {k_h}&#34;)
+
+    def B_ds(t_):
+        return (t_ - t_s) / ((t_ - t_s) + 0.04 * sqrt(h_0 ** 3))
+
+    return B_ds(t) * k_h * E_cd0
+
+
+def drying_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+    cement_class: CementClass,
+    h_0: float,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+        cement_class: class of the cement.
+        h_0: notational size.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    strain = drying(cement_class=cement_class, h_0=h_0, times=times)
+    temp_deltas = strain / config.cte
+    unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
+        config=config, response_type=response_type, temp_deltas=(1, None)
+    ).at_decks(points)
+    assert len(unit_uniforms) == len(points)
+    assert not any(np.isinf(u) or np.isnan(u) for u in unit_uniforms)
+    result = np.empty((len(points), len(times)))
+
+    @njit(parallel=True)
+    def build_result(result_, len_points):
+        for i in range(len_points):
+            result_[i] = temp_deltas * unit_uniforms[i]
+
+    build_result(result, len(points))
+    return result
+
+
+def autogenous(times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    Args:
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
+    E_cainf = 2.5 * (f_ck - 10) * 1e-6
+    print_d(D, f&#34;f_ck = {f_ck}&#34;)
+
+    def B_as(t_):
+        return 1 - np.exp(-0.2 * t_ ** 0.5)
+
+    return B_as(t) * E_cainf
+
+
+def autogenous_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to autogenous shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    strain = autogenous(times=times)
+    temp_deltas = strain / config.cte
+    unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
+        config=config, response_type=response_type, temp_deltas=(1, None)
+    ).at_decks(points)
+    assert len(unit_uniforms) == len(points)
+    assert not any(np.isinf(u) or np.isnan(u) for u in unit_uniforms)
+    result = np.empty((len(points), len(times)))
+
+    @njit(parallel=True)
+    def build_result(result_, len_points):
+        for i in range(len_points):
+            result_[i] = temp_deltas * unit_uniforms[i]
+
+    build_result(result, len(points))
+    return result
+
+
+def total(cement_class: CementClass, h_0: float, times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying and autogenous shrinkage over time.
+
+    Args:
+        cement_class: class of the cement.
+        h_0: notational size.
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    d = drying(cement_class=cement_class, h_0=h_0, times=times)
+    a = autogenous(times)
+    assert len(a) == len(d)
+    result = d + a
+    assert len(result) == len(d)
+    assert result[0] == d[0] + a[0]
+    return result
+
+
+def total_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+    cement_class: CementClass,
+    h_0: float,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+        cement_class: class of the cement.
+        h_0: notational size.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    d = drying_responses(
+        config=config,
+        response_type=response_type,
+        times=times,
+        points=points,
+        cement_class=cement_class,
+        h_0=h_0,
+    )
+    a = autogenous_responses(
+        config=config, response_type=response_type, times=times, points=points
+    )
+    assert d.shape == a.shape
+    result = np.add(d, a)
+    assert result.shape == d.shape
+    assert result[0][0] == d[0][0] + a[0][0]
+    return result
+
+
+__all__ = [
+    &#34;CementClass&#34;,
+    &#34;drying_responses&#34;,
+    &#34;drying&#34;,
+    &#34;autogenous&#34;,
+    &#34;autogenous_responses&#34;,
+    &#34;total&#34;,
+    &#34;total_responses&#34;,
+]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.shrinkage.autogenous"><code class="name flex">
+<span>def <span class="ident">autogenous</span></span>(<span>times: List[float]) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Strain due to drying shrinkage over time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute strain.</dd>
+</dl>
+<p>Returns: list of strain at each given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def autogenous(times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    Args:
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
+    E_cainf = 2.5 * (f_ck - 10) * 1e-6
+    print_d(D, f&#34;f_ck = {f_ck}&#34;)
+
+    def B_as(t_):
+        return 1 - np.exp(-0.2 * t_ ** 0.5)
+
+    return B_as(t) * E_cainf</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.shrinkage.autogenous_responses"><code class="name flex">
+<span>def <span class="ident">autogenous_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>]) -> List[List[float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses over time at points due to autogenous shrinkage.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>simulation response type.</dd>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute responses.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points where to compute responses.</dd>
+</dl>
+<p>Returns: NumPy array ordered by points then times.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def autogenous_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to autogenous shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    strain = autogenous(times=times)
+    temp_deltas = strain / config.cte
+    unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
+        config=config, response_type=response_type, temp_deltas=(1, None)
+    ).at_decks(points)
+    assert len(unit_uniforms) == len(points)
+    assert not any(np.isinf(u) or np.isnan(u) for u in unit_uniforms)
+    result = np.empty((len(points), len(times)))
+
+    @njit(parallel=True)
+    def build_result(result_, len_points):
+        for i in range(len_points):
+            result_[i] = temp_deltas * unit_uniforms[i]
+
+    build_result(result, len(points))
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.shrinkage.drying"><code class="name flex">
+<span>def <span class="ident">drying</span></span>(<span>cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, h_0: float, times: List[float]) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Strain due to drying shrinkage over time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>class of the cement.</dd>
+<dt><strong><code>h_0</code></strong></dt>
+<dd>notational size.</dd>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute strain.</dd>
+</dl>
+<p>Returns: list of strain at each given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drying(cement_class: CementClass, h_0: float, times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    Args:
+        cement_class: class of the cement.
+        h_0: notational size.
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
+    B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
+    print_d(D, f&#34;B_RH = {B_RH}&#34;)
+    E_cd0 = (
+        0.85
+        * (220 + 110 * a_ds1[cement_class])
+        * np.exp(-a_ds2[cement_class] * f_cm / f_cmo)
+        * 1e-6
+        * B_RH
+    )
+    print_d(D, f&#34;E_cd0 = {E_cd0}&#34;)
+    k_h = np.interp([h_0], h_0tab, k_htab)[0]
+    print_d(D, f&#34;k_h = {k_h}&#34;)
+
+    def B_ds(t_):
+        return (t_ - t_s) / ((t_ - t_s) + 0.04 * sqrt(h_0 ** 3))
+
+    return B_ds(t) * k_h * E_cd0</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.shrinkage.drying_responses"><code class="name flex">
+<span>def <span class="ident">drying_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, h_0: float) -> List[List[float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses over time at points due to drying shrinkage.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>simulation response type.</dd>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute responses.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points where to compute responses.</dd>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>class of the cement.</dd>
+<dt><strong><code>h_0</code></strong></dt>
+<dd>notational size.</dd>
+</dl>
+<p>Returns: NumPy array ordered by points then times.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drying_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+    cement_class: CementClass,
+    h_0: float,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+        cement_class: class of the cement.
+        h_0: notational size.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    strain = drying(cement_class=cement_class, h_0=h_0, times=times)
+    temp_deltas = strain / config.cte
+    unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
+        config=config, response_type=response_type, temp_deltas=(1, None)
+    ).at_decks(points)
+    assert len(unit_uniforms) == len(points)
+    assert not any(np.isinf(u) or np.isnan(u) for u in unit_uniforms)
+    result = np.empty((len(points), len(times)))
+
+    @njit(parallel=True)
+    def build_result(result_, len_points):
+        for i in range(len_points):
+            result_[i] = temp_deltas * unit_uniforms[i]
+
+    build_result(result, len(points))
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.shrinkage.total"><code class="name flex">
+<span>def <span class="ident">total</span></span>(<span>cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, h_0: float, times: List[float]) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Strain due to drying and autogenous shrinkage over time.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>class of the cement.</dd>
+<dt><strong><code>h_0</code></strong></dt>
+<dd>notational size.</dd>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute strain.</dd>
+</dl>
+<p>Returns: list of strain at each given time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def total(cement_class: CementClass, h_0: float, times: List[float]) -&gt; List[float]:
+    &#34;&#34;&#34;Strain due to drying and autogenous shrinkage over time.
+
+    Args:
+        cement_class: class of the cement.
+        h_0: notational size.
+        times: seconds when to compute strain.
+
+    Returns: list of strain at each given time.
+
+    &#34;&#34;&#34;
+    d = drying(cement_class=cement_class, h_0=h_0, times=times)
+    a = autogenous(times)
+    assert len(a) == len(d)
+    result = d + a
+    assert len(result) == len(d)
+    assert result[0] == d[0] + a[0]
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.shrinkage.total_responses"><code class="name flex">
+<span>def <span class="ident">total_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, h_0: float) -> List[List[float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses over time at points due to drying shrinkage.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>simulation response type.</dd>
+<dt><strong><code>times</code></strong></dt>
+<dd>seconds when to compute responses.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points where to compute responses.</dd>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>class of the cement.</dd>
+<dt><strong><code>h_0</code></strong></dt>
+<dd>notational size.</dd>
+</dl>
+<p>Returns: NumPy array ordered by points then times.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def total_responses(
+    config: Config,
+    response_type: ResponseType,
+    times: List[float],
+    points: List[Point],
+    cement_class: CementClass,
+    h_0: float,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        response_type: simulation response type.
+        times: seconds when to compute responses.
+        points: points where to compute responses.
+        cement_class: class of the cement.
+        h_0: notational size.
+
+    Returns: NumPy array ordered by points then times.
+
+    &#34;&#34;&#34;
+    d = drying_responses(
+        config=config,
+        response_type=response_type,
+        times=times,
+        points=points,
+        cement_class=cement_class,
+        h_0=h_0,
+    )
+    a = autogenous_responses(
+        config=config, response_type=response_type, times=times, points=points
+    )
+    assert d.shape == a.shape
+    result = np.add(d, a)
+    assert result.shape == d.shape
+    assert result[0][0] == d[0][0] + a[0][0]
+    return result</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.shrinkage.CementClass"><code class="flex name class">
+<span>class <span class="ident">CementClass</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cement class: BS EN 1992-1-1 31.2 (6).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CementClass(Enum):
+    &#34;&#34;&#34;Cement class: BS EN 1992-1-1 31.2 (6).&#34;&#34;&#34;
+
+    Slow = &#34;S&#34;
+    Normal = &#34;N&#34;
+    Rapid = &#34;R&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="bridge_sim.shrinkage.CementClass.Normal"><code class="name">var <span class="ident">Normal</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.shrinkage.CementClass.Rapid"><code class="name">var <span class="ident">Rapid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="bridge_sim.shrinkage.CementClass.Slow"><code class="name">var <span class="ident">Slow</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.shrinkage.autogenous" href="#bridge_sim.shrinkage.autogenous">autogenous</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.autogenous_responses" href="#bridge_sim.shrinkage.autogenous_responses">autogenous_responses</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.drying" href="#bridge_sim.shrinkage.drying">drying</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.drying_responses" href="#bridge_sim.shrinkage.drying_responses">drying_responses</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.total" href="#bridge_sim.shrinkage.total">total</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.total_responses" href="#bridge_sim.shrinkage.total_responses">total_responses</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.shrinkage.CementClass.Normal" href="#bridge_sim.shrinkage.CementClass.Normal">Normal</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.CementClass.Rapid" href="#bridge_sim.shrinkage.CementClass.Rapid">Rapid</a></code></li>
+<li><code><a title="bridge_sim.shrinkage.CementClass.Slow" href="#bridge_sim.shrinkage.CementClass.Slow">Slow</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

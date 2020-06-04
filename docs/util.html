@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.util API documentation</title>
-<meta name="description" content="Useful functions that don&#39;t belong anywhere else." />
+<meta name="description" content="A collection of potentially useful functions." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,50 +20,75 @@
 <h1 class="title">Module <code>bridge_sim.util</code></h1>
 </header>
 <section id="section-intro">
-<p>Useful functions that don't belong anywhere else.</p>
+<p>A collection of potentially useful functions.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Useful functions that don&#39;t belong anywhere else.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;A collection of potentially useful functions.&#34;&#34;&#34;
+
 from __future__ import annotations
 
 import os
 import math
-from typing import Union
+from typing import Union, List
 
 import findup
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import portalocker
-import scipy.stats as stats
 from colorama import init
+from scipy.interpolate import interp1d
 from termcolor import colored
 
 init()
 
-# If set to False, then debug statements are disabled globally.
-DEBUG = True
+
+kg_to_kn = 0.00980665
+&#34;&#34;&#34;Multiply by this to convert kg to kN.&#34;&#34;&#34;
+kn_to_kg = 1 / kg_to_kn
+&#34;&#34;&#34;Multiply by this to convert kN to kg.&#34;&#34;&#34;
+
+
+def convert_times(f: str, t: str, times: List[float]):
+    &#34;&#34;&#34;Convert time series from one unit to another.&#34;&#34;&#34;
+    second, day = &#34;second&#34;, &#34;day&#34;
+    if f == day and t == second:
+        return np.array(times) * 86400
+    if f == second and t == day:
+        return np.array(times) / 86400
+    raise ValueError(f&#34;Unrecognized: {f}, {t}&#34;)
+
+
+def apply(effect: List[float], signal: List[float]):
+    &#34;&#34;&#34;Given effect interpolated to length of given signal.
+
+    Args:
+        effect: temperature effect to interpolate to signal length.
+        signal: the signal, length of which temperature is interpolated to.
+
+    &#34;&#34;&#34;
+    i = interp1d(
+        np.linspace(0, len(signal) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000),
+    )(np.arange(len(signal)))
+    return interp1d(np.arange(len(effect)), effect)(i)
 
 
 def project_dir():
+    &#34;&#34;&#34;Root directory of the project (looks for .git file).&#34;&#34;&#34;
     return os.path.dirname(findup.glob(&#34;.git&#34;))
 
 
 def log(c: &#34;Config&#34;, s):
+    &#34;&#34;&#34;Write a string to a log file.&#34;&#34;&#34;
     with open(c.get_data_path(&#34;log&#34;, &#34;log.txt&#34;), &#34;a&#34;) as f:
         f.write(&#34;\n&#34; + s)
 
 
-def resize_units(units):
-    if units == &#34;m&#34;:
-        return (lambda r: r * 1e3), &#34;mm&#34;
-    if units == &#34;&#34;:
-        return (lambda r: r * 1e-6), &#34;&#34;
-    return None, units
-
-
 def assert_sorted(l):
+    &#34;&#34;&#34;Assert a list is sorted.&#34;&#34;&#34;
     assert all(l[i] &lt;= l[i + 1] for i in range(len(l) - 1))
 
 
@@ -73,7 +98,9 @@ st = lambda n: &#34;%s&#34; % (
 )
 
 
-def flatten(container, t):
+def flatten(container, t: type):
+    &#34;&#34;&#34;Flatten into a list of elements of type t.&#34;&#34;&#34;
+
     def _flatten(container, t):
         for i in container:
             if isinstance(i, t):
@@ -90,12 +117,9 @@ def round_m(x):
     return np.around(x, decimals=6)
 
 
-# TODO: Debug argument only needs to be of type bool, we can get the calling
-#     module&#39;s name automatically.
-# https://stackoverflow.com/questions/1095543/get-name-of-calling-functions-module-in-python
 def print_d(debug: Union[bool, str], s: str, *args, **kwargs):
     &#34;&#34;&#34;Print some debug text.&#34;&#34;&#34;
-    if DEBUG and debug:
+    if debug:
         path_str = &#34;&#34;
         if isinstance(debug, str):
             path_str = debug
@@ -204,40 +228,13 @@ def remove_except_npy(c: &#34;Config&#34;, keep: str):
 
 
 def scalar(input):
+    &#34;&#34;&#34;Accepts scalars and lists of length one, returns a scalar.&#34;&#34;&#34;
     try:
         if len(input) == 1:
             return input[0]
         raise ValueError(f&#34;Not a scalar: {input}&#34;)
     except:
         return input
-
-
-def kde_sampler(data, print_: bool = False):
-    &#34;&#34;&#34;A generator which returns samples from a KD estimate of the data.&#34;&#34;&#34;
-    kde = stats.gaussian_kde(data)
-    i = 1
-    while True:
-        if print_ and i % 100 == 0:
-            print(i, end=&#34;, &#34;, flush=True)
-        i += 1
-        yield kde.resample(1)[0][0]
-
-
-def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
-    &#34;&#34;&#34;Read CSV data from a file.
-
-    &#39;ignore&#39; first lines are ignored as are lines with &#39;&lt;= min_spaces&#39; spaces.
-
-    &#34;&#34;&#34;
-    with open(path) as f:
-        return list(
-            map(
-                lambda line: list(map(float, line.split(&#34;,&#34;))),
-                filter(
-                    lambda line: len(line.split()) &gt; min_spaces, f.readlines()[ignore],
-                ),
-            )
-        )
 
 
 def safe_str(s: str) -&gt; str:
@@ -247,10 +244,6 @@ def safe_str(s: str) -&gt; str:
     s = s.replace(&#34; &#34;, &#34;-&#34;)
     s = s.replace(&#34;.&#34;, &#34;,&#34;)
     return s.lower()
-
-
-kg_to_kn = 0.00980665
-kn_to_kg = 1 / kg_to_kn
 
 
 def flip(l, ref):
@@ -271,29 +264,85 @@ def flip(l, ref):
     return list(map(flip_, l))
 
 
-def _get_dir(directory):
+def get_dir(directory: str):
+    &#34;&#34;&#34;The given directory path but creating the directories if necessary.&#34;&#34;&#34;
     if not os.path.exists(directory):
         os.makedirs(directory)
-    return directory</code></pre>
+    return directory
+
+
+def plot_hours(df):
+    &#34;&#34;&#34;Plot a black vertical line at every 00:00.&#34;&#34;&#34;
+    label_set = False
+    for dt in df[&#34;datetime&#34;]:
+        if np.isclose(float(dt.hour + dt.minute), 0):
+            label = None
+            if not label_set:
+                label = &#34;Time at vertical line = 00:00&#34;
+                label_set = True
+            plt.axvline(x=dt, linewidth=1, color=&#34;black&#34;, label=label)</code></pre>
 </details>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="bridge_sim.util.kg_to_kn"><code class="name">var <span class="ident">kg_to_kn</span></code></dt>
+<dd>
+<div class="desc"><p>Multiply by this to convert kg to kN.</p></div>
+</dd>
+<dt id="bridge_sim.util.kn_to_kg"><code class="name">var <span class="ident">kn_to_kg</span></code></dt>
+<dd>
+<div class="desc"><p>Multiply by this to convert kN to kg.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="bridge_sim.util.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>effect: List[float], signal: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given effect interpolated to length of given signal.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>effect</code></strong></dt>
+<dd>temperature effect to interpolate to signal length.</dd>
+<dt><strong><code>signal</code></strong></dt>
+<dd>the signal, length of which temperature is interpolated to.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(effect: List[float], signal: List[float]):
+    &#34;&#34;&#34;Given effect interpolated to length of given signal.
+
+    Args:
+        effect: temperature effect to interpolate to signal length.
+        signal: the signal, length of which temperature is interpolated to.
+
+    &#34;&#34;&#34;
+    i = interp1d(
+        np.linspace(0, len(signal) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000),
+    )(np.arange(len(signal)))
+    return interp1d(np.arange(len(effect)), effect)(i)</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.util.assert_sorted"><code class="name flex">
 <span>def <span class="ident">assert_sorted</span></span>(<span>l)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Assert a list is sorted.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def assert_sorted(l):
+    &#34;&#34;&#34;Assert a list is sorted.&#34;&#34;&#34;
     assert all(l[i] &lt;= l[i + 1] for i in range(len(l) - 1))</code></pre>
 </details>
 </dd>
@@ -321,16 +370,37 @@ def _get_dir(directory):
     clean_dir(c.generated_data_dir())</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.util.flatten"><code class="name flex">
-<span>def <span class="ident">flatten</span></span>(<span>container, t)</span>
+<dt id="bridge_sim.util.convert_times"><code class="name flex">
+<span>def <span class="ident">convert_times</span></span>(<span>f: str, t: str, times: List[float])</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Convert time series from one unit to another.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def flatten(container, t):
+<pre><code class="python">def convert_times(f: str, t: str, times: List[float]):
+    &#34;&#34;&#34;Convert time series from one unit to another.&#34;&#34;&#34;
+    second, day = &#34;second&#34;, &#34;day&#34;
+    if f == day and t == second:
+        return np.array(times) * 86400
+    if f == second and t == day:
+        return np.array(times) / 86400
+    raise ValueError(f&#34;Unrecognized: {f}, {t}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.util.flatten"><code class="name flex">
+<span>def <span class="ident">flatten</span></span>(<span>container, t: type)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Flatten into a list of elements of type t.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flatten(container, t: type):
+    &#34;&#34;&#34;Flatten into a list of elements of type t.&#34;&#34;&#34;
+
     def _flatten(container, t):
         for i in container:
             if isinstance(i, t):
@@ -369,36 +439,33 @@ def _get_dir(directory):
     return list(map(flip_, l))</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.util.kde_sampler"><code class="name flex">
-<span>def <span class="ident">kde_sampler</span></span>(<span>data, print_: bool = False)</span>
+<dt id="bridge_sim.util.get_dir"><code class="name flex">
+<span>def <span class="ident">get_dir</span></span>(<span>directory: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A generator which returns samples from a KD estimate of the data.</p></div>
+<div class="desc"><p>The given directory path but creating the directories if necessary.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def kde_sampler(data, print_: bool = False):
-    &#34;&#34;&#34;A generator which returns samples from a KD estimate of the data.&#34;&#34;&#34;
-    kde = stats.gaussian_kde(data)
-    i = 1
-    while True:
-        if print_ and i % 100 == 0:
-            print(i, end=&#34;, &#34;, flush=True)
-        i += 1
-        yield kde.resample(1)[0][0]</code></pre>
+<pre><code class="python">def get_dir(directory: str):
+    &#34;&#34;&#34;The given directory path but creating the directories if necessary.&#34;&#34;&#34;
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    return directory</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.util.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>c: "'Config'", s)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Write a string to a log file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log(c: &#34;Config&#34;, s):
+    &#34;&#34;&#34;Write a string to a log file.&#34;&#34;&#34;
     with open(c.get_data_path(&#34;log&#34;, &#34;log.txt&#34;), &#34;a&#34;) as f:
         f.write(&#34;\n&#34; + s)</code></pre>
 </details>
@@ -423,6 +490,27 @@ def _get_dir(directory):
         return i</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.util.plot_hours"><code class="name flex">
+<span>def <span class="ident">plot_hours</span></span>(<span>df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot a black vertical line at every 00:00.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_hours(df):
+    &#34;&#34;&#34;Plot a black vertical line at every 00:00.&#34;&#34;&#34;
+    label_set = False
+    for dt in df[&#34;datetime&#34;]:
+        if np.isclose(float(dt.hour + dt.minute), 0):
+            label = None
+            if not label_set:
+                label = &#34;Time at vertical line = 00:00&#34;
+                label_set = True
+            plt.axvline(x=dt, linewidth=1, color=&#34;black&#34;, label=label)</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.util.print_d"><code class="name flex">
 <span>def <span class="ident">print_d</span></span>(<span>debug: Union[bool, str], s: str, *args, **kwargs)</span>
 </code></dt>
@@ -434,7 +522,7 @@ def _get_dir(directory):
 </summary>
 <pre><code class="python">def print_d(debug: Union[bool, str], s: str, *args, **kwargs):
     &#34;&#34;&#34;Print some debug text.&#34;&#34;&#34;
-    if DEBUG and debug:
+    if debug:
         path_str = &#34;&#34;
         if isinstance(debug, str):
             path_str = debug
@@ -487,40 +575,14 @@ def _get_dir(directory):
 <span>def <span class="ident">project_dir</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Root directory of the project (looks for .git file).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def project_dir():
+    &#34;&#34;&#34;Root directory of the project (looks for .git file).&#34;&#34;&#34;
     return os.path.dirname(findup.glob(&#34;.git&#34;))</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.util.read_csv"><code class="name flex">
-<span>def <span class="ident">read_csv</span></span>(<span>path: str, min_spaces: int = 0, ignore: int = 1)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Read CSV data from a file.</p>
-<p>'ignore' first lines are ignored as are lines with '&lt;= min_spaces' spaces.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def read_csv(path: str, min_spaces: int = 0, ignore: int = 1):
-    &#34;&#34;&#34;Read CSV data from a file.
-
-    &#39;ignore&#39; first lines are ignored as are lines with &#39;&lt;= min_spaces&#39; spaces.
-
-    &#34;&#34;&#34;
-    with open(path) as f:
-        return list(
-            map(
-                lambda line: list(map(float, line.split(&#34;,&#34;))),
-                filter(
-                    lambda line: len(line.split()) &gt; min_spaces, f.readlines()[ignore],
-                ),
-            )
-        )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.util.remove_except_npy"><code class="name flex">
@@ -552,23 +614,6 @@ def _get_dir(directory):
                 clean_dir(os.path.join(root, dir_name))
 
     clean_dir(c.generated_data_dir())</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.util.resize_units"><code class="name flex">
-<span>def <span class="ident">resize_units</span></span>(<span>units)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def resize_units(units):
-    if units == &#34;m&#34;:
-        return (lambda r: r * 1e3), &#34;mm&#34;
-    if units == &#34;&#34;:
-        return (lambda r: r * 1e-6), &#34;&#34;
-    return None, units</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.util.round_m"><code class="name flex">
@@ -607,12 +652,13 @@ def _get_dir(directory):
 <span>def <span class="ident">scalar</span></span>(<span>input)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Accepts scalars and lists of length one, returns a scalar.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def scalar(input):
+    &#34;&#34;&#34;Accepts scalars and lists of length one, returns a scalar.&#34;&#34;&#34;
     try:
         if len(input) == 1:
             return input[0]
@@ -698,23 +744,30 @@ def _get_dir(directory):
 <li><code><a title="bridge_sim" href="index.html">bridge_sim</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.util.kg_to_kn" href="#bridge_sim.util.kg_to_kn">kg_to_kn</a></code></li>
+<li><code><a title="bridge_sim.util.kn_to_kg" href="#bridge_sim.util.kn_to_kg">kn_to_kg</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
+<li><code><a title="bridge_sim.util.apply" href="#bridge_sim.util.apply">apply</a></code></li>
 <li><code><a title="bridge_sim.util.assert_sorted" href="#bridge_sim.util.assert_sorted">assert_sorted</a></code></li>
 <li><code><a title="bridge_sim.util.clean_generated" href="#bridge_sim.util.clean_generated">clean_generated</a></code></li>
+<li><code><a title="bridge_sim.util.convert_times" href="#bridge_sim.util.convert_times">convert_times</a></code></li>
 <li><code><a title="bridge_sim.util.flatten" href="#bridge_sim.util.flatten">flatten</a></code></li>
 <li><code><a title="bridge_sim.util.flip" href="#bridge_sim.util.flip">flip</a></code></li>
-<li><code><a title="bridge_sim.util.kde_sampler" href="#bridge_sim.util.kde_sampler">kde_sampler</a></code></li>
+<li><code><a title="bridge_sim.util.get_dir" href="#bridge_sim.util.get_dir">get_dir</a></code></li>
 <li><code><a title="bridge_sim.util.log" href="#bridge_sim.util.log">log</a></code></li>
 <li><code><a title="bridge_sim.util.nearest_index" href="#bridge_sim.util.nearest_index">nearest_index</a></code></li>
+<li><code><a title="bridge_sim.util.plot_hours" href="#bridge_sim.util.plot_hours">plot_hours</a></code></li>
 <li><code><a title="bridge_sim.util.print_d" href="#bridge_sim.util.print_d">print_d</a></code></li>
 <li><code><a title="bridge_sim.util.print_i" href="#bridge_sim.util.print_i">print_i</a></code></li>
 <li><code><a title="bridge_sim.util.print_s" href="#bridge_sim.util.print_s">print_s</a></code></li>
 <li><code><a title="bridge_sim.util.print_w" href="#bridge_sim.util.print_w">print_w</a></code></li>
 <li><code><a title="bridge_sim.util.project_dir" href="#bridge_sim.util.project_dir">project_dir</a></code></li>
-<li><code><a title="bridge_sim.util.read_csv" href="#bridge_sim.util.read_csv">read_csv</a></code></li>
 <li><code><a title="bridge_sim.util.remove_except_npy" href="#bridge_sim.util.remove_except_npy">remove_except_npy</a></code></li>
-<li><code><a title="bridge_sim.util.resize_units" href="#bridge_sim.util.resize_units">resize_units</a></code></li>
 <li><code><a title="bridge_sim.util.round_m" href="#bridge_sim.util.round_m">round_m</a></code></li>
 <li><code><a title="bridge_sim.util.safe_str" href="#bridge_sim.util.safe_str">safe_str</a></code></li>
 <li><code><a title="bridge_sim.util.scalar" href="#bridge_sim.util.scalar">scalar</a></code></li>

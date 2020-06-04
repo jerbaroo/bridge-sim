@@ -1,11 +1,6 @@
 from datetime import datetime
 
-from bridge_sim.bridges import bridge_705
-from bridge_sim.configs import opensees_default
 from bridge_sim import temperature
-
-c = opensees_default(bridge_705(0.5))
-c.il_num_loads = 10
 
 
 def test_resize():

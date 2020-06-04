@@ -45,7 +45,7 @@ from bridge_sim.model import (
     Config,
 )
 from bridge_sim.sim.util import _responses_path
-from bridge_sim.util import round_m, safe_str, resize_units, nearest_index, print_i
+from bridge_sim.util import round_m, safe_str, nearest_index, print_i
 from scipy.interpolate import griddata, interp1d, interp2d
 from scipy.spatial import distance
 
@@ -385,8 +385,6 @@ class SimParams:
 
         &#34;&#34;&#34;
         load_str = &#34;&#34;
-        for pier_settlement in self.pier_settlement:
-            load_str += pier_settlement.id_str()
         if self.axial_delta_temp is not None:
             load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
         if self.moment_delta_temp is not None:
@@ -414,10 +412,10 @@ class Responses:
             raise ValueError(&#34;No fem found&#34;)
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
-        self.units = response_type.units() if units is None else units
+        self.units = units
         self.raw_responses = responses
         self.num_sensors = len(responses)
-        # Nested dictionaries for indexing fem by position.
+        # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
         if build:
             for response, p in responses:
@@ -469,48 +467,50 @@ class Responses:
                         self.responses[time][x][y][z] = f(response)
         return self
 
-    def resize(self):
-        &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
-        responses = self
-        resize_f, units = resize_units(self.units)
-        if resize_f is not None:
-            responses = responses.map(resize_f)
-            responses.units = units
-        return responses
-
-    def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+    def without(self, remove: Callable[[Point, float], bool]) -&gt; &#34;Responses&#34;:
         responses = []
         for x, y_dict in self.responses[self.times[0]].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
                     p = Point(x=x, y=y, z=z)
-                    if not remove(p):
+                    if not remove(p, response):
                         responses.append((response, p))
                     # if abs(p.distance(of)) &gt; radius:
         return Responses(
             response_type=self.response_type, responses=responses, units=self.units
         )
 
+    def without_nan_inf(self):
+        &#34;&#34;&#34;Copy of these Responses without NaN or INF values.&#34;&#34;&#34;
+        return self.without(lambda p, r: np.isnan(r) or np.isinf(r))
+
+    def add_temp_strain(
+        self, config: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
+    ):
+        &#34;&#34;&#34;Convert responses, adding free and restrained strain.&#34;&#34;&#34;
+        if not self.response_type.is_strain():
+            raise ValueError(f&#34;Can only convert Strain not {self.response_type}&#34;)
+        uniform_delta, linear_delta = temp_deltas
+        if uniform_delta is not None and linear_delta is not None:
+            raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
+        if uniform_delta is not None:
+            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+        if linear_delta is not None:
+            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
+
     def to_stress(self, bridge: Bridge):
-        &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
-        if self.response_type == ResponseType.Strain:
-            self.response_type = ResponseType.Stress
-        elif self.response_type == ResponseType.StrainT:
-            self.response_type = ResponseType.StressT
-        elif self.response_type == ResponseType.StrainZZB:
-            self.response_type = ResponseType.StressZZB
-        else:
-            raise ValueError(f&#34;Responses must be strain fem&#34;)
+        &#34;&#34;&#34;Convert strain responses to stress responses.&#34;&#34;&#34;
+        self.response_type = self.response_type.to_stress()
         if len(bridge.sections) == 1:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
         else:
 
-            def _map(r, x, y, z):
-                return r * bridge.deck_section_at(x=x, z=z).youngs
+            def _map(response, x, y, z):
+                return response * bridge.deck_section_at(x=x, z=z).youngs
 
             self.map(_map, xyz=True)
-        self.units = self.response_type.units()
+        self.units = None  # We don&#39;t know units since strain is unit-less.
         return self
 
     def values(self, point: bool = False):
@@ -800,7 +800,7 @@ class ManyResponses:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11f32df80>, all_pier_elements: <function NewType.<locals>.new_type at 0x11f33e170>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x117c1e0e0>, all_pier_elements: <function NewType.<locals>.new_type at 0x117c1e290>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -821,7 +821,7 @@ class ManyResponses:
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11f32d710>, all_support_nodes: <function NewType.<locals>.new_type at 0x11f32d950>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x117c26830>, all_support_nodes: <function NewType.<locals>.new_type at 0x117c26a70>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1391,10 +1391,10 @@ class ManyResponses:
             raise ValueError(&#34;No fem found&#34;)
         assert isinstance(responses[0][1], Point)
         self.response_type = response_type
-        self.units = response_type.units() if units is None else units
+        self.units = units
         self.raw_responses = responses
         self.num_sensors = len(responses)
-        # Nested dictionaries for indexing fem by position.
+        # Nested dictionaries for indexing responses by position.
         self.responses = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
         if build:
             for response, p in responses:
@@ -1446,48 +1446,50 @@ class ManyResponses:
                         self.responses[time][x][y][z] = f(response)
         return self
 
-    def resize(self):
-        &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
-        responses = self
-        resize_f, units = resize_units(self.units)
-        if resize_f is not None:
-            responses = responses.map(resize_f)
-            responses.units = units
-        return responses
-
-    def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+    def without(self, remove: Callable[[Point, float], bool]) -&gt; &#34;Responses&#34;:
         responses = []
         for x, y_dict in self.responses[self.times[0]].items():
             for y, z_dict in y_dict.items():
                 for z, response in z_dict.items():
                     p = Point(x=x, y=y, z=z)
-                    if not remove(p):
+                    if not remove(p, response):
                         responses.append((response, p))
                     # if abs(p.distance(of)) &gt; radius:
         return Responses(
             response_type=self.response_type, responses=responses, units=self.units
         )
 
+    def without_nan_inf(self):
+        &#34;&#34;&#34;Copy of these Responses without NaN or INF values.&#34;&#34;&#34;
+        return self.without(lambda p, r: np.isnan(r) or np.isinf(r))
+
+    def add_temp_strain(
+        self, config: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
+    ):
+        &#34;&#34;&#34;Convert responses, adding free and restrained strain.&#34;&#34;&#34;
+        if not self.response_type.is_strain():
+            raise ValueError(f&#34;Can only convert Strain not {self.response_type}&#34;)
+        uniform_delta, linear_delta = temp_deltas
+        if uniform_delta is not None and linear_delta is not None:
+            raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
+        if uniform_delta is not None:
+            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+        if linear_delta is not None:
+            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
+
     def to_stress(self, bridge: Bridge):
-        &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
-        if self.response_type == ResponseType.Strain:
-            self.response_type = ResponseType.Stress
-        elif self.response_type == ResponseType.StrainT:
-            self.response_type = ResponseType.StressT
-        elif self.response_type == ResponseType.StrainZZB:
-            self.response_type = ResponseType.StressZZB
-        else:
-            raise ValueError(f&#34;Responses must be strain fem&#34;)
+        &#34;&#34;&#34;Convert strain responses to stress responses.&#34;&#34;&#34;
+        self.response_type = self.response_type.to_stress()
         if len(bridge.sections) == 1:
             youngs = bridge.sections[0].youngs
             self.map(lambda r: r * youngs)
         else:
 
-            def _map(r, x, y, z):
-                return r * bridge.deck_section_at(x=x, z=z).youngs
+            def _map(response, x, y, z):
+                return response * bridge.deck_section_at(x=x, z=z).youngs
 
             self.map(_map, xyz=True)
-        self.units = self.response_type.units()
+        self.units = None  # We don&#39;t know units since strain is unit-less.
         return self
 
     def values(self, point: bool = False):
@@ -1660,6 +1662,30 @@ class ManyResponses:
     return self</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.sim.model.Responses.add_temp_strain"><code class="name flex">
+<span>def <span class="ident">add_temp_strain</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, temp_deltas: Tuple[Union[float, NoneType], Union[float, NoneType]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert responses, adding free and restrained strain.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_temp_strain(
+    self, config: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
+):
+    &#34;&#34;&#34;Convert responses, adding free and restrained strain.&#34;&#34;&#34;
+    if not self.response_type.is_strain():
+        raise ValueError(f&#34;Can only convert Strain not {self.response_type}&#34;)
+    uniform_delta, linear_delta = temp_deltas
+    if uniform_delta is not None and linear_delta is not None:
+        raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
+    if uniform_delta is not None:
+        return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+    if linear_delta is not None:
+        return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.sim.model.Responses.at_deck"><code class="name flex">
 <span>def <span class="ident">at_deck</span></span>(<span>self, point: <a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>, interp: bool, grid_interp: bool = True)</span>
 </code></dt>
@@ -1784,54 +1810,28 @@ class ManyResponses:
     return self</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.model.Responses.resize"><code class="name flex">
-<span>def <span class="ident">resize</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns the same fem, possibly resized.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def resize(self):
-    &#34;&#34;&#34;Returns the same fem, possibly resized.&#34;&#34;&#34;
-    responses = self
-    resize_f, units = resize_units(self.units)
-    if resize_f is not None:
-        responses = responses.map(resize_f)
-        responses.units = units
-    return responses</code></pre>
-</details>
-</dd>
 <dt id="bridge_sim.sim.model.Responses.to_stress"><code class="name flex">
 <span>def <span class="ident">to_stress</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Convert strains to stresses.</p></div>
+<div class="desc"><p>Convert strain responses to stress responses.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_stress(self, bridge: Bridge):
-    &#34;&#34;&#34;Convert strains to stresses.&#34;&#34;&#34;
-    if self.response_type == ResponseType.Strain:
-        self.response_type = ResponseType.Stress
-    elif self.response_type == ResponseType.StrainT:
-        self.response_type = ResponseType.StressT
-    elif self.response_type == ResponseType.StrainZZB:
-        self.response_type = ResponseType.StressZZB
-    else:
-        raise ValueError(f&#34;Responses must be strain fem&#34;)
+    &#34;&#34;&#34;Convert strain responses to stress responses.&#34;&#34;&#34;
+    self.response_type = self.response_type.to_stress()
     if len(bridge.sections) == 1:
         youngs = bridge.sections[0].youngs
         self.map(lambda r: r * youngs)
     else:
 
-        def _map(r, x, y, z):
-            return r * bridge.deck_section_at(x=x, z=z).youngs
+        def _map(response, x, y, z):
+            return response * bridge.deck_section_at(x=x, z=z).youngs
 
         self.map(_map, xyz=True)
-    self.units = self.response_type.units()
+    self.units = None  # We don&#39;t know units since strain is unit-less.
     return self</code></pre>
 </details>
 </dd>
@@ -1857,7 +1857,7 @@ class ManyResponses:
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.Responses.without"><code class="name flex">
-<span>def <span class="ident">without</span></span>(<span>self, remove: Callable[[bridge_sim.model.Point], bool]) -> <a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></span>
+<span>def <span class="ident">without</span></span>(<span>self, remove: Callable[[bridge_sim.model.Point, float], bool]) -> <a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1865,13 +1865,13 @@ class ManyResponses:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def without(self, remove: Callable[[Point], bool]) -&gt; &#34;Responses&#34;:
+<pre><code class="python">def without(self, remove: Callable[[Point, float], bool]) -&gt; &#34;Responses&#34;:
     responses = []
     for x, y_dict in self.responses[self.times[0]].items():
         for y, z_dict in y_dict.items():
             for z, response in z_dict.items():
                 p = Point(x=x, y=y, z=z)
-                if not remove(p):
+                if not remove(p, response):
                     responses.append((response, p))
                 # if abs(p.distance(of)) &gt; radius:
     return Responses(
@@ -1879,11 +1879,25 @@ class ManyResponses:
     )</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.sim.model.Responses.without_nan_inf"><code class="name flex">
+<span>def <span class="ident">without_nan_inf</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Copy of these Responses without NaN or INF values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def without_nan_inf(self):
+    &#34;&#34;&#34;Copy of these Responses without NaN or INF values.&#34;&#34;&#34;
+    return self.without(lambda p, r: np.isnan(r) or np.isinf(r))</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11f32add0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x117c1ccb0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>
@@ -2258,8 +2272,6 @@ displacement in meters is reached.</dd>
 
         &#34;&#34;&#34;
         load_str = &#34;&#34;
-        for pier_settlement in self.pier_settlement:
-            load_str += pier_settlement.id_str()
         if self.axial_delta_temp is not None:
             load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
         if self.moment_delta_temp is not None:
@@ -2311,8 +2323,6 @@ currently assumed that a simulation saves all output files.</p></div>
 
     &#34;&#34;&#34;
     load_str = &#34;&#34;
-    for pier_settlement in self.pier_settlement:
-        load_str += pier_settlement.id_str()
     if self.axial_delta_temp is not None:
         load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
     if self.moment_delta_temp is not None:
@@ -2402,14 +2412,15 @@ currently assumed that a simulation saves all output files.</p></div>
 <li><code><b><a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></b></code>:
 <ul class="hlist">
 <li><code><a title="bridge_sim.sim.model.Responses.add" href="#bridge_sim.sim.model.Responses.add">add</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.add_temp_strain" href="#bridge_sim.sim.model.Responses.add_temp_strain">add_temp_strain</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.at_deck" href="#bridge_sim.sim.model.Responses.at_deck">at_deck</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.at_decks" href="#bridge_sim.sim.model.Responses.at_decks">at_decks</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.deck_points" href="#bridge_sim.sim.model.Responses.deck_points">deck_points</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.index" href="#bridge_sim.sim.model.Responses.index">index</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.map" href="#bridge_sim.sim.model.Responses.map">map</a></code></li>
-<li><code><a title="bridge_sim.sim.model.Responses.resize" href="#bridge_sim.sim.model.Responses.resize">resize</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.to_stress" href="#bridge_sim.sim.model.Responses.to_stress">to_stress</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.values" href="#bridge_sim.sim.model.Responses.values">values</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.without_nan_inf" href="#bridge_sim.sim.model.Responses.without_nan_inf">without_nan_inf</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2464,16 +2475,17 @@ currently assumed that a simulation saves all output files.</p></div>
 <h4><code><a title="bridge_sim.sim.model.Responses" href="#bridge_sim.sim.model.Responses">Responses</a></code></h4>
 <ul class="two-column">
 <li><code><a title="bridge_sim.sim.model.Responses.add" href="#bridge_sim.sim.model.Responses.add">add</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.add_temp_strain" href="#bridge_sim.sim.model.Responses.add_temp_strain">add_temp_strain</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.at_deck" href="#bridge_sim.sim.model.Responses.at_deck">at_deck</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.at_decks" href="#bridge_sim.sim.model.Responses.at_decks">at_decks</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.at_shells" href="#bridge_sim.sim.model.Responses.at_shells">at_shells</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.deck_points" href="#bridge_sim.sim.model.Responses.deck_points">deck_points</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.index" href="#bridge_sim.sim.model.Responses.index">index</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.map" href="#bridge_sim.sim.model.Responses.map">map</a></code></li>
-<li><code><a title="bridge_sim.sim.model.Responses.resize" href="#bridge_sim.sim.model.Responses.resize">resize</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.to_stress" href="#bridge_sim.sim.model.Responses.to_stress">to_stress</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.values" href="#bridge_sim.sim.model.Responses.values">values</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Responses.without" href="#bridge_sim.sim.model.Responses.without">without</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Responses.without_nan_inf" href="#bridge_sim.sim.model.Responses.without_nan_inf">without_nan_inf</a></code></li>
 </ul>
 </li>
 <li>

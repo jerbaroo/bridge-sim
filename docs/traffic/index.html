@@ -42,10 +42,14 @@ from bridge_sim.util import print_i, print_d, st, safe_str
 
 D = False
 
-# A list of vehicles, time they enter/leave the bridge, and a boolean if they are
-# entering (true) or leaving. This sequence should be time ordered. This is a
-# memory efficient representation of traffic.
 TrafficSequence = NewType(&#34;TrafficSequence&#34;, List[Tuple[Vehicle, float, bool]])
+&#34;&#34;&#34;Vehicles and times when they enter/leave a bridge.
+
+ A list of (vehicle, enter/leave time, E), where E is a boolean if they are
+ entering (true) or leaving. This sequence should be time ordered. This is a
+ memory efficient representation of traffic.
+ 
+&#34;&#34;&#34;
 
 # A list of vehicles per lane per time step. This representation naturally fits
 # the semantics of real life traffic on a bridge. Useful for plotting.
@@ -496,6 +500,19 @@ def load_traffic(
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="bridge_sim.traffic.TrafficSequence"><code class="name flex">
+<span>def <span class="ident">TrafficSequence</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_type(x):
+    return x</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.traffic.arrival"><code class="name flex">
 <span>def <span class="ident">arrival</span></span>(<span>beta: float, min_d: float)</span>
 </code></dt>
@@ -625,7 +642,7 @@ def load_traffic(
 </details>
 </dd>
 <dt id="bridge_sim.traffic.to_traffic"><code class="name flex">
-<span>def <span class="ident">to_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x10b3a8e60>, max_time: float, warm_up: bool = True) -> <function NewType.<locals>.new_type at 0x11f26c440></span>
+<span>def <span class="ident">to_traffic</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x103919e60>, max_time: float, warm_up: bool = True) -> <function NewType.<locals>.new_type at 0x116ccb440></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p></div>
@@ -675,7 +692,7 @@ def load_traffic(
 </details>
 </dd>
 <dt id="bridge_sim.traffic.to_traffic_array"><code class="name flex">
-<span>def <span class="ident">to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x10b3a8e60>, max_time: float, warm_up: bool = True, new: bool = True) -> <function NewType.<locals>.new_type at 0x11f26c440></span>
+<span>def <span class="ident">to_traffic_array</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <function NewType.<locals>.new_type at 0x103919e60>, max_time: float, warm_up: bool = True, new: bool = True) -> <function NewType.<locals>.new_type at 0x116ccb440></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a 'TrafficSequence' to 'Traffic'.</p>
@@ -1083,7 +1100,7 @@ the point where the vehicles will enter on that lane.</p>
 </details>
 </dd>
 <dt id="bridge_sim.traffic.TrafficScenario.traffic_sequence"><code class="name flex">
-<span>def <span class="ident">traffic_sequence</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, max_time: float, adjust: bool = True) -> <function NewType.<locals>.new_type at 0x10b3a8e60></span>
+<span>def <span class="ident">traffic_sequence</span></span>(<span>self, bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, max_time: float, adjust: bool = True) -> <function NewType.<locals>.new_type at 0x103919e60></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate a 'TrafficSequence' under this traffic scenario.</p>
@@ -1204,6 +1221,7 @@ There is one additional event after 'max_time' is reached.</p>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="bridge_sim.traffic.TrafficSequence" href="#bridge_sim.traffic.TrafficSequence">TrafficSequence</a></code></li>
 <li><code><a title="bridge_sim.traffic.arrival" href="#bridge_sim.traffic.arrival">arrival</a></code></li>
 <li><code><a title="bridge_sim.traffic.load_traffic" href="#bridge_sim.traffic.load_traffic">load_traffic</a></code></li>
 <li><code><a title="bridge_sim.traffic.loads_to_traffic_array" href="#bridge_sim.traffic.loads_to_traffic_array">loads_to_traffic_array</a></code></li>
