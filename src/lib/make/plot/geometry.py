@@ -5,7 +5,7 @@ from matplotlib.cm import get_cmap
 
 from bridge_sim.model import Config, Point
 
-from bridge_sim.sim import without
+from bridge_sim.sim.responses import without
 from bridge_sim.sim.build import get_bridge_nodes, get_bridge_shells
 from bridge_sim.sim.model import BuildContext, Node, Shell, SimParams
 from lib.plot import default_cmap, legend_marker_size, parula_cmap, plt

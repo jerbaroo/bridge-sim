@@ -1,4 +1,4 @@
-"""The core classes: Bridge, Config, PointLoad etc."""
+"""Classes for building bridges and running simulations."""
 
 import os
 from enum import Enum
@@ -170,6 +170,7 @@ class ResponseType(Enum):
         if self == ResponseType.StrainZZT:
             return ResponseType.StressZZT
         raise ValueError(f"Responses must be a strain type")
+
 
 # Shorthand for ResponseType.
 RT = ResponseType
