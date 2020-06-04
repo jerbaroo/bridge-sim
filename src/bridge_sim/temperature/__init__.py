@@ -238,6 +238,7 @@ def effect(
     Returns: NumPy array of temperature effect, indexed by point then time.
 
     """
+    bridge_sim.print_w("Make sure calculating profile from entire year!!")
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
