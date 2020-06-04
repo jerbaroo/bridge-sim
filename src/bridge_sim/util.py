@@ -7,11 +7,12 @@ import math
 from typing import Union, List
 
 import findup
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import portalocker
-import scipy.stats as stats
 from colorama import init
+from scipy.interpolate import interp1d
 from termcolor import colored
 
 init()
@@ -31,6 +32,21 @@ def convert_times(f: str, t: str, times: List[float]):
     if f == second and t == day:
         return np.array(times) / 86400
     raise ValueError(f"Unrecognized: {f}, {t}")
+
+
+def apply(effect: List[float], signal: List[float]):
+    """Given effect interpolated to length of given signal.
+
+    Args:
+        effect: temperature effect to interpolate to signal length.
+        signal: the signal, length of which temperature is interpolated to.
+
+    """
+    i = interp1d(
+        np.linspace(0, len(signal) - 1, 10000),
+        np.linspace(0, len(effect) - 1, 10000),
+    )(np.arange(len(signal)))
+    return interp1d(np.arange(len(effect)), effect)(i)
 
 
 def project_dir():
@@ -226,3 +242,15 @@ def get_dir(directory: str):
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
+
+
+def plot_hours(df):
+    """Plot a black vertical line at every 00:00."""
+    label_set = False
+    for dt in df["datetime"]:
+        if np.isclose(float(dt.hour + dt.minute), 0):
+            label = None
+            if not label_set:
+                label = "Time at vertical line = 00:00"
+                label_set = True
+            plt.axvline(x=dt, linewidth=1, color="black", label=label)

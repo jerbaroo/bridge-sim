@@ -13,7 +13,7 @@ from lib.plot.geometry import top_view_bridge
 from lib.plot.responses import plot_contour_deck
 
 
-def unit_loads(c: Config, run_only: bool, scatter: bool):
+def unit_loads(c: Config, scatter: bool):
     """Contour plots of unit loads, OpenSees and AxisVM."""
     positions = [
         (35, 9.65, "a"),
@@ -54,8 +54,6 @@ def unit_loads(c: Config, run_only: bool, scatter: bool):
             else:
                 os_responses.units = "mm"
                 os_responses = os_responses.map(lambda x: x * 1e3)
-            if run_only:
-                continue
             title = (
                 f"{os_responses.response_type.name()} from a {point_loads[0].load} kN point load at"
                 + f"\nx = {np.round(load_x, 3)} m, z = {np.round(load_z, 3)} m, with "

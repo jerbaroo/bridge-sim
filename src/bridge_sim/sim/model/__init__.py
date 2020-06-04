@@ -454,7 +454,7 @@ class Responses:
         )
 
     def add_temp_strain(
-        self, c: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
+        self, config: Config, temp_deltas: Tuple[Optional[float], Optional[float]]
     ):
         """Convert responses, adding free and restrained strain."""
         if not self.response_type.is_strain():
@@ -463,9 +463,9 @@ class Responses:
         if uniform_delta is not None and linear_delta is not None:
             raise ValueError("Must be ONLY uniform or linear temperature delta")
         if uniform_delta is not None:
-            return self.map(lambda r: (r * 1e-6) - (1 * c.cte * uniform_delta))
+            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
         if linear_delta is not None:
-            return self.map(lambda r: r * 1e-6 + (0.5 * c.cte * linear_delta))
+            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
 
     def to_stress(self, bridge: Bridge):
         """Convert strain responses to stress responses."""

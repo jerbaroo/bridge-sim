@@ -11,6 +11,7 @@ from typing import List, Optional, Tuple
 
 import bridge_sim.sim
 import bridge_sim.sim.responses
+import bridge_sim.util
 import matplotlib
 import matplotlib.cm as cm
 import numpy as np
@@ -115,7 +116,7 @@ def per_sensor_plots(
     print_i(f"Strain sensors with missing positions = {labels_ignored}")
 
     # Sort by sensor number and setup groupby sensor label.
-    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    tno_strain_meas["sort"] = bridge_sim.util.apply(lambda x: int(x[1:]))
     print_i(f"Filtered strain sensors starting with {strain_sensors_startwith} =")
     print_i(f"  {sorted(set(map(int, tno_strain_meas['sort'])))}")
 
@@ -236,7 +237,7 @@ def per_sensor_plots(
     displa_meas = pd.DataFrame(_meas.loc[_meas["sensortype"] == "displacements"])
 
     # Sort by sensor number and setup groupby sensor label.
-    displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
+    displa_meas["sort"] = bridge_sim.util.apply(lambda x: int(x[1:]))
     displa_meas = displa_meas.sort_values(by=["sort"])
     displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
     displa_sensor_labels = [sensor_label for sensor_label, _ in displa_groupby]

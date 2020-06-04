@@ -7,6 +7,7 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 import os
 import pdb
 
+import lib.make.temperature
 import lib.make.validation
 import pathos.multiprocessing as multiprocessing
 import sys
@@ -18,8 +19,8 @@ from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
 from bridge_sim.vehicles import truck1
 from lib.validate import _truck1_x_pos
-from lib.make import paramselect, validation
-from lib.make.plot import classification as classification_, contour as contour_
+from lib.make import paramselect
+from lib.make.plot import contour as contour_
 from lib.make.plot import geometry as geometry_
 from lib.make.plot import vehicle, verification
 from bridge_sim.bridges.bridge_705 import bridge_705
@@ -319,12 +320,11 @@ def verify():
 
 
 @verify.command(help="Contour plots of point loads.")
-@click.option("--run-only", is_flag=True, help="Only run simulations, don't plot.")
 @click.option("--scatter", is_flag=True, help="Scatter plot instead of contour plot.")
-def point_loads(run_only: float, scatter: bool):
+def point_loads(scatter: bool):
     if not two_materials_:
         raise ValueError("You need the --two-materials option!")
-    lib.make.validation.unit_loads(c=c(), run_only=run_only, scatter=scatter)
+    lib.make.validation.unit_loads(c=c(), scatter=scatter)
 
 
 @verify.command(help="Contour plots of pier settlement.")
@@ -350,11 +350,16 @@ def shrinkage():
     shrinkage.plot_total_shrinkage(c())
 
 
-@verify.command(help="Plots of time series of shrinkage.")
+@verify.command(help="Plots of time series of creep.")
 def creep():
     from lib.make import creep
 
     creep.plot_creep(c())
+
+
+@verify.command(help="Plots of time series of temperature effect.")
+def temp_effect():
+    lib.make.temperature.temperature_effect(c(), "holly-springs")
 
 
 ############
@@ -365,11 +370,6 @@ def creep():
 @cli.group(help="Validate the generated FEM of bridge 705.")
 def validate():
     pass
-
-
-@validate.command(help="Plots of temperature against sensor fem.")
-def temp_sensors():
-    verification.temp_plots()
 
 
 @validate.command(help="Regression plots against bridge 705 measurements.")
@@ -480,37 +480,17 @@ def stress_strength(top):
     validate.stress_strength_plot(c=c(), top=top)
 
 
-#################
-##### Param #####
-#################
+##########
+# Thesis #
+##########
 
 
-@cli.group(help="Information for parameter selection.")
-def params():
+@cli.group(help="Additional plots for my thesis.")
+def thesis():
     pass
 
 
-@params.command(help="Plot to select the amount of ULS.")
-def param_uls():
-    paramselect.number_of_uls_plot(c())
-
-
-@params.command(help="Plot noise from dynamic test 1.")
-def noise():
-    paramselect.experiment_noise(c())
-
-
-###################
-##### Contour #####
-###################
-
-
-@cli.group(help="Contour plots for loading & scenarios scenarios.")
-def contour():
-    pass
-
-
-@contour.command(help="3D angled contour plot of bridge 705.")
+@thesis.command(help="3D contour plot of bridge 705.")
 @click.option(
     "--x",
     type=float,
@@ -524,26 +504,14 @@ def cover_photo(x: float, deform: float):
     contour_.cover_photo(c=c(), x=x, deformation_amp=deform)
 
 
-@contour.command(help="Response to traffic at multiple timesteps, per scenario.")
-def scenarios_traffic():
-    contour_.traffic_response_plots(c())
+@thesis.command(help="ULS parameter selection plot.")
+def uls():
+    paramselect.number_of_uls_plot(c())
 
 
-@contour.command(help="Response to a 100 kN point load per scenario.")
-@click.option("--x", type=float, default=51.375, help="X position of the point load.")
-@click.option("--z", type=float, default=0, help="Z position of the point load.")
-@click.option("--run", is_flag=True, help="Force simulations to run.")
-def point_load(x, z, run):
-    contour_.point_load_response_plots(c=c(), x=x, z=z, run=run)
-
-
-@contour.command(help="Unit thermal deck load under normal traffic.")
-@click.option("--axial", type=float, required=True)
-@click.option("--moment", type=float, required=True)
-def traffic_thermal(axial, moment):
-    from make.plot.contour.traffic_thermal import thermal_deck_load
-
-    thermal_deck_load(c(), axial_delta_temp=axial, moment_delta_temp=moment)
+@thesis.command(help="Plot noise from dynamic test 1.")
+def noise():
+    paramselect.experiment_noise(c())
 
 
 #########
@@ -703,30 +671,6 @@ def top_view(mins, skip, damage):
     )
 
 
-@classify.command(help="")
-@click.option("--mins", type=float, default=1, help="Minutes of traffic.")
-def cluster(mins):
-    from make.classify.cluster import cluster_damage
-
-    cluster_damage(c=c(), mins=mins)
-
-
-@classify.command(help="Plot events due to normal traffic.")
-@click.option("--x", type=float, default=51.375)
-@click.option("--z", type=float, default=-8.4)
-def events(x, z):
-    classification_.events(c=c(), x=x, z=z)
-
-
-@classify.command(help="Plot temperature effect.")
-@click.option(
-    "--date", type=str, default="holly-springs", help="Filename to plot effect for."
-)
-@click.option("--vert", type=bool, default=True, help="Vertical lines every 24 hours.")
-def temp_effect_date(date, vert):
-    classification_.temperature_effect_date(c=c(), month=date, vert=vert)
-
-
 @classify.command(help="Contour plot of temperature effect.")
 @click.option(
     "--bottom", type=float, required=True, help="Bottom temperature in celcius."
@@ -755,24 +699,6 @@ def temp_gradient(date):
 @click.option("--name", type=str, default="may", help="Filename to plot effect for.")
 def temp_rm(name):
     classification_.temperature_removal_month(c=c(), month=name)
-
-
-@classify.command()
-def oneclass():
-    classification_.oneclass(c())
-
-
-@classify.command()
-@click.option(
-    "--load", type=bool, default=False, help="Load calculated features from disk."
-)
-def pairwise_cluster_2(load):
-    classification_.pairwise_cluster(c=c(), load=load)
-
-
-@classify.command()
-def pairwise_sensors():
-    classification_.pairwise_sensors(c())
 
 
 if __name__ == "__main__":

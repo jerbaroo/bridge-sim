@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+import bridge_sim.util
 import numpy as np
 
 from bridge_sim.model import Config, Point
@@ -103,7 +104,7 @@ def crack_time_series(
         print(f"shape of temp effect = {temp_effect[ri].shape}")
         if rt == ResponseType.Strain:
             responses[ri] = resize_units("")[0](responses[ri])
-        responses[ri] += temperature.apply(temp_effect[ri], responses[ri])
+        responses[ri] += bridge_sim.util.apply(temp_effect[ri], responses[ri])
     responses = np.array(responses)
     print(f"Responses shape = {responses.shape}")
     return responses

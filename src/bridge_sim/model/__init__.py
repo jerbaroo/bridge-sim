@@ -88,7 +88,7 @@ class PointLoad:
 
     def __repr__(self):
         """Human readable representation of this point-load."""
-        return f"x = {self.x}, z = {self.z}, load = {self.load}"
+        return f"X = {self.x}, Z = {self.z}, load = {self.load}"
 
     def id_str(self):
         """String uniquely representing this point-load."""

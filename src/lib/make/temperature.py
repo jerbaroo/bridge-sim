@@ -1,16 +1,11 @@
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-from config import Config
-from classify import temperature
-from fem.responses import Responses
-from model.bridge import Point
-from model.response import ResponseType
-from plot import equal_lims, plt
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
-from bridge_sim.util import resize_units
+from bridge_sim import temperature
+from bridge_sim.model import Config, Point, ResponseType
+from bridge_sim.util import plot_hours, print_i
 
 
 def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
@@ -34,10 +29,6 @@ def temp_contour_plot(c: Config, temp_bottom: int, temp_top: int):
             points=deck_points,
             temps_bt=([temp_bottom], [temp_top]),
         ).T[0]
-        # Resize fem if applicable to response type.
-        resize_f, units = resize_units(response_type.units())
-        if response_type == ResponseType.YTranslation:
-            temp_effect = resize_f(temp_effect)
         responses = Responses(
             response_type=response_type,
             responses=[
@@ -179,4 +170,56 @@ def temp_gradient_plot(c: Config, date: str):
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
     plt.savefig(c.get_image_path("temperature", "gradient-2.pdf"))
+    plt.close()
+
+
+def temperature_effect(config: Config, fname: str):
+    weather = temperature.load(name=fname)
+    weather["temp"] = temperature.resize(weather["temp"], year=2019)
+    print_i(f"Min/max temp = {min(weather['temp'])}, {max(weather['temp'])}")
+    print_i(f"Min/max solar = {min(weather['solar'])}, {max(weather['solar'])}")
+
+    # Plot the temperature.
+    plt.portrait()
+    plt.subplot(4, 1, 1)
+    plt.scatter(weather["datetime"], weather["temp"], c="b", s=1)
+    plt.ylabel("Temperature (°C)")
+    plt.gcf().autofmt_xdate()
+    plt.title(f"Temperature from {str(fname[0]).upper()}{fname[1:]}")
+
+    # Plot the temperature in May.
+    plt.subplot(4, 1, 2)
+    weather_may = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime("01/05/19 00:00", "%d/%m/%y %H:%M"),
+        to=datetime.strptime("31/05/19 23:59", "%d/%m/%y %H:%M"),
+    )
+    plot_hours(weather_may)
+    plt.scatter(weather_may["datetime"], weather_may["temp"], c="b", s=1)
+    plt.ylabel("Temperature (°C)")
+    plt.gcf().autofmt_xdate()
+    plt.title(f"Temperature in May")
+
+    # Plot the solar radiation.
+    plt.subplot(4, 1, 3)
+    plt.scatter(weather["datetime"], weather["solar"], c="r", s=1)
+    plt.ylabel("Solar radiation")
+    plt.gcf().autofmt_xdate()
+    plt.title(f"Solar radiation from {str(fname[0]).upper()}{fname[1:]}")
+
+    # Plot the effect at two points.
+    plt.subplot(4, 1, 4)
+    effect = temperature.effect(
+        config=config, response_type=ResponseType.StrainXXB,
+        points=[Point(x=51)], weather=weather
+    )[0]
+    plt.scatter(weather["datetime"], effect * 1E6, c="g", s=1)
+    plt.ylabel("Microstrain XXB")
+    plt.gcf().autofmt_xdate()
+    plt.title("Strain at X = 51 in May")
+    print_i(f"Effect shape = {effect.shape}")
+
+    # Save.
+    plt.tight_layout()
+    plt.savefig(config.get_image_path("verify/temperature", f"{fname}.pdf"))
     plt.close()
