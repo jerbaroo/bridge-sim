@@ -16,7 +16,7 @@ from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 import dill
 from pathos.multiprocessing import Pool
 
-from bridge_sim.model import Bridge, Config, ResponseType
+from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement
 from bridge_sim.sim.model import SimParams, SimResponses
 from bridge_sim.sim.util import _responses_path
 from bridge_sim.util import print_d, print_i, safe_str, shorten_path
@@ -308,8 +308,88 @@ def load_expt_responses(
     else:
         deque(map(process, indices_and_params), maxlen=0)
     # Return after generating results if requested...
-    if run_only:
-        return
-    # ...otherwise yield all of the results.
-    for index_params in indices_and_params:
-        yield process(index_params, _run_only=False)
+    if not run_only:
+        for index_params in indices_and_params:
+            yield process(index_params, _run_only=False)
+
+
+def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+    """Yield all unit pier settlement simulation responses.
+
+    Set 'config.parallel' before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don't return responses.
+
+    """
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(pier_settlement=[PierSettlement(
+                pier=pier, settlement=config.unit_pier_settlement
+            )])
+            for pier in range(len(config.bridge.supports))
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )
+
+
+def point_load(config: Config, indices: Optional[List[int]] = None, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+    """Yield all unit pier point-load simulations responses.
+
+    Set 'config.parallel' before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        indices: only simulations with these indexes, valid indexes are
+            [0 .. (wheel_tracks x uls -1)]. Optional, else run all simulations.
+        response_type: response type of simulations.
+        run_only: only run simulations, don't return responses.
+
+    """
+    expt_params = [
+        SimParams(ploads=[PointLoad(x=x, z=z, load=config.il_unit_load_kn)])
+        for x, z in itertools.product(
+            config.bridge.wheel_track_xs(config),
+            config.bridge.wheel_track_zs(config),
+        )
+    ]
+    if indices is not None:
+        expt_params = [expt_params[i] for i in indices]
+        assert len(expt_params) == len(indices)
+        print_i(f"Running {len(indices)} simulations: {indices}")
+    return load_expt_responses(
+        c=config,
+        expt_params=expt_params,
+        response_type=response_type,
+        run_only=run_only,
+    )
+
+
+def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+    """Yield all unit temperature simulations responses.
+
+    Set 'config.parallel' before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don't return responses.
+
+    """
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(axial_delta_temp=config.unit_axial_delta_temp_c),
+            SimParams(moment_delta_temp=config.unit_moment_delta_temp_c),
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )
+
