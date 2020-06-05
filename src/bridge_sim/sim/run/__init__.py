@@ -354,9 +354,9 @@ def point_load(config: Config, indices: Optional[List[int]] = None, response_typ
     """
     expt_params = [
         SimParams(ploads=[PointLoad(x=x, z=z, load=config.il_unit_load_kn)])
-        for x, z in itertools.product(
-            config.bridge.wheel_track_xs(config),
+        for z, x in itertools.product(
             config.bridge.wheel_track_zs(config),
+            config.bridge.wheel_track_xs(config),
         )
     ]
     if indices is not None:
