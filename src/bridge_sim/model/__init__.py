@@ -688,7 +688,7 @@ class Bridge:
         for section in self.sections:
             if section.contains(bridge=self, x=x, z=z):
                 return self._get_section(section)
-        raise ValueError("No section for x, z = {x}, {z}")
+        raise ValueError(f"No section for x, z = {x}, {z}")
 
     def pier_section_at_len(self, p_i: int, section_frac_len: float) -> Material:
         """Return the section at a fraction of a pier's length"""
