@@ -1,4 +1,4 @@
-"""Test classify.data.fem."""
+"""Test classify.data.responses."""
 import numpy as np
 
 from bridge_sim.bridges.bridge_705 import bridge_705

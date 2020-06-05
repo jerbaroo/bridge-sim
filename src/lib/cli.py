@@ -7,7 +7,6 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 import os
 import pdb
 
-import bridge_sim.sim.run.unit
 import lib.make.temperature
 import lib.make.validation
 import pathos.multiprocessing as multiprocessing
@@ -15,7 +14,6 @@ import sys
 import traceback
 
 import click
-from bridge_sim import sim
 
 from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
@@ -119,9 +117,9 @@ def cli(
     click.echo(f"Shorten paths: {shorten_paths_}")
 
 
-################
-##### Util #####
-################
+########
+# Util #
+########
 
 
 @cli.command(help="Remove all simulation data for a bridge.")
@@ -144,9 +142,9 @@ def clean(keep):
     remove_except_npy(c=c_, keep=keep)
 
 
-################
-##### Info #####
-################
+########
+# Info #
+########
 
 
 @cli.group(help="Print and plot useful information.")

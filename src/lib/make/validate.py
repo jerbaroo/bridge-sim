@@ -10,54 +10,13 @@ from config import Config
 from model.bridge import Point
 from model.load import PointLoad
 from model.response import ResponseType
-from fem.params import SimParams
 from fem.responses import Responses, load_fem_responses
 from fem.run.opensees import OSRunner
 from plot import equal_lims, plt
 from plot.geometry import top_view_bridge
 from plot.responses import plot_contour_deck
-from bridge_sim.util import clean_generated, flatten, print_i, print_s
+from bridge_sim.util import flatten, print_i
 from validate.campaign import displa_sensor_xz, strain_sensor_xz
-
-
-def density_no_effect(c: Config):
-    """Output maximum and minimum fem with different density values."""
-    response_types = [ResponseType.YTranslation, ResponseType.Strain]
-    pload = PointLoad(x_frac=0.5, z_frac=0.5, kn=100)
-    c.bridge.type = "debugging"
-
-    def set_density(density):
-        for section in c.bridge.sections:
-            print(section.density)
-            section.density = density
-        for pier in c.bridge.supports:
-            if not callable(pier._sections):
-                raise ValueError("Experiment requires callable pier sections")
-            original_sections = pier._sections
-
-            def new_sections(section_frac_len):
-                section = original_sections(section_frac_len)
-                section.density = density
-                return section
-
-            pier._sections = new_sections
-
-    for density in [0.2, 100]:
-        clean_generated(c)
-        set_density(density)
-        for response_type in response_types:
-            sim_params = SimParams(response_types=[response_type], ploads=[pload],)
-            sim_responses = load_fem_responses(
-                c=c,
-                sim_runner=OSRunner(c),
-                response_type=response_type,
-                sim_params=sim_params,
-                run=True,
-            )
-            amax, amin = max(sim_responses.values()), min(sim_responses.values())
-            print_s(f"Density's ratio = {density}")
-            print_s(f"Max {response_type.name()} = {amax}")
-            print_s(f"Min {response_type.name()} = {amin}")
 
 
 def truck_1_time_series(c: Config):
