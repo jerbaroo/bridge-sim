@@ -21,7 +21,6 @@ from sklearn.linear_model import LinearRegression
 
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from bridge_sim.sim.responses import responses_to_vehicles_d
-from bridge_sim.scenarios import HealthyScenario
 from bridge_sim.vehicles import truck1
 from bridge_sim.sim.build import det_nodes, det_shells
 from bridge_sim.sim.model import SimParams

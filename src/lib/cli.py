@@ -7,6 +7,7 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 import os
 import pdb
 
+import bridge_sim.sim.run.unit
 import lib.make.temperature
 import lib.make.validation
 import pathos.multiprocessing as multiprocessing
@@ -14,6 +15,7 @@ import sys
 import traceback
 
 import click
+from bridge_sim import sim
 
 from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
@@ -270,42 +272,25 @@ def run():
     pass
 
 
-@run.command(help="Run unit point load simulations.")
+@run.command(help="Run unit load simulations.")
+@click.option("--point", is_flag=True, help="Run point-load simulations.")
+@click.option("--indices", type=str, help="Indices of point-load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
-@click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
-@click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
-@click.option("--crack-x", type=float, help="Set crack zone at this X position.")
-@click.option(
-    "--crack-length", type=float, help="Set length of crack zone in X direction."
-)
-def uls(piers, healthy, cracked, crack_x, crack_length):
-    bridge_sim.sim.responses.run_uls(
-        c=c(),
-        piers=piers,
-        healthy=healthy,
-        cracked=cracked,
-        crack_x=crack_x,
-        crack_length=crack_length,
-    )
+@click.option("--temp", is_flag=True, help="Run temperature load simulations.")
+def uls(point, indices, piers, temp):
+    from bridge_sim import sim
+    if indices is not None:
+        indices = list(map(int, indices.split()))
+    if point:
+        list(sim.run.point_load(c(), indices, run_only=True))
+    if piers:
+        list(sim.run.pier_settlement(c(), run_only=True))
+    if temp:
+        list(sim.run.temperature(c(), run_only=True))
 
 
-@run.command(help="Generate unit load matrices")
-@click.option("--healthy", is_flag=True, help="Run unit load simulations (healthy).")
-@click.option("--cracked", is_flag=True, help="Run unit load simulations (cracked).")
-@click.option(
-    "--x-i", type=int, default=302, help="Index into wheel track (lowest x is 0)."
-)
-@click.option(
-    "--z-i", type=int, default=0, help="Index of wheel track (lowest z is 0)."
-)
-def ulm(healthy, cracked, x_i, z_i):
-    bridge_sim.sim.responses.run_ulm(
-        c=c(), healthy=healthy, cracked=cracked, x_i=x_i, z_i=z_i
-    )
-
-
-@run.command(help="Record information for convergence plots.")
-def converge():
+@run.command(help="Generate data for convergence plots.")
+def convergence():
     verification.make_convergence_data(c())
 
 

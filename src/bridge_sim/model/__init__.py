@@ -226,8 +226,7 @@ class Config:
         # Unit loads.
         self.il_num_loads: int = 600
         self.il_unit_load_kn: float = 1000
-        self.pd_unit_disp: float = 1.0
-        self.pd_unit_load_kn: int = 10
+        self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
         self.cte = 12e-6
