@@ -26,6 +26,7 @@ sklearn = "*"
 termcolor = "*"
 findup = "*"
 numba = "*"
+sharedarray = "*"
 
 [pipenv]
 allow_prereleases = true
