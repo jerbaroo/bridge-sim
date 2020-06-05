@@ -6,15 +6,15 @@ This API is based on the 'bridge_sim.model.SimParams' class.
 
 from __future__ import annotations
 
-import ctypes
 import itertools
-import multiprocessing
 import os
+import sys
 from collections import deque
 from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 
+import SharedArray as sa
 import dill
 import numpy as np
 from pathos.multiprocessing import Pool
@@ -404,20 +404,21 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
 
 def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
     """Return a unit load matrix for some sensors."""
+    xzs = ulm_xzs(config)
+    sa_path = f"shm://{np.random.randint(low=0, high=sys.maxsize)}"
+    sa_created = sa.create(sa_path, (len(xzs), len(points)))
+
     def set_ulm_entry(params):
-        i_, (ulm_, (x_, z_)) = params
+        i_, (x_, z_) = params
+        sa_attached = sa.attach(sa_path)
         for j, response in enumerate(load_fem_responses(
             c=config,
             sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
             response_type=response_type,
         ).at_decks(points)):
-            ulm_[i_][j] = response
+            sa_attached[i_][j] = response
 
-    xzs = ulm_xzs(config)
-    shared_array_base = multiprocessing.Array(ctypes.c_double, len(xzs) * len(points))
-    shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
-    shared_array = shared_array.reshape(len(xzs), len(points))
-    params_list = list(enumerate(zip(itertools.repeat(shared_array), xzs)))
+    params_list = list(enumerate(xzs))
     if config.parallel <= 1:
         print_w("Not loading ULM in parallel")
         list(map(set_ulm_entry, params_list))
@@ -425,5 +426,7 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
         print_w(f"Loading ULM with {config.parallel} parallelism")
         with Pool(processes=config.parallel) as pool:
             pool.map(set_ulm_entry, params_list)
-    return shared_array
+    result = np.array(sa_created, copy=True)
+    sa.delete(sa_path)
+    return result
 

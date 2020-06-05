@@ -1,4 +1,4 @@
-"""Test running simulations."""
+import numpy as np
 
 from bridge_sim.configs import test_config
 from bridge_sim.model import Point, ResponseType
@@ -24,16 +24,18 @@ def test_point_load():
         assert max_point[2] == zs[index // len(xs)]
 
 
-def test_ulm():
+def test_load_ulm():
     """Test the generated ULM has maximum values at expected points."""
     config, exe_found = test_config(10)
     config.parallel = 4
     if not exe_found:
         return
     points = [Point(x=51, z=-8), Point(x=52, z=-8), Point(x=51, z=-8.4)]
-    uls = run.load_ulm(config=config, response_type=ResponseType.YTrans, points=points)
-    print(uls)
+    ulm = run.load_ulm(config=config, response_type=ResponseType.YTrans, points=points)
+    print(np.count_nonzero(ulm))
+    print(ulm)
 
 
 if __name__ == "__main__":
-    test_ulm()
+    test_load_ulm()
+
