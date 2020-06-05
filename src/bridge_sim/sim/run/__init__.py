@@ -6,6 +6,7 @@ This API is based on the 'bridge_sim.model.SimParams' class.
 
 from __future__ import annotations
 
+import ctypes
 import itertools
 import os
 from collections import deque
@@ -14,12 +15,14 @@ from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 
 import dill
+import numpy as np
+from pathos import multiprocessing
 from pathos.multiprocessing import Pool
 
-from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement
+from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement, Point
 from bridge_sim.sim.model import SimParams, SimResponses
 from bridge_sim.sim.util import _responses_path
-from bridge_sim.util import print_d, print_i, safe_str, shorten_path
+from bridge_sim.util import print_d, print_i, safe_str, shorten_path, print_w
 
 # Print debug information for this file.
 
@@ -51,7 +54,7 @@ class FEMRunner:
         run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
         parse: Callable[[Config, List[SimParams], FEMRunner], Parsed],
         convert: Callable[
-            [Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]
+            [Config, Parsed], Dict[int, Dict[ResponseType, List["Response"]]]
         ],
     ):
         self.c = c
@@ -81,7 +84,7 @@ class FEMRunner:
         """
         # Building.
         start = timer()
-        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
         print_i(
             f"FEMRunner: built {self.name} model file(s) in"
             + f" {timer() - start:.2f}s"
@@ -338,6 +341,14 @@ def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTr
     )
 
 
+def ulm_xzs(config: Config):
+    """A list of x and z positions for unit load matrices."""
+    return [(x, z) for z, x in itertools.product(
+        config.bridge.wheel_track_zs(config),
+        config.bridge.wheel_track_xs(config),
+    )]
+
+
 def point_load(config: Config, indices: Optional[List[int]] = None, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
     """Yield all unit pier point-load simulations responses.
 
@@ -354,10 +365,7 @@ def point_load(config: Config, indices: Optional[List[int]] = None, response_typ
     """
     expt_params = [
         SimParams(ploads=[PointLoad(x=x, z=z, load=config.il_unit_load_kn)])
-        for z, x in itertools.product(
-            config.bridge.wheel_track_zs(config),
-            config.bridge.wheel_track_xs(config),
-        )
+        for x, z in ulm_xzs(config)
     ]
     if indices is not None:
         expt_params = [expt_params[i] for i in indices]
@@ -392,4 +400,29 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
         response_type=response_type,
         run_only=run_only,
     )
+
+
+def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
+    """Return a unit load matrix for some sensors."""
+    def set_ulm_entry(params):
+        i_, (ulm_, x_, z_) = params
+        for j, response in enumerate(load_fem_responses(
+            c=config,
+            sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
+            response_type=response_type,
+        ).at_decks(points)):
+            ulm_[i_][j] = response
+
+    xzs = ulm_xzs(config)
+    shared_array_base = multiprocessing.Array(ctypes.c_double, len(xzs) * len(points))
+    params_list = list(enumerate(zip(itertools.repeat(shared_array_base), xzs)))
+    if config.parallel <= 1:
+        print_w("Not loading ULM in parallel")
+        list(map(set_ulm_entry, params_list))
+    else:
+        print_w(f"Loading ULM with {config.parallel} parallelism")
+        with Pool(processes=config.parallel) as pool:
+            pool.map(set_ulm_entry, params_list)
+    ulm = np.ctypeslib.as_array(shared_array_base.get_obj())
+    return ulm
 

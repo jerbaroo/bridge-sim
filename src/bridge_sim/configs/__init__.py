@@ -3,6 +3,7 @@
 import os
 from typing import Callable, Optional
 
+from bridge_sim.bridges import bridge_705
 from bridge_sim.model import Config, Bridge
 from bridge_sim.sim.run.opensees import os_runner
 from bridge_sim.util import project_dir
@@ -35,3 +36,11 @@ def opensees_default(
         vehicle_pdf_col="length",
         **kwargs,
     )
+
+
+def test_config():
+    """A Config used internally for testing."""
+    config = opensees_default(bridge_705(5))
+    config._root_generated_data_dir = "test-data/"
+    exe_found = config.sim_runner.exe_path is not None
+    return config, exe_found
