@@ -38,9 +38,9 @@ def opensees_default(
     )
 
 
-def test_config():
+def test_config(msl: float = 5):
     """A Config used internally for testing."""
-    config = opensees_default(bridge_705(5))
+    config = opensees_default(bridge_705(msl))
     config._root_generated_data_dir = "test-data/"
     exe_found = config.sim_runner.exe_path is not None
     return config, exe_found

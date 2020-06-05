@@ -26,8 +26,7 @@ def test_point_load():
 
 def test_ulm():
     """Test the generated ULM has maximum values at expected points."""
-    return
-    config, exe_found = test_config()
+    config, exe_found = test_config(10)
     config.parallel = 4
     if not exe_found:
         return

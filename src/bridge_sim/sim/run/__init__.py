@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ctypes
 import itertools
+import multiprocessing
 import os
 from collections import deque
 from copy import deepcopy
@@ -16,7 +17,6 @@ from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 
 import dill
 import numpy as np
-from pathos import multiprocessing
 from pathos.multiprocessing import Pool
 
 from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement, Point
@@ -405,7 +405,7 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
 def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
     """Return a unit load matrix for some sensors."""
     def set_ulm_entry(params):
-        i_, (ulm_, x_, z_) = params
+        i_, (ulm_, (x_, z_)) = params
         for j, response in enumerate(load_fem_responses(
             c=config,
             sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
@@ -415,7 +415,9 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
 
     xzs = ulm_xzs(config)
     shared_array_base = multiprocessing.Array(ctypes.c_double, len(xzs) * len(points))
-    params_list = list(enumerate(zip(itertools.repeat(shared_array_base), xzs)))
+    shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
+    shared_array = shared_array.reshape(len(xzs), len(points))
+    params_list = list(enumerate(zip(itertools.repeat(shared_array), xzs)))
     if config.parallel <= 1:
         print_w("Not loading ULM in parallel")
         list(map(set_ulm_entry, params_list))
@@ -423,6 +425,5 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
         print_w(f"Loading ULM with {config.parallel} parallelism")
         with Pool(processes=config.parallel) as pool:
             pool.map(set_ulm_entry, params_list)
-    ulm = np.ctypeslib.as_array(shared_array_base.get_obj())
-    return ulm
+    return shared_array
 
