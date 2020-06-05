@@ -77,7 +77,12 @@ def creep(cement_class: CementClass, h_0: float, times: List[float]) -> List[flo
     def B_c(t_, t_0_):
         return np.power((t_ - t_0_) / (B_H + t_ - t_0_), 0.3)
 
-    return y_0(t_0) * B_c(times, t_0)
+    strain = y_0(t_0) * B_c(times, t_0)
+    # Set initial strain values to 0.
+    i = 0
+    while i < len(strain) and not strain[i] >= 0:
+        strain[i] = 0
+    return strain
 
 
 def creep_responses(
