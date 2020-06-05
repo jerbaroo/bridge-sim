@@ -345,6 +345,12 @@ def temp_effect():
     lib.make.temperature.temperature_effect(c(), "holly-springs")
 
 
+@verify.command(help="Plot unit load simulations.")
+def uls():
+    from lib.make import uls
+    uls.plot_uls(c())
+
+
 ############
 # Validate #
 ############
