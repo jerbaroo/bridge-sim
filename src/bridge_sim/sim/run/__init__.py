@@ -8,16 +8,15 @@ from __future__ import annotations
 
 import itertools
 import os
-import sys
 from collections import deque
 from copy import deepcopy
 from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 
-import SharedArray as sa
 import dill
 import numpy as np
 from pathos.multiprocessing import Pool
+from multiprocessing import shared_memory
 
 from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement, Point
 from bridge_sim.sim.model import SimParams, SimResponses
@@ -405,28 +404,38 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
 def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
     """Return a unit load matrix for some sensors."""
     xzs = ulm_xzs(config)
-    sa_path = f"shm://{np.random.randint(low=0, high=sys.maxsize)}"
-    sa_created = sa.create(sa_path, (len(xzs), len(points)))
+    shm_template = np.empty((len(xzs), len(points)))
+    shm = shared_memory.SharedMemory(create=True, size=shm_template.nbytes)
+    # This try/except is to free shared-memory resources on KeyboardInterrupt.
+    try:
 
-    def set_ulm_entry(params):
-        i_, (x_, z_) = params
-        sa_attached = sa.attach(sa_path)
-        for j, response in enumerate(load_fem_responses(
-            c=config,
-            sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
-            response_type=response_type,
-        ).at_decks(points)):
-            sa_attached[i_][j] = response
+        def set_ulm_entry(params):
+            i_, (x_, z_) = params
+            existing_shm = shared_memory.SharedMemory(name=shm.name)
+            ulm = np.ndarray(shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf)
+            for j, response in enumerate(load_fem_responses(
+                c=config,
+                sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
+                response_type=response_type,
+            ).at_decks(points)):
+                ulm[i_][j] = response
+            existing_shm.close()
 
-    params_list = list(enumerate(xzs))
-    if config.parallel <= 1:
-        print_w("Not loading ULM in parallel")
-        list(map(set_ulm_entry, params_list))
-    else:
-        print_w(f"Loading ULM with {config.parallel} parallelism")
-        with Pool(processes=config.parallel) as pool:
-            pool.map(set_ulm_entry, params_list)
-    result = np.array(sa_created, copy=True)
-    sa.delete(sa_path)
+        params_list = list(enumerate(xzs))
+        if config.parallel <= 1:
+            print_w("Not loading ULM in parallel")
+            list(map(set_ulm_entry, params_list))
+        else:
+            print_w(f"Loading ULM with {config.parallel} parallelism")
+            with Pool(processes=config.parallel) as pool:
+                pool.map(set_ulm_entry, params_list)
+        result = np.ndarray(shm_template.shape, dtype=shm_template.dtype, buffer=shm.buf)
+        result = np.array(result, copy=True)
+        shm.close()
+        shm.unlink()
+    except KeyboardInterrupt as e:
+        shm.close()
+        shm.unlink()
+        raise e
     return result
 

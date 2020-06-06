@@ -1,5 +1,5 @@
 from bridge_sim.configs import test_config
-from bridge_sim.model import Point, ResponseType
+from bridge_sim.model import ResponseType
 from bridge_sim.sim import run
 
 

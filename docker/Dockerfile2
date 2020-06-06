@@ -9,7 +9,7 @@ WORKDIR /bridge-sim
 RUN echo 'export PATH=$PATH:/opensees/bin' >> ~/.bashrc
 
 # Install project dependencies.
-RUN pipenv install --dev --python 3.7
+RUN pipenv install --python 3.8
 
 # Necessary for bridge-sim to find project root.
 RUN touch .git
