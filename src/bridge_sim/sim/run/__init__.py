@@ -401,8 +401,28 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
     )
 
 
+def ulm_path(config: Config, response_type: ResponseType, points: List[Point]) -> str:
+    """Unique path for a unit load matrix."""
+    return safe_str(config.get_data_path("ulm-path", f"{response_type.value}-{''.join(str(p) for p in points)}"))
+
+
 def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
-    """Return a unit load matrix for some sensors."""
+    """Return a unit load matrix for some sensors.
+
+    Args:
+        config: simulation configuration object.
+        response_type: type of sensor responses.
+        points: points at which to calculate responses to unit loads.
+
+    Returns: unit load matrix of shape (uls * lanes * 2, len(points)).
+
+    """
+    path = ulm_path(config=config, response_type=response_type, points=points)
+    print_i(f"ULM path = {path}")
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return dill.load(f)
+
     xzs = ulm_xzs(config)
     shm_template = np.empty((len(xzs), len(points)))
     shm = shared_memory.SharedMemory(create=True, size=shm_template.nbytes)
@@ -437,5 +457,7 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
         shm.close()
         shm.unlink()
         raise e
+    with open(path, "wb") as f:
+        dill.dump(result, f)
     return result
 
