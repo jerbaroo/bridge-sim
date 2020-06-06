@@ -362,9 +362,29 @@ def validate():
     pass
 
 
-@validate.command(help="Regression plots against bridge 705 measurements.")
+@validate.command(help="R2 plots against bridge 705 measurements.")
 def r2():
     verification.r2_plots(c())
+
+
+@validate.command(help="Influence line comparison to measurements.")
+@click.option(
+    "--strain-sensors",
+    required=True,
+    type=click.Choice(["O", "T"]),
+    help="Prefix of strain sensors to plot.",
+)
+def inflines(strain_sensors):
+    if not shorten_paths_:
+        raise ValueError("--shorten-paths option is required")
+    verification.per_sensor_plots(c=c(), strain_sensors_startwith=strain_sensors)
+
+
+@validate.command(help="Comparison to dynamic test results.")
+def dynamic():
+    from lib.make import validate
+
+    validate.truck_1_time_series(c())
 
 
 @validate.command(help="Plot convergence as model size increases.")
@@ -433,33 +453,6 @@ def pier_conv(
         min_shell_len=min_shell_len,
         max_shell_len=max_shell_len,
     )
-
-
-@validate.command(help="Influence lines from OpenSees and measurements.")
-@click.option(
-    "--strain-sensors",
-    required=True,
-    type=click.Choice(["O", "T"]),
-    help="Prefix of strain sensors to plot.",
-)
-def inflines(strain_sensors):
-    if not shorten_paths_:
-        raise ValueError("--shorten-paths option is required")
-    verification.per_sensor_plots(c=c(), strain_sensors_startwith=strain_sensors)
-
-
-@validate.command(help="Confirm that density has no effect on simulation.")
-def density():
-    from make import validate
-
-    validate.density_no_effect(c())
-
-
-@validate.command(help="Time series of 3 sensors to Truck 1's movement.")
-def truck_1_ts():
-    from make import validate
-
-    validate.truck_1_time_series(c())
 
 
 @validate.command(help="Plot stress for some high stress scenarios.")
