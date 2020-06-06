@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.run.opensees.build.d3 API documentation</title>
+<meta name="description" content="Build OpenSees 3D model files." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.run.opensees.build.d3</code></h1>
+</header>
+<section id="section-intro">
+<p>Build OpenSees 3D model files.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Build OpenSees 3D model files.&#34;&#34;&#34;
+
+import os
+from collections import OrderedDict, defaultdict
+from itertools import chain
+from typing import List, Optional, Tuple
+
+import numpy as np
+
+from bridge_sim.model import PierSettlement, PointLoad, Config, Material
+from bridge_sim.sim.model import (
+    BuildContext,
+    DeckNodes,
+    DeckShells,
+    Node,
+    PierNodes,
+    PierShells,
+    SimParams,
+)
+from bridge_sim.sim.build import (
+    det_nodes_id_str,
+    det_shells_id_str,
+    det_shells,
+    get_bridge_shells_and_nodes,
+    to_deck_nodes,
+)
+from bridge_sim.sim.run.opensees.build.d3.thermal import (
+    opensees_thermal_axial_deck_loads,
+    opensees_thermal_moment_deck_loads,
+)
+from bridge_sim.sim.run.opensees.build.d3.util import comment
+from bridge_sim.util import flatten, print_d, print_i, print_w, round_m
+
+
+# Print debug information for this file.
+# D: str = &#34;fem.run.opensees.build.d3&#34;
+D: bool = False
+
+##### Begin nodes #####
+
+
+def opensees_support_nodes(
+    c: Config, deck_nodes: DeckNodes, all_support_nodes: PierNodes,
+) -&gt; str:
+    &#34;&#34;&#34;Opensees node commands for the supports (ignoring deck).
+
+    By &#39;ignoring deck&#39; we mean that nodes that belong to both supports and the
+    deck will not be returned by this function but instead by
+    &#39;opensees_deck_nodes&#39;.
+
+    Args:
+        c: Config, global configuration object.
+        deck_nodes: DeckNodes, to check for already added support nodes.
+        all_support_nodes: AllSupportNodes, all support nodes to generate
+            commands for.
+
+    &#34;&#34;&#34;
+    # We want to avoid generating commands for support nodes that also belong to
+    # the deck, thus we create a set for fast indexing to allow this check.
+    deck_nodes = set(chain.from_iterable(deck_nodes))
+    nodes = OrderedDict()
+    # For each support.
+    for s_nodes in all_support_nodes:
+        # For each wall of the support (there are two).
+        for w_nodes in s_nodes:
+            # For each ~vertical line of nodes for a z position at top of wall.
+            for y_nodes in w_nodes:
+                # For each node in the ~vertical line.
+                for y, node in enumerate(y_nodes):
+                    # Insert the node, if not part of the deck nodes.
+                    if node not in deck_nodes:
+                        # A dictionary is used incase the node is already added,
+                        # incase it is a bottom node shared by both walls.
+                        nodes[node] = None
+    return comment(
+        &#34;support nodes&#34;,
+        &#34;\n&#34;.join(map(lambda n: n.command_3d(), nodes.keys())),
+        units=&#34;node nodeTag x y z&#34;,
+    )
+
+
+def opensees_deck_nodes(c: Config, deck_nodes: DeckNodes) -&gt; str:
+    &#34;&#34;&#34;OpenSees node commands for a bridge deck.
+
+    The nodes are created based on given positions of deck nodes.
+
+    Args:
+        c: Config, global configuratin object.
+
+    &#34;&#34;&#34;
+    node_strings = []
+    node_strings += list(
+        map(lambda node: node.command_3d(), list(chain.from_iterable(deck_nodes)),)
+    )
+    return comment(&#34;deck nodes&#34;, &#34;\n&#34;.join(node_strings), units=&#34;node nodeTag x y z&#34;)
+
+
+##### End nodes #####
+##### Begin fixed nodes #####
+
+
+class FixNode:
+    &#34;&#34;&#34;A command to fix a node in some degrees of freedom (dof).
+
+    Args:
+        node: Node, the node with dof to fix specified.
+        comment_: Optional[str], an optional comment for the command.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        node: Node,
+        fix_x_translation: bool,
+        fix_y_translation: bool,
+        fix_z_translation: bool,
+        fix_x_rotation: bool,
+        fix_y_rotation: bool,
+        fix_z_rotation: bool,
+        comment: Optional[str] = None,
+    ):
+        self.node = node
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
+        self.comment = comment
+
+    def command_3d(self):
+        &#34;&#34;&#34;The command in string format for a TCL file.&#34;&#34;&#34;
+        # TODO: Update comment to include support ID.
+        comment_ = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+        return (
+            f&#34;fix {self.node.n_id}&#34;
+            + f&#34; {int(self.fix_x_translation)}&#34;
+            + f&#34; {int(self.fix_y_translation)}&#34;
+            + f&#34; {int(self.fix_z_translation)}&#34;
+            + f&#34; {int(self.fix_x_rotation)}&#34;
+            + f&#34; {int(self.fix_y_rotation)}&#34;
+            + f&#34; {int(self.fix_z_rotation)}&#34;
+            + f&#34;{comment_}&#34;
+        )
+
+
+def opensees_fixed_abutment_nodes(
+    c: Config, sim_params: SimParams, deck_nodes: DeckNodes
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees fix commands for fixed nodes on the abument.
+
+    Fixed for translation but not for rotation.
+
+    &#34;&#34;&#34;
+    thermal = (sim_params.axial_delta_temp is not None) or (
+        sim_params.moment_delta_temp is not None
+    )
+    fixed_nodes: List[FixNode] = []
+    for i_x, x_nodes in enumerate(deck_nodes):
+        assert len(x_nodes) &gt;= 2
+        for node in [x_nodes[0], x_nodes[-1]]:
+            fixed_nodes.append(
+                FixNode(
+                    node=node,
+                    fix_x_translation=False,
+                    fix_y_translation=True,
+                    fix_z_translation=True,
+                    # fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
+                    fix_x_rotation=False,
+                    fix_y_rotation=False,
+                    fix_z_rotation=False,
+                )
+            )
+    return comment(
+        &#34;fixed deck nodes&#34;,
+        &#34;\n&#34;.join(map(lambda f: f.command_3d(), fixed_nodes)),
+        units=&#34;fix nodeTag x y z rx ry rz&#34;,
+    )
+
+
+def opensees_fixed_pier_nodes(
+    c: Config,
+    sim_params: SimParams,
+    all_support_nodes: PierNodes,
+    pier_disp: List[PierSettlement],
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees fix commands for fixed support nodes.&#34;&#34;&#34;
+    # First, for thermal loading, we determine the piers at each longitudinal
+    # (x) position, so for each x position we can then determine which piers
+    # will be fixed in transverse (z) translation.
+    pier_positions = defaultdict(set)
+    for p_i, _ in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
+        pier_positions[round_m(pier.x)].add(round_m(pier.z))
+    pier_positions = {
+        pier_x: sorted(pier_zs) for pier_x, pier_zs in pier_positions.items()
+    }
+
+    fixed_nodes: List[FixNode] = []
+    # Iterate through each pier. Note that p_nodes is a tuple of nodes for each
+    # pier wall. And each wall is a 2-d array of nodes.
+    for p_i, p_nodes in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
+        # If pier displacement for this pier then select the bottom central node
+        # for the integrator command, and attach it to the pier.
+        free_y_trans = False
+        for ps in pier_disp:
+            if p_i == ps.pier:
+                free_y_trans = True
+                pier = c.bridge.supports[ps.pier]
+                pier.disp_node = p_nodes[0][len(p_nodes[0]) // 2][-1]
+                if len(p_nodes[0]) % 2 == 0:
+                    print_w(&#34;Pier settlement:&#34;)
+                    print_w(&#34;  no central node (even number of nodes)&#34;)
+        # For each ~vertical line of nodes for a z position at top of wall.
+        for y_i, y_nodes in enumerate(p_nodes[0]):
+            # We will fix the bottom node.
+            node = y_nodes[-1]
+            fixed_nodes.append(
+                FixNode(
+                    node=node,
+                    fix_x_translation=pier.fix_x_translation,
+                    fix_y_translation=False if free_y_trans else pier.fix_y_translation,
+                    # fix_z_translation=fix_pier_z_translation(pier),
+                    fix_z_translation=True,
+                    fix_x_rotation=pier.fix_x_rotation,
+                    fix_y_rotation=pier.fix_y_rotation,
+                    fix_z_rotation=pier.fix_z_rotation,
+                    comment=f&#34;pier {p_i} y {y_i}&#34;,
+                )
+            )
+    return comment(
+        &#34;fixed support nodes&#34;,
+        &#34;\n&#34;.join(map(lambda f: f.command_3d(), fixed_nodes)),
+        units=&#34;fix nodeTag x y z rx ry rz&#34;,
+    )
+
+
+##### End fixed nodes #####
+##### Begin sections #####
+
+
+def opensees_section(section: Material):
+    &#34;&#34;&#34;OpenSees ElasticMembranePlateSection command for a Material.&#34;&#34;&#34;
+    # TODO: Implicit information, assumption that if young&#39;s modulus in x
+    #     direction is modified that cracking is desired (poisson&#39;s set to 0).
+    CRACK_Z = not np.isclose(section.youngs_x(), section.youngs)
+    # New orthotropic method.
+    return (
+        f&#34;nDMaterial ElasticOrthotropic {section.id}&#34;
+        f&#34; {section.youngs_x() * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}&#34;
+        f&#34; {0 if CRACK_Z else section.poissons} {section.poissons} {section.poissons}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {section.density * 1E-3}&#34;
+        f&#34;\nsection PlateFiber {section.id} {section.id} {section.thickness}&#34;
+    )
+    # Old isotropic method.
+    raise ValueError(&#34;Not using orthotropic method&#34;)
+    return (
+        f&#34;section ElasticMembranePlateSection {section.id}&#34;
+        + f&#34; {section.youngs * 1E6} {section.poissons} {section.thickness}&#34;
+        + f&#34; {section.density * 1E-3}&#34;
+    )
+
+
+def opensees_deck_sections(c: Config):
+    &#34;&#34;&#34;Sections used in the bridge deck.&#34;&#34;&#34;
+    return comment(
+        &#34;deck sections&#34;,
+        &#34;\n&#34;.join([opensees_section(section) for section in c.bridge.sections]),
+        units=(
+            &#34;section ElasticMembranePlateSection secTag youngs_modulus&#34;
+            + &#34; poisson_ratio depth mass_density&#34;
+        ),
+    )
+
+
+def opensees_pier_sections(c: Config, all_pier_elements: PierShells):
+    &#34;&#34;&#34;Sections used in the bridge&#39;s piers.&#34;&#34;&#34;
+    pier_shells = det_shells(all_pier_elements)
+    # Some pier&#39;s may refer to the same section so we create a set to avoid
+    # rendering duplicate section definitions into the .tcl file.
+    pier_sections = set([pier_shell.section for pier_shell in pier_shells])
+    return comment(
+        &#34;pier sections&#34;,
+        &#34;\n&#34;.join([opensees_section(section) for section in pier_sections]),
+        units=(
+            &#34;section ElasticMembranePlateSection secTag youngs_modulus&#34;
+            + &#34; poisson_ratio depth mass_density&#34;
+        ),
+    )
+
+
+##### End sections #####
+##### Begin shell elements #####
+
+
+def opensees_deck_elements(c: Config, deck_elements: DeckShells) -&gt; str:
+    &#34;&#34;&#34;OpenSees element commands for a bridge deck.&#34;&#34;&#34;
+    deck_shells = det_shells(deck_elements)
+    return comment(
+        &#34;deck shell elements&#34;,
+        &#34;\n&#34;.join(map(lambda e: e.command_3d(), deck_shells)),
+        units=&#34;element ShellMITC4 eleTag iNode jNode kNode lNode secTag&#34;,
+    )
+
+
+def opensees_pier_elements(c: Config, all_pier_elements: PierShells) -&gt; str:
+    &#34;&#34;&#34;OpenSees element commands for a bridge&#39;s piers.&#34;&#34;&#34;
+    pier_shells = det_shells(all_pier_elements)
+    return comment(
+        &#34;pier shell elements&#34;,
+        &#34;\n&#34;.join(map(lambda e: e.command_3d(), pier_shells)),
+        units=&#34;element ShellMITC4 eleTag iNode jNode kNode lNode secTag&#34;,
+    )
+
+
+# End shell elements #
+# Begin loads #
+
+
+def opensees_load(
+    c: Config, pload: PointLoad, deck_nodes: DeckNodes,
+):
+    &#34;&#34;&#34;An OpenSees load command.&#34;&#34;&#34;
+    assert deck_nodes[0][0].y == 0
+    assert deck_nodes[-1][-1].y == 0
+    best_node = sorted(
+        chain.from_iterable(deck_nodes),
+        key=lambda node: node.distance(x=pload.x, y=0, z=pload.z),
+    )[0]
+
+    assert np.isclose(best_node.y, 0)
+    print(f&#34;before assert load.x = {pload.x}&#34;)
+    print(f&#34;best_node_x = {best_node.x}&#34;)
+    # If we have a proper mesh then this should be the exact node.
+    # TODO: Remove atol when fractional positioning is removed from the system.
+    assert np.isclose(best_node.x, pload.x)
+    assert np.isclose(best_node.z, pload.z)
+    # assert np.isclose(best_node.x, pload.x, atol=0.001)
+    # assert np.isclose(best_node.z, pload.z, atol=0.001)
+
+    return f&#34;load {best_node.n_id} 0 {pload.load * 1000} 0 0 0 0&#34;
+
+
+def opensees_loads(
+    c: Config,
+    ploads: List[PointLoad],
+    deck_nodes: DeckNodes,
+    pier_disp: List[PierSettlement],
+):
+    &#34;&#34;&#34;OpenSees load commands for a .tcl file.&#34;&#34;&#34;
+    # In case of pier displacement apply load at the pier&#39;s central bottom node,
+    # the load intensity doesn&#39;t matter though, only the position matters.
+    if len(pier_disp) &gt; 0:
+        load_str = &#34;&#34;
+        for ps in pier_disp:
+            node = c.bridge.supports[ps.pier].disp_node
+            load_str += f&#34;\nload {node.n_id} 0 {ps.settlement * 1000} 0 0 0 0&#34;
+    # Otherwise find the deck nodes which best suit given point loads.
+    else:
+        load_str = &#34;\n&#34;.join(
+            opensees_load(c=c, pload=pload, deck_nodes=deck_nodes) for pload in ploads
+        )
+
+    return comment(&#34;loads&#34;, load_str, units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;)
+
+
+##### End loads #####
+##### Begin recorders #####
+
+
+def opensees_translation_recorders(
+    c: Config, fem_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees recorder commands for translation.&#34;&#34;&#34;
+    # A list of tuples of ResponseType and OpenSees direction index, for
+    # translation response types, if requested in fem_params.response_types.
+    translation_response_types = []
+    # X translation.
+    x_path = os_runner.x_translation_path(fem_params)
+    translation_response_types.append((x_path, 1))
+    print_i(f&#34;OpenSees: saving x translation at {x_path}&#34;)
+    # Y translation.
+    y_path = os_runner.y_translation_path(fem_params)
+    translation_response_types.append((y_path, 2))
+    print_i(f&#34;OpenSees: saving y translation at {y_path}&#34;)
+    # Z translation.
+    z_path = os_runner.z_translation_path(fem_params)
+    translation_response_types.append((z_path, 3))
+    print_i(f&#34;OpenSees: saving z translation at {z_path}&#34;)
+
+    # Append a recorder string for each response type (recording nodes).
+    recorder_strs = []
+    node_str = det_nodes_id_str(ctx)
+    for response_path, direction in translation_response_types:
+        print_d(D, f&#34;Adding response path to build: {response_path}&#34;)
+        recorder_strs.append(
+            f&#34;recorder Node -file {response_path} -node {node_str} -dof&#34;
+            + f&#34; {direction} disp&#34;
+        )
+    return comment(
+        &#34;translation recorders&#34;,
+        &#34;\n&#34;.join(recorder_strs),
+        units=&#34;recorder Node -file path -node nodeTags -dof direction disp&#34;,
+    )
+
+
+def opensees_strain_recorders(
+    c: Config, sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+):
+    &#34;&#34;&#34;OpenSees recorder commands for translation.&#34;&#34;&#34;
+    return &#34;\n&#34;.join(
+        f&#34;recorder Element&#34;
+        f&#34; -file {os_runner.strain_path(sim_params=sim_params, point=point)}&#34;
+        f&#34; -ele {det_shells_id_str(ctx)} material {str(point)} deformation&#34;
+        for point in [1, 2, 3, 4]
+    )
+
+
+def opensees_forces(sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext):
+    return (
+        f&#34;recorder Element&#34;
+        f&#34; -file {os_runner.forces_path(sim_params)}&#34;
+        f&#34; -ele {det_shells_id_str(ctx)} forces&#34;
+    )
+
+
+def opensees_stress_variables(
+    c: Config, sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+) -&gt; Tuple[str, str]:
+    &#34;&#34;&#34;OpenSees stress recorder variables.
+
+    These replace &lt;&lt;ELEM_IDS&gt;&gt; and &lt;&lt;FORCES_OUT_FILE&gt;&gt; in the TCL file.
+
+    &#34;&#34;&#34;
+    return det_shells_id_str(ctx), os_runner.stress_path(sim_params)
+
+
+def opensees_integrator(c: Config, pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The integrator command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        node = c.bridge.supports[pier_disp[0].pier].disp_node
+        if len(pier_disp) &gt; 1:
+            print_w(f&#34;Using pier {pier_disp[0].pier} for DisplacementControl&#34;)
+        return (
+            f&#34;integrator DisplacementControl {node.n_id} 2&#34;
+            + f&#34; {pier_disp[0].settlement}&#34;
+        )
+    return &#34;integrator LoadControl 1&#34;
+
+
+def opensees_algorithm(pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The algorithm command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        return &#34;algorithm Linear&#34;
+    return &#34;algorithm Newton&#34;
+
+
+def opensees_test(pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The test command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        return &#34;&#34;
+    return &#34;test NormDispIncr 1.0e-12 1000&#34;
+
+
+##### End recorders #####
+
+
+def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRunner&#34;):
+    &#34;&#34;&#34;Build OpenSees 3D model files.
+
+    TODO: ExptParams -&gt; SimParams.
+
+    &#34;&#34;&#34;
+    # Read in the template model file.
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    template_path = os.path.normpath(
+        os.path.join(dir_path, &#34;../../../../../../&#34;, c.os_3d_model_template_path)
+    )
+    with open(template_path) as f:
+        in_tcl = f.read()
+
+    # Build a model file for each simulation.
+    for sim_params in expt_params:
+
+        # Setup the &#39;BuildContext&#39; for this simulation.
+        sim_ctx = sim_params.build_ctx()
+        # Determine nodes and shells.
+        bridge_shells, bridge_nodes = get_bridge_shells_and_nodes(
+            bridge=c.bridge, ctx=sim_ctx
+        )
+        deck_shells, pier_shells = bridge_shells
+        deck_shell_nodes, pier_nodes = bridge_nodes
+        deck_nodes = to_deck_nodes(deck_shell_nodes)
+        # Attaching nodes and shells to the &#39;SimParams&#39;. This allows the convert
+        # process to build a deterministic list of nodes and shells. They should
+        # be deleted again at that point.
+        sim_params.bridge_shells = bridge_shells
+        sim_params.bridge_nodes = bridge_nodes
+
+        # Build the 3D model file by replacements in the template model file.
+        out_tcl = (
+            in_tcl.replace(
+                &#34;&lt;&lt;DECK_NODES&gt;&gt;&#34;, opensees_deck_nodes(c=c, deck_nodes=deck_nodes),
+            )
+            .replace(
+                &#34;&lt;&lt;SUPPORT_NODES&gt;&gt;&#34;,
+                opensees_support_nodes(
+                    c=c, deck_nodes=deck_nodes, all_support_nodes=pier_nodes,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FIX_DECK&gt;&gt;&#34;,
+                opensees_fixed_abutment_nodes(
+                    c=c, sim_params=sim_params, deck_nodes=deck_nodes
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FIX_SUPPORTS&gt;&gt;&#34;,
+                opensees_fixed_pier_nodes(
+                    c=c,
+                    sim_params=sim_params,
+                    all_support_nodes=pier_nodes,
+                    pier_disp=sim_params.pier_settlement,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;LOAD&gt;&gt;&#34;,
+                opensees_loads(
+                    c=c,
+                    ploads=sim_params.ploads,
+                    deck_nodes=deck_nodes,
+                    pier_disp=sim_params.pier_settlement,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;THERMAL_AXIAL_LOAD_DECK&gt;&gt;&#34;,
+                opensees_thermal_axial_deck_loads(
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;THERMAL_MOMENT_LOAD_DECK&gt;&gt;&#34;,
+                opensees_thermal_moment_deck_loads(
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                ),
+            )
+            .replace(&#34;&lt;&lt;SUPPORTS&gt;&gt;&#34;, &#34;&#34;)
+            .replace(&#34;&lt;&lt;DECK_SECTIONS&gt;&gt;&#34;, opensees_deck_sections(c=c))
+            .replace(
+                &#34;&lt;&lt;TRANS_RECORDERS&gt;&gt;&#34;,
+                opensees_translation_recorders(
+                    c=c, fem_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FORCES&gt;&gt;&#34;,
+                opensees_forces(
+                    sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;DECK_ELEMENTS&gt;&gt;&#34;,
+                opensees_deck_elements(c=c, deck_elements=deck_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;PIER_ELEMENTS&gt;&gt;&#34;,
+                opensees_pier_elements(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;PIER_SECTIONS&gt;&gt;&#34;,
+                opensees_pier_sections(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;INTEGRATOR&gt;&gt;&#34;,
+                opensees_integrator(c=c, pier_disp=sim_params.pier_settlement),
+            )
+            .replace(&#34;&lt;&lt;ALGORITHM&gt;&gt;&#34;, opensees_algorithm(sim_params.pier_settlement))
+            .replace(&#34;&lt;&lt;TEST&gt;&gt;&#34;, opensees_test(sim_params.pier_settlement))
+        )
+
+        elem_ids, forces_out_file = opensees_stress_variables(
+            c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+        )
+        out_tcl = out_tcl.replace(&#34;&lt;&lt;ELEM_IDS&gt;&gt;&#34;, elem_ids).replace(
+            &#34;&lt;&lt;FORCES_OUT_FILE&gt;&gt;&#34;, forces_out_file
+        )
+        out_tcl = out_tcl.replace(
+            &#34;&lt;&lt;STRAIN_RECORDERS&gt;&gt;&#34;,
+            opensees_strain_recorders(
+                c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+            ),
+        )
+
+        # Write the generated model file.
+        model_path = os_runner.sim_model_path(sim_params=sim_params, ext=&#34;tcl&#34;)
+        with open(model_path, &#34;w&#34;) as f:
+            f.write(out_tcl)
+        num_nodes = len(set(flatten(bridge_nodes, Node)))
+        print_i(f&#34;OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}&#34;)
+
+    return expt_params</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="bridge_sim.sim.run.opensees.build.d3.thermal" href="thermal.html">bridge_sim.sim.run.opensees.build.d3.thermal</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="bridge_sim.sim.run.opensees.build.d3.util" href="util.html">bridge_sim.sim.run.opensees.build.d3.util</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.run.opensees.build.d3.build_model_3d"><code class="name flex">
+<span>def <span class="ident">build_model_3d</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>], os_runner: OSRunner)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build OpenSees 3D model files.</p>
+<p>TODO: ExptParams -&gt; SimParams.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRunner&#34;):
+    &#34;&#34;&#34;Build OpenSees 3D model files.
+
+    TODO: ExptParams -&gt; SimParams.
+
+    &#34;&#34;&#34;
+    # Read in the template model file.
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    template_path = os.path.normpath(
+        os.path.join(dir_path, &#34;../../../../../../&#34;, c.os_3d_model_template_path)
+    )
+    with open(template_path) as f:
+        in_tcl = f.read()
+
+    # Build a model file for each simulation.
+    for sim_params in expt_params:
+
+        # Setup the &#39;BuildContext&#39; for this simulation.
+        sim_ctx = sim_params.build_ctx()
+        # Determine nodes and shells.
+        bridge_shells, bridge_nodes = get_bridge_shells_and_nodes(
+            bridge=c.bridge, ctx=sim_ctx
+        )
+        deck_shells, pier_shells = bridge_shells
+        deck_shell_nodes, pier_nodes = bridge_nodes
+        deck_nodes = to_deck_nodes(deck_shell_nodes)
+        # Attaching nodes and shells to the &#39;SimParams&#39;. This allows the convert
+        # process to build a deterministic list of nodes and shells. They should
+        # be deleted again at that point.
+        sim_params.bridge_shells = bridge_shells
+        sim_params.bridge_nodes = bridge_nodes
+
+        # Build the 3D model file by replacements in the template model file.
+        out_tcl = (
+            in_tcl.replace(
+                &#34;&lt;&lt;DECK_NODES&gt;&gt;&#34;, opensees_deck_nodes(c=c, deck_nodes=deck_nodes),
+            )
+            .replace(
+                &#34;&lt;&lt;SUPPORT_NODES&gt;&gt;&#34;,
+                opensees_support_nodes(
+                    c=c, deck_nodes=deck_nodes, all_support_nodes=pier_nodes,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FIX_DECK&gt;&gt;&#34;,
+                opensees_fixed_abutment_nodes(
+                    c=c, sim_params=sim_params, deck_nodes=deck_nodes
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FIX_SUPPORTS&gt;&gt;&#34;,
+                opensees_fixed_pier_nodes(
+                    c=c,
+                    sim_params=sim_params,
+                    all_support_nodes=pier_nodes,
+                    pier_disp=sim_params.pier_settlement,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;LOAD&gt;&gt;&#34;,
+                opensees_loads(
+                    c=c,
+                    ploads=sim_params.ploads,
+                    deck_nodes=deck_nodes,
+                    pier_disp=sim_params.pier_settlement,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;THERMAL_AXIAL_LOAD_DECK&gt;&gt;&#34;,
+                opensees_thermal_axial_deck_loads(
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;THERMAL_MOMENT_LOAD_DECK&gt;&gt;&#34;,
+                opensees_thermal_moment_deck_loads(
+                    c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
+                ),
+            )
+            .replace(&#34;&lt;&lt;SUPPORTS&gt;&gt;&#34;, &#34;&#34;)
+            .replace(&#34;&lt;&lt;DECK_SECTIONS&gt;&gt;&#34;, opensees_deck_sections(c=c))
+            .replace(
+                &#34;&lt;&lt;TRANS_RECORDERS&gt;&gt;&#34;,
+                opensees_translation_recorders(
+                    c=c, fem_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;FORCES&gt;&gt;&#34;,
+                opensees_forces(
+                    sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                ),
+            )
+            .replace(
+                &#34;&lt;&lt;DECK_ELEMENTS&gt;&gt;&#34;,
+                opensees_deck_elements(c=c, deck_elements=deck_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;PIER_ELEMENTS&gt;&gt;&#34;,
+                opensees_pier_elements(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;PIER_SECTIONS&gt;&gt;&#34;,
+                opensees_pier_sections(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                &#34;&lt;&lt;INTEGRATOR&gt;&gt;&#34;,
+                opensees_integrator(c=c, pier_disp=sim_params.pier_settlement),
+            )
+            .replace(&#34;&lt;&lt;ALGORITHM&gt;&gt;&#34;, opensees_algorithm(sim_params.pier_settlement))
+            .replace(&#34;&lt;&lt;TEST&gt;&gt;&#34;, opensees_test(sim_params.pier_settlement))
+        )
+
+        elem_ids, forces_out_file = opensees_stress_variables(
+            c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+        )
+        out_tcl = out_tcl.replace(&#34;&lt;&lt;ELEM_IDS&gt;&gt;&#34;, elem_ids).replace(
+            &#34;&lt;&lt;FORCES_OUT_FILE&gt;&gt;&#34;, forces_out_file
+        )
+        out_tcl = out_tcl.replace(
+            &#34;&lt;&lt;STRAIN_RECORDERS&gt;&gt;&#34;,
+            opensees_strain_recorders(
+                c=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+            ),
+        )
+
+        # Write the generated model file.
+        model_path = os_runner.sim_model_path(sim_params=sim_params, ext=&#34;tcl&#34;)
+        with open(model_path, &#34;w&#34;) as f:
+            f.write(out_tcl)
+        num_nodes = len(set(flatten(bridge_nodes, Node)))
+        print_i(f&#34;OpenSees: saved 3D model ({num_nodes} nodes) file to {model_path}&#34;)
+
+    return expt_params</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_algorithm"><code class="name flex">
+<span>def <span class="ident">opensees_algorithm</span></span>(<span>pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The algorithm command to use based on FEMParams.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_algorithm(pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The algorithm command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        return &#34;algorithm Linear&#34;
+    return &#34;algorithm Newton&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_deck_elements"><code class="name flex">
+<span>def <span class="ident">opensees_deck_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_elements: <function NewType.<locals>.new_type at 0x11842e950>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees element commands for a bridge deck.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_deck_elements(c: Config, deck_elements: DeckShells) -&gt; str:
+    &#34;&#34;&#34;OpenSees element commands for a bridge deck.&#34;&#34;&#34;
+    deck_shells = det_shells(deck_elements)
+    return comment(
+        &#34;deck shell elements&#34;,
+        &#34;\n&#34;.join(map(lambda e: e.command_3d(), deck_shells)),
+        units=&#34;element ShellMITC4 eleTag iNode jNode kNode lNode secTag&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_deck_nodes"><code class="name flex">
+<span>def <span class="ident">opensees_deck_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees node commands for a bridge deck.</p>
+<p>The nodes are created based on given positions of deck nodes.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, global configuratin object.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_deck_nodes(c: Config, deck_nodes: DeckNodes) -&gt; str:
+    &#34;&#34;&#34;OpenSees node commands for a bridge deck.
+
+    The nodes are created based on given positions of deck nodes.
+
+    Args:
+        c: Config, global configuratin object.
+
+    &#34;&#34;&#34;
+    node_strings = []
+    node_strings += list(
+        map(lambda node: node.command_3d(), list(chain.from_iterable(deck_nodes)),)
+    )
+    return comment(&#34;deck nodes&#34;, &#34;\n&#34;.join(node_strings), units=&#34;node nodeTag x y z&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_deck_sections"><code class="name flex">
+<span>def <span class="ident">opensees_deck_sections</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sections used in the bridge deck.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_deck_sections(c: Config):
+    &#34;&#34;&#34;Sections used in the bridge deck.&#34;&#34;&#34;
+    return comment(
+        &#34;deck sections&#34;,
+        &#34;\n&#34;.join([opensees_section(section) for section in c.bridge.sections]),
+        units=(
+            &#34;section ElasticMembranePlateSection secTag youngs_modulus&#34;
+            + &#34; poisson_ratio depth mass_density&#34;
+        ),
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_abutment_nodes"><code class="name flex">
+<span>def <span class="ident">opensees_fixed_abutment_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees fix commands for fixed nodes on the abument.</p>
+<p>Fixed for translation but not for rotation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_fixed_abutment_nodes(
+    c: Config, sim_params: SimParams, deck_nodes: DeckNodes
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees fix commands for fixed nodes on the abument.
+
+    Fixed for translation but not for rotation.
+
+    &#34;&#34;&#34;
+    thermal = (sim_params.axial_delta_temp is not None) or (
+        sim_params.moment_delta_temp is not None
+    )
+    fixed_nodes: List[FixNode] = []
+    for i_x, x_nodes in enumerate(deck_nodes):
+        assert len(x_nodes) &gt;= 2
+        for node in [x_nodes[0], x_nodes[-1]]:
+            fixed_nodes.append(
+                FixNode(
+                    node=node,
+                    fix_x_translation=False,
+                    fix_y_translation=True,
+                    fix_z_translation=True,
+                    # fix_z_translation=(not thermal) or (i_x == (len(deck_nodes) // 2)),
+                    fix_x_rotation=False,
+                    fix_y_rotation=False,
+                    fix_z_rotation=False,
+                )
+            )
+    return comment(
+        &#34;fixed deck nodes&#34;,
+        &#34;\n&#34;.join(map(lambda f: f.command_3d(), fixed_nodes)),
+        units=&#34;fix nodeTag x y z rx ry rz&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_pier_nodes"><code class="name flex">
+<span>def <span class="ident">opensees_fixed_pier_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, all_support_nodes: <function NewType.<locals>.new_type at 0x11842e320>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>]) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees fix commands for fixed support nodes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_fixed_pier_nodes(
+    c: Config,
+    sim_params: SimParams,
+    all_support_nodes: PierNodes,
+    pier_disp: List[PierSettlement],
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees fix commands for fixed support nodes.&#34;&#34;&#34;
+    # First, for thermal loading, we determine the piers at each longitudinal
+    # (x) position, so for each x position we can then determine which piers
+    # will be fixed in transverse (z) translation.
+    pier_positions = defaultdict(set)
+    for p_i, _ in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
+        pier_positions[round_m(pier.x)].add(round_m(pier.z))
+    pier_positions = {
+        pier_x: sorted(pier_zs) for pier_x, pier_zs in pier_positions.items()
+    }
+
+    fixed_nodes: List[FixNode] = []
+    # Iterate through each pier. Note that p_nodes is a tuple of nodes for each
+    # pier wall. And each wall is a 2-d array of nodes.
+    for p_i, p_nodes in enumerate(all_support_nodes):
+        pier = c.bridge.supports[p_i]
+        # If pier displacement for this pier then select the bottom central node
+        # for the integrator command, and attach it to the pier.
+        free_y_trans = False
+        for ps in pier_disp:
+            if p_i == ps.pier:
+                free_y_trans = True
+                pier = c.bridge.supports[ps.pier]
+                pier.disp_node = p_nodes[0][len(p_nodes[0]) // 2][-1]
+                if len(p_nodes[0]) % 2 == 0:
+                    print_w(&#34;Pier settlement:&#34;)
+                    print_w(&#34;  no central node (even number of nodes)&#34;)
+        # For each ~vertical line of nodes for a z position at top of wall.
+        for y_i, y_nodes in enumerate(p_nodes[0]):
+            # We will fix the bottom node.
+            node = y_nodes[-1]
+            fixed_nodes.append(
+                FixNode(
+                    node=node,
+                    fix_x_translation=pier.fix_x_translation,
+                    fix_y_translation=False if free_y_trans else pier.fix_y_translation,
+                    # fix_z_translation=fix_pier_z_translation(pier),
+                    fix_z_translation=True,
+                    fix_x_rotation=pier.fix_x_rotation,
+                    fix_y_rotation=pier.fix_y_rotation,
+                    fix_z_rotation=pier.fix_z_rotation,
+                    comment=f&#34;pier {p_i} y {y_i}&#34;,
+                )
+            )
+    return comment(
+        &#34;fixed support nodes&#34;,
+        &#34;\n&#34;.join(map(lambda f: f.command_3d(), fixed_nodes)),
+        units=&#34;fix nodeTag x y z rx ry rz&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_forces"><code class="name flex">
+<span>def <span class="ident">opensees_forces</span></span>(<span>sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, os_runner: OSRunner, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_forces(sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext):
+    return (
+        f&#34;recorder Element&#34;
+        f&#34; -file {os_runner.forces_path(sim_params)}&#34;
+        f&#34; -ele {det_shells_id_str(ctx)} forces&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_integrator"><code class="name flex">
+<span>def <span class="ident">opensees_integrator</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The integrator command to use based on FEMParams.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_integrator(c: Config, pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The integrator command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        node = c.bridge.supports[pier_disp[0].pier].disp_node
+        if len(pier_disp) &gt; 1:
+            print_w(f&#34;Using pier {pier_disp[0].pier} for DisplacementControl&#34;)
+        return (
+            f&#34;integrator DisplacementControl {node.n_id} 2&#34;
+            + f&#34; {pier_disp[0].settlement}&#34;
+        )
+    return &#34;integrator LoadControl 1&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_load"><code class="name flex">
+<span>def <span class="ident">opensees_load</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, pload: <a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An OpenSees load command.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_load(
+    c: Config, pload: PointLoad, deck_nodes: DeckNodes,
+):
+    &#34;&#34;&#34;An OpenSees load command.&#34;&#34;&#34;
+    assert deck_nodes[0][0].y == 0
+    assert deck_nodes[-1][-1].y == 0
+    best_node = sorted(
+        chain.from_iterable(deck_nodes),
+        key=lambda node: node.distance(x=pload.x, y=0, z=pload.z),
+    )[0]
+
+    assert np.isclose(best_node.y, 0)
+    print(f&#34;before assert load.x = {pload.x}&#34;)
+    print(f&#34;best_node_x = {best_node.x}&#34;)
+    # If we have a proper mesh then this should be the exact node.
+    # TODO: Remove atol when fractional positioning is removed from the system.
+    assert np.isclose(best_node.x, pload.x)
+    assert np.isclose(best_node.z, pload.z)
+    # assert np.isclose(best_node.x, pload.x, atol=0.001)
+    # assert np.isclose(best_node.z, pload.z, atol=0.001)
+
+    return f&#34;load {best_node.n_id} 0 {pload.load * 1000} 0 0 0 0&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_loads"><code class="name flex">
+<span>def <span class="ident">opensees_loads</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, ploads: List[<a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>], deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees load commands for a .tcl file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_loads(
+    c: Config,
+    ploads: List[PointLoad],
+    deck_nodes: DeckNodes,
+    pier_disp: List[PierSettlement],
+):
+    &#34;&#34;&#34;OpenSees load commands for a .tcl file.&#34;&#34;&#34;
+    # In case of pier displacement apply load at the pier&#39;s central bottom node,
+    # the load intensity doesn&#39;t matter though, only the position matters.
+    if len(pier_disp) &gt; 0:
+        load_str = &#34;&#34;
+        for ps in pier_disp:
+            node = c.bridge.supports[ps.pier].disp_node
+            load_str += f&#34;\nload {node.n_id} 0 {ps.settlement * 1000} 0 0 0 0&#34;
+    # Otherwise find the deck nodes which best suit given point loads.
+    else:
+        load_str = &#34;\n&#34;.join(
+            opensees_load(c=c, pload=pload, deck_nodes=deck_nodes) for pload in ploads
+        )
+
+    return comment(&#34;loads&#34;, load_str, units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_pier_elements"><code class="name flex">
+<span>def <span class="ident">opensees_pier_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x11842eb00>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees element commands for a bridge's piers.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_pier_elements(c: Config, all_pier_elements: PierShells) -&gt; str:
+    &#34;&#34;&#34;OpenSees element commands for a bridge&#39;s piers.&#34;&#34;&#34;
+    pier_shells = det_shells(all_pier_elements)
+    return comment(
+        &#34;pier shell elements&#34;,
+        &#34;\n&#34;.join(map(lambda e: e.command_3d(), pier_shells)),
+        units=&#34;element ShellMITC4 eleTag iNode jNode kNode lNode secTag&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_pier_sections"><code class="name flex">
+<span>def <span class="ident">opensees_pier_sections</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x11842eb00>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sections used in the bridge's piers.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_pier_sections(c: Config, all_pier_elements: PierShells):
+    &#34;&#34;&#34;Sections used in the bridge&#39;s piers.&#34;&#34;&#34;
+    pier_shells = det_shells(all_pier_elements)
+    # Some pier&#39;s may refer to the same section so we create a set to avoid
+    # rendering duplicate section definitions into the .tcl file.
+    pier_sections = set([pier_shell.section for pier_shell in pier_shells])
+    return comment(
+        &#34;pier sections&#34;,
+        &#34;\n&#34;.join([opensees_section(section) for section in pier_sections]),
+        units=(
+            &#34;section ElasticMembranePlateSection secTag youngs_modulus&#34;
+            + &#34; poisson_ratio depth mass_density&#34;
+        ),
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_section"><code class="name flex">
+<span>def <span class="ident">opensees_section</span></span>(<span>section: <a title="bridge_sim.model.Material" href="../../../../../model/index.html#bridge_sim.model.Material">Material</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees ElasticMembranePlateSection command for a Material.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_section(section: Material):
+    &#34;&#34;&#34;OpenSees ElasticMembranePlateSection command for a Material.&#34;&#34;&#34;
+    # TODO: Implicit information, assumption that if young&#39;s modulus in x
+    #     direction is modified that cracking is desired (poisson&#39;s set to 0).
+    CRACK_Z = not np.isclose(section.youngs_x(), section.youngs)
+    # New orthotropic method.
+    return (
+        f&#34;nDMaterial ElasticOrthotropic {section.id}&#34;
+        f&#34; {section.youngs_x() * 1E6} {section.youngs * 1E6} {section.youngs * 1E6}&#34;
+        f&#34; {0 if CRACK_Z else section.poissons} {section.poissons} {section.poissons}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {(section.youngs * 1E6) / (2 * (1 + section.poissons))}&#34;
+        f&#34; {section.density * 1E-3}&#34;
+        f&#34;\nsection PlateFiber {section.id} {section.id} {section.thickness}&#34;
+    )
+    # Old isotropic method.
+    raise ValueError(&#34;Not using orthotropic method&#34;)
+    return (
+        f&#34;section ElasticMembranePlateSection {section.id}&#34;
+        + f&#34; {section.youngs * 1E6} {section.poissons} {section.thickness}&#34;
+        + f&#34; {section.density * 1E-3}&#34;
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_strain_recorders"><code class="name flex">
+<span>def <span class="ident">opensees_strain_recorders</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, os_runner: OSRunner, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees recorder commands for translation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_strain_recorders(
+    c: Config, sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+):
+    &#34;&#34;&#34;OpenSees recorder commands for translation.&#34;&#34;&#34;
+    return &#34;\n&#34;.join(
+        f&#34;recorder Element&#34;
+        f&#34; -file {os_runner.strain_path(sim_params=sim_params, point=point)}&#34;
+        f&#34; -ele {det_shells_id_str(ctx)} material {str(point)} deformation&#34;
+        for point in [1, 2, 3, 4]
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_stress_variables"><code class="name flex">
+<span>def <span class="ident">opensees_stress_variables</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, os_runner: OSRunner, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> Tuple[str, str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees stress recorder variables.</p>
+<p>These replace &lt;<ELEM_IDS>&gt; and &lt;<FORCES_OUT_FILE>&gt; in the TCL file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_stress_variables(
+    c: Config, sim_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+) -&gt; Tuple[str, str]:
+    &#34;&#34;&#34;OpenSees stress recorder variables.
+
+    These replace &lt;&lt;ELEM_IDS&gt;&gt; and &lt;&lt;FORCES_OUT_FILE&gt;&gt; in the TCL file.
+
+    &#34;&#34;&#34;
+    return det_shells_id_str(ctx), os_runner.stress_path(sim_params)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_support_nodes"><code class="name flex">
+<span>def <span class="ident">opensees_support_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11842e320>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Opensees node commands for the supports (ignoring deck).</p>
+<p>By 'ignoring deck' we mean that nodes that belong to both supports and the
+deck will not be returned by this function but instead by
+'opensees_deck_nodes'.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, global configuration object.</dd>
+<dt><strong><code>deck_nodes</code></strong></dt>
+<dd>DeckNodes, to check for already added support nodes.</dd>
+<dt><strong><code>all_support_nodes</code></strong></dt>
+<dd>AllSupportNodes, all support nodes to generate
+commands for.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_support_nodes(
+    c: Config, deck_nodes: DeckNodes, all_support_nodes: PierNodes,
+) -&gt; str:
+    &#34;&#34;&#34;Opensees node commands for the supports (ignoring deck).
+
+    By &#39;ignoring deck&#39; we mean that nodes that belong to both supports and the
+    deck will not be returned by this function but instead by
+    &#39;opensees_deck_nodes&#39;.
+
+    Args:
+        c: Config, global configuration object.
+        deck_nodes: DeckNodes, to check for already added support nodes.
+        all_support_nodes: AllSupportNodes, all support nodes to generate
+            commands for.
+
+    &#34;&#34;&#34;
+    # We want to avoid generating commands for support nodes that also belong to
+    # the deck, thus we create a set for fast indexing to allow this check.
+    deck_nodes = set(chain.from_iterable(deck_nodes))
+    nodes = OrderedDict()
+    # For each support.
+    for s_nodes in all_support_nodes:
+        # For each wall of the support (there are two).
+        for w_nodes in s_nodes:
+            # For each ~vertical line of nodes for a z position at top of wall.
+            for y_nodes in w_nodes:
+                # For each node in the ~vertical line.
+                for y, node in enumerate(y_nodes):
+                    # Insert the node, if not part of the deck nodes.
+                    if node not in deck_nodes:
+                        # A dictionary is used incase the node is already added,
+                        # incase it is a bottom node shared by both walls.
+                        nodes[node] = None
+    return comment(
+        &#34;support nodes&#34;,
+        &#34;\n&#34;.join(map(lambda n: n.command_3d(), nodes.keys())),
+        units=&#34;node nodeTag x y z&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_test"><code class="name flex">
+<span>def <span class="ident">opensees_test</span></span>(<span>pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The test command to use based on FEMParams.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_test(pier_disp: List[PierSettlement]):
+    &#34;&#34;&#34;The test command to use based on FEMParams.&#34;&#34;&#34;
+    if len(pier_disp) &gt; 0:
+        return &#34;&#34;
+    return &#34;test NormDispIncr 1.0e-12 1000&#34;</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.opensees_translation_recorders"><code class="name flex">
+<span>def <span class="ident">opensees_translation_recorders</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, os_runner: OSRunner, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>OpenSees recorder commands for translation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_translation_recorders(
+    c: Config, fem_params: SimParams, os_runner: &#34;OSRunner&#34;, ctx: BuildContext
+) -&gt; str:
+    &#34;&#34;&#34;OpenSees recorder commands for translation.&#34;&#34;&#34;
+    # A list of tuples of ResponseType and OpenSees direction index, for
+    # translation response types, if requested in fem_params.response_types.
+    translation_response_types = []
+    # X translation.
+    x_path = os_runner.x_translation_path(fem_params)
+    translation_response_types.append((x_path, 1))
+    print_i(f&#34;OpenSees: saving x translation at {x_path}&#34;)
+    # Y translation.
+    y_path = os_runner.y_translation_path(fem_params)
+    translation_response_types.append((y_path, 2))
+    print_i(f&#34;OpenSees: saving y translation at {y_path}&#34;)
+    # Z translation.
+    z_path = os_runner.z_translation_path(fem_params)
+    translation_response_types.append((z_path, 3))
+    print_i(f&#34;OpenSees: saving z translation at {z_path}&#34;)
+
+    # Append a recorder string for each response type (recording nodes).
+    recorder_strs = []
+    node_str = det_nodes_id_str(ctx)
+    for response_path, direction in translation_response_types:
+        print_d(D, f&#34;Adding response path to build: {response_path}&#34;)
+        recorder_strs.append(
+            f&#34;recorder Node -file {response_path} -node {node_str} -dof&#34;
+            + f&#34; {direction} disp&#34;
+        )
+    return comment(
+        &#34;translation recorders&#34;,
+        &#34;\n&#34;.join(recorder_strs),
+        units=&#34;recorder Node -file path -node nodeTags -dof direction disp&#34;,
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bridge_sim.sim.run.opensees.build.d3.FixNode"><code class="flex name class">
+<span>class <span class="ident">FixNode</span></span>
+<span>(</span><span>node: <a title="bridge_sim.sim.model.Node" href="../../../../model/index.html#bridge_sim.sim.model.Node">Node</a>, fix_x_translation: bool, fix_y_translation: bool, fix_z_translation: bool, fix_x_rotation: bool, fix_y_rotation: bool, fix_z_rotation: bool, comment: Union[str, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A command to fix a node in some degrees of freedom (dof).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>node</code></strong></dt>
+<dd>Node, the node with dof to fix specified.</dd>
+<dt><strong><code>comment_</code></strong></dt>
+<dd>Optional[str], an optional comment for the command.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FixNode:
+    &#34;&#34;&#34;A command to fix a node in some degrees of freedom (dof).
+
+    Args:
+        node: Node, the node with dof to fix specified.
+        comment_: Optional[str], an optional comment for the command.
+
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        node: Node,
+        fix_x_translation: bool,
+        fix_y_translation: bool,
+        fix_z_translation: bool,
+        fix_x_rotation: bool,
+        fix_y_rotation: bool,
+        fix_z_rotation: bool,
+        comment: Optional[str] = None,
+    ):
+        self.node = node
+        self.fix_x_translation = fix_x_translation
+        self.fix_y_translation = fix_y_translation
+        self.fix_z_translation = fix_z_translation
+        self.fix_x_rotation = fix_x_rotation
+        self.fix_y_rotation = fix_y_rotation
+        self.fix_z_rotation = fix_z_rotation
+        self.comment = comment
+
+    def command_3d(self):
+        &#34;&#34;&#34;The command in string format for a TCL file.&#34;&#34;&#34;
+        # TODO: Update comment to include support ID.
+        comment_ = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+        return (
+            f&#34;fix {self.node.n_id}&#34;
+            + f&#34; {int(self.fix_x_translation)}&#34;
+            + f&#34; {int(self.fix_y_translation)}&#34;
+            + f&#34; {int(self.fix_z_translation)}&#34;
+            + f&#34; {int(self.fix_x_rotation)}&#34;
+            + f&#34; {int(self.fix_y_rotation)}&#34;
+            + f&#34; {int(self.fix_z_rotation)}&#34;
+            + f&#34;{comment_}&#34;
+        )</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="bridge_sim.sim.run.opensees.build.d3.FixNode.command_3d"><code class="name flex">
+<span>def <span class="ident">command_3d</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The command in string format for a TCL file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def command_3d(self):
+    &#34;&#34;&#34;The command in string format for a TCL file.&#34;&#34;&#34;
+    # TODO: Update comment to include support ID.
+    comment_ = &#34;&#34; if self.comment is None else f&#34;; # {self.comment}&#34;
+    return (
+        f&#34;fix {self.node.n_id}&#34;
+        + f&#34; {int(self.fix_x_translation)}&#34;
+        + f&#34; {int(self.fix_y_translation)}&#34;
+        + f&#34; {int(self.fix_z_translation)}&#34;
+        + f&#34; {int(self.fix_x_rotation)}&#34;
+        + f&#34; {int(self.fix_y_rotation)}&#34;
+        + f&#34; {int(self.fix_z_rotation)}&#34;
+        + f&#34;{comment_}&#34;
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim.run.opensees.build" href="../index.html">bridge_sim.sim.run.opensees.build</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.thermal" href="thermal.html">bridge_sim.sim.run.opensees.build.d3.thermal</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.util" href="util.html">bridge_sim.sim.run.opensees.build.d3.util</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.build_model_3d" href="#bridge_sim.sim.run.opensees.build.d3.build_model_3d">build_model_3d</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_algorithm" href="#bridge_sim.sim.run.opensees.build.d3.opensees_algorithm">opensees_algorithm</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_deck_elements" href="#bridge_sim.sim.run.opensees.build.d3.opensees_deck_elements">opensees_deck_elements</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_deck_nodes" href="#bridge_sim.sim.run.opensees.build.d3.opensees_deck_nodes">opensees_deck_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_deck_sections" href="#bridge_sim.sim.run.opensees.build.d3.opensees_deck_sections">opensees_deck_sections</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_abutment_nodes" href="#bridge_sim.sim.run.opensees.build.d3.opensees_fixed_abutment_nodes">opensees_fixed_abutment_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_pier_nodes" href="#bridge_sim.sim.run.opensees.build.d3.opensees_fixed_pier_nodes">opensees_fixed_pier_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_forces" href="#bridge_sim.sim.run.opensees.build.d3.opensees_forces">opensees_forces</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_integrator" href="#bridge_sim.sim.run.opensees.build.d3.opensees_integrator">opensees_integrator</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_load" href="#bridge_sim.sim.run.opensees.build.d3.opensees_load">opensees_load</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_loads" href="#bridge_sim.sim.run.opensees.build.d3.opensees_loads">opensees_loads</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_pier_elements" href="#bridge_sim.sim.run.opensees.build.d3.opensees_pier_elements">opensees_pier_elements</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_pier_sections" href="#bridge_sim.sim.run.opensees.build.d3.opensees_pier_sections">opensees_pier_sections</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_section" href="#bridge_sim.sim.run.opensees.build.d3.opensees_section">opensees_section</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_strain_recorders" href="#bridge_sim.sim.run.opensees.build.d3.opensees_strain_recorders">opensees_strain_recorders</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_stress_variables" href="#bridge_sim.sim.run.opensees.build.d3.opensees_stress_variables">opensees_stress_variables</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_support_nodes" href="#bridge_sim.sim.run.opensees.build.d3.opensees_support_nodes">opensees_support_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_test" href="#bridge_sim.sim.run.opensees.build.d3.opensees_test">opensees_test</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.opensees_translation_recorders" href="#bridge_sim.sim.run.opensees.build.d3.opensees_translation_recorders">opensees_translation_recorders</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bridge_sim.sim.run.opensees.build.d3.FixNode" href="#bridge_sim.sim.run.opensees.build.d3.FixNode">FixNode</a></code></h4>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.FixNode.command_3d" href="#bridge_sim.sim.run.opensees.build.d3.FixNode.command_3d">command_3d</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
