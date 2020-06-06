@@ -1,68 +1,30 @@
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 
-from classify.data.responses import responses_to_traffic_array
-from classify.data.responses.convert import loads_to_traffic_array
-from classify.scenario.bridge import HealthyDamage, pier_disp_damage, transverse_crack
-from classify.scenarios import healthy_scenario
-from classify.vehicle import wagen1
-from classify import temperature, without
-from config import Config
-from model.bridge import Point
-from model.load import PointLoad
-from model.response import ResponseType
-from fem.responses import Responses, load_fem_responses
-from fem.run.opensees import OSRunner
-from plot import equal_lims, plt
-from plot.geometry import top_view_bridge
-from plot.responses import plot_contour_deck
-from bridge_sim.util import flatten, print_i
-from validate.campaign import displa_sensor_xz, strain_sensor_xz
+from bridge_sim.model import Config, PointLoad, Point, ResponseType
+from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.traffic import loads_to_traffic_array
+from bridge_sim.util import print_i, flatten, project_dir
+from bridge_sim.vehicles import truck1
+from lib.validate import _displa_sensor_xz, _strain_sensor_xz
 
 
 def truck_1_time_series(c: Config):
     """Time series of 3 sensors to Truck 1's movement."""
     side_s = 7
     side = int(side_s * (1 / c.sensor_hz))
-    assert wagen1.x_at(time=0, bridge=c.bridge) == 0
+    assert truck1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
-    end_time = wagen1.time_left_bridge(c.bridge)
+    end_time = truck1.time_left_bridge(c.bridge)
     wagen1_times = np.linspace(
         -end_time, end_time * 2, int((end_time * 3) / c.sensor_hz)
     )
-    print_i("Calculating Truck 1 loads")
     wagen1_loads = [
-        flatten(wagen1.to_wheel_track_loads(c=c, time=time), PointLoad)
-        # flatten(wagen1.to_point_load_pw(time=time, bridge=c.bridge), PointLoad)
+        flatten(truck1.to_wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
     ]
-    print_i("Calculated Truck 1 loads")
-
-    def set_labels(ylabel: str, xlabel: str):
-        for i, y, x in [
-            (1, True, False),
-            (2, False, False),
-            (3, True, False),
-            (4, False, False),
-            (5, True, True),
-            (6, False, True),
-        ]:
-            plt.subplot(3, 2, i)
-            ax = plt.gca()
-            if y:
-                plt.ylabel(ylabel)
-            else:
-                ax.axes.yaxis.set_ticklabels([])
-            if x:
-                plt.xlabel(xlabel)
-            ax.axes.xaxis.set_ticklabels([])
-        ymin, ymax = np.inf, -np.inf
-        for i in range(1, 6 + 1):
-            plt.subplot(3, 2, i)
-            ymin = min(ymin, plt.ylim()[0])
-            ymax = max(ymax, plt.ylim()[1])
-        for i in range(1, 6 + 1):
-            plt.subplot(3, 2, i)
-            plt.ylim((ymin, ymax))
 
     ################
     # Vert. trans. #
@@ -74,48 +36,54 @@ def truck_1_time_series(c: Config):
     displa_points = [
         Point(x=sensor_x, y=0, z=sensor_z)
         for sensor_x, sensor_z in [
-            displa_sensor_xz(displa_label) for displa_label in displa_labels
+            _displa_sensor_xz(displa_label) for displa_label in displa_labels
         ]
     ]
     # Ensure points and truck are on the same lane.
     assert all(p.z < 0 for p in displa_points)
+
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(
         c=c,
         traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
-        response_type=ResponseType.YTranslation,
-        damage_scenario=healthy_scenario,
+        response_type=ResponseType.YTrans,
         points=displa_points,
-    ).T
+    ).T * 1E-3
     for s_i, sensor_responses in enumerate(responses_truck1):
-        plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
+        plt.subplot(len(displa_points), 1, s_i + 1)
         # Find the center of the plot, minimum point in the data.
         data_center = 0
         for i in range(len(sensor_responses)):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
-        # sensor_responses = add_displa_noise(sensor_responses) * 1000
         sensor_responses = sensor_responses * 1000
-        plt.plot(sensor_responses[data_center - side : data_center + side])
-        plt.title(f"{displa_labels[s_i]} in simulation")
+        plot_data = sensor_responses[data_center - side:data_center + side]
+        x = np.arange(len(plot_data)) / 700
+        plt.plot(x, plot_data, c="b", label="simulation")
+
     # Results from experiment.
-    side = int(side / ((1 / c.sensor_hz) / 100))
-    print_i(f"{side} points each side of center")
+    center, side = 13500, 700
+    plot_offsets = [-1350, -850, 0]
     for s_i, displa_label in enumerate(displa_labels):
-        plt.subplot(len(displa_points), 2, (s_i * 2) + 2)
-        with open(f"validation/experiment/D1a-{displa_label}.txt") as f:
+        plt.subplot(len(displa_points), 1, s_i + 1)
+        with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{displa_label}.txt")) as f:
             data = list(map(float, f.readlines()))
-        side_expt = int(side_s * (len(data) / 240))
-        # Find the center of the plot, minimum point in first 15000 points.
-        data_center = 0
-        for i in range(15000):
-            if data[i] < data[data_center]:
-                data_center = i
-        plt.plot(data[data_center - side_expt : data_center + side_expt])
-        plt.title(f"{displa_label} in dynamic test")
-    set_labels("Y translation (mm)", "Time")
+        print_i(f"Total Y translation data length = {len(data)}")
+        new_center = center + plot_offsets[s_i]
+        plot_data = data[new_center - side:new_center + side]
+        x = np.arange(len(plot_data)) / 700
+        plt.plot(x, plot_data, c="r", label="experiment")
+
+        # Labels/titles.
+        plt.legend()
+        plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
+        point = displa_points[s_i]
+        plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
+        if s_i < len(displa_labels) - 1:
+            plt.tick_params(axis="x", bottom=False, labelbottom=False)
+
     plt.tight_layout()
-    plt.savefig(c.get_image_path("validation/truck-1", "time-series-vert-trans.pdf"))
+    plt.savefig(c.get_image_path("validation/dynamic", "y-trans.pdf"))
     plt.close()
 
     ##########
@@ -128,48 +96,47 @@ def truck_1_time_series(c: Config):
     strain_points = [
         Point(x=sensor_x, y=0, z=sensor_z)
         for sensor_x, sensor_z in [
-            strain_sensor_xz(strain_label) for strain_label in strain_labels
+            _strain_sensor_xz(strain_label) for strain_label in strain_labels
         ]
     ]
+
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(
         c=c,
         traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
-        response_type=ResponseType.Strain,
-        damage_scenario=healthy_scenario,
+        response_type=ResponseType.StrainXXB,
         points=strain_points,
-    ).T
+    ).T * 1E-3
     for s_i, sensor_responses in enumerate(responses_truck1):
-        plt.subplot(len(strain_points), 2, (s_i * 2) + 1)
-        # Find the center of the plot, minimum point in the data.
+        plt.subplot(len(strain_points), 1, s_i + 1)
         data_center = 0
         for i in range(len(sensor_responses)):
             if sensor_responses[i] > sensor_responses[data_center]:
                 data_center = i
-        # sensor_responses = add_strain_noise(sensor_responses)
-        # plt.plot(sensor_responses)
-        plt.plot(sensor_responses[data_center - side : data_center + side])
-        # plt.plot(sensor_responses[data_center - side : data_center + side])
-        plt.title(f"{strain_labels[s_i]} in simulation")
+        plt.plot(sensor_responses[data_center - side:data_center + side], c="b", label="simulation")
+
     # Results from experiment.
-    print_i(f"{side} points each side of center")
+    center, side = 13000, 700
+    plot_offsets = [-400, -300, -150]
     for s_i, strain_label in enumerate(strain_labels):
-        plt.subplot(len(strain_points), 2, (s_i * 2) + 2)
-        with open(f"validation/experiment/D1a-{strain_label}.txt") as f:
+        plt.subplot(len(strain_points), 1, s_i + 1)
+        with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{strain_label}.txt")) as f:
             data = list(map(float, f.readlines()))
-        side_expt = int(side_s * (len(data) / 240))
-        # Find the center of the plot, minimum point in first 15000 points.
-        data_center = 0
-        for i in range(15000):
-            if data[i] < data[data_center]:
-                data_center = i
-        # plt.plot(data)
-        plt.plot(data[data_center - side_expt : data_center + side_expt])
-        # plt.plot(data[data_center - side_expt : data_center + side_expt])
-        plt.title(f"{strain_label} in dynamic test")
-    set_labels("Microstrain", "Time")
+        print_i(f"Total strain data length = {len(data)}")
+        new_center = center + plot_offsets[s_i]
+        plt.plot(data[new_center - side:new_center + side], c="r", label="experiment")
+
+        # Labels/titles.
+        plt.legend()
+        plt.ylabel("Microstrain XXB")
+        point = displa_points[s_i]
+        plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
+        if s_i < len(strain_labels) - 1:
+            plt.tick_params(axis="x", bottom=False, labelbottom=False)
+
+    # set_labels(ResponseType.StrainXXB.name(), "Time")
     plt.tight_layout()
-    plt.savefig(c.get_image_path("validation/truck-1", "time-series-strain.pdf"))
+    plt.savefig(c.get_image_path("validation/dynamic", "strain.pdf"))
     plt.close()
 
 

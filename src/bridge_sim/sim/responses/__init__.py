@@ -71,7 +71,8 @@ def responses_to_traffic_array(
 
     """
     ulm = load_ulm(c, response_type, points)
-    assert ulm.shape[0] == len(points)
+    assert ulm.shape[1] == len(points)
+    assert traffic_array.shape[1] == ulm.shape[0]
     print(traffic_array.shape, ulm.shape)
     return np.matmul(traffic_array, ulm)
 
