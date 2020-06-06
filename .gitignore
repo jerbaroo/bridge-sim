@@ -3,9 +3,6 @@
 *.swp
 *.tb
 
-# Validation
-data/validation
-
 # Python
 *.egg-info/
 .idea/
@@ -15,14 +12,12 @@ __pycache__/
 venv/
 
 # Generated
-build/
-crack/
 *generated*/
-out/
 src/build/
 src/dist/
-docker.png
-lisa-results/
+
+# Validation
+data/validation
 
 # Diana
 diana*.out

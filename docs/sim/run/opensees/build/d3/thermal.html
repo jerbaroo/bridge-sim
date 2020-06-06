@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.run.opensees.build.d3.thermal API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.run.opensees.build.d3.thermal</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from collections import defaultdict
+from enum import Enum
+from typing import Dict
+
+import numpy as np
+
+from bridge_sim.model import Config
+from bridge_sim.sim.build import det_shells
+from bridge_sim.sim.model import BuildContext, DeckShells, Node, SimParams
+from bridge_sim.sim.run.opensees.build.d3.util import comment
+from bridge_sim.util import print_d
+
+# Print debug information for this file.
+D: str = &#34;fem.run.opensees.build.d3.thermal&#34;
+D: bool = False
+
+
+def opensees_thermal_axial_deck_loads(
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
+):
+    &#34;&#34;&#34;Thermal axial loads for deck shells, if in the simulation parameters.&#34;&#34;&#34;
+    if sim_params.axial_delta_temp is None:
+        return &#34;&#34;
+
+    class LoadDirection(Enum):
+        &#34;&#34;&#34;Direction a thermal load is applied to a shell.&#34;&#34;&#34;
+
+        XPOS = 1
+        XNEG = 2
+        ZPOS = 3
+        ZNEG = 4
+
+    def assert_load_direction(node_0: Node, node_1: Node, direction: LoadDirection):
+        &#34;&#34;&#34;Assert the load direction is perpendicular to the nodes.&#34;&#34;&#34;
+        if direction in [LoadDirection.XPOS, LoadDirection.XNEG]:
+            assert node_0.x == node_1.x
+        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
+            assert node_0.z == node_1.z
+        else:
+            raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+    class ThermalLoad:
+        &#34;&#34;&#34;Total thermal load to be applied to a node.&#34;&#34;&#34;
+
+        def __init__(self):
+            self.x = 0
+            self.z = 0
+
+        def add_load(self, magnitude: float, direction: LoadDirection):
+            &#34;&#34;&#34;Add a load in a given direction.&#34;&#34;&#34;
+            if direction == LoadDirection.XPOS:
+                self.x += magnitude
+            elif direction == LoadDirection.XNEG:
+                self.x -= magnitude
+            elif direction == LoadDirection.ZPOS:
+                self.z += magnitude
+            elif direction == LoadDirection.ZNEG:
+                self.z -= magnitude
+            else:
+                raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+        def to_tcl(self, n_id: int):
+            &#34;&#34;&#34;Return a string with 0, 1, or 2 OpenSees load commands.&#34;&#34;&#34;
+            if np.isclose(self.x, 0) and np.isclose(self.z, 0):
+                return &#34;&#34;
+            return (
+                f&#34;\nload {n_id} {np.around(self.x, 3)} 0 {np.around(self.z, 3)} 0 0 0&#34;
+            )
+
+    thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
+    for shell in det_shells(deck_elements):
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, &#34;&#34;)
+        print_d(D, f&#34;cte = {c.cte}&#34;)
+        print_d(D, f&#34;d_temp = {sim_params.axial_delta_temp}&#34;)
+        shell_thermal_strain = c.cte * sim_params.axial_delta_temp
+        shell_youngs_si = shell.section.youngs * 1e6
+        shell_thermal_stress = shell_youngs_si * shell_thermal_strain
+        print_d(D, f&#34;shell youngs SI = {shell_youngs_si}&#34;)
+        print_d(D, f&#34;thermal stress = {shell_thermal_stress}&#34;)
+        # For each cross section consider the pair of nodes at the corners.
+        for n_id_0, n_id_1, load_direction in [
+            (shell.ni_id, shell.nj_id, LoadDirection.ZPOS),
+            (shell.nj_id, shell.nk_id, LoadDirection.XNEG),
+            (shell.nk_id, shell.nl_id, LoadDirection.ZNEG),
+            (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
+        ]:
+            print_d(D, f&#34;node ids = {n_id_0}, {n_id_1}&#34;)
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
+            assert_load_direction(
+                node_0=node_0, node_1=node_1, direction=load_direction
+            )
+            node_distance = node_0.distance_n(node_1)
+            assert node_distance &gt; 0
+            print_d(D, f&#34;node distance = {node_distance}&#34;)
+            cross_section_area = shell.section.thickness * node_distance
+            print_d(D, f&#34;cross section area = {cross_section_area}&#34;)
+            cross_section_thermal_force_n = shell_thermal_stress * cross_section_area
+            print_d(D, f&#34;cross section thermal force = {cross_section_thermal_force_n}&#34;)
+            nodal_thermal_force_n = cross_section_thermal_force_n / 2
+            assert np.isclose(
+                cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
+            )
+            print_d(
+                D,
+                f&#34;Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+            for n_id in [n_id_0, n_id_1]:
+                thermal_loads_by_nid[n_id].add_load(
+                    magnitude=nodal_thermal_force_n, direction=load_direction
+                )
+            print_d(
+                D,
+                f&#34;After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+
+    thermal_load_str = &#34;&#34;.join(
+        [load.to_tcl(n_id) for n_id, load in thermal_loads_by_nid.items()]
+    )
+    return comment(
+        &#34;thermal loads&#34;,
+        thermal_load_str,
+        units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )
+
+
+def opensees_thermal_moment_deck_loads(
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext,
+):
+    &#34;&#34;&#34;Thermal moment loads for deck shells, if in the simulation parameters.&#34;&#34;&#34;
+    if sim_params.moment_delta_temp is None:
+        return &#34;&#34;
+
+    class LoadDirection(Enum):
+        &#34;&#34;&#34;Direction a thermal load is applied to a shell.&#34;&#34;&#34;
+
+        XPOS = 1
+        XNEG = 2
+        ZPOS = 3
+        ZNEG = 4
+
+    def assert_load_direction(node_0: Node, node_1: Node, direction: LoadDirection):
+        &#34;&#34;&#34;Assert the load direction is perpendicular to the nodes.&#34;&#34;&#34;
+        # TODO: Remove return.
+        return
+        if direction in [LoadDirection.XPOS, LoadDirection.XNEG]:
+            assert node_0.z == node_1.z
+        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
+            assert node_0.x == node_1.x
+        else:
+            raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+    class ThermalLoad:
+        &#34;&#34;&#34;Total thermal load to be applied to a node.&#34;&#34;&#34;
+
+        def __init__(self):
+            self.x = 0
+            self.z = 0
+
+        def add_load(self, magnitude: float, direction: LoadDirection):
+            &#34;&#34;&#34;Add a load in a given direction.&#34;&#34;&#34;
+            if direction == LoadDirection.XPOS:
+                self.x += magnitude
+            elif direction == LoadDirection.XNEG:
+                self.x -= magnitude
+            elif direction == LoadDirection.ZPOS:
+                self.z += magnitude
+            elif direction == LoadDirection.ZNEG:
+                self.z -= magnitude
+            else:
+                raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+        def to_tcl(self, n_id: int):
+            &#34;&#34;&#34;Return a string with 0, 1, or 2 OpenSees load commands.&#34;&#34;&#34;
+            if np.isclose(self.x, 0) and np.isclose(self.z, 0):
+                return &#34;&#34;
+            return (
+                f&#34;\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}&#34;
+            )
+
+    thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
+    for shell in det_shells(deck_elements):
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, &#34;&#34;)
+        print_d(D, f&#34;cte = {c.cte}&#34;)
+        print_d(D, f&#34;d_temp = {sim_params.moment_delta_temp}&#34;)
+        shell_strain_top = c.cte * (sim_params.moment_delta_temp / 2)
+        print_d(D, f&#34;strain_top = {shell_strain_top}&#34;)
+        shell_youngs_si = shell.section.youngs * 1e6
+        shell_stress_top = shell_youngs_si * shell_strain_top
+        print_d(D, f&#34;shell youngs SI = {shell_youngs_si}&#34;)
+        print_d(D, f&#34;stress_top = {shell_stress_top}&#34;)
+        # For each cross section consider the pair of nodes at the corners.
+        for n_id_0, n_id_1, load_direction in [
+            (shell.ni_id, shell.nj_id, LoadDirection.XPOS),
+            (shell.nj_id, shell.nk_id, LoadDirection.ZPOS),
+            (shell.nk_id, shell.nl_id, LoadDirection.XNEG),
+            (shell.nl_id, shell.ni_id, LoadDirection.ZNEG),
+        ]:
+            print_d(D, f&#34;node ids = {n_id_0}, {n_id_1}&#34;)
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
+            assert_load_direction(
+                node_0=node_0, node_1=node_1, direction=load_direction
+            )
+            node_distance = node_0.distance_n(node_1)
+            print_d(D, f&#34;node distance = {node_distance}&#34;)
+            print_d(D, f&#34;section thickness = {shell.section.thickness}&#34;)
+            force_top_n = (
+                shell_stress_top
+                * (shell.section.thickness / 2)
+                * (1 / 2)
+                * node_distance
+            )
+            moment_top_nm = force_top_n * (2 / 3) * (shell.section.thickness / 2)
+            print_d(D, f&#34;force top n = {force_top_n}&#34;)
+            print_d(D, f&#34;moment nm = {moment_top_nm}&#34;)
+            print_d(
+                D,
+                f&#34;Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+            # The moment per node is moment_top_nm / 2. But since we also want
+            # to include moment_bottom_nm / 2 which is equal to moment_top_nm,
+            # then we just use moment_top_nm.
+            for n_id in [n_id_0, n_id_1]:
+                thermal_loads_by_nid[n_id].add_load(
+                    magnitude=moment_top_nm, direction=load_direction
+                )
+            print_d(
+                D,
+                f&#34;After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+
+    thermal_load_str = &#34;&#34;.join(
+        [load.to_tcl(n_id) for n_id, load in thermal_loads_by_nid.items()]
+    )
+    return comment(
+        &#34;thermal loads&#34;,
+        thermal_load_str,
+        units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_axial_deck_loads"><code class="name flex">
+<span>def <span class="ident">opensees_thermal_axial_deck_loads</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_elements: <function NewType.<locals>.new_type at 0x11842e950>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Thermal axial loads for deck shells, if in the simulation parameters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_thermal_axial_deck_loads(
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext
+):
+    &#34;&#34;&#34;Thermal axial loads for deck shells, if in the simulation parameters.&#34;&#34;&#34;
+    if sim_params.axial_delta_temp is None:
+        return &#34;&#34;
+
+    class LoadDirection(Enum):
+        &#34;&#34;&#34;Direction a thermal load is applied to a shell.&#34;&#34;&#34;
+
+        XPOS = 1
+        XNEG = 2
+        ZPOS = 3
+        ZNEG = 4
+
+    def assert_load_direction(node_0: Node, node_1: Node, direction: LoadDirection):
+        &#34;&#34;&#34;Assert the load direction is perpendicular to the nodes.&#34;&#34;&#34;
+        if direction in [LoadDirection.XPOS, LoadDirection.XNEG]:
+            assert node_0.x == node_1.x
+        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
+            assert node_0.z == node_1.z
+        else:
+            raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+    class ThermalLoad:
+        &#34;&#34;&#34;Total thermal load to be applied to a node.&#34;&#34;&#34;
+
+        def __init__(self):
+            self.x = 0
+            self.z = 0
+
+        def add_load(self, magnitude: float, direction: LoadDirection):
+            &#34;&#34;&#34;Add a load in a given direction.&#34;&#34;&#34;
+            if direction == LoadDirection.XPOS:
+                self.x += magnitude
+            elif direction == LoadDirection.XNEG:
+                self.x -= magnitude
+            elif direction == LoadDirection.ZPOS:
+                self.z += magnitude
+            elif direction == LoadDirection.ZNEG:
+                self.z -= magnitude
+            else:
+                raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+        def to_tcl(self, n_id: int):
+            &#34;&#34;&#34;Return a string with 0, 1, or 2 OpenSees load commands.&#34;&#34;&#34;
+            if np.isclose(self.x, 0) and np.isclose(self.z, 0):
+                return &#34;&#34;
+            return (
+                f&#34;\nload {n_id} {np.around(self.x, 3)} 0 {np.around(self.z, 3)} 0 0 0&#34;
+            )
+
+    thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
+    for shell in det_shells(deck_elements):
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, &#34;&#34;)
+        print_d(D, f&#34;cte = {c.cte}&#34;)
+        print_d(D, f&#34;d_temp = {sim_params.axial_delta_temp}&#34;)
+        shell_thermal_strain = c.cte * sim_params.axial_delta_temp
+        shell_youngs_si = shell.section.youngs * 1e6
+        shell_thermal_stress = shell_youngs_si * shell_thermal_strain
+        print_d(D, f&#34;shell youngs SI = {shell_youngs_si}&#34;)
+        print_d(D, f&#34;thermal stress = {shell_thermal_stress}&#34;)
+        # For each cross section consider the pair of nodes at the corners.
+        for n_id_0, n_id_1, load_direction in [
+            (shell.ni_id, shell.nj_id, LoadDirection.ZPOS),
+            (shell.nj_id, shell.nk_id, LoadDirection.XNEG),
+            (shell.nk_id, shell.nl_id, LoadDirection.ZNEG),
+            (shell.nl_id, shell.ni_id, LoadDirection.XPOS),
+        ]:
+            print_d(D, f&#34;node ids = {n_id_0}, {n_id_1}&#34;)
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
+            assert_load_direction(
+                node_0=node_0, node_1=node_1, direction=load_direction
+            )
+            node_distance = node_0.distance_n(node_1)
+            assert node_distance &gt; 0
+            print_d(D, f&#34;node distance = {node_distance}&#34;)
+            cross_section_area = shell.section.thickness * node_distance
+            print_d(D, f&#34;cross section area = {cross_section_area}&#34;)
+            cross_section_thermal_force_n = shell_thermal_stress * cross_section_area
+            print_d(D, f&#34;cross section thermal force = {cross_section_thermal_force_n}&#34;)
+            nodal_thermal_force_n = cross_section_thermal_force_n / 2
+            assert np.isclose(
+                cross_section_thermal_force_n, (cross_section_thermal_force_n / 2) * 2
+            )
+            print_d(
+                D,
+                f&#34;Before applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;Before applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+            for n_id in [n_id_0, n_id_1]:
+                thermal_loads_by_nid[n_id].add_load(
+                    magnitude=nodal_thermal_force_n, direction=load_direction
+                )
+            print_d(
+                D,
+                f&#34;After applying force node_0: x = {thermal_loads_by_nid[n_id_0].x} z = {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;After applying force node_1: x = {thermal_loads_by_nid[n_id_1].x} z = {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+
+    thermal_load_str = &#34;&#34;.join(
+        [load.to_tcl(n_id) for n_id, load in thermal_loads_by_nid.items()]
+    )
+    return comment(
+        &#34;thermal loads&#34;,
+        thermal_load_str,
+        units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_moment_deck_loads"><code class="name flex">
+<span>def <span class="ident">opensees_thermal_moment_deck_loads</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_elements: <function NewType.<locals>.new_type at 0x11842e950>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../../../../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Thermal moment loads for deck shells, if in the simulation parameters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_thermal_moment_deck_loads(
+    c: Config, sim_params: SimParams, deck_elements: DeckShells, ctx: BuildContext,
+):
+    &#34;&#34;&#34;Thermal moment loads for deck shells, if in the simulation parameters.&#34;&#34;&#34;
+    if sim_params.moment_delta_temp is None:
+        return &#34;&#34;
+
+    class LoadDirection(Enum):
+        &#34;&#34;&#34;Direction a thermal load is applied to a shell.&#34;&#34;&#34;
+
+        XPOS = 1
+        XNEG = 2
+        ZPOS = 3
+        ZNEG = 4
+
+    def assert_load_direction(node_0: Node, node_1: Node, direction: LoadDirection):
+        &#34;&#34;&#34;Assert the load direction is perpendicular to the nodes.&#34;&#34;&#34;
+        # TODO: Remove return.
+        return
+        if direction in [LoadDirection.XPOS, LoadDirection.XNEG]:
+            assert node_0.z == node_1.z
+        elif direction in [LoadDirection.ZPOS, LoadDirection.ZNEG]:
+            assert node_0.x == node_1.x
+        else:
+            raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+    class ThermalLoad:
+        &#34;&#34;&#34;Total thermal load to be applied to a node.&#34;&#34;&#34;
+
+        def __init__(self):
+            self.x = 0
+            self.z = 0
+
+        def add_load(self, magnitude: float, direction: LoadDirection):
+            &#34;&#34;&#34;Add a load in a given direction.&#34;&#34;&#34;
+            if direction == LoadDirection.XPOS:
+                self.x += magnitude
+            elif direction == LoadDirection.XNEG:
+                self.x -= magnitude
+            elif direction == LoadDirection.ZPOS:
+                self.z += magnitude
+            elif direction == LoadDirection.ZNEG:
+                self.z -= magnitude
+            else:
+                raise ValueError(f&#34;Unknown thermal load direction {direction}&#34;)
+
+        def to_tcl(self, n_id: int):
+            &#34;&#34;&#34;Return a string with 0, 1, or 2 OpenSees load commands.&#34;&#34;&#34;
+            if np.isclose(self.x, 0) and np.isclose(self.z, 0):
+                return &#34;&#34;
+            return (
+                f&#34;\nload {n_id} 0 0 0 {np.around(self.x, 3)} 0 {np.around(self.z, 3)}&#34;
+            )
+
+    thermal_loads_by_nid: Dict[int, ThermalLoad] = defaultdict(ThermalLoad)
+    for shell in det_shells(deck_elements):
+        print_d(D, shell)
+        print_d(D, np.array(deck_elements).shape)
+        print_d(D, &#34;&#34;)
+        print_d(D, f&#34;cte = {c.cte}&#34;)
+        print_d(D, f&#34;d_temp = {sim_params.moment_delta_temp}&#34;)
+        shell_strain_top = c.cte * (sim_params.moment_delta_temp / 2)
+        print_d(D, f&#34;strain_top = {shell_strain_top}&#34;)
+        shell_youngs_si = shell.section.youngs * 1e6
+        shell_stress_top = shell_youngs_si * shell_strain_top
+        print_d(D, f&#34;shell youngs SI = {shell_youngs_si}&#34;)
+        print_d(D, f&#34;stress_top = {shell_stress_top}&#34;)
+        # For each cross section consider the pair of nodes at the corners.
+        for n_id_0, n_id_1, load_direction in [
+            (shell.ni_id, shell.nj_id, LoadDirection.XPOS),
+            (shell.nj_id, shell.nk_id, LoadDirection.ZPOS),
+            (shell.nk_id, shell.nl_id, LoadDirection.XNEG),
+            (shell.nl_id, shell.ni_id, LoadDirection.ZNEG),
+        ]:
+            print_d(D, f&#34;node ids = {n_id_0}, {n_id_1}&#34;)
+            node_0, node_1 = ctx.nodes_by_id[n_id_0], ctx.nodes_by_id[n_id_1]
+            assert_load_direction(
+                node_0=node_0, node_1=node_1, direction=load_direction
+            )
+            node_distance = node_0.distance_n(node_1)
+            print_d(D, f&#34;node distance = {node_distance}&#34;)
+            print_d(D, f&#34;section thickness = {shell.section.thickness}&#34;)
+            force_top_n = (
+                shell_stress_top
+                * (shell.section.thickness / 2)
+                * (1 / 2)
+                * node_distance
+            )
+            moment_top_nm = force_top_n * (2 / 3) * (shell.section.thickness / 2)
+            print_d(D, f&#34;force top n = {force_top_n}&#34;)
+            print_d(D, f&#34;moment nm = {moment_top_nm}&#34;)
+            print_d(
+                D,
+                f&#34;Before applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;Before applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+            # The moment per node is moment_top_nm / 2. But since we also want
+            # to include moment_bottom_nm / 2 which is equal to moment_top_nm,
+            # then we just use moment_top_nm.
+            for n_id in [n_id_0, n_id_1]:
+                thermal_loads_by_nid[n_id].add_load(
+                    magnitude=moment_top_nm, direction=load_direction
+                )
+            print_d(
+                D,
+                f&#34;After applying moment: node_0 = {thermal_loads_by_nid[n_id_0].x}, {thermal_loads_by_nid[n_id_0].z}&#34;,
+            )
+            print_d(
+                D,
+                f&#34;After applying moment: node_1 = {thermal_loads_by_nid[n_id_1].x}, {thermal_loads_by_nid[n_id_1].z}&#34;,
+            )
+
+    thermal_load_str = &#34;&#34;.join(
+        [load.to_tcl(n_id) for n_id, load in thermal_loads_by_nid.items()]
+    )
+    return comment(
+        &#34;thermal loads&#34;,
+        thermal_load_str,
+        units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3" href="index.html">bridge_sim.sim.run.opensees.build.d3</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_axial_deck_loads" href="#bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_axial_deck_loads">opensees_thermal_axial_deck_loads</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_moment_deck_loads" href="#bridge_sim.sim.run.opensees.build.d3.thermal.opensees_thermal_moment_deck_loads">opensees_thermal_moment_deck_loads</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

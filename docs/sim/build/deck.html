@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.sim.build.deck API documentation</title>
+<meta name="description" content="Build a mesh of a Bridge deck." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.sim.build.deck</code></h1>
+</header>
+<section id="section-intro">
+<p>Build a mesh of a Bridge deck.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Build a mesh of a Bridge deck.&#34;&#34;&#34;
+
+import math
+from typing import List, NewType, Tuple
+
+import numpy as np
+
+from bridge_sim.model import Bridge
+from bridge_sim.sim.model import (
+    BuildContext,
+    DeckNodes,
+    DeckShellNodes,
+    DeckShells,
+    Node,
+)
+from bridge_sim.util import assert_sorted, flatten, print_i, print_w, round_m
+
+# A list of x positions, and a list of z positions.
+DeckGrid = NewType(&#34;DeckPositions&#34;, Tuple[List[float], List[float]])
+
+
+def get_deck_section_grid(bridge: Bridge) -&gt; DeckGrid:
+    &#34;&#34;&#34;Grid where material properties change on the deck.&#34;&#34;&#34;
+    if callable(bridge.sections):
+        print_w(
+            &#34;Not adding additional nodes to bridge deck because material &#34;
+            &#34; properties are given as a potentially continuous function&#34;
+        )
+        return [], []
+    xs, zs = set(), set()
+    for section in bridge.sections:
+        xs.add(round_m(bridge.x(section.start_x_frac)))
+        xs.add(round_m(bridge.x(section.end_x_frac)))
+        zs.add(round_m(bridge.z(section.start_z_frac)))
+        zs.add(round_m(bridge.z(section.end_z_frac)))
+    return sorted(xs), sorted(zs)
+
+
+def get_deck_xs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
+    all_xs = set()
+
+    # From piers.
+    for pier in bridge.supports:
+        for x in pier.x_min_max_top():
+            all_xs.add(round_m(x))
+    print(f&#34;pier_xs = {all_xs}&#34;)
+
+    # Bridge ends.
+    all_xs.add(round_m(bridge.x_min))
+    all_xs.add(round_m(bridge.x_max))
+
+    # From loads.
+    for point in ctx.add_loads:
+        all_xs.add(round_m(point.x))
+
+    # From material propertes.
+    for x in get_deck_section_grid(bridge)[0]:
+        all_xs.add(round_m(x))
+
+    # Additional nodes requested by the Bridge.
+    for x in bridge.additional_xs:
+        all_xs.add(round_m(x))
+
+    all_xs = sorted(all_xs)
+    print(f&#34;all_xs = {all_xs}&#34;)
+    deck_xs = set()
+    for i in range(len(all_xs) - 1):
+        x0, x1 = all_xs[i], all_xs[i + 1]
+        num = math.ceil((x1 - x0) / bridge.base_mesh_deck_max_x) + 1
+        # print(f&#34;x0, x1, num = {x0}, {x1}, {num}&#34;)
+        for x in np.linspace(x0, x1, num=num):
+            deck_xs.add(round_m(x))
+    return sorted(deck_xs)
+
+
+def get_deck_zs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
+    all_zs = set()
+
+    # From piers.
+    for pier in bridge.supports:
+        for z in pier.z_min_max_top():
+            all_zs.add(round_m(z))
+    pier_zs = set(all_zs)
+    print(f&#34;pier_zs = {pier_zs}&#34;)
+
+    # Bridge ends.
+    all_zs.add(round_m(bridge.z_min))
+    all_zs.add(round_m(bridge.z_max))
+
+    # From loads.
+    for point in ctx.add_loads:
+        all_zs.add(round_m(point.z))
+
+    # From material propertes.
+    for z in get_deck_section_grid(bridge)[1]:
+        all_zs.add(round_m(z))
+
+    all_zs = sorted(all_zs)
+    print(f&#34;all_zs = {all_zs}&#34;)
+    deck_zs = set()
+    for i in range(len(all_zs) - 1):
+        z0, z1 = all_zs[i], all_zs[i + 1]
+        num = math.ceil((z1 - z0) / bridge.base_mesh_deck_max_z) + 1
+        # print(f&#34;z0, z1, num = {z0}, {z1}, {num}&#34;)
+        for z in np.linspace(z0, z1, num=num):
+            deck_zs.add(round_m(z))
+    return sorted(deck_zs)
+
+
+def get_deck_grid(bridge: Bridge, ctx: BuildContext) -&gt; DeckGrid:
+    return get_deck_xs(bridge=bridge, ctx=ctx), get_deck_zs(bridge=bridge, ctx=ctx)
+
+
+def get_base_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckNodes:
+    &#34;&#34;&#34;Deck nodes without refinement.&#34;&#34;&#34;
+    deck_grid = get_deck_grid(bridge=bridge, ctx=ctx)
+    nodes = []
+    for z in deck_grid[1]:
+        nodes.append([])
+        for x in deck_grid[0]:
+            nodes[-1].append(ctx.get_node(x=x, y=0, z=z, deck=True))
+    return nodes
+
+
+def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckShellNodes:
+    &#34;&#34;&#34;Deck nodes with refinement.&#34;&#34;&#34;
+    deck_nodes = get_base_deck_nodes(bridge=bridge, ctx=ctx)
+    assert_sorted([nodes[0].z for nodes in deck_nodes])
+    assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
+    assert_sorted([node.x for node in deck_nodes[0]])
+
+    print_i(f&#34;Deck nodes before refinement = {len(flatten(deck_nodes, Node))}&#34;)
+
+    # Convert to &#39;DeckShellNodes&#39; (+ refinement information).
+    deck_shell_nodes = []
+    for z_i in range(len(deck_nodes) - 1):
+        for x_i in range(len(deck_nodes[0]) - 1):
+            node_i = deck_nodes[z_i][x_i]
+            node_j = deck_nodes[z_i][x_i + 1]
+            node_k = deck_nodes[z_i + 1][x_i + 1]
+            node_l = deck_nodes[z_i + 1][x_i]
+            deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
+
+    # If  not refining, return the &#39;DeckShellNodes&#39;.
+    if len(ctx.refinement_radii) == 0:
+        print_i(f&#34;Deck nodes after refinement = {len(flatten(deck_nodes, Node))}&#34;)
+        return list(map(lambda ns: ns[:-1], deck_shell_nodes))
+
+    def refine_shell(nodes: List[Node], max_dist: float):
+        &#34;&#34;&#34;Should the shell be refined?&#34;&#34;&#34;
+        for point in ctx.add_loads:
+            for node in nodes:
+                if abs(node.distance(x=point.x, y=point.y, z=point.z)) &lt;= max_dist:
+                    return True
+        return False
+
+    # For each refinement pass..
+    for refinement_iter, max_dist in enumerate(ctx.refinement_radii):
+        # Construct a new &#39;DeckShellNodes&#39; and iterate over the previous one.
+        new_deck_shell_nodes = []
+        for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
+            assert node_i.x &lt; node_j.x
+            assert node_j.z &lt; node_k.z
+            assert node_k.x &gt; node_l.x
+            assert node_l.z &gt; node_i.z
+            # If not refining, keep the existing shell.
+            if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
+                num_refined &gt; refinement_iter
+            ):
+                new_deck_shell_nodes.append(
+                    (node_i, node_j, node_k, node_l, num_refined)
+                )
+            # Else if refining, construct 5 new nodes, and 4 new shells.
+            else:
+                center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
+                center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
+                assert node_i.x &lt;= center_x &lt;= node_j.x
+                assert node_i.z &lt;= center_z &lt;= node_l.z
+                # Construct the 5 new nodes.
+                before = len(set(flatten(ctx.nodes_by_id.values(), Node)))
+                center_node, bottom_node, top_node, left_node, right_node = [
+                    ctx.get_node(x=x, y=0, z=z, deck=True, comment=&#34;refined&#34;)
+                    for z, x in [
+                        (center_z, center_x),  # Center node.
+                        (node_i.z, center_x),  # Bottom node.
+                        (node_l.z, center_x),  # Top node.
+                        (center_z, node_i.x),  # Left node.
+                        (center_z, node_j.x),  # Right node.
+                    ]
+                ]
+                after = len(set(flatten(ctx.nodes_by_id.values(), Node)))
+                print(f&#34;Before = {before}&#34;)
+                print(f&#34;After = {after}&#34;)
+                # assert after == before + 5
+                # Construct the 4 new shells.
+                for shell_nodes in [
+                    (node_i, bottom_node, center_node, left_node),  # Bottom left.
+                    (bottom_node, node_j, right_node, center_node),  # Bottom right.
+                    (left_node, center_node, top_node, node_l),  # Top left.
+                    (center_node, right_node, node_k, top_node),  # Top right.
+                ]:
+                    if shell_nodes[0].n_id == 526:
+                        print(&#34;yay&#34;)
+                    new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
+                    assert len(new_deck_shell_nodes[-1]) == 5
+        deck_shell_nodes = new_deck_shell_nodes
+
+    deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
+    print_i(
+        f&#34;Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}&#34;
+    )
+    return deck_shell_nodes
+
+
+def get_deck_shells(
+    bridge: Bridge, deck_shell_nodes: DeckShellNodes, ctx: BuildContext
+) -&gt; DeckShells:
+    shells = []
+    for node_i, node_j, node_k, node_l in deck_shell_nodes:
+        center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
+        center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
+        section = bridge.deck_section_at(x=center_x, z=center_z)
+        shells.append(
+            ctx.get_shell(
+                ni_id=node_i.n_id,
+                nj_id=node_j.n_id,
+                nk_id=node_k.n_id,
+                nl_id=node_l.n_id,
+                pier=False,
+                section=section,
+            )
+        )
+    return shells</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.sim.build.deck.get_base_deck_nodes"><code class="name flex">
+<span>def <span class="ident">get_base_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e0e0></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deck nodes without refinement.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_base_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckNodes:
+    &#34;&#34;&#34;Deck nodes without refinement.&#34;&#34;&#34;
+    deck_grid = get_deck_grid(bridge=bridge, ctx=ctx)
+    nodes = []
+    for z in deck_grid[1]:
+        nodes.append([])
+        for x in deck_grid[0]:
+            nodes[-1].append(ctx.get_node(x=x, y=0, z=z, deck=True))
+    return nodes</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_grid"><code class="name flex">
+<span>def <span class="ident">get_deck_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x1185a3b90></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_grid(bridge: Bridge, ctx: BuildContext) -&gt; DeckGrid:
+    return get_deck_xs(bridge=bridge, ctx=ctx), get_deck_zs(bridge=bridge, ctx=ctx)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_nodes"><code class="name flex">
+<span>def <span class="ident">get_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e170></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Deck nodes with refinement.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckShellNodes:
+    &#34;&#34;&#34;Deck nodes with refinement.&#34;&#34;&#34;
+    deck_nodes = get_base_deck_nodes(bridge=bridge, ctx=ctx)
+    assert_sorted([nodes[0].z for nodes in deck_nodes])
+    assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
+    assert_sorted([node.x for node in deck_nodes[0]])
+
+    print_i(f&#34;Deck nodes before refinement = {len(flatten(deck_nodes, Node))}&#34;)
+
+    # Convert to &#39;DeckShellNodes&#39; (+ refinement information).
+    deck_shell_nodes = []
+    for z_i in range(len(deck_nodes) - 1):
+        for x_i in range(len(deck_nodes[0]) - 1):
+            node_i = deck_nodes[z_i][x_i]
+            node_j = deck_nodes[z_i][x_i + 1]
+            node_k = deck_nodes[z_i + 1][x_i + 1]
+            node_l = deck_nodes[z_i + 1][x_i]
+            deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
+
+    # If  not refining, return the &#39;DeckShellNodes&#39;.
+    if len(ctx.refinement_radii) == 0:
+        print_i(f&#34;Deck nodes after refinement = {len(flatten(deck_nodes, Node))}&#34;)
+        return list(map(lambda ns: ns[:-1], deck_shell_nodes))
+
+    def refine_shell(nodes: List[Node], max_dist: float):
+        &#34;&#34;&#34;Should the shell be refined?&#34;&#34;&#34;
+        for point in ctx.add_loads:
+            for node in nodes:
+                if abs(node.distance(x=point.x, y=point.y, z=point.z)) &lt;= max_dist:
+                    return True
+        return False
+
+    # For each refinement pass..
+    for refinement_iter, max_dist in enumerate(ctx.refinement_radii):
+        # Construct a new &#39;DeckShellNodes&#39; and iterate over the previous one.
+        new_deck_shell_nodes = []
+        for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
+            assert node_i.x &lt; node_j.x
+            assert node_j.z &lt; node_k.z
+            assert node_k.x &gt; node_l.x
+            assert node_l.z &gt; node_i.z
+            # If not refining, keep the existing shell.
+            if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
+                num_refined &gt; refinement_iter
+            ):
+                new_deck_shell_nodes.append(
+                    (node_i, node_j, node_k, node_l, num_refined)
+                )
+            # Else if refining, construct 5 new nodes, and 4 new shells.
+            else:
+                center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
+                center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
+                assert node_i.x &lt;= center_x &lt;= node_j.x
+                assert node_i.z &lt;= center_z &lt;= node_l.z
+                # Construct the 5 new nodes.
+                before = len(set(flatten(ctx.nodes_by_id.values(), Node)))
+                center_node, bottom_node, top_node, left_node, right_node = [
+                    ctx.get_node(x=x, y=0, z=z, deck=True, comment=&#34;refined&#34;)
+                    for z, x in [
+                        (center_z, center_x),  # Center node.
+                        (node_i.z, center_x),  # Bottom node.
+                        (node_l.z, center_x),  # Top node.
+                        (center_z, node_i.x),  # Left node.
+                        (center_z, node_j.x),  # Right node.
+                    ]
+                ]
+                after = len(set(flatten(ctx.nodes_by_id.values(), Node)))
+                print(f&#34;Before = {before}&#34;)
+                print(f&#34;After = {after}&#34;)
+                # assert after == before + 5
+                # Construct the 4 new shells.
+                for shell_nodes in [
+                    (node_i, bottom_node, center_node, left_node),  # Bottom left.
+                    (bottom_node, node_j, right_node, center_node),  # Bottom right.
+                    (left_node, center_node, top_node, node_l),  # Top left.
+                    (center_node, right_node, node_k, top_node),  # Top right.
+                ]:
+                    if shell_nodes[0].n_id == 526:
+                        print(&#34;yay&#34;)
+                    new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
+                    assert len(new_deck_shell_nodes[-1]) == 5
+        deck_shell_nodes = new_deck_shell_nodes
+
+    deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
+    print_i(
+        f&#34;Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}&#34;
+    )
+    return deck_shell_nodes</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_section_grid"><code class="name flex">
+<span>def <span class="ident">get_deck_section_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>) -> <function NewType.<locals>.new_type at 0x1185a3b90></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Grid where material properties change on the deck.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_section_grid(bridge: Bridge) -&gt; DeckGrid:
+    &#34;&#34;&#34;Grid where material properties change on the deck.&#34;&#34;&#34;
+    if callable(bridge.sections):
+        print_w(
+            &#34;Not adding additional nodes to bridge deck because material &#34;
+            &#34; properties are given as a potentially continuous function&#34;
+        )
+        return [], []
+    xs, zs = set(), set()
+    for section in bridge.sections:
+        xs.add(round_m(bridge.x(section.start_x_frac)))
+        xs.add(round_m(bridge.x(section.end_x_frac)))
+        zs.add(round_m(bridge.z(section.start_z_frac)))
+        zs.add(round_m(bridge.z(section.end_z_frac)))
+    return sorted(xs), sorted(zs)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_shells"><code class="name flex">
+<span>def <span class="ident">get_deck_shells</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, deck_shell_nodes: <function NewType.<locals>.new_type at 0x11842e170>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e950></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_shells(
+    bridge: Bridge, deck_shell_nodes: DeckShellNodes, ctx: BuildContext
+) -&gt; DeckShells:
+    shells = []
+    for node_i, node_j, node_k, node_l in deck_shell_nodes:
+        center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
+        center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
+        section = bridge.deck_section_at(x=center_x, z=center_z)
+        shells.append(
+            ctx.get_shell(
+                ni_id=node_i.n_id,
+                nj_id=node_j.n_id,
+                nk_id=node_k.n_id,
+                nl_id=node_l.n_id,
+                pier=False,
+                section=section,
+            )
+        )
+    return shells</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_xs"><code class="name flex">
+<span>def <span class="ident">get_deck_xs</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_xs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
+    all_xs = set()
+
+    # From piers.
+    for pier in bridge.supports:
+        for x in pier.x_min_max_top():
+            all_xs.add(round_m(x))
+    print(f&#34;pier_xs = {all_xs}&#34;)
+
+    # Bridge ends.
+    all_xs.add(round_m(bridge.x_min))
+    all_xs.add(round_m(bridge.x_max))
+
+    # From loads.
+    for point in ctx.add_loads:
+        all_xs.add(round_m(point.x))
+
+    # From material propertes.
+    for x in get_deck_section_grid(bridge)[0]:
+        all_xs.add(round_m(x))
+
+    # Additional nodes requested by the Bridge.
+    for x in bridge.additional_xs:
+        all_xs.add(round_m(x))
+
+    all_xs = sorted(all_xs)
+    print(f&#34;all_xs = {all_xs}&#34;)
+    deck_xs = set()
+    for i in range(len(all_xs) - 1):
+        x0, x1 = all_xs[i], all_xs[i + 1]
+        num = math.ceil((x1 - x0) / bridge.base_mesh_deck_max_x) + 1
+        # print(f&#34;x0, x1, num = {x0}, {x1}, {num}&#34;)
+        for x in np.linspace(x0, x1, num=num):
+            deck_xs.add(round_m(x))
+    return sorted(deck_xs)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.build.deck.get_deck_zs"><code class="name flex">
+<span>def <span class="ident">get_deck_zs</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> List[float]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_deck_zs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
+    all_zs = set()
+
+    # From piers.
+    for pier in bridge.supports:
+        for z in pier.z_min_max_top():
+            all_zs.add(round_m(z))
+    pier_zs = set(all_zs)
+    print(f&#34;pier_zs = {pier_zs}&#34;)
+
+    # Bridge ends.
+    all_zs.add(round_m(bridge.z_min))
+    all_zs.add(round_m(bridge.z_max))
+
+    # From loads.
+    for point in ctx.add_loads:
+        all_zs.add(round_m(point.z))
+
+    # From material propertes.
+    for z in get_deck_section_grid(bridge)[1]:
+        all_zs.add(round_m(z))
+
+    all_zs = sorted(all_zs)
+    print(f&#34;all_zs = {all_zs}&#34;)
+    deck_zs = set()
+    for i in range(len(all_zs) - 1):
+        z0, z1 = all_zs[i], all_zs[i + 1]
+        num = math.ceil((z1 - z0) / bridge.base_mesh_deck_max_z) + 1
+        # print(f&#34;z0, z1, num = {z0}, {z1}, {num}&#34;)
+        for z in np.linspace(z0, z1, num=num):
+            deck_zs.add(round_m(z))
+    return sorted(deck_zs)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.sim.build" href="index.html">bridge_sim.sim.build</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.build.deck.get_base_deck_nodes" href="#bridge_sim.sim.build.deck.get_base_deck_nodes">get_base_deck_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_grid" href="#bridge_sim.sim.build.deck.get_deck_grid">get_deck_grid</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_nodes" href="#bridge_sim.sim.build.deck.get_deck_nodes">get_deck_nodes</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_section_grid" href="#bridge_sim.sim.build.deck.get_deck_section_grid">get_deck_section_grid</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_shells" href="#bridge_sim.sim.build.deck.get_deck_shells">get_deck_shells</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_xs" href="#bridge_sim.sim.build.deck.get_deck_xs">get_deck_xs</a></code></li>
+<li><code><a title="bridge_sim.sim.build.deck.get_deck_zs" href="#bridge_sim.sim.build.deck.get_deck_zs">get_deck_zs</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
