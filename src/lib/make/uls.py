@@ -21,7 +21,7 @@ def plot_uls(config: Config, indices=[0, 1, 100, 2000, 2380, 2399]):
         plt.scatter([x], [z], c="r", s=10)
         plt.tight_layout()
         plt.title(f"Index = {index}, X = {x}, Z = {z}")
-        plt.savefig(config.get_image_path("verification/uls", f"{index}uls.pdf"))
+        plt.savefig(config.get_image_path("verification/uls", f"uls-{index}.pdf"))
         plt.close()
 
 
@@ -47,13 +47,14 @@ def plot_ulm(config: Config, response_type: ResponseType, indices=[100, 2000]):
             y = ulm[- (il + 1)]
             plt.scatter(xaxis, y, c="r", s=2)
             for s, support in enumerate(config.bridge.supports):
-                plt.axvline(x=support.x, c="black", label="piers" if s == 0 else None)
-            plt.axvline(x=x, c="b", label="load")
+                plt.axvline(x=support.x - support.width_top / 2, c="black", label="piers" if s == 0 else None)
+                plt.axvline(x=support.x + support.width_top / 2, c="black")
+            plt.axvline(x=x, c="b", label="X position of response")
             plt.legend()
         equal_lims("y", len(zs), 1)
-        plt.savefig(config.get_image_path("verification/uls", f"{index}ulm-{response_type.value}.pdf"))
+        plt.savefig(config.get_image_path("verification/uls", f"ulm{index}-{response_type.value}.pdf"))
         plt.close()
         plt.imshow(ulm.T, interpolation="nearest", aspect="auto")
         plt.title(title)
-        plt.savefig(config.get_image_path("verification/uls", f"{index}ulm-{response_type.value}-imshow.pdf"))
+        plt.savefig(config.get_image_path("verification/uls", f"ulm{index}-{response_type.value}-imshow.pdf"))
         plt.close()

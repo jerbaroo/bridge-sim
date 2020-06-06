@@ -5,12 +5,12 @@ COPY . /bridge-sim
 WORKDIR /bridge-sim
 RUN apt-get update && ./docker/tzdata.sh
 
-# Install Python 3.7.
+# Install Python 3.8.
 RUN mkdir /opensees
 WORKDIR /opensees
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get install -y python3.7 python3-pip
+RUN apt-get install -y python3.8 python3-pip
 RUN pip3 install pipenv
 
 # Install bridge-sim Python dependencies.
@@ -18,7 +18,7 @@ WORKDIR /bridge-sim
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV PIPENV_VENV_IN_PROJECT=true
-RUN pipenv install --dev --python 3.7
+RUN pipenv install --python 3.8
 
 # Additional software.
 WORKDIR /opensees
