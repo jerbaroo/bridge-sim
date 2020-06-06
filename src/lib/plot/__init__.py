@@ -100,22 +100,6 @@ def legend_marker_size(legend, size):
         legend_handle._sizes = [size]
 
 
-def equal_lims(axis, rows, cols, subplots=None):
-    """Set equal x or y limits on subplots."""
-    amin, amax = np.inf, -np.inf
-    lim_f = plt.ylim if axis == "y" else plt.xlim
-    subplots = range(1, rows * cols + 1) if subplots is None else subplots
-    for p in subplots:
-        plt.subplot(rows, cols, p)
-        if lim_f()[0] < amin:
-            amin = lim_f()[0]
-        if lim_f()[1] > amax:
-            amax = lim_f()[1]
-    for p in subplots:
-        plt.subplot(rows, cols, p)
-        lim_f((amin, amax))
-
-
 parula_cmap = colors.LinearSegmentedColormap.from_list(
     "parula",
     [

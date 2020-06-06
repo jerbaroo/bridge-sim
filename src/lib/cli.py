@@ -326,18 +326,14 @@ def temp_loads():
 
 @verify.command(help="Plots of time series of shrinkage.")
 def shrinkage():
-    from lib.make import shrinkage
-
-    shrinkage.plot_autogenous_shrinkage(c())
-    shrinkage.plot_drying_shrinkage(c())
-    shrinkage.plot_total_shrinkage(c())
+    lib.make.shrinkage.plot_autogenous_shrinkage(c())
+    lib.make.shrinkage.plot_drying_shrinkage(c())
+    lib.make.shrinkage.plot_total_shrinkage(c())
 
 
 @verify.command(help="Plots of time series of creep.")
 def creep():
-    from lib.make import creep
-
-    creep.plot_creep(c())
+    lib.make.creep.plot_creep(c())
 
 
 @verify.command(help="Plots of time series of temperature effect.")
@@ -347,8 +343,13 @@ def temp_effect():
 
 @verify.command(help="Plot unit load simulations.")
 def uls():
-    from lib.make import uls
-    uls.plot_uls(c())
+    lib.make.uls.plot_uls(c())
+
+
+@verify.command(help="Plot unit load matrices.")
+def ulm():
+    lib.make.uls.plot_ulm(c(), response_type=ResponseType.YTrans)
+    lib.make.uls.plot_ulm(c(), response_type=ResponseType.StrainXXB)
 
 
 ############
