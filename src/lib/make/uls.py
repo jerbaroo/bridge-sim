@@ -45,7 +45,7 @@ def plot_ulm(config: Config, response_type: ResponseType, indices=[100, 2000]):
         for il in range(len(zs)):
             plt.subplot(len(zs), 1, il + 1)
             y = ulm[- (il + 1)]
-            plt.scatter(xaxis, y, c="r", s=2)
+            plt.plot(xaxis, y, c="r", lw=2)
             for s, support in enumerate(config.bridge.supports):
                 plt.axvline(x=support.x - support.width_top / 2, c="black", label="piers" if s == 0 else None)
                 plt.axvline(x=support.x + support.width_top / 2, c="black")

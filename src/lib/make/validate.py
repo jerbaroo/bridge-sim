@@ -62,7 +62,7 @@ def truck_1_time_series(c: Config):
         plt.plot(x, plot_data, c="b", label="simulation")
 
     # Results from experiment.
-    center, side = 13500, 700
+    center = 13500
     plot_offsets = [-1350, -850, 0]
     for s_i, displa_label in enumerate(displa_labels):
         plt.subplot(len(displa_points), 1, s_i + 1)
@@ -77,6 +77,7 @@ def truck_1_time_series(c: Config):
         # Labels/titles.
         plt.legend()
         plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
+        plt.xlabel("Time (s)")
         point = displa_points[s_i]
         plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
         if s_i < len(displa_labels) - 1:
@@ -116,8 +117,8 @@ def truck_1_time_series(c: Config):
         plt.plot(sensor_responses[data_center - side:data_center + side], c="b", label="simulation")
 
     # Results from experiment.
-    center, side = 13000, 700
-    plot_offsets = [-400, -300, -150]
+    center = 13000
+    plot_offsets = [-420, -300, -200]
     for s_i, strain_label in enumerate(strain_labels):
         plt.subplot(len(strain_points), 1, s_i + 1)
         with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{strain_label}.txt")) as f:
@@ -129,6 +130,7 @@ def truck_1_time_series(c: Config):
         # Labels/titles.
         plt.legend()
         plt.ylabel("Microstrain XXB")
+        plt.xlabel("Time (s)")
         point = displa_points[s_i]
         plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
         if s_i < len(strain_labels) - 1:
