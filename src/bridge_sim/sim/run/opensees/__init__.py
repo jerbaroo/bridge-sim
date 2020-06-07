@@ -32,13 +32,13 @@ class OSRunner(FEMRunner):
         super().__init__(
             c=c,
             name="OpenSees",
-            exe_path=exe_path,
             supported_response_types=opensees_supported_response_types,
             build=build_model,
             run=run_model,
             parse=parse_responses,
             convert=convert_responses,
         )
+        self.exe_path = exe_path
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace("\\", "/")
