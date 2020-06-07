@@ -47,7 +47,6 @@ class FEMRunner:
         self,
         c: "Config",
         name: str,
-        exe_path: str,
         supported_response_types: Callable[[Bridge], List[ResponseType]],
         build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
         run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
@@ -58,7 +57,6 @@ class FEMRunner:
     ):
         self.c = c
         self.name = name
-        self.exe_path = exe_path
         self.supported_response_types = supported_response_types
         self._build = build
         self._run = run

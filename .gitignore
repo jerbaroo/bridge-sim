@@ -15,6 +15,7 @@ venv/
 *generated*/
 src/build/
 src/dist/
+out/
 
 # Validation
 data/validation
