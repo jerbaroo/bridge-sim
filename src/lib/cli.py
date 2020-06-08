@@ -353,6 +353,11 @@ def ulm():
     lib.make.uls.plot_ulm(c(), response_type=ResponseType.StrainXXB)
 
 
+@verify.command(help="Plot strain from a simulation.")
+def strain():
+    lib.make.strain.plot_strain(c())
+
+
 ############
 # Validate #
 ############

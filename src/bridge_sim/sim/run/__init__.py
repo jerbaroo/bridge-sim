@@ -34,7 +34,7 @@ Parsed = TypeVar("Parsed")
 class FEMRunner:
     """An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading fem you probably want the
+    NOTE: For running simulations and loading responses you probably want the
     higher-level API in 'bridge_sim.sim.responses'.
 
     Args:
