@@ -63,16 +63,14 @@ def unit_loads(c: Config, scatter: bool):
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
             top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
-            sci_format = False
             plot_contour_deck(
                 c=c,
                 responses=os_responses,
                 point_loads=point_loads,
                 cmap=axis_cmap_r,
                 levels=levels,
-                sci_format=sci_format,
-                decimals=3,
                 scatter=scatter,
+                interp=(200, 60),
             )
             plt.legend()
             plt.title(title + "OpenSees")
@@ -166,7 +164,7 @@ def pier_settlement(c: Config):
             # colour normalization.
             top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
             plot_contour_deck(
-                c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels
+                c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels, interp=(200, 60)
             )
             plt.legend()
             plt.tight_layout()
@@ -290,7 +288,7 @@ def temperature_load(c: Config):
                 sim_responses.units = "mm"
             plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
             plot.contour_responses(
-                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels, interp=(200, 60)
             )
             plt.legend()
             plt.title(

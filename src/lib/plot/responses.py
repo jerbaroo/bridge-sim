@@ -3,6 +3,7 @@
 Functions characterized by receiving 'FEMResponses' and 'PointLoad'.
 
 """
+import itertools
 from typing import Callable, List, Optional, Tuple
 
 import numpy as np
@@ -109,66 +110,63 @@ def plot_distributions(
 
 
 def plot_contour_deck(
-    c: Config,
+    config: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
     cmap=default_cmap,
     norm=None,
     scatter: bool = False,
     levels: int = 14,
+    interp: Optional[Tuple[int, int]] = None,
     mm_legend: bool = True,
     mm_legend_without_f: Optional[Callable[[Point], bool]] = None,
     sci_format: bool = False,
     decimals: int = 4,
-    y: float = 0,
 ):
     """Contour or scatter plot of simulation responses.
 
     Args:
         config: simulation configuration object.
         responses: the simulation responses to plot.
+        point_loads: point loads to plot (black dots).
         cmap: Matplotlib colormap to use for colouring responses.
         norm: Matplotlib norm to use for colouring responses.
         scatter: scatter plot instead of contour plot?
         levels: levels in the contour plot.
+        interp: interpolate responses onto an n x m grid.
         mm_legend: plot a legend of min and max values?
         mm_legend_without_f: function to filter points considered in the legend.
         sci_format: force scientific formatting (E) in the legend.
         decimals: round legend values to this many decimals.
 
     """
+    if interp:
+        points = [Point(x=x, z=z) for x, z, in list(itertools.product(
+            np.linspace(config.bridge.x_min, config.bridge.x_max, interp[0]),
+            np.linspace(config.bridge.z_min, config.bridge.z_max, interp[1]),
+        ))]
+        responses = Responses(
+            response_type=responses.response_type,
+            responses=list(zip(responses.at_decks(points), points))
+        ).without_nan_inf()
+
     amax, amax_x, amax_z = -np.inf, None, None
     amin, amin_x, amin_z = np.inf, None, None
-    X, Z, H = [], [], []  # 2D arrays, x and z coordinates, and height.
-    # Begin structure data.
+    X, Z, H = [], [], []  # X and Z coordinates, and height.
+
     def structure_data(responses):
-        nonlocal amax
-        nonlocal amax_x
-        nonlocal amax_z
-        nonlocal amin
-        nonlocal amin_x
-        nonlocal amin_z
-        nonlocal X
-        nonlocal Z
-        nonlocal H
-        # First reset the maximums and minimums.
-        amax, amax_x, amax_z = -np.inf, None, None
-        amin, amin_x, amin_z = np.inf, None, None
-        X, Z, H = [], [], []
-        for x in responses.xs:
-            # There is a chance that no sensors exist at given y position for
-            # every x position, thus we must check.
-            if y in responses.zs[x]:
-                for z in responses.zs[x][y]:
-                    X.append(x)
-                    Z.append(z)
-                    H.append(responses.responses[0][x][y][z])
-                    if H[-1] > amax:
-                        amax = H[-1]
-                        amax_x, amax_z = X[-1], Z[-1]
-                    if H[-1] < amin:
-                        amin = H[-1]
-                        amin_x, amin_z = X[-1], Z[-1]
+        nonlocal amax, amax_x, amax_z, amin, amin_x, amin_z
+        nonlocal X, Z, H
+        for h, (x, y, z) in responses.values(point=True):
+            X.append(x)
+            Z.append(z)
+            H.append(h)
+            if H[-1] > amax:
+                amax = H[-1]
+                amax_x, amax_z = X[-1], Z[-1]
+            if H[-1] < amin:
+                amin = H[-1]
+                amin_x, amin_z = X[-1], Z[-1]
 
     structure_data(responses)
     if len(X) == 0:
@@ -176,14 +174,7 @@ def plot_contour_deck(
 
     # Plot fem, contour or scatter plot.
     if scatter:
-        cs = plt.scatter(
-            x=np.array(X).flatten(),
-            y=np.array(Z).flatten(),
-            c=np.array(H).flatten(),
-            cmap=cmap,
-            norm=norm,
-            s=1,
-        )
+        cs = plt.scatter(x=X, y=Z, c=H, cmap=cmap, norm=norm, s=1)
     else:
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
 
@@ -194,10 +185,8 @@ def plot_contour_deck(
 
     # Plot point loads.
     for pload in point_loads:
-        x = pload.x
-        z = pload.z
         plt.scatter(
-            [x], [z], label=f"{pload.load} kN load", marker="o", color="black",
+            [pload.x], [pload.z], label=f"{pload.load} load", marker="o", color="black",
         )
 
     # Begin: min, max legend.

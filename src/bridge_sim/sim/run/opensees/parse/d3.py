@@ -51,6 +51,7 @@ def parse_stress_strain_responses_3d(
             lines.append(per_element_lines)
     lines = np.array(lines)
     print(lines.shape)
+    # Save all strain responses under this one key.
     results_dict[sim_ind][ResponseType.StrainXXB] = lines
 
 

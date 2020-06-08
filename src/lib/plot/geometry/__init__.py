@@ -3,7 +3,9 @@ import os
 from typing import Optional
 
 import matplotlib
-from bridge_sim.model import Bridge
+from bridge_sim.model import Bridge, Config
+from bridge_sim.sim.build import get_bridge_shells
+from bridge_sim.sim.model import SimParams
 from lib.plot import plt
 
 # Print debug information for this file.
@@ -73,3 +75,12 @@ def top_view_bridge(
     units_str = "" if units is None else f" ({units})"
     plt.xlabel(f"X position{units_str}")
     plt.ylabel(f"Z position{units_str}")
+
+
+def shells(config: Config, sim_params: SimParams = SimParams()):
+    deck_shells, _pier_shells = get_bridge_shells(
+        bridge=config.bridge, ctx=sim_params.build_ctx()
+    )
+    for shell in deck_shells:
+        ni, nj, nk, nl = shell.nodes()
+        plt.plot([ni.x, nj.x, nk.x, nl.x], [ni.z, nj.z, nk.z, nl.z], c="black", lw=0.1)

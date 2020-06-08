@@ -59,10 +59,11 @@ def convert_strain_responses(
 ):
     if not any(rt.is_strain() or rt.is_stress() for rt in parsed_sim_responses):
         return
+    # All strain responses are saved under this one key.
     parsed_sim_strain = parsed_sim_responses[ResponseType.StrainXXB]
     result_bottom, result_bottom_z, result_top = [], [], []
     print_w("Elements belonging to piers will not have strain recorded")
-    print_w("Strain fem are specified to be at y=0, but recorded lower")
+    print_w("Strain responses are specified to be at y=0, but recorded lower")
 
     # For each integration point..
     assert len(parsed_sim_strain) == 4
@@ -153,6 +154,7 @@ def convert_responses_3d(
         sim_params = expt_params[sim_ind]
         nodes = det_nodes(sim_params.bridge_nodes)
         elements = det_shells(sim_params.bridge_shells)
+        # The following attributes are added in opensees.build.
         del sim_params.bridge_nodes
         del sim_params.bridge_shells
         # Parse x, y, and z translation fem if necessary.
