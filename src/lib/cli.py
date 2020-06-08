@@ -358,6 +358,11 @@ def strain():
     lib.make.strain.plot_strain(c())
 
 
+@verify.command(help="Plot responses_to_traffic_array output.")
+def responses():
+    lib.make.traffic.plot_traffic(c())
+
+
 ############
 # Validate #
 ############

@@ -64,7 +64,7 @@ def unit_loads(c: Config, scatter: bool):
             )
             top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
             plot_contour_deck(
-                c=c,
+                config=c,
                 responses=os_responses,
                 point_loads=point_loads,
                 cmap=axis_cmap_r,
@@ -164,7 +164,7 @@ def pier_settlement(c: Config):
             # colour normalization.
             top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
             plot_contour_deck(
-                c=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels, interp=(200, 60)
+                config=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels, interp=(200, 60)
             )
             plt.legend()
             plt.tight_layout()
@@ -288,7 +288,7 @@ def temperature_load(c: Config):
                 sim_responses.units = "mm"
             plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
             plot.contour_responses(
-                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels, interp=(200, 60)
+                config=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels, interp=(200, 60)
             )
             plt.legend()
             plt.title(

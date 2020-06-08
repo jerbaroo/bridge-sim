@@ -95,7 +95,6 @@ def animate_traffic_top_view(
         plt.xlabel("time")
         plt.ylabel("kilo Newton")
         plt.axvline(x=start_time + time_index * time_step, color="red")
-
         plt.tight_layout()
 
         # Add a color bar.
@@ -112,7 +111,7 @@ def animate_traffic_top_view(
 def animate_traffic(
     traffic: Traffic,
     time_step: float,
-    plot_f: Callable[[List[MvVehicle]], None],
+    plot_f: Callable[[int], None],
     save: str,
 ):
     """Animate traffic with given plotting function."""
@@ -123,3 +122,4 @@ def animate_traffic(
         plot_f(time_index)
 
     animate_plot(frames=frames, plot_f=_plot_f, time_step=time_step, save=save)
+
