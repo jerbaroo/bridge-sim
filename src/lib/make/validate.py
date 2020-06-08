@@ -121,7 +121,7 @@ def truck_1_time_series(c: Config):
 
     # Results from experiment.
     center = 13000
-    plot_offsets = [-420, -300, -200]
+    plot_offsets = [-400, -290, -170]
     for s_i, strain_label in enumerate(strain_labels):
         plt.subplot(len(strain_points), 1, s_i + 1)
         with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{strain_label}.txt")) as f:

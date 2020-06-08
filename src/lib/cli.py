@@ -277,6 +277,7 @@ def run():
 @click.option("--temp", is_flag=True, help="Run temperature load simulations.")
 def uls(point, indices, piers, temp):
     from bridge_sim import sim
+
     if indices is not None:
         indices = list(map(int, indices.split()))
     if point:
@@ -498,9 +499,7 @@ def noise():
 
 
 @thesis.command(help="Contour plot of temperature effect.")
-@click.option(
-    "--bottom", type=float, default=17, help="Bottom temperature in celcius."
-)
+@click.option("--bottom", type=float, default=17, help="Bottom temperature in celcius.")
 @click.option("--top", type=float, default=23, help="Top temperature in celcius.")
 def temp_contour(bottom, top):
     from lib.make.temperature import temp_contour_plot
