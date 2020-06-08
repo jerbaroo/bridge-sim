@@ -9,7 +9,7 @@ from numba import njit
 
 from bridge_sim import sim
 from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.util import convert_times, print_d
+from bridge_sim.util import convert_times, print_d, print_i
 
 D = "bridge_sim.shrinkage"
 
@@ -46,17 +46,26 @@ h_0tab = [100, 200, 300, 500]
 k_htab = [1, 0.85, 0.75, 0.7]
 
 
-def drying(cement_class: CementClass, h_0: float, times: List[float]) -> List[float]:
+def drying(config: Config, cement_class: CementClass, times: List[float]) -> List[float]:
     """Strain due to drying shrinkage over time.
 
     Args:
+        config: simulation configuration object.
         cement_class: class of the cement.
-        h_0: notational size.
         times: seconds when to compute strain.
 
     Returns: list of strain at each given time.
 
     """
+    # Notational size in mm.
+    x_min, x_max = config.bridge.x_min, config.bridge.x_max
+    x_center = x_min + ((x_max - x_min) / 2)
+    material1 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_min)
+    material2 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_max)
+    print_i(f"Material 1 thickness = {material1.thickness}")
+    print_i(f"Material 2 thickness = {material2.thickness}")
+    h_0 = (config.bridge.width + material1.thickness + material2.thickness) * 1000
+    print_i(f"h_0 (notational size for shrinkage calculation) = {h_0}")
     t = np.array(convert_times(f="second", t="day", times=times))
     B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
     print_d(D, f"B_RH = {B_RH}")
@@ -83,7 +92,6 @@ def drying_responses(
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
-    h_0: float,
 ) -> List[List[float]]:
     """Responses over time at points due to drying shrinkage.
 
@@ -93,12 +101,11 @@ def drying_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
-        h_0: notational size.
 
     Returns: NumPy array ordered by points then times.
 
     """
-    strain = drying(cement_class=cement_class, h_0=h_0, times=times)
+    strain = drying(config=config, cement_class=cement_class, times=times)
     temp_deltas = strain / config.cte
     unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -170,18 +177,17 @@ def autogenous_responses(
     return result
 
 
-def total(cement_class: CementClass, h_0: float, times: List[float]) -> List[float]:
+def total(config: Config, cement_class: CementClass, times: List[float]) -> List[float]:
     """Strain due to drying and autogenous shrinkage over time.
 
     Args:
         cement_class: class of the cement.
-        h_0: notational size.
         times: seconds when to compute strain.
 
     Returns: list of strain at each given time.
 
     """
-    d = drying(cement_class=cement_class, h_0=h_0, times=times)
+    d = drying(config, cement_class=cement_class, times=times)
     a = autogenous(times)
     assert len(a) == len(d)
     result = d + a
@@ -196,7 +202,6 @@ def total_responses(
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
-    h_0: float,
 ) -> List[List[float]]:
     """Responses over time at points due to drying shrinkage.
 
@@ -206,7 +211,6 @@ def total_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
-        h_0: notational size.
 
     Returns: NumPy array ordered by points then times.
 
@@ -217,7 +221,6 @@ def total_responses(
         times=times,
         points=points,
         cement_class=cement_class,
-        h_0=h_0,
     )
     a = autogenous_responses(
         config=config, response_type=response_type, times=times, points=points

@@ -13,7 +13,7 @@ def plot_drying_shrinkage(config: Config, n: int = 1):
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
 
-    strain = shrinkage.drying(shrinkage.CementClass.Normal, 250, seconds)
+    strain = shrinkage.drying(config, shrinkage.CementClass.Normal, seconds)
     plt.plot(days / 365, strain * 1e6, lw=3, c="r")
     plt.ylabel("Microstrain")
     plt.xlabel("Time (years)")
@@ -31,7 +31,6 @@ def plot_drying_shrinkage(config: Config, n: int = 1):
         times=seconds,
         points=[point],
         cement_class=shrinkage.CementClass.Normal,
-        h_0=250,
     )[0]
     plt.plot(days / 365, responses, lw=3, c="r")
     plt.ylabel("Microstrain XXB")
@@ -46,7 +45,6 @@ def plot_drying_shrinkage(config: Config, n: int = 1):
         times=seconds,
         points=[point],
         cement_class=shrinkage.CementClass.Normal,
-        h_0=250,
     )[0]
     plt.plot(days / 365, responses * 1e3, lw=3, c="r")
     plt.ylabel(response_type.name() + " (mm)")
@@ -105,7 +103,7 @@ def plot_total_shrinkage(config: Config, n: int = 1):
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
 
-    strain = shrinkage.total(shrinkage.CementClass.Normal, 250, seconds)
+    strain = shrinkage.total(config, shrinkage.CementClass.Normal, seconds)
     plt.plot(days / 365, strain * 1e6, lw=3, c="r")
     plt.ylabel("Microstrain")
     plt.xlabel("Time (years)")
@@ -123,7 +121,6 @@ def plot_total_shrinkage(config: Config, n: int = 1):
         times=seconds,
         points=[point],
         cement_class=shrinkage.CementClass.Normal,
-        h_0=250,
     )[0]
     plt.plot(days / 365, responses, lw=3, c="r")
     plt.ylabel("Microstrain XXB")
@@ -138,13 +135,12 @@ def plot_total_shrinkage(config: Config, n: int = 1):
         times=seconds,
         points=[point],
         cement_class=shrinkage.CementClass.Normal,
-        h_0=250,
     )[0]
     plt.plot(days / 365, responses * 1e3, lw=3, c="r")
     plt.ylabel(response_type.name() + " (mm)")
     plt.xlabel("Time (years)")
     plt.suptitle(
-        f"Responses to autogenous shrinkage at X = {point.x} m, Z = {point.z} m"
+        f"Responses to total shrinkage at X = {point.x} m, Z = {point.z} m"
     )
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "total-responses.pdf"))

@@ -43,8 +43,7 @@ def apply(effect: List[float], signal: List[float]):
 
     """
     i = interp1d(
-        np.linspace(0, len(signal) - 1, 10000),
-        np.linspace(0, len(effect) - 1, 10000),
+        np.linspace(0, len(signal) - 1, 10000), np.linspace(0, len(effect) - 1, 10000),
     )(np.arange(len(signal)))
     return interp1d(np.arange(len(effect)), effect)(i)
 
