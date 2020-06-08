@@ -26,11 +26,6 @@ def truck_1_time_series(c: Config):
         for time in wagen1_times
     ]
 
-    ################
-    # Vert. trans. #
-    ################
-
-    plt.portrait()
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
     displa_points = [
@@ -39,6 +34,23 @@ def truck_1_time_series(c: Config):
             _displa_sensor_xz(displa_label) for displa_label in displa_labels
         ]
     ]
+    strain_labels = ["T1", "T10", "T11"]
+    strain_points = [
+        Point(x=sensor_x, y=0, z=sensor_z)
+        for sensor_x, sensor_z in [
+            _strain_sensor_xz(strain_label) for strain_label in strain_labels
+        ]
+    ]
+    for strain_point in strain_points:
+        print(f"Strain point = {strain_point}")
+    for displa_point in displa_points:
+        print(f"Displa point = {displa_point}")
+
+    ################
+    # Vert. trans. #
+    ################
+
+    plt.portrait()
     # Ensure points and truck are on the same lane.
     assert all(p.z < 0 for p in displa_points)
 
@@ -92,15 +104,6 @@ def truck_1_time_series(c: Config):
     ##########
 
     plt.portrait()
-    # Find points of each sensor.
-    strain_labels = ["T1", "T10", "T11"]
-    strain_points = [
-        Point(x=sensor_x, y=0, z=sensor_z)
-        for sensor_x, sensor_z in [
-            _strain_sensor_xz(strain_label) for strain_label in strain_labels
-        ]
-    ]
-
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(
         c=c,
@@ -131,8 +134,8 @@ def truck_1_time_series(c: Config):
         plt.legend()
         plt.ylabel("Microstrain XXB")
         plt.xlabel("Time (s)")
-        point = displa_points[s_i]
-        plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
+        point = strain_points[s_i]
+        plt.title(f"{strain_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
         if s_i < len(strain_labels) - 1:
             plt.tick_params(axis="x", bottom=False, labelbottom=False)
 
