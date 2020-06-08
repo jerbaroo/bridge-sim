@@ -1172,10 +1172,13 @@ class Vehicle:
         wheel_track_xs: Optional[List[float]] = None,
     ):
         """Load intensities and positions per axle, per wheel.
+
         "Bucketed" to fit onto wheel tracks.
+
         NOTE: In each tuple of two point loads, one tuple per wheel, each point
         load is for a unit load position in the wheel track. Each point load is
         weighted by the distance to the unit load.
+
         """
         if wheel_track_xs is None:
             wheel_track_xs = c.bridge.wheel_track_xs(c)
@@ -1186,11 +1189,10 @@ class Vehicle:
         # For each axle.
         for x, kn in zip(xs, kns):
             # Skip axle if not on the bridge.
-            if (x < c.bridge.x_min and not np.isclose(x, c.bridge.x_min)) or (
-                x > c.bridge.x_max and not np.isclose(x, c.bridge.x_max)
-            ):
+            if (x < c.bridge.x_min or x > c.bridge.x_max):
                 continue
             left, right = [], []
+            print(f"wheel_x = {x}")
             for (load_x, load_frac) in self.to_wheel_track_xs(
                 c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
             ):
