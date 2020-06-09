@@ -472,6 +472,11 @@ class Lane:
         self.width = round_m(self.z_max - self.z_min)
         self.z_center = round_m(self.z_min + (self.width / 2))
 
+    def wheel_track_zs(self, config: Config):
+        """Z positions of this lane's wheel track on a bridge."""
+        half_axle = config.axle_width / 2
+        return [self.z_center - half_axle, self.z_center + half_axle]
+
 
 class Material:
     """An abstract class for material properties.
@@ -763,12 +768,8 @@ class Bridge:
 
     def wheel_track_zs(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
-        half_axle = c.axle_width / 2
         return sorted(
-            chain.from_iterable(
-                [lane.z_center - half_axle, lane.z_center + half_axle]
-                for lane in self.lanes
-            )
+            chain.from_iterable(lane.wheel_track_zs() for lane in self.lanes)
         )
 
     def wheel_track_xs(self, c: "Config"):
@@ -951,27 +952,26 @@ class Bridge:
 class Vehicle:
     def __init__(
         self,
-        kn: Union[float, List[float], List[Tuple[float, float]]],
+        kn: Union[float, List[float]],
         axle_distances: List[float],
         axle_width: float,
         kmph: float,
         lane: int = 0,
-        init_x_frac: float = 0,
+        init_x: float = 0,
     ):
         """A vehicles, load intensities, position and speed.
 
         Args:
-            kn:
-                intensity, either for the entire vehicles or per axle, or as a
-                list of tuple (per wheel, each tuple is left then right wheel),
-                in kilo Newton.
+            kn: either a scalar (total load of this vehicle), or a list (load
+                per axle).
             axle_distances: distance between axles in meters.
             axle_width: width of the vehicles's axles in meters.
             kmph: speed of this vehicle.
             lane: index of a lane on a bridge.
-            init_x_frac: position at time 0 in a simulation.
+            init_x: distance from lane beginning at time 0.
+
         """
-        self.kn = kn
+        self.load = kn
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
@@ -980,283 +980,214 @@ class Vehicle:
         self.kmph = kmph
         self.mps = self.kmph / 3.6  # Meters per second.
         self.lane = lane
-        self.init_x_frac = init_x_frac
-        assert self.init_x_frac <= 1
+        self.init_x = init_x
+        if self.init_x >= 1:
+            raise ValueError("Already left bridge at time t = 0")
+        if self._is_load_per_axle() and not len(self.load) == self.num_axles:
+            raise ValueError("Number of loads and axle distances don't match")
 
-        def total_kn():
-            if isinstance(self.kn, list):
-                if isinstance(self.kn[0], tuple):
-                    return sum(chain.from_iterable(self.kn))
-                return sum(self.kn)
-            return self.kn
+    def _is_load_per_axle(self) -> bool:
+        """Is there a load per axle, or a total load?"""
+        return isinstance(self.load, list)
 
-        def kn_per_axle():
-            if isinstance(self.kn, list):
-                if isinstance(self.kn[0], tuple):
-                    return list(map(sum, self.kn))
-                return self.kn
-            return [(self.kn / self.num_axles) for _ in range(self.num_axles)]
+    def total_load(self) -> float:
+        """Total load of this vehicle."""
+        if self._is_load_per_axle():
+            return sum(self.load)
+        return self.load
 
-        def kn_per_wheel():
-            if isinstance(self.kn, list):
-                if isinstance(self.kn[0], tuple):
-                    return self.kn
-                return list(map(lambda kn: (kn / 2, kn / 2), self.kn))
-            wheel_kn = self.kn / self.num_wheels
-            return [(wheel_kn, wheel_kn) for _ in range(self.num_axles)]
+    def load_per_axle(self) -> List[float]:
+        """Load for each axle."""
+        if self._is_load_per_axle():
+            return self.load
+        return [(self.load / self.num_axles) for _ in range(self.num_axles)]
 
-        self.total_kn = total_kn
-        self.kn_per_axle = kn_per_axle
-        self.kn_per_wheel = kn_per_wheel
+    def _cmap_norm(self, all_vehicles: List["Vehicle"], cmap, cmin=0, cmax=1):
+        """A colormap and norm for coloring vehicles.
 
-    def cmap_norm(self, all_vehicles: List["Vehicle"], cmin=0, cmax=1):
-        """The colormap and norm for coloring vehicles."""
-        from plot import truncate_colormap
+        Args:
+            all_vehicles: to compute the maximum and minimum of all vehicles.
+            cmap: Matplotlib colormap for the colours to use.
+            cmin: the minimum colour value.
+            cmax: the maximum colour value.
 
-        cmap = truncate_colormap(cm.get_cmap("YlGn"), cmin, cmax)
+        Returns: a tuple of Matplotlib colormap and norm.
+
+        """
+        from bridge_sim.plot import truncate_colormap
+
+        cmap = truncate_colormap(cmap, cmin, cmax)
         total_kns = [v.total_kn() for v in all_vehicles] + [self.total_kn()]
         norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
         return cmap, norm
 
-    def color(self, all_vehicles: List["Vehicle"]):
-        """Color of this vehicles scaled based on given vehicles."""
-        cmap, norm = self.cmap_norm(all_vehicles)
+    def color(self, all_vehicles: List["Vehicle"] = [], cmap=cm.get_cmap("YlGn")) -> float:
+        """Colour of this vehicle, compared to other vehicles if given."""
+        cmap, norm = self._cmap_norm(all_vehicles, cmap=cmap)
         if len(all_vehicles) == 0:
             return cmap(0.5)
-        return cmap(norm(self.total_kn()))
+        return cmap(norm(self.total_load()))
 
-    def wheel_tracks_zs(self, bridge: Bridge, meters: bool) -> Tuple[float, float]:
-        """Positions of the vehicles's wheels in transverse direction.
+    def wheel_tracks_zs(self, config: Config) -> Tuple[float, float]:
+        """Positions of the vehicles's wheels in Z direction."""
+        return config.bridge.lanes[self.lane].wheel_track_zs(config)
+
+    def xs_at(self, times: List[float], bridge: Bridge) -> List[List[float]]:
+        """X position on bridge for each axle in meters at given times.
+
         Args:
-            bridge: the bridge on which the vehicles drive.
-            meters: return position or fraction of bridge length?
+            times: times when to compute positions.
+            bridge: the bridge on which the vehicle moves.
+
+        Returns: a NumPy array of shape len(times) x self.num_axles.
+
         """
-        if not meters:
-            raise ValueError("Should not be doing this")
+        # Initial positions of axles.
         lane = bridge.lanes[self.lane]
-        tracks = [
-            lane.z_center - (self.axle_width / 2),
-            lane.z_center + (self.axle_width / 2),
-        ]
-        if meters:
-            return tracks
-        return list(map(lambda z: bridge.z_frac(z), tracks))
+        xs = [bridge.x_min if lane.ltr else bridge.x_max]
+        xs[0] += self.init_x if lane.ltr else (-self.init_x)
+        for ad in self.axle_distances:
+            xs.append(xs[-1] - ad if lane.ltr else xs[-1] + ad)
+        # Difference at each point in time.
+        deltas = np.array(times) * self.mps
+        if not lane.ltr:  # If right to left, decreasing X position.
+            deltas *= -1
+        assert len(deltas.shape) == 1
+        assert len(deltas) == len(times)
+        # Make result.
+        result = np.ndarray((len(times), self.num_axles))
+        assert len(result.shape) == 2
+        for t, d in enumerate(deltas):
+            result[t] = xs + d
+        return result
 
-    def x_frac_at(self, time: float, bridge: Bridge) -> List[float]:
-        """Fraction of x position of bridge in meters at given time.
-        Args:
-            time: time passed from initial position, in seconds.
-            bridge: bridge the vehicles is moving on.
-        """
-        delta_x_frac = (self.mps * time) / bridge.length
-        init_x_frac = self.init_x_frac
-        if bridge.lanes[self.lane].ltr:
-            return init_x_frac + delta_x_frac
-        else:
-            init_x_frac *= -1  # Make positive, move to right of bridge start.
-            init_x_frac += 1  # Move one bridge length to the right.
-            return init_x_frac - delta_x_frac
-
-    def x_at(self, time: float, bridge: Bridge):
-        """X position of front axle on bridge at given time, in meters.
-        Args:
-            time: time passed from initial position, in seconds.
-            bridge: bridge the vehicles is moving on.
-        """
-        return bridge.x(self.x_frac_at(time=time, bridge=bridge))
-
-    def xs_at(self, time: float, bridge: Bridge):
-        """X position on bridge for each axle in meters at given time."""
-        if not hasattr(self, "_xs_at_time"):
-            xs = [self.x_at(time=time, bridge=bridge)]
-            # Determine the distance between each pair of axles.
-            delta_xs = np.array(self.axle_distances)
-            if bridge.lanes[self.lane].ltr:
-                delta_xs *= -1
-            # Add the distance for each axle, after the front axle.
-            for delta_x in delta_xs:
-                xs.append(xs[-1] + delta_x)
-            self._xs_at_time = np.array(xs)
-        delta_x_time = self.x_at(time=time, bridge=bridge) - self._xs_at_time[0]
-        return sorted(self._xs_at_time + delta_x_time)
-
-    def x_fracs_at(self, time: float, bridge: Bridge):
-        """Fraction of x position of bridge for each axle at given time."""
-        return list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
+    def x_at(self, time: float, bridge: Bridge) -> float:
+        """X position of front axle on bridge at a time, in meters."""
+        return self.xs_at(times=[time], bridge=bridge)[0][0]
 
     def on_bridge(self, time: float, bridge: Bridge) -> bool:
-        """Whether a moving load is on a bridge at a given time."""
-        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Left-most and right-most vehicles positions as fractions.
-        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
-        return 0 <= xl_frac <= 1 or 0 <= xr_frac <= 1
-
-    def full_lanes(self, time: float, bridge: Bridge) -> float:
-        """The amount of bridge lanes travelled by this vehicles."""
-        x_fracs = list(map(bridge.x_frac, self.xs_at(time=time, bridge=bridge)))
-        # Left-most and right-most vehicles positions as fractions.
-        xl_frac, xr_frac = min(x_fracs), max(x_fracs)
-        if bridge.lanes[self.lane].ltr:
-            return xl_frac
-        else:
-            return abs(xr_frac - 1)
+        """Is the vehicle on a bridge at a given time?"""
+        xs = sorted(self.xs_at(times=[time], bridge=bridge)[0])
+        x_min, x_max = xs[0], xs[-1]
+        assert x_min < x_max
+        return (
+            (bridge.x_min <= x_min <= bridge.x_max) or
+            (bridge.x_min <= x_max <= bridge.x_max)
+        )
 
     def passed_bridge(self, time: float, bridge: Bridge) -> bool:
-        """Whether the current vehicles has travelled over the bridge."""
-        return self.full_lanes(time=time, bridge=bridge) > 1
+        """Has the current vehicle travelled over a bridge?"""
+        rear_x = self.xs_at(times=[time], bridge=bridge)[0][-1]
+        lane = bridge.lanes[self.lane]
+        return rear_x > bridge.x_max if lane.ltr else rear_x < bridge.x_min
 
-    def time_at(self, x, bridge: Bridge):
-        """Time the front axle is at the given x position."""
-        if not bridge.lanes[self.lane].ltr:
-            raise NotImplementedError()
-        init_x = bridge.x(self.init_x_frac)
-        assert init_x < x
-        return float(abs(init_x - x)) / self.mps
+    def time_at(self, x: float, bridge: Bridge) -> float:
+        """Time when the front axle is at an X position."""
+        if bridge.lanes[self.lane].ltr:
+            return (x - bridge.x_min - self.init_x) / self.mps
+        return ((-x) + bridge.x_max - self.init_x) / self.mps
 
-    def time_entering_bridge(self, bridge: Bridge):
-        """Time the vehicles begins to enter the bridge."""
-        init_x = bridge.x(self.init_x_frac)
-        assert init_x <= 0
-        return float(abs(init_x)) / self.mps
+    def time_entering_bridge(self, bridge: Bridge) -> float:
+        """Time the front axle is at lane beginning."""
+        if bridge.lanes[self.lane].ltr:
+            return self.time_at(x=bridge.x_min, bridge=bridge)
+        return self.time_at(x=bridge.x_max, bridge=bridge)
 
-    def time_entered_bridge(self, bridge: Bridge):
-        """Time the vehicles has entered the bridge."""
-        init_x = bridge.x(self.init_x_frac)
-        assert init_x <= 0
-        return float(abs(init_x) + self.length) / self.mps
+    def time_entered_bridge(self, bridge: Bridge) -> float:
+        """Time the rear axle is at lane beginning."""
+        if bridge.lanes[self.lane].ltr:
+            return self.time_at(x=bridge.x_min + self.length, bridge=bridge)
+        return self.time_at(x=bridge.x_max - self.length, bridge=bridge)
 
-    def time_leaving_bridge(self, bridge: Bridge):
-        """Time the vehicles begins to leave the bridge."""
-        init_x = bridge.x(self.init_x_frac)
-        assert init_x <= 0
-        return float(abs(init_x) + bridge.length) / self.mps
+    def time_leaving_bridge(self, bridge: Bridge) -> float:
+        """Time the front axle is at lane end."""
+        if bridge.lanes[self.lane].ltr:
+            return self.time_at(x=bridge.x_max, bridge=bridge)
+        return self.time_at(x=bridge.x_min, bridge=bridge)
 
-    def time_left_bridge(self, bridge: Bridge):
-        """Time the vehicles has left the bridge."""
-        init_x = bridge.x(self.init_x_frac)
-        assert init_x <= 0
-        return float(abs(init_x) + bridge.length + self.length) / self.mps
+    def time_left_bridge(self, bridge: Bridge) -> float:
+        """Time the rear axle is at lane end."""
+        if bridge.lanes[self.lane].ltr:
+            return self.time_at(x=bridge.x_max + self.length, bridge=bridge)
+        return self.time_at(x=bridge.x_min - self.length, bridge=bridge)
 
-    def to_wheel_track_xs(
-        self, c: "Config", wheel_x: float, wheel_track_xs: Optional[List[float]] = None
-    ) -> Tuple[Tuple[float, float], Tuple[float, float]]:
-        """X positions (and weighting) of unit loads for a x position.
-        This implements wheel track bucketing!
+    def _axle_track_weights(self, axle_x: float, wheel_track_xs: List[float]):
+        """Indices and weights for some X position.
+
+        NOTE: Before using this function you should check if wheel_x is an X
+        position on the bridge.
+
         """
-        wheel_x = round_m(wheel_x)
-        if wheel_track_xs is None:
-            wheel_track_xs = c.bridge.wheel_track_xs(c)
-        unit_load_x_ind = np.searchsorted(wheel_track_xs, wheel_x)
+        unit_load_x_ind = np.searchsorted(wheel_track_xs, axle_x)
         unit_load_x = lambda: wheel_track_xs[unit_load_x_ind]
-        if unit_load_x() > wheel_x:
+        # If definitely greater then subtract one index.
+        if unit_load_x() > axle_x and not np.isclose(unit_load_x(), axle_x):
             unit_load_x_ind -= 1
-        assert unit_load_x() <= wheel_x
-        # If the unit load is an exact match just return it.
-        if np.isclose(wheel_x, unit_load_x()):
-            return ((wheel_x, 1), (0, 0))
-        # Otherwise, return a combination of two unit loads. In this case the
+        assert unit_load_x() <= axle_x
+        # If the unit load is an exact match just return it..
+        if np.isclose(axle_x, unit_load_x()):
+            return (unit_load_x_ind, 1), (None, 0)
+        # ..otherwise, return a combination of two unit loads. In this case the
         # unit load's position is less than the wheel.
         unit_load_x_lo = unit_load_x()
         unit_load_x_hi = wheel_track_xs[unit_load_x_ind + 1]
-        assert unit_load_x_hi > wheel_x
-        dist_lo = abs(unit_load_x_lo - wheel_x)
-        dist_hi = abs(unit_load_x_hi - wheel_x)
+        assert unit_load_x_hi > axle_x
+        dist_lo = abs(unit_load_x_lo - axle_x)
+        dist_hi = abs(unit_load_x_hi - axle_x)
         dist = dist_lo + dist_hi
-        return (unit_load_x_lo, dist_hi / dist), (unit_load_x_hi, dist_lo / dist)
+        return (unit_load_x_ind, dist_hi / dist), (unit_load_x_ind + 1, dist_lo / dist)
 
-    def to_wheel_track_loads_(
-        self,
-        c: "Config",
-        time: float,
-        flat: bool = False,
-        wheel_track_xs: Optional[List[float]] = None,
-    ):
-        """Load intensities and positions per axle, per wheel.
+    def _axle_track_indices(self, config: Config, times: List[float]) -> List[List[Tuple[int, float]]]:
+        """Axle track indices and load intensities over time.
 
-        "Bucketed" to fit onto wheel tracks.
-
-        NOTE: In each tuple of two point loads, one tuple per wheel, each point
-        load is for a unit load position in the wheel track. Each point load is
-        weighted by the distance to the unit load.
+        NOTE: Each index is in [0, uls * lanes - 1].
 
         """
-        if wheel_track_xs is None:
-            wheel_track_xs = c.bridge.wheel_track_xs(c)
-        xs = self.xs_at(time=time, bridge=c.bridge)
-        kns = self.kn_per_axle()
-        result = []
-        assert len(xs) == len(kns)
-        # For each axle.
-        for x, kn in zip(xs, kns):
-            # Skip axle if not on the bridge.
-            if (x < c.bridge.x_min or x > c.bridge.x_max):
-                continue
-            left, right = [], []
-            print(f"wheel_x = {x}")
-            for (load_x, load_frac) in self.to_wheel_track_xs(
-                c=c, wheel_x=x, wheel_track_xs=wheel_track_xs,
-            ):
-                if load_frac > 0:
-                    bucket_kn = kn / 2 * load_frac
-                    left.append((load_x, bucket_kn))
-                    right.append((load_x, bucket_kn))
-            result.append((left, right))
-        if flat:
-            return flatten(result, PointLoad)
-        return result
+        xs = self.xs_at(times=times, bridge=config.bridge)  # Times x X axles.
+        wheel_track_xs = config.bridge.wheel_track_xs(config)
+        lane_offset = self.lane * config.il_num_loads
+        for t, time in enumerate(times):
+            result = []
+            for x in xs[t]:
+                if config.bridge.x_min <= x <= config.bridge.x_max:
+                    (lo, weight_lo), (hi, weight_hi) = self._axle_track_weights(
+                        axle_x=x, wheel_track_xs=wheel_track_xs,
+                    )
+                    result.append((
+                        (lo + lane_offset, weight_lo),
+                        (None if hi is None else hi + lane_offset, weight_hi),
+                    ))
+            yield result
 
-    def to_wheel_track_loads(
-        self, c: "Config", time: float, flat: bool = False
-    ) -> List[Tuple[List[PointLoad], List[PointLoad]]]:
-        z0, z1 = self.wheel_tracks_zs(bridge=c.bridge, meters=True)
-        assert z0 < z1
-        result = []
-        for axle_loads in self.to_wheel_track_loads_(c=c, time=time):
-            left, right = [], []
-            left_loads, right_loads = axle_loads
-            for load_x, load_kn in left_loads:
-                left.append(PointLoad(x=load_x, z=z0, load=load_kn))
-            for load_x, load_kn in right_loads:
-                right.append(PointLoad(x=load_x, z=z1, load=load_kn))
-            result.append((left, right))
-        if flat:
-            return flatten(result, PointLoad)
-        return result
-
-    def to_point_load_pw(
+    def point_load_pw(
         self, time: float, bridge: Bridge, list: bool = False
     ) -> Union[List[Tuple[PointLoad, PointLoad]], List[PointLoad]]:
         """A tuple of point load per axle, one point load per wheel."""
         z0, z1 = self.wheel_tracks_zs(bridge=bridge, meters=True)
         assert z0 < z1
-        kn_per_axle = self.kn_per_axle()
+        load_per_axle = self.load_per_axle()
         result = []
-        # For each axle.
-        for x_i, x in enumerate(self.xs_at(time=time, bridge=bridge)):
-            # Skip axle if not on the bridge.
-            if (x < bridge.x_min and not np.isclose(x, bridge.x_min)) or (
-                x > bridge.x_max and not np.isclose(x, bridge.x_max)
-            ):
-                continue
-            # Two wheel load intensities.
-            kn_wheel = kn_per_axle[x_i] / 2
-            result.append(
-                (
-                    PointLoad(x=x, z=z0, load=kn_wheel),
-                    PointLoad(x=x, z=z1, load=kn_wheel),
+        # For each axle create two loads.
+        for x_i, x in enumerate(self.xs_at(times=[time], bridge=bridge)[0]):
+            if bridge.x_min <= x <= bridge.x_max:
+                wheel_load = load_per_axle[x_i] / 2
+                result.append(
+                    (
+                        PointLoad(x=x, z=z0, load=wheel_load),
+                        PointLoad(x=x, z=z1, load=wheel_load),
+                    )
                 )
-            )
         if list:
             return flatten(result, PointLoad)
         return result
 
     def plot_wheels(self, c: "Config", time: float, label=None, **kwargs):
-        wheel_loads = self.to_point_load_pw(time=time, bridge=c.bridge, flat=True)
+        """Plot each wheel as a single black dot."""
+        wheel_loads = self.point_load_pw(time=time, bridge=c.bridge, list=True)
         for i, load in enumerate(wheel_loads):
-            x, z = c.bridge.x(load.x_frac), c.bridge.z(load.z_frac)
             plt.scatter(
-                [x],
-                [z],
+                [load.x],
+                [load.z],
                 facecolors="none",
                 edgecolors="black",
                 label=None if i > 0 else label,
