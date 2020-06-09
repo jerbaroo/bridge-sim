@@ -266,14 +266,6 @@ def sci_format_y_axis(points: int = 1):
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
 
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-    new_cmap = colors.LinearSegmentedColormap.from_list(
-        "trunc({n},{a:.2f},{b:.2f})".format(n=cmap.name, a=minval, b=maxval),
-        cmap(np.linspace(minval, maxval, n)),
-    )
-    return new_cmap
-
-
 def animate_plot(
     frames: int, plot_f: Callable[[int], None], time_step: float, save: str
 ):

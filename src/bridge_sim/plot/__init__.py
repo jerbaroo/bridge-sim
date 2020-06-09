@@ -7,6 +7,8 @@ from lib.plot.geometry import shells, top_view_bridge
 
 __all__ = ["contour_responses", "top_view_bridge"]
 
+from matplotlib import colors
+
 
 def equal_lims(axis, rows, cols, subplots=None):
     """Set equal x or y limits on subplots."""
@@ -22,3 +24,12 @@ def equal_lims(axis, rows, cols, subplots=None):
     for p in subplots:
         plt.subplot(rows, cols, p)
         lim_f((amin, amax))
+
+
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    """A truncated version of the given Matplotlib colormap."""
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        "trunc({n},{a:.2f},{b:.2f})".format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)),
+    )
+    return new_cmap

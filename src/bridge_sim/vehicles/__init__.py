@@ -18,7 +18,7 @@ truck1 = Vehicle(
 """Truck 1 from the experimental campaign."""
 
 assert truck1.lane == 0
-assert truck1.init_x_frac == 0
+assert truck1.init_x == 0
 
 
 __all__ = ["truck1"]
