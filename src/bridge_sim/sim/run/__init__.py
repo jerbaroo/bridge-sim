@@ -341,7 +341,7 @@ def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTr
 def ulm_xzs(config: Config):
     """Point-load positions for unit load simulations."""
     return [(x, z) for z, x in itertools.product(
-        config.bridge.wheel_track_zs(config),
+        config.bridge.axle_track_zs(),
         config.bridge.wheel_track_xs(config),
     )]
 

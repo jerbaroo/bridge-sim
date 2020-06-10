@@ -360,7 +360,12 @@ def strain():
 
 @verify.command(help="Plot responses_to_traffic_array output.")
 def responses():
-    lib.make.traffic.plot_traffic(c())
+    lib.make.traffic.plot_responses(c())
+
+
+@verify.command(help="Animate a Traffic(Array) sequence.")
+def traffic():
+    lib.make.traffic.animate_traffic(c())
 
 
 ############
