@@ -5,10 +5,26 @@ import numpy as np
 from bridge_sim.configs import test_config
 from bridge_sim.model import Vehicle
 from bridge_sim.sim.run import ulm_xzs
-from bridge_sim.traffic import normal_traffic
+from bridge_sim.traffic import normal_traffic, load_traffic
 from bridge_sim.util import flatten
 
 config = test_config(msl=10)[0]
+
+
+def test_load_traffic():
+    time = 10
+    traffic_scenario = normal_traffic(config=config)
+    ts1, t1, ta1 = load_traffic(
+        config=config,
+        traffic_scenario=traffic_scenario,
+        time=time,
+    )
+    ts2, t2, ta2 = load_traffic(
+        config=config,
+        traffic_scenario=traffic_scenario,
+        time=time,
+    )
+    assert (ta1 == ta2).all()
 
 
 def test_traffic_scenario():

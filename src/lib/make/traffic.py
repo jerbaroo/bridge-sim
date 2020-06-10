@@ -5,6 +5,7 @@ from bridge_sim.sim.responses import responses_to_traffic_array
 from bridge_sim.traffic import normal_traffic
 from lib.plot.animate import animate_traffic as at
 from lib.plot.animate import animate_traffic_array as ata
+from lib.plot.animate import animate_responses as ar
 
 
 def animate_traffic(config: Config):
@@ -25,6 +26,20 @@ def animate_traffic(config: Config):
         traffic_sequence=traffic_sequence,
         traffic_array=traffic_array,
         save=config.get_image_path("verification/animate", "traffic_array.mp4"),
+    )
+
+
+def animate_responses(config: Config):
+    time = 10
+    config.sensor_hz = 1 / 10
+    traffic_scenario = normal_traffic(config=config)
+    traffic_sequence = traffic_scenario.traffic_sequence(config, time)
+    ar(
+        config=config,
+        traffic_sequence=traffic_sequence,
+        response_type=ResponseType.YTrans,
+        units="mm",
+        save=config.get_image_path("verification/animate", "traffic-responses.mp4"),
     )
 
 

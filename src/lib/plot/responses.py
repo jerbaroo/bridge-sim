@@ -122,6 +122,7 @@ def plot_contour_deck(
     mm_legend_without_f: Optional[Callable[[Point], bool]] = None,
     sci_format: bool = False,
     decimals: int = 4,
+    cbar: bool = True,
 ):
     """Contour or scatter plot of simulation responses.
 
@@ -138,6 +139,7 @@ def plot_contour_deck(
         mm_legend_without_f: function to filter points considered in the legend.
         sci_format: force scientific formatting (E) in the legend.
         decimals: round legend values to this many decimals.
+        cbar: add a colorbar?
 
     """
     if interp:
@@ -185,9 +187,10 @@ def plot_contour_deck(
         cs = plt.tricontourf(X, Z, H, levels=levels, cmap=cmap, norm=norm)
 
     # Colourbar, maybe using given norm.
-    clb = plt.colorbar(cs, norm=norm)
-    if responses.units is not None:
-        clb.ax.set_title(responses.units)
+    if cbar:
+        clb = plt.colorbar(cs, norm=norm)
+        if responses.units is not None:
+            clb.ax.set_title(responses.units)
 
     # Plot point loads.
     for pload in point_loads:

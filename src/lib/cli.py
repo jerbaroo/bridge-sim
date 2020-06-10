@@ -357,6 +357,11 @@ def traffic():
     lib.make.traffic.animate_traffic(c())
 
 
+@verify.command(help="Animate responses to traffic.")
+def traffic_responses():
+    lib.make.traffic.animate_responses(c())
+
+
 ############
 # Validate #
 ############
