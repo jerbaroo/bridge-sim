@@ -141,10 +141,15 @@ def plot_contour_deck(
 
     """
     if interp:
-        points = [Point(x=x, z=z) for x, z, in list(itertools.product(
-            np.linspace(config.bridge.x_min, config.bridge.x_max, interp[0]),
-            np.linspace(config.bridge.z_min, config.bridge.z_max, interp[1]),
-        ))]
+        points = [
+            Point(x=x, z=z)
+            for x, z, in list(
+                itertools.product(
+                    np.linspace(config.bridge.x_min, config.bridge.x_max, interp[0]),
+                    np.linspace(config.bridge.z_min, config.bridge.z_max, interp[1]),
+                )
+            )
+        ]
         responses = Responses(
             response_type=responses.response_type,
             responses=list(zip(responses.at_decks(points), points)),
@@ -188,8 +193,11 @@ def plot_contour_deck(
     for pload in point_loads:
         unit_str = "" if pload.units is None else f" {pload.units}"
         plt.scatter(
-            [pload.x], [pload.z], label=f"{pload.load}{unit_str} load",
-            marker="o", color="black",
+            [pload.x],
+            [pload.z],
+            label=f"{pload.load}{unit_str} load",
+            marker="o",
+            color="black",
         )
 
     # Begin: min, max legend.

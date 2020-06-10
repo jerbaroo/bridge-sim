@@ -89,10 +89,9 @@ def responses_to_loads_d(
         expt_params=[SimParams(ploads=loads_) for loads_ in loads],
         response_type=response_type,
     )
-    return np.array([
-        sim_responses.at_decks(points)
-        for sim_responses in expt_responses
-    ])
+    return np.array(
+        [sim_responses.at_decks(points) for sim_responses in expt_responses]
+    )
 
 
 def responses_to_vehicles_d(
@@ -116,8 +115,5 @@ def responses_to_vehicles_d(
     assert isinstance(loads_per_time[0], list)
     assert isinstance(loads_per_time[0][0], PointLoad)
     return responses_to_loads_d(
-        c=c,
-        response_type=response_type,
-        points=points,
-        loads=loads_per_time,
+        c=c, response_type=response_type, points=points, loads=loads_per_time,
     )

@@ -264,4 +264,3 @@ def sci_format_y_axis(points: int = 1):
 
     plt.gca().yaxis.set_major_formatter(ScalarFormatterForceFormat())
     plt.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
-

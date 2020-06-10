@@ -115,10 +115,10 @@ def load(
 
 
 def resize(
-        temps: List[float],
-        tmin: Optional[int] = None,
-        tmax: Optional[int] = None,
-        year: Optional[int] = None,
+    temps: List[float],
+    tmin: Optional[int] = None,
+    tmax: Optional[int] = None,
+    year: Optional[int] = None,
 ) -> List[float]:
     """Resize temperatures into a range.
 
@@ -246,8 +246,12 @@ def effect(
         config=config, response_type=response_type, temp_deltas=(None, 1)
     )
     if response_type.is_strain():
-        uniform_responses = uniform_responses.add_temp_strain(config=config, temp_deltas=(1, None))
-        linear_responses = linear_responses.add_temp_strain(config=config, temp_deltas=(None, 1))
+        uniform_responses = uniform_responses.add_temp_strain(
+            config=config, temp_deltas=(1, None)
+        )
+        linear_responses = linear_responses.add_temp_strain(
+            config=config, temp_deltas=(None, 1)
+        )
     print_i("Loaded unit temperature responses")
 
     # Effect to unit temperature loading only at requested points.
@@ -322,4 +326,3 @@ def regress_and_errors(x, y):
     for x_, y_ in zip(x, y):
         errors.append(abs(y_ - lr.predict([[x_]])[0]))
     return lr, np.array(errors)
-

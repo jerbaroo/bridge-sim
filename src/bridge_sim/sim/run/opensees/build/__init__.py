@@ -11,4 +11,3 @@ def build_model(
 ):
     """Build an OpenSees 2D or 3D model file."""
     return build_model_3d(c=c, expt_params=expt_params, os_runner=fem_runner)
-

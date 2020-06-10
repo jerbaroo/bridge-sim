@@ -1,4 +1,4 @@
-"""Test running of many simulations."""
+"""Test running of "ULS" simulations."""
 
 from bridge_sim import plot, sim
 from bridge_sim.configs import test_config

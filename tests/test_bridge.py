@@ -1,3 +1,5 @@
+"""Test "Bridge" methods."""
+
 import numpy as np
 
 from bridge_sim.bridges.bridge_705 import bridge_705

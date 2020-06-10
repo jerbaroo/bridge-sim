@@ -139,9 +139,7 @@ def plot_total_shrinkage(config: Config, n: int = 1):
     plt.plot(days / 365, responses * 1e3, lw=3, c="r")
     plt.ylabel(response_type.name() + " (mm)")
     plt.xlabel("Time (years)")
-    plt.suptitle(
-        f"Responses to total shrinkage at X = {point.x} m, Z = {point.z} m"
-    )
+    plt.suptitle(f"Responses to total shrinkage at X = {point.x} m, Z = {point.z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "total-responses.pdf"))
     plt.close()

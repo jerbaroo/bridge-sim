@@ -18,7 +18,14 @@ import numpy as np
 from pathos.multiprocessing import Pool
 from multiprocessing import shared_memory
 
-from bridge_sim.model import Bridge, Config, ResponseType, PointLoad, PierSettlement, Point
+from bridge_sim.model import (
+    Bridge,
+    Config,
+    ResponseType,
+    PointLoad,
+    PierSettlement,
+    Point,
+)
 from bridge_sim.sim.model import SimParams, SimResponses
 from bridge_sim.sim.util import _responses_path
 from bridge_sim.util import print_d, print_i, safe_str, shorten_path, print_w
@@ -100,7 +107,9 @@ class FEMRunner:
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(f"FEMRunner: parsed {self.name} responses in" + f" {timer() - start:.2f} s")
+        print_i(
+            f"FEMRunner: parsed {self.name} responses in" + f" {timer() - start:.2f} s"
+        )
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
@@ -112,10 +121,7 @@ class FEMRunner:
             expt_params=expt_params,
             parsed_expt_responses=parsed_expt_responses,
         )
-        print_i(
-            f"FEMRunner: converted to [Response] in"
-            + f" {timer() - start:.2f} s"
-        )
+        print_i(f"FEMRunner: converted to [Response] in" + f" {timer() - start:.2f} s")
         if return_converted:
             return converted_expt_responses
         print(converted_expt_responses[0].keys())
@@ -313,7 +319,11 @@ def load_expt_responses(
             yield process(index_params, _run_only=False)
 
 
-def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+def pier_settlement(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
     """Yield all unit pier settlement simulation responses.
 
     Set 'config.parallel' before calling this function to run simulations in
@@ -328,9 +338,11 @@ def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTr
     return load_expt_responses(
         c=config,
         expt_params=[
-            SimParams(pier_settlement=[PierSettlement(
-                pier=pier, settlement=config.unit_pier_settlement
-            )])
+            SimParams(
+                pier_settlement=[
+                    PierSettlement(pier=pier, settlement=config.unit_pier_settlement)
+                ]
+            )
             for pier in range(len(config.bridge.supports))
         ],
         response_type=response_type,
@@ -340,22 +352,32 @@ def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTr
 
 def ulm_xzs(config: Config):
     """Axle positions for unit load simulations."""
-    return [(x, z) for z, x in itertools.product(
-        config.bridge.axle_track_zs(),
-        config.bridge.wheel_track_xs(config),
-    )]
+    return [
+        (x, z)
+        for z, x in itertools.product(
+            config.bridge.axle_track_zs(), config.bridge.wheel_track_xs(config),
+        )
+    ]
 
 
 def ulm_point_loads(config: Config):
     """Point loads for each unit point-load simulation."""
     half_axle = config.axle_width / 2
-    return [[
-        PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
-        PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn)
-    ] for x, z in ulm_xzs(config)]
+    return [
+        [
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+        ]
+        for x, z in ulm_xzs(config)
+    ]
 
 
-def point_load(config: Config, indices: Optional[List[int]] = None, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+def point_load(
+    config: Config,
+    indices: Optional[List[int]] = None,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
     """Yield all unit pier point-load simulations responses.
 
     Set 'config.parallel' before calling this function to run simulations in
@@ -370,8 +392,7 @@ def point_load(config: Config, indices: Optional[List[int]] = None, response_typ
 
     """
     expt_params = [
-        SimParams(ploads=point_loads)
-        for point_loads in ulm_point_loads(config)
+        SimParams(ploads=point_loads) for point_loads in ulm_point_loads(config)
     ]
     if indices is not None:
         expt_params = [expt_params[i] for i in indices]
@@ -385,7 +406,11 @@ def point_load(config: Config, indices: Optional[List[int]] = None, response_typ
     )
 
 
-def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
+def temperature(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
     """Yield all unit temperature simulations responses.
 
     Set 'config.parallel' before calling this function to run simulations in
@@ -410,7 +435,11 @@ def temperature(config: Config, response_type: ResponseType=ResponseType.YTrans,
 
 def ulm_path(config: Config, response_type: ResponseType, points: List[Point]) -> str:
     """Unique path for a unit load matrix."""
-    return safe_str(config.get_data_path("ulm-path", f"{response_type.value}-{''.join(str(p) for p in points)}"))
+    return safe_str(
+        config.get_data_path(
+            "ulm-path", f"{response_type.value}-{''.join(str(p) for p in points)}"
+        )
+    )
 
 
 def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
@@ -440,12 +469,16 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
             i_, pls = params
             assert len(pls) == 2
             existing_shm = shared_memory.SharedMemory(name=shm.name)
-            ulm = np.ndarray(shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf)
-            for j, response in enumerate(load_fem_responses(
-                c=config,
-                sim_params=SimParams(ploads=pls),
-                response_type=response_type,
-            ).at_decks(points)):
+            ulm = np.ndarray(
+                shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf
+            )
+            for j, response in enumerate(
+                load_fem_responses(
+                    c=config,
+                    sim_params=SimParams(ploads=pls),
+                    response_type=response_type,
+                ).at_decks(points)
+            ):
                 ulm[i_][j] = response
             existing_shm.close()
 
@@ -457,7 +490,9 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
             print_w(f"Loading ULM with {config.parallel} parallelism")
             with Pool(processes=config.parallel) as pool:
                 pool.map(set_ulm_entry, params_list)
-        result = np.ndarray(shm_template.shape, dtype=shm_template.dtype, buffer=shm.buf)
+        result = np.ndarray(
+            shm_template.shape, dtype=shm_template.dtype, buffer=shm.buf
+        )
         result = np.array(result, copy=True)
         shm.close()
         shm.unlink()
@@ -468,4 +503,3 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
     with open(path, "wb") as f:
         dill.dump(result, f)
     return result
-

@@ -46,7 +46,9 @@ h_0tab = [100, 200, 300, 500]
 k_htab = [1, 0.85, 0.75, 0.7]
 
 
-def drying(config: Config, cement_class: CementClass, times: List[float]) -> List[float]:
+def drying(
+    config: Config, cement_class: CementClass, times: List[float]
+) -> List[float]:
     """Strain due to drying shrinkage over time.
 
     Args:

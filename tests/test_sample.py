@@ -1,7 +1,6 @@
 """Test sampling of vehicles."""
 
-from bridge_sim.bridges.bridge_705 import bridge_705
-from bridge_sim.configs import opensees_default
+from bridge_sim.configs import test_config
 from bridge_sim.model import Vehicle
 from bridge_sim.vehicles.sample import noise_col_names, sample_vehicle
 from bridge_sim.util import print_d
@@ -9,9 +8,10 @@ from bridge_sim.util import print_d
 # Print debug information for this file.
 D: bool = False
 
+c, exe_found = test_config(0.5)
+
 
 def test_sample_vehicle():
-    c = opensees_default(bridge_705(0.5))
     c.vehicle_density = [(11.5, 0.7), (12.2, 0.2), (43, 0.1)]
 
     # Test a vehicles is returned.

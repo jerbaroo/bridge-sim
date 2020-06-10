@@ -19,10 +19,7 @@ def truck_1_time_series(c: Config):
     # Get times and loads for Truck 1.
     end_time = truck1.time_left_bridge(c.bridge)
     traffic_array = TrafficSequence(
-        config=c,
-        vehicles_per_lane=[[truck1], []],
-        warmed_up_at=0,
-        final_time=end_time,
+        config=c, vehicles_per_lane=[[truck1], []], warmed_up_at=0, final_time=end_time,
     ).traffic_array()
 
     # Find points of each sensor.
@@ -54,12 +51,15 @@ def truck_1_time_series(c: Config):
     assert all(p.z < 0 for p in displa_points)
 
     # Results from simulation.
-    responses_truck1 = responses_to_traffic_array(
-        c=c,
-        traffic_array=traffic_array,
-        response_type=ResponseType.YTrans,
-        points=displa_points,
-    ) * 1E-3
+    responses_truck1 = (
+        responses_to_traffic_array(
+            c=c,
+            traffic_array=traffic_array,
+            response_type=ResponseType.YTrans,
+            points=displa_points,
+        )
+        * 1e-3
+    )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(displa_points), 1, s_i + 1)
         # Find the center of the plot, minimum point in the data.
@@ -68,7 +68,7 @@ def truck_1_time_series(c: Config):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
         sensor_responses = sensor_responses * 1000
-        plot_data = sensor_responses[data_center - side:data_center + side]
+        plot_data = sensor_responses[data_center - side : data_center + side]
         x = np.arange(len(plot_data)) / 700
         plt.plot(x, plot_data, c="b", label="simulation")
 
@@ -77,11 +77,15 @@ def truck_1_time_series(c: Config):
     plot_offsets = [-1350, -850, 0]
     for s_i, displa_label in enumerate(displa_labels):
         plt.subplot(len(displa_points), 1, s_i + 1)
-        with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{displa_label}.txt")) as f:
+        with open(
+            os.path.join(
+                project_dir(), f"data/validation/experiment/D1a-{displa_label}.txt"
+            )
+        ) as f:
             data = list(map(float, f.readlines()))
         print_i(f"Total Y translation data length = {len(data)}")
         new_center = center + plot_offsets[s_i]
-        plot_data = data[new_center - side:new_center + side]
+        plot_data = data[new_center - side : new_center + side]
         x = np.arange(len(plot_data)) / 700
         plt.plot(x, plot_data, c="r", label="experiment")
 
@@ -104,30 +108,41 @@ def truck_1_time_series(c: Config):
 
     plt.portrait()
     # Results from simulation.
-    responses_truck1 = responses_to_traffic_array(
-        c=c,
-        traffic_array=traffic_array,
-        response_type=ResponseType.StrainXXB,
-        points=strain_points,
-    ) * 1E-3
+    responses_truck1 = (
+        responses_to_traffic_array(
+            c=c,
+            traffic_array=traffic_array,
+            response_type=ResponseType.StrainXXB,
+            points=strain_points,
+        )
+        * 1e-3
+    )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(strain_points), 1, s_i + 1)
         data_center = 0
         for i in range(len(sensor_responses)):
             if sensor_responses[i] > sensor_responses[data_center]:
                 data_center = i
-        plt.plot(sensor_responses[data_center - side:data_center + side], c="b", label="simulation")
+        plt.plot(
+            sensor_responses[data_center - side : data_center + side],
+            c="b",
+            label="simulation",
+        )
 
     # Results from experiment.
     center = 13000
     plot_offsets = [-400, -290, -170]
     for s_i, strain_label in enumerate(strain_labels):
         plt.subplot(len(strain_points), 1, s_i + 1)
-        with open(os.path.join(project_dir(), f"data/validation/experiment/D1a-{strain_label}.txt")) as f:
+        with open(
+            os.path.join(
+                project_dir(), f"data/validation/experiment/D1a-{strain_label}.txt"
+            )
+        ) as f:
             data = list(map(float, f.readlines()))
         print_i(f"Total strain data length = {len(data)}")
         new_center = center + plot_offsets[s_i]
-        plt.plot(data[new_center - side:new_center + side], c="r", label="experiment")
+        plt.plot(data[new_center - side : new_center + side], c="r", label="experiment")
 
         # Labels/titles.
         plt.legend()

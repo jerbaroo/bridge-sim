@@ -48,4 +48,3 @@ def make_normal_mv_load_animations(c: Config, per_axle: bool = False):
             ).lower()
             + ".mp4",
         )
-

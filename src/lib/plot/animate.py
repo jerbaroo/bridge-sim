@@ -17,7 +17,7 @@ from bridge_sim.util import print_i, flatten
 
 
 def _animate_plot(
-        frames: int, plot_f: Callable[[int], None], time_step: float, save: str
+    frames: int, plot_f: Callable[[int], None], time_step: float, save: str
 ):
     """Generate an animation with given plotting function.
 
@@ -42,10 +42,7 @@ def _animate_plot(
 
 
 def _animate_traffic(
-    traffic: List,
-    time_step: float,
-    plot_f: Callable[[int], None],
-    save: str,
+    traffic: List, time_step: float, plot_f: Callable[[int], None], save: str,
 ):
     """Animate traffic with given plotting function."""
     frames = len(traffic)
@@ -58,10 +55,7 @@ def _animate_traffic(
 
 
 def animate_traffic(
-    config: Config,
-    traffic_sequence: TrafficSequence,
-    traffic: Traffic,
-    save: str,
+    config: Config, traffic_sequence: TrafficSequence, traffic: Traffic, save: str,
 ):
     """Simple animation of "Traffic" over a bridge."""
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
@@ -85,10 +79,10 @@ def animate_traffic(
 
 
 def animate_traffic_array(
-        config: Config,
-        traffic_sequence: TrafficSequence,
-        traffic_array: TrafficArray,
-        save: str,
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    traffic_array: TrafficArray,
+    save: str,
 ):
     """Simple animation of "TrafficArray" over a bridge."""
     cmin, cmax = np.amin(traffic_array), np.amax(traffic_array)
@@ -105,7 +99,9 @@ def animate_traffic_array(
         plt.tight_layout()
 
     time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
-    _animate_traffic(traffic=traffic_array, time_step=time_step, plot_f=plot_f, save=save)
+    _animate_traffic(
+        traffic=traffic_array, time_step=time_step, plot_f=plot_f, save=save
+    )
 
 
 # def animate_traffic_top_view(

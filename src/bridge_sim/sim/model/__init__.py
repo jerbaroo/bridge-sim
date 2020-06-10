@@ -619,4 +619,3 @@ def bridge_3d_elements(
     assert isinstance(all_elements[0], Shell)
     assert isinstance(all_elements[-1], Shell)
     return all_elements
-

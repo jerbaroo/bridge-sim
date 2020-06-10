@@ -34,10 +34,7 @@ def plot_responses(config: Config):
     traffic_sequence = traffic_scenario.traffic_sequence(config, max_time)
     traffic_array = traffic_sequence.traffic_array()
     responses = responses_to_traffic_array(
-        config,
-        traffic_array,
-        ResponseType.YTrans,
-        points=[Point(x=51, z=-8.4)],
+        config, traffic_array, ResponseType.YTrans, points=[Point(x=51, z=-8.4)],
     )
     plt.plot(responses[0])
     plt.show()
