@@ -6,12 +6,13 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
+from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run import ulm_xzs
+from lib.plot import axis_cmap_r
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 
-from bridge_sim import plot
-from bridge_sim.model import Bridge, Config, Point, ResponseType, Vehicle
-from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim import sim, plot
+from bridge_sim.model import Config, Point, ResponseType, Vehicle
 from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
 from bridge_sim.util import print_i, flatten
 
@@ -52,6 +53,82 @@ def _animate_traffic(
         plot_f(time_index)
 
     _animate_plot(frames=frames, plot_f=_plot_f, time_step=time_step, save=save)
+
+
+def animate_responses(
+    config: Config, traffic_sequence: TrafficSequence,
+    response_type: ResponseType, units: str, save: str,
+):
+    traffic = traffic_sequence.traffic()
+    traffic_array = traffic_sequence.traffic_array()
+    deck_points = [
+        Point(x=x, y=0, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=10)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=10)
+    ]
+    point_index = 27
+    point = deck_points[point_index]
+    responses = sim.responses.responses_to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=deck_points,
+    )
+    min_response, max_response = np.amin(responses), np.amax(responses)
+    min_response = min(min_response, -max_response)
+    max_response = max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
+    vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
+    all_vehicles = flatten(traffic, Vehicle)
+
+    def plot_f(time_index):
+        # Top plot of the moving vehicles.
+        plt.landscape()
+        plt.subplot2grid((3, 1), (0, 0), 2, 1)
+        plt.title(f"{response_type.name()} on {config.bridge.name}")
+        plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        plot.contour_responses(
+            config=config,
+            responses=Responses(
+                response_type=response_type,
+                responses=list(zip(responses.T[time_index], deck_points)),
+            ),
+            cmap=axis_cmap_r,
+            norm=response_norm,
+            mm_legend=False,
+            cbar=False,
+        )
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        plt.scatter([point.x], [point.z], c="r", s=10, label="sensor in bottom plot", zorder=100)
+        plt.legend(loc="upper right")
+
+        # Bottom plot of the total load on the bridge.
+        plt.subplot2grid((3, 1), (2, 0), 1, 1)
+        plt.plot(traffic_sequence.times, responses[point_index], c="r", label="traffic")
+        plt.xlabel("time")
+        plt.ylabel(units)
+        plt.axvline(x=traffic_sequence.start_time + time_index * time_step, c="black", label="current time")
+        plt.legend(loc="upper right")
+        plt.tight_layout()
+
+        # Add a color bar.
+        plt.gcf().subplots_adjust(right=0.75)
+        cbar_ax = plt.gcf().add_axes([0.80, 0.1, 0.01, 0.8])
+        cbar = plt.gcf().colorbar(
+            cm.ScalarMappable(norm=response_norm, cmap=axis_cmap_r),
+            cax=cbar_ax,
+        )
+        cbar.set_label(units)
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)
 
 
 def animate_traffic(

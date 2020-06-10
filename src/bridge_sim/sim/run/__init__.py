@@ -453,7 +453,11 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
     Returns: unit load matrix of shape (uls * lanes * 2, len(points)).
 
     """
-    path = ulm_path(config=config, response_type=response_type, points=points)
+    path = shorten_path(
+        config,
+        ulm_path(config=config, response_type=response_type, points=points),
+        bypass_config=True,
+    )
     print_i(f"ULM path = {path}")
     if os.path.exists(path):
         with open(path, "rb") as f:

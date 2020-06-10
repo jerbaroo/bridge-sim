@@ -166,23 +166,21 @@ def normal_traffic(config: Config, lam: float = 5, min_d: float = 2):
     return TrafficScenario(name=f"normal-lam-{lam}", mv_vehicle_f=mv_vehicle_f)
 
 
-def _traffic_name(c: Config, traffic_scenario: TrafficScenario, max_time: float):
-    return safe_str(
-        f"{traffic_scenario.name} {c.il_num_loads} {max_time} {c.sensor_hz}"
-    )
+def _traffic_name(c: Config, traffic_scenario: TrafficScenario, time: float):
+    return safe_str(f"{traffic_scenario.name} {c.il_num_loads} {time} {c.sensor_hz}")
 
 
 def load_traffic(
-    c: Config,
+    config: Config,
     traffic_scenario: TrafficScenario,
-    max_time: float,
+    time: float,
     add: Optional[str] = None,
 ) -> Tuple[TrafficSequence, Traffic, TrafficArray]:
     """Load traffic from disk, generated if necessary."""
     path = (
-        c.get_data_path(
+        config.get_data_path(
             "traffic",
-            _traffic_name(c=c, traffic_scenario=traffic_scenario, max_time=max_time),
+            _traffic_name(c=config, traffic_scenario=traffic_scenario, time=time),
             acc=False,
         )
         + ".npy"
@@ -192,14 +190,10 @@ def load_traffic(
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path + ".arr"):
         traffic_sequence = traffic_scenario.traffic_sequence(
-            bridge=c.bridge, max_time=max_time
+            config=config, time=time
         )
-        traffic = traffic_sequence.to_traffic(
-            c=c, traffic_sequence=traffic_sequence, max_time=max_time
-        )
-        traffic_array = traffic_sequence.to_traffic_array(
-            c=c, traffic_sequence=traffic_sequence, max_time=max_time
-        )
+        traffic = traffic_sequence.traffic()
+        traffic_array = traffic_sequence.traffic_array()
         with open(path + ".seq", "wb") as f:
             dill.dump(traffic_sequence, f)
         with open(path + ".tra", "wb") as f:
