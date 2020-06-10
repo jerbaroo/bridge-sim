@@ -10,9 +10,7 @@ def plot_strain(config):
     plt.subplot(3, 1, 1)
     point_loads = [PointLoad(x=51, z=0, load=100)]
     responses = sim.responses.load(
-        config=config,
-        response_type=ResponseType.StrainXXB,
-        point_loads=point_loads,
+        config=config, response_type=ResponseType.StrainXXB, point_loads=point_loads,
     )
     plot.contour_responses(config, responses)
     plt.title("Tricontourf")
@@ -24,4 +22,3 @@ def plot_strain(config):
     plot.shells(config, SimParams(ploads=point_loads))
     plt.title("Scatter plot with shells")
     plt.savefig(config.get_image_path("verification/jaggedness", "strain.pdf"))
-

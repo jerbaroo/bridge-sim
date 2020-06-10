@@ -57,7 +57,9 @@ class TrafficScenario:
         mv_vehicle_gens = [
             self.mv_vehicles(lane=lane) for lane, _ in enumerate(bridge.lanes)
         ]
-        vehicles_per_lane = [[next(mv_vehicle_gens[lane])] for lane, _ in enumerate(bridge.lanes)]
+        vehicles_per_lane = [
+            [next(mv_vehicle_gens[lane])] for lane, _ in enumerate(bridge.lanes)
+        ]
         warmed_up_at = max([vs[0].time_left_bridge(bridge) for vs in vehicles_per_lane])
         print_i(f"Warmed up at {warmed_up_at:.2f} s")
         final_time = time + warmed_up_at
@@ -128,23 +130,16 @@ class TrafficSequence:
     def traffic_array(self) -> Traffic:
         """Convert this "TrafficSequence" to "Traffic"."""
         result = np.zeros(
-            (
-                len(self.times),
-                len(self.config.bridge.lanes) * self.config.il_num_loads,
-            )
+            (len(self.times), len(self.config.bridge.lanes) * self.config.il_num_loads,)
         )
         vehicles = set(flatten(self.vehicles_per_lane, Vehicle))
         # For each vehicle..
         for vehicle in vehicles:
             # ..find the times on the bridge in the simulation..
-            v_time_indices, v_times = vehicle._times_on_bridge(
-                self.config,
-                self.times,
-            )
+            v_time_indices, v_times = vehicle._times_on_bridge(self.config, self.times,)
             # ..then for each time fill in the traffic array.
             for v_time_index, loads in zip(
-                v_time_indices,
-                vehicle._axle_track_indices(self.config, v_times),
+                v_time_indices, vehicle._axle_track_indices(self.config, v_times),
             ):
                 for (lo, load_lo), (hi, load_hi) in loads:
                     result[v_time_index][lo] = load_lo
@@ -162,10 +157,12 @@ def _poisson_arrival(beta: float, min_d: float):
     return result
 
 
-def normal_traffic(config: Config, lam: float=5, min_d: float=2):
+def normal_traffic(config: Config, lam: float = 5, min_d: float = 2):
     """Normal traffic scenario, arrives according to poisson process."""
+
     def mv_vehicle_f():
         return sample_vehicle(config), _poisson_arrival(beta=lam, min_d=min_d)
+
     return TrafficScenario(name=f"normal-lam-{lam}", mv_vehicle_f=mv_vehicle_f)
 
 
@@ -216,4 +213,3 @@ def load_traffic(
     with open(path + ".arr", "rb") as f:
         traffic_array = np.load(f)
     return traffic_sequence, traffic, traffic_array
-

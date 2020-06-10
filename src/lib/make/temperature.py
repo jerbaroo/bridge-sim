@@ -41,13 +41,15 @@ def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
         ).without_nan_inf()
         if response_type.is_strain():
             responses.units = "N/mm²"
-            responses = responses.map(lambda r: r * 1E6)
+            responses = responses.map(lambda r: r * 1e6)
         else:
             responses.units = "mm"
-            responses = responses.map(lambda r: r * 1E3)
+            responses = responses.map(lambda r: r * 1e3)
         top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
         contour_responses(config=c, responses=responses)
-        plt.title("Microstrain XXB" if response_type.is_strain() else response_type.name())
+        plt.title(
+            "Microstrain XXB" if response_type.is_strain() else response_type.name()
+        )
 
     plt.landscape()
     plt.subplot(2, 1, 1)
@@ -55,9 +57,13 @@ def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
     plt.subplot(2, 1, 2)
     plot_response_type(ResponseType.StrainXXB)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.suptitle(f"T_REF, T_bot, T_top = {c.bridge.ref_temp_c} °C, {temp_bottom} °C, {temp_top} °C")
+    plt.suptitle(
+        f"T_REF, T_bot, T_top = {c.bridge.ref_temp_c} °C, {temp_bottom} °C, {temp_top} °C"
+    )
     plt.savefig(
-        c.get_image_path("thesis/temperature", safe_str(f"contour-{temp_bottom}-{temp_top}") + ".pdf")
+        c.get_image_path(
+            "thesis/temperature", safe_str(f"contour-{temp_bottom}-{temp_top}") + ".pdf"
+        )
     )
     plt.close()
 
@@ -188,10 +194,12 @@ def temperature_effect(config: Config, fname: str):
     # Plot the effect at two points.
     plt.subplot(4, 1, 4)
     effect = temperature.effect(
-        config=config, response_type=ResponseType.StrainXXB,
-        points=[Point(x=51)], weather=weather
+        config=config,
+        response_type=ResponseType.StrainXXB,
+        points=[Point(x=51)],
+        weather=weather,
     )[0]
-    plt.scatter(weather["datetime"], effect * 1E6, c="g", s=1)
+    plt.scatter(weather["datetime"], effect * 1e6, c="g", s=1)
     plt.ylabel("Microstrain XXB")
     plt.gcf().autofmt_xdate()
     plt.title("Strain at X = 51 in May")

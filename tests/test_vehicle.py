@@ -1,11 +1,15 @@
-"""Test vehicle methods."""
+"""Test "Vehicle" methods."""
+
+from copy import deepcopy
 
 import pytest
 
 import numpy as np
 
 from bridge_sim.configs import test_config
-from bridge_sim.model import Vehicle
+from bridge_sim.model import Vehicle, PointLoad
+from bridge_sim.util import flatten
+from bridge_sim.vehicles import truck1
 
 config = test_config(msl=10)[0]
 
@@ -352,6 +356,34 @@ def test__times_on_bridge():
         assert not v.on_bridge(time=sorted_times[v_times_indices[-1] + 1], bridge=config.bridge)
 
 
-def test_wheel_track_loads():
-    v = Vehicle(kn=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=0)
+def test_to_point_load_pw():
+    entering_time = truck1.time_entering_bridge(bridge=config.bridge)
+    entered_time = truck1.time_entered_bridge(bridge=config.bridge)
+    leaving_time = truck1.time_leaving_bridge(bridge=config.bridge)
+    left_time = truck1.time_left_bridge(bridge=config.bridge)
+    wagen1_top_lane = deepcopy(truck1)
+    wagen1_top_lane.lane = 1
+    assert truck1.lane != wagen1_top_lane.lane
+    assert truck1.init_x == 0
+    # As Truck 1 enters the bridge.
+    wagen1_times = np.linspace(entering_time, entered_time - 0.001, 100)
+    for time in wagen1_times:
+        loads = truck1.point_load_pw(config=config, time=time)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.load, flat_loads))
+        assert total_kn < truck1.total_load()
+    # As Truck 1 is fully on the bridge.
+    wagen1_times = np.linspace(entered_time, leaving_time, 100)
+    for time in wagen1_times:
+        loads = truck1.point_load_pw(config=config, time=time)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.load, flat_loads))
+        assert total_kn == truck1.total_load()
+    # As Truck 1 is leaving the bridge.
+    wagen1_times = np.linspace(leaving_time + 0.001, left_time, 100)
+    for time in wagen1_times:
+        loads = truck1.point_load_pw(config=config, time=time)
+        flat_loads = flatten(loads, PointLoad)
+        total_kn = sum(map(lambda l: l.load, flat_loads))
+        assert total_kn < truck1.total_load()
 

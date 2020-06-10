@@ -139,7 +139,9 @@ def pier_settlement(c: Config):
             sim_responses = sim.responses.load(
                 config=c,
                 response_type=response_type,
-                pier_settlement=[PierSettlement(pier=p, settlement=c.unit_pier_settlement)],
+                pier_settlement=[
+                    PierSettlement(pier=p, settlement=c.unit_pier_settlement)
+                ],
             )
             assert c.unit_pier_settlement == 1
             if response_type.is_strain():
@@ -160,7 +162,11 @@ def pier_settlement(c: Config):
             # colour normalization.
             top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
             plot_contour_deck(
-                config=c, cmap=axis_cmap_r, responses=sim_responses, levels=levels, interp=(200, 60)
+                config=c,
+                cmap=axis_cmap_r,
+                responses=sim_responses,
+                levels=levels,
+                interp=(200, 60),
             )
             plt.legend()
             plt.tight_layout()
@@ -284,7 +290,11 @@ def temperature_load(c: Config):
                 sim_responses.units = "mm"
             plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
             plot.contour_responses(
-                config=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels, interp=(200, 60)
+                config=c,
+                responses=sim_responses,
+                cmap=axis_cmap_r,
+                levels=levels,
+                interp=(200, 60),
             )
             plt.legend()
             plt.title(

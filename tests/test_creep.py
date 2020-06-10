@@ -1,3 +1,5 @@
+"""Test creep module."""
+
 import numpy as np
 
 from bridge_sim import creep, shrinkage

@@ -773,11 +773,7 @@ class Bridge:
 
     def wheel_track_zs(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
-        return sorted(
-            chain.from_iterable(
-                lane.wheel_track_zs() for lane in self.lanes
-            )
-        )
+        return sorted(chain.from_iterable(lane.wheel_track_zs() for lane in self.lanes))
 
     def wheel_track_xs(self, c: "Config"):
         """Unit load x positions for wheel tracks on this bridge."""
@@ -1028,7 +1024,9 @@ class Vehicle:
         norm = colors.Normalize(vmin=min(total_kns), vmax=max(total_kns))
         return cmap, norm
 
-    def color(self, all_vehicles: List["Vehicle"] = [], cmap=cm.get_cmap("YlGn")) -> float:
+    def color(
+        self, all_vehicles: List["Vehicle"] = [], cmap=cm.get_cmap("YlGn")
+    ) -> float:
         """Colour of this vehicle, compared to other vehicles if given."""
         cmap, norm = self._cmap_norm(all_vehicles, cmap=cmap)
         if len(all_vehicles) == 0:
@@ -1077,9 +1075,8 @@ class Vehicle:
         xs = sorted(self.xs_at(times=[time], bridge=bridge)[0])
         x_min, x_max = xs[0], xs[-1]
         assert x_min < x_max
-        return (
-            (bridge.x_min <= x_min <= bridge.x_max) or
-            (bridge.x_min <= x_max <= bridge.x_max)
+        return (bridge.x_min <= x_min <= bridge.x_max) or (
+            bridge.x_min <= x_max <= bridge.x_max
         )
 
     def passed_bridge(self, time: float, bridge: Bridge) -> bool:
@@ -1144,7 +1141,9 @@ class Vehicle:
         dist = dist_lo + dist_hi
         return (unit_load_x_ind, dist_hi / dist), (unit_load_x_ind + 1, dist_lo / dist)
 
-    def _axle_track_indices(self, config: Config, times: List[float]) -> List[List[Tuple[int, float]]]:
+    def _axle_track_indices(
+        self, config: Config, times: List[float]
+    ) -> List[List[Tuple[int, float]]]:
         """Axle track indices and load intensities over time.
 
         NOTE: Each index is in [0, uls * lanes - 1].
@@ -1165,10 +1164,12 @@ class Vehicle:
                     (lo, weight_lo), (hi, weight_hi) = self._axle_track_weights(
                         axle_x=x, wheel_track_xs=wheel_track_xs,
                     )
-                    result.append((
-                        (lo + lane_offset, weight_lo * kn),
-                        (None if hi is None else hi + lane_offset, weight_hi * kn),
-                    ))
+                    result.append(
+                        (
+                            (lo + lane_offset, weight_lo * kn),
+                            (None if hi is None else hi + lane_offset, weight_hi * kn),
+                        )
+                    )
             yield result
 
     def wheel_track_loads(
@@ -1180,6 +1181,7 @@ class Vehicle:
 
         """
         from bridge_sim.sim.run import ulm_point_loads
+
         u_point_loads = ulm_point_loads(config)
         result = []
         # This loop has one item per axle!
@@ -1224,7 +1226,9 @@ class Vehicle:
             return flatten(result, PointLoad)
         return result
 
-    def _times_on_bridge(self, config: Config, sorted_times: List[float]) -> Tuple[List[float], List[float]]:
+    def _times_on_bridge(
+        self, config: Config, sorted_times: List[float]
+    ) -> Tuple[List[float], List[float]]:
         """Of the given sorted times only those when on the bridge."""
         entering_time = self.time_entering_bridge(config.bridge)
         left_time = self.time_left_bridge(config.bridge)
@@ -1232,9 +1236,14 @@ class Vehicle:
         if not self.on_bridge(time=sorted_times[first_index], bridge=config.bridge):
             return [], []
         last_index = np.searchsorted(sorted_times, left_time)
-        if last_index == len(sorted_times) or not self.on_bridge(time=sorted_times[last_index], bridge=config.bridge):
+        if last_index == len(sorted_times) or not self.on_bridge(
+            time=sorted_times[last_index], bridge=config.bridge
+        ):
             last_index -= 1
-        return np.arange(first_index, last_index + 1), np.array(sorted_times)[first_index:last_index + 1]
+        return (
+            np.arange(first_index, last_index + 1),
+            np.array(sorted_times)[first_index : last_index + 1],
+        )
 
     def plot_wheels(self, c: Config, time: float, label=None, **kwargs):
         """Plot each wheel as a single black dot."""
@@ -1248,4 +1257,3 @@ class Vehicle:
                 label=None if i > 0 else label,
                 **kwargs,
             )
-
