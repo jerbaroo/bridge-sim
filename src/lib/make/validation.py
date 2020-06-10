@@ -44,7 +44,7 @@ def unit_loads(c: Config, scatter: bool):
             amin, amax = max(tmin, omin), min(tmax, omax)
             levels = np.linspace(amin, amax, 16)
             # Create the OpenSees plot.
-            point_loads = [PointLoad(x=load_x, z=load_z, load=100)]
+            point_loads = [PointLoad(x=load_x, z=load_z, load=100, units="kN")]
             os_responses = sim.responses.load(
                 config=c, response_type=response_type, point_loads=point_loads,
             )
@@ -59,7 +59,7 @@ def unit_loads(c: Config, scatter: bool):
                 + f"\nx = {np.round(load_x, 3)} m, z = {np.round(load_z, 3)} m, with "
             )
             save = lambda prefix: c.get_image_path(
-                "validation/unit-load",
+                "verification/point-load",
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
             top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
@@ -82,7 +82,7 @@ def unit_loads(c: Config, scatter: bool):
             if label is not None:
                 # First plot and clear, just to have the same colorbar.
                 plot_contour_deck(
-                    c=c, responses=os_responses, cmap=axis_cmap_r, levels=levels
+                    config=c, responses=os_responses, cmap=axis_cmap_r, levels=levels
                 )
                 plt.cla()
                 # Then plot the bridge and Axis image.
@@ -100,13 +100,9 @@ def unit_loads(c: Config, scatter: bool):
                         c.bridge.z_max,
                     ),
                 )
-                tmin_s = f"{tmin:.3e}" if sci_format else f"{tmin:.3f}"
-                tmax_s = f"{tmax:.3e}" if sci_format else f"{tmax:.3f}"
-                tabs_s = (
-                    f"{abs(tmin - tmax):.3e}"
-                    if sci_format
-                    else f"{abs(tmin - tmax):.3f}"
-                )
+                tmin_s = f"{tmin:.3f}"
+                tmax_s = f"{tmax:.3f}"
+                tabs_s = f"{abs(tmin - tmax):.3f}"
                 for point, leg_label, color, alpha in [
                     ((load_x, load_z), f"{point_loads[0].load} kN load", "black", 1),
                     ((0, 0), f"min = {tmin_s} {os_responses.units}", "r", 0),
@@ -143,9 +139,9 @@ def pier_settlement(c: Config):
             sim_responses = sim.responses.load(
                 config=c,
                 response_type=response_type,
-                pier_settlement=[PierSettlement(pier=p, settlement=c.pd_unit_disp)],
+                pier_settlement=[PierSettlement(pier=p, settlement=c.unit_pier_settlement)],
             )
-            assert c.pd_unit_disp == 1
+            assert c.unit_pier_settlement == 1
             if response_type.is_strain():
                 # First from strain -> stress, then kN/m2 -> N/mm2.
                 sim_responses.to_stress(c.bridge).map(lambda r: r * 1e-9)
@@ -173,12 +169,12 @@ def pier_settlement(c: Config):
             )
             filename = safe_str(f"pier-{p}-{sim_responses.response_type.name()}")
             plt.savefig(
-                c.get_image_path("validation/pier-settlement", filename + ".pdf")
+                c.get_image_path("verification/pier-settlement", filename + ".pdf")
             )
             plt.close()
             # First plot and clear, just to have the same colorbar.
             plot_contour_deck(
-                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+                config=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
             )
             plt.cla()
             # Save the axis plots.
@@ -221,7 +217,7 @@ def pier_settlement(c: Config):
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                    "validation/pier-settlement", filename + "-axis" + ".pdf"
+                    "verification/pier-settlement", filename + "-axis" + ".pdf"
                 )
             )
             plt.close()
@@ -297,7 +293,7 @@ def temperature_load(c: Config):
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                    "validation/thermal",
+                    "verification/temperature",
                     safe_str(f"thermal-deck-unit-{temp_name}-{rt_name})") + ".pdf",
                 )
             )
@@ -309,7 +305,7 @@ def temperature_load(c: Config):
                 continue  # We didn't save Axis StressZZB.
             # First plot and clear, just to have the same colorbar.
             plot.contour_responses(
-                c=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
+                config=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
             )
             plt.cla()
             # Then imshow the axis image.
@@ -348,7 +344,7 @@ def temperature_load(c: Config):
             plt.tight_layout()
             plt.savefig(
                 c.get_image_path(
-                    "validation/thermal", f"axis-{rt_name}-{temp_name}.pdf",
+                    "verification/temperature", f"axis-{rt_name}-{temp_name}.pdf",
                 )
             )
             plt.close()

@@ -5,10 +5,10 @@ from bridge_sim.util import kg_to_kn
 
 truck1 = Vehicle(
     kn=[
-        (5050 * kg_to_kn, 5300 * kg_to_kn),
-        (4600 * kg_to_kn, 4000 * kg_to_kn),
-        (4350 * kg_to_kn, 3700 * kg_to_kn),
-        (4050 * kg_to_kn, 3900 * kg_to_kn),
+        (5050 * kg_to_kn + 5300 * kg_to_kn) / 2,
+        (4600 * kg_to_kn + 4000 * kg_to_kn) / 2,
+        (4350 * kg_to_kn + 3700 * kg_to_kn) / 2,
+        (4050 * kg_to_kn + 3900 * kg_to_kn) / 2,
     ],
     axle_distances=[3.6, 1.32, 1.45],
     axle_width=2.5,

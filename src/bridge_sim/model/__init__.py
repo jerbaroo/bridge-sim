@@ -74,17 +74,19 @@ class Point:
 
 
 class PointLoad:
-    def __init__(self, x: float, z: float, load: float):
+    def __init__(self, x: float, z: float, load: float, units: Optional[str] = None):
         """A point load applied in simulation.
 
         Args:
             x: X position of the point-load.
             z: Z position of the point-load.
             load: intensity of the point-load.
+
         """
         self.x = x
         self.z = z
         self.load = load
+        self.units = units
 
     def __repr__(self):
         """Human readable representation of this point-load."""
@@ -219,7 +221,6 @@ class Config:
 
         # Simulation performance.
         self.parallel = 1
-        self.parallel_ulm = True
         self.shorten_paths = shorten_paths
         self.resp_matrices = dict()
 
@@ -1149,6 +1150,11 @@ class Vehicle:
         NOTE: Each index is in [0, uls * lanes - 1].
 
         """
+        try:
+            self.load[0][0]
+            raise ValueError("Load per wheel not supported!")
+        except:
+            pass
         xs = self.xs_at(times=times, bridge=config.bridge)  # Times x X axles.
         wheel_track_xs = config.bridge.wheel_track_xs(config)
         lane_offset = self.lane * config.il_num_loads
@@ -1164,6 +1170,37 @@ class Vehicle:
                         (None if hi is None else hi + lane_offset, weight_hi * kn),
                     ))
             yield result
+
+    def wheel_track_loads(
+        self, config: Config, times: List[float],
+    ) -> List[List[PointLoad]]:
+        """Point loads "bucketed" onto axle tracks.
+
+        Returns: a list of PointLoad at every time step.
+
+        """
+        from bridge_sim.sim.run import ulm_point_loads
+        u_point_loads = ulm_point_loads(config)
+        result = []
+        # This loop has one item per axle!
+        for loads in self._axle_track_indices(config=config, times=times):
+            time_results = []
+            for (lo, load_lo), (hi, load_hi) in loads:
+                # These point loads will have unit loads!
+                # The loads need to be overwritten with half axle loads!
+                pl_lo0, pl_lo1 = u_point_loads[lo]
+                pl_lo0.load = load_lo / 2
+                pl_lo1.load = load_lo / 2
+                time_results.append(pl_lo0)
+                time_results.append(pl_lo1)
+                if hi is not None:
+                    pl_hi0, pl_hi1 = u_point_loads[hi]
+                    pl_hi0.load = load_hi / 2
+                    pl_hi1.load = load_hi / 2
+                    time_results.append(pl_hi0)
+                    time_results.append(pl_hi1)
+            result.append(time_results)
+        return result
 
     def point_load_pw(
         self, config: Config, time: float, list: bool = False,

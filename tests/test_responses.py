@@ -1,4 +1,5 @@
 """Test classify.data.responses."""
+
 import numpy as np
 
 from bridge_sim.bridges.bridge_705 import bridge_705
@@ -57,33 +58,3 @@ def test_loads_to_traffic_array():
     for row in loads_to_traffic_array(c=c, loads=wagen1_loads):
         assert np.isclose(sum(row), truck1.total_kn())
 
-
-# def test_response_to_mv_vehicles():
-
-#     # All lanes are the same, so no error should be raised.
-#     mv_vehicles_gen = normal_traffic(c).mv_vehicles(lane=0)
-#     mv_vehicles = [next(mv_vehicles_gen) for _ in range(2)]
-#     response_to_mv_vehicles(
-#         c=c,
-#         mv_vehicles=mv_vehicles,
-#         bridge_scenario=None,
-#         time=1,
-#         at=Point(x=1),
-#         response_type=ResponseType.XTranslation,
-#         fem_runner=OSRunner(c),
-#     )
-
-#     # Different lanes, so an error should be raised.
-#     for i, mv_vehicle in enumerate(mv_vehicles):
-#         mv_vehicle.lane = i
-#     with pytest.raises(ValueError) as e:
-#         response_to_mv_vehicles(
-#             c=c,
-#             mv_vehicles=mv_vehicles,
-#             bridge_scenario=BridgeScenarioNormal(),
-#             time=1,
-#             at=Point(x=1),
-#             response_type=ResponseType.XTranslation,
-#             fem_runner=OSRunner(c),
-#         )
-#     assert "single lane" in str(e.value)

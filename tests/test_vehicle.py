@@ -1,3 +1,5 @@
+"""Test vehicle methods."""
+
 import pytest
 
 import numpy as np
@@ -5,7 +7,7 @@ import numpy as np
 from bridge_sim.configs import test_config
 from bridge_sim.model import Vehicle
 
-config = test_config(10)[0]
+config = test_config(msl=10)[0]
 
 
 def test_constructor():
@@ -307,24 +309,49 @@ def test__axle_track_weights():
 
 def test_axle_track_indices():
     # Mostly tested by function above. So just one small test per lane.
-    # Lane 0.
+    # Lane 0, first bucket.
     v = Vehicle(kn=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=0)
     indices = list(v._axle_track_indices(config, times=[0]))
     assert len(indices) == 1
     assert len(indices[0]) == 1
-    (lo, weight_lo), (hi, weight_hi) = indices[0][0]
+    (lo, load_lo), (hi, load_hi) = indices[0][0]
     assert lo == 0
-    assert weight_lo == 1
+    assert load_lo == 50  # Two axles (50 on one of them).
     assert hi is None
-    assert weight_hi == 0
+    assert load_hi == 0
+    # Lane 0, halfway through first bucket.
+    (lo, load_lo), (hi, load_hi) = list(v._axle_track_indices(config, times=[0.0001]))[0][0]
+    assert lo == 0
+    assert hi == 1
+    assert load_lo + load_hi == 50
+    assert load_lo < 50
     # Lane 1.
-    v = Vehicle(kn=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=1)
+    v = Vehicle(kn=[25, 40], axle_distances=[1], axle_width=2.5, kmph=20, lane=1)
     indices = list(v._axle_track_indices(config, times=[0]))
     assert len(indices) == 1
     assert len(indices[0]) == 1
-    (lo, weight_lo), (hi, weight_hi) = indices[0][0]
+    (lo, load_lo), (hi, load_hi) = indices[0][0]
     assert lo == 1199
-    assert weight_lo == 1
+    assert load_lo == 25  # 25 on the front axle.
     assert hi is None
-    assert weight_hi == 0
+    assert load_hi == 0
+
+
+def test__times_on_bridge():
+    v = Vehicle(kn=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=0)
+    sorted_times = np.arange(-1, 100, config.sensor_hz)
+    v_times_indices, v_times = v._times_on_bridge(config, sorted_times)
+    assert len(v_times_indices) == len(v_times)
+    for v_times_index, v_time in zip(v_times_indices, v_times):
+        assert v_time == sorted_times[v_times_index]
+    assert v.on_bridge(time=sorted_times[v_times_indices[0]], bridge=config.bridge)
+    assert v.on_bridge(time=sorted_times[v_times_indices[-1]], bridge=config.bridge)
+    if v_times_indices[0] > 0:
+        assert not v.on_bridge(time=sorted_times[v_times_indices[0] - 1], bridge=config.bridge)
+    if v_times_indices[-1] < len(sorted_times) - 1:
+        assert not v.on_bridge(time=sorted_times[v_times_indices[-1] + 1], bridge=config.bridge)
+
+
+def test_wheel_track_loads():
+    v = Vehicle(kn=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=0)
 

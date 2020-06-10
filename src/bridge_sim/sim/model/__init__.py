@@ -509,7 +509,7 @@ class Responses:
     def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
         """Response at the deck (y = 0) with optional interpolation.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         """
         assert point.y == 0
@@ -520,7 +520,7 @@ class Responses:
     def at_decks(self, points: List[Point]) -> List[float]:
         """Like 'at_deck' with grid interpolation, but more efficient for many points.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         """
         self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.

@@ -28,7 +28,7 @@ def parse_translation_responses_3d(
     translation_responses = opensees_to_numpy(responses_path)
     translation_responses *= -1
     print_i(
-        f"OpenSees: Parsed {response_type.name()} fem in" + f" {timer() - start:.2f}s"
+        f"OpenSees: Parsed {response_type.name()} responses in" + f" {timer() - start:.2f}s"
     )
     results_dict[sim_ind][response_type] = translation_responses
 

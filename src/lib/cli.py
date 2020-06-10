@@ -32,7 +32,6 @@ b_func = None
 c_func = opensees_default
 two_materials_ = None
 parallel_ = None
-parallel_ulm_ = None
 save_to_ = None
 shorten_paths_ = None
 il_num_loads_ = None
@@ -42,7 +41,6 @@ def c():
     """Construct a 'Config' based on CLI parameters."""
     new_c = c_func(b_func)
     new_c.parallel = parallel_
-    new_c.parallel_ulm = parallel_ulm_
     new_c.shorten_paths = shorten_paths_
     new_c.il_num_loads = il_num_loads_
     old_c_root_generated_data_dir = new_c._root_generated_data_dir
@@ -68,12 +66,6 @@ def c():
     "--parallel", type=int, default=1, help="Run experiment simulations in parallel",
 )
 @click.option(
-    "--parallel-ulm",
-    type=bool,
-    default=True,
-    help=f"One process per wheel track (max {multiprocessing.cpu_count()} processes).",
-)
-@click.option(
     "--save-to", type=str, default="", help="Save/load data from a given folder.",
 )
 @click.option(
@@ -87,7 +79,6 @@ def cli(
     msl: str,
     two_materials: bool,
     parallel: int,
-    parallel_ulm: bool,
     save_to: bool,
     shorten_paths: bool,
     pdb: bool,
@@ -103,7 +94,6 @@ def cli(
     two_materials_ = two_materials
     save_to_ = save_to
     parallel_ = parallel
-    parallel_ulm_ = parallel_ulm
     shorten_paths_ = shorten_paths
     il_num_loads_ = uls
 
@@ -112,7 +102,6 @@ def cli(
     click.echo(f"MSL: {msl}")
     click.echo(f"Two materials: {two_materials_}")
     click.echo(f"Parallel: {parallel_}")
-    click.echo(f"Parallel wheel tracks: {parallel_ulm_}")
     click.echo(f"Save to: {save_to_}")
     click.echo(f"Shorten paths: {shorten_paths_}")
 

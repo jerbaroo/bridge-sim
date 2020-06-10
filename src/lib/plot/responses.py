@@ -147,7 +147,8 @@ def plot_contour_deck(
         ))]
         responses = Responses(
             response_type=responses.response_type,
-            responses=list(zip(responses.at_decks(points), points))
+            responses=list(zip(responses.at_decks(points), points)),
+            units=responses.units,
         ).without_nan_inf()
 
     amax, amax_x, amax_z = -np.inf, None, None
@@ -185,8 +186,10 @@ def plot_contour_deck(
 
     # Plot point loads.
     for pload in point_loads:
+        unit_str = "" if pload.units is None else f" {pload.units}"
         plt.scatter(
-            [pload.x], [pload.z], label=f"{pload.load} load", marker="o", color="black",
+            [pload.x], [pload.z], label=f"{pload.load}{unit_str} load",
+            marker="o", color="black",
         )
 
     # Begin: min, max legend.
@@ -207,9 +210,9 @@ def plot_contour_deck(
         )
         units_str = "" if responses.units is None else f" {responses.units}"
         for point, label, color, alpha in [
-            ((amin_x, amin_z), f"min = {amin_s} {units_str}", "orange", 0),
-            ((amax_x, amax_z), f"max = {amax_s} {units_str}", "green", 0),
-            ((amin_x, amin_z), f"|min-max| = {aabs_s} {units_str}", "red", 0),
+            ((amin_x, amin_z), f"min = {amin_s}{units_str}", "orange", 0),
+            ((amax_x, amax_z), f"max = {amax_s}{units_str}", "green", 0),
+            ((amin_x, amin_z), f"|min-max| = {aabs_s}{units_str}", "red", 0),
         ]:
             plt.scatter(
                 [point[0]],

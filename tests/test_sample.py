@@ -1,4 +1,4 @@
-"""Test the sampling from the vehicle database."""
+"""Test sampling of vehicles."""
 
 from bridge_sim.bridges.bridge_705 import bridge_705
 from bridge_sim.configs import opensees_default
