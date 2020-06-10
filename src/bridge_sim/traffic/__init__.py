@@ -189,9 +189,7 @@ def load_traffic(
         path += add
     # Create the traffic if it doesn't exist.
     if not os.path.exists(path + ".arr"):
-        traffic_sequence = traffic_scenario.traffic_sequence(
-            config=config, time=time
-        )
+        traffic_sequence = traffic_scenario.traffic_sequence(config=config, time=time)
         traffic = traffic_sequence.traffic()
         traffic_array = traffic_sequence.traffic_array()
         with open(path + ".seq", "wb") as f:

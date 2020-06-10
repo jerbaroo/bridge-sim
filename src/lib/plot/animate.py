@@ -56,8 +56,11 @@ def _animate_traffic(
 
 
 def animate_responses(
-    config: Config, traffic_sequence: TrafficSequence,
-    response_type: ResponseType, units: str, save: str,
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    response_type: ResponseType,
+    units: str,
+    save: str,
 ):
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
@@ -106,7 +109,9 @@ def animate_responses(
             cbar=False,
         )
         plt.xlim((config.bridge.x_min, config.bridge.x_max))
-        plt.scatter([point.x], [point.z], c="r", s=10, label="sensor in bottom plot", zorder=100)
+        plt.scatter(
+            [point.x], [point.z], c="r", s=10, label="sensor in bottom plot", zorder=100
+        )
         plt.legend(loc="upper right")
 
         # Bottom plot of the total load on the bridge.
@@ -114,7 +119,11 @@ def animate_responses(
         plt.plot(traffic_sequence.times, responses[point_index], c="r", label="traffic")
         plt.xlabel("time")
         plt.ylabel(units)
-        plt.axvline(x=traffic_sequence.start_time + time_index * time_step, c="black", label="current time")
+        plt.axvline(
+            x=traffic_sequence.start_time + time_index * time_step,
+            c="black",
+            label="current time",
+        )
         plt.legend(loc="upper right")
         plt.tight_layout()
 
@@ -122,8 +131,7 @@ def animate_responses(
         plt.gcf().subplots_adjust(right=0.75)
         cbar_ax = plt.gcf().add_axes([0.80, 0.1, 0.01, 0.8])
         cbar = plt.gcf().colorbar(
-            cm.ScalarMappable(norm=response_norm, cmap=axis_cmap_r),
-            cax=cbar_ax,
+            cm.ScalarMappable(norm=response_norm, cmap=axis_cmap_r), cax=cbar_ax,
         )
         cbar.set_label(units)
 
