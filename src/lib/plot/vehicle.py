@@ -18,7 +18,7 @@ def topview_vehicle(
     xlim: Tuple[float, float] = None,
     ylim: Tuple[float, float] = None,
 ):
-    """Plot a vehicles from a top view."""
+    """Plot a single "Vehicle" from a top view."""
     axle_y = 0
     wheel_index = 0
     kn_per_wheel = list(chain.from_iterable(vehicle.kn_per_wheel()))
