@@ -94,13 +94,13 @@ class FEMRunner:
             print_i(
                 f"FEMRunner: ran {self.name}"
                 + f" {sim_ind + 1}/{len(expt_params)}"
-                + f" simulation in {timer() - start:.2f}s"
+                + f" simulation in {timer() - start:.2f} s"
             )
 
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(f"FEMRunner: parsed all responses in" + f" {timer() - start:.2f}s")
+        print_i(f"FEMRunner: parsed {self.name} responses in" + f" {timer() - start:.2f} s")
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
@@ -113,8 +113,8 @@ class FEMRunner:
             parsed_expt_responses=parsed_expt_responses,
         )
         print_i(
-            f"FEMRunner: converted all fem to [Response] in"
-            + f" {timer() - start:.2f}s"
+            f"FEMRunner: converted to [Response] in"
+            + f" {timer() - start:.2f} s"
         )
         if return_converted:
             return converted_expt_responses
@@ -138,9 +138,8 @@ class FEMRunner:
                 start = timer()
                 fem_responses.save()
                 print_i(
-                    f"FEMRunner: saved simulation {sim_ind + 1} SimResponses"
-                    + f" in ([Response]) in {timer() - start:.2f}s,"
-                    + f"({response_type})"
+                    f"FEMRunner: saved simulation {sim_ind + 1} Responses"
+                    + f" ({response_type}) in {timer() - start:.2f} s"
                 )
 
     def sim_model_path(
@@ -152,11 +151,12 @@ class FEMRunner:
     ) -> str:
         """Deterministic path for a FE model file.
 
-        :param sim_params: simulation parameters.
-        :param ext: extension of the output file without the dot.
-        :param dirname: directory name of output file. Defaults to FEMRunner.name.
-        :param append: append to the filename (before the extension).
-        :return: path for the output file.
+        Args:
+            sim_params: simulation parameters.
+            ext: filename extension without the dot.
+            dirname: directory name, defaults to self.name.
+            append: append to the filename (before the extension).
+
         """
         param_str = sim_params.id_str()
         append = append if len(append) == 0 else f"-{append}"
@@ -339,11 +339,20 @@ def pier_settlement(config: Config, response_type: ResponseType=ResponseType.YTr
 
 
 def ulm_xzs(config: Config):
-    """Point-load positions for unit load simulations."""
+    """Axle positions for unit load simulations."""
     return [(x, z) for z, x in itertools.product(
         config.bridge.axle_track_zs(),
         config.bridge.wheel_track_xs(config),
     )]
+
+
+def ulm_point_loads(config: Config):
+    """Point loads for each unit point-load simulation."""
+    half_axle = config.axle_width / 2
+    return [[
+        PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
+        PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn)
+    ] for x, z in ulm_xzs(config)]
 
 
 def point_load(config: Config, indices: Optional[List[int]] = None, response_type: ResponseType=ResponseType.YTrans, run_only: bool = False):
@@ -361,8 +370,8 @@ def point_load(config: Config, indices: Optional[List[int]] = None, response_typ
 
     """
     expt_params = [
-        SimParams(ploads=[PointLoad(x=x, z=z, load=config.il_unit_load_kn)])
-        for x, z in ulm_xzs(config)
+        SimParams(ploads=point_loads)
+        for point_loads in ulm_point_loads(config)
     ]
     if indices is not None:
         expt_params = [expt_params[i] for i in indices]
@@ -421,25 +430,26 @@ def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
         with open(path, "rb") as f:
             return dill.load(f)
 
-    xzs = ulm_xzs(config)
-    shm_template = np.empty((len(xzs), len(points)))
+    point_loads = ulm_point_loads(config)
+    shm_template = np.empty((len(point_loads), len(points)))
     shm = shared_memory.SharedMemory(create=True, size=shm_template.nbytes)
     # This try/except is to free shared-memory resources on KeyboardInterrupt.
     try:
 
         def set_ulm_entry(params):
-            i_, (x_, z_) = params
+            i_, pls = params
+            assert len(pls) == 2
             existing_shm = shared_memory.SharedMemory(name=shm.name)
             ulm = np.ndarray(shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf)
             for j, response in enumerate(load_fem_responses(
                 c=config,
-                sim_params=SimParams(ploads=[PointLoad(x=x_, z=z_, load=config.il_unit_load_kn)]),
+                sim_params=SimParams(ploads=pls),
                 response_type=response_type,
             ).at_decks(points)):
                 ulm[i_][j] = response
             existing_shm.close()
 
-        params_list = list(enumerate(xzs))
+        params_list = list(enumerate(point_loads))
         if config.parallel <= 1:
             print_w("Not loading ULM in parallel")
             list(map(set_ulm_entry, params_list))

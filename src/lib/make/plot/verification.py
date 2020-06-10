@@ -112,10 +112,10 @@ def per_sensor_plots(
     labels_ignored = sorted(
         l for l in labels_before_ignore if l not in labels_after_ignore
     )
-    print_i(f"Strain sensors with missing positions = {labels_ignored}")
+    print_i(f"Microstrain XXB sensors with missing positions = {labels_ignored}")
 
     # Sort by sensor number and setup groupby sensor label.
-    tno_strain_meas["sort"] = bridge_sim.util.apply(lambda x: int(x[1:]))
+    tno_strain_meas["sort"] = tno_strain_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     print_i(f"Filtered strain sensors starting with {strain_sensors_startwith} =")
     print_i(f"  {sorted(set(map(int, tno_strain_meas['sort'])))}")
 
@@ -141,7 +141,7 @@ def per_sensor_plots(
     print(f"Parallel {c.parallel}")
     os_strain = responses_to_vehicles_d(
         c=c,
-        mv_vehicles=[truck1],
+        vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
         response_type=ResponseType.StrainXXB,
         points=[
@@ -189,7 +189,7 @@ def per_sensor_plots(
             zorder=4,
         )
         legend_marker_size(plt.legend(), 80)
-        plt.ylabel("Strain XXB")
+        plt.ylabel("Microstrain XXB")
         plt.ylim((amin, amax))
 
     # Create a subplot for each strain sensor.
@@ -236,7 +236,7 @@ def per_sensor_plots(
     displa_meas = pd.DataFrame(_meas.loc[_meas["sensortype"] == "displacements"])
 
     # Sort by sensor number and setup groupby sensor label.
-    displa_meas["sort"] = bridge_sim.util.apply(lambda x: int(x[1:]))
+    displa_meas["sort"] = displa_meas["sensorlabel"].apply(lambda x: int(x[1:]))
     displa_meas = displa_meas.sort_values(by=["sort"])
     displa_groupby = displa_meas.groupby("sensorlabel", sort=False)
     displa_sensor_labels = [sensor_label for sensor_label, _ in displa_groupby]
@@ -258,7 +258,7 @@ def per_sensor_plots(
     os_displacement = (
         responses_to_vehicles_d(
             c=c,
-            mv_vehicles=[truck1],
+            vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
             response_type=ResponseType.YTrans,
             points=[
@@ -380,10 +380,9 @@ def r2_plots(c: Config):
     displa_os_meas = (
         responses_to_vehicles_d(
             c=c,
-            mv_vehicles=[truck1],
+            vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
             response_type=rt_y,
-            damage_scenario=HealthyScenario(),
             points=[
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
@@ -493,14 +492,12 @@ def r2_plots(c: Config):
     # Strain in OpenSees via direct simulation (measurement points).
     strain_os_meas = responses_to_vehicles_d(
         c=c,
-        mv_vehicles=[truck1],
+        vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
         response_type=rt_s,
-        damage_scenario=HealthyScenario(),
         points=[
             Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
         ],
-        sim_runner=OSRunner(c),
     )
 
     def get_os_meas(sensor_label: str, truck_x: float):
@@ -526,9 +523,9 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Strain: Diana vs. measurements")
-    plt.xlabel("Strain measurement")
-    plt.ylabel("Strain in Diana")
+    plt.title("Strain XXB: Diana vs. measurements")
+    plt.xlabel("Microstrain XXB measurement")
+    plt.ylabel("Microstrain XXB in Diana")
 
     # Subplot: OpenSees against measurements.
     plt.subplot(3, 1, 2)
@@ -545,9 +542,9 @@ def r2_plots(c: Config):
     score = regressor.score(np.matrix(x).T, y)
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
-    plt.title("Strain: OpenSees vs. measurements")
-    plt.xlabel("Strain measurement")
-    plt.ylabel("Strain in OpenSees")
+    plt.title("Strain XXB: OpenSees vs. measurements")
+    plt.xlabel("Microstrain XXB measurement")
+    plt.ylabel("Microstrain XXB in OpenSees")
 
     # Subplot: OpenSees against Diana.
     plt.subplot(3, 1, 3)
@@ -566,8 +563,8 @@ def r2_plots(c: Config):
     plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title("Strain: OpenSees vs. Diana")
-    plt.xlabel("Strain in Diana")
-    plt.ylabel("Strain in OpenSees")
+    plt.xlabel("Microstrain XXB in Diana")
+    plt.ylabel("Microstrain XXB in OpenSees")
 
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/regression", "regression-strain.pdf"))

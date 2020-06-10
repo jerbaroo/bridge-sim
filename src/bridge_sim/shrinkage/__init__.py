@@ -192,7 +192,7 @@ def total(config: Config, cement_class: CementClass, times: List[float]) -> List
     assert len(a) == len(d)
     result = d + a
     assert len(result) == len(d)
-    assert result[0] == d[0] + a[0]
+    assert result[-1] == d[-1] + a[-1]
     return result
 
 
@@ -228,7 +228,7 @@ def total_responses(
     assert d.shape == a.shape
     result = np.add(d, a)
     assert result.shape == d.shape
-    assert result[0][0] == d[0][0] + a[0][0]
+    assert result[0][-1] == d[0][-1] + a[0][-1]
     return result
 
 

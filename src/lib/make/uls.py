@@ -4,30 +4,28 @@ import numpy as np
 from bridge_sim import plot, sim
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.plot import equal_lims
+from bridge_sim.sim.run import ulm_point_loads
 from bridge_sim.util import print_i, safe_str
 
 
-def plot_uls(config: Config, indices=[0, 1, 100, 2000, 2380, 2399]):
-    xs = config.bridge.wheel_track_xs(config)
-    zs = config.bridge.wheel_track_zs(config)
+def plot_uls(config: Config, indices=[0, 1, 10, 100, 1100, 1110, 1119]):
+    point_loads = ulm_point_loads(config)
     for index in indices:
-        x = xs[index % len(xs)]
-        z = zs[index // len(xs)]
-        print_i(f"Point at X = {x}, Z = {z}")
         responses = list(sim.run.point_load(config, indices=[index], response_type=ResponseType.YTrans))[0]
         plot.top_view_bridge(config.bridge, edges=True, piers=True, units="m")
         responses.units = "mm"
         plot.contour_responses(config, responses)
-        plt.scatter([x], [z], c="r", s=10)
+        for point_load in point_loads[index]:
+            plt.scatter([point_load.x], [point_load.z], c="r", s=10)
         plt.tight_layout()
-        plt.title(f"Index = {index}, X = {x}, Z = {z}")
+        plt.title(f"Index = {index}")
         plt.savefig(config.get_image_path("verification/uls", f"uls-{index}.pdf"))
         plt.close()
 
 
-def plot_ulm(config: Config, response_type: ResponseType, indices=[100, 2000]):
+def plot_ulm(config: Config, response_type: ResponseType, indices=[100, 1100]):
     xs = config.bridge.wheel_track_xs(config)
-    zs = config.bridge.wheel_track_zs(config)
+    zs = config.bridge.axle_track_zs()
     points = [
         Point(x=xs[index % len(xs)], z=zs[index // len(xs)])
         for index in indices

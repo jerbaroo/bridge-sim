@@ -1,6 +1,8 @@
+"""Test running of many simulations."""
+
+from bridge_sim import plot, sim
 from bridge_sim.configs import test_config
 from bridge_sim.model import ResponseType
-from bridge_sim.sim import run
 
 
 def test_point_load():
@@ -8,10 +10,17 @@ def test_point_load():
     config, exe_found = test_config()
     if not exe_found:
         return
-    for index in [100, 2000]:
-        sim_responses = list(run.point_load(config=config, indices=[index], response_type=ResponseType.YTrans))[0]
+    for index in [300, 1100]:
+        sim_responses = list(sim.run.point_load(
+            config=config,
+            indices=[index],
+            response_type=ResponseType.YTrans,
+        ))[0]
+        # plot.contour_responses(config, sim_responses)
+        # plot.top_view_bridge(config.bridge, piers=True)
+        # plot.plt.show()
         xs = config.bridge.wheel_track_xs(config)
-        zs = config.bridge.wheel_track_zs(config)
+        zs = config.bridge.axle_track_zs()
         x = xs[index % len(xs)]
         max_r, max_point = 1, None
         for response, point in sim_responses.values(point=True):
@@ -19,5 +28,4 @@ def test_point_load():
                 max_r = response
                 max_point = point
         assert max_point[0] == x
-        assert max_point[2] == zs[index // len(xs)]
 

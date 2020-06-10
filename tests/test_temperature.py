@@ -1,3 +1,5 @@
+"""Test temperature module."""
+
 from datetime import datetime
 
 from bridge_sim import temperature

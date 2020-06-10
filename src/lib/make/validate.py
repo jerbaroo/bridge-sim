@@ -5,7 +5,6 @@ import numpy as np
 
 from bridge_sim.model import Config, PointLoad, Point, ResponseType
 from bridge_sim.sim.responses import responses_to_traffic_array
-from bridge_sim.traffic import loads_to_traffic_array
 from bridge_sim.util import print_i, flatten, project_dir
 from bridge_sim.vehicles import truck1
 from lib.validate import _displa_sensor_xz, _strain_sensor_xz
@@ -22,7 +21,7 @@ def truck_1_time_series(c: Config):
         -end_time, end_time * 2, int((end_time * 3) / c.sensor_hz)
     )
     wagen1_loads = [
-        flatten(truck1.to_wheel_track_loads(c=c, time=time), PointLoad)
+        flatten(truck1.wheel_track_loads(c=c, time=time), PointLoad)
         for time in wagen1_times
     ]
 

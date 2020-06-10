@@ -83,50 +83,41 @@ def responses_to_loads_d(
     points: List[Point],
     loads: List[List[PointLoad]],
 ):
-    """Responses to point-loads via direct simulation."""
+    """Responses to point-loads over time (via direct simulation)."""
     expt_responses = load_expt_responses(
         c=c,
         expt_params=[SimParams(ploads=loads_) for loads_ in loads],
         response_type=response_type,
     )
-    result = []
-    for sim_responses in expt_responses:
-        result.append([sim_responses.at_deck(point, interp=True) for point in points])
-        print_i("Interpolating fem in responses_from_load_d")
-    return np.array(result)
+    return np.array([
+        sim_responses.at_decks(points)
+        for sim_responses in expt_responses
+    ])
 
 
 def responses_to_vehicles_d(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
-    mv_vehicles: List[Vehicle],
+    vehicles: List[Vehicle],
     times: List[float],
-    binned: bool = True,
 ):
-    """Response vehicles via direct simulation."""
-    if binned:
-        loads = [
-            [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
-            for time in times
-        ]
-    else:
-        print_w(f"Not using fractions of wheel track bins in simulation")
-        loads = [
-            [v.to_point_load_pw(time=time, bridge=c.bridge) for v in mv_vehicles]
-            for time in times
-        ]
-    loads = [flatten(vehicle_loads, PointLoad) for vehicle_loads in loads]
-    print([len(load_) for load_ in loads])
-    print(loads[0])
-    print(loads[-1])
-    assert isinstance(loads, list)
-    assert isinstance(loads[0], list)
-    assert isinstance(loads[0][0], PointLoad)
+    """Responses to vehicles over time (via direct simulation)."""
+    loads = [v.wheel_track_loads(config=c, times=times) for v in vehicles]
+    loads_per_time = [[] for _ in times]
+    for v_loads in loads:
+        for t, t_loads in enumerate(v_loads):
+            loads_per_time[t] += t_loads
+    loads_per_time = [flatten(v_loads, PointLoad) for v_loads in loads_per_time]
+    print([len(load_) for load_ in loads_per_time])
+    print(loads_per_time[0])
+    print(loads_per_time[-1])
+    assert isinstance(loads_per_time, list)
+    assert isinstance(loads_per_time[0], list)
+    assert isinstance(loads_per_time[0][0], PointLoad)
     return responses_to_loads_d(
         c=c,
         response_type=response_type,
         points=points,
-        loads=loads,
+        loads=loads_per_time,
     )
-
