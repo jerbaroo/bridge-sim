@@ -5,6 +5,7 @@ import numpy as np
 
 from bridge_sim.model import Config, PointLoad, Point, ResponseType
 from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.traffic import Traffic, TrafficSequence
 from bridge_sim.util import print_i, flatten, project_dir
 from bridge_sim.vehicles import truck1
 from lib.validate import _displa_sensor_xz, _strain_sensor_xz
@@ -17,13 +18,12 @@ def truck_1_time_series(c: Config):
     assert truck1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
     end_time = truck1.time_left_bridge(c.bridge)
-    wagen1_times = np.linspace(
-        -end_time, end_time * 2, int((end_time * 3) / c.sensor_hz)
-    )
-    wagen1_loads = [
-        flatten(truck1.wheel_track_loads(c=c, time=time), PointLoad)
-        for time in wagen1_times
-    ]
+    traffic_array = TrafficSequence(
+        config=c,
+        vehicles_per_lane=[[truck1], []],
+        warmed_up_at=0,
+        final_time=end_time,
+    ).traffic_array()
 
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
@@ -56,10 +56,10 @@ def truck_1_time_series(c: Config):
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(
         c=c,
-        traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
+        traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=displa_points,
-    ).T * 1E-3
+    ) * 1E-3
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(displa_points), 1, s_i + 1)
         # Find the center of the plot, minimum point in the data.
@@ -106,10 +106,10 @@ def truck_1_time_series(c: Config):
     # Results from simulation.
     responses_truck1 = responses_to_traffic_array(
         c=c,
-        traffic_array=loads_to_traffic_array(c=c, loads=wagen1_loads),
+        traffic_array=traffic_array,
         response_type=ResponseType.StrainXXB,
         points=strain_points,
-    ).T * 1E-3
+    ) * 1E-3
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(strain_points), 1, s_i + 1)
         data_center = 0
