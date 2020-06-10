@@ -46,8 +46,8 @@ def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
             responses.units = "mm"
             responses = responses.map(lambda r: r * 1E3)
         top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
-        contour_responses(c=c, responses=responses)
-        plt.title(response_type.name())
+        contour_responses(config=c, responses=responses)
+        plt.title("Microstrain XXB" if response_type.is_strain() else response_type.name())
 
     plt.landscape()
     plt.subplot(2, 1, 1)
@@ -106,7 +106,7 @@ def temp_profile_plot(c: Config, fname: str):
     plt.legend(loc="lower right")
     plt.title("Annual gradient")
     plt.subplot(3, 2, 3)
-    plt.plot(temp_year["datetime"], temp_year["solar"])
+    plt.scatter(temp_year["datetime"], temp_year["solar"], c="r", s=1)
     plt.ylabel("Solar radiation (W/m²)")
     plt.title("Annual solar radiation")
 
@@ -137,7 +137,7 @@ def temp_profile_plot(c: Config, fname: str):
     plt.legend(loc="lower right")
     plt.title("Two day gradient")
     plt.subplot(3, 2, 4)
-    plt.plot(temp_year["datetime"], temp_year["solar"])
+    plt.scatter(temp_year["datetime"], temp_year["solar"], c="r", s=1)
     plt.title("Two day solar radiation")
 
     for ps in [(1, 2), (3, 4), (5, 6)]:
@@ -147,7 +147,7 @@ def temp_profile_plot(c: Config, fname: str):
 
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
-    plt.savefig(c.get_image_path("temperature", "profile.pdf"))
+    plt.savefig(c.get_image_path("thesis/temperature", "profile.pdf"))
     plt.close()
 
 
