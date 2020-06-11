@@ -128,7 +128,7 @@ def animate_responses(
             point_index = _index
     point = deck_points[point_index]
     responses = sim.responses.to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=deck_points,
@@ -180,7 +180,9 @@ def animate_responses(
         plt.title(
             f&#34;{response_type.name()} on {config.bridge.name.title().replace(&#39;-&#39;, &#39; &#39;)}&#34;
         )
-        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True, units=&#34;m&#34;)
+        bridge_sim.plot.top_view_bridge(
+            config.bridge, edges=True, piers=True, units=&#34;m&#34;
+        )
         plot.top_view_vehicles(
             config=config,
             vehicles=vehicles_at_time[time_index],
@@ -381,7 +383,7 @@ def animate_traffic_array(
             point_index = _index
     point = deck_points[point_index]
     responses = sim.responses.to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=deck_points,
@@ -433,7 +435,9 @@ def animate_traffic_array(
         plt.title(
             f&#34;{response_type.name()} on {config.bridge.name.title().replace(&#39;-&#39;, &#39; &#39;)}&#34;
         )
-        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True, units=&#34;m&#34;)
+        bridge_sim.plot.top_view_bridge(
+            config.bridge, edges=True, piers=True, units=&#34;m&#34;
+        )
         plot.top_view_vehicles(
             config=config,
             vehicles=vehicles_at_time[time_index],
@@ -526,7 +530,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic"><code class="name flex">
-<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x10bbd3790>, save: str)</span>
+<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x1010fd790>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "Traffic" over a bridge.</p></div>
@@ -559,7 +563,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic_array"><code class="name flex">
-<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x11f976160>, save: str)</span>
+<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x114ea0160>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "TrafficArray" over a bridge.</p></div>

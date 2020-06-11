@@ -87,7 +87,7 @@ def load(
 
 
 def to_traffic_array(
-    c: Config,
+    config: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
     points: List[Point],
@@ -95,7 +95,7 @@ def to_traffic_array(
     &#34;&#34;&#34;Responses to a traffic array at some points.
 
     Args:
-        c: Config, simulations configuration object.
+        config: Config, simulations configuration object.
         traffic_array: traffic array to calculate responses to.
         response_type: the type of sensor response.
         points: points at which to calculate responses.
@@ -103,7 +103,7 @@ def to_traffic_array(
     Returns: NumPY array indexed first by point then time.
 
     &#34;&#34;&#34;
-    ulm = load_ulm(c, response_type, points)
+    ulm = load_ulm(config, response_type, points)
     assert ulm.shape[1] == len(points)
     assert traffic_array.shape[1] == ulm.shape[0]
     print(traffic_array.shape, ulm.shape)
@@ -315,7 +315,7 @@ def to(
 
     &#34;&#34;&#34;
     tr_responses = to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=points,
@@ -492,7 +492,7 @@ temperature loading no post-processing is done.</p>
 
     &#34;&#34;&#34;
     tr_responses = to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=points,
@@ -768,13 +768,13 @@ temperature loading no post-processing is done.</p>
 </details>
 </dd>
 <dt id="bridge_sim.sim.responses.to_traffic_array"><code class="name flex">
-<span>def <span class="ident">to_traffic_array</span></span>(<span>c: Config, traffic_array: TrafficArray, response_type: ResponseType, points: List[Point])</span>
+<span>def <span class="ident">to_traffic_array</span></span>(<span>config: Config, traffic_array: TrafficArray, response_type: ResponseType, points: List[Point])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses to a traffic array at some points.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>c</code></strong></dt>
+<dt><strong><code>config</code></strong></dt>
 <dd>Config, simulations configuration object.</dd>
 <dt><strong><code>traffic_array</code></strong></dt>
 <dd>traffic array to calculate responses to.</dd>
@@ -789,7 +789,7 @@ temperature loading no post-processing is done.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_traffic_array(
-    c: Config,
+    config: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
     points: List[Point],
@@ -797,7 +797,7 @@ temperature loading no post-processing is done.</p>
     &#34;&#34;&#34;Responses to a traffic array at some points.
 
     Args:
-        c: Config, simulations configuration object.
+        config: Config, simulations configuration object.
         traffic_array: traffic array to calculate responses to.
         response_type: the type of sensor response.
         points: points at which to calculate responses.
@@ -805,7 +805,7 @@ temperature loading no post-processing is done.</p>
     Returns: NumPY array indexed first by point then time.
 
     &#34;&#34;&#34;
-    ulm = load_ulm(c, response_type, points)
+    ulm = load_ulm(config, response_type, points)
     assert ulm.shape[1] == len(points)
     assert traffic_array.shape[1] == ulm.shape[0]
     print(traffic_array.shape, ulm.shape)
