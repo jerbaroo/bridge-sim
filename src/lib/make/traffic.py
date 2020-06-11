@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from bridge_sim import temperature
 
 from bridge_sim.model import Config, Point, ResponseType, PierSettlement
 from bridge_sim.sim.responses import to_traffic_array
@@ -34,6 +35,8 @@ def animate_responses(config: Config):
     config.sensor_hz = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
+    weather = temperature.load("holly-springs")
+    weather["temp"] = temperature.resize(weather["temp"], year=2019)
     ar(
         config=config,
         traffic_sequence=traffic_sequence,
@@ -41,6 +44,9 @@ def animate_responses(config: Config):
         units="mm",
         save=config.get_image_path("verification/animate", "traffic-responses.mp4"),
         pier_settlement=[(PierSettlement(4, 1.2), PierSettlement(4, 2))],
+        weather=weather,
+        start_date="01/05/19 00:00",
+        end_date="01/05/19 23:59",
     )
 
 

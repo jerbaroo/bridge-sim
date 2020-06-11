@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from bridge_sim import temperature, util
 
 from bridge_sim.model import (
     Config,
@@ -171,18 +172,20 @@ def to_temperature(
     points: List[Point],
     responses_array: List[List[float]],
     response_type: ResponseType,
-    weather: pd.DataFrame,
-    start_date: datetime,
-    end_date: datetime,
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ) -> List[List[float]]:
-    """Time series of responses to pier settlement.
+    """Time series of responses to temperature.
+
+    Date formats must be given as "%d/%m/%y %H:%M" e.g. "01/05/19 00:00".
 
     Args:
         config: simulation configuration object.
         points: points in the TrafficArray.
         responses_array: NumPY array indexed first by point the time.
         response_type: the sensor response type to add.
-        weather: weather data to calculate responses.
+        weather: the FULL weather data to calculate responses.
         start_date: start-date of weather data.
         end_date: end-date of weather data.
 
@@ -190,24 +193,22 @@ def to_temperature(
         same points, but only containing the responses from temperature.
 
     """
+    temp_responses = np.zeros(responses_array.shape)
+    if weather is None:
+        return temp_responses
+    weather = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime(start_date, "%d/%m/%y %H:%M"),
+        to=datetime.strptime(end_date, "%d/%m/%y %H:%M"),
+    )
+    effect = temperature.effect(
+        config=config,
+        response_type=response_type,
+        points=points,
+        weather=weather,
+    )
     assert len(responses_array) == len(points)
-    start_responses = load(
-        config=config,
-        response_type=response_type,
-        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
-    ).at_decks(points)
-    assert len(start_responses.shape) == 1
-    assert len(start_responses) == len(points)
-    end_responses = load(
-        config=config,
-        response_type=response_type,
-        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
-    ).at_decks(points)
-    ps_responses = np.zeros(responses_array.shape)
+    assert len(effect) == len(points)
     for p, _ in enumerate(points):
-        ps_responses[p] = np.interp(
-            np.arange(ps_responses.shape[1]),
-            [0, ps_responses.shape[1] - 1],
-            [start_responses[p], end_responses[p]]
-        )
-    return ps_responses
+        temp_responses[p] = util.apply(effect[p], temp_responses[p])
+    return temp_responses

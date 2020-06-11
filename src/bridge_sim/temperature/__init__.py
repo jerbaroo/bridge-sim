@@ -6,15 +6,14 @@ https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 Usage example of this module:
 
     from datetime import datetime
-    from bridge_sim import temperature
+    from bridge_sim import sim, temperature
 
     # First load some weather data.
     weather = temperature.load("holly-springs")
     weather["temp"] = temperature.resize(temps_df["temp"], year=2019)
+    responses_to_temp = sim.responses.to_temperature(
 
-    # Then get the temperature effect and interpolate over signal.
-    effect = temperature.effect(config, RT.StrainXXB, [Point(x=51)], weather)
-    effect = util.apply(effect, some_signal)
+    )
 
 """
 
@@ -26,6 +25,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from lib.plot import plt
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
@@ -219,6 +219,9 @@ def effect(
     """Temperature effect at points for some weather data.
 
     The returned responses contain the post-processing necessary for strain.
+    Note that you should be using the same "weather" each time you use this
+    function, this is because the calculation of bridge deck top and bottom
+    temperatures will be different when calculated over a subset.
 
     Args:
         config: Config, simulation configuration object.
