@@ -73,7 +73,7 @@ def to_traffic_array(
         response_type: the type of sensor response.
         points: points at which to calculate responses.
 
-    Returns: NumPY array indexed first by point the time.
+    Returns: NumPY array indexed first by point then time.
 
     """
     ulm = load_ulm(c, response_type, points)
@@ -137,7 +137,7 @@ def to_pier_settlement(
     Args:
         config: simulation configuration object.
         points: points in the TrafficArray.
-        responses_array: NumPY array indexed first by point the time.
+        responses_array: NumPY array indexed first by point then time.
         response_type: the sensor response type to add.
         pier_settlement: start and end settlements of piers.
 
@@ -184,7 +184,7 @@ def to_temperature(
     Args:
         config: simulation configuration object.
         points: points in the TrafficArray.
-        responses_array: NumPY array indexed first by point the time.
+        responses_array: NumPY array indexed first by point then time.
         response_type: the sensor response type to add.
         weather: the FULL weather data to calculate responses.
         start_date: start-date of weather data.
@@ -226,7 +226,7 @@ def to_shrinkage(
     Args:
         config: simulation configuration object.
         points: points in the TrafficArray.
-        responses_array: NumPY array indexed first by point the time.
+        responses_array: NumPY array indexed first by point then time.
         response_type: the sensor response type to add.
         start_day: start day of responses e.g. 365 is 1 year.
         end_day: end day of responses.
@@ -253,3 +253,74 @@ def to_shrinkage(
     for p, _ in enumerate(points):
         shrinkage_responses[p] = util.apply(effect[p], shrinkage_responses[p])
     return shrinkage_responses
+
+
+def to(
+    config: Config,
+    points: List[Point],
+    traffic_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+) -> List[List[float]]:
+    """Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        traffic_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        pier_settlement: a pier settlement to apply.
+        weather: the FULL weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as "responses_array" and considering the
+        same points, but only containing any of the given response sources.
+
+    """
+    tr_responses = to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=points,
+    )
+    ps_responses = to_pier_settlement(
+        config=config,
+        points=points,
+        responses_array=tr_responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    temp_responses = (
+        to_temperature(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        to_shrinkage(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    return tr_responses + ps_responses + temp_responses + shrinkage_responses
