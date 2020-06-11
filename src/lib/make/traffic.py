@@ -31,7 +31,7 @@ def animate_traffic(config: Config):
 
 
 def animate_responses(config: Config):
-    time = 1
+    time = 10
     config.sensor_hz = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
@@ -47,6 +47,8 @@ def animate_responses(config: Config):
         weather=weather,
         start_date="01/05/19 00:00",
         end_date="01/05/19 23:59",
+        start_day=365,
+        end_day=366,
     )
 
 
