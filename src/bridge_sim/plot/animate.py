@@ -1,20 +1,22 @@
 """Animate a traffic scenario."""
-
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Optional
 
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
-from bridge_sim.sim.model import Responses
-from bridge_sim.sim.run import ulm_xzs
-from lib.plot import axis_cmap_r, axis_cmap
+import pandas as pd
+from bridge_sim.sim.responses import without
 from matplotlib.animation import FuncAnimation, FFMpegWriter
+from scipy.spatial import distance
 
 from bridge_sim import sim, plot
+from bridge_sim.sim.model import Responses
+from bridge_sim.sim.run import ulm_xzs
 from bridge_sim.model import Config, Point, ResponseType, Vehicle, PierSettlement
 from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
 from bridge_sim.util import print_i, flatten
+from lib.plot import axis_cmap_r, axis_cmap
 
 
 def _animate_plot(
@@ -62,16 +64,28 @@ def animate_responses(
     units: str,
     save: str,
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
     cmap = axis_cmap_r,
+    without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
-    deck_points = [
+    without_edges = (lambda _: False) if without_edges == 0 else without.edges(config, without_edges)
+    deck_points = [p for p in [
         Point(x=x, y=0, z=z)
         for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
         for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
-    ]
-    point_index = 1000
+    ] if not without_edges(p)]
+    # Find the closest point to these coordinates.
+    x, z = 22, -10
+    point_index = 0
+    for _index in range(len(deck_points)):
+        p = deck_points[point_index]
+        i = deck_points[_index]
+        if distance.euclidean([x, z], [i.x, i.z]) < distance.euclidean([x, z], [p.x, p.z]):
+            point_index = _index
     point = deck_points[point_index]
     responses = sim.responses.to_traffic_array(
         c=config,
@@ -86,7 +100,16 @@ def animate_responses(
         response_type=response_type,
         pier_settlement=pier_settlement,
     )
-    responses = responses + ps_responses
+    temp_responses = sim.responses.to_temperature(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        weather=weather,
+        start_date=start_date,
+        end_date=end_date,
+    ) * 1E3
+    responses = responses + ps_responses + temp_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
     # min_response = min(min_response, -max_response)
     # max_response = max(max_response, -min_response)
@@ -130,7 +153,8 @@ def animate_responses(
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
         plt.plot(traffic_sequence.times, responses[point_index], c="black", label="traffic")
-        plt.plot(traffic_sequence.times, ps_responses[point_index], c="b", label="pier settlement")
+        plt.plot(traffic_sequence.times, ps_responses[point_index], c="blue", label="pier settlement")
+        plt.plot(traffic_sequence.times, temp_responses[point_index], c="orange", label="temperature")
         plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(
