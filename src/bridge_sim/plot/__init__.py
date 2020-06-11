@@ -14,6 +14,8 @@ from bridge_sim.sim.build import get_bridge_shells
 from bridge_sim.sim.model import Responses, SimParams
 from lib.plot import default_cmap, plt
 
+import bridge_sim.plot.animate as animate
+
 
 def top_view_vehicles(
     config: Config,

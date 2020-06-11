@@ -97,7 +97,7 @@ If you have managed to install the software then the next step is to run an exam
 
 *** Point Load
 
-Example bridge with a single point load applied.
+Narrow example bridge with a single point load applied.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
@@ -107,36 +107,44 @@ config = configs.opensees_default(bridges.bridge_narrow)
 point_loads = [model.PointLoad(x=5, z=0, load=100)]
 responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
+plot.top_view_bridge(config.bridge, piers=True)
 plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Static Vehicle
+*** Custom Vehicle
 
-Example bridge with a 4-axled vehicle on it, each wheel is a point load.
+Narrow example bridge with a 5-axled vehicle on it, each wheel is a point load.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, model, plot, sim, vehicle
+from bridge_sim import bridges, configs, model, plot, sim
 
 config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-point_loads = vehicle.truck1.to_point_load_pw(
-    time=3.5, bridge=config.bridge, list=True)
+point_loads = model.Vehicle(
+    # Load intensity of each axle.
+    kn=[5000, 4000, 4000, 5000, 7000],
+    # Distance between each pair of axles.
+    axle_distances=[2, 2, 2, 1],
+    # Width of each axle, distance between point loads.
+    axle_width=2.5,
+    # Speed of the vehicles.
+    kmph=20,
+).point_load_pw(config=config, time=3.5, list=True)
 responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
+plot.top_view_bridge(config.bridge, piers=True)
 plt.tight_layout()
 plt.show()
 #+END_SRC
 
 *** Pier Settlement
 
-Wide bridge with two supporting piers, the first pier settled by 1.2 m.
+Wide example bridge with two supporting piers, one pier settled by 1.2 m.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, model, plot, sim
+from bridge_sim import bridges, configs, sim, model, plot
 
 config = configs.opensees_default(bridges.bridge_wide)
 responses = sim.responses.load(
@@ -145,21 +153,21 @@ responses = sim.responses.load(
     pier_settlement=[model.PierSettlement(0, 1.2)]
 )
 plot.contour_responses(config, responses)
-plot.top_view_bridge(config, piers=True, lanes=True)
+plot.top_view_bridge(config.bridge, piers=True)
 plt.tight_layout()
 plt.show()
 #+END_SRC
 
 *** Different Response Types
 
-Like the pier settlement example but plotting multiple response types.
+Like the previous pier settlement example but plotting multiple response types.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, model, plot, sim
 
 config = configs.opensees_default(bridges.bridge_wide)
-plt.figure(figsize=(16, 10))
+plt.figure(figsize=(12, 8))
 for subplot, response_type in enumerate([
         model.RT.YTrans, model.RT.ZTrans,
         model.RT.StrainXXB, model.RT.StrainZZB,
@@ -167,20 +175,19 @@ for subplot, response_type in enumerate([
     responses = sim.responses.load(
         config,
         response_type,
-        pier_settlement=[model.PierSettlement(0, 1)],
-    ).resize()
+        pier_settlement=[model.PierSettlement(0, 1.2)],
+    )
     plt.subplot(2, 2, subplot + 1)
-    plot.contour_responses(config, responses)
-    plot.top_view_bridge(config, piers=True, lanes=True)
+    plot.contour_responses(config, responses, interp=(200, 60))
+    plot.top_view_bridge(config.bridge, piers=True)
     plt.title(response_type.name())
-
 plt.tight_layout()
 plt.show()
 #+END_SRC
 
 *** Custom Bridge
 
-Like the first point-load example but with a really long and narrow bridge.
+Like the first point-load example but with a custom square bridge.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
@@ -190,12 +197,13 @@ from bridge_sim.bridges import Bridge, Lane, MaterialDeck, MaterialSupport, Supp
 
 def new_bridge():
     return Bridge(
-        name="example",   # Name used to identify saved/loaded data.
-        length=40,  # Length of this bridge.
-        width=3,  # Width of this bridge.
+        name="square",  # Name used to identify saved/loaded data.
+        msl=0.5,  # Maximum shell length.
+        length=10,  # Length of this bridge.
+        width=10,  # Width of this bridge.
         supports=[
             Support(
-                x=20,  # X position of center of the support.
+                x=5,  # X position of center of the support.
                 z=0,  # Z position of center of the support.
                 length=2,  # Length between support columns (X direction).
                 height=2,  # Height from top to bottom of support.
@@ -219,43 +227,102 @@ def new_bridge():
         # List of lanes where traffic can drive on the bridge.
         lanes=[Lane(-1, 1, True)],
     )
-
 config = configs.opensees_default(new_bridge)
-point_loads = [model.PointLoad(x=18, z=0, load=100)]
+point_loads = [model.PointLoad(x=8, z=0, load=100)]
 responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
+plot.top_view_bridge(config.bridge, piers=True)
 plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Custom Vehicle
+*** Generate Traffic Flow
 
-Like the first static vehicle example, but this time with a custom vehicle.
+Generate 10 seconds of traffic and animate it moving over bridge 705.
+
+#+BEGIN_SRC python
+from bridge_sim import bridges, configs, plot, traffic
+
+config = configs.opensees_default(bridges.bridge_705(10))
+time = 10
+config.sensor_hz = 1 / 10
+traffic_scenario = traffic.normal_traffic(config)
+traffic_sequence = traffic_scenario.traffic_sequence(config, time)
+traffic = traffic_sequence.traffic()
+plot.animate.animate_traffic(
+    config=config,
+    traffic_sequence=traffic_sequence,
+    traffic=traffic,
+    save="animation.mp4"
+)
+#+END_SRC
+
+*** Plotting Effect of Temperature
+
+Generating traffic, then calculating time series of responses to that traffic over a wide example bridge. Then also calculating the responses to temperature. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, model, plot, sim
-from bridge_sim.model import Vehicle
+from bridge_sim import bridges, configs, model, sim, temperature, traffic
 
-new_vehicle = Vehicle(
-    # Load intensity of each axle.
-    kn=[5000, 4000, 4000, 5000, 7000],
-    # Distance between each pair of axles.
-    axle_distances=[2, 2, 2, 1],
-    # Width of each axle, distance between point loads.
-    axle_width=2.5,
-    # Speed of the vehicle.
-    kmph=20,
+config = configs.opensees_default(bridges.bridge_wide)
+points = [model.Point(x=10), model.Point(x=20)]
+response_type = model.RT.YTrans
+
+# First generate some traffic data.
+traffic_sequence = traffic.normal_traffic(config).traffic_sequence(config, 10)
+traffic_array = traffic_sequence.traffic_array()
+responses_to_traffic = sim.responses.to_traffic_array(
+    config=config,
+    traffic_array=traffic_array,
+    response_type=response_type,
+    points=points,
 )
 
-config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = sim.responses.load(config, model.RT.YTrans, point_loads)
-plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config, piers=True)
-plt.tight_layout()
+# And responses to temperature.
+weather = temperature.load("holly-springs")
+weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=30)
+temp_responses = sim.responses.to_temperature(
+    config=config,
+    points=points,
+    responses_array=responses_to_traffic,
+    response_type=response_type,
+    weather=weather,
+    start_date="01/05/19 00:00",
+    end_date="02/05/19 00:00",
+)
+
+plt.plot(responses_to_traffic + temp_responses)
 plt.show()
 #+END_SRC
 
-*** Traffic Flow
+*** Fancy Traffic Flow Animation
+
+First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
+
+#+BEGIN_SRC python
+
+from bridge_sim import bridges, configs, model, plot, temperature, traffic
+
+config = configs.opensees_default(bridges.bridge_705(10))
+time = 10
+config.sensor_hz = 1 / 10
+traffic_scenario = traffic.normal_traffic(config)
+traffic_sequence = traffic_scenario.traffic_sequence(config, time)
+weather = temperature.load("holly-springs")
+weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=35)
+plot.animate.animate_responses(
+    config=config,
+    traffic_sequence=traffic_sequence,
+    response_type=model.ResponseType.YTrans,
+    units="mm",
+    save="traffic-responses.mp4",
+    pier_settlement=[
+        (model.PierSettlement(4, 1.2), model.PierSettlement(4, 2))],
+    weather=weather,
+    start_date="01/05/19 00:00",
+    end_date="01/05/19 23:59",
+    start_day=365,
+    end_day=366,
+)
+#+END_SRC
