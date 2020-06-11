@@ -69,24 +69,34 @@ def animate_responses(
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
-    cmap = axis_cmap_r,
+    cmap=axis_cmap_r,
     without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
-    without_edges = (lambda _: False) if without_edges == 0 else without.edges(config, without_edges)
-    deck_points = [p for p in [
-        Point(x=x, y=0, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
-    ] if not without_edges(p)]
+    without_edges = (
+        (lambda _: False)
+        if without_edges == 0
+        else without.edges(config, without_edges)
+    )
+    deck_points = [
+        p
+        for p in [
+            Point(x=x, y=0, z=z)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
+        ]
+        if not without_edges(p)
+    ]
     # Find the closest point to these coordinates.
     x, z = 18, -8.4
     point_index = 0
     for _index in range(len(deck_points)):
         p = deck_points[point_index]
         i = deck_points[_index]
-        if distance.euclidean([x, z], [i.x, i.z]) < distance.euclidean([x, z], [p.x, p.z]):
+        if distance.euclidean([x, z], [i.x, i.z]) < distance.euclidean(
+            [x, z], [p.x, p.z]
+        ):
             point_index = _index
     point = deck_points[point_index]
     responses = sim.responses.to_traffic_array(
@@ -102,23 +112,29 @@ def animate_responses(
         response_type=response_type,
         pier_settlement=pier_settlement,
     )
-    temp_responses = sim.responses.to_temperature(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
-        weather=weather,
-        start_date=start_date,
-        end_date=end_date,
-    ) * 1E3
-    shrinkage_responses = sim.responses.to_shrinkage(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
-        start_day=start_day,
-        end_day=end_day,
-    ) * 1E3
+    temp_responses = (
+        sim.responses.to_temperature(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        sim.responses.to_shrinkage(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
     total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
     # min_response = min(min_response, -max_response)
@@ -133,7 +149,9 @@ def animate_responses(
         # Top plot of the moving vehicles.
         plt.landscape()
         plt.subplot2grid((3, 1), (0, 0), 2, 1)
-        plt.title(f"{response_type.name()} on {config.bridge.name.title().replace('-', ' ')}")
+        plt.title(
+            f"{response_type.name()} on {config.bridge.name.title().replace('-', ' ')}"
+        )
         plot.top_view_bridge(config.bridge, edges=True, piers=True, units="m")
         plot.top_view_vehicles(
             config=config,
@@ -156,18 +174,53 @@ def animate_responses(
         )
         plt.xlim((config.bridge.x_min, config.bridge.x_max))
         plt.scatter(
-            [point.x], [point.z], c="black", s=20, label="sensor in bottom plot", zorder=100
+            [point.x],
+            [point.z],
+            c="black",
+            s=20,
+            label="sensor in bottom plot",
+            zorder=100,
         )
         plt.legend(loc="upper right")
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
         lw = 2
-        plt.plot(traffic_sequence.times, responses[point_index], c="black", label="traffic", lw=lw)
-        plt.plot(traffic_sequence.times, ps_responses[point_index], c="tab:blue", label="pier settlement", lw=lw)
-        plt.plot(traffic_sequence.times, temp_responses[point_index], c="tab:orange", label="temperature", lw=lw)
-        plt.plot(traffic_sequence.times, shrinkage_responses[point_index], c="tab:green", label="shrinkage", lw=lw)
-        plt.plot(traffic_sequence.times, total_responses[point_index], c="xkcd:purple", label="total", lw=lw)
+        plt.plot(
+            traffic_sequence.times,
+            responses[point_index],
+            c="black",
+            label="traffic",
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            ps_responses[point_index],
+            c="tab:blue",
+            label="pier settlement",
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            temp_responses[point_index],
+            c="tab:orange",
+            label="temperature",
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            shrinkage_responses[point_index],
+            c="tab:green",
+            label="shrinkage",
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            total_responses[point_index],
+            c="xkcd:purple",
+            label="total",
+            lw=lw,
+        )
         plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(

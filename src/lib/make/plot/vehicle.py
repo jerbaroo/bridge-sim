@@ -32,4 +32,3 @@ def comparison(c: Config, v1: Vehicle, v2: Vehicle):
 
     plt.savefig(c.get_image_path("vehicles", "wagen-1", bridge=False) + ".pdf")
     plt.close()
-

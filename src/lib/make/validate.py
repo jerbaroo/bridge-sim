@@ -52,13 +52,13 @@ def truck_1_time_series(c: Config):
 
     # Results from simulation.
     responses_truck1 = (
-            to_traffic_array(
+        to_traffic_array(
             c=c,
             traffic_array=traffic_array,
             response_type=ResponseType.YTrans,
             points=displa_points,
         )
-            * 1e-3
+        * 1e-3
     )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(displa_points), 1, s_i + 1)
@@ -109,13 +109,13 @@ def truck_1_time_series(c: Config):
     plt.portrait()
     # Results from simulation.
     responses_truck1 = (
-            to_traffic_array(
+        to_traffic_array(
             c=c,
             traffic_array=traffic_array,
             response_type=ResponseType.StrainXXB,
             points=strain_points,
         )
-            * 1e-3
+        * 1e-3
     )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(strain_points), 1, s_i + 1)

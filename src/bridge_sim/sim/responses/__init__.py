@@ -163,7 +163,7 @@ def to_pier_settlement(
         ps_responses[p] = np.interp(
             np.arange(ps_responses.shape[1]),
             [0, ps_responses.shape[1] - 1],
-            [start_responses[p], end_responses[p]]
+            [start_responses[p], end_responses[p]],
         )
     return ps_responses
 
@@ -203,10 +203,7 @@ def to_temperature(
         to=datetime.strptime(end_date, "%d/%m/%y %H:%M"),
     )
     effect = temperature.effect(
-        config=config,
-        response_type=response_type,
-        points=points,
-        weather=weather,
+        config=config, response_type=response_type, points=points, weather=weather,
     )
     assert len(responses_array) == len(points)
     assert len(effect) == len(points)
@@ -216,13 +213,13 @@ def to_temperature(
 
 
 def to_shrinkage(
-        config: Config,
-        points: List[Point],
-        responses_array: List[List[float]],
-        response_type: ResponseType,
-        start_day: Optional[int] = None,
-        end_day: Optional[int] = None,
-        cement_class: CementClass = CementClass.Normal,
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
 ) -> List[List[float]]:
     """Time series of responses to concrete shrinkage.
 
