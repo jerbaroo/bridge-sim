@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 
 import numpy as np
-from pandas import pd
+import pandas as pd
 
 from bridge_sim.model import (
     Config,

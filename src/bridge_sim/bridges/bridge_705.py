@@ -131,7 +131,7 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
         )
 
 
-def bridge_705(msl: float):
+def bridge_705(msl: float, single_sections: bool = False):
     """The bridge 705 in Amsterdam.
 
     Args:
@@ -146,4 +146,5 @@ def bridge_705(msl: float):
         materials=_bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,
+        single_sections=_bridge_705_single_sections() if single_sections else None,
     )
