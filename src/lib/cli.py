@@ -9,7 +9,6 @@ import pdb
 
 import lib.make.temperature
 import lib.make.validation
-import pathos.multiprocessing as multiprocessing
 import sys
 import traceback
 
@@ -30,7 +29,6 @@ from bridge_sim.util import clean_generated, print_i, remove_except_npy
 pdb_ = "--pdb" in sys.argv
 b_func = None
 c_func = opensees_default
-two_materials_ = None
 parallel_ = None
 save_to_ = None
 shorten_paths_ = None
@@ -38,7 +36,7 @@ il_num_loads_ = None
 
 
 def c():
-    """Construct a 'Config' based on CLI parameters."""
+    """Construct a "Config" based on CLI parameters."""
     new_c = c_func(b_func)
     new_c.parallel = parallel_
     new_c.shorten_paths = shorten_paths_
@@ -84,14 +82,11 @@ def cli(
     pdb: bool,
 ):
     global b_func
-    global two_materials_
     global save_to_
     global parallel_
-    global parallel_ulm_
     global shorten_paths_
     global il_num_loads_
-    b_func = bridge_705(msl)
-    two_materials_ = two_materials
+    b_func = bridge_705(msl=msl, single_sections=two_materials)
     save_to_ = save_to
     parallel_ = parallel
     shorten_paths_ = shorten_paths
@@ -100,10 +95,15 @@ def cli(
     click.echo(f"Bridge: {b_func().name}")
     click.echo(f"ULS: {il_num_loads_}")
     click.echo(f"MSL: {msl}")
-    click.echo(f"Two materials: {two_materials_}")
+    click.echo(f"Two materials: {two_materials}")
     click.echo(f"Parallel: {parallel_}")
     click.echo(f"Save to: {save_to_}")
     click.echo(f"Shorten paths: {shorten_paths_}")
+
+    if two_materials:  # Sanity check.
+        assert len(b_func().sections) == 1
+    else:
+        assert len(b_func().sections) > 1
 
 
 ########
