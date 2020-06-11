@@ -1,11 +1,12 @@
 """Plot of individual vehicles."""
+
 from itertools import chain
 from typing import List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 from bridge_sim.model import Vehicle
-from lib.plot import plt
 from bridge_sim.util import kn_to_kg
 
 # Length and width of a wheel print in meters.
@@ -19,9 +20,15 @@ def topview_vehicle(
     ylim: Tuple[float, float] = None,
 ):
     """Plot a single "Vehicle" from a top view."""
+    if isinstance(vehicle.load, list) and isinstance(vehicle.load[0], list):
+        kn_per_wheel = vehicle.load
+    else:
+        print(vehicle.load_per_axle())
+        kn_per_wheel = [[kn / 2, kn / 2] for kn in vehicle.load_per_axle()]
+    kn_per_wheel = list(chain.from_iterable(kn_per_wheel))
+
     axle_y = 0
     wheel_index = 0
-    kn_per_wheel = list(chain.from_iterable(vehicle.kn_per_wheel()))
     for a_i, axle_delta in enumerate([0] + vehicle.axle_distances):
         # Determine wheel print dimensions for the current axle.
         if wheel_prints is not None:

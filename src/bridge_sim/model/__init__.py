@@ -1003,7 +1003,9 @@ class Vehicle:
         """Load for each axle."""
         if self._is_load_per_axle():
             return self.load
-        return [(self.load / self.num_axles) for _ in range(self.num_axles)]
+        result = [(self.load / self.num_axles) for _ in range(self.num_axles)]
+        assert isinstance(result[0], float)
+        return result
 
     def _cmap_norm(self, all_vehicles: List["Vehicle"], cmap, cmin=0, cmax=1):
         """A colormap and norm for coloring vehicles.

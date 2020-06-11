@@ -16,7 +16,7 @@ import click
 
 from bridge_sim.configs import opensees_default
 from bridge_sim.model import ResponseType
-from bridge_sim.vehicles import truck1
+from bridge_sim.vehicles import truck1, og_truck1
 from lib.validate import _truck1_x_pos
 from lib.make import paramselect
 from lib.make.plot import contour as contour_
@@ -155,7 +155,7 @@ def wheel_tracks():
 
 @info.command(help="Print and plot information on Truck 1.")
 def truck_1():
-    vehicle.wagen1_plot(c())
+    vehicle.comparison(c(), og_truck1, truck1)
     print_i(f"Truck 1 x positions: {_truck1_x_pos()}")
 
 
