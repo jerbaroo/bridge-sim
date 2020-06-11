@@ -256,7 +256,7 @@ def per_sensor_plots(
 
     # Calculate displacement with OpenSees via direct simulation.
     os_displacement = (
-            to_vehicles_direct(
+        to_vehicles_direct(
             c=c,
             vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -266,7 +266,7 @@ def per_sensor_plots(
                 for sensor_x, sensor_z in displa_sensor_xzs
             ],
         ).T
-            * 1000
+        * 1000
     )
     amin = min(amin, np.amin(os_displacement))
     amax = max(amax, np.amax(os_displacement))
@@ -378,7 +378,7 @@ def r2_plots(c: Config):
 
     # Displacement in OpenSees via direct simulation (measurement points).
     displa_os_meas = (
-            to_vehicles_direct(
+        to_vehicles_direct(
             c=c,
             vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
@@ -387,7 +387,7 @@ def r2_plots(c: Config):
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
         )
-            * 1000
+        * 1000
     )
 
     def get_os_meas(sensor_label: str, truck_x: float):

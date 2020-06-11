@@ -23,7 +23,7 @@ og_truck1 = Vehicle(
         [4600 * kg_to_kn, 4000 * kg_to_kn],
         [4350 * kg_to_kn, 3700 * kg_to_kn],
         [4050 * kg_to_kn, 3900 * kg_to_kn],
-        ],
+    ],
     axle_distances=[3.6, 1.32, 1.45],
     axle_width=2.5,
     # In dynamic test 'D1a' the speed was 20 kmph.
@@ -35,4 +35,3 @@ assert og_truck1.lane == 0
 assert og_truck1.init_x == 0
 
 __all__ = ["truck1"]
-
