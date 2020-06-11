@@ -1,3 +1,4 @@
+import bridge_sim.plot
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -16,7 +17,9 @@ def plot_uls(config: Config, indices=[0, 1, 10, 100, 1100, 1110, 1119]):
                 config, indices=[index], response_type=ResponseType.YTrans
             )
         )[0]
-        plot.top_view_bridge(config.bridge, edges=True, piers=True, units="m")
+        bridge_sim.plot.top_view_bridge(
+            config.bridge, edges=True, piers=True, units="m"
+        )
         responses.units = "mm"
         plot.contour_responses(config, responses)
         for point_load in point_loads[index]:

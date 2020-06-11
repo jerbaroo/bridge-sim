@@ -27,8 +27,7 @@ from bridge_sim.sim.model import SimParams
 from bridge_sim.sim.responses import load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
 from lib.plot import legend_marker_size, plt
-from lib.plot.geometry import top_view_bridge
-from lib.plot.responses import plot_contour_deck
+from bridge_sim.plot import contour_responses, top_view_bridge
 from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
 from bridge_sim.util import (
     print_i,
@@ -1463,7 +1462,7 @@ def axis_comparison(c: Config):
                 ),
             )
             top_view_bridge(c.bridge, piers=True, abutments=True)
-            plot_contour_deck(
+            contour_responses(
                 c=c, responses=fem_responses, ploads=loads, title=title,
             )
             plt.savefig(save(""))

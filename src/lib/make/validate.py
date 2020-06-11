@@ -53,7 +53,7 @@ def truck_1_time_series(c: Config):
     # Results from simulation.
     responses_truck1 = (
         to_traffic_array(
-            c=c,
+            config=c,
             traffic_array=traffic_array,
             response_type=ResponseType.YTrans,
             points=displa_points,
@@ -110,7 +110,7 @@ def truck_1_time_series(c: Config):
     # Results from simulation.
     responses_truck1 = (
         to_traffic_array(
-            c=c,
+            config=c,
             traffic_array=traffic_array,
             response_type=ResponseType.StrainXXB,
             points=strain_points,

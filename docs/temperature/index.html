@@ -25,20 +25,14 @@
 <a href="https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/">https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/</a></p>
 <p>Usage example of this module:</p>
 <pre><code>from datetime import datetime
-from bridge_sim import temperature
+from bridge_sim import sim, temperature
 
 # First load some weather data.
 weather = temperature.load("holly-springs")
 weather["temp"] = temperature.resize(temps_df["temp"], year=2019)
-weather = temperature.from_to_mins(
-    temp_df,
-    from_=datetime.strptime("01/05/19 00:00", "%d/%m/%y %H:%M"),
-    to=datetime.strptime("31/05/19 23:59", "%d/%m/%y %H:%M"),
-)
+responses_to_temp = sim.responses.to_temperature(
 
-# Then get the temperature effect and interpolate over signal.
-effect = temperature.effect(config, RT.StrainXXB, [Point(x=51)], weather)
-effect = util.apply(effect, some_signal)
+)
 </code></pre>
 <details class="source">
 <summary>
@@ -52,20 +46,14 @@ https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 Usage example of this module:
 
     from datetime import datetime
-    from bridge_sim import temperature
+    from bridge_sim import sim, temperature
 
     # First load some weather data.
     weather = temperature.load(&#34;holly-springs&#34;)
     weather[&#34;temp&#34;] = temperature.resize(temps_df[&#34;temp&#34;], year=2019)
-    weather = temperature.from_to_mins(
-        temp_df,
-        from_=datetime.strptime(&#34;01/05/19 00:00&#34;, &#34;%d/%m/%y %H:%M&#34;),
-        to=datetime.strptime(&#34;31/05/19 23:59&#34;, &#34;%d/%m/%y %H:%M&#34;),
-    )
+    responses_to_temp = sim.responses.to_temperature(
 
-    # Then get the temperature effect and interpolate over signal.
-    effect = temperature.effect(config, RT.StrainXXB, [Point(x=51)], weather)
-    effect = util.apply(effect, some_signal)
+    )
 
 &#34;&#34;&#34;
 
@@ -77,6 +65,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from lib.plot import plt
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
@@ -161,10 +150,10 @@ def load(
 
 
 def resize(
-        temps: List[float],
-        tmin: Optional[int] = None,
-        tmax: Optional[int] = None,
-        year: Optional[int] = None,
+    temps: List[float],
+    tmin: Optional[int] = None,
+    tmax: Optional[int] = None,
+    year: Optional[int] = None,
 ) -&gt; List[float]:
     &#34;&#34;&#34;Resize temperatures into a range.
 
@@ -270,6 +259,9 @@ def effect(
     &#34;&#34;&#34;Temperature effect at points for some weather data.
 
     The returned responses contain the post-processing necessary for strain.
+    Note that you should be using the same &#34;weather&#34; each time you use this
+    function, this is because the calculation of bridge deck top and bottom
+    temperatures will be different when calculated over a subset.
 
     Args:
         config: Config, simulation configuration object.
@@ -292,8 +284,12 @@ def effect(
         config=config, response_type=response_type, temp_deltas=(None, 1)
     )
     if response_type.is_strain():
-        uniform_responses = uniform_responses.add_temp_strain(config=config, temp_deltas=(1, None))
-        linear_responses = linear_responses.add_temp_strain(config=config, temp_deltas=(None, 1))
+        uniform_responses = uniform_responses.add_temp_strain(
+            config=config, temp_deltas=(1, None)
+        )
+        linear_responses = linear_responses.add_temp_strain(
+            config=config, temp_deltas=(None, 1)
+        )
     print_i(&#34;Loaded unit temperature responses&#34;)
 
     # Effect to unit temperature loading only at requested points.
@@ -367,7 +363,10 @@ def regress_and_errors(x, y):
     errors = []
     for x_, y_ in zip(x, y):
         errors.append(abs(y_ - lr.predict([[x_]])[0]))
-    return lr, np.array(errors)</code></pre>
+    return lr, np.array(errors)
+
+
+__all__ = [&#34;load&#34;, &#34;resize&#34;, &#34;effect&#34;, &#34;remove_daily&#34;, &#34;regress_and_errors&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -382,7 +381,10 @@ def regress_and_errors(x, y):
 </code></dt>
 <dd>
 <div class="desc"><p>Temperature effect at points for some weather data.</p>
-<p>The returned responses contain the post-processing necessary for strain.</p>
+<p>The returned responses contain the post-processing necessary for strain.
+Note that you should be using the same "weather" each time you use this
+function, this is because the calculation of bridge deck top and bottom
+temperatures will be different when calculated over a subset.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>config</code></strong></dt>
@@ -415,6 +417,9 @@ temperature at the bottom and top of the bridge deck.</dd>
     &#34;&#34;&#34;Temperature effect at points for some weather data.
 
     The returned responses contain the post-processing necessary for strain.
+    Note that you should be using the same &#34;weather&#34; each time you use this
+    function, this is because the calculation of bridge deck top and bottom
+    temperatures will be different when calculated over a subset.
 
     Args:
         config: Config, simulation configuration object.
@@ -437,8 +442,12 @@ temperature at the bottom and top of the bridge deck.</dd>
         config=config, response_type=response_type, temp_deltas=(None, 1)
     )
     if response_type.is_strain():
-        uniform_responses = uniform_responses.add_temp_strain(config=config, temp_deltas=(1, None))
-        linear_responses = linear_responses.add_temp_strain(config=config, temp_deltas=(None, 1))
+        uniform_responses = uniform_responses.add_temp_strain(
+            config=config, temp_deltas=(1, None)
+        )
+        linear_responses = linear_responses.add_temp_strain(
+            config=config, temp_deltas=(None, 1)
+        )
     print_i(&#34;Loaded unit temperature responses&#34;)
 
     # Effect to unit temperature loading only at requested points.
@@ -478,61 +487,6 @@ temperature at the bottom and top of the bridge deck.</dd>
     if d:
         return temps_uniform, temps_linear, uniform_responses + linear_responses
     return uniform_responses + linear_responses</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.temperature.from_to_mins"><code class="name flex">
-<span>def <span class="ident">from_to_mins</span></span>(<span>df: pandas.core.frame.DataFrame, from_: datetime.datetime, to: datetime.datetime) -> pandas.core.frame.DataFrame</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Minutely weather data interpolated into a range (inclusive).</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>df</code></strong></dt>
-<dd>weather data loaded with 'load'.</dd>
-<dt><strong><code>from_</code></strong></dt>
-<dd>datetime of the first minute in the range.</dd>
-<dt><strong><code>to</code></strong></dt>
-<dd>datetime of the last minute in the range.</dd>
-</dl>
-<p>Returns: a DataFrame with values interpolated in the given range.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def from_to_mins(df: pd.DataFrame, from_: datetime, to: datetime) -&gt; pd.DataFrame:
-    &#34;&#34;&#34;Minutely weather data interpolated into a range (inclusive).
-
-    Args:
-        df: weather data loaded with &#39;load&#39;.
-        from_: datetime of the first minute in the range.
-        to: datetime of the last minute in the range.
-
-    Returns: a DataFrame with values interpolated in the given range.
-
-    &#34;&#34;&#34;
-    # Create times and temperatures from given data.
-    dates, temps, solar = df[&#34;datetime&#34;], df[&#34;temp&#34;], df[&#34;solar&#34;]
-    times = dates.apply(lambda d: datetime.timestamp(d))
-    # Create times that are expected to return.
-    result_dates, result_times = [], []
-    curr = from_
-    while curr &lt;= to:
-        result_dates.append(curr)
-        result_times.append(datetime.timestamp(curr))
-        curr += timedelta(minutes=1)
-    # Interpolate to get results.
-    result_temps = interp1d(times, temps, fill_value=&#34;extrapolate&#34;)(result_times)
-    result_solar = interp1d(times, solar, fill_value=&#34;extrapolate&#34;)(result_times)
-    # Pack it into a DataFrame.
-    df = pd.DataFrame(
-        np.array([result_dates, result_temps, result_solar]).T,
-        columns=[&#34;datetime&#34;, &#34;temp&#34;, &#34;solar&#34;],
-    )
-    # Sort.
-    df = df.sort_values(by=[&#34;datetime&#34;])
-    df[&#34;temp&#34;] = pd.to_numeric(df[&#34;temp&#34;])
-    df[&#34;solar&#34;] = pd.to_numeric(df[&#34;solar&#34;])
-    return df</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.temperature.load"><code class="name flex">
@@ -606,41 +560,6 @@ ignore (incase of extreme values).</dd>
     # Save to file and return that DataFrame.
     df.to_csv(saved_path)
     return load(name=name)</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.temperature.parse_line"><code class="name flex">
-<span>def <span class="ident">parse_line</span></span>(<span>line: str)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Parse a line of NOAA weather data.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>line</code></strong></dt>
-<dd>a line of NOAA weather data.</dd>
-</dl>
-<p>Returns: a tuple of (datetime, air temperature, solar radiation).</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse_line(line: str):
-    &#34;&#34;&#34;Parse a line of NOAA weather data.
-
-    Args:
-        line: a line of NOAA weather data.
-
-    Returns: a tuple of (datetime, air temperature, solar radiation).
-
-    &#34;&#34;&#34;
-    # 23803 20190101 0005 20181231 1805      3  -89.43   34.82    12.4
-    # 0.0      0 0    10.9 C 0    88 0 -99.000 -9999.0  1115 0   0.79 0
-    line = line.split()
-    ds = line[1]  # Date string.
-    ts = line[2]  # Time string.
-    year, mon, day, hr, mn = (ds[0:4], ds[4:6], ds[6:8], ts[0:2], ts[2:4])
-    # 2011-11-04T00:05
-    dt = datetime.fromisoformat(f&#34;{year}-{mon}-{day}T{hr}:{mn}&#34;)
-    return [dt, float(line[-15]), float(line[-13])]</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.temperature.regress_and_errors"><code class="name flex">
@@ -728,10 +647,10 @@ need to provide the tmin and tmax values.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def resize(
-        temps: List[float],
-        tmin: Optional[int] = None,
-        tmax: Optional[int] = None,
-        year: Optional[int] = None,
+    temps: List[float],
+    tmin: Optional[int] = None,
+    tmax: Optional[int] = None,
+    year: Optional[int] = None,
 ) -&gt; List[float]:
     &#34;&#34;&#34;Resize temperatures into a range.
 
@@ -760,53 +679,6 @@ need to provide the tmin and tmax values.</dd>
     )(temps)</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.temperature.temp_profile"><code class="name flex">
-<span>def <span class="ident">temp_profile</span></span>(<span>temps: List[float], solar: List[float])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Bottom and top bridge deck temperatures for given weather data.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>temps</code></strong></dt>
-<dd>list of air temperature.</dd>
-<dt><strong><code>solar</code></strong></dt>
-<dd>list of solar radiation.</dd>
-</dl>
-<p>Returns: tuple of two lists, bottom and top bridge deck temperatures.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def temp_profile(temps: List[float], solar: List[float]):
-    &#34;&#34;&#34;Bottom and top bridge deck temperatures for given weather data.
-
-    Args:
-        temps: list of air temperature.
-        solar: list of solar radiation.
-
-    Returns: tuple of two lists, bottom and top bridge deck temperatures.
-
-    &#34;&#34;&#34;
-    bd = 0.001
-
-    temps_b = [temps[0]]
-    for i, temp_a in enumerate(temps[1:]):
-        temps_b.append((1 - bd) * temps_b[i - 1] + bd * temp_a)
-
-    sn = 0.008
-    ss = 0.0001
-    temps_s = [temps[0]]
-
-    for i, (temp_a, solar) in enumerate(zip(temps[1:], solar[1:])):
-        if False:
-            recent_max = np.max(temps[max(0, recent_start) : i])
-            temps_s.append((1 - sd) * temps_s[i - 1] + sd * recent_max)
-        else:
-            temps_s.append((1 - sn - ss) * temps_s[i - 1] + sn * temp_a + ss * solar)
-
-    return np.array(temps_b), np.array(temps_s)</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -824,15 +696,12 @@ need to provide the tmin and tmax values.</dd>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="bridge_sim.temperature.effect" href="#bridge_sim.temperature.effect">effect</a></code></li>
-<li><code><a title="bridge_sim.temperature.from_to_mins" href="#bridge_sim.temperature.from_to_mins">from_to_mins</a></code></li>
 <li><code><a title="bridge_sim.temperature.load" href="#bridge_sim.temperature.load">load</a></code></li>
-<li><code><a title="bridge_sim.temperature.parse_line" href="#bridge_sim.temperature.parse_line">parse_line</a></code></li>
 <li><code><a title="bridge_sim.temperature.regress_and_errors" href="#bridge_sim.temperature.regress_and_errors">regress_and_errors</a></code></li>
 <li><code><a title="bridge_sim.temperature.remove_daily" href="#bridge_sim.temperature.remove_daily">remove_daily</a></code></li>
 <li><code><a title="bridge_sim.temperature.resize" href="#bridge_sim.temperature.resize">resize</a></code></li>
-<li><code><a title="bridge_sim.temperature.temp_profile" href="#bridge_sim.temperature.temp_profile">temp_profile</a></code></li>
 </ul>
 </li>
 </ul>

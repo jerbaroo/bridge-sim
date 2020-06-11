@@ -1,5 +1,6 @@
 import os
 
+import bridge_sim.plot
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -9,8 +10,7 @@ from bridge_sim import sim, plot
 from bridge_sim.model import Config, ResponseType, PointLoad, PierSettlement
 from bridge_sim.util import safe_str, project_dir, print_w, print_i
 from lib.plot import axis_cmap_r, plt
-from lib.plot.geometry import top_view_bridge
-from lib.plot.responses import plot_contour_deck
+from bridge_sim.plot import contour_responses, top_view_bridge
 
 
 def unit_loads(c: Config, scatter: bool):
@@ -63,7 +63,7 @@ def unit_loads(c: Config, scatter: bool):
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
             top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
-            plot_contour_deck(
+            contour_responses(
                 config=c,
                 responses=os_responses,
                 point_loads=point_loads,
@@ -81,7 +81,7 @@ def unit_loads(c: Config, scatter: bool):
             # Finally create label/title the Axis plot.
             if label is not None:
                 # First plot and clear, just to have the same colorbar.
-                plot_contour_deck(
+                contour_responses(
                     config=c, responses=os_responses, cmap=axis_cmap_r, levels=levels
                 )
                 plt.cla()
@@ -161,7 +161,7 @@ def pier_settlement(c: Config):
             # Plot and save the image. If plotting stresses use Axis values for
             # colour normalization.
             top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
-            plot_contour_deck(
+            contour_responses(
                 config=c,
                 cmap=axis_cmap_r,
                 responses=sim_responses,
@@ -179,7 +179,7 @@ def pier_settlement(c: Config):
             )
             plt.close()
             # First plot and clear, just to have the same colorbar.
-            plot_contour_deck(
+            contour_responses(
                 config=c, responses=sim_responses, cmap=axis_cmap_r, levels=levels
             )
             plt.cla()
@@ -288,7 +288,9 @@ def temperature_load(c: Config):
             else:
                 sim_responses = sim_responses.map(lambda r: r * 1e3)
                 sim_responses.units = "mm"
-            plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True, units="m")
+            bridge_sim.plot.top_view_bridge(
+                bridge=c.bridge, abutments=True, piers=True, units="m"
+            )
             plot.contour_responses(
                 config=c,
                 responses=sim_responses,
@@ -319,7 +321,7 @@ def temperature_load(c: Config):
             )
             plt.cla()
             # Then imshow the axis image.
-            plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
+            bridge_sim.plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
             plt.imshow(
                 mpl.image.imread(
                     os.path.join(

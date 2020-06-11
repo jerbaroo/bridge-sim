@@ -32,10 +32,10 @@ from bridge_sim.util import kg_to_kn
 
 truck1 = Vehicle(
     kn=[
-        (5050 * kg_to_kn, 5300 * kg_to_kn),
-        (4600 * kg_to_kn, 4000 * kg_to_kn),
-        (4350 * kg_to_kn, 3700 * kg_to_kn),
-        (4050 * kg_to_kn, 3900 * kg_to_kn),
+        ((5050 + 5300) * kg_to_kn),
+        ((4600 + 4000) * kg_to_kn),
+        ((4350 + 3700) * kg_to_kn),
+        ((4050 + 3900) * kg_to_kn),
     ],
     axle_distances=[3.6, 1.32, 1.45],
     axle_width=2.5,
@@ -44,9 +44,22 @@ truck1 = Vehicle(
 )
 &#34;&#34;&#34;Truck 1 from the experimental campaign.&#34;&#34;&#34;
 
-assert truck1.lane == 0
-assert truck1.init_x_frac == 0
+og_truck1 = Vehicle(
+    kn=[
+        [5050 * kg_to_kn, 5300 * kg_to_kn],
+        [4600 * kg_to_kn, 4000 * kg_to_kn],
+        [4350 * kg_to_kn, 3700 * kg_to_kn],
+        [4050 * kg_to_kn, 3900 * kg_to_kn],
+    ],
+    axle_distances=[3.6, 1.32, 1.45],
+    axle_width=2.5,
+    # In dynamic test &#39;D1a&#39; the speed was 20 kmph.
+    kmph=20,
+)
+&#34;&#34;&#34;Truck 1 from the experimental campaign with a load per wheel.&#34;&#34;&#34;
 
+assert og_truck1.lane == 0
+assert og_truck1.init_x == 0
 
 __all__ = [&#34;truck1&#34;]</code></pre>
 </details>

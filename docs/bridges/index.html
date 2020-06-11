@@ -127,7 +127,7 @@ __all__ = [&#34;bridge_705&#34;, &#34;bridge_narrow&#34;, &#34;bridge_wide&#34;]
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.bridges.bridge_705"><code class="name flex">
-<span>def <span class="ident">bridge_705</span></span>(<span>msl: float)</span>
+<span>def <span class="ident">bridge_705</span></span>(<span>msl: float, single_sections: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>The bridge 705 in Amsterdam.</p>
@@ -140,7 +140,7 @@ __all__ = [&#34;bridge_705&#34;, &#34;bridge_narrow&#34;, &#34;bridge_wide&#34;]
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def bridge_705(msl: float):
+<pre><code class="python">def bridge_705(msl: float, single_sections: bool = False):
     &#34;&#34;&#34;The bridge 705 in Amsterdam.
 
     Args:
@@ -155,6 +155,7 @@ __all__ = [&#34;bridge_705&#34;, &#34;bridge_narrow&#34;, &#34;bridge_wide&#34;]
         materials=_bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,
+        single_sections=_bridge_705_single_sections() if single_sections else None,
     )</code></pre>
 </details>
 </dd>

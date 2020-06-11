@@ -536,7 +536,7 @@ class Responses:
     def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
         &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         &#34;&#34;&#34;
         assert point.y == 0
@@ -547,7 +547,7 @@ class Responses:
     def at_decks(self, points: List[Point]) -&gt; List[float]:
         &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         &#34;&#34;&#34;
         self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
@@ -580,68 +580,6 @@ class Responses:
             # result = self.grid_interp2d([_x], [_z])[0]
             # print(f&#34;x = {_x}, z = {_z}, result = {result}&#34;)
             return result
-        # Else (old method), needs update.
-        assert False
-        # _x, _z = x, z
-
-        x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
-        z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
-        z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
-        xs = [x_lo, x_lo, x_hi, x_hi]
-        zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
-        vs = [
-            bridge_sim.sim.responses.responses[0][xs[i]][0][zs[i]]
-            for i in range(len(xs))
-        ]
-        # In the case of strain collection in the 3D OpenSees simulation the
-        # values collected are not at the nodes but at the integration points.
-        # Thus at the perimeter of the bridge no values will be collected and
-        # extrapolation is necessary.
-        if np.isclose(x_lo, x_hi):
-            if np.isclose(z_lo_x_lo, z_hi_x_lo):
-                # print(&#34;interp1d, x == x, z == z&#34;)
-                return vs[0]
-            # print(&#34;interp1d, x == x&#34;)
-            return interp1d(
-                [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value=&#34;extrapolate&#34;
-            )(z)
-        if np.isclose(z_lo_x_lo, z_hi_x_lo):
-            # print(&#34;interp1d, z == z&#34;)
-            return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value=&#34;extrapolate&#34;)(x)
-        # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
-        # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
-        # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
-        # print(x, z)
-        # print(xs)
-        # print(self.zs[x_lo][0])
-        # print(self.zs[x_hi][0])
-        # print(zs)
-        # print(xs)
-        # print(zs)
-        # print(vs)
-        # print(&#34;interp2d&#34;)
-        return interp2d(x=xs, y=zs, z=vs)(x, z)
-
-    def _lo_hi(self, a: List[float], b: float) -&gt; Tuple[int, int]:
-        &#34;&#34;&#34;Indices of the z positions of sensors either side of z.
-
-        TODO: Assert sorted.
-        TODO: Test this.
-        TODO: Switch to numpy.searchsorted for performance.
-
-        &#34;&#34;&#34;
-        # print(f&#34;b = {b}&#34;)
-        # If only one point, return that.
-        if len(a) == 1:
-            return a[0], a[0]
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(a)):
-            if np.isclose(a[i], b):
-                return a[i], a[i]
-            if a[i] &gt; b and i &gt; 0:
-                return a[i - 1], a[i]
-        # Else the last point.
-        return a[i], a[i]
 
     def _at_deck_snap(self, x: float, z: float):
         &#34;&#34;&#34;Deck response from nearest available sensor.&#34;&#34;&#34;
@@ -707,89 +645,7 @@ def bridge_3d_elements(
         all_elements.append(pier_element)
     assert isinstance(all_elements[0], Shell)
     assert isinstance(all_elements[-1], Shell)
-    return all_elements
-
-
-class ManyResponses:
-    &#34;&#34;&#34;Position indexed responses (one response type) for multiple simulations.&#34;&#34;&#34;
-
-    def __init__(
-        self,
-        c: Config,
-        response_type: ResponseType,
-        expt_params: List[SimParams],
-        fem_runner: &#34;FEMRunner&#34;,
-        expt_responses: List[SimResponses],
-    ):
-        self.c = c
-        self.response_type = response_type
-        self.expt_params = expt_params
-        self.fem_runner = fem_runner
-        self.expt_responses = expt_responses
-        self.num_expts = len(expt_responses)
-
-    # def file_paths(self):
-    #     &#34;&#34;&#34;A unique file path for each simulation&#39;s fem.&#34;&#34;&#34;
-    #     return [fem_responses_path(
-    #             self.c, fem_params, self.response_type, self.fem_runner.name)
-    #         for fem_params in self.expt_params.fem_params]
-
-    def sim_response(
-        self,
-        expt_frac: float,
-        x_frac: float,
-        z_frac: float,
-        y_frac: float = 1,
-        time_index: int = 0,
-    ) -&gt; &#34;Response&#34;:
-        &#34;&#34;&#34;The response at a position for a simulation.
-
-        Args:
-            expt_frac: float, fraction of experiments in [0 1].
-            x_frac: float, response position on x-axis in [0 1].
-            y_frac: float, response position on y-axis in [0 1].
-            z_frac: float, response position on z-axis in [0 1].
-            time_index: float, response position on z-axis in [0 1].
-
-        &#34;&#34;&#34;
-        assert 0 &lt;= expt_frac &lt;= 1
-        assert 0 &lt;= x_frac &lt;= 1
-
-        # If an experiment index matches exactly, or not interpolating.
-        # if expt_ind == int(expt_ind) or not interp_sim:
-
-        expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        return self.expt_responses[int(np.rint(expt_ind))].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
-        )
-
-        assert interp_sim
-        # Else interpolate fem between two experiment indices.
-        expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
-        expt_lo_frac, expt_hi_frac = np.interp(
-            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
-        )
-        # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
-        # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
-        response_lo = self.expt_responses[expt_ind_lo].at(
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-            interpolate=interp_response,
-        )
-        response_hi = self.expt_responses[expt_ind_hi].at(
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-            interpolate=interp_response,
-        )
-        response = np.interp(
-            expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
-        )
-        # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
-        return response</code></pre>
+    return all_elements</code></pre>
 </details>
 </section>
 <section>
@@ -800,7 +656,7 @@ class ManyResponses:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11842e950>, all_pier_elements: <function NewType.<locals>.new_type at 0x11842eb00>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11fa91790>, all_pier_elements: <function NewType.<locals>.new_type at 0x11fa91940>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -821,7 +677,7 @@ class ManyResponses:
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11842e0e0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11842e320>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11fa90ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11fa91160>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1047,186 +903,6 @@ class ManyResponses:
 <pre><code class="python">def new_s_id(self):
     self.next_s_id += 1
     return self.next_s_id - 1</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="bridge_sim.sim.model.ManyResponses"><code class="flex name class">
-<span>class <span class="ident">ManyResponses</span></span>
-<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="#bridge_sim.sim.model.SimParams">SimParams</a>], fem_runner: FEMRunner, expt_responses: List[<a title="bridge_sim.sim.model.SimResponses" href="#bridge_sim.sim.model.SimResponses">SimResponses</a>])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Position indexed responses (one response type) for multiple simulations.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ManyResponses:
-    &#34;&#34;&#34;Position indexed responses (one response type) for multiple simulations.&#34;&#34;&#34;
-
-    def __init__(
-        self,
-        c: Config,
-        response_type: ResponseType,
-        expt_params: List[SimParams],
-        fem_runner: &#34;FEMRunner&#34;,
-        expt_responses: List[SimResponses],
-    ):
-        self.c = c
-        self.response_type = response_type
-        self.expt_params = expt_params
-        self.fem_runner = fem_runner
-        self.expt_responses = expt_responses
-        self.num_expts = len(expt_responses)
-
-    # def file_paths(self):
-    #     &#34;&#34;&#34;A unique file path for each simulation&#39;s fem.&#34;&#34;&#34;
-    #     return [fem_responses_path(
-    #             self.c, fem_params, self.response_type, self.fem_runner.name)
-    #         for fem_params in self.expt_params.fem_params]
-
-    def sim_response(
-        self,
-        expt_frac: float,
-        x_frac: float,
-        z_frac: float,
-        y_frac: float = 1,
-        time_index: int = 0,
-    ) -&gt; &#34;Response&#34;:
-        &#34;&#34;&#34;The response at a position for a simulation.
-
-        Args:
-            expt_frac: float, fraction of experiments in [0 1].
-            x_frac: float, response position on x-axis in [0 1].
-            y_frac: float, response position on y-axis in [0 1].
-            z_frac: float, response position on z-axis in [0 1].
-            time_index: float, response position on z-axis in [0 1].
-
-        &#34;&#34;&#34;
-        assert 0 &lt;= expt_frac &lt;= 1
-        assert 0 &lt;= x_frac &lt;= 1
-
-        # If an experiment index matches exactly, or not interpolating.
-        # if expt_ind == int(expt_ind) or not interp_sim:
-
-        expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-        return self.expt_responses[int(np.rint(expt_ind))].at(
-            x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
-        )
-
-        assert interp_sim
-        # Else interpolate fem between two experiment indices.
-        expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
-        expt_lo_frac, expt_hi_frac = np.interp(
-            [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
-        )
-        # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
-        # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
-        response_lo = self.expt_responses[expt_ind_lo].at(
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-            interpolate=interp_response,
-        )
-        response_hi = self.expt_responses[expt_ind_hi].at(
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-            interpolate=interp_response,
-        )
-        response = np.interp(
-            expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
-        )
-        # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
-        return response</code></pre>
-</details>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="bridge_sim.sim.responses.PSResponses" href="../responses/index.html#bridge_sim.sim.responses.PSResponses">PSResponses</a></li>
-<li><a title="bridge_sim.sim.responses.ULResponses" href="../responses/index.html#bridge_sim.sim.responses.ULResponses">ULResponses</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="bridge_sim.sim.model.ManyResponses.sim_response"><code class="name flex">
-<span>def <span class="ident">sim_response</span></span>(<span>self, expt_frac: float, x_frac: float, z_frac: float, y_frac: float = 1, time_index: int = 0) -> 'Response'</span>
-</code></dt>
-<dd>
-<div class="desc"><p>The response at a position for a simulation.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>expt_frac</code></strong></dt>
-<dd>float, fraction of experiments in [0 1].</dd>
-<dt><strong><code>x_frac</code></strong></dt>
-<dd>float, response position on x-axis in [0 1].</dd>
-<dt><strong><code>y_frac</code></strong></dt>
-<dd>float, response position on y-axis in [0 1].</dd>
-<dt><strong><code>z_frac</code></strong></dt>
-<dd>float, response position on z-axis in [0 1].</dd>
-<dt><strong><code>time_index</code></strong></dt>
-<dd>float, response position on z-axis in [0 1].</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sim_response(
-    self,
-    expt_frac: float,
-    x_frac: float,
-    z_frac: float,
-    y_frac: float = 1,
-    time_index: int = 0,
-) -&gt; &#34;Response&#34;:
-    &#34;&#34;&#34;The response at a position for a simulation.
-
-    Args:
-        expt_frac: float, fraction of experiments in [0 1].
-        x_frac: float, response position on x-axis in [0 1].
-        y_frac: float, response position on y-axis in [0 1].
-        z_frac: float, response position on z-axis in [0 1].
-        time_index: float, response position on z-axis in [0 1].
-
-    &#34;&#34;&#34;
-    assert 0 &lt;= expt_frac &lt;= 1
-    assert 0 &lt;= x_frac &lt;= 1
-
-    # If an experiment index matches exactly, or not interpolating.
-    # if expt_ind == int(expt_ind) or not interp_sim:
-
-    expt_ind = np.interp(expt_frac, [0, 1], [0, self.num_expts - 1])
-    return self.expt_responses[int(np.rint(expt_ind))].at(
-        x_frac=x_frac, y_frac=y_frac, z_frac=z_frac, time_index=time_index
-    )
-
-    assert interp_sim
-    # Else interpolate fem between two experiment indices.
-    expt_ind_lo, expt_ind_hi = int(expt_ind), int(expt_ind) + 1
-    expt_lo_frac, expt_hi_frac = np.interp(
-        [expt_ind_lo, expt_ind_hi], [0, self.num_expts - 1], [0, 1]
-    )
-    # print_w(f&#34;Interpolating between loads at indices {expt_ind_lo} &amp; {expt_ind_hi}&#34;)
-    # print_w(f&#34;Interpolating between loads at {expt_lo_frac} &amp; {expt_hi_frac}, real = {expt_frac}&#34;)
-    response_lo = self.expt_responses[expt_ind_lo].at(
-        x_frac=x_frac,
-        y_frac=y_frac,
-        z_frac=z_frac,
-        time_index=time_index,
-        interpolate=interp_response,
-    )
-    response_hi = self.expt_responses[expt_ind_hi].at(
-        x_frac=x_frac,
-        y_frac=y_frac,
-        z_frac=z_frac,
-        time_index=time_index,
-        interpolate=interp_response,
-    )
-    response = np.interp(
-        expt_frac, [expt_lo_frac, expt_hi_frac], [response_lo, response_hi]
-    )
-    # print(f&#34;response = {response}, response_lo = {response_lo}, response_hi = {response_hi}&#34;)
-    return response</code></pre>
 </details>
 </dd>
 </dl>
@@ -1515,7 +1191,7 @@ class ManyResponses:
     def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
         &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         &#34;&#34;&#34;
         assert point.y == 0
@@ -1526,7 +1202,7 @@ class ManyResponses:
     def at_decks(self, points: List[Point]) -&gt; List[float]:
         &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
 
-        NOTE: Interpolation cannot exptrapolate to points outside known data.
+        NOTE: Interpolation cannot extrapolate to points outside known data.
 
         &#34;&#34;&#34;
         self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
@@ -1559,68 +1235,6 @@ class ManyResponses:
             # result = self.grid_interp2d([_x], [_z])[0]
             # print(f&#34;x = {_x}, z = {_z}, result = {result}&#34;)
             return result
-        # Else (old method), needs update.
-        assert False
-        # _x, _z = x, z
-
-        x_lo, x_hi = self._lo_hi(a=self.deck_xs, b=x)
-        z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
-        z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
-        xs = [x_lo, x_lo, x_hi, x_hi]
-        zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
-        vs = [
-            bridge_sim.sim.responses.responses[0][xs[i]][0][zs[i]]
-            for i in range(len(xs))
-        ]
-        # In the case of strain collection in the 3D OpenSees simulation the
-        # values collected are not at the nodes but at the integration points.
-        # Thus at the perimeter of the bridge no values will be collected and
-        # extrapolation is necessary.
-        if np.isclose(x_lo, x_hi):
-            if np.isclose(z_lo_x_lo, z_hi_x_lo):
-                # print(&#34;interp1d, x == x, z == z&#34;)
-                return vs[0]
-            # print(&#34;interp1d, x == x&#34;)
-            return interp1d(
-                [z_lo_x_lo, z_hi_x_lo], [vs[0], vs[1]], fill_value=&#34;extrapolate&#34;
-            )(z)
-        if np.isclose(z_lo_x_lo, z_hi_x_lo):
-            # print(&#34;interp1d, z == z&#34;)
-            return interp1d([x_lo, x_hi], [vs[0], vs[2]], fill_value=&#34;extrapolate&#34;)(x)
-        # z_lo_x_lo, z_hi_x_lo = self._lo_hi(a=self.zs[x_lo][0], b=z)
-        # z_lo_x_hi, z_hi_x_hi = self._lo_hi(a=self.zs[x_hi][0], b=z)
-        # zs = [z_lo_x_lo, z_hi_x_lo, z_lo_x_hi, z_hi_x_hi]
-        # print(x, z)
-        # print(xs)
-        # print(self.zs[x_lo][0])
-        # print(self.zs[x_hi][0])
-        # print(zs)
-        # print(xs)
-        # print(zs)
-        # print(vs)
-        # print(&#34;interp2d&#34;)
-        return interp2d(x=xs, y=zs, z=vs)(x, z)
-
-    def _lo_hi(self, a: List[float], b: float) -&gt; Tuple[int, int]:
-        &#34;&#34;&#34;Indices of the z positions of sensors either side of z.
-
-        TODO: Assert sorted.
-        TODO: Test this.
-        TODO: Switch to numpy.searchsorted for performance.
-
-        &#34;&#34;&#34;
-        # print(f&#34;b = {b}&#34;)
-        # If only one point, return that.
-        if len(a) == 1:
-            return a[0], a[0]
-        # Points are sorted, so find the first equal or greater.
-        for i in range(len(a)):
-            if np.isclose(a[i], b):
-                return a[i], a[i]
-            if a[i] &gt; b and i &gt; 0:
-                return a[i - 1], a[i]
-        # Else the last point.
-        return a[i], a[i]
 
     def _at_deck_snap(self, x: float, z: float):
         &#34;&#34;&#34;Deck response from nearest available sensor.&#34;&#34;&#34;
@@ -1691,7 +1305,7 @@ class ManyResponses:
 </code></dt>
 <dd>
 <div class="desc"><p>Response at the deck (y = 0) with optional interpolation.</p>
-<p>NOTE: Interpolation cannot exptrapolate to points outside known data.</p></div>
+<p>NOTE: Interpolation cannot extrapolate to points outside known data.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1699,7 +1313,7 @@ class ManyResponses:
 <pre><code class="python">def at_deck(self, point: Point, interp: bool, grid_interp: bool = True):
     &#34;&#34;&#34;Response at the deck (y = 0) with optional interpolation.
 
-    NOTE: Interpolation cannot exptrapolate to points outside known data.
+    NOTE: Interpolation cannot extrapolate to points outside known data.
 
     &#34;&#34;&#34;
     assert point.y == 0
@@ -1713,7 +1327,7 @@ class ManyResponses:
 </code></dt>
 <dd>
 <div class="desc"><p>Like 'at_deck' with grid interpolation, but more efficient for many points.</p>
-<p>NOTE: Interpolation cannot exptrapolate to points outside known data.</p></div>
+<p>NOTE: Interpolation cannot extrapolate to points outside known data.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1721,7 +1335,7 @@ class ManyResponses:
 <pre><code class="python">def at_decks(self, points: List[Point]) -&gt; List[float]:
     &#34;&#34;&#34;Like &#39;at_deck&#39; with grid interpolation, but more efficient for many points.
 
-    NOTE: Interpolation cannot exptrapolate to points outside known data.
+    NOTE: Interpolation cannot extrapolate to points outside known data.
 
     &#34;&#34;&#34;
     self._at_deck_interp(0, 0)  # Ensure the grid of points is calculated.
@@ -1897,7 +1511,7 @@ class ManyResponses:
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11843b560>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11fa901f0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>
@@ -2455,12 +2069,6 @@ currently assumed that a simulation saves all output files.</p></div>
 <li><code><a title="bridge_sim.sim.model.BuildContext.get_shell" href="#bridge_sim.sim.model.BuildContext.get_shell">get_shell</a></code></li>
 <li><code><a title="bridge_sim.sim.model.BuildContext.new_n_id" href="#bridge_sim.sim.model.BuildContext.new_n_id">new_n_id</a></code></li>
 <li><code><a title="bridge_sim.sim.model.BuildContext.new_s_id" href="#bridge_sim.sim.model.BuildContext.new_s_id">new_s_id</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="bridge_sim.sim.model.ManyResponses" href="#bridge_sim.sim.model.ManyResponses">ManyResponses</a></code></h4>
-<ul class="">
-<li><code><a title="bridge_sim.sim.model.ManyResponses.sim_response" href="#bridge_sim.sim.model.ManyResponses.sim_response">sim_response</a></code></li>
 </ul>
 </li>
 <li>

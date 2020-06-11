@@ -42,12 +42,21 @@ from timeit import default_timer as timer
 from typing import Callable, Dict, List, TypeVar, Optional, Tuple
 
 import dill
+import numpy as np
 from pathos.multiprocessing import Pool
+from multiprocessing import shared_memory
 
-from bridge_sim.model import Bridge, Config, ResponseType
+from bridge_sim.model import (
+    Bridge,
+    Config,
+    ResponseType,
+    PointLoad,
+    PierSettlement,
+    Point,
+)
 from bridge_sim.sim.model import SimParams, SimResponses
 from bridge_sim.sim.util import _responses_path
-from bridge_sim.util import print_d, print_i, safe_str, shorten_path
+from bridge_sim.util import print_d, print_i, safe_str, shorten_path, print_w
 
 # Print debug information for this file.
 
@@ -60,7 +69,7 @@ Parsed = TypeVar(&#34;Parsed&#34;)
 class FEMRunner:
     &#34;&#34;&#34;An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading fem you probably want the
+    NOTE: For running simulations and loading responses you probably want the
     higher-level API in &#39;bridge_sim.sim.responses&#39;.
 
     Args:
@@ -73,18 +82,16 @@ class FEMRunner:
         self,
         c: &#34;Config&#34;,
         name: str,
-        exe_path: str,
         supported_response_types: Callable[[Bridge], List[ResponseType]],
         build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
         run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
         parse: Callable[[Config, List[SimParams], FEMRunner], Parsed],
         convert: Callable[
-            [Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]
+            [Config, Parsed], Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]
         ],
     ):
         self.c = c
         self.name = name
-        self.exe_path = exe_path
         self.supported_response_types = supported_response_types
         self._build = build
         self._run = run
@@ -109,7 +116,7 @@ class FEMRunner:
         &#34;&#34;&#34;
         # Building.
         start = timer()
-        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
         print_i(
             f&#34;FEMRunner: built {self.name} model file(s) in&#34;
             + f&#34; {timer() - start:.2f}s&#34;
@@ -122,13 +129,15 @@ class FEMRunner:
             print_i(
                 f&#34;FEMRunner: ran {self.name}&#34;
                 + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
-                + f&#34; simulation in {timer() - start:.2f}s&#34;
+                + f&#34; simulation in {timer() - start:.2f} s&#34;
             )
 
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(f&#34;FEMRunner: parsed all responses in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+        print_i(
+            f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
+        )
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
@@ -140,10 +149,7 @@ class FEMRunner:
             expt_params=expt_params,
             parsed_expt_responses=parsed_expt_responses,
         )
-        print_i(
-            f&#34;FEMRunner: converted all fem to [Response] in&#34;
-            + f&#34; {timer() - start:.2f}s&#34;
-        )
+        print_i(f&#34;FEMRunner: converted to [Response] in&#34; + f&#34; {timer() - start:.2f} s&#34;)
         if return_converted:
             return converted_expt_responses
         print(converted_expt_responses[0].keys())
@@ -166,9 +172,8 @@ class FEMRunner:
                 start = timer()
                 fem_responses.save()
                 print_i(
-                    f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
-                    + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
-                    + f&#34;({response_type})&#34;
+                    f&#34;FEMRunner: saved simulation {sim_ind + 1} Responses&#34;
+                    + f&#34; ({response_type}) in {timer() - start:.2f} s&#34;
                 )
 
     def sim_model_path(
@@ -180,11 +185,12 @@ class FEMRunner:
     ) -&gt; str:
         &#34;&#34;&#34;Deterministic path for a FE model file.
 
-        :param sim_params: simulation parameters.
-        :param ext: extension of the output file without the dot.
-        :param dirname: directory name of output file. Defaults to FEMRunner.name.
-        :param append: append to the filename (before the extension).
-        :return: path for the output file.
+        Args:
+            sim_params: simulation parameters.
+            ext: filename extension without the dot.
+            dirname: directory name, defaults to self.name.
+            append: append to the filename (before the extension).
+
         &#34;&#34;&#34;
         param_str = sim_params.id_str()
         append = append if len(append) == 0 else f&#34;-{append}&#34;
@@ -336,11 +342,199 @@ def load_expt_responses(
     else:
         deque(map(process, indices_and_params), maxlen=0)
     # Return after generating results if requested...
-    if run_only:
-        return
-    # ...otherwise yield all of the results.
-    for index_params in indices_and_params:
-        yield process(index_params, _run_only=False)</code></pre>
+    if not run_only:
+        for index_params in indices_and_params:
+            yield process(index_params, _run_only=False)
+
+
+def pier_settlement(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit pier settlement simulation responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(
+                pier_settlement=[
+                    PierSettlement(pier=pier, settlement=config.unit_pier_settlement)
+                ]
+            )
+            for pier in range(len(config.bridge.supports))
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )
+
+
+def ulm_xzs(config: Config):
+    &#34;&#34;&#34;Axle positions for unit load simulations.&#34;&#34;&#34;
+    return [
+        (x, z)
+        for z, x in itertools.product(
+            config.bridge.axle_track_zs(), config.bridge.wheel_track_xs(config),
+        )
+    ]
+
+
+def ulm_point_loads(config: Config):
+    &#34;&#34;&#34;Point loads for each unit point-load simulation.&#34;&#34;&#34;
+    half_axle = config.axle_width / 2
+    return [
+        [
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+        ]
+        for x, z in ulm_xzs(config)
+    ]
+
+
+def point_load(
+    config: Config,
+    indices: Optional[List[int]] = None,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit pier point-load simulations responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        indices: only simulations with these indexes, valid indexes are
+            [0 .. (wheel_tracks x uls -1)]. Optional, else run all simulations.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    expt_params = [
+        SimParams(ploads=point_loads) for point_loads in ulm_point_loads(config)
+    ]
+    if indices is not None:
+        expt_params = [expt_params[i] for i in indices]
+        assert len(expt_params) == len(indices)
+        print_i(f&#34;Running {len(indices)} simulations: {indices}&#34;)
+    return load_expt_responses(
+        c=config,
+        expt_params=expt_params,
+        response_type=response_type,
+        run_only=run_only,
+    )
+
+
+def temperature(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit temperature simulations responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(axial_delta_temp=config.unit_axial_delta_temp_c),
+            SimParams(moment_delta_temp=config.unit_moment_delta_temp_c),
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )
+
+
+def ulm_path(config: Config, response_type: ResponseType, points: List[Point]) -&gt; str:
+    &#34;&#34;&#34;Unique path for a unit load matrix.&#34;&#34;&#34;
+    return safe_str(
+        config.get_data_path(
+            &#34;ulm-path&#34;, f&#34;{response_type.value}-{&#39;&#39;.join(str(p) for p in points)}&#34;
+        )
+    )
+
+
+def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
+    &#34;&#34;&#34;Return a unit load matrix for some sensors.
+
+    Args:
+        config: simulation configuration object.
+        response_type: type of sensor responses.
+        points: points at which to calculate responses to unit loads.
+
+    Returns: unit load matrix of shape (uls * lanes * 2, len(points)).
+
+    &#34;&#34;&#34;
+    path = shorten_path(
+        config,
+        ulm_path(config=config, response_type=response_type, points=points),
+        bypass_config=True,
+    )
+    print_i(f&#34;ULM path = {path}&#34;)
+    if os.path.exists(path):
+        with open(path, &#34;rb&#34;) as f:
+            return dill.load(f)
+
+    point_loads = ulm_point_loads(config)
+    shm_template = np.empty((len(point_loads), len(points)))
+    shm = shared_memory.SharedMemory(create=True, size=shm_template.nbytes)
+    # This try/except is to free shared-memory resources on KeyboardInterrupt.
+    try:
+
+        def set_ulm_entry(params):
+            i_, pls = params
+            assert len(pls) == 2
+            existing_shm = shared_memory.SharedMemory(name=shm.name)
+            ulm = np.ndarray(
+                shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf
+            )
+            for j, response in enumerate(
+                load_fem_responses(
+                    c=config,
+                    sim_params=SimParams(ploads=pls),
+                    response_type=response_type,
+                ).at_decks(points)
+            ):
+                ulm[i_][j] = response
+            existing_shm.close()
+
+        params_list = list(enumerate(point_loads))
+        if config.parallel &lt;= 1:
+            print_w(&#34;Not loading ULM in parallel&#34;)
+            list(map(set_ulm_entry, params_list))
+        else:
+            print_w(f&#34;Loading ULM with {config.parallel} parallelism&#34;)
+            with Pool(processes=config.parallel) as pool:
+                pool.map(set_ulm_entry, params_list)
+        result = np.ndarray(
+            shm_template.shape, dtype=shm_template.dtype, buffer=shm.buf
+        )
+        result = np.array(result, copy=True)
+        shm.close()
+        shm.unlink()
+    except KeyboardInterrupt as e:
+        shm.close()
+        shm.unlink()
+        raise e
+    with open(path, &#34;wb&#34;) as f:
+        dill.dump(result, f)
+    return result</code></pre>
 </details>
 </section>
 <section>
@@ -403,11 +597,9 @@ be returned.</p></div>
     else:
         deque(map(process, indices_and_params), maxlen=0)
     # Return after generating results if requested...
-    if run_only:
-        return
-    # ...otherwise yield all of the results.
-    for index_params in indices_and_params:
-        yield process(index_params, _run_only=False)</code></pre>
+    if not run_only:
+        for index_params in indices_and_params:
+            yield process(index_params, _run_only=False)</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.load_fem_responses"><code class="name flex">
@@ -515,6 +707,305 @@ necessary.</p>
     return sim_responses</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.sim.run.load_ulm"><code class="name flex">
+<span>def <span class="ident">load_ulm</span></span>(<span>config: Config, response_type: ResponseType, points: List[Point])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a unit load matrix for some sensors.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>type of sensor responses.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points at which to calculate responses to unit loads.</dd>
+</dl>
+<p>Returns: unit load matrix of shape (uls * lanes * 2, len(points)).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_ulm(config: Config, response_type: ResponseType, points: List[Point]):
+    &#34;&#34;&#34;Return a unit load matrix for some sensors.
+
+    Args:
+        config: simulation configuration object.
+        response_type: type of sensor responses.
+        points: points at which to calculate responses to unit loads.
+
+    Returns: unit load matrix of shape (uls * lanes * 2, len(points)).
+
+    &#34;&#34;&#34;
+    path = shorten_path(
+        config,
+        ulm_path(config=config, response_type=response_type, points=points),
+        bypass_config=True,
+    )
+    print_i(f&#34;ULM path = {path}&#34;)
+    if os.path.exists(path):
+        with open(path, &#34;rb&#34;) as f:
+            return dill.load(f)
+
+    point_loads = ulm_point_loads(config)
+    shm_template = np.empty((len(point_loads), len(points)))
+    shm = shared_memory.SharedMemory(create=True, size=shm_template.nbytes)
+    # This try/except is to free shared-memory resources on KeyboardInterrupt.
+    try:
+
+        def set_ulm_entry(params):
+            i_, pls = params
+            assert len(pls) == 2
+            existing_shm = shared_memory.SharedMemory(name=shm.name)
+            ulm = np.ndarray(
+                shm_template.shape, dtype=shm_template.dtype, buffer=existing_shm.buf
+            )
+            for j, response in enumerate(
+                load_fem_responses(
+                    c=config,
+                    sim_params=SimParams(ploads=pls),
+                    response_type=response_type,
+                ).at_decks(points)
+            ):
+                ulm[i_][j] = response
+            existing_shm.close()
+
+        params_list = list(enumerate(point_loads))
+        if config.parallel &lt;= 1:
+            print_w(&#34;Not loading ULM in parallel&#34;)
+            list(map(set_ulm_entry, params_list))
+        else:
+            print_w(f&#34;Loading ULM with {config.parallel} parallelism&#34;)
+            with Pool(processes=config.parallel) as pool:
+                pool.map(set_ulm_entry, params_list)
+        result = np.ndarray(
+            shm_template.shape, dtype=shm_template.dtype, buffer=shm.buf
+        )
+        result = np.array(result, copy=True)
+        shm.close()
+        shm.unlink()
+    except KeyboardInterrupt as e:
+        shm.close()
+        shm.unlink()
+        raise e
+    with open(path, &#34;wb&#34;) as f:
+        dill.dump(result, f)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.pier_settlement"><code class="name flex">
+<span>def <span class="ident">pier_settlement</span></span>(<span>config: Config, response_type: ResponseType = ResponseType.YTrans, run_only: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yield all unit pier settlement simulation responses.</p>
+<p>Set 'config.parallel' before calling this function to run simulations in
+parallel.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>response type of simulations.</dd>
+<dt><strong><code>run_only</code></strong></dt>
+<dd>only run simulations, don't return responses.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pier_settlement(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit pier settlement simulation responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(
+                pier_settlement=[
+                    PierSettlement(pier=pier, settlement=config.unit_pier_settlement)
+                ]
+            )
+            for pier in range(len(config.bridge.supports))
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.point_load"><code class="name flex">
+<span>def <span class="ident">point_load</span></span>(<span>config: Config, indices: Optional[List[int]] = None, response_type: ResponseType = ResponseType.YTrans, run_only: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yield all unit pier point-load simulations responses.</p>
+<p>Set 'config.parallel' before calling this function to run simulations in
+parallel.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>indices</code></strong></dt>
+<dd>only simulations with these indexes, valid indexes are
+[0 .. (wheel_tracks x uls -1)]. Optional, else run all simulations.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>response type of simulations.</dd>
+<dt><strong><code>run_only</code></strong></dt>
+<dd>only run simulations, don't return responses.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def point_load(
+    config: Config,
+    indices: Optional[List[int]] = None,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit pier point-load simulations responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        indices: only simulations with these indexes, valid indexes are
+            [0 .. (wheel_tracks x uls -1)]. Optional, else run all simulations.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    expt_params = [
+        SimParams(ploads=point_loads) for point_loads in ulm_point_loads(config)
+    ]
+    if indices is not None:
+        expt_params = [expt_params[i] for i in indices]
+        assert len(expt_params) == len(indices)
+        print_i(f&#34;Running {len(indices)} simulations: {indices}&#34;)
+    return load_expt_responses(
+        c=config,
+        expt_params=expt_params,
+        response_type=response_type,
+        run_only=run_only,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.temperature"><code class="name flex">
+<span>def <span class="ident">temperature</span></span>(<span>config: Config, response_type: ResponseType = ResponseType.YTrans, run_only: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Yield all unit temperature simulations responses.</p>
+<p>Set 'config.parallel' before calling this function to run simulations in
+parallel.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>response type of simulations.</dd>
+<dt><strong><code>run_only</code></strong></dt>
+<dd>only run simulations, don't return responses.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def temperature(
+    config: Config,
+    response_type: ResponseType = ResponseType.YTrans,
+    run_only: bool = False,
+):
+    &#34;&#34;&#34;Yield all unit temperature simulations responses.
+
+    Set &#39;config.parallel&#39; before calling this function to run simulations in
+    parallel.
+
+    Args:
+        config: simulation configuration object.
+        response_type: response type of simulations.
+        run_only: only run simulations, don&#39;t return responses.
+
+    &#34;&#34;&#34;
+    return load_expt_responses(
+        c=config,
+        expt_params=[
+            SimParams(axial_delta_temp=config.unit_axial_delta_temp_c),
+            SimParams(moment_delta_temp=config.unit_moment_delta_temp_c),
+        ],
+        response_type=response_type,
+        run_only=run_only,
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.ulm_path"><code class="name flex">
+<span>def <span class="ident">ulm_path</span></span>(<span>config: Config, response_type: ResponseType, points: List[Point]) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Unique path for a unit load matrix.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ulm_path(config: Config, response_type: ResponseType, points: List[Point]) -&gt; str:
+    &#34;&#34;&#34;Unique path for a unit load matrix.&#34;&#34;&#34;
+    return safe_str(
+        config.get_data_path(
+            &#34;ulm-path&#34;, f&#34;{response_type.value}-{&#39;&#39;.join(str(p) for p in points)}&#34;
+        )
+    )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.ulm_point_loads"><code class="name flex">
+<span>def <span class="ident">ulm_point_loads</span></span>(<span>config: Config)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Point loads for each unit point-load simulation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ulm_point_loads(config: Config):
+    &#34;&#34;&#34;Point loads for each unit point-load simulation.&#34;&#34;&#34;
+    half_axle = config.axle_width / 2
+    return [
+        [
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+        ]
+        for x, z in ulm_xzs(config)
+    ]</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.run.ulm_xzs"><code class="name flex">
+<span>def <span class="ident">ulm_xzs</span></span>(<span>config: Config)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Axle positions for unit load simulations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ulm_xzs(config: Config):
+    &#34;&#34;&#34;Axle positions for unit load simulations.&#34;&#34;&#34;
+    return [
+        (x, z)
+        for z, x in itertools.product(
+            config.bridge.axle_track_zs(), config.bridge.wheel_track_xs(config),
+        )
+    ]</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -522,11 +1013,11 @@ necessary.</p>
 <dl>
 <dt id="bridge_sim.sim.run.FEMRunner"><code class="flex name class">
 <span>class <span class="ident">FEMRunner</span></span>
-<span>(</span><span>c: "'Config'", name: str, exe_path: str, supported_response_types: Callable[[Bridge], List[ResponseType]], build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]], run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]], parse: Callable[[Config, List[SimParams], FEMRunner], Parsed], convert: Callable[[Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]])</span>
+<span>(</span><span>c: "'Config'", name: str, supported_response_types: Callable[[Bridge], List[ResponseType]], build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]], run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]], parse: Callable[[Config, List[SimParams], FEMRunner], Parsed], convert: "Callable[[Config, Parsed], Dict[int, Dict[ResponseType, List['Response']]]]")</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
-<p>NOTE: For running simulations and loading fem you probably want the
+<p>NOTE: For running simulations and loading responses you probably want the
 higher-level API in 'bridge_sim.sim.responses'.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -541,7 +1032,7 @@ supported response types for a given bridge.</dd>
 <pre><code class="python">class FEMRunner:
     &#34;&#34;&#34;An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading fem you probably want the
+    NOTE: For running simulations and loading responses you probably want the
     higher-level API in &#39;bridge_sim.sim.responses&#39;.
 
     Args:
@@ -554,18 +1045,16 @@ supported response types for a given bridge.</dd>
         self,
         c: &#34;Config&#34;,
         name: str,
-        exe_path: str,
         supported_response_types: Callable[[Bridge], List[ResponseType]],
         build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
         run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]],
         parse: Callable[[Config, List[SimParams], FEMRunner], Parsed],
         convert: Callable[
-            [Config, Parsed], Dict[int, Dict[ResponseType, List[Response]]]
+            [Config, Parsed], Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]
         ],
     ):
         self.c = c
         self.name = name
-        self.exe_path = exe_path
         self.supported_response_types = supported_response_types
         self._build = build
         self._run = run
@@ -590,7 +1079,7 @@ supported response types for a given bridge.</dd>
         &#34;&#34;&#34;
         # Building.
         start = timer()
-        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
         print_i(
             f&#34;FEMRunner: built {self.name} model file(s) in&#34;
             + f&#34; {timer() - start:.2f}s&#34;
@@ -603,13 +1092,15 @@ supported response types for a given bridge.</dd>
             print_i(
                 f&#34;FEMRunner: ran {self.name}&#34;
                 + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
-                + f&#34; simulation in {timer() - start:.2f}s&#34;
+                + f&#34; simulation in {timer() - start:.2f} s&#34;
             )
 
         # Parsing.
         start = timer()
         parsed_expt_responses = self._parse(self.c, expt_params, self)
-        print_i(f&#34;FEMRunner: parsed all responses in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+        print_i(
+            f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
+        )
         if return_parsed:
             return parsed_expt_responses
         print(parsed_expt_responses[0].keys())
@@ -621,10 +1112,7 @@ supported response types for a given bridge.</dd>
             expt_params=expt_params,
             parsed_expt_responses=parsed_expt_responses,
         )
-        print_i(
-            f&#34;FEMRunner: converted all fem to [Response] in&#34;
-            + f&#34; {timer() - start:.2f}s&#34;
-        )
+        print_i(f&#34;FEMRunner: converted to [Response] in&#34; + f&#34; {timer() - start:.2f} s&#34;)
         if return_converted:
             return converted_expt_responses
         print(converted_expt_responses[0].keys())
@@ -647,9 +1135,8 @@ supported response types for a given bridge.</dd>
                 start = timer()
                 fem_responses.save()
                 print_i(
-                    f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
-                    + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
-                    + f&#34;({response_type})&#34;
+                    f&#34;FEMRunner: saved simulation {sim_ind + 1} Responses&#34;
+                    + f&#34; ({response_type}) in {timer() - start:.2f} s&#34;
                 )
 
     def sim_model_path(
@@ -661,11 +1148,12 @@ supported response types for a given bridge.</dd>
     ) -&gt; str:
         &#34;&#34;&#34;Deterministic path for a FE model file.
 
-        :param sim_params: simulation parameters.
-        :param ext: extension of the output file without the dot.
-        :param dirname: directory name of output file. Defaults to FEMRunner.name.
-        :param append: append to the filename (before the extension).
-        :return: path for the output file.
+        Args:
+            sim_params: simulation parameters.
+            ext: filename extension without the dot.
+            dirname: directory name, defaults to self.name.
+            append: append to the filename (before the extension).
+
         &#34;&#34;&#34;
         param_str = sim_params.id_str()
         append = append if len(append) == 0 else f&#34;-{append}&#34;
@@ -747,7 +1235,7 @@ supported response types for a given bridge.</dd>
     &#34;&#34;&#34;
     # Building.
     start = timer()
-    expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self,)
+    expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
     print_i(
         f&#34;FEMRunner: built {self.name} model file(s) in&#34;
         + f&#34; {timer() - start:.2f}s&#34;
@@ -760,13 +1248,15 @@ supported response types for a given bridge.</dd>
         print_i(
             f&#34;FEMRunner: ran {self.name}&#34;
             + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
-            + f&#34; simulation in {timer() - start:.2f}s&#34;
+            + f&#34; simulation in {timer() - start:.2f} s&#34;
         )
 
     # Parsing.
     start = timer()
     parsed_expt_responses = self._parse(self.c, expt_params, self)
-    print_i(f&#34;FEMRunner: parsed all responses in&#34; + f&#34; {timer() - start:.2f}s&#34;)
+    print_i(
+        f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
+    )
     if return_parsed:
         return parsed_expt_responses
     print(parsed_expt_responses[0].keys())
@@ -778,10 +1268,7 @@ supported response types for a given bridge.</dd>
         expt_params=expt_params,
         parsed_expt_responses=parsed_expt_responses,
     )
-    print_i(
-        f&#34;FEMRunner: converted all fem to [Response] in&#34;
-        + f&#34; {timer() - start:.2f}s&#34;
-    )
+    print_i(f&#34;FEMRunner: converted to [Response] in&#34; + f&#34; {timer() - start:.2f} s&#34;)
     if return_converted:
         return converted_expt_responses
     print(converted_expt_responses[0].keys())
@@ -804,9 +1291,8 @@ supported response types for a given bridge.</dd>
             start = timer()
             fem_responses.save()
             print_i(
-                f&#34;FEMRunner: saved simulation {sim_ind + 1} SimResponses&#34;
-                + f&#34; in ([Response]) in {timer() - start:.2f}s,&#34;
-                + f&#34;({response_type})&#34;
+                f&#34;FEMRunner: saved simulation {sim_ind + 1} Responses&#34;
+                + f&#34; ({response_type}) in {timer() - start:.2f} s&#34;
             )</code></pre>
 </details>
 </dd>
@@ -815,11 +1301,17 @@ supported response types for a given bridge.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Deterministic path for a FE model file.</p>
-<p>:param sim_params: simulation parameters.
-:param ext: extension of the output file without the dot.
-:param dirname: directory name of output file. Defaults to FEMRunner.name.
-:param append: append to the filename (before the extension).
-:return: path for the output file.</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>sim_params</code></strong></dt>
+<dd>simulation parameters.</dd>
+<dt><strong><code>ext</code></strong></dt>
+<dd>filename extension without the dot.</dd>
+<dt><strong><code>dirname</code></strong></dt>
+<dd>directory name, defaults to self.name.</dd>
+<dt><strong><code>append</code></strong></dt>
+<dd>append to the filename (before the extension).</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -833,11 +1325,12 @@ supported response types for a given bridge.</dd>
 ) -&gt; str:
     &#34;&#34;&#34;Deterministic path for a FE model file.
 
-    :param sim_params: simulation parameters.
-    :param ext: extension of the output file without the dot.
-    :param dirname: directory name of output file. Defaults to FEMRunner.name.
-    :param append: append to the filename (before the extension).
-    :return: path for the output file.
+    Args:
+        sim_params: simulation parameters.
+        ext: filename extension without the dot.
+        dirname: directory name, defaults to self.name.
+        append: append to the filename (before the extension).
+
     &#34;&#34;&#34;
     param_str = sim_params.id_str()
     append = append if len(append) == 0 else f&#34;-{append}&#34;
@@ -915,9 +1408,16 @@ supported response types for a given bridge.</dd>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="bridge_sim.sim.run.load_expt_responses" href="#bridge_sim.sim.run.load_expt_responses">load_expt_responses</a></code></li>
 <li><code><a title="bridge_sim.sim.run.load_fem_responses" href="#bridge_sim.sim.run.load_fem_responses">load_fem_responses</a></code></li>
+<li><code><a title="bridge_sim.sim.run.load_ulm" href="#bridge_sim.sim.run.load_ulm">load_ulm</a></code></li>
+<li><code><a title="bridge_sim.sim.run.pier_settlement" href="#bridge_sim.sim.run.pier_settlement">pier_settlement</a></code></li>
+<li><code><a title="bridge_sim.sim.run.point_load" href="#bridge_sim.sim.run.point_load">point_load</a></code></li>
+<li><code><a title="bridge_sim.sim.run.temperature" href="#bridge_sim.sim.run.temperature">temperature</a></code></li>
+<li><code><a title="bridge_sim.sim.run.ulm_path" href="#bridge_sim.sim.run.ulm_path">ulm_path</a></code></li>
+<li><code><a title="bridge_sim.sim.run.ulm_point_loads" href="#bridge_sim.sim.run.ulm_point_loads">ulm_point_loads</a></code></li>
+<li><code><a title="bridge_sim.sim.run.ulm_xzs" href="#bridge_sim.sim.run.ulm_xzs">ulm_xzs</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

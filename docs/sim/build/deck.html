@@ -70,7 +70,6 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
     for pier in bridge.supports:
         for x in pier.x_min_max_top():
             all_xs.add(round_m(x))
-    print(f&#34;pier_xs = {all_xs}&#34;)
 
     # Bridge ends.
     all_xs.add(round_m(bridge.x_min))
@@ -94,7 +93,6 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -&gt; List[float]:
     for i in range(len(all_xs) - 1):
         x0, x1 = all_xs[i], all_xs[i + 1]
         num = math.ceil((x1 - x0) / bridge.base_mesh_deck_max_x) + 1
-        # print(f&#34;x0, x1, num = {x0}, {x1}, {num}&#34;)
         for x in np.linspace(x0, x1, num=num):
             deck_xs.add(round_m(x))
     return sorted(deck_xs)
@@ -156,9 +154,7 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckShellNodes:
     assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
     assert_sorted([node.x for node in deck_nodes[0]])
 
-    print_i(f&#34;Deck nodes before refinement = {len(flatten(deck_nodes, Node))}&#34;)
-
-    # Convert to &#39;DeckShellNodes&#39; (+ refinement information).
+    # Convert to &#39;DeckShellNodes&#39;.
     deck_shell_nodes = []
     for z_i in range(len(deck_nodes) - 1):
         for x_i in range(len(deck_nodes[0]) - 1):
@@ -166,76 +162,10 @@ def get_deck_nodes(bridge: Bridge, ctx: BuildContext) -&gt; DeckShellNodes:
             node_j = deck_nodes[z_i][x_i + 1]
             node_k = deck_nodes[z_i + 1][x_i + 1]
             node_l = deck_nodes[z_i + 1][x_i]
-            deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
+            deck_shell_nodes.append((node_i, node_j, node_k, node_l))
 
-    # If  not refining, return the &#39;DeckShellNodes&#39;.
-    if len(ctx.refinement_radii) == 0:
-        print_i(f&#34;Deck nodes after refinement = {len(flatten(deck_nodes, Node))}&#34;)
-        return list(map(lambda ns: ns[:-1], deck_shell_nodes))
-
-    def refine_shell(nodes: List[Node], max_dist: float):
-        &#34;&#34;&#34;Should the shell be refined?&#34;&#34;&#34;
-        for point in ctx.add_loads:
-            for node in nodes:
-                if abs(node.distance(x=point.x, y=point.y, z=point.z)) &lt;= max_dist:
-                    return True
-        return False
-
-    # For each refinement pass..
-    for refinement_iter, max_dist in enumerate(ctx.refinement_radii):
-        # Construct a new &#39;DeckShellNodes&#39; and iterate over the previous one.
-        new_deck_shell_nodes = []
-        for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
-            assert node_i.x &lt; node_j.x
-            assert node_j.z &lt; node_k.z
-            assert node_k.x &gt; node_l.x
-            assert node_l.z &gt; node_i.z
-            # If not refining, keep the existing shell.
-            if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
-                num_refined &gt; refinement_iter
-            ):
-                new_deck_shell_nodes.append(
-                    (node_i, node_j, node_k, node_l, num_refined)
-                )
-            # Else if refining, construct 5 new nodes, and 4 new shells.
-            else:
-                center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
-                center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
-                assert node_i.x &lt;= center_x &lt;= node_j.x
-                assert node_i.z &lt;= center_z &lt;= node_l.z
-                # Construct the 5 new nodes.
-                before = len(set(flatten(ctx.nodes_by_id.values(), Node)))
-                center_node, bottom_node, top_node, left_node, right_node = [
-                    ctx.get_node(x=x, y=0, z=z, deck=True, comment=&#34;refined&#34;)
-                    for z, x in [
-                        (center_z, center_x),  # Center node.
-                        (node_i.z, center_x),  # Bottom node.
-                        (node_l.z, center_x),  # Top node.
-                        (center_z, node_i.x),  # Left node.
-                        (center_z, node_j.x),  # Right node.
-                    ]
-                ]
-                after = len(set(flatten(ctx.nodes_by_id.values(), Node)))
-                print(f&#34;Before = {before}&#34;)
-                print(f&#34;After = {after}&#34;)
-                # assert after == before + 5
-                # Construct the 4 new shells.
-                for shell_nodes in [
-                    (node_i, bottom_node, center_node, left_node),  # Bottom left.
-                    (bottom_node, node_j, right_node, center_node),  # Bottom right.
-                    (left_node, center_node, top_node, node_l),  # Top left.
-                    (center_node, right_node, node_k, top_node),  # Top right.
-                ]:
-                    if shell_nodes[0].n_id == 526:
-                        print(&#34;yay&#34;)
-                    new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
-                    assert len(new_deck_shell_nodes[-1]) == 5
-        deck_shell_nodes = new_deck_shell_nodes
-
-    deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
-    print_i(
-        f&#34;Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}&#34;
-    )
+    if len(ctx.refinement_radii) &gt; 0:
+        raise NotImplementedError(&#34;Refinement not implemented!&#34;)
     return deck_shell_nodes
 
 
@@ -268,7 +198,7 @@ def get_deck_shells(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.build.deck.get_base_deck_nodes"><code class="name flex">
-<span>def <span class="ident">get_base_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e0e0></span>
+<span>def <span class="ident">get_base_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11fa90ee0></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Deck nodes without refinement.</p></div>
@@ -288,7 +218,7 @@ def get_deck_shells(
 </details>
 </dd>
 <dt id="bridge_sim.sim.build.deck.get_deck_grid"><code class="name flex">
-<span>def <span class="ident">get_deck_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x1185a3b90></span>
+<span>def <span class="ident">get_deck_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x123d2fb80></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -301,7 +231,7 @@ def get_deck_shells(
 </details>
 </dd>
 <dt id="bridge_sim.sim.build.deck.get_deck_nodes"><code class="name flex">
-<span>def <span class="ident">get_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e170></span>
+<span>def <span class="ident">get_deck_nodes</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11fa90f70></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Deck nodes with refinement.</p></div>
@@ -316,9 +246,7 @@ def get_deck_shells(
     assert_sorted([len(nodes) for nodes in deck_nodes])  # All should be equal.
     assert_sorted([node.x for node in deck_nodes[0]])
 
-    print_i(f&#34;Deck nodes before refinement = {len(flatten(deck_nodes, Node))}&#34;)
-
-    # Convert to &#39;DeckShellNodes&#39; (+ refinement information).
+    # Convert to &#39;DeckShellNodes&#39;.
     deck_shell_nodes = []
     for z_i in range(len(deck_nodes) - 1):
         for x_i in range(len(deck_nodes[0]) - 1):
@@ -326,81 +254,15 @@ def get_deck_shells(
             node_j = deck_nodes[z_i][x_i + 1]
             node_k = deck_nodes[z_i + 1][x_i + 1]
             node_l = deck_nodes[z_i + 1][x_i]
-            deck_shell_nodes.append((node_i, node_j, node_k, node_l, 0))
+            deck_shell_nodes.append((node_i, node_j, node_k, node_l))
 
-    # If  not refining, return the &#39;DeckShellNodes&#39;.
-    if len(ctx.refinement_radii) == 0:
-        print_i(f&#34;Deck nodes after refinement = {len(flatten(deck_nodes, Node))}&#34;)
-        return list(map(lambda ns: ns[:-1], deck_shell_nodes))
-
-    def refine_shell(nodes: List[Node], max_dist: float):
-        &#34;&#34;&#34;Should the shell be refined?&#34;&#34;&#34;
-        for point in ctx.add_loads:
-            for node in nodes:
-                if abs(node.distance(x=point.x, y=point.y, z=point.z)) &lt;= max_dist:
-                    return True
-        return False
-
-    # For each refinement pass..
-    for refinement_iter, max_dist in enumerate(ctx.refinement_radii):
-        # Construct a new &#39;DeckShellNodes&#39; and iterate over the previous one.
-        new_deck_shell_nodes = []
-        for node_i, node_j, node_k, node_l, num_refined in deck_shell_nodes:
-            assert node_i.x &lt; node_j.x
-            assert node_j.z &lt; node_k.z
-            assert node_k.x &gt; node_l.x
-            assert node_l.z &gt; node_i.z
-            # If not refining, keep the existing shell.
-            if (not refine_shell([node_i, node_j, node_k, node_l], max_dist)) or (
-                num_refined &gt; refinement_iter
-            ):
-                new_deck_shell_nodes.append(
-                    (node_i, node_j, node_k, node_l, num_refined)
-                )
-            # Else if refining, construct 5 new nodes, and 4 new shells.
-            else:
-                center_x = round_m(node_i.x + (node_i.distance_n(node_j) / 2))
-                center_z = round_m(node_i.z + (node_i.distance_n(node_l) / 2))
-                assert node_i.x &lt;= center_x &lt;= node_j.x
-                assert node_i.z &lt;= center_z &lt;= node_l.z
-                # Construct the 5 new nodes.
-                before = len(set(flatten(ctx.nodes_by_id.values(), Node)))
-                center_node, bottom_node, top_node, left_node, right_node = [
-                    ctx.get_node(x=x, y=0, z=z, deck=True, comment=&#34;refined&#34;)
-                    for z, x in [
-                        (center_z, center_x),  # Center node.
-                        (node_i.z, center_x),  # Bottom node.
-                        (node_l.z, center_x),  # Top node.
-                        (center_z, node_i.x),  # Left node.
-                        (center_z, node_j.x),  # Right node.
-                    ]
-                ]
-                after = len(set(flatten(ctx.nodes_by_id.values(), Node)))
-                print(f&#34;Before = {before}&#34;)
-                print(f&#34;After = {after}&#34;)
-                # assert after == before + 5
-                # Construct the 4 new shells.
-                for shell_nodes in [
-                    (node_i, bottom_node, center_node, left_node),  # Bottom left.
-                    (bottom_node, node_j, right_node, center_node),  # Bottom right.
-                    (left_node, center_node, top_node, node_l),  # Top left.
-                    (center_node, right_node, node_k, top_node),  # Top right.
-                ]:
-                    if shell_nodes[0].n_id == 526:
-                        print(&#34;yay&#34;)
-                    new_deck_shell_nodes.append(shell_nodes + (num_refined + 1,))
-                    assert len(new_deck_shell_nodes[-1]) == 5
-        deck_shell_nodes = new_deck_shell_nodes
-
-    deck_shell_nodes = list(map(lambda ns: ns[:-1], deck_shell_nodes))
-    print_i(
-        f&#34;Deck nodes after refinement = {len(set(flatten(deck_shell_nodes, Node)))}&#34;
-    )
+    if len(ctx.refinement_radii) &gt; 0:
+        raise NotImplementedError(&#34;Refinement not implemented!&#34;)
     return deck_shell_nodes</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.build.deck.get_deck_section_grid"><code class="name flex">
-<span>def <span class="ident">get_deck_section_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>) -> <function NewType.<locals>.new_type at 0x1185a3b90></span>
+<span>def <span class="ident">get_deck_section_grid</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>) -> <function NewType.<locals>.new_type at 0x123d2fb80></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Grid where material properties change on the deck.</p></div>
@@ -426,7 +288,7 @@ def get_deck_shells(
 </details>
 </dd>
 <dt id="bridge_sim.sim.build.deck.get_deck_shells"><code class="name flex">
-<span>def <span class="ident">get_deck_shells</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, deck_shell_nodes: <function NewType.<locals>.new_type at 0x11842e170>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11842e950></span>
+<span>def <span class="ident">get_deck_shells</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, deck_shell_nodes: <function NewType.<locals>.new_type at 0x11fa90f70>, ctx: <a title="bridge_sim.sim.model.BuildContext" href="../model/index.html#bridge_sim.sim.model.BuildContext">BuildContext</a>) -> <function NewType.<locals>.new_type at 0x11fa91790></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -471,7 +333,6 @@ def get_deck_shells(
     for pier in bridge.supports:
         for x in pier.x_min_max_top():
             all_xs.add(round_m(x))
-    print(f&#34;pier_xs = {all_xs}&#34;)
 
     # Bridge ends.
     all_xs.add(round_m(bridge.x_min))
@@ -495,7 +356,6 @@ def get_deck_shells(
     for i in range(len(all_xs) - 1):
         x0, x1 = all_xs[i], all_xs[i + 1]
         num = math.ceil((x1 - x0) / bridge.base_mesh_deck_max_x) + 1
-        # print(f&#34;x0, x1, num = {x0}, {x1}, {num}&#34;)
         for x in np.linspace(x0, x1, num=num):
             deck_xs.add(round_m(x))
     return sorted(deck_xs)</code></pre>

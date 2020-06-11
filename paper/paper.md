@@ -100,12 +100,12 @@ from bridge_sim import bridges, configs, model, plot, sim
 
 config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 point_loads = model.Vehicle(
-        load=[5000, 4000, 4000, 5000, 7000],
-        axle_distances=[2, 2, 2, 1],
-        axle_width=2.5,
-        kmph=20,
-    ).to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-responses = sim.responses.load(config, model.RT.YTranslation, point_loads)
+    load=[5000, 4000, 4000, 5000, 7000],
+    axle_distances=[2, 2, 2, 1],
+    axle_width=2.5,
+    kmph=20,
+).point_load_pw(time=3.5, bridge=config.bridge, list=True)
+responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 plot.contour_responses(config, responses, point_loads)
 plot.top_view_bridge(config, piers=True)
 plt.savefig("example.pdf")

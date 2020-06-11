@@ -104,7 +104,12 @@ def creep(cement_class: CementClass, h_0: float, times: List[float]) -&gt; List[
     def B_c(t_, t_0_):
         return np.power((t_ - t_0_) / (B_H + t_ - t_0_), 0.3)
 
-    return y_0(t_0) * B_c(times, t_0)
+    strain = y_0(t_0) * B_c(times, t_0)
+    # Set initial strain values to 0.
+    i = 0
+    while i &lt; len(strain) and not strain[i] &gt;= 0:
+        strain[i] = 0
+    return strain
 
 
 def creep_responses(
@@ -227,7 +232,12 @@ __all__ = [&#34;creep&#34;, &#34;creep_responses&#34;]</code></pre>
     def B_c(t_, t_0_):
         return np.power((t_ - t_0_) / (B_H + t_ - t_0_), 0.3)
 
-    return y_0(t_0) * B_c(times, t_0)</code></pre>
+    strain = y_0(t_0) * B_c(times, t_0)
+    # Set initial strain values to 0.
+    i = 0
+    while i &lt; len(strain) and not strain[i] &gt;= 0:
+        strain[i] = 0
+    return strain</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.creep.creep_responses"><code class="name flex">

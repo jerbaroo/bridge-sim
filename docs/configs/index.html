@@ -30,6 +30,7 @@
 import os
 from typing import Callable, Optional
 
+from bridge_sim.bridges import bridge_705
 from bridge_sim.model import Config, Bridge
 from bridge_sim.sim.run.opensees import os_runner
 from bridge_sim.util import project_dir
@@ -61,7 +62,17 @@ def opensees_default(
         ],
         vehicle_pdf_col=&#34;length&#34;,
         **kwargs,
-    )</code></pre>
+    )
+
+
+def test_config(msl: float = 10.0):
+    &#34;&#34;&#34;A Config used internally for testing.&#34;&#34;&#34;
+    config = opensees_default(bridge_705(msl))
+    config._root_generated_data_dir = os.path.join(
+        &#34;test-data/&#34;, config._root_generated_data_dir
+    )
+    exe_found = config.sim_runner.exe_path is not None
+    return config, exe_found</code></pre>
 </details>
 </section>
 <section>
@@ -119,6 +130,25 @@ will look for OpenSees on the $PATH.</dd>
     )</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.configs.test_config"><code class="name flex">
+<span>def <span class="ident">test_config</span></span>(<span>msl: float = 10.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A Config used internally for testing.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_config(msl: float = 10.0):
+    &#34;&#34;&#34;A Config used internally for testing.&#34;&#34;&#34;
+    config = opensees_default(bridge_705(msl))
+    config._root_generated_data_dir = os.path.join(
+        &#34;test-data/&#34;, config._root_generated_data_dir
+    )
+    exe_found = config.sim_runner.exe_path is not None
+    return config, exe_found</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -138,6 +168,7 @@ will look for OpenSees on the $PATH.</dd>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="bridge_sim.configs.opensees_default" href="#bridge_sim.configs.opensees_default">opensees_default</a></code></li>
+<li><code><a title="bridge_sim.configs.test_config" href="#bridge_sim.configs.test_config">test_config</a></code></li>
 </ul>
 </li>
 </ul>

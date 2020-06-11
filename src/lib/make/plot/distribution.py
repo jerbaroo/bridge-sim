@@ -10,7 +10,8 @@ from bridge_sim.scenarios import HealthyScenario, Scenario
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run.opensees import OSRunner
 from lib.plot import plt
-from lib.plot.responses import plot_contour_deck, plot_distributions
+from lib.plot.responses import plot_distributions
+from bridge_sim.plot import contour_responses
 from bridge_sim.util import print_i, safe_str
 
 
@@ -78,7 +79,7 @@ def lane_distribution_plots(
             points = lane_points(lane)
             response_arrays.append(
                 to_traffic_array(
-                    c=c,
+                    config=c,
                     traffic_array=normal_traffic_array,
                     response_type=response_type,
                     bridge_scenario=bridge_scenario,
@@ -151,7 +152,7 @@ def pier_displacement_distribution_plots(
         all_points.append(points)
         response_arrays.append(
             to_traffic_array(
-                c=c,
+                config=c,
                 traffic_array=normal_traffic_array,
                 response_type=response_type,
                 bridge_scenario=bridge_scenario,
@@ -316,7 +317,7 @@ def deck_distribution_plots(c: Config):
         print_i(f"Deck distribution plots: bridge scenario {bridge_scenario.name}")
         response_arrays.append(
             to_traffic_array(
-                c=c,
+                config=c,
                 traffic_array=normal_traffic_array,
                 response_type=response_type,
                 bridge_scenario=bridge_scenario,
@@ -381,7 +382,7 @@ def deck_distribution_plots(c: Config):
         )
         for value in responses.values():
             print(type(value))
-        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        contour_responses(c=c, responses=responses, center_norm=True)
         plt.savefig(c.get_image_path("distribution-heatmap", bridge_scenario.name))
         plt.close()
 
@@ -400,7 +401,7 @@ def deck_distribution_plots(c: Config):
         )
         for value in responses.values():
             print(type(value))
-        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        contour_responses(c=c, responses=responses, center_norm=True)
         plt.savefig(
             c.get_image_path("distribution-heatmap-standardized", bridge_scenario.name)
         )
@@ -421,7 +422,7 @@ def deck_distribution_plots(c: Config):
         )
         for value in responses.values():
             print(type(value))
-        plot_contour_deck(c=c, responses=responses, center_norm=True)
+        contour_responses(c=c, responses=responses, center_norm=True)
         plt.savefig(
             c.get_image_path("distribution-heatmap-binned", bridge_scenario.name)
         )

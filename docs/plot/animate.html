@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.plot.animate API documentation</title>
+<meta name="description" content="Animate a traffic scenario." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.plot.animate</code></h1>
+</header>
+<section id="section-intro">
+<p>Animate a traffic scenario.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Animate a traffic scenario.&#34;&#34;&#34;
+from typing import Callable, List, Tuple, Optional
+
+import bridge_sim.plot
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
+import pandas as pd
+from bridge_sim.sim.responses import without
+from matplotlib.animation import FuncAnimation, FFMpegWriter
+from scipy.spatial import distance
+
+from bridge_sim import sim, plot
+from bridge_sim.sim.model import Responses
+from bridge_sim.sim.run import ulm_xzs
+from bridge_sim.model import Config, Point, ResponseType, Vehicle, PierSettlement
+from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
+from bridge_sim.util import print_i, flatten
+from lib.plot import axis_cmap_r, axis_cmap
+
+
+def _animate_plot(
+    frames: int, plot_f: Callable[[int], None], time_step: float, save: str
+):
+    &#34;&#34;&#34;Generate an animation with given plotting function.
+
+    Args:
+        frames: amount of frames to animate.
+        plot_f: function to plot at a time index.
+        time_step: time step between each frame.
+        save: path where to save the animation.
+
+    &#34;&#34;&#34;
+
+    def animate_frame(t):
+        &#34;&#34;&#34;Plot at the given time index.&#34;&#34;&#34;
+        plt.cla()
+        plot_f(t)
+
+    plot_f(0)
+    anim = FuncAnimation(plt.gcf(), animate_frame, frames, interval=time_step)
+    writer = FFMpegWriter()
+    anim.save(save, writer=writer)
+    print_i(f&#34;Saved animation to {save}&#34;)
+
+
+def _animate_traffic(
+    traffic: List, time_step: float, plot_f: Callable[[int], None], save: str,
+):
+    &#34;&#34;&#34;Animate traffic with given plotting function.&#34;&#34;&#34;
+    frames = len(traffic)
+
+    def _plot_f(time_index):
+        print_i(f&#34;Animating time = {time_index * time_step:.3f} s&#34;, end=&#34;\r&#34;)
+        plot_f(time_index)
+
+    _animate_plot(frames=frames, plot_f=_plot_f, time_step=time_step, save=save)
+
+
+def animate_responses(
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    response_type: ResponseType,
+    units: str,
+    save: str,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cmap=axis_cmap_r,
+    without_edges: int = 0,
+):
+    traffic = traffic_sequence.traffic()
+    traffic_array = traffic_sequence.traffic_array()
+    without_edges = (
+        (lambda _: False)
+        if without_edges == 0
+        else without.edges(config, without_edges)
+    )
+    deck_points = [
+        p
+        for p in [
+            Point(x=x, y=0, z=z)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
+        ]
+        if not without_edges(p)
+    ]
+    # Find the closest point to these coordinates.
+    x, z = 18, -8.4
+    point_index = 0
+    for _index in range(len(deck_points)):
+        p = deck_points[point_index]
+        i = deck_points[_index]
+        if distance.euclidean([x, z], [i.x, i.z]) &lt; distance.euclidean(
+            [x, z], [p.x, p.z]
+        ):
+            point_index = _index
+    point = deck_points[point_index]
+    responses = sim.responses.to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=deck_points,
+    )
+    ps_responses = sim.responses.to_pier_settlement(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    temp_responses = (
+        sim.responses.to_temperature(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        sim.responses.to_shrinkage(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
+    min_response, max_response = np.amin(responses), np.amax(responses)
+    # min_response = min(min_response, -max_response)
+    # max_response = max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
+    # thresh = abs(min_response - max_response) * 0.01
+    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
+    vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
+    all_vehicles = flatten(traffic, Vehicle)
+
+    def plot_f(time_index):
+        # Top plot of the moving vehicles.
+        plt.landscape()
+        plt.subplot2grid((3, 1), (0, 0), 2, 1)
+        plt.title(
+            f&#34;{response_type.name()} on {config.bridge.name.title().replace(&#39;-&#39;, &#39; &#39;)}&#34;
+        )
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True, units=&#34;m&#34;)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        plot.contour_responses(
+            config=config,
+            responses=Responses(
+                response_type=response_type,
+                responses=list(zip(responses.T[time_index], deck_points)),
+            ),
+            cmap=cmap,
+            norm=response_norm,
+            mm_legend=False,
+            cbar=False,
+            levels=50,
+        )
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        plt.scatter(
+            [point.x],
+            [point.z],
+            c=&#34;black&#34;,
+            s=20,
+            label=&#34;sensor in bottom plot&#34;,
+            zorder=100,
+        )
+        plt.legend(loc=&#34;upper right&#34;)
+
+        # Bottom plot of the total load on the bridge.
+        plt.subplot2grid((3, 1), (2, 0), 1, 1)
+        lw = 2
+        plt.plot(
+            traffic_sequence.times,
+            responses[point_index],
+            c=&#34;black&#34;,
+            label=&#34;traffic&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            ps_responses[point_index],
+            c=&#34;tab:blue&#34;,
+            label=&#34;pier settlement&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            temp_responses[point_index],
+            c=&#34;tab:orange&#34;,
+            label=&#34;temperature&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            shrinkage_responses[point_index],
+            c=&#34;tab:green&#34;,
+            label=&#34;shrinkage&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            total_responses[point_index],
+            c=&#34;xkcd:purple&#34;,
+            label=&#34;total&#34;,
+            lw=lw,
+        )
+        plt.xlabel(&#34;Time (s)&#34;)
+        plt.ylabel(units)
+        plt.axvline(
+            x=traffic_sequence.start_time + time_index * time_step,
+            c=&#34;red&#34;,
+            label=&#34;current time&#34;,
+            lw=lw,
+        )
+        plt.legend(facecolor=&#34;white&#34;, loc=&#34;upper right&#34;)
+        plt.tight_layout()
+
+        # Add a color bar.
+        plt.gcf().subplots_adjust(right=0.75)
+        cbar_ax = plt.gcf().add_axes([0.8, 0.1, 0.01, 0.8])
+        cbar = plt.gcf().colorbar(
+            cm.ScalarMappable(norm=response_norm, cmap=cmap), cax=cbar_ax,
+        )
+        cbar.set_label(units)
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)
+
+
+def animate_traffic(
+    config: Config, traffic_sequence: TrafficSequence, traffic: Traffic, save: str,
+):
+    &#34;&#34;&#34;Simple animation of &#34;Traffic&#34; over a bridge.&#34;&#34;&#34;
+    vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
+    all_vehicles = flatten(traffic, Vehicle)
+
+    def plot_f(time_index):
+        plt.title(config.bridge.name)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        plt.tight_layout()
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)
+
+
+def animate_traffic_array(
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    traffic_array: TrafficArray,
+    save: str,
+):
+    &#34;&#34;&#34;Simple animation of &#34;TrafficArray&#34; over a bridge.&#34;&#34;&#34;
+    cmin, cmax = np.amin(traffic_array), np.amax(traffic_array)
+    response_norm = colors.Normalize(vmin=cmin, vmax=cmax)
+
+    def plot_f(time_index):
+        plt.title(config.bridge.name)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        slice = traffic_array[time_index]
+        for (x, z), v in zip(ulm_xzs(config), slice):
+            if v != 0:
+                plt.scatter([x], [z], c=v, s=1, norm=response_norm)
+        plt.tight_layout()
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(
+        traffic=traffic_array, time_step=time_step, plot_f=plot_f, save=save
+    )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.plot.animate.animate_responses"><code class="name flex">
+<span>def <span class="ident">animate_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, units: str, save: str, pier_settlement: List[Tuple[bridge_sim.model.PierSettlement, bridge_sim.model.PierSettlement]] = [], weather: Union[pandas.core.frame.DataFrame, NoneType] = None, start_date: Union[str, NoneType] = None, end_date: Union[str, NoneType] = None, start_day: Union[int, NoneType] = None, end_day: Union[int, NoneType] = None, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, without_edges: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def animate_responses(
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    response_type: ResponseType,
+    units: str,
+    save: str,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cmap=axis_cmap_r,
+    without_edges: int = 0,
+):
+    traffic = traffic_sequence.traffic()
+    traffic_array = traffic_sequence.traffic_array()
+    without_edges = (
+        (lambda _: False)
+        if without_edges == 0
+        else without.edges(config, without_edges)
+    )
+    deck_points = [
+        p
+        for p in [
+            Point(x=x, y=0, z=z)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
+        ]
+        if not without_edges(p)
+    ]
+    # Find the closest point to these coordinates.
+    x, z = 18, -8.4
+    point_index = 0
+    for _index in range(len(deck_points)):
+        p = deck_points[point_index]
+        i = deck_points[_index]
+        if distance.euclidean([x, z], [i.x, i.z]) &lt; distance.euclidean(
+            [x, z], [p.x, p.z]
+        ):
+            point_index = _index
+    point = deck_points[point_index]
+    responses = sim.responses.to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=deck_points,
+    )
+    ps_responses = sim.responses.to_pier_settlement(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    temp_responses = (
+        sim.responses.to_temperature(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        sim.responses.to_shrinkage(
+            config=config,
+            points=deck_points,
+            responses_array=responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
+    min_response, max_response = np.amin(responses), np.amax(responses)
+    # min_response = min(min_response, -max_response)
+    # max_response = max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
+    # thresh = abs(min_response - max_response) * 0.01
+    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
+    vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
+    all_vehicles = flatten(traffic, Vehicle)
+
+    def plot_f(time_index):
+        # Top plot of the moving vehicles.
+        plt.landscape()
+        plt.subplot2grid((3, 1), (0, 0), 2, 1)
+        plt.title(
+            f&#34;{response_type.name()} on {config.bridge.name.title().replace(&#39;-&#39;, &#39; &#39;)}&#34;
+        )
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True, units=&#34;m&#34;)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        plot.contour_responses(
+            config=config,
+            responses=Responses(
+                response_type=response_type,
+                responses=list(zip(responses.T[time_index], deck_points)),
+            ),
+            cmap=cmap,
+            norm=response_norm,
+            mm_legend=False,
+            cbar=False,
+            levels=50,
+        )
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        plt.scatter(
+            [point.x],
+            [point.z],
+            c=&#34;black&#34;,
+            s=20,
+            label=&#34;sensor in bottom plot&#34;,
+            zorder=100,
+        )
+        plt.legend(loc=&#34;upper right&#34;)
+
+        # Bottom plot of the total load on the bridge.
+        plt.subplot2grid((3, 1), (2, 0), 1, 1)
+        lw = 2
+        plt.plot(
+            traffic_sequence.times,
+            responses[point_index],
+            c=&#34;black&#34;,
+            label=&#34;traffic&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            ps_responses[point_index],
+            c=&#34;tab:blue&#34;,
+            label=&#34;pier settlement&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            temp_responses[point_index],
+            c=&#34;tab:orange&#34;,
+            label=&#34;temperature&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            shrinkage_responses[point_index],
+            c=&#34;tab:green&#34;,
+            label=&#34;shrinkage&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            total_responses[point_index],
+            c=&#34;xkcd:purple&#34;,
+            label=&#34;total&#34;,
+            lw=lw,
+        )
+        plt.xlabel(&#34;Time (s)&#34;)
+        plt.ylabel(units)
+        plt.axvline(
+            x=traffic_sequence.start_time + time_index * time_step,
+            c=&#34;red&#34;,
+            label=&#34;current time&#34;,
+            lw=lw,
+        )
+        plt.legend(facecolor=&#34;white&#34;, loc=&#34;upper right&#34;)
+        plt.tight_layout()
+
+        # Add a color bar.
+        plt.gcf().subplots_adjust(right=0.75)
+        cbar_ax = plt.gcf().add_axes([0.8, 0.1, 0.01, 0.8])
+        cbar = plt.gcf().colorbar(
+            cm.ScalarMappable(norm=response_norm, cmap=cmap), cax=cbar_ax,
+        )
+        cbar.set_label(units)
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.plot.animate.animate_traffic"><code class="name flex">
+<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x10bbd3790>, save: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple animation of "Traffic" over a bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def animate_traffic(
+    config: Config, traffic_sequence: TrafficSequence, traffic: Traffic, save: str,
+):
+    &#34;&#34;&#34;Simple animation of &#34;Traffic&#34; over a bridge.&#34;&#34;&#34;
+    vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
+    all_vehicles = flatten(traffic, Vehicle)
+
+    def plot_f(time_index):
+        plt.title(config.bridge.name)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        plt.tight_layout()
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.plot.animate.animate_traffic_array"><code class="name flex">
+<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x11f976160>, save: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simple animation of "TrafficArray" over a bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def animate_traffic_array(
+    config: Config,
+    traffic_sequence: TrafficSequence,
+    traffic_array: TrafficArray,
+    save: str,
+):
+    &#34;&#34;&#34;Simple animation of &#34;TrafficArray&#34; over a bridge.&#34;&#34;&#34;
+    cmin, cmax = np.amin(traffic_array), np.amax(traffic_array)
+    response_norm = colors.Normalize(vmin=cmin, vmax=cmax)
+
+    def plot_f(time_index):
+        plt.title(config.bridge.name)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plt.xlim((config.bridge.x_min, config.bridge.x_max))
+        slice = traffic_array[time_index]
+        for (x, z), v in zip(ulm_xzs(config), slice):
+            if v != 0:
+                plt.scatter([x], [z], c=v, s=1, norm=response_norm)
+        plt.tight_layout()
+
+    time_step = traffic_sequence.times[1] - traffic_sequence.times[0]
+    _animate_traffic(
+        traffic=traffic_array, time_step=time_step, plot_f=plot_f, save=save
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.plot" href="index.html">bridge_sim.plot</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.plot.animate.animate_responses" href="#bridge_sim.plot.animate.animate_responses">animate_responses</a></code></li>
+<li><code><a title="bridge_sim.plot.animate.animate_traffic" href="#bridge_sim.plot.animate.animate_traffic">animate_traffic</a></code></li>
+<li><code><a title="bridge_sim.plot.animate.animate_traffic_array" href="#bridge_sim.plot.animate.animate_traffic_array">animate_traffic_array</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
