@@ -29,119 +29,33 @@
 
 from __future__ import annotations
 
-# Print debug information for this file.
-import os
-from collections import deque
-from copy import deepcopy
-from typing import Callable, List, Optional, Tuple
+from datetime import datetime
+from typing import List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
+from bridge_sim import temperature, util, shrinkage
+
 from bridge_sim.model import (
     Config,
     ResponseType,
     Point,
     PointLoad,
     Vehicle,
-    Config as LibConfig,
     PierSettlement,
 )
-from bridge_sim.sim.model import SimParams, ManyResponses, Responses
-from bridge_sim.sim.run import FEMRunner, load_expt_responses, load_fem_responses
-from bridge_sim.sim.run.opensees import OSRunner
-from bridge_sim.util import (
-    print_i,
-    print_w,
-    flatten,
-    print_d,
-    round_m,
-    shorten_path,
-    log,
-)
-from pathos import multiprocessing as multiprocessing
+from bridge_sim.shrinkage import CementClass
+from bridge_sim.sim.model import SimParams, Responses
+from bridge_sim.sim.run import load_expt_responses, load_fem_responses, load_ulm
+from bridge_sim.traffic import TrafficArray
+from bridge_sim.util import flatten, print_i, print_w, convert_times
 
-D: str = &#34;fem.fem&#34;
+D: str = &#34;sim.responses&#34;
 # D: bool = False
 
 
-def responses_to_traffic_array(
-    c: Config,
-    traffic_array: &#34;TrafficArray&#34;,
-    response_type: ResponseType,
-    points: List[Point],
-):
-    &#34;&#34;&#34;The magic function.
-
-    Args:
-        c: Config, global configuration object.
-        traffic_array: TrafficArray, ....
-        response_type: ResponseType, the type of sensor response to calculate.
-        points: List[Point], points on the bridge to calculate fem at.
-
-    &#34;&#34;&#34;
-    unit_load_matrix = ULResponses.load_ulm(
-        c=c, response_type=response_type, points=points,
-    )
-    print(traffic_array.shape)
-    print(unit_load_matrix.shape)
-    return np.matmul(traffic_array, unit_load_matrix)
-
-
-def responses_to_loads_d(
-    c: Config,
-    response_type: ResponseType,
-    points: List[Point],
-    loads: List[List[PointLoad]],
-):
-    &#34;&#34;&#34;Responses to point-loads via direct simulation.&#34;&#34;&#34;
-    expt_responses = load_expt_responses(
-        c=c,
-        expt_params=[SimParams(ploads=loads_) for loads_ in loads],
-        response_type=response_type,
-    )
-    result = []
-    for sim_responses in expt_responses:
-        result.append([sim_responses.at_deck(point, interp=True) for point in points])
-        print_i(&#34;Interpolating fem in responses_from_load_d&#34;)
-    return np.array(result)
-
-
-def responses_to_vehicles_d(
-    c: Config,
-    response_type: ResponseType,
-    points: List[Point],
-    mv_vehicles: List[Vehicle],
-    times: List[float],
-    binned: bool = True,
-):
-    &#34;&#34;&#34;Response vehicles via direct simulation.&#34;&#34;&#34;
-    if binned:
-        loads = [
-            [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
-            for time in times
-        ]
-    else:
-        print_w(f&#34;Not using fractions of wheel track bins in simulation&#34;)
-        loads = [
-            [v.to_point_load_pw(time=time, bridge=c.bridge) for v in mv_vehicles]
-            for time in times
-        ]
-    loads = [flatten(vehicle_loads, PointLoad) for vehicle_loads in loads]
-    print([len(load_) for load_ in loads])
-    print(loads[0])
-    print(loads[-1])
-    assert isinstance(loads, list)
-    assert isinstance(loads[0], list)
-    assert isinstance(loads[0][0], PointLoad)
-    return responses_to_loads_d(
-        c=c,
-        response_type=response_type,
-        points=points,
-        loads=loads,
-    )
-
-
 def load(
-    config: LibConfig,
+    config: Config,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
@@ -172,360 +86,271 @@ def load(
     )
 
 
-class PSResponses(ManyResponses):
-    &#34;&#34;&#34;Responses of one sensor type for pier settlement simulations.&#34;&#34;&#34;
+def to_traffic_array(
+    c: Config,
+    traffic_array: TrafficArray,
+    response_type: ResponseType,
+    points: List[Point],
+):
+    &#34;&#34;&#34;Responses to a traffic array at some points.
 
-    @staticmethod
-    def load(
-        c: Config,
-        response_type: ResponseType,
-    ):
-        &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
+    Args:
+        c: Config, simulations configuration object.
+        traffic_array: traffic array to calculate responses to.
+        response_type: the type of sensor response.
+        points: points at which to calculate responses.
 
-        Args:
-            c: Config, global configuration object.
-            response_type: ResponseType, the type of sensor response to load.
-
-        &#34;&#34;&#34;
-        expt_params = [
-            SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
-            for i in range(len(c.bridge.supports))
-        ]
-        return load_expt_responses(
-            c=c, expt_params=expt_params, response_type=response_type,
-        )
-
-
-class ULResponses(ManyResponses):
-    &#34;&#34;&#34;Responses of one sensor type for influence line calculations.
-
-    Each simulation is for a different loading position in the longitudinal
-    direction of the bridge. The z position is fixed for one ILExpt, thus a
-    different ILExpt should be used for each tire wheel on a bridge.
+    Returns: NumPY array indexed first by point then time.
 
     &#34;&#34;&#34;
-
-    def response_to(
-        self,
-        x_frac: float,
-        z_frac: float,
-        load_x_frac: float,
-        load: float,
-        y_frac: float = 1,
-        time_index: int = 0,
-    ):
-        &#34;&#34;&#34;The response value in kN at a position to a load at a position.
-
-        NOTE: only the loading position in longitudinal direction can be chosen,
-        with &#39;load_x_frac&#39;, the position in transverse direction is fixed for a
-        single ILExpt.
-
-        Args:
-            x_frac: float, response position on x-axis in [0 1].
-            y_frac: float, response position on y-axis in [0 1].
-            z_frac: float, response position on x-axis in [0 1].
-            load_x_frac: float, load position on x-axis in [0 1].
-            load: float, value of the load in kN.
-            time_index: int, time index of the simulation.
-
-        &#34;&#34;&#34;
-        assert 0 &lt;= x_frac &lt;= 1
-        assert 0 &lt;= load_x_frac &lt;= 1
-        print_d(D, f&#34;x_frac = {x_frac} = load_x_frac = {load_x_frac}&#34;)
-        response = super().sim_response(
-            expt_frac=load_x_frac,
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-        )
-        return response * (load / self.c.il_unit_load_kn)
-
-    def id_str(
-        c: Config,
-        response_type: ResponseType,
-        sim_runner: FEMRunner,
-        wheel_zs: List[float],
-    ):
-        wheel_zs_str = [round_m(wheel_z) for wheel_z in wheel_zs]
-        return (
-            f&#34;il-{response_type.name()}-{sim_runner.name}-{c.il_unit_load_kn}&#34;
-            + f&#34;-{c.il_num_loads}-z={wheel_zs_str}&#34;
-        )
-
-    @staticmethod
-    def load_ulm(
-        c: Config,
-        response_type: ResponseType,
-        points: List[Point],
-        sim_runner: FEMRunner,
-    ):
-        wheel_zs = c.bridge.wheel_track_zs(c)
-        filepath = c.get_data_path(
-            &#34;ulms&#34;,
-            (
-                ULResponses.id_str(
-                    c=c,
-                    response_type=response_type,
-                    sim_runner=sim_runner,
-                    wheel_zs=wheel_zs,
-                )
-                + str([str(point) for point in points])
-            )
-            + &#34;.ulm&#34;,
-        )
-        filepath = shorten_path(c=c, bypass_config=True, filepath=filepath)
-
-        if os.path.exists(filepath):
-            with open(filepath, &#34;rb&#34;) as f:
-                return np.load(f)
-
-        def ulm_partial(wheel_z):
-            &#34;&#34;&#34;Slice of unit load matrix for one wheel track.&#34;&#34;&#34;
-            wheel_track = ULResponses.load_wheel_track(
-                c=c,
-                response_type=response_type,
-                fem_runner=sim_runner,
-                load_z_frac=c.bridge.z_frac(wheel_z),
-                run_only=False,
-            )
-            partial = np.empty((c.il_num_loads, len(points)))
-            i = 0
-            for sim_responses in wheel_track:
-                for j, point in enumerate(points):
-                    partial[i][j] = sim_responses.at_deck(point, interp=False)
-                    if wheel_z &lt; 0 and i == 302:
-                        log(
-                            c,
-                            f&#34;z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}&#34;,
-                        )
-                i += 1
-            assert i == c.il_num_loads
-            print_i(f&#34;Calculated unit load matrix for wheel track {wheel_z}&#34;)
-            return partial
-
-        # Calculate results in parallel.
-        print_i(f&#34;Calculating unit load matrix...&#34;)
-        with multiprocessing.Pool(processes=len(wheel_zs)) as pool:
-            partial_results = pool.map(ulm_partial, wheel_zs)
-        # And insert into the unit load matrix.
-        unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-        for w_ind in range(len(wheel_zs)):
-            row_ind = w_ind * c.il_num_loads
-            unit_load_matrix[row_ind : row_ind + c.il_num_loads] = partial_results[
-                w_ind
-            ]
-        # Divide by unit load, so the value at a cell is the response to 1 kN.
-        unit_load_matrix /= c.il_unit_load_kn
-        with open(filepath, &#34;wb&#34;) as f:
-            np.save(f, unit_load_matrix)
-        return unit_load_matrix
-
-    @staticmethod
-    def load_wheel_tracks(
-        c: Config,
-        response_type: ResponseType,
-        sim_runner: FEMRunner,
-        wheel_zs: List[float],
-        run_only: bool = False,
-    ):
-        &#34;&#34;&#34;Return a dictionary of wheel tracks indexed by z position.
-
-        Each wheel track will be calculated in parallel if the
-        &#39;Config.parallel_ulm&#39; is set. If the &#39;run_only&#39; option is given, then
-        the simulations will run but the results will not be loaded into memory.
-
-        &#34;&#34;&#34;
-
-        def create_or_load_wheel_track(
-            wheel_z,
-            _run_only: bool = True,
-            left_only: bool = False,
-            right_only: bool = False,
-        ):
-            results = ULResponses.load_wheel_track(
-                c=deepcopy(c),
-                response_type=response_type,
-                fem_runner=deepcopy(sim_runner),
-                load_z_frac=c.bridge.z_frac(wheel_z),
-                run_only=_run_only,
-                left_only=left_only,
-                right_only=right_only,
-            )
-            # If results are only being generated, then evaluate the generator,
-            # such that the results are generated. Otherwise leave the generator
-            # to be used by the caller.
-            if _run_only:
-                # This forces the generator to be consumed without keeping the
-                # contents in memory. https://stackoverflow.com/a/47456679
-                deque(results, maxlen=0)
-                return
-            # Otherwise return the generator, to be evaluated.
-            else:
-                return results
-
-        # For each wheel track, generate it if doesn&#39;t exists.
-        # Use upto (2 x wheel_track) parallelism.
-        if c.parallel_ulm:
-            processes = min(multiprocessing.cpu_count(), len(wheel_zs * 2))
-            print_i(f&#34;Running with {processes} processes&#34;)
-            with multiprocessing.Pool(processes=processes) as pool:
-
-                def _run(params):
-                    &#34;&#34;&#34;Tuple of wheel z &amp; left/right and runs wheel track.&#34;&#34;&#34;
-                    z, l, r = params
-                    create_or_load_wheel_track(wheel_z=z, left_only=l, right_only=r)
-
-                # Construct two variants of parameters for each wheel track.
-                all_params = []
-                for wheel_z in wheel_zs:
-                    all_params.append((wheel_z, True, False))
-                    all_params.append((wheel_z, False, True))
-                assert len(all_params) == 2 * len(wheel_zs)
-                pool.map(_run, all_params)
-        else:
-            list(map(create_or_load_wheel_track, wheel_zs))
-        if run_only:
-            return
-        # Load all wheel tracks from disk into the resulting dictionary.
-        result = dict()
-        for wheel_z in wheel_zs:
-            result[wheel_z] = create_or_load_wheel_track(
-                wheel_z=wheel_z, _run_only=False
-            )
-        return result
-
-    @staticmethod
-    def load_wheel_track(
-        c: Config,
-        response_type: ResponseType,
-        fem_runner: FEMRunner,
-        load_z_frac: float,
-        run_only: bool,
-        indices: Optional[List[int]] = None,
-        left_only: bool = False,
-        right_only: bool = False,
-    ) -&gt; List[Responses]:
-        &#34;&#34;&#34;Load a wheel track from disk, running simulations if necessary.
-
-        NOTE: The result is a generator, not a list.
-
-        Args:
-            c: Config, global configuration object.
-            response_type: ResponseType, type of sensor response to return.
-            fem_runner: FEMRunner, program to run finite element simulations.
-            load_z_frac: float, load position as a fraction of the transverse
-                direction in [0 1].
-            run_only: bool, only run the simulation, do not load results.
-            left_only: bool, if true only run the left-hand-side of the wheel
-                track. If true, right_only must be false and indices None.
-            right_only: bool, if True only run the right-hand-side of the wheel
-                track. If true, left_only must be false and indices None.
-
-        &#34;&#34;&#34;
-        wheel_xs = c.bridge.wheel_track_xs(c)
-        first_right_index = len(wheel_xs) // 2
-        print(f&#34;First right index = {first_right_index}&#34;)
-
-        if left_only:
-            assert not right_only
-            assert indices is None
-            wheel_xs = wheel_xs[:first_right_index]
-        if right_only:
-            assert not left_only
-            assert indices is None
-            wheel_xs = wheel_xs[first_right_index:]
-
-        assert 0 &lt;= load_z_frac &lt;= 1
-        # Determine experiment simulation parameters.
-        expt_params = [
-            SimParams(
-                ploads=[
-                    PointLoad(
-                        x_frac=c.bridge.x_frac(x),
-                        z_frac=load_z_frac,
-                        kn=c.il_unit_load_kn,
-                    )
-                ],
-                clean_build=True,
-            )
-            for x in wheel_xs
-        ]
-        # Filter simulations, only running those in &#39;indices&#39;.
-        if indices is not None:
-            expt_params.sim_params = [
-                sp for i, sp in enumerate(expt_params.sim_params) if i in indices
-            ]
-        return load_expt_responses(
-            c=c,
-            expt_params=expt_params,
-            response_type=response_type,
-            sim_runner=fem_runner,
-            run_only=run_only,
-        )
+    ulm = load_ulm(c, response_type, points)
+    assert ulm.shape[1] == len(points)
+    assert traffic_array.shape[1] == ulm.shape[0]
+    print(traffic_array.shape, ulm.shape)
+    return np.matmul(traffic_array, ulm).T
 
 
-def run_uls(
+def to_loads_direct(
     c: Config,
-    piers: bool,
-    healthy: bool,
-    cracked: bool,
-    crack_x: Optional[int] = None,
-    crack_length: Optional[int] = None,
+    response_type: ResponseType,
+    points: List[Point],
+    loads: List[List[PointLoad]],
 ):
-    &#34;&#34;&#34;Run all unit load simulations.&#34;&#34;&#34;
-
-    def crack_f():
-        return transverse_crack(at_x=crack_x, length=crack_length)
-
-    print_i(
-        f&#34;Running simulations with crack zone at x = {crack_x}, length = {crack_length}&#34;
+    &#34;&#34;&#34;Responses to point-loads over time (via direct simulation).&#34;&#34;&#34;
+    expt_responses = load_expt_responses(
+        c=c,
+        expt_params=[SimParams(ploads=loads_) for loads_ in loads],
+        response_type=response_type,
+    )
+    return np.array(
+        [sim_responses.at_decks(points) for sim_responses in expt_responses]
     )
 
-    response_type = ResponseType.YTranslation
-    if piers:
-        # Pier settlement.
-        list(PSResponses.load(c=c, response_type=response_type, fem_runner=OSRunner(c)))
-    if healthy:
-        c = healthy_damage_w_crack_nodes(crack_f=crack_f).use(c)[0]
-        # Unit load simulations (healthy bridge).
-        ULResponses.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=OSRunner(c),
-            wheel_zs=c.bridge.wheel_track_zs(c),
-            run_only=True,
-        )
-    elif cracked:
-        # Unit load simulations (cracked bridge).
-        c = crack_f().use(c)[0]
-        ULResponses.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=OSRunner(c),
-            wheel_zs=c.bridge.wheel_track_zs(c),
-            run_only=True,
-        )
+
+def to_vehicles_direct(
+    c: Config,
+    response_type: ResponseType,
+    points: List[Point],
+    vehicles: List[Vehicle],
+    times: List[float],
+):
+    &#34;&#34;&#34;Responses to vehicles over time (via direct simulation).&#34;&#34;&#34;
+    loads = [v.wheel_track_loads(config=c, times=times) for v in vehicles]
+    loads_per_time = [[] for _ in times]
+    for v_loads in loads:
+        for t, t_loads in enumerate(v_loads):
+            loads_per_time[t] += t_loads
+    loads_per_time = [flatten(v_loads, PointLoad) for v_loads in loads_per_time]
+    print([len(load_) for load_ in loads_per_time])
+    print(loads_per_time[0])
+    print(loads_per_time[-1])
+    assert isinstance(loads_per_time, list)
+    assert isinstance(loads_per_time[0], list)
+    assert isinstance(loads_per_time[0][0], PointLoad)
+    return to_loads_direct(
+        c=c, response_type=response_type, points=points, loads=loads_per_time,
+    )
 
 
-def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
-    &#34;&#34;&#34;Run all unit load simulations.&#34;&#34;&#34;
-    response_type = ResponseType.YTranslation
-    wheel_xs = c.bridge.wheel_track_xs(c)
-    wheel_x = wheel_xs[x_i]
-    wheel_zs = c.bridge.wheel_track_zs(c)
-    wheel_z = wheel_zs[z_i]
-    print_i(f&#34;Wheel (x, z) = ({wheel_x}, {wheel_z})&#34;)
-    point = Point(x=wheel_x, y=0, z=wheel_z)
-    if healthy:
-        ULResponses.load_ulm(
-            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
+def to_pier_settlement(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to pier settlement.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        pier_settlement: start and end settlements of piers.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from pier settlement.
+
+    &#34;&#34;&#34;
+    assert len(responses_array) == len(points)
+    start_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
+    ).at_decks(points)
+    assert len(start_responses.shape) == 1
+    assert len(start_responses) == len(points)
+    end_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
+    ).at_decks(points)
+    ps_responses = np.zeros(responses_array.shape)
+    for p, _ in enumerate(points):
+        ps_responses[p] = np.interp(
+            np.arange(ps_responses.shape[1]),
+            [0, ps_responses.shape[1] - 1],
+            [start_responses[p], end_responses[p]],
         )
-    if cracked:
-        c = transverse_crack().use(c)[0]
-        ULResponses.load_ulm(
-            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
-        )</code></pre>
+    return ps_responses
+
+
+def to_temperature(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to temperature.
+
+    Date formats must be given as &#34;%d/%m/%y %H:%M&#34; e.g. &#34;01/05/19 00:00&#34;.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        weather: the FULL weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from temperature.
+
+    &#34;&#34;&#34;
+    temp_responses = np.zeros(responses_array.shape)
+    if weather is None:
+        return temp_responses
+    weather = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime(start_date, &#34;%d/%m/%y %H:%M&#34;),
+        to=datetime.strptime(end_date, &#34;%d/%m/%y %H:%M&#34;),
+    )
+    effect = temperature.effect(
+        config=config, response_type=response_type, points=points, weather=weather,
+    )
+    assert len(responses_array) == len(points)
+    assert len(effect) == len(points)
+    for p, _ in enumerate(points):
+        temp_responses[p] = util.apply(effect[p], temp_responses[p])
+    return temp_responses
+
+
+def to_shrinkage(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from shrinkage.
+
+    &#34;&#34;&#34;
+    shrinkage_responses = np.zeros(responses_array.shape)
+    if start_day is None:
+        return shrinkage_responses
+    days = np.arange(start_day, end_day + 1)
+    seconds = convert_times(f=&#34;day&#34;, t=&#34;second&#34;, times=days)
+    effect = shrinkage.total_responses(
+        config=config,
+        response_type=response_type,
+        times=seconds,
+        points=points,
+        cement_class=cement_class,
+    )
+    assert len(responses_array) == len(points)
+    assert len(effect) == len(points)
+    for p, _ in enumerate(points):
+        shrinkage_responses[p] = util.apply(effect[p], shrinkage_responses[p])
+    return shrinkage_responses
+
+
+def to(
+    config: Config,
+    points: List[Point],
+    traffic_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        traffic_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        pier_settlement: a pier settlement to apply.
+        weather: the FULL weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing any of the given response sources.
+
+    &#34;&#34;&#34;
+    tr_responses = to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=points,
+    )
+    ps_responses = to_pier_settlement(
+        config=config,
+        points=points,
+        responses_array=tr_responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    temp_responses = (
+        to_temperature(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        to_shrinkage(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    return tr_responses + ps_responses + temp_responses + shrinkage_responses</code></pre>
 </details>
 </section>
 <section>
@@ -543,7 +368,7 @@ def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.responses.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>config: LibConfig, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [], temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None)) -> <a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a></span>
+<span>def <span class="ident">load</span></span>(<span>config: Config, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [], temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None)) -> <a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses from a single linear simulation.</p>
@@ -567,7 +392,7 @@ temperature loading no post-processing is done.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load(
-    config: LibConfig,
+    config: Config,
     response_type: ResponseType,
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
@@ -598,945 +423,432 @@ temperature loading no post-processing is done.</p>
     )</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.responses.responses_to_loads_d"><code class="name flex">
-<span>def <span class="ident">responses_to_loads_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], loads: List[List[PointLoad]])</span>
+<dt id="bridge_sim.sim.responses.to"><code class="name flex">
+<span>def <span class="ident">to</span></span>(<span>config: Config, points: List[Point], traffic_array: List[List[float]], response_type: ResponseType, pier_settlement: List[Tuple[PierSettlement, PierSettlement]], weather: Optional[pd.DataFrame] = None, start_date: Optional[str] = None, end_date: Optional[str] = None, start_day: Optional[int] = None, end_day: Optional[int] = None, cement_class: CementClass = CementClass.Normal) -> List[List[float]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Responses to point-loads via direct simulation.</p></div>
+<div class="desc"><p>Time series of responses to concrete shrinkage.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points in the TrafficArray.</dd>
+<dt><strong><code>traffic_array</code></strong></dt>
+<dd>NumPY array indexed first by point then time.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>the sensor response type to add.</dd>
+<dt><strong><code>pier_settlement</code></strong></dt>
+<dd>a pier settlement to apply.</dd>
+<dt><strong><code>weather</code></strong></dt>
+<dd>the FULL weather data to calculate responses.</dd>
+<dt><strong><code>start_date</code></strong></dt>
+<dd>start-date of weather data.</dd>
+<dt><strong><code>end_date</code></strong></dt>
+<dd>end-date of weather data.</dd>
+<dt><strong><code>start_day</code></strong></dt>
+<dd>start day of responses e.g. 365 is 1 year.</dd>
+<dt><strong><code>end_day</code></strong></dt>
+<dd>end day of responses.</dd>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>cement class used in construction.</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>NumPY array</code> of <code>same shape as "responses_array" and considering the</code></dt>
+<dd>same points, but only containing any of the given response sources.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def responses_to_loads_d(
+<pre><code class="python">def to(
+    config: Config,
+    points: List[Point],
+    traffic_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        traffic_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        pier_settlement: a pier settlement to apply.
+        weather: the FULL weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing any of the given response sources.
+
+    &#34;&#34;&#34;
+    tr_responses = to_traffic_array(
+        c=config,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=points,
+    )
+    ps_responses = to_pier_settlement(
+        config=config,
+        points=points,
+        responses_array=tr_responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    temp_responses = (
+        to_temperature(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        * 1e3
+    )
+    shrinkage_responses = (
+        to_shrinkage(
+            config=config,
+            points=points,
+            responses_array=tr_responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    return tr_responses + ps_responses + temp_responses + shrinkage_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.responses.to_loads_direct"><code class="name flex">
+<span>def <span class="ident">to_loads_direct</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], loads: List[List[PointLoad]])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses to point-loads over time (via direct simulation).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_loads_direct(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
     loads: List[List[PointLoad]],
 ):
-    &#34;&#34;&#34;Responses to point-loads via direct simulation.&#34;&#34;&#34;
+    &#34;&#34;&#34;Responses to point-loads over time (via direct simulation).&#34;&#34;&#34;
     expt_responses = load_expt_responses(
         c=c,
         expt_params=[SimParams(ploads=loads_) for loads_ in loads],
         response_type=response_type,
     )
-    result = []
-    for sim_responses in expt_responses:
-        result.append([sim_responses.at_deck(point, interp=True) for point in points])
-        print_i(&#34;Interpolating fem in responses_from_load_d&#34;)
-    return np.array(result)</code></pre>
+    return np.array(
+        [sim_responses.at_decks(points) for sim_responses in expt_responses]
+    )</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.responses.responses_to_traffic_array"><code class="name flex">
-<span>def <span class="ident">responses_to_traffic_array</span></span>(<span>c: Config, traffic_array: "'TrafficArray'", response_type: ResponseType, points: List[Point])</span>
+<dt id="bridge_sim.sim.responses.to_pier_settlement"><code class="name flex">
+<span>def <span class="ident">to_pier_settlement</span></span>(<span>config: Config, points: List[Point], responses_array: List[List[float]], response_type: ResponseType, pier_settlement: List[Tuple[PierSettlement, PierSettlement]]) -> List[List[float]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>The magic function.</p>
+<div class="desc"><p>Time series of responses to pier settlement.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>c</code></strong></dt>
-<dd>Config, global configuration object.</dd>
-<dt><strong><code>traffic_array</code></strong></dt>
-<dd>TrafficArray, ....</dd>
-<dt><strong><code>response_type</code></strong></dt>
-<dd>ResponseType, the type of sensor response to calculate.</dd>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
 <dt><strong><code>points</code></strong></dt>
-<dd>List[Point], points on the bridge to calculate fem at.</dd>
+<dd>points in the TrafficArray.</dd>
+<dt><strong><code>responses_array</code></strong></dt>
+<dd>NumPY array indexed first by point then time.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>the sensor response type to add.</dd>
+<dt><strong><code>pier_settlement</code></strong></dt>
+<dd>start and end settlements of piers.</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>NumPY array</code> of <code>same shape as "responses_array" and considering the</code></dt>
+<dd>same points, but only containing the responses from pier settlement.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def responses_to_traffic_array(
-    c: Config,
-    traffic_array: &#34;TrafficArray&#34;,
-    response_type: ResponseType,
+<pre><code class="python">def to_pier_settlement(
+    config: Config,
     points: List[Point],
-):
-    &#34;&#34;&#34;The magic function.
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to pier settlement.
 
     Args:
-        c: Config, global configuration object.
-        traffic_array: TrafficArray, ....
-        response_type: ResponseType, the type of sensor response to calculate.
-        points: List[Point], points on the bridge to calculate fem at.
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        pier_settlement: start and end settlements of piers.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from pier settlement.
 
     &#34;&#34;&#34;
-    unit_load_matrix = ULResponses.load_ulm(
-        c=c, response_type=response_type, points=points,
-    )
-    print(traffic_array.shape)
-    print(unit_load_matrix.shape)
-    return np.matmul(traffic_array, unit_load_matrix)</code></pre>
+    assert len(responses_array) == len(points)
+    start_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
+    ).at_decks(points)
+    assert len(start_responses.shape) == 1
+    assert len(start_responses) == len(points)
+    end_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
+    ).at_decks(points)
+    ps_responses = np.zeros(responses_array.shape)
+    for p, _ in enumerate(points):
+        ps_responses[p] = np.interp(
+            np.arange(ps_responses.shape[1]),
+            [0, ps_responses.shape[1] - 1],
+            [start_responses[p], end_responses[p]],
+        )
+    return ps_responses</code></pre>
 </details>
 </dd>
-<dt id="bridge_sim.sim.responses.responses_to_vehicles_d"><code class="name flex">
-<span>def <span class="ident">responses_to_vehicles_d</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], mv_vehicles: List[Vehicle], times: List[float], binned: bool = True)</span>
+<dt id="bridge_sim.sim.responses.to_shrinkage"><code class="name flex">
+<span>def <span class="ident">to_shrinkage</span></span>(<span>config: Config, points: List[Point], responses_array: List[List[float]], response_type: ResponseType, start_day: Optional[int] = None, end_day: Optional[int] = None, cement_class: CementClass = CementClass.Normal) -> List[List[float]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Response vehicles via direct simulation.</p></div>
+<div class="desc"><p>Time series of responses to concrete shrinkage.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points in the TrafficArray.</dd>
+<dt><strong><code>responses_array</code></strong></dt>
+<dd>NumPY array indexed first by point then time.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>the sensor response type to add.</dd>
+<dt><strong><code>start_day</code></strong></dt>
+<dd>start day of responses e.g. 365 is 1 year.</dd>
+<dt><strong><code>end_day</code></strong></dt>
+<dd>end day of responses.</dd>
+<dt><strong><code>cement_class</code></strong></dt>
+<dd>cement class used in construction.</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>NumPY array</code> of <code>same shape as "responses_array" and considering the</code></dt>
+<dd>same points, but only containing the responses from shrinkage.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def responses_to_vehicles_d(
+<pre><code class="python">def to_shrinkage(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from shrinkage.
+
+    &#34;&#34;&#34;
+    shrinkage_responses = np.zeros(responses_array.shape)
+    if start_day is None:
+        return shrinkage_responses
+    days = np.arange(start_day, end_day + 1)
+    seconds = convert_times(f=&#34;day&#34;, t=&#34;second&#34;, times=days)
+    effect = shrinkage.total_responses(
+        config=config,
+        response_type=response_type,
+        times=seconds,
+        points=points,
+        cement_class=cement_class,
+    )
+    assert len(responses_array) == len(points)
+    assert len(effect) == len(points)
+    for p, _ in enumerate(points):
+        shrinkage_responses[p] = util.apply(effect[p], shrinkage_responses[p])
+    return shrinkage_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.responses.to_temperature"><code class="name flex">
+<span>def <span class="ident">to_temperature</span></span>(<span>config: Config, points: List[Point], responses_array: List[List[float]], response_type: ResponseType, weather: Optional[pd.DataFrame] = None, start_date: Optional[str] = None, end_date: Optional[str] = None) -> List[List[float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Time series of responses to temperature.</p>
+<p>Date formats must be given as "%d/%m/%y %H:%M" e.g. "01/05/19 00:00".</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points in the TrafficArray.</dd>
+<dt><strong><code>responses_array</code></strong></dt>
+<dd>NumPY array indexed first by point then time.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>the sensor response type to add.</dd>
+<dt><strong><code>weather</code></strong></dt>
+<dd>the FULL weather data to calculate responses.</dd>
+<dt><strong><code>start_date</code></strong></dt>
+<dd>start-date of weather data.</dd>
+<dt><strong><code>end_date</code></strong></dt>
+<dd>end-date of weather data.</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>NumPY array</code> of <code>same shape as "responses_array" and considering the</code></dt>
+<dd>same points, but only containing the responses from temperature.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_temperature(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    weather: Optional[pd.DataFrame] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -&gt; List[List[float]]:
+    &#34;&#34;&#34;Time series of responses to temperature.
+
+    Date formats must be given as &#34;%d/%m/%y %H:%M&#34; e.g. &#34;01/05/19 00:00&#34;.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        weather: the FULL weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+
+    Returns: NumPY array of same shape as &#34;responses_array&#34; and considering the
+        same points, but only containing the responses from temperature.
+
+    &#34;&#34;&#34;
+    temp_responses = np.zeros(responses_array.shape)
+    if weather is None:
+        return temp_responses
+    weather = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime(start_date, &#34;%d/%m/%y %H:%M&#34;),
+        to=datetime.strptime(end_date, &#34;%d/%m/%y %H:%M&#34;),
+    )
+    effect = temperature.effect(
+        config=config, response_type=response_type, points=points, weather=weather,
+    )
+    assert len(responses_array) == len(points)
+    assert len(effect) == len(points)
+    for p, _ in enumerate(points):
+        temp_responses[p] = util.apply(effect[p], temp_responses[p])
+    return temp_responses</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.responses.to_traffic_array"><code class="name flex">
+<span>def <span class="ident">to_traffic_array</span></span>(<span>c: Config, traffic_array: TrafficArray, response_type: ResponseType, points: List[Point])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses to a traffic array at some points.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>c</code></strong></dt>
+<dd>Config, simulations configuration object.</dd>
+<dt><strong><code>traffic_array</code></strong></dt>
+<dd>traffic array to calculate responses to.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>the type of sensor response.</dd>
+<dt><strong><code>points</code></strong></dt>
+<dd>points at which to calculate responses.</dd>
+</dl>
+<p>Returns: NumPY array indexed first by point then time.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_traffic_array(
+    c: Config,
+    traffic_array: TrafficArray,
+    response_type: ResponseType,
+    points: List[Point],
+):
+    &#34;&#34;&#34;Responses to a traffic array at some points.
+
+    Args:
+        c: Config, simulations configuration object.
+        traffic_array: traffic array to calculate responses to.
+        response_type: the type of sensor response.
+        points: points at which to calculate responses.
+
+    Returns: NumPY array indexed first by point then time.
+
+    &#34;&#34;&#34;
+    ulm = load_ulm(c, response_type, points)
+    assert ulm.shape[1] == len(points)
+    assert traffic_array.shape[1] == ulm.shape[0]
+    print(traffic_array.shape, ulm.shape)
+    return np.matmul(traffic_array, ulm).T</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.sim.responses.to_vehicles_direct"><code class="name flex">
+<span>def <span class="ident">to_vehicles_direct</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], vehicles: List[Vehicle], times: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Responses to vehicles over time (via direct simulation).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_vehicles_direct(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
-    mv_vehicles: List[Vehicle],
+    vehicles: List[Vehicle],
     times: List[float],
-    binned: bool = True,
 ):
-    &#34;&#34;&#34;Response vehicles via direct simulation.&#34;&#34;&#34;
-    if binned:
-        loads = [
-            [v.to_wheel_track_loads(c=c, time=time) for v in mv_vehicles]
-            for time in times
-        ]
-    else:
-        print_w(f&#34;Not using fractions of wheel track bins in simulation&#34;)
-        loads = [
-            [v.to_point_load_pw(time=time, bridge=c.bridge) for v in mv_vehicles]
-            for time in times
-        ]
-    loads = [flatten(vehicle_loads, PointLoad) for vehicle_loads in loads]
-    print([len(load_) for load_ in loads])
-    print(loads[0])
-    print(loads[-1])
-    assert isinstance(loads, list)
-    assert isinstance(loads[0], list)
-    assert isinstance(loads[0][0], PointLoad)
-    return responses_to_loads_d(
-        c=c,
-        response_type=response_type,
-        points=points,
-        loads=loads,
+    &#34;&#34;&#34;Responses to vehicles over time (via direct simulation).&#34;&#34;&#34;
+    loads = [v.wheel_track_loads(config=c, times=times) for v in vehicles]
+    loads_per_time = [[] for _ in times]
+    for v_loads in loads:
+        for t, t_loads in enumerate(v_loads):
+            loads_per_time[t] += t_loads
+    loads_per_time = [flatten(v_loads, PointLoad) for v_loads in loads_per_time]
+    print([len(load_) for load_ in loads_per_time])
+    print(loads_per_time[0])
+    print(loads_per_time[-1])
+    assert isinstance(loads_per_time, list)
+    assert isinstance(loads_per_time[0], list)
+    assert isinstance(loads_per_time[0][0], PointLoad)
+    return to_loads_direct(
+        c=c, response_type=response_type, points=points, loads=loads_per_time,
     )</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.responses.run_ulm"><code class="name flex">
-<span>def <span class="ident">run_ulm</span></span>(<span>c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Run all unit load simulations.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def run_ulm(c: Config, healthy: bool, cracked: bool, x_i: float, z_i: float):
-    &#34;&#34;&#34;Run all unit load simulations.&#34;&#34;&#34;
-    response_type = ResponseType.YTranslation
-    wheel_xs = c.bridge.wheel_track_xs(c)
-    wheel_x = wheel_xs[x_i]
-    wheel_zs = c.bridge.wheel_track_zs(c)
-    wheel_z = wheel_zs[z_i]
-    print_i(f&#34;Wheel (x, z) = ({wheel_x}, {wheel_z})&#34;)
-    point = Point(x=wheel_x, y=0, z=wheel_z)
-    if healthy:
-        ULResponses.load_ulm(
-            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
-        )
-    if cracked:
-        c = transverse_crack().use(c)[0]
-        ULResponses.load_ulm(
-            c=c, response_type=response_type, points=[point], sim_runner=OSRunner(c),
-        )</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.responses.run_uls"><code class="name flex">
-<span>def <span class="ident">run_uls</span></span>(<span>c: Config, piers: bool, healthy: bool, cracked: bool, crack_x: Optional[int] = None, crack_length: Optional[int] = None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Run all unit load simulations.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def run_uls(
-    c: Config,
-    piers: bool,
-    healthy: bool,
-    cracked: bool,
-    crack_x: Optional[int] = None,
-    crack_length: Optional[int] = None,
-):
-    &#34;&#34;&#34;Run all unit load simulations.&#34;&#34;&#34;
-
-    def crack_f():
-        return transverse_crack(at_x=crack_x, length=crack_length)
-
-    print_i(
-        f&#34;Running simulations with crack zone at x = {crack_x}, length = {crack_length}&#34;
-    )
-
-    response_type = ResponseType.YTranslation
-    if piers:
-        # Pier settlement.
-        list(PSResponses.load(c=c, response_type=response_type, fem_runner=OSRunner(c)))
-    if healthy:
-        c = healthy_damage_w_crack_nodes(crack_f=crack_f).use(c)[0]
-        # Unit load simulations (healthy bridge).
-        ULResponses.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=OSRunner(c),
-            wheel_zs=c.bridge.wheel_track_zs(c),
-            run_only=True,
-        )
-    elif cracked:
-        # Unit load simulations (cracked bridge).
-        c = crack_f().use(c)[0]
-        ULResponses.load_wheel_tracks(
-            c=c,
-            response_type=response_type,
-            sim_runner=OSRunner(c),
-            wheel_zs=c.bridge.wheel_track_zs(c),
-            run_only=True,
-        )</code></pre>
 </details>
 </dd>
 </dl>
 </section>
 <section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="bridge_sim.sim.responses.PSResponses"><code class="flex name class">
-<span>class <span class="ident">PSResponses</span></span>
-<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>], fem_runner: FEMRunner, expt_responses: List[<a title="bridge_sim.sim.model.SimResponses" href="../model/index.html#bridge_sim.sim.model.SimResponses">SimResponses</a>])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Responses of one sensor type for pier settlement simulations.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class PSResponses(ManyResponses):
-    &#34;&#34;&#34;Responses of one sensor type for pier settlement simulations.&#34;&#34;&#34;
-
-    @staticmethod
-    def load(
-        c: Config,
-        response_type: ResponseType,
-    ):
-        &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
-
-        Args:
-            c: Config, global configuration object.
-            response_type: ResponseType, the type of sensor response to load.
-
-        &#34;&#34;&#34;
-        expt_params = [
-            SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
-            for i in range(len(c.bridge.supports))
-        ]
-        return load_expt_responses(
-            c=c, expt_params=expt_params, response_type=response_type,
-        )</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="bridge_sim.sim.model.ManyResponses" href="../model/index.html#bridge_sim.sim.model.ManyResponses">ManyResponses</a></li>
-</ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="bridge_sim.sim.responses.PSResponses.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>c: Config, response_type: ResponseType)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Load a DCExpt from disk, running simulations first if necessary.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>c</code></strong></dt>
-<dd>Config, global configuration object.</dd>
-<dt><strong><code>response_type</code></strong></dt>
-<dd>ResponseType, the type of sensor response to load.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load(
-    c: Config,
-    response_type: ResponseType,
-):
-    &#34;&#34;&#34;Load a DCExpt from disk, running simulations first if necessary.
-
-    Args:
-        c: Config, global configuration object.
-        response_type: ResponseType, the type of sensor response to load.
-
-    &#34;&#34;&#34;
-    expt_params = [
-        SimParams(displacement_ctrl=PierSettlement(c.pd_unit_disp, i))
-        for i in range(len(c.bridge.supports))
-    ]
-    return load_expt_responses(
-        c=c, expt_params=expt_params, response_type=response_type,
-    )</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="bridge_sim.sim.model.ManyResponses" href="../model/index.html#bridge_sim.sim.model.ManyResponses">ManyResponses</a></b></code>:
-<ul class="hlist">
-<li><code><a title="bridge_sim.sim.model.ManyResponses.sim_response" href="../model/index.html#bridge_sim.sim.model.ManyResponses.sim_response">sim_response</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="bridge_sim.sim.responses.ULResponses"><code class="flex name class">
-<span>class <span class="ident">ULResponses</span></span>
-<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, expt_params: List[<a title="bridge_sim.sim.model.SimParams" href="../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>], fem_runner: FEMRunner, expt_responses: List[<a title="bridge_sim.sim.model.SimResponses" href="../model/index.html#bridge_sim.sim.model.SimResponses">SimResponses</a>])</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Responses of one sensor type for influence line calculations.</p>
-<p>Each simulation is for a different loading position in the longitudinal
-direction of the bridge. The z position is fixed for one ILExpt, thus a
-different ILExpt should be used for each tire wheel on a bridge.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class ULResponses(ManyResponses):
-    &#34;&#34;&#34;Responses of one sensor type for influence line calculations.
-
-    Each simulation is for a different loading position in the longitudinal
-    direction of the bridge. The z position is fixed for one ILExpt, thus a
-    different ILExpt should be used for each tire wheel on a bridge.
-
-    &#34;&#34;&#34;
-
-    def response_to(
-        self,
-        x_frac: float,
-        z_frac: float,
-        load_x_frac: float,
-        load: float,
-        y_frac: float = 1,
-        time_index: int = 0,
-    ):
-        &#34;&#34;&#34;The response value in kN at a position to a load at a position.
-
-        NOTE: only the loading position in longitudinal direction can be chosen,
-        with &#39;load_x_frac&#39;, the position in transverse direction is fixed for a
-        single ILExpt.
-
-        Args:
-            x_frac: float, response position on x-axis in [0 1].
-            y_frac: float, response position on y-axis in [0 1].
-            z_frac: float, response position on x-axis in [0 1].
-            load_x_frac: float, load position on x-axis in [0 1].
-            load: float, value of the load in kN.
-            time_index: int, time index of the simulation.
-
-        &#34;&#34;&#34;
-        assert 0 &lt;= x_frac &lt;= 1
-        assert 0 &lt;= load_x_frac &lt;= 1
-        print_d(D, f&#34;x_frac = {x_frac} = load_x_frac = {load_x_frac}&#34;)
-        response = super().sim_response(
-            expt_frac=load_x_frac,
-            x_frac=x_frac,
-            y_frac=y_frac,
-            z_frac=z_frac,
-            time_index=time_index,
-        )
-        return response * (load / self.c.il_unit_load_kn)
-
-    def id_str(
-        c: Config,
-        response_type: ResponseType,
-        sim_runner: FEMRunner,
-        wheel_zs: List[float],
-    ):
-        wheel_zs_str = [round_m(wheel_z) for wheel_z in wheel_zs]
-        return (
-            f&#34;il-{response_type.name()}-{sim_runner.name}-{c.il_unit_load_kn}&#34;
-            + f&#34;-{c.il_num_loads}-z={wheel_zs_str}&#34;
-        )
-
-    @staticmethod
-    def load_ulm(
-        c: Config,
-        response_type: ResponseType,
-        points: List[Point],
-        sim_runner: FEMRunner,
-    ):
-        wheel_zs = c.bridge.wheel_track_zs(c)
-        filepath = c.get_data_path(
-            &#34;ulms&#34;,
-            (
-                ULResponses.id_str(
-                    c=c,
-                    response_type=response_type,
-                    sim_runner=sim_runner,
-                    wheel_zs=wheel_zs,
-                )
-                + str([str(point) for point in points])
-            )
-            + &#34;.ulm&#34;,
-        )
-        filepath = shorten_path(c=c, bypass_config=True, filepath=filepath)
-
-        if os.path.exists(filepath):
-            with open(filepath, &#34;rb&#34;) as f:
-                return np.load(f)
-
-        def ulm_partial(wheel_z):
-            &#34;&#34;&#34;Slice of unit load matrix for one wheel track.&#34;&#34;&#34;
-            wheel_track = ULResponses.load_wheel_track(
-                c=c,
-                response_type=response_type,
-                fem_runner=sim_runner,
-                load_z_frac=c.bridge.z_frac(wheel_z),
-                run_only=False,
-            )
-            partial = np.empty((c.il_num_loads, len(points)))
-            i = 0
-            for sim_responses in wheel_track:
-                for j, point in enumerate(points):
-                    partial[i][j] = sim_responses.at_deck(point, interp=False)
-                    if wheel_z &lt; 0 and i == 302:
-                        log(
-                            c,
-                            f&#34;z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}&#34;,
-                        )
-                i += 1
-            assert i == c.il_num_loads
-            print_i(f&#34;Calculated unit load matrix for wheel track {wheel_z}&#34;)
-            return partial
-
-        # Calculate results in parallel.
-        print_i(f&#34;Calculating unit load matrix...&#34;)
-        with multiprocessing.Pool(processes=len(wheel_zs)) as pool:
-            partial_results = pool.map(ulm_partial, wheel_zs)
-        # And insert into the unit load matrix.
-        unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-        for w_ind in range(len(wheel_zs)):
-            row_ind = w_ind * c.il_num_loads
-            unit_load_matrix[row_ind : row_ind + c.il_num_loads] = partial_results[
-                w_ind
-            ]
-        # Divide by unit load, so the value at a cell is the response to 1 kN.
-        unit_load_matrix /= c.il_unit_load_kn
-        with open(filepath, &#34;wb&#34;) as f:
-            np.save(f, unit_load_matrix)
-        return unit_load_matrix
-
-    @staticmethod
-    def load_wheel_tracks(
-        c: Config,
-        response_type: ResponseType,
-        sim_runner: FEMRunner,
-        wheel_zs: List[float],
-        run_only: bool = False,
-    ):
-        &#34;&#34;&#34;Return a dictionary of wheel tracks indexed by z position.
-
-        Each wheel track will be calculated in parallel if the
-        &#39;Config.parallel_ulm&#39; is set. If the &#39;run_only&#39; option is given, then
-        the simulations will run but the results will not be loaded into memory.
-
-        &#34;&#34;&#34;
-
-        def create_or_load_wheel_track(
-            wheel_z,
-            _run_only: bool = True,
-            left_only: bool = False,
-            right_only: bool = False,
-        ):
-            results = ULResponses.load_wheel_track(
-                c=deepcopy(c),
-                response_type=response_type,
-                fem_runner=deepcopy(sim_runner),
-                load_z_frac=c.bridge.z_frac(wheel_z),
-                run_only=_run_only,
-                left_only=left_only,
-                right_only=right_only,
-            )
-            # If results are only being generated, then evaluate the generator,
-            # such that the results are generated. Otherwise leave the generator
-            # to be used by the caller.
-            if _run_only:
-                # This forces the generator to be consumed without keeping the
-                # contents in memory. https://stackoverflow.com/a/47456679
-                deque(results, maxlen=0)
-                return
-            # Otherwise return the generator, to be evaluated.
-            else:
-                return results
-
-        # For each wheel track, generate it if doesn&#39;t exists.
-        # Use upto (2 x wheel_track) parallelism.
-        if c.parallel_ulm:
-            processes = min(multiprocessing.cpu_count(), len(wheel_zs * 2))
-            print_i(f&#34;Running with {processes} processes&#34;)
-            with multiprocessing.Pool(processes=processes) as pool:
-
-                def _run(params):
-                    &#34;&#34;&#34;Tuple of wheel z &amp; left/right and runs wheel track.&#34;&#34;&#34;
-                    z, l, r = params
-                    create_or_load_wheel_track(wheel_z=z, left_only=l, right_only=r)
-
-                # Construct two variants of parameters for each wheel track.
-                all_params = []
-                for wheel_z in wheel_zs:
-                    all_params.append((wheel_z, True, False))
-                    all_params.append((wheel_z, False, True))
-                assert len(all_params) == 2 * len(wheel_zs)
-                pool.map(_run, all_params)
-        else:
-            list(map(create_or_load_wheel_track, wheel_zs))
-        if run_only:
-            return
-        # Load all wheel tracks from disk into the resulting dictionary.
-        result = dict()
-        for wheel_z in wheel_zs:
-            result[wheel_z] = create_or_load_wheel_track(
-                wheel_z=wheel_z, _run_only=False
-            )
-        return result
-
-    @staticmethod
-    def load_wheel_track(
-        c: Config,
-        response_type: ResponseType,
-        fem_runner: FEMRunner,
-        load_z_frac: float,
-        run_only: bool,
-        indices: Optional[List[int]] = None,
-        left_only: bool = False,
-        right_only: bool = False,
-    ) -&gt; List[Responses]:
-        &#34;&#34;&#34;Load a wheel track from disk, running simulations if necessary.
-
-        NOTE: The result is a generator, not a list.
-
-        Args:
-            c: Config, global configuration object.
-            response_type: ResponseType, type of sensor response to return.
-            fem_runner: FEMRunner, program to run finite element simulations.
-            load_z_frac: float, load position as a fraction of the transverse
-                direction in [0 1].
-            run_only: bool, only run the simulation, do not load results.
-            left_only: bool, if true only run the left-hand-side of the wheel
-                track. If true, right_only must be false and indices None.
-            right_only: bool, if True only run the right-hand-side of the wheel
-                track. If true, left_only must be false and indices None.
-
-        &#34;&#34;&#34;
-        wheel_xs = c.bridge.wheel_track_xs(c)
-        first_right_index = len(wheel_xs) // 2
-        print(f&#34;First right index = {first_right_index}&#34;)
-
-        if left_only:
-            assert not right_only
-            assert indices is None
-            wheel_xs = wheel_xs[:first_right_index]
-        if right_only:
-            assert not left_only
-            assert indices is None
-            wheel_xs = wheel_xs[first_right_index:]
-
-        assert 0 &lt;= load_z_frac &lt;= 1
-        # Determine experiment simulation parameters.
-        expt_params = [
-            SimParams(
-                ploads=[
-                    PointLoad(
-                        x_frac=c.bridge.x_frac(x),
-                        z_frac=load_z_frac,
-                        kn=c.il_unit_load_kn,
-                    )
-                ],
-                clean_build=True,
-            )
-            for x in wheel_xs
-        ]
-        # Filter simulations, only running those in &#39;indices&#39;.
-        if indices is not None:
-            expt_params.sim_params = [
-                sp for i, sp in enumerate(expt_params.sim_params) if i in indices
-            ]
-        return load_expt_responses(
-            c=c,
-            expt_params=expt_params,
-            response_type=response_type,
-            sim_runner=fem_runner,
-            run_only=run_only,
-        )</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="bridge_sim.sim.model.ManyResponses" href="../model/index.html#bridge_sim.sim.model.ManyResponses">ManyResponses</a></li>
-</ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="bridge_sim.sim.responses.ULResponses.load_ulm"><code class="name flex">
-<span>def <span class="ident">load_ulm</span></span>(<span>c: Config, response_type: ResponseType, points: List[Point], sim_runner: FEMRunner)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_ulm(
-    c: Config,
-    response_type: ResponseType,
-    points: List[Point],
-    sim_runner: FEMRunner,
-):
-    wheel_zs = c.bridge.wheel_track_zs(c)
-    filepath = c.get_data_path(
-        &#34;ulms&#34;,
-        (
-            ULResponses.id_str(
-                c=c,
-                response_type=response_type,
-                sim_runner=sim_runner,
-                wheel_zs=wheel_zs,
-            )
-            + str([str(point) for point in points])
-        )
-        + &#34;.ulm&#34;,
-    )
-    filepath = shorten_path(c=c, bypass_config=True, filepath=filepath)
-
-    if os.path.exists(filepath):
-        with open(filepath, &#34;rb&#34;) as f:
-            return np.load(f)
-
-    def ulm_partial(wheel_z):
-        &#34;&#34;&#34;Slice of unit load matrix for one wheel track.&#34;&#34;&#34;
-        wheel_track = ULResponses.load_wheel_track(
-            c=c,
-            response_type=response_type,
-            fem_runner=sim_runner,
-            load_z_frac=c.bridge.z_frac(wheel_z),
-            run_only=False,
-        )
-        partial = np.empty((c.il_num_loads, len(points)))
-        i = 0
-        for sim_responses in wheel_track:
-            for j, point in enumerate(points):
-                partial[i][j] = sim_responses.at_deck(point, interp=False)
-                if wheel_z &lt; 0 and i == 302:
-                    log(
-                        c,
-                        f&#34;z = {wheel_z}, i = 302, partial[i][j] = {partial[i][j]}&#34;,
-                    )
-            i += 1
-        assert i == c.il_num_loads
-        print_i(f&#34;Calculated unit load matrix for wheel track {wheel_z}&#34;)
-        return partial
-
-    # Calculate results in parallel.
-    print_i(f&#34;Calculating unit load matrix...&#34;)
-    with multiprocessing.Pool(processes=len(wheel_zs)) as pool:
-        partial_results = pool.map(ulm_partial, wheel_zs)
-    # And insert into the unit load matrix.
-    unit_load_matrix = np.empty((len(wheel_zs) * c.il_num_loads, len(points)))
-    for w_ind in range(len(wheel_zs)):
-        row_ind = w_ind * c.il_num_loads
-        unit_load_matrix[row_ind : row_ind + c.il_num_loads] = partial_results[
-            w_ind
-        ]
-    # Divide by unit load, so the value at a cell is the response to 1 kN.
-    unit_load_matrix /= c.il_unit_load_kn
-    with open(filepath, &#34;wb&#34;) as f:
-        np.save(f, unit_load_matrix)
-    return unit_load_matrix</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.responses.ULResponses.load_wheel_track"><code class="name flex">
-<span>def <span class="ident">load_wheel_track</span></span>(<span>c: Config, response_type: ResponseType, fem_runner: FEMRunner, load_z_frac: float, run_only: bool, indices: Optional[List[int]] = None, left_only: bool = False, right_only: bool = False) -> List[<a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a>]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Load a wheel track from disk, running simulations if necessary.</p>
-<p>NOTE: The result is a generator, not a list.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>c</code></strong></dt>
-<dd>Config, global configuration object.</dd>
-<dt><strong><code>response_type</code></strong></dt>
-<dd>ResponseType, type of sensor response to return.</dd>
-<dt><strong><code>fem_runner</code></strong></dt>
-<dd>FEMRunner, program to run finite element simulations.</dd>
-<dt><strong><code>load_z_frac</code></strong></dt>
-<dd>float, load position as a fraction of the transverse
-direction in [0 1].</dd>
-<dt><strong><code>run_only</code></strong></dt>
-<dd>bool, only run the simulation, do not load results.</dd>
-<dt><strong><code>left_only</code></strong></dt>
-<dd>bool, if true only run the left-hand-side of the wheel
-track. If true, right_only must be false and indices None.</dd>
-<dt><strong><code>right_only</code></strong></dt>
-<dd>bool, if True only run the right-hand-side of the wheel
-track. If true, left_only must be false and indices None.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_wheel_track(
-    c: Config,
-    response_type: ResponseType,
-    fem_runner: FEMRunner,
-    load_z_frac: float,
-    run_only: bool,
-    indices: Optional[List[int]] = None,
-    left_only: bool = False,
-    right_only: bool = False,
-) -&gt; List[Responses]:
-    &#34;&#34;&#34;Load a wheel track from disk, running simulations if necessary.
-
-    NOTE: The result is a generator, not a list.
-
-    Args:
-        c: Config, global configuration object.
-        response_type: ResponseType, type of sensor response to return.
-        fem_runner: FEMRunner, program to run finite element simulations.
-        load_z_frac: float, load position as a fraction of the transverse
-            direction in [0 1].
-        run_only: bool, only run the simulation, do not load results.
-        left_only: bool, if true only run the left-hand-side of the wheel
-            track. If true, right_only must be false and indices None.
-        right_only: bool, if True only run the right-hand-side of the wheel
-            track. If true, left_only must be false and indices None.
-
-    &#34;&#34;&#34;
-    wheel_xs = c.bridge.wheel_track_xs(c)
-    first_right_index = len(wheel_xs) // 2
-    print(f&#34;First right index = {first_right_index}&#34;)
-
-    if left_only:
-        assert not right_only
-        assert indices is None
-        wheel_xs = wheel_xs[:first_right_index]
-    if right_only:
-        assert not left_only
-        assert indices is None
-        wheel_xs = wheel_xs[first_right_index:]
-
-    assert 0 &lt;= load_z_frac &lt;= 1
-    # Determine experiment simulation parameters.
-    expt_params = [
-        SimParams(
-            ploads=[
-                PointLoad(
-                    x_frac=c.bridge.x_frac(x),
-                    z_frac=load_z_frac,
-                    kn=c.il_unit_load_kn,
-                )
-            ],
-            clean_build=True,
-        )
-        for x in wheel_xs
-    ]
-    # Filter simulations, only running those in &#39;indices&#39;.
-    if indices is not None:
-        expt_params.sim_params = [
-            sp for i, sp in enumerate(expt_params.sim_params) if i in indices
-        ]
-    return load_expt_responses(
-        c=c,
-        expt_params=expt_params,
-        response_type=response_type,
-        sim_runner=fem_runner,
-        run_only=run_only,
-    )</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.responses.ULResponses.load_wheel_tracks"><code class="name flex">
-<span>def <span class="ident">load_wheel_tracks</span></span>(<span>c: Config, response_type: ResponseType, sim_runner: FEMRunner, wheel_zs: List[float], run_only: bool = False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return a dictionary of wheel tracks indexed by z position.</p>
-<p>Each wheel track will be calculated in parallel if the
-'Config.parallel_ulm' is set. If the 'run_only' option is given, then
-the simulations will run but the results will not be loaded into memory.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def load_wheel_tracks(
-    c: Config,
-    response_type: ResponseType,
-    sim_runner: FEMRunner,
-    wheel_zs: List[float],
-    run_only: bool = False,
-):
-    &#34;&#34;&#34;Return a dictionary of wheel tracks indexed by z position.
-
-    Each wheel track will be calculated in parallel if the
-    &#39;Config.parallel_ulm&#39; is set. If the &#39;run_only&#39; option is given, then
-    the simulations will run but the results will not be loaded into memory.
-
-    &#34;&#34;&#34;
-
-    def create_or_load_wheel_track(
-        wheel_z,
-        _run_only: bool = True,
-        left_only: bool = False,
-        right_only: bool = False,
-    ):
-        results = ULResponses.load_wheel_track(
-            c=deepcopy(c),
-            response_type=response_type,
-            fem_runner=deepcopy(sim_runner),
-            load_z_frac=c.bridge.z_frac(wheel_z),
-            run_only=_run_only,
-            left_only=left_only,
-            right_only=right_only,
-        )
-        # If results are only being generated, then evaluate the generator,
-        # such that the results are generated. Otherwise leave the generator
-        # to be used by the caller.
-        if _run_only:
-            # This forces the generator to be consumed without keeping the
-            # contents in memory. https://stackoverflow.com/a/47456679
-            deque(results, maxlen=0)
-            return
-        # Otherwise return the generator, to be evaluated.
-        else:
-            return results
-
-    # For each wheel track, generate it if doesn&#39;t exists.
-    # Use upto (2 x wheel_track) parallelism.
-    if c.parallel_ulm:
-        processes = min(multiprocessing.cpu_count(), len(wheel_zs * 2))
-        print_i(f&#34;Running with {processes} processes&#34;)
-        with multiprocessing.Pool(processes=processes) as pool:
-
-            def _run(params):
-                &#34;&#34;&#34;Tuple of wheel z &amp; left/right and runs wheel track.&#34;&#34;&#34;
-                z, l, r = params
-                create_or_load_wheel_track(wheel_z=z, left_only=l, right_only=r)
-
-            # Construct two variants of parameters for each wheel track.
-            all_params = []
-            for wheel_z in wheel_zs:
-                all_params.append((wheel_z, True, False))
-                all_params.append((wheel_z, False, True))
-            assert len(all_params) == 2 * len(wheel_zs)
-            pool.map(_run, all_params)
-    else:
-        list(map(create_or_load_wheel_track, wheel_zs))
-    if run_only:
-        return
-    # Load all wheel tracks from disk into the resulting dictionary.
-    result = dict()
-    for wheel_z in wheel_zs:
-        result[wheel_z] = create_or_load_wheel_track(
-            wheel_z=wheel_z, _run_only=False
-        )
-    return result</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="bridge_sim.sim.responses.ULResponses.id_str"><code class="name flex">
-<span>def <span class="ident">id_str</span></span>(<span>c: Config, response_type: ResponseType, sim_runner: FEMRunner, wheel_zs: List[float])</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def id_str(
-    c: Config,
-    response_type: ResponseType,
-    sim_runner: FEMRunner,
-    wheel_zs: List[float],
-):
-    wheel_zs_str = [round_m(wheel_z) for wheel_z in wheel_zs]
-    return (
-        f&#34;il-{response_type.name()}-{sim_runner.name}-{c.il_unit_load_kn}&#34;
-        + f&#34;-{c.il_num_loads}-z={wheel_zs_str}&#34;
-    )</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.responses.ULResponses.response_to"><code class="name flex">
-<span>def <span class="ident">response_to</span></span>(<span>self, x_frac: float, z_frac: float, load_x_frac: float, load: float, y_frac: float = 1, time_index: int = 0)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>The response value in kN at a position to a load at a position.</p>
-<p>NOTE: only the loading position in longitudinal direction can be chosen,
-with 'load_x_frac', the position in transverse direction is fixed for a
-single ILExpt.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>x_frac</code></strong></dt>
-<dd>float, response position on x-axis in [0 1].</dd>
-<dt><strong><code>y_frac</code></strong></dt>
-<dd>float, response position on y-axis in [0 1].</dd>
-<dt><strong><code>z_frac</code></strong></dt>
-<dd>float, response position on x-axis in [0 1].</dd>
-<dt><strong><code>load_x_frac</code></strong></dt>
-<dd>float, load position on x-axis in [0 1].</dd>
-<dt><strong><code>load</code></strong></dt>
-<dd>float, value of the load in kN.</dd>
-<dt><strong><code>time_index</code></strong></dt>
-<dd>int, time index of the simulation.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def response_to(
-    self,
-    x_frac: float,
-    z_frac: float,
-    load_x_frac: float,
-    load: float,
-    y_frac: float = 1,
-    time_index: int = 0,
-):
-    &#34;&#34;&#34;The response value in kN at a position to a load at a position.
-
-    NOTE: only the loading position in longitudinal direction can be chosen,
-    with &#39;load_x_frac&#39;, the position in transverse direction is fixed for a
-    single ILExpt.
-
-    Args:
-        x_frac: float, response position on x-axis in [0 1].
-        y_frac: float, response position on y-axis in [0 1].
-        z_frac: float, response position on x-axis in [0 1].
-        load_x_frac: float, load position on x-axis in [0 1].
-        load: float, value of the load in kN.
-        time_index: int, time index of the simulation.
-
-    &#34;&#34;&#34;
-    assert 0 &lt;= x_frac &lt;= 1
-    assert 0 &lt;= load_x_frac &lt;= 1
-    print_d(D, f&#34;x_frac = {x_frac} = load_x_frac = {load_x_frac}&#34;)
-    response = super().sim_response(
-        expt_frac=load_x_frac,
-        x_frac=x_frac,
-        y_frac=y_frac,
-        z_frac=z_frac,
-        time_index=time_index,
-    )
-    return response * (load / self.c.il_unit_load_kn)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="bridge_sim.sim.model.ManyResponses" href="../model/index.html#bridge_sim.sim.model.ManyResponses">ManyResponses</a></b></code>:
-<ul class="hlist">
-<li><code><a title="bridge_sim.sim.model.ManyResponses.sim_response" href="../model/index.html#bridge_sim.sim.model.ManyResponses.sim_response">sim_response</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -1556,33 +868,15 @@ single ILExpt.</p>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="bridge_sim.sim.responses.load" href="#bridge_sim.sim.responses.load">load</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.responses_to_loads_d" href="#bridge_sim.sim.responses.responses_to_loads_d">responses_to_loads_d</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.responses_to_traffic_array" href="#bridge_sim.sim.responses.responses_to_traffic_array">responses_to_traffic_array</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.responses_to_vehicles_d" href="#bridge_sim.sim.responses.responses_to_vehicles_d">responses_to_vehicles_d</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.run_ulm" href="#bridge_sim.sim.responses.run_ulm">run_ulm</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.run_uls" href="#bridge_sim.sim.responses.run_uls">run_uls</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="bridge_sim.sim.responses.PSResponses" href="#bridge_sim.sim.responses.PSResponses">PSResponses</a></code></h4>
-<ul class="">
-<li><code><a title="bridge_sim.sim.responses.PSResponses.load" href="#bridge_sim.sim.responses.PSResponses.load">load</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="bridge_sim.sim.responses.ULResponses" href="#bridge_sim.sim.responses.ULResponses">ULResponses</a></code></h4>
-<ul class="">
-<li><code><a title="bridge_sim.sim.responses.ULResponses.id_str" href="#bridge_sim.sim.responses.ULResponses.id_str">id_str</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.ULResponses.load_ulm" href="#bridge_sim.sim.responses.ULResponses.load_ulm">load_ulm</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.ULResponses.load_wheel_track" href="#bridge_sim.sim.responses.ULResponses.load_wheel_track">load_wheel_track</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.ULResponses.load_wheel_tracks" href="#bridge_sim.sim.responses.ULResponses.load_wheel_tracks">load_wheel_tracks</a></code></li>
-<li><code><a title="bridge_sim.sim.responses.ULResponses.response_to" href="#bridge_sim.sim.responses.ULResponses.response_to">response_to</a></code></li>
-</ul>
-</li>
+<li><code><a title="bridge_sim.sim.responses.to" href="#bridge_sim.sim.responses.to">to</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_loads_direct" href="#bridge_sim.sim.responses.to_loads_direct">to_loads_direct</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_pier_settlement" href="#bridge_sim.sim.responses.to_pier_settlement">to_pier_settlement</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_shrinkage" href="#bridge_sim.sim.responses.to_shrinkage">to_shrinkage</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_temperature" href="#bridge_sim.sim.responses.to_temperature">to_temperature</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_traffic_array" href="#bridge_sim.sim.responses.to_traffic_array">to_traffic_array</a></code></li>
+<li><code><a title="bridge_sim.sim.responses.to_vehicles_direct" href="#bridge_sim.sim.responses.to_vehicles_direct">to_vehicles_direct</a></code></li>
 </ul>
 </li>
 </ul>

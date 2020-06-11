@@ -55,7 +55,8 @@ def parse_translation_responses_3d(
     translation_responses = opensees_to_numpy(responses_path)
     translation_responses *= -1
     print_i(
-        f&#34;OpenSees: Parsed {response_type.name()} fem in&#34; + f&#34; {timer() - start:.2f}s&#34;
+        f&#34;OpenSees: Parsed {response_type.name()} responses in&#34;
+        + f&#34; {timer() - start:.2f}s&#34;
     )
     results_dict[sim_ind][response_type] = translation_responses
 
@@ -78,6 +79,7 @@ def parse_stress_strain_responses_3d(
             lines.append(per_element_lines)
     lines = np.array(lines)
     print(lines.shape)
+    # Save all strain responses under this one key.
     results_dict[sim_ind][ResponseType.StrainXXB] = lines
 
 
@@ -208,6 +210,7 @@ def parse_responses_3d(
             lines.append(per_element_lines)
     lines = np.array(lines)
     print(lines.shape)
+    # Save all strain responses under this one key.
     results_dict[sim_ind][ResponseType.StrainXXB] = lines</code></pre>
 </details>
 </dd>
@@ -235,7 +238,8 @@ def parse_responses_3d(
     translation_responses = opensees_to_numpy(responses_path)
     translation_responses *= -1
     print_i(
-        f&#34;OpenSees: Parsed {response_type.name()} fem in&#34; + f&#34; {timer() - start:.2f}s&#34;
+        f&#34;OpenSees: Parsed {response_type.name()} responses in&#34;
+        + f&#34; {timer() - start:.2f}s&#34;
     )
     results_dict[sim_ind][response_type] = translation_responses</code></pre>
 </details>

@@ -59,13 +59,13 @@ class OSRunner(FEMRunner):
         super().__init__(
             c=c,
             name=&#34;OpenSees&#34;,
-            exe_path=exe_path,
             supported_response_types=opensees_supported_response_types,
             build=build_model,
             run=run_model,
             parse=parse_responses,
             convert=convert_responses,
         )
+        self.exe_path = exe_path
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace(&#34;\\&#34;, &#34;/&#34;)
@@ -213,7 +213,7 @@ def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;],
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
-<p>NOTE: For running simulations and loading fem you probably want the
+<p>NOTE: For running simulations and loading responses you probably want the
 higher-level API in 'bridge_sim.sim.responses'.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -230,13 +230,13 @@ supported response types for a given bridge.</dd>
         super().__init__(
             c=c,
             name=&#34;OpenSees&#34;,
-            exe_path=exe_path,
             supported_response_types=opensees_supported_response_types,
             build=build_model,
             run=run_model,
             parse=parse_responses,
             convert=convert_responses,
         )
+        self.exe_path = exe_path
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace(&#34;\\&#34;, &#34;/&#34;)

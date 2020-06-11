@@ -92,7 +92,7 @@ def crack_time_series(
             )
             responses_healthy_cracked.append(
                 to_traffic_array(
-                    c=c,
+                    config=c,
                     traffic_array=ta,
                     response_type=rt,
                     damage_scenario=ds,

@@ -3,18 +3,6 @@
 Parsed temperature data is from:
 https://www1.ncdc.noaa.gov/pub/data/uscrn/products/subhourly01/2019/
 
-Usage example of this module:
-
-    from datetime import datetime
-    from bridge_sim import sim, temperature
-
-    # First load some weather data.
-    weather = temperature.load("holly-springs")
-    weather["temp"] = temperature.resize(temps_df["temp"], year=2019)
-    responses_to_temp = sim.responses.to_temperature(
-
-    )
-
 """
 
 import datetime

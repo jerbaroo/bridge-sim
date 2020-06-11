@@ -1,6 +1,7 @@
 """Animate a traffic scenario."""
 from typing import Callable, List, Tuple, Optional
 
+import bridge_sim.plot
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as colors
@@ -100,7 +101,7 @@ def animate_responses(
             point_index = _index
     point = deck_points[point_index]
     responses = sim.responses.to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=deck_points,
@@ -152,7 +153,9 @@ def animate_responses(
         plt.title(
             f"{response_type.name()} on {config.bridge.name.title().replace('-', ' ')}"
         )
-        plot.top_view_bridge(config.bridge, edges=True, piers=True, units="m")
+        bridge_sim.plot.top_view_bridge(
+            config.bridge, edges=True, piers=True, units="m"
+        )
         plot.top_view_vehicles(
             config=config,
             vehicles=vehicles_at_time[time_index],
@@ -253,7 +256,7 @@ def animate_traffic(
 
     def plot_f(time_index):
         plt.title(config.bridge.name)
-        plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
         plot.top_view_vehicles(
             config=config,
             vehicles=vehicles_at_time[time_index],
@@ -280,7 +283,7 @@ def animate_traffic_array(
 
     def plot_f(time_index):
         plt.title(config.bridge.name)
-        plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        bridge_sim.plot.top_view_bridge(config.bridge, edges=True, piers=True)
         plt.xlim((config.bridge.x_min, config.bridge.x_max))
         slice = traffic_array[time_index]
         for (x, z), v in zip(ulm_xzs(config), slice):

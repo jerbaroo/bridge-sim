@@ -60,7 +60,7 @@ def load(
 
 
 def to_traffic_array(
-    c: Config,
+    config: Config,
     traffic_array: TrafficArray,
     response_type: ResponseType,
     points: List[Point],
@@ -68,7 +68,7 @@ def to_traffic_array(
     """Responses to a traffic array at some points.
 
     Args:
-        c: Config, simulations configuration object.
+        config: Config, simulations configuration object.
         traffic_array: traffic array to calculate responses to.
         response_type: the type of sensor response.
         points: points at which to calculate responses.
@@ -76,7 +76,7 @@ def to_traffic_array(
     Returns: NumPY array indexed first by point then time.
 
     """
-    ulm = load_ulm(c, response_type, points)
+    ulm = load_ulm(config, response_type, points)
     assert ulm.shape[1] == len(points)
     assert traffic_array.shape[1] == ulm.shape[0]
     print(traffic_array.shape, ulm.shape)
@@ -288,7 +288,7 @@ def to(
 
     """
     tr_responses = to_traffic_array(
-        c=config,
+        config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=points,

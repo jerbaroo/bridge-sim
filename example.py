@@ -11,34 +11,42 @@
 # plt.tight_layout()
 # plt.show()
 
-# Example 2.
-
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, model, plot, sim, vehicles
-#
-# config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-# point_loads = vehicles.truck1.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
-# plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config, piers=True)
-# plt.tight_layout()
-# plt.show()
-
-# Example 3.
+# Responses to vehicle.
 
 import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, sim, model, plot
+from bridge_sim import bridges, configs, model, plot, sim
+from bridge_sim.model import Vehicle
 
-config = configs.opensees_default(bridges.bridge_wide)
-responses = sim.responses.load(
-    config,
-    model.RT.YTrans,
-    pier_settlement=[model.PierSettlement(0, 1.2), model.PierSettlement(1, 0.5)]
-)
-plot.contour_responses(config, responses)
-plot.top_view_bridge(config, piers=True, lanes=True)
-plt.tight_layout()
+config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
+point_loads = Vehicle(
+    # Load intensity of each axle.
+    kn=[5000, 4000, 4000, 5000, 7000],
+    # Distance between each pair of axles.
+    axle_distances=[2, 2, 2, 1],
+    # Width of each axle, distance between point loads.
+    axle_width=2.5,
+    # Speed of the vehicles.
+    kmph=20,
+).point_load_pw(config=config, time=3.5, list=True)
+responses = sim.responses.load(config, model.RT.YTrans, point_loads)
+plot.contour_responses(config, responses, point_loads)
+plot.top_view_bridge(config, piers=True)
 plt.show()
+
+# Example 3.
+# import bridge_sim.plot
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, sim, model, plot
+#
+# config = configs.opensees_default(bridges.bridge_wide)
+# responses = sim.responses.load(
+#     config,
+#     model.RT.YTrans,
+#     pier_settlement=[model.PierSettlement(0, 1.2), model.PierSettlement(1, 0.5)]
+# )
+# plot.contour_responses(config, responses)
+# bridge_sim.plot.top_view_bridge(config, piers=True, lanes=True)
+# plt.show()
 
 # Example 4.
 
@@ -111,27 +119,38 @@ plt.show()
 # plt.tight_layout()
 # plt.show()
 
-# Example 6.
+# Traffic and temperature example.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, model, plot, sim
-# from bridge_sim.model import Vehicle
+import matplotlib.pyplot as plt
+from bridge_sim import bridges, configs, model, sim, temperature, traffic
 
-# new_vehicle = Vehicle(
-#     # Load intensity of each axle.
-#     kn=[5000, 4000, 4000, 5000, 7000],
-#     # Distance between each pair of axles.
-#     axle_distances=[2, 2, 2, 1],
-#     # Width of each axle, distance between point loads.
-#     axle_width=2.5,
-#     # Speed of the vehicles.
-#     kmph=20,
-# )
+config = configs.opensees_default(bridges.bridge_wide)
+points = [model.Point(x=10), model.Point(x=20)]
+response_type = model.RT.YTrans
 
-# config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
-# point_loads = new_vehicle.to_point_load_pw(time=3.5, bridge=config.bridge, list=True)
-# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
-# plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config, piers=True)
-# plt.tight_layout()
-# plt.show()
+# First generate some traffic data.
+traffic_sequence = traffic.normal_traffic(config).traffic_sequence(config, 10)
+traffic_array = traffic_sequence.traffic_array()
+responses_to_traffic = sim.responses.to_traffic_array(
+    config=config,
+    traffic_array=traffic_array,
+    response_type=response_type,
+    points=points,
+)
+
+# And responses to temperature.
+weather = temperature.load("holly-springs")
+weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=30)
+temp_responses = sim.responses.to_temperature(
+    config=config,
+    points=points,
+    responses_array=responses_to_traffic,
+    response_type=response_type,
+    weather=weather,
+    start_date="01/05/19 00:00",
+    end_date="02/05/19 00:00",
+)
+
+plt.plot(responses_to_traffic + temp_responses)
+plt.show()
+
