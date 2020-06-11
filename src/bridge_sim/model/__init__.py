@@ -1017,7 +1017,7 @@ class Vehicle:
         Returns: a tuple of Matplotlib colormap and norm.
 
         """
-        from bridge_sim.plot import truncate_colormap
+        from bridge_sim.plot.util import truncate_colormap
 
         cmap = truncate_colormap(cmap, cmin, cmax)
         total_kns = [v.total_load() for v in all_vehicles] + [self.total_load()]

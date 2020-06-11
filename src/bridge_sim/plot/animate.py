@@ -1,6 +1,6 @@
 """Animate a traffic scenario."""
-from itertools import chain
-from typing import Callable, List
+
+from typing import Callable, List, Tuple
 
 import numpy as np
 import matplotlib.cm as cm
@@ -8,11 +8,11 @@ import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run import ulm_xzs
-from lib.plot import axis_cmap_r
+from lib.plot import axis_cmap_r, axis_cmap
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 
 from bridge_sim import sim, plot
-from bridge_sim.model import Config, Point, ResponseType, Vehicle
+from bridge_sim.model import Config, Point, ResponseType, Vehicle, PierSettlement
 from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
 from bridge_sim.util import print_i, flatten
 
@@ -61,26 +61,38 @@ def animate_responses(
     response_type: ResponseType,
     units: str,
     save: str,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    cmap = axis_cmap_r,
 ):
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
     deck_points = [
         Point(x=x, y=0, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=10)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=10)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
     ]
-    point_index = 27
+    point_index = 1000
     point = deck_points[point_index]
-    responses = sim.responses.responses_to_traffic_array(
+    responses = sim.responses.to_traffic_array(
         c=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=deck_points,
     )
+    ps_responses = sim.responses.to_pier_settlement(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        pier_settlement=pier_settlement,
+    )
+    responses = responses + ps_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
-    min_response = min(min_response, -max_response)
-    max_response = max(max_response, -min_response)
+    # min_response = min(min_response, -max_response)
+    # max_response = max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
+    # thresh = abs(min_response - max_response) * 0.01
+    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
     all_vehicles = flatten(traffic, Vehicle)
 
@@ -88,8 +100,8 @@ def animate_responses(
         # Top plot of the moving vehicles.
         plt.landscape()
         plt.subplot2grid((3, 1), (0, 0), 2, 1)
-        plt.title(f"{response_type.name()} on {config.bridge.name}")
-        plot.top_view_bridge(config.bridge, edges=True, piers=True)
+        plt.title(f"{response_type.name()} on {config.bridge.name.title().replace('-', ' ')}")
+        plot.top_view_bridge(config.bridge, edges=True, piers=True, units="m")
         plot.top_view_vehicles(
             config=config,
             vehicles=vehicles_at_time[time_index],
@@ -103,35 +115,37 @@ def animate_responses(
                 response_type=response_type,
                 responses=list(zip(responses.T[time_index], deck_points)),
             ),
-            cmap=axis_cmap_r,
+            cmap=cmap,
             norm=response_norm,
             mm_legend=False,
             cbar=False,
+            levels=50,
         )
         plt.xlim((config.bridge.x_min, config.bridge.x_max))
         plt.scatter(
-            [point.x], [point.z], c="r", s=10, label="sensor in bottom plot", zorder=100
+            [point.x], [point.z], c="black", s=20, label="sensor in bottom plot", zorder=100
         )
         plt.legend(loc="upper right")
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
-        plt.plot(traffic_sequence.times, responses[point_index], c="r", label="traffic")
-        plt.xlabel("time")
+        plt.plot(traffic_sequence.times, responses[point_index], c="black", label="traffic")
+        plt.plot(traffic_sequence.times, ps_responses[point_index], c="b", label="pier settlement")
+        plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(
             x=traffic_sequence.start_time + time_index * time_step,
-            c="black",
+            c="red",
             label="current time",
         )
-        plt.legend(loc="upper right")
+        plt.legend(facecolor="white", loc="upper right")
         plt.tight_layout()
 
         # Add a color bar.
         plt.gcf().subplots_adjust(right=0.75)
-        cbar_ax = plt.gcf().add_axes([0.80, 0.1, 0.01, 0.8])
+        cbar_ax = plt.gcf().add_axes([0.8, 0.1, 0.01, 0.8])
         cbar = plt.gcf().colorbar(
-            cm.ScalarMappable(norm=response_norm, cmap=axis_cmap_r), cax=cbar_ax,
+            cm.ScalarMappable(norm=response_norm, cmap=cmap), cax=cbar_ax,
         )
         cbar.set_label(units)
 
@@ -187,83 +201,3 @@ def animate_traffic_array(
     _animate_traffic(
         traffic=traffic_array, time_step=time_step, plot_f=plot_f, save=save
     )
-
-
-# def animate_traffic_top_view(
-#         c: Config,
-#         bridge: Bridge,
-#         traffic: Traffic,
-#         start_time: float,
-#         time_step: float,
-#         response_type: ResponseType,
-#         traffic_name: str,
-#         save: str,
-# ):
-#     """Animate traffic from a top view with contour and total weight.
-#
-#     Args:
-#         bridge: the bridge on which the vehicles move.
-#         traffic: vehicles on the bridge at each time step.
-#         start_time: time at which the traffic simulation starts.
-#         time_step: time step between each frame.
-#         response_type: type of sensor response to record.
-#         traffic_name: name of the traffic scenario.
-#         save: filepath where to save the animation.
-#
-#     """
-#     traffic = [flatten(t, Vehicle) for t in traffic]
-#     total_load = [sum(v.total_load() for v in t) for t in traffic]
-#     times = np.array(range(len(traffic))) * time_step + start_time
-#     deck_points = [
-#         Point(x=x, y=0, z=z)
-#         for x in np.linspace(c.bridge.x_min, c.bridge.x_max, num=10)
-#         for z in np.linspace(c.bridge.z_min, c.bridge.z_max, num=10)
-#     ]
-#     traffic_responses, min_response, max_response = responses_to_traffic(
-#         c=c,
-#         traffic=traffic,
-#         bridge_scenario=bridge_scenario,
-#         start_time=start_time,
-#         time_step=time_step,
-#         points=deck_points,
-#         response_type=response_type,
-#         fem_runner=fem_runner,
-#         min_max=True,
-#     )
-#     min_response = min(min_response, -max_response)
-#     max_response = max(max_response, -min_response)
-#     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
-#
-#     def plot_f(time_index):
-#         # Top plot of the moving vehicles.
-#         plt.subplot2grid((3, 1), (0, 0), 2, 1)
-#         plt.title(f"{response_type.name()} on {bridge.name} {traffic_name}")
-#         top_view_bridge(bridge, lane_fill=False)
-#         top_view_vehicles(
-#             bridge=bridge,
-#             mv_vehicles=traffic[time_index],
-#             all_vehicles=all_vehicles,
-#             time=time_index * time_step + start_time,
-#         )
-#         contour_cmap = plot_contour_deck(
-#             c=c, responses=traffic_responses[time_index], y=0, norm=response_norm,
-#         )
-#         plt.xlim((bridge.x_min, bridge.x_max))
-#
-#         # Bottom plot of the total load on the bridge.
-#         plt.subplot2grid((3, 1), (2, 0), 1, 1)
-#         plt.plot(times, total_kn)
-#         plt.xlabel("time")
-#         plt.ylabel("kilo Newton")
-#         plt.axvline(x=start_time + time_index * time_step, color="red")
-#         plt.tight_layout()
-#
-#         # Add a color bar.
-#         plt.gcf().subplots_adjust(right=0.75)
-#         cbar_ax = plt.gcf().add_axes([0.80, 0.1, 0.01, 0.8])
-#         cbar = plt.gcf().colorbar(
-#             cm.ScalarMappable(norm=response_norm, cmap=contour_cmap), cax=cbar_ax,
-#         )
-#         cbar.set_label(response_type.units(short=False))
-#
-#     animate_traffic(traffic=traffic, time_step=time_step, plot_f=plot_f, save=save)

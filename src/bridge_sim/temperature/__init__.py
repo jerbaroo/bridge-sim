@@ -11,11 +11,6 @@ Usage example of this module:
     # First load some weather data.
     weather = temperature.load("holly-springs")
     weather["temp"] = temperature.resize(temps_df["temp"], year=2019)
-    weather = temperature.from_to_mins(
-        temp_df,
-        from_=datetime.strptime("01/05/19 00:00", "%d/%m/%y %H:%M"),
-        to=datetime.strptime("31/05/19 23:59", "%d/%m/%y %H:%M"),
-    )
 
     # Then get the temperature effect and interpolate over signal.
     effect = temperature.effect(config, RT.StrainXXB, [Point(x=51)], weather)
@@ -326,3 +321,6 @@ def regress_and_errors(x, y):
     for x_, y_ in zip(x, y):
         errors.append(abs(y_ - lr.predict([[x_]])[0]))
     return lr, np.array(errors)
+
+
+__all__ = ["load", "resize", "effect", "remove_daily", "regress_and_errors"]

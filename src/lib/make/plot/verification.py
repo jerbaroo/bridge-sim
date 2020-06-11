@@ -20,7 +20,7 @@ from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
-from bridge_sim.sim.responses import responses_to_vehicles_d
+from bridge_sim.sim.responses import to_vehicles_direct
 from bridge_sim.vehicles import truck1
 from bridge_sim.sim.build import det_nodes, det_shells
 from bridge_sim.sim.model import SimParams
@@ -139,7 +139,7 @@ def per_sensor_plots(
 
     # Calculate displacement with OpenSees via direct simulation.
     print(f"Parallel {c.parallel}")
-    os_strain = responses_to_vehicles_d(
+    os_strain = to_vehicles_direct(
         c=c,
         vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -256,7 +256,7 @@ def per_sensor_plots(
 
     # Calculate displacement with OpenSees via direct simulation.
     os_displacement = (
-        responses_to_vehicles_d(
+            to_vehicles_direct(
             c=c,
             vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
@@ -266,7 +266,7 @@ def per_sensor_plots(
                 for sensor_x, sensor_z in displa_sensor_xzs
             ],
         ).T
-        * 1000
+            * 1000
     )
     amin = min(amin, np.amin(os_displacement))
     amax = max(amax, np.amax(os_displacement))
@@ -378,7 +378,7 @@ def r2_plots(c: Config):
 
     # Displacement in OpenSees via direct simulation (measurement points).
     displa_os_meas = (
-        responses_to_vehicles_d(
+            to_vehicles_direct(
             c=c,
             vehicles=[truck1],
             times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],
@@ -387,7 +387,7 @@ def r2_plots(c: Config):
                 Point(x=sensor_x, y=0, z=sensor_z) for _, sensor_x, sensor_z in sensors
             ],
         )
-        * 1000
+            * 1000
     )
 
     def get_os_meas(sensor_label: str, truck_x: float):
@@ -490,7 +490,7 @@ def r2_plots(c: Config):
     print_i(f"Count nan = {count_nan}")
 
     # Strain in OpenSees via direct simulation (measurement points).
-    strain_os_meas = responses_to_vehicles_d(
+    strain_os_meas = to_vehicles_direct(
         c=c,
         vehicles=[truck1],
         times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_xs_meas],

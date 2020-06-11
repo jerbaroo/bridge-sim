@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 
-from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.model import Config, Point, ResponseType, PierSettlement
+from bridge_sim.sim.responses import to_traffic_array
 from bridge_sim.traffic import normal_traffic
-from lib.plot.animate import animate_traffic as at
-from lib.plot.animate import animate_traffic_array as ata
-from lib.plot.animate import animate_responses as ar
+from bridge_sim.plot.animate import animate_traffic as at
+from bridge_sim.plot.animate import animate_traffic_array as ata
+from bridge_sim.plot.animate import animate_responses as ar
 
 
 def animate_traffic(config: Config):
@@ -30,7 +30,7 @@ def animate_traffic(config: Config):
 
 
 def animate_responses(config: Config):
-    time = 10
+    time = 1
     config.sensor_hz = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
@@ -40,6 +40,7 @@ def animate_responses(config: Config):
         response_type=ResponseType.YTrans,
         units="mm",
         save=config.get_image_path("verification/animate", "traffic-responses.mp4"),
+        pier_settlement=[(PierSettlement(4, 1.2), PierSettlement(4, 2))],
     )
 
 
@@ -48,7 +49,7 @@ def plot_responses(config: Config):
     traffic_scenario = normal_traffic(config=config, lam=5, min_d=2)
     traffic_sequence = traffic_scenario.traffic_sequence(config, max_time)
     traffic_array = traffic_sequence.traffic_array()
-    responses = responses_to_traffic_array(
+    responses = to_traffic_array(
         config, traffic_array, ResponseType.YTrans, points=[Point(x=51, z=-8.4)],
     )
     plt.plot(responses[0])

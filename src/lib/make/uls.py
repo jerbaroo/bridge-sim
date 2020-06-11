@@ -3,7 +3,7 @@ import numpy as np
 
 from bridge_sim import plot, sim
 from bridge_sim.model import Config, Point, ResponseType
-from bridge_sim.plot import equal_lims
+from bridge_sim.plot.util import equal_lims
 from bridge_sim.sim.run import ulm_point_loads
 from bridge_sim.util import print_i, safe_str
 

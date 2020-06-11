@@ -5,7 +5,7 @@ import numpy as np
 
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.traffic import normal_traffic
-from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.sim.responses import to_traffic_array
 from bridge_sim.scenarios import HealthyScenario, Scenario
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run.opensees import OSRunner
@@ -77,7 +77,7 @@ def lane_distribution_plots(
             print_i(f"Lane distribution plots: lane {lane_index}")
             points = lane_points(lane)
             response_arrays.append(
-                responses_to_traffic_array(
+                to_traffic_array(
                     c=c,
                     traffic_array=normal_traffic_array,
                     response_type=response_type,
@@ -150,7 +150,7 @@ def pier_displacement_distribution_plots(
         ]
         all_points.append(points)
         response_arrays.append(
-            responses_to_traffic_array(
+            to_traffic_array(
                 c=c,
                 traffic_array=normal_traffic_array,
                 response_type=response_type,
@@ -315,7 +315,7 @@ def deck_distribution_plots(c: Config):
     for b, bridge_scenario in enumerate(bridge_scenarios):
         print_i(f"Deck distribution plots: bridge scenario {bridge_scenario.name}")
         response_arrays.append(
-            responses_to_traffic_array(
+            to_traffic_array(
                 c=c,
                 traffic_array=normal_traffic_array,
                 response_type=response_type,
