@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from bridge_sim import temperature, util
+from bridge_sim import temperature, util, shrinkage
 
 from bridge_sim.model import (
     Config,
@@ -17,10 +17,11 @@ from bridge_sim.model import (
     Vehicle,
     PierSettlement,
 )
+from bridge_sim.shrinkage import CementClass
 from bridge_sim.sim.model import SimParams, Responses
 from bridge_sim.sim.run import load_expt_responses, load_fem_responses, load_ulm
 from bridge_sim.traffic import TrafficArray
-from bridge_sim.util import flatten, print_i, print_w
+from bridge_sim.util import flatten, print_i, print_w, convert_times
 
 D: str = "sim.responses"
 # D: bool = False
@@ -212,3 +213,46 @@ def to_temperature(
     for p, _ in enumerate(points):
         temp_responses[p] = util.apply(effect[p], temp_responses[p])
     return temp_responses
+
+
+def to_shrinkage(
+        config: Config,
+        points: List[Point],
+        responses_array: List[List[float]],
+        response_type: ResponseType,
+        start_day: Optional[int] = None,
+        end_day: Optional[int] = None,
+        cement_class: CementClass = CementClass.Normal,
+) -> List[List[float]]:
+    """Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point the time.
+        response_type: the sensor response type to add.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+
+    Returns: NumPY array of same shape as "responses_array" and considering the
+        same points, but only containing the responses from shrinkage.
+
+    """
+    shrinkage_responses = np.zeros(responses_array.shape)
+    if start_day is None:
+        return shrinkage_responses
+    days = np.arange(start_day, end_day + 1)
+    seconds = convert_times(f="day", t="second", times=days)
+    effect = shrinkage.total_responses(
+        config=config,
+        response_type=response_type,
+        times=seconds,
+        points=points,
+        cement_class=cement_class,
+    )
+    assert len(responses_array) == len(points)
+    assert len(effect) == len(points)
+    for p, _ in enumerate(points):
+        shrinkage_responses[p] = util.apply(effect[p], shrinkage_responses[p])
+    return shrinkage_responses

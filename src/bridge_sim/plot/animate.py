@@ -67,6 +67,8 @@ def animate_responses(
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
     cmap = axis_cmap_r,
     without_edges: int = 0,
 ):
@@ -79,7 +81,7 @@ def animate_responses(
         for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
     ] if not without_edges(p)]
     # Find the closest point to these coordinates.
-    x, z = 22, -10
+    x, z = 18, -8.4
     point_index = 0
     for _index in range(len(deck_points)):
         p = deck_points[point_index]
@@ -109,7 +111,15 @@ def animate_responses(
         start_date=start_date,
         end_date=end_date,
     ) * 1E3
-    responses = responses + ps_responses + temp_responses
+    shrinkage_responses = sim.responses.to_shrinkage(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        start_day=start_day,
+        end_day=end_day,
+    ) * 1E3
+    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
     # min_response = min(min_response, -max_response)
     # max_response = max(max_response, -min_response)
@@ -152,15 +162,19 @@ def animate_responses(
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
-        plt.plot(traffic_sequence.times, responses[point_index], c="black", label="traffic")
-        plt.plot(traffic_sequence.times, ps_responses[point_index], c="blue", label="pier settlement")
-        plt.plot(traffic_sequence.times, temp_responses[point_index], c="orange", label="temperature")
+        lw = 2
+        plt.plot(traffic_sequence.times, responses[point_index], c="black", label="traffic", lw=lw)
+        plt.plot(traffic_sequence.times, ps_responses[point_index], c="tab:blue", label="pier settlement", lw=lw)
+        plt.plot(traffic_sequence.times, temp_responses[point_index], c="tab:orange", label="temperature", lw=lw)
+        plt.plot(traffic_sequence.times, shrinkage_responses[point_index], c="tab:green", label="shrinkage", lw=lw)
+        plt.plot(traffic_sequence.times, total_responses[point_index], c="xkcd:purple", label="total", lw=lw)
         plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(
             x=traffic_sequence.start_time + time_index * time_step,
             c="red",
             label="current time",
+            lw=lw,
         )
         plt.legend(facecolor="white", loc="upper right")
         plt.tight_layout()
