@@ -7,7 +7,8 @@ from bridge_sim import temperature
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.sim.model import Responses
 from bridge_sim.util import plot_hours, print_i, safe_str
-from bridge_sim.plot import contour_responses, top_view_bridge, equal_lims
+from bridge_sim.plot import contour_responses, top_view_bridge
+from bridge_sim.plot.util import equal_lims
 
 
 def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):

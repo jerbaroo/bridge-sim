@@ -5,7 +5,7 @@ import bridge_sim.util
 import numpy as np
 
 from bridge_sim.model import Config, Point
-from bridge_sim.sim.responses import responses_to_traffic_array
+from bridge_sim.sim.responses import to_traffic_array
 from bridge_sim.traffic import load_traffic, normal_traffic
 from bridge_sim import temperature
 from lib.plot import plt
@@ -91,7 +91,7 @@ def crack_time_series(
                 f"Sections in scenarios scenario = {len(ds.use(c)[0].bridge.sections)}"
             )
             responses_healthy_cracked.append(
-                responses_to_traffic_array(
+                to_traffic_array(
                     c=c,
                     traffic_array=ta,
                     response_type=rt,

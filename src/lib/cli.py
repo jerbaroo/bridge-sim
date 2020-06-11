@@ -352,13 +352,13 @@ def responses():
     lib.make.traffic.plot_responses(c())
 
 
-@verify.command(help="Animate a Traffic(Array) sequence.")
-def traffic():
+@verify.command(help="Animate Traffic and TrafficArray.")
+def animate():
     lib.make.traffic.animate_traffic(c())
 
 
 @verify.command(help="Animate responses to traffic.")
-def traffic_responses():
+def animate_responses():
     lib.make.traffic.animate_responses(c())
 
 

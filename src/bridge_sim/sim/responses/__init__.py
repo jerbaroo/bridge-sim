@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Optional, Tuple
 
 import numpy as np
+from pandas import pd
+
 from bridge_sim.model import (
     Config,
     ResponseType,
@@ -15,6 +18,7 @@ from bridge_sim.model import (
 )
 from bridge_sim.sim.model import SimParams, Responses
 from bridge_sim.sim.run import load_expt_responses, load_fem_responses, load_ulm
+from bridge_sim.traffic import TrafficArray
 from bridge_sim.util import flatten, print_i, print_w
 
 D: str = "sim.responses"
@@ -53,9 +57,9 @@ def load(
     )
 
 
-def responses_to_traffic_array(
+def to_traffic_array(
     c: Config,
-    traffic_array: "TrafficArray",
+    traffic_array: TrafficArray,
     response_type: ResponseType,
     points: List[Point],
 ):
@@ -77,7 +81,7 @@ def responses_to_traffic_array(
     return np.matmul(traffic_array, ulm).T
 
 
-def responses_to_loads_d(
+def to_loads_direct(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
@@ -94,7 +98,7 @@ def responses_to_loads_d(
     )
 
 
-def responses_to_vehicles_d(
+def to_vehicles_direct(
     c: Config,
     response_type: ResponseType,
     points: List[Point],
@@ -114,6 +118,96 @@ def responses_to_vehicles_d(
     assert isinstance(loads_per_time, list)
     assert isinstance(loads_per_time[0], list)
     assert isinstance(loads_per_time[0][0], PointLoad)
-    return responses_to_loads_d(
+    return to_loads_direct(
         c=c, response_type=response_type, points=points, loads=loads_per_time,
     )
+
+
+def to_pier_settlement(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+) -> List[List[float]]:
+    """Time series of responses to pier settlement.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point the time.
+        response_type: the sensor response type to add.
+        pier_settlement: start and end settlements of piers.
+
+    Returns: NumPY array of same shape as "responses_array" and considering the
+        same points, but only containing the responses from pier settlement.
+
+    """
+    assert len(responses_array) == len(points)
+    start_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
+    ).at_decks(points)
+    assert len(start_responses.shape) == 1
+    assert len(start_responses) == len(points)
+    end_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
+    ).at_decks(points)
+    ps_responses = np.zeros(responses_array.shape)
+    for p, _ in enumerate(points):
+        ps_responses[p] = np.interp(
+            np.arange(ps_responses.shape[1]),
+            [0, ps_responses.shape[1] - 1],
+            [start_responses[p], end_responses[p]]
+        )
+    return ps_responses
+
+
+def to_temperature(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    weather: pd.DataFrame,
+    start_date: datetime,
+    end_date: datetime,
+) -> List[List[float]]:
+    """Time series of responses to pier settlement.
+
+    Args:
+        config: simulation configuration object.
+        points: points in the TrafficArray.
+        responses_array: NumPY array indexed first by point the time.
+        response_type: the sensor response type to add.
+        weather: weather data to calculate responses.
+        start_date: start-date of weather data.
+        end_date: end-date of weather data.
+
+    Returns: NumPY array of same shape as "responses_array" and considering the
+        same points, but only containing the responses from temperature.
+
+    """
+    assert len(responses_array) == len(points)
+    start_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
+    ).at_decks(points)
+    assert len(start_responses.shape) == 1
+    assert len(start_responses) == len(points)
+    end_responses = load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
+    ).at_decks(points)
+    ps_responses = np.zeros(responses_array.shape)
+    for p, _ in enumerate(points):
+        ps_responses[p] = np.interp(
+            np.arange(ps_responses.shape[1]),
+            [0, ps_responses.shape[1] - 1],
+            [start_responses[p], end_responses[p]]
+        )
+    return ps_responses
