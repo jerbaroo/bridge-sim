@@ -257,7 +257,69 @@ plot.animate.animate_traffic(
 )
 #+END_SRC
 
-*** Plotting Effect of Temperature
+*** Fancy Traffic Flow Animation
+
+First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
+
+#+BEGIN_SRC python
+
+from bridge_sim import bridges, configs, model, plot, temperature, traffic
+
+config = configs.opensees_default(bridges.bridge_705(10))
+time = 10
+config.sensor_hz = 1 / 10
+traffic_scenario = traffic.normal_traffic(config)
+traffic_sequence = traffic_scenario.traffic_sequence(config, time)
+weather = temperature.load("holly-springs")
+weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=35)
+plot.animate.animate_responses(
+    config=config,
+    traffic_sequence=traffic_sequence,
+    response_type=model.ResponseType.YTrans,
+    units="mm",
+    save="traffic-responses.mp4",
+    pier_settlement=[
+        (model.PierSettlement(4, 1.2), model.PierSettlement(4, 2))],
+    weather=weather,
+    start_date="01/05/19 00:00",
+    end_date="01/05/19 23:59",
+    start_day=365,
+    end_day=366,
+)
+#+END_SRC
+
+*** Contour Plot of Temperature Effect
+
+Contour plot of temperature when the bottom and top temperatures of the bridge are 20 and 22 degrees celcius respectively.
+
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+import numpy as np
+from bridge_sim import bridges, configs, model, sim, plot, temperature
+
+config = configs.opensees_default(bridges.bridge_705(msl=10))
+bridge = config.bridge
+response_type = model.RT.StrainXXB
+
+points = [
+    model.Point(x=x, y=0, z=z)
+    for x in np.linspace(bridge.x_min, bridge.x_max, num=int(bridge.length * 2))
+    for z in np.linspace(bridge.z_min, bridge.z_max, num=int(bridge.width * 2))
+]
+temp_effect = temperature.effect(
+    config=config, response_type=response_type, points=points, temps_bt=[[20], [22]]
+).T[0]  # Only considering a single temperature profile.
+responses = sim.model.Responses(  # Converting to "Responses" for plotting.
+    response_type=response_type,
+    responses=[(temp_effect[p], points[p]) for p in range(len(points))],
+).without_nan_inf()
+plot.contour_responses(config, responses)
+plot.top_view_bridge(config.bridge, piers=True)
+plt.tight_layout()
+plt.show()
+#+END_SRC
+
+*** Time Series of Temperature Effect
 
 Generating traffic, then calculating time series of responses to that traffic over a wide example bridge. Then also calculating the responses to temperature. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
 
@@ -294,35 +356,4 @@ temp_responses = sim.responses.to_temperature(
 
 plt.plot(responses_to_traffic + temp_responses)
 plt.show()
-#+END_SRC
-
-*** Fancy Traffic Flow Animation
-
-First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
-
-#+BEGIN_SRC python
-
-from bridge_sim import bridges, configs, model, plot, temperature, traffic
-
-config = configs.opensees_default(bridges.bridge_705(10))
-time = 10
-config.sensor_hz = 1 / 10
-traffic_scenario = traffic.normal_traffic(config)
-traffic_sequence = traffic_scenario.traffic_sequence(config, time)
-weather = temperature.load("holly-springs")
-weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=35)
-plot.animate.animate_responses(
-    config=config,
-    traffic_sequence=traffic_sequence,
-    response_type=model.ResponseType.YTrans,
-    units="mm",
-    save="traffic-responses.mp4",
-    pier_settlement=[
-        (model.PierSettlement(4, 1.2), model.PierSettlement(4, 2))],
-    weather=weather,
-    start_date="01/05/19 00:00",
-    end_date="01/05/19 23:59",
-    start_day=365,
-    end_day=366,
-)
 #+END_SRC

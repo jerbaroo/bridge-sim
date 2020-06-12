@@ -223,7 +223,6 @@ def effect(
     Returns: NumPy array of temperature effect, indexed by point then time.
 
     """
-    print_w("Make sure calculating profile from entire year!!")
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -249,6 +248,7 @@ def effect(
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather["temp"], solar=weather["solar"])
+        print_w("Make sure calculating profile from entire year!!")
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
