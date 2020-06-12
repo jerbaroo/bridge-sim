@@ -8,7 +8,7 @@ from bridge_sim.model import Config, Point, RT
 from bridge_sim.util import convert_times
 
 
-def plot_drying_shrinkage(config: Config, n: int = 1):
+def plot_drying_shrinkage(config: Config, n: int = 100):
     """Plot drying shrinkage over n years."""
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
@@ -55,7 +55,7 @@ def plot_drying_shrinkage(config: Config, n: int = 1):
     plt.close()
 
 
-def plot_autogenous_shrinkage(config: Config, n: int = 1):
+def plot_autogenous_shrinkage(config: Config, n: int = 100):
     """Plot autogenous shrinkage over n years."""
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
@@ -98,7 +98,7 @@ def plot_autogenous_shrinkage(config: Config, n: int = 1):
     plt.close()
 
 
-def plot_total_shrinkage(config: Config, n: int = 1):
+def plot_total_shrinkage(config: Config, n: int = 100):
     """Plot total shrinkage over n years."""
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
