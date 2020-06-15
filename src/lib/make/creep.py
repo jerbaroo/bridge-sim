@@ -19,7 +19,7 @@ def plot_creep(config: Config, n: int = 100):
         if not np.isnan(s):
             break
     plt.plot(days / 365, strain, lw=3, c="r")
-    plt.ylabel("Microstrain")
+    plt.ylabel("Creep coefficient")
     plt.xlabel("Time (years)")
     plt.title(f"Creep")
     plt.savefig(config.get_image_path("verification/creep", "creep.pdf"))
@@ -59,3 +59,4 @@ def plot_creep(config: Config, n: int = 100):
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/creep", "creep-responses.pdf"))
     plt.close()
+
