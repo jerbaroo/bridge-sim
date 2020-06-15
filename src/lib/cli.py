@@ -316,9 +316,8 @@ def temp_loads():
 
 @verify.command(help="Plots of time series of shrinkage.")
 def shrinkage():
-    lib.make.shrinkage.plot_autogenous_shrinkage(c())
-    lib.make.shrinkage.plot_drying_shrinkage(c())
-    lib.make.shrinkage.plot_total_shrinkage(c())
+    lib.make.shrinkage.plot_shrinkage_strain(c())
+    lib.make.shrinkage.plot_shrinkage_responses(c())
 
 
 @verify.command(help="Plots of time series of creep.")
