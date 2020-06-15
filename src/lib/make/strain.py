@@ -3,7 +3,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 
 from bridge_sim import plot, sim
-from bridge_sim.model import Config, PointLoad, ResponseType
+from bridge_sim.model import Config, PointLoad, ResponseType, PierSettlement
 from bridge_sim.sim.model import SimParams
 
 
@@ -28,7 +28,9 @@ def plot_strain(config: Config):
 
 def plot_linear_youngs(config: Config):
     response_type = ResponseType.StrainXXB
-    point_loads = [PointLoad(x=21, z=-9.65, load=100)]
+    point_loads = [PointLoad(x=80, z=+9.65, load=100)]
+    pier_settlement = [PierSettlement(pier=4, settlement=1)]
+    pier_settlement = []
 
     config_copy = deepcopy(config)
     config_copy.bridge.data_id = "modified-youngs"
@@ -51,18 +53,20 @@ def plot_linear_youngs(config: Config):
         config=config,
         response_type=response_type,
         point_loads=point_loads,
+        pier_settlement=pier_settlement,
     ).map(lambda r: r * 1E3)
     responses2 = sim.responses.load(
         config=config_copy,
         response_type=response_type,
         point_loads=point_loads,
+        pier_settlement=pier_settlement,
     ).map(lambda r: r * 1E3)
-    plt.portrait()
-    plt.subplot(3, 1, 1)
+    plt.landscape()
+    plt.subplot(1, 2, 1)
     plot.contour_responses(config, responses1)
     plot.top_view_bridge(config.bridge, piers=True)
     plt.legend()
-    plt.subplot(3, 1, 2)
+    plt.subplot(1, 2, 2)
     plot.contour_responses(config_copy, responses2)
     plot.top_view_bridge(config_copy.bridge, piers=True)
     plt.legend()
