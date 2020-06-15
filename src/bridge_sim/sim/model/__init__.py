@@ -4,9 +4,12 @@ import itertools
 from collections import defaultdict
 from typing import Optional, NewType, Dict, List, Tuple, Callable
 
-import dill
 
+import dill
 import numpy as np
+from scipy.interpolate import griddata, interp1d, interp2d
+from scipy.spatial import distance
+
 from bridge_sim.model import (
     Support,
     Material,
@@ -17,10 +20,8 @@ from bridge_sim.model import (
     Bridge,
     Config,
 )
-from bridge_sim.sim.util import _responses_path
 from bridge_sim.util import round_m, safe_str, nearest_index, print_i
-from scipy.interpolate import griddata, interp1d, interp2d
-from scipy.spatial import distance
+from bridge_sim.sim.util import _responses_path, poly_area
 
 
 class Node:
@@ -154,14 +155,16 @@ class Shell:
         """This element's nodes."""
         return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
 
+    def mass(self):
+        """Mass of this shell element: volume x density."""
+        return self.section.thickness * self.area() * self.section.density
+
     def area(self):
         """Assumes a tetrahedron shape."""
         ni = self.nodes_by_id[self.ni_id]
         nj = self.nodes_by_id[self.nj_id]
         nk = self.nodes_by_id[self.nk_id]
         nl = self.nodes_by_id[self.nl_id]
-
-        from lib.fem.util import poly_area
 
         return poly_area(
             [
@@ -322,11 +325,11 @@ class SimParams:
     """Parameters for one FE simulation.
 
     Args:
-        ploads: List[PointLoad], point loads to apply in the simulation.
-        displacement_ctrl: PierSettlement, apply a load until the given
-            displacement in meters is reached.
-        axial_delta_temp: Optional[float], axial thermal loading in celcius.
-        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+        ploads: point loads to apply in the simulation.
+        displacement_ctrl:  apply a load until a displacement is reached.
+        axial_delta_temp: uniform thermal loading in Celcius.
+        moment_delta_temp: linear thermal loading in Celcius.
+        self_weight: apply loads corresponding to self-weight in simulation.
 
     """
 
@@ -336,11 +339,13 @@ class SimParams:
         pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
+        self_weight: bool = False,
     ):
         self.ploads = ploads
         self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
+        self.self_weight = self_weight
 
     def build_ctx(self) -> BuildContext:
         """Build context from these simulation parameters.
@@ -358,6 +363,8 @@ class SimParams:
 
         """
         load_str = ""
+        if self.self_weight:
+            load_str += "s"
         if self.axial_delta_temp is not None:
             load_str += f"temp-axial-{self.axial_delta_temp}"
         if self.moment_delta_temp is not None:

@@ -1,6 +1,6 @@
 """Test running of "ULS" simulations."""
 
-from bridge_sim import plot, sim
+from bridge_sim import sim
 from bridge_sim.configs import test_config
 from bridge_sim.model import ResponseType
 

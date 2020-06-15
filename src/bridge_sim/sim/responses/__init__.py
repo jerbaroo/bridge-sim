@@ -33,6 +33,7 @@ def load(
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
     temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
+    self_weight: bool = False,
 ) -> Responses:
     """Responses from a single linear simulation.
 
@@ -45,6 +46,7 @@ def load(
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
         temp_deltas: uniform and linear temperature components.
+        self_weight: add loads corresponding to structure self weight.
 
     """
     return load_fem_responses(
@@ -54,6 +56,7 @@ def load(
             pier_settlement=pier_settlement,
             axial_delta_temp=temp_deltas[0],
             moment_delta_temp=temp_deltas[1],
+            self_weight=self_weight,
         ),
         response_type=response_type,
     )
@@ -320,6 +323,7 @@ def to(
             response_type=response_type,
             start_day=start_day,
             end_day=end_day,
+            cement_class=cement_class,
         )
         * 1e3
     )

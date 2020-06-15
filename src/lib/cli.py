@@ -369,6 +369,11 @@ def linear_youngs():
     lib.make.strain.plot_linear_youngs(c())
 
 
+@verify.command(help="Responses to self weight.")
+def self_weight():
+    lib.make.self_weight.plot_self_weight(c())
+
+
 ############
 # Validate #
 ############
