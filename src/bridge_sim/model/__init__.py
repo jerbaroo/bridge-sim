@@ -510,12 +510,17 @@ class Material:
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
-        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self._youngs_x = youngs_x
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
+
+    def youngs_x(self):
+        if self._youngs_x is not None:
+            return self._youngs_x
+        return self.youngs
 
     def contains(self, bridge: "Bridge", x: float, z: float) -> bool:
         """Does this material contain the given point?"""

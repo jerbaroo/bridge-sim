@@ -32,6 +32,7 @@ c_func = opensees_default
 parallel_ = None
 save_to_ = None
 shorten_paths_ = None
+two_materials_ = None
 il_num_loads_ = None
 
 
@@ -86,6 +87,8 @@ def cli(
     global parallel_
     global shorten_paths_
     global il_num_loads_
+    global two_materials_
+    two_materials_ = two_materials
     b_func = bridge_705(msl=msl, single_sections=two_materials)
     save_to_ = save_to
     parallel_ = parallel
@@ -359,6 +362,11 @@ def animate():
 @verify.command(help="Animate responses to traffic.")
 def animate_responses():
     lib.make.traffic.animate_responses(c())
+
+
+@verify.command(help="Responses linear to elastic moduli.")
+def linear_youngs():
+    lib.make.strain.plot_linear_youngs(c())
 
 
 ############

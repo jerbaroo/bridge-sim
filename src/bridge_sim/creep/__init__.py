@@ -26,14 +26,14 @@ a_3 = (35 / f_cm) ** 0.5
 
 
 def creep(cement_class: CementClass, h_0: float, times: List[float]) -> List[float]:
-    """Strain due to creep over time.
+    """Creep coefficient over time.
 
     Args:
         cement_class: class of the cement.
         h_0: notational size.
         times: seconds when to compute strain.
 
-    Returns: list of strain at each given time.
+    Returns: list of creep coefficient at each given time.
 
     """
     times = np.array(convert_times(f="second", t="day", times=times))
