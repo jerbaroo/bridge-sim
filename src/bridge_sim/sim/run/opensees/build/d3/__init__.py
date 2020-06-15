@@ -24,6 +24,7 @@ from bridge_sim.sim.build import (
     get_bridge_shells_and_nodes,
     to_deck_nodes,
 )
+from bridge_sim.sim.run.opensees.build.d3.self_weight import opensees_self_weight_loads
 from bridge_sim.sim.run.opensees.build.d3.thermal import (
     opensees_thermal_axial_deck_loads,
     opensees_thermal_moment_deck_loads,
@@ -547,6 +548,10 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
                 opensees_thermal_moment_deck_loads(
                     c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
+            )
+            .replace(
+                "<<SELF_WEIGHT>>",
+                opensees_self_weight_loads(sim_params, deck_shells),
             )
             .replace("<<SUPPORTS>>", "")
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))

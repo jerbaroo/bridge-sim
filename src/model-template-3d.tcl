@@ -37,6 +37,7 @@ pattern Plain 1 1 {
 <<LOAD>>
 <<THERMAL_AXIAL_LOAD_DECK>>
 <<THERMAL_MOMENT_LOAD_DECK>>
+<<SELF_WEIGHT>>
 }
 
 <<FORCES>>
