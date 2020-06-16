@@ -15,7 +15,7 @@ def plot_self_weight(config: Config):
     if not response_type.is_strain():
         responses.units = "mm"
     plot.top_view_bridge(config.bridge, piers=True, units="m")
-    plot.contour_responses(config, responses, interp=(200, 60))
+    plot.contour_responses(config, responses, scatter=True)
     plt.legend()
 
     rt_name = "Microstrain XXB" if response_type.is_strain() else response_type.name()

@@ -7,7 +7,8 @@ import numpy as np
 from bridge_sim import sim
 from bridge_sim.model import Config, ResponseType, Point
 
-from bridge_sim.shrinkage import CementClass, RH, f_cm
+from bridge_sim.shrinkage import CementClass, RH, f_cm, notational_size
+from bridge_sim.sim.model import Responses
 from bridge_sim.util import print_d, convert_times
 from numba import njit
 
@@ -25,17 +26,19 @@ a_2 = (35 / f_cm) ** 0.2
 a_3 = (35 / f_cm) ** 0.5
 
 
-def creep(cement_class: CementClass, h_0: float, times: List[float]) -> List[float]:
+def creep_coeff(config: Config, cement_class: CementClass, times: List[float], x: float) -> List[float]:
     """Creep coefficient over time.
 
     Args:
+        config: simulation configuration object.
         cement_class: class of the cement.
-        h_0: notational size.
         times: seconds when to compute strain.
+        x: X position used to calculate cross-sectional area and perimeter.
 
     Returns: list of creep coefficient at each given time.
 
     """
+    h_0 = notational_size(config=config, x=x)
     times = np.array(convert_times(f="second", t="day", times=times))
     t_0T = 7  # Temperature adjusted age of concrete.
     # The effect of type of cement on the creep.
@@ -77,51 +80,41 @@ def creep(cement_class: CementClass, h_0: float, times: List[float]) -> List[flo
     def B_c(t_, t_0_):
         return np.power((t_ - t_0_) / (B_H + t_ - t_0_), 0.3)
 
-    strain = y_0(t_0) * B_c(times, t_0)
+    coeff = y_0(t_0) * B_c(times, t_0)
     # Set initial strain values to 0.
     i = 0
-    while i < len(strain) and not strain[i] >= 0:
-        strain[i] = 0
-    return strain
+    while i < len(coeff) and not coeff[i] >= 0:
+        coeff[i] = 0
+    return coeff
 
 
 def creep_responses(
     config: Config,
-    response_type: ResponseType,
     times: List[float],
+    responses: Responses,
     points: List[Point],
     cement_class: CementClass,
-    h_0: float,
+    x: float,
+    psi: float = 1,
 ) -> List[List[float]]:
     """Responses over time at points due to creep.
 
     Args:
         config: simulation configuration object.
-        response_type: simulation response type.
         times: seconds when to compute responses.
-        points: points where to compute responses.
         cement_class: class of the cement.
-        h_0: notational size.
+        x: X position used to calculate cross-sectional area and perimeter.
 
     Returns: NumPy array ordered by points then times.
 
     """
-    strain = creep(cement_class=cement_class, h_0=h_0, times=times)
-    temp_deltas = strain / config.cte
-    unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
-        config=config, response_type=response_type, temp_deltas=(1, None)
-    ).at_decks(points)
-    assert len(unit_uniforms) == len(points)
-    assert not any(np.isinf(u) or np.isnan(u) for u in unit_uniforms)
+    coeff = creep_coeff(
+        config=config, cement_class=cement_class, times=times, x=x)
+    responses_at = responses.at_decks(points)
     result = np.empty((len(points), len(times)))
-
-    @njit(parallel=True)
-    def build_result(result_, len_points):
-        for i in range(len_points):
-            result_[i] = temp_deltas * unit_uniforms[i]
-
-    build_result(result, len(points))
+    for p in range(len(points)):
+        result[p] = responses_at[p] * (1 + (coeff * psi))
     return result
 
 
-__all__ = ["creep", "creep_responses"]
+__all__ = ["creep_coeff", "creep_responses"]
