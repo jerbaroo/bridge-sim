@@ -45,6 +45,22 @@ h_0tab = [100, 200, 300, 500]
 k_htab = [1, 0.85, 0.75, 0.7]
 
 
+def notational_size(config: Config, x: float):
+    """Notational size in mm."""
+    thicknesses = []
+    for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100):
+        thicknesses.append(config.bridge.deck_section_at(x=x, z=z).thickness)
+    A_c = config.bridge.width * np.mean(thicknesses) * 1000 * 1000
+    print_i(f"Mean thickness = {np.mean(thicknesses)}")
+    u = (config.bridge.width + thicknesses[0] + thicknesses[-1]) * 1000
+    h_0 = (2 * A_c) / u
+    print_i("Drying shrinkage calculation:")
+    print_i(f"    perimeter u = {u}")
+    print_i(f"    A_c = {A_c}")
+    print_i(f"    h_0 = {h_0}")
+    return h_0
+
+
 def drying(
     config: Config,
     cement_class: CementClass,
@@ -66,18 +82,7 @@ def drying(
     Returns: list of strain at each given time.
 
     """
-    # Notational size in mm.
-    thicknesses = []
-    for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100):
-        thicknesses.append(config.bridge.deck_section_at(x=x, z=z).thickness)
-    A_c = config.bridge.width * np.mean(thicknesses) * 1000 * 1000
-    print_i(f"Mean thickness = {np.mean(thicknesses)}")
-    u = (config.bridge.width + thicknesses[0] + thicknesses[-1]) * 1000
-    h_0 = (2 * A_c) / u
-    print_i("Drying shrinkage calculation:")
-    print_i(f"    perimeter u = {u}")
-    print_i(f"    A_c = {A_c}")
-    print_i(f"    h_0 = {h_0}")
+    h_0 = notational_size(config=config, x=x)
     t = np.array(convert_times(f="second", t="day", times=times))
     B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
     print_d(D, f"B_RH = {B_RH}")
