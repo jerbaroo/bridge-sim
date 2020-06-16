@@ -376,6 +376,11 @@ def linear_youngs():
     lib.make.strain.plot_linear_youngs(c())
 
 
+@verify.command(help="Plot mass of asphalt on bridge 705.")
+def asphalt():
+    lib.make.asphalt.plot_asphalt(c())
+
+
 ############
 # Validate #
 ############

@@ -256,6 +256,7 @@ def temperature_load(c: Config):
                     np.around(max(dmin, omin), 2),
                     np.around(min(dmax, omax), 2),
                 )
+                print(f"{response_type.name()}: amin, amax = {amin}, {amax}")
                 levels = np.linspace(amin, amax, 16)
             # .. but if these values are not available we don't use levels.
             except:
@@ -382,9 +383,8 @@ def self_weight(c: Config):
         amin, amax = float(row["amin"]), float(row["amax"])
         omin, omax = float(row["omin"]), float(row["omax"])
         rmin, rmax = max(amin, omin), min(amax, omax)
+        print(f"{response_type.name()}: rmin, rmax = {rmin}, {rmax}")
         levels = np.linspace(rmin, rmax, 16)
-        levels = None
-        print_w("Setting levels to None")
         title = lambda prog: f"{response_type.name()} to self-weight with {prog}"
         save = lambda prog: c.get_image_path("verification/self-weight", prog + ".pdf")
         # Create the OpenSees plot.

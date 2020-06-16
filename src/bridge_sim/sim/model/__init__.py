@@ -20,8 +20,10 @@ from bridge_sim.model import (
     Bridge,
     Config,
 )
-from bridge_sim.util import round_m, safe_str, nearest_index, print_i
+from bridge_sim.util import round_m, safe_str, nearest_index, print_i, print_w, print_d
 from bridge_sim.sim.util import _responses_path, poly_area
+
+D = False
 
 
 class Node:
@@ -137,6 +139,7 @@ class Shell:
         self.section = section
         self.support_position_index = support_position_index
         self.nodes_by_id = nodes_by_id
+        self.deck = all(n.y == 0 for n in self.nodes())
 
         # Attach a reference to the section to each 'Node' and note if the node
         # belongs to a pier or to the bridge deck.
@@ -155,9 +158,39 @@ class Shell:
         """This element's nodes."""
         return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
 
-    def mass(self):
+    def mass(self, config: Config):
         """Mass of this shell element: volume x density."""
-        return self.section.thickness * self.area() * self.section.density
+        concrete_mass = self.section.thickness * self.area() * self.section.density
+        # Asphalt only considered if Config flag set and is a deck shell.
+        if not self.deck or not config.self_weight_asphalt:
+            return concrete_mass
+        z_min, z_max = self.width(min_max=True)
+        assert z_min < z_max
+        asphalt_mass = 0
+        for lane in config.bridge.lanes:
+            if lane.asphalt is None:
+                continue
+            assert lane.z_min < lane.z_max
+            # Shell completely in the lane.
+            if z_min >= lane.z_min and z_max <= lane.z_max:
+                z_dist = z_max - z_min
+            # Shell halfway in the lane.
+            elif z_min < lane.z_min <= z_max <= lane.z_max:
+                z_dist = z_max - lane.z_min
+            # Shell halfway in the lane.
+            elif lane.z_min <= z_min <= lane.z_max < z_max:
+                z_dist = lane.z_max - z_min
+            # Shell spanning the lane.
+            elif z_min < lane.z_min and z_max > lane.z_max:
+                z_dist = lane.z_max - lane.z_min
+            else:
+                continue
+            z_frac = z_dist / self.width()
+            assert 0 <= z_frac <= 1
+            asphalt_mass += lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
+            print_d(D, f"Concrete density & asphalt density = {self.section.density}, {lane.asphalt.density}")
+        print_d(D, f"Concrete mass & asphalt mass = {concrete_mass}, {asphalt_mass}")
+        return concrete_mass + asphalt_mass
 
     def area(self):
         """Assumes a tetrahedron shape."""
@@ -204,9 +237,14 @@ class Shell:
             self._length = max_x - min_x
         return self._length
 
-    def width(self) -> float:
-        """The width of this element (longitudinal direction)."""
-        if not hasattr(self, "_width"):
+    def width(self, min_max: bool = False) -> float:
+        """The width of this element (transverse direction).
+
+        Args:
+            min_max: instead return a tuple of min and max Z position.
+
+        """
+        if min_max or not hasattr(self, "_width"):
             min_z, max_z = np.inf, -np.inf
             for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
                 node_z = self.nodes_by_id[n_id].z
@@ -214,6 +252,8 @@ class Shell:
                     min_z = node_z
                 if node_z > max_z:
                     max_z = node_z
+            if min_max:
+                return min_z, max_z
             self._width = max_z - min_z
         return self._width
 
@@ -355,7 +395,7 @@ class SimParams:
         """
         return BuildContext(add_loads=[pload.point() for pload in self.ploads])
 
-    def id_str(self):
+    def id_str(self, config: Config):
         """String representing the simulation parameters.
 
         NOTE: Response types are not included in the ID string because it is
@@ -365,6 +405,8 @@ class SimParams:
         load_str = ""
         if self.self_weight:
             load_str += "s"
+            if config.self_weight_asphalt:
+                load_str += "a"
         if self.axial_delta_temp is not None:
             load_str += f"temp-axial-{self.axial_delta_temp}"
         if self.moment_delta_temp is not None:

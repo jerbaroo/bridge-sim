@@ -551,7 +551,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
             )
             .replace(
                 "<<SELF_WEIGHT>>",
-                opensees_self_weight_loads(sim_params, deck_shells),
+                opensees_self_weight_loads(c, sim_params, deck_shells),
             )
             .replace("<<SUPPORTS>>", "")
             .replace("<<DECK_SECTIONS>>", opensees_deck_sections(c=c))
