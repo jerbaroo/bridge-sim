@@ -70,7 +70,7 @@ def animate_responses(
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
-    cmap=axis_cmap_r,
+    cmap=cm.get_cmap("RdYlBu"),
     without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
@@ -138,8 +138,8 @@ def animate_responses(
     )
     total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
-    # min_response = min(min_response, -max_response)
-    # max_response = max(max_response, -min_response)
+    min_response = min(min_response, -max_response)
+    max_response = max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
     # thresh = abs(min_response - max_response) * 0.01
     # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
