@@ -360,3 +360,94 @@ def temperature_load(c: Config):
                 )
             )
             plt.close()
+
+
+def self_weight(c: Config):
+    """Contour plots of self-weight, OpenSees and AxisVM."""
+    min_max_values = pd.read_csv(
+        os.path.join(project_dir(), "data/validation/axis/self-weight.csv")
+    )
+    sim_types = [ResponseType.YTrans, ResponseType.StrainXXB]
+    for sim_type in sim_types:
+        response_type = sim_type
+        if sim_type.is_strain():
+            response_type = sim_type.to_stress()
+            rt_str = "stressxxb"
+            unit_str = "N/mm²"
+        else:
+            rt_str = "ytrans"
+            unit_str = "mm"
+        # Read the min max values.
+        row = min_max_values[min_max_values["name"] == rt_str]
+        amin, amax = float(row["amin"]), float(row["amax"])
+        omin, omax = float(row["omin"]), float(row["omax"])
+        rmin, rmax = max(amin, omin), min(amax, omax)
+        levels = np.linspace(rmin, rmax, 16)
+        levels = None
+        print_w("Setting levels to None")
+        title = lambda prog: f"{response_type.name()} to self-weight with {prog}"
+        save = lambda prog: c.get_image_path("verification/self-weight", prog + ".pdf")
+        # Create the OpenSees plot.
+        os_responses = sim.responses.load(
+            config=c, response_type=sim_type, self_weight=True
+        )
+        if response_type.is_stress():
+            os_responses = os_responses.map(lambda r: r * 1E-6).to_stress(c.bridge)
+        else:
+            os_responses = os_responses.map(lambda r: r * 1E3)
+        os_responses.units = unit_str
+        top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+        contour_responses(
+            config=c,
+            responses=os_responses,
+            cmap=axis_cmap_r,
+            levels=levels,
+            interp=(200, 60),
+        )
+        plt.legend()
+        plt.title(title("OpenSees"))
+        plt.tight_layout()
+        plt.savefig(save(rt_str + "-OpenSees"))
+        plt.close()
+
+        # First plot and clear, just to have the same colorbar.
+        contour_responses(
+            config=c, responses=os_responses, cmap=axis_cmap_r, levels=levels
+        )
+        plt.cla()
+        # Then plot the bridge and Axis image.
+        top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+        plt.imshow(
+            mpimg.imread(
+                os.path.join(
+                    project_dir(), f"data/validation/axis/self-weight-{rt_str}.PNG"
+                )
+            ),
+            extent=(
+                c.bridge.x_min,
+                c.bridge.x_max,
+                c.bridge.z_min,
+                c.bridge.z_max,
+            ),
+        )
+        amin_s = f"{amin:.3f}"
+        amax_s = f"{amax:.3f}"
+        aabs_s = f"{abs(amin - amax):.3f}"
+        for point, leg_label, color, alpha in [
+            ((0, 0), f"min = {amin_s} {os_responses.units}", "r", 0),
+            ((0, 0), f"max = {amax_s} {os_responses.units}", "r", 0),
+            ((0, 0), f"|min-max| = {aabs_s} {os_responses.units}", "r", 0),
+        ]:
+            plt.scatter(
+                [point[0]],
+                [point[1]],
+                label=leg_label,
+                marker="o",
+                color=color,
+                alpha=alpha,
+            )
+        plt.legend()
+        plt.title(title("AxisVM"))
+        plt.tight_layout()
+        plt.savefig(save(rt_str + "-AxisVM"))
+        plt.close()

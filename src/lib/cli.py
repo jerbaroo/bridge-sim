@@ -317,6 +317,13 @@ def temp_loads():
     lib.make.validation.temperature_load(c())
 
 
+@verify.command(help="Contour plots of self-weight loading.")
+def self_weight():
+    if not two_materials_:
+        raise ValueError("You need the --two-materials option!")
+    lib.make.validation.self_weight(c())
+
+
 @verify.command(help="Plots of time series of shrinkage.")
 def shrinkage():
     lib.make.shrinkage.plot_shrinkage_strain(c())
@@ -367,11 +374,6 @@ def animate_responses():
 @verify.command(help="Responses linear to elastic moduli.")
 def linear_youngs():
     lib.make.strain.plot_linear_youngs(c())
-
-
-@verify.command(help="Responses to self weight.")
-def self_weight():
-    lib.make.self_weight.plot_self_weight(c())
 
 
 ############
