@@ -2,7 +2,7 @@
 
 from enum import Enum
 from math import sqrt
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from numba import njit
@@ -45,8 +45,16 @@ h_0tab = [100, 200, 300, 500]
 k_htab = [1, 0.85, 0.75, 0.7]
 
 
-def notational_size(config: Config, x: float):
-    """Notational size in mm."""
+def notational_size(config: Config, x: Optional[float] = None):
+    """Notational size in mm.
+
+    Args:
+        config: simulation configuration object
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
+    """
+    if x is None:
+        x = config.bridge.x_min + ((config.bridge.x_max - config.bridge.x_min) / 2)
     thicknesses = []
     for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100):
         thicknesses.append(config.bridge.deck_section_at(x=x, z=z).thickness)
@@ -65,7 +73,7 @@ def drying(
     config: Config,
     cement_class: CementClass,
     times: List[float],
-    x: float,
+    x: Optional[float] = None,
 ) -> List[float]:
     """Strain due to drying shrinkage over time.
 
@@ -77,7 +85,8 @@ def drying(
         config: simulation configuration object.
         cement_class: class of the cement.
         times: seconds when to compute strain.
-        x: X position used to calculate cross-sectional area and perimeter.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: list of strain at each given time.
 
@@ -109,7 +118,7 @@ def drying_responses(
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
-    x: float,
+    x: Optional[float] = None,
 ) -> List[List[float]]:
     """Responses over time at points due to drying shrinkage.
 
@@ -119,7 +128,8 @@ def drying_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
-        x: X position used to calculate cross-sectional area and perimeter.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
@@ -227,7 +237,7 @@ def total_responses(
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
-    x: float,
+    x: Optional[float] = None,
 ) -> List[List[float]]:
     """Responses over time at points due to drying shrinkage.
 
@@ -237,7 +247,8 @@ def total_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
-        x: X position used to calculate cross-sectional area and perimeter.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
