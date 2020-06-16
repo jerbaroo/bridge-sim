@@ -231,6 +231,7 @@ class Config:
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
         self.cte = 12e-6
+        self.self_weight_asphalt: bool = True
 
         # Responses & events.
         self.sensor_hz: float = 1 / 100
@@ -451,6 +452,13 @@ class Support:
         return round_m(self.z - half_bottom), round_m(self.z + half_bottom)
 
 
+class Asphalt:
+    def __init__(self, thickness: float, density: float):
+        """Asphalt on a lane of a bridge."""
+        self.thickness = thickness
+        self.density = density
+
+
 class Lane:
     """A traffic lane spanning the length of a bridge.
 
@@ -458,20 +466,28 @@ class Lane:
         z0: Z position of one edge of the lane.
         z1: Z position of the other edge of the lane.
         ltr: traffic moves in left to right direction?
+        asphalt: thickness and density of the asphalt.
 
     Attrs:
         z_min, lower Z position of the bridge.
-        z_min, greater Z position of the bridge.
+        z_max, greater Z position of the bridge.
         width, width of the lane.
 
     """
 
-    def __init__(self, z0: float, z1: float, ltr: bool):
+    def __init__(
+        self,
+        z0: float,
+        z1: float,
+        ltr: bool,
+        asphalt: Optional[Asphalt] = Asphalt(thickness=0.1, density=2.4),
+    ):
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr
         self.width = round_m(self.z_max - self.z_min)
         self.z_center = round_m(self.z_min + (self.width / 2))
+        self.asphalt = asphalt
 
     def wheel_track_zs(self, config: Config):
         """Z positions of this lane's wheel track on a bridge."""

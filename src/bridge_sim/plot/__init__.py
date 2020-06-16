@@ -4,7 +4,7 @@ import itertools
 import os
 from typing import List, Optional, Tuple, Callable
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import patches as patches
@@ -12,7 +12,7 @@ from matplotlib import patches as patches
 from bridge_sim.model import Config, Vehicle, PointLoad, Point, Bridge
 from bridge_sim.sim.build import get_bridge_shells
 from bridge_sim.sim.model import Responses, SimParams
-from lib.plot import default_cmap, plt
+from lib.plot import default_cmap, plt, axis_cmap_r
 
 import bridge_sim.plot.animate as animate
 
@@ -94,6 +94,10 @@ def top_view_bridge(
         units: units of bridge width and height (axes labels).
 
     """
+    x_min, x_max = plt.xlim()
+    plt.xlim(min(x_min, bridge.x_min), max(x_max, bridge.x_max))
+    y_min, y_max = plt.ylim()
+    plt.ylim(min(y_min, bridge.z_min), max(y_max, bridge.z_max))
     if landscape:
         plt.landscape()
     plt.axis("equal")
@@ -109,7 +113,7 @@ def top_view_bridge(
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
-                matplotlib.patches.Rectangle(
+                patches.Rectangle(
                     (0, lane.z_min),
                     bridge.length,
                     lane.z_max - lane.z_min,
@@ -260,10 +264,48 @@ def contour_responses(
     # End: min, max legend.
 
 
-def shells(config: Config, sim_params: SimParams = SimParams()):
+def shells(
+    config: Config,
+    sim_params: SimParams = SimParams(),
+    lw: float = 0.1,
+    color_f = None,
+    cmap = axis_cmap_r,
+    norm = None,
+    ret_cmap_norm: bool = False,
+):
+    """Plot a bridge deck's shells.
+
+    Args:
+        config: simulation configuration object.
+        sim_params: the built model (and shells) depend on this.
+        color_f: function from shell to color.
+        cmap: Matplotlib colormap for shell facecolours.
+        norm: Matplotlib norm to use, else scale color_f across all shells.
+        ret_cmap_norm: return a tuple of cmap and norm.
+
+    """
     deck_shells, _pier_shells = get_bridge_shells(
         bridge=config.bridge, ctx=sim_params.build_ctx()
     )
+    c_min, c_max = np.inf, -np.inf
+    if color_f:
+        for shell in deck_shells:
+            c = color_f(shell)
+            if c < c_min:
+                c_min = c
+            if c > c_max:
+                c_max = c
+        if norm is None:
+            norm = mpl.colors.Normalize(vmin=c_min, vmax=c_max)
     for shell in deck_shells:
         ni, nj, nk, nl = shell.nodes()
-        plt.plot([ni.x, nj.x, nk.x, nl.x], [ni.z, nj.z, nk.z, nl.z], c="black", lw=0.1)
+        plt.gca().add_patch(patches.Rectangle(
+            (ni.x, ni.z),
+            nj.x - ni.x,
+            nl.z - ni.z,
+            linewidth=lw,
+            edgecolor="black",
+            facecolor=cmap(norm(color_f(shell))) if color_f else "none"
+        ))
+    if ret_cmap_norm:
+        return cmap, norm

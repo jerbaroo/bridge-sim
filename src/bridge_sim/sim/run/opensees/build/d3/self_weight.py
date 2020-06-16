@@ -4,11 +4,12 @@ from typing import Dict
 import numpy as np
 import scipy.constants as constants
 
+from bridge_sim.model import Config
 from bridge_sim.sim.build import det_shells
 from bridge_sim.sim.model import SimParams, DeckShells
 
 
-def opensees_self_weight_loads(sim_params: SimParams, deck_shells: DeckShells):
+def opensees_self_weight_loads(config: Config, sim_params: SimParams, deck_shells: DeckShells):
     """Loads for the self weight, if in the simulation parameters."""
     if not sim_params.self_weight:
         return ""
@@ -21,7 +22,7 @@ def opensees_self_weight_loads(sim_params: SimParams, deck_shells: DeckShells):
 
     yloads_by_nid: Dict[int, float] = defaultdict(lambda: 0)
     for shell in det_shells(deck_shells):
-        node_newtons = shell.mass() * constants.g / 4
+        node_newtons = shell.mass(config) * constants.g / 4
         for node in shell.nodes():
             yloads_by_nid[node.n_id] += node_newtons
     load_str = "".join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])

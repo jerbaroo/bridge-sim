@@ -164,7 +164,7 @@ class FEMRunner:
             append: append to the filename (before the extension).
 
         """
-        param_str = sim_params.id_str()
+        param_str = sim_params.id_str(self.c)
         append = append if len(append) == 0 else f"-{append}"
         filename = f"{self.c.bridge.id_str()}-params={param_str}{append}"
         if dirname is None:
