@@ -79,6 +79,7 @@ def top_view_bridge(
     landscape: bool = True,
     compass: bool = False,
     units: Optional[str] = None,
+    set_lims: bool = False,
 ):
     """Plot the top view of a bridge's geometry.
 
@@ -92,12 +93,14 @@ def top_view_bridge(
         lane_fill: plot fill or only outline?
         compass: plot a compass rose?
         units: units of bridge width and height (axes labels).
+        set_lims: increase plot limits to bridge edges and abutments.
 
     """
-    x_min, x_max = plt.xlim()
-    plt.xlim(min(x_min, bridge.x_min), max(x_max, bridge.x_max))
-    y_min, y_max = plt.ylim()
-    plt.ylim(min(y_min, bridge.z_min), max(y_max, bridge.z_max))
+    if set_lims:
+        x_min, x_max = plt.xlim()
+        plt.xlim(min(x_min, bridge.x_min), max(x_max, bridge.x_max))
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, bridge.z_min), max(y_max, bridge.z_max))
     if landscape:
         plt.landscape()
     plt.axis("equal")
