@@ -1,7 +1,7 @@
 """Time series of responses to creep."""
 
 from math import sqrt
-from typing import List
+from typing import List, Union
 
 import numpy as np
 from bridge_sim import sim
@@ -91,7 +91,7 @@ def creep_coeff(config: Config, cement_class: CementClass, times: List[float], x
 def creep_responses(
     config: Config,
     times: List[float],
-    responses: Responses,
+    responses: Union[Responses, List[List[float]]],
     points: List[Point],
     cement_class: CementClass,
     x: float,
@@ -109,8 +109,14 @@ def creep_responses(
 
     """
     coeff = creep_coeff(
-        config=config, cement_class=cement_class, times=times, x=x)
-    responses_at = responses.at_decks(points)
+        config=config, cement_class=cement_class, times=times, x=x
+    )
+    if isinstance(responses, Responses):
+        responses_at = responses.at_decks(points)
+    else:
+        assert len(responses) == len(points)
+        assert len(responses[0]) == len(times)
+        responses_at = responses
     result = np.empty((len(points), len(times)))
     for p in range(len(points)):
         result[p] = responses_at[p] * (1 + (coeff * psi))

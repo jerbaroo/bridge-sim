@@ -236,7 +236,7 @@ def total_responses(
     response_type: ResponseType,
     times: List[float],
     points: List[Point],
-    cement_class: CementClass,
+    cement_class: CementClass = CementClass.Normal,
     x: Optional[float] = None,
 ) -> List[List[float]]:
     """Responses over time at points due to drying shrinkage.
