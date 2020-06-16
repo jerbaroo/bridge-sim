@@ -70,7 +70,7 @@ def animate_responses(
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
-    cmap=cm.get_cmap("RdYlBu"),
+    cmap=cm.get_cmap("RdBu"),
     without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
