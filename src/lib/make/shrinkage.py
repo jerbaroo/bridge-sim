@@ -43,8 +43,10 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
     response_types = [RT.YTrans, RT.StrainXXB]
-    plt.portrait()
+    plt.landscape()
     for r_i, rt in enumerate(response_types):
+        plt.subplot(1, 2, r_i + 1)
+        lw = 3
         drying = shrinkage.drying_responses(
             config=config,
             response_type=rt,
@@ -55,21 +57,16 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
         )[0]
         if not rt.is_strain():
             drying *= 1E3
-        plt.subplot(3, 2, 2 + r_i + 1)
-        plt.plot(days / 365, drying, lw=3, c="r")
-        plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
-        plt.title("Drying shrinkage")
-        plt.tick_params(axis="x", bottom=False, labelbottom=False)
+        plt.plot(days / 365, drying, lw=lw, c="black", label="Drying")
         autogenous = shrinkage.autogenous_responses(
-            config=config, response_type=rt, times=seconds, points=[Point(x=x)],
+            config=config,
+            response_type=rt,
+            times=seconds,
+            points=[Point(x=x)],
         )[0]
         if not rt.is_strain():
             autogenous *= 1E3
-        plt.subplot(3, 2, r_i + 1)
-        plt.plot(days / 365, autogenous, lw=3, c="r")
-        plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
-        plt.title("Autogenous shrinkage")
-        plt.tick_params(axis="x", bottom=False, labelbottom=False)
+        plt.plot(days / 365, autogenous, lw=lw, c="blue", label="Autogenous")
         total = shrinkage.total_responses(
             config=config,
             response_type=rt,
@@ -80,13 +77,10 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
         )[0]
         if not rt.is_strain():
             total *= 1E3
-        plt.subplot(3, 2, 4 + r_i + 1)
-        plt.plot(days / 365, total, lw=3, c="r")
-        plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
+        plt.plot(days / 365, total, lw=lw, c="r", label="Total")
         plt.xlabel("Time (years)")
-        plt.title("Total shrinkage")
-    plot.util.equal_lims("y", 3, 2, [1, 3, 5])
-    plot.util.equal_lims("y", 3, 2, [2, 4, 6])
+        plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
+        plt.legend()
     plt.suptitle(f"Responses at X = {x} m, Z = {z} m from shrinkage")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "responses.pdf"))
