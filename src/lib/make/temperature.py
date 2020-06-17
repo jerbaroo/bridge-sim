@@ -41,7 +41,6 @@ def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
             ],
         ).without_nan_inf()
         if response_type.is_strain():
-            responses.units = "N/mm²"
             responses = responses.map(lambda r: r * 1e6)
         else:
             responses.units = "mm"
