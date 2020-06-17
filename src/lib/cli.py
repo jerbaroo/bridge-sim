@@ -121,17 +121,11 @@ def remove():
 
 @cli.command(help="Remove simulation data except for result files.")
 @click.option(
-    "--keep",
-    type=str,
-    default="y-translation strain",
-    help="Words required in the filename.",
+    "--keep", type=str, default="", help="Words required in the filename.",
 )
 def clean(keep):
-    from bridge_sim.scenarios import transverse_crack
 
     remove_except_npy(c=c(), keep=keep)
-    c_ = transverse_crack().use(c())[0]
-    remove_except_npy(c=c_, keep=keep)
 
 
 ########
