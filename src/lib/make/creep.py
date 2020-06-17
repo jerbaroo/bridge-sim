@@ -39,8 +39,7 @@ def plot_creep(config: Config, n: int = 100):
                     response_type=response_type,
                     self_weight=True,
                 )
-                if not response_type.is_strain():
-                    responses = responses.map(lambda r: r * 1E3)
+                responses = responses.map(lambda r: r * 1E3)
             elif i == 1:
                 responses = sim.responses.load(
                     config=config,
