@@ -540,9 +540,9 @@ def temp_profile():
 
 
 @thesis.command(help="Contour plot of truck 1, healthy & cracked.")
-def crack_contour():
-    lib.make.crack.crack_plot(
-        config=c(), crack_x_min=45, crack_length=5, response_type=ResponseType.YTrans,
+def crack_zones():
+    lib.make.crack.crack_zone_plots(
+        c(), [ResponseType.StrainXXB, ResponseType.StrainZZB, ResponseType.YTrans]
     )
 
 

@@ -70,7 +70,7 @@ def top_view_vehicles(
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
             for load in points_loads:
-                plt.scatter([load.x], [load.z], c="black", s=3, zorder=10)
+                plt.scatter([load.x], [load.z], c="black", s=4, zorder=10)
 
 
 def top_view_bridge(
@@ -148,7 +148,7 @@ def contour_responses(
     config: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
-    cmap=default_cmap,
+    cmap=axis_cmap_r,
     norm=None,
     scatter: bool = False,
     levels: int = 14,
