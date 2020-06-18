@@ -29,7 +29,7 @@
 
 from enum import Enum
 from math import sqrt
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from numba import njit
@@ -73,28 +73,53 @@ h_0tab = [100, 200, 300, 500]
 k_htab = [1, 0.85, 0.75, 0.7]
 
 
+def notational_size(config: Config, x: Optional[float] = None):
+    &#34;&#34;&#34;Notational size in mm.
+
+    Args:
+        config: simulation configuration object
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
+    &#34;&#34;&#34;
+    if x is None:
+        x = config.bridge.x_min + ((config.bridge.x_max - config.bridge.x_min) / 2)
+    thicknesses = []
+    for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100):
+        thicknesses.append(config.bridge.deck_section_at(x=x, z=z).thickness)
+    A_c = config.bridge.width * np.mean(thicknesses) * 1000 * 1000
+    print_i(f&#34;Mean thickness = {np.mean(thicknesses)}&#34;)
+    u = (config.bridge.width + thicknesses[0] + thicknesses[-1]) * 1000
+    h_0 = (2 * A_c) / u
+    print_i(&#34;Drying shrinkage calculation:&#34;)
+    print_i(f&#34;    perimeter u = {u}&#34;)
+    print_i(f&#34;    A_c = {A_c}&#34;)
+    print_i(f&#34;    h_0 = {h_0}&#34;)
+    return h_0
+
+
 def drying(
-    config: Config, cement_class: CementClass, times: List[float]
+    config: Config,
+    cement_class: CementClass,
+    times: List[float],
+    x: Optional[float] = None,
 ) -&gt; List[float]:
     &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    For the notational size the A_c component, the cross-sectional area is
+    calculated at the given X position, 100 points are sampled across the width
+    of the bridge at that X position.
 
     Args:
         config: simulation configuration object.
         cement_class: class of the cement.
         times: seconds when to compute strain.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: list of strain at each given time.
 
     &#34;&#34;&#34;
-    # Notational size in mm.
-    x_min, x_max = config.bridge.x_min, config.bridge.x_max
-    x_center = x_min + ((x_max - x_min) / 2)
-    material1 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_min)
-    material2 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_max)
-    print_i(f&#34;Material 1 thickness = {material1.thickness}&#34;)
-    print_i(f&#34;Material 2 thickness = {material2.thickness}&#34;)
-    h_0 = (config.bridge.width + material1.thickness + material2.thickness) * 1000
-    print_i(f&#34;h_0 (notational size for shrinkage calculation) = {h_0}&#34;)
+    h_0 = notational_size(config=config, x=x)
     t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
     B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
     print_d(D, f&#34;B_RH = {B_RH}&#34;)
@@ -121,6 +146,7 @@ def drying_responses(
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
+    x: Optional[float] = None,
 ) -&gt; List[List[float]]:
     &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
 
@@ -130,11 +156,13 @@ def drying_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
     &#34;&#34;&#34;
-    strain = drying(config=config, cement_class=cement_class, times=times)
+    strain = drying(config=config, cement_class=cement_class, times=times, x=x)
     temp_deltas = strain / config.cte
     unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -206,17 +234,20 @@ def autogenous_responses(
     return result
 
 
-def total(config: Config, cement_class: CementClass, times: List[float]) -&gt; List[float]:
+def total(
+    config: Config, cement_class: CementClass, times: List[float], x: float,
+) -&gt; List[float]:
     &#34;&#34;&#34;Strain due to drying and autogenous shrinkage over time.
 
     Args:
         cement_class: class of the cement.
         times: seconds when to compute strain.
+        x: X position used to calculate cross-sectional area and perimeter.
 
     Returns: list of strain at each given time.
 
     &#34;&#34;&#34;
-    d = drying(config, cement_class=cement_class, times=times)
+    d = drying(config, cement_class=cement_class, times=times, x=x)
     a = autogenous(times)
     assert len(a) == len(d)
     result = d + a
@@ -230,7 +261,8 @@ def total_responses(
     response_type: ResponseType,
     times: List[float],
     points: List[Point],
-    cement_class: CementClass,
+    cement_class: CementClass = CementClass.Normal,
+    x: Optional[float] = None,
 ) -&gt; List[List[float]]:
     &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
 
@@ -240,6 +272,8 @@ def total_responses(
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
@@ -250,6 +284,7 @@ def total_responses(
         times=times,
         points=points,
         cement_class=cement_class,
+        x=x,
     )
     a = autogenous_responses(
         config=config, response_type=response_type, times=times, points=points
@@ -370,10 +405,13 @@ __all__ = [
 </details>
 </dd>
 <dt id="bridge_sim.shrinkage.drying"><code class="name flex">
-<span>def <span class="ident">drying</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, times: List[float]) -> List[float]</span>
+<span>def <span class="ident">drying</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, times: List[float], x: Union[float, NoneType] = None) -> List[float]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Strain due to drying shrinkage over time.</p>
+<p>For the notational size the A_c component, the cross-sectional area is
+calculated at the given X position, 100 points are sampled across the width
+of the bridge at that X position.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>config</code></strong></dt>
@@ -382,6 +420,9 @@ __all__ = [
 <dd>class of the cement.</dd>
 <dt><strong><code>times</code></strong></dt>
 <dd>seconds when to compute strain.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>X position used to calculate cross-sectional area and perimeter, if
+not given use the center of the bridge.</dd>
 </dl>
 <p>Returns: list of strain at each given time.</p></div>
 <details class="source">
@@ -389,27 +430,28 @@ __all__ = [
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def drying(
-    config: Config, cement_class: CementClass, times: List[float]
+    config: Config,
+    cement_class: CementClass,
+    times: List[float],
+    x: Optional[float] = None,
 ) -&gt; List[float]:
     &#34;&#34;&#34;Strain due to drying shrinkage over time.
+
+    For the notational size the A_c component, the cross-sectional area is
+    calculated at the given X position, 100 points are sampled across the width
+    of the bridge at that X position.
 
     Args:
         config: simulation configuration object.
         cement_class: class of the cement.
         times: seconds when to compute strain.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: list of strain at each given time.
 
     &#34;&#34;&#34;
-    # Notational size in mm.
-    x_min, x_max = config.bridge.x_min, config.bridge.x_max
-    x_center = x_min + ((x_max - x_min) / 2)
-    material1 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_min)
-    material2 = config.bridge.deck_section_at(x=x_center, z=config.bridge.z_max)
-    print_i(f&#34;Material 1 thickness = {material1.thickness}&#34;)
-    print_i(f&#34;Material 2 thickness = {material2.thickness}&#34;)
-    h_0 = (config.bridge.width + material1.thickness + material2.thickness) * 1000
-    print_i(f&#34;h_0 (notational size for shrinkage calculation) = {h_0}&#34;)
+    h_0 = notational_size(config=config, x=x)
     t = np.array(convert_times(f=&#34;second&#34;, t=&#34;day&#34;, times=times))
     B_RH = 1.55 * (1 - (RH / RH_0) ** 3)
     print_d(D, f&#34;B_RH = {B_RH}&#34;)
@@ -431,7 +473,7 @@ __all__ = [
 </details>
 </dd>
 <dt id="bridge_sim.shrinkage.drying_responses"><code class="name flex">
-<span>def <span class="ident">drying_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>) -> List[List[float]]</span>
+<span>def <span class="ident">drying_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, x: Union[float, NoneType] = None) -> List[List[float]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses over time at points due to drying shrinkage.</p>
@@ -447,6 +489,9 @@ __all__ = [
 <dd>points where to compute responses.</dd>
 <dt><strong><code>cement_class</code></strong></dt>
 <dd>class of the cement.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>X position used to calculate cross-sectional area and perimeter, if
+not given use the center of the bridge.</dd>
 </dl>
 <p>Returns: NumPy array ordered by points then times.</p></div>
 <details class="source">
@@ -459,6 +504,7 @@ __all__ = [
     times: List[float],
     points: List[Point],
     cement_class: CementClass,
+    x: Optional[float] = None,
 ) -&gt; List[List[float]]:
     &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
 
@@ -468,11 +514,13 @@ __all__ = [
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
     &#34;&#34;&#34;
-    strain = drying(config=config, cement_class=cement_class, times=times)
+    strain = drying(config=config, cement_class=cement_class, times=times, x=x)
     temp_deltas = strain / config.cte
     unit_uniforms = sim.responses.load(  # Response to unit uniform temp delta.
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -491,7 +539,7 @@ __all__ = [
 </details>
 </dd>
 <dt id="bridge_sim.shrinkage.total"><code class="name flex">
-<span>def <span class="ident">total</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, times: List[float]) -> List[float]</span>
+<span>def <span class="ident">total</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>, times: List[float], x: float) -> List[float]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Strain due to drying and autogenous shrinkage over time.</p>
@@ -501,23 +549,28 @@ __all__ = [
 <dd>class of the cement.</dd>
 <dt><strong><code>times</code></strong></dt>
 <dd>seconds when to compute strain.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>X position used to calculate cross-sectional area and perimeter.</dd>
 </dl>
 <p>Returns: list of strain at each given time.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def total(config: Config, cement_class: CementClass, times: List[float]) -&gt; List[float]:
+<pre><code class="python">def total(
+    config: Config, cement_class: CementClass, times: List[float], x: float,
+) -&gt; List[float]:
     &#34;&#34;&#34;Strain due to drying and autogenous shrinkage over time.
 
     Args:
         cement_class: class of the cement.
         times: seconds when to compute strain.
+        x: X position used to calculate cross-sectional area and perimeter.
 
     Returns: list of strain at each given time.
 
     &#34;&#34;&#34;
-    d = drying(config, cement_class=cement_class, times=times)
+    d = drying(config, cement_class=cement_class, times=times, x=x)
     a = autogenous(times)
     assert len(a) == len(d)
     result = d + a
@@ -527,7 +580,7 @@ __all__ = [
 </details>
 </dd>
 <dt id="bridge_sim.shrinkage.total_responses"><code class="name flex">
-<span>def <span class="ident">total_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a>) -> List[List[float]]</span>
+<span>def <span class="ident">total_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, times: List[float], points: List[<a title="bridge_sim.model.Point" href="../model/index.html#bridge_sim.model.Point">Point</a>], cement_class: <a title="bridge_sim.shrinkage.CementClass" href="#bridge_sim.shrinkage.CementClass">CementClass</a> = CementClass.Normal, x: Union[float, NoneType] = None) -> List[List[float]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses over time at points due to drying shrinkage.</p>
@@ -543,6 +596,9 @@ __all__ = [
 <dd>points where to compute responses.</dd>
 <dt><strong><code>cement_class</code></strong></dt>
 <dd>class of the cement.</dd>
+<dt><strong><code>x</code></strong></dt>
+<dd>X position used to calculate cross-sectional area and perimeter, if
+not given use the center of the bridge.</dd>
 </dl>
 <p>Returns: NumPy array ordered by points then times.</p></div>
 <details class="source">
@@ -554,7 +610,8 @@ __all__ = [
     response_type: ResponseType,
     times: List[float],
     points: List[Point],
-    cement_class: CementClass,
+    cement_class: CementClass = CementClass.Normal,
+    x: Optional[float] = None,
 ) -&gt; List[List[float]]:
     &#34;&#34;&#34;Responses over time at points due to drying shrinkage.
 
@@ -564,6 +621,8 @@ __all__ = [
         times: seconds when to compute responses.
         points: points where to compute responses.
         cement_class: class of the cement.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPy array ordered by points then times.
 
@@ -574,6 +633,7 @@ __all__ = [
         times=times,
         points=points,
         cement_class=cement_class,
+        x=x,
     )
     a = autogenous_responses(
         config=config, response_type=response_type, times=times, points=points

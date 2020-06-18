@@ -31,15 +31,17 @@ import itertools
 import os
 from typing import List, Optional, Tuple, Callable
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import patches as patches
 
 from bridge_sim.model import Config, Vehicle, PointLoad, Point, Bridge
 from bridge_sim.sim.build import get_bridge_shells
-from bridge_sim.sim.model import Responses, SimParams
-from lib.plot import default_cmap, plt
+from bridge_sim.sim.model import Responses, SimParams, Shell
+from lib.plot import default_cmap, plt, axis_cmap_r
+
+import bridge_sim.plot.animate as animate
 
 
 def top_view_vehicles(
@@ -48,6 +50,7 @@ def top_view_vehicles(
     time: float,
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
+    body: bool = True,
 ):
     &#34;&#34;&#34;Plot vehicles on a bridge in top view at a given time.
 
@@ -58,11 +61,14 @@ def top_view_vehicles(
         all_vehicles: vehicles from which to derive
             color scale, if None defaults to &#34;vehicles&#34;.
         wheels: plot each wheel as a black dot?
+        body: plot the body of the vehicle?
 
     &#34;&#34;&#34;
     if all_vehicles is None:
         all_vehicles = vehicles
     for vehicle in vehicles:
+        if not body:
+            break
         # Left-most position of each vehicles axle.
         xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
         # Center of the lane.
@@ -91,7 +97,7 @@ def top_view_vehicles(
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
             for load in points_loads:
-                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=2, zorder=10)
+                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=4, zorder=10)
 
 
 def top_view_bridge(
@@ -104,6 +110,7 @@ def top_view_bridge(
     landscape: bool = True,
     compass: bool = False,
     units: Optional[str] = None,
+    set_lims: bool = False,
 ):
     &#34;&#34;&#34;Plot the top view of a bridge&#39;s geometry.
 
@@ -117,8 +124,14 @@ def top_view_bridge(
         lane_fill: plot fill or only outline?
         compass: plot a compass rose?
         units: units of bridge width and height (axes labels).
+        set_lims: increase plot limits to bridge edges and abutments.
 
     &#34;&#34;&#34;
+    if set_lims:
+        x_min, x_max = plt.xlim()
+        plt.xlim(min(x_min, bridge.x_min), max(x_max, bridge.x_max))
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, bridge.z_min), max(y_max, bridge.z_max))
     if landscape:
         plt.landscape()
     plt.axis(&#34;equal&#34;)
@@ -134,7 +147,7 @@ def top_view_bridge(
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
-                matplotlib.patches.Rectangle(
+                patches.Rectangle(
                     (0, lane.z_min),
                     bridge.length,
                     lane.z_max - lane.z_min,
@@ -162,7 +175,7 @@ def contour_responses(
     config: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
-    cmap=default_cmap,
+    cmap=axis_cmap_r,
     norm=None,
     scatter: bool = False,
     levels: int = 14,
@@ -285,13 +298,53 @@ def contour_responses(
     # End: min, max legend.
 
 
-def shells(config: Config, sim_params: SimParams = SimParams()):
+def shells(
+    config: Config,
+    sim_params: SimParams = SimParams(),
+    lw: float = 0.1,
+    color_f: Callable[[Shell], float] = None,
+    cmap=axis_cmap_r,
+    norm=None,
+    ret_cmap_norm: bool = False,
+):
+    &#34;&#34;&#34;Plot a bridge deck&#39;s shells.
+
+    Args:
+        config: simulation configuration object.
+        sim_params: the built model (and shells) depend on this.
+        color_f: function from shell to color.
+        cmap: Matplotlib colormap for shell facecolours.
+        norm: Matplotlib norm to use, else scale color_f across all shells.
+        ret_cmap_norm: return a tuple of cmap and norm.
+
+    &#34;&#34;&#34;
     deck_shells, _pier_shells = get_bridge_shells(
         bridge=config.bridge, ctx=sim_params.build_ctx()
     )
+    c_min, c_max = np.inf, -np.inf
+    if color_f:
+        for shell in deck_shells:
+            c = color_f(shell)
+            if c &lt; c_min:
+                c_min = c
+            if c &gt; c_max:
+                c_max = c
+        if norm is None:
+            norm = mpl.colors.Normalize(vmin=c_min, vmax=c_max)
     for shell in deck_shells:
         ni, nj, nk, nl = shell.nodes()
-        plt.plot([ni.x, nj.x, nk.x, nl.x], [ni.z, nj.z, nk.z, nl.z], c=&#34;black&#34;, lw=0.1)</code></pre>
+        plt.gca().add_patch(
+            patches.Rectangle(
+                (ni.x, ni.z),
+                nj.x - ni.x,
+                nl.z - ni.z,
+                linewidth=lw,
+                edgecolor=&#34;black&#34;,
+                facecolor=cmap(norm(color_f(shell))) if color_f else &#34;none&#34;,
+            )
+        )
+    if ret_cmap_norm:
+        return cmap, norm</code></pre>
 </details>
 </section>
 <section>
@@ -354,7 +407,7 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
     config: Config,
     responses: Responses,
     point_loads: List[PointLoad] = [],
-    cmap=default_cmap,
+    cmap=axis_cmap_r,
     norm=None,
     scatter: bool = False,
     levels: int = 14,
@@ -477,25 +530,80 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
 </details>
 </dd>
 <dt id="bridge_sim.plot.shells"><code class="name flex">
-<span>def <span class="ident">shells</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: bridge_sim.sim.model.SimParams = &lt;<a title="bridge_sim.sim.model.SimParams" href="../sim/model/index.html#bridge_sim.sim.model.SimParams">SimParams</a> object&gt;)</span>
+<span>def <span class="ident">shells</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: bridge_sim.sim.model.SimParams = &lt;<a title="bridge_sim.sim.model.SimParams" href="../sim/model/index.html#bridge_sim.sim.model.SimParams">SimParams</a> object&gt;, lw: float = 0.1, color_f: Callable[[bridge_sim.sim.model.Shell], float] = None, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, norm=None, ret_cmap_norm: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Plot a bridge deck's shells.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>sim_params</code></strong></dt>
+<dd>the built model (and shells) depend on this.</dd>
+<dt><strong><code>color_f</code></strong></dt>
+<dd>function from shell to color.</dd>
+<dt><strong><code>cmap</code></strong></dt>
+<dd>Matplotlib colormap for shell facecolours.</dd>
+<dt><strong><code>norm</code></strong></dt>
+<dd>Matplotlib norm to use, else scale color_f across all shells.</dd>
+<dt><strong><code>ret_cmap_norm</code></strong></dt>
+<dd>return a tuple of cmap and norm.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def shells(config: Config, sim_params: SimParams = SimParams()):
+<pre><code class="python">def shells(
+    config: Config,
+    sim_params: SimParams = SimParams(),
+    lw: float = 0.1,
+    color_f: Callable[[Shell], float] = None,
+    cmap=axis_cmap_r,
+    norm=None,
+    ret_cmap_norm: bool = False,
+):
+    &#34;&#34;&#34;Plot a bridge deck&#39;s shells.
+
+    Args:
+        config: simulation configuration object.
+        sim_params: the built model (and shells) depend on this.
+        color_f: function from shell to color.
+        cmap: Matplotlib colormap for shell facecolours.
+        norm: Matplotlib norm to use, else scale color_f across all shells.
+        ret_cmap_norm: return a tuple of cmap and norm.
+
+    &#34;&#34;&#34;
     deck_shells, _pier_shells = get_bridge_shells(
         bridge=config.bridge, ctx=sim_params.build_ctx()
     )
+    c_min, c_max = np.inf, -np.inf
+    if color_f:
+        for shell in deck_shells:
+            c = color_f(shell)
+            if c &lt; c_min:
+                c_min = c
+            if c &gt; c_max:
+                c_max = c
+        if norm is None:
+            norm = mpl.colors.Normalize(vmin=c_min, vmax=c_max)
     for shell in deck_shells:
         ni, nj, nk, nl = shell.nodes()
-        plt.plot([ni.x, nj.x, nk.x, nl.x], [ni.z, nj.z, nk.z, nl.z], c=&#34;black&#34;, lw=0.1)</code></pre>
+        plt.gca().add_patch(
+            patches.Rectangle(
+                (ni.x, ni.z),
+                nj.x - ni.x,
+                nl.z - ni.z,
+                linewidth=lw,
+                edgecolor=&#34;black&#34;,
+                facecolor=cmap(norm(color_f(shell))) if color_f else &#34;none&#34;,
+            )
+        )
+    if ret_cmap_norm:
+        return cmap, norm</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.plot.top_view_bridge"><code class="name flex">
-<span>def <span class="ident">top_view_bridge</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, abutments: bool = False, edges: bool = False, piers: bool = False, lanes: bool = False, lane_fill: bool = False, landscape: bool = True, compass: bool = False, units: Union[str, NoneType] = None)</span>
+<span>def <span class="ident">top_view_bridge</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../model/index.html#bridge_sim.model.Bridge">Bridge</a>, abutments: bool = False, edges: bool = False, piers: bool = False, lanes: bool = False, lane_fill: bool = False, landscape: bool = True, compass: bool = False, units: Union[str, NoneType] = None, set_lims: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot the top view of a bridge's geometry.</p>
@@ -519,6 +627,8 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
 <dd>plot a compass rose?</dd>
 <dt><strong><code>units</code></strong></dt>
 <dd>units of bridge width and height (axes labels).</dd>
+<dt><strong><code>set_lims</code></strong></dt>
+<dd>increase plot limits to bridge edges and abutments.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -534,6 +644,7 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
     landscape: bool = True,
     compass: bool = False,
     units: Optional[str] = None,
+    set_lims: bool = False,
 ):
     &#34;&#34;&#34;Plot the top view of a bridge&#39;s geometry.
 
@@ -547,8 +658,14 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
         lane_fill: plot fill or only outline?
         compass: plot a compass rose?
         units: units of bridge width and height (axes labels).
+        set_lims: increase plot limits to bridge edges and abutments.
 
     &#34;&#34;&#34;
+    if set_lims:
+        x_min, x_max = plt.xlim()
+        plt.xlim(min(x_min, bridge.x_min), max(x_max, bridge.x_max))
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, bridge.z_min), max(y_max, bridge.z_max))
     if landscape:
         plt.landscape()
     plt.axis(&#34;equal&#34;)
@@ -564,7 +681,7 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
     if lanes:
         for lane in bridge.lanes:
             plt.gca().add_patch(
-                matplotlib.patches.Rectangle(
+                patches.Rectangle(
                     (0, lane.z_min),
                     bridge.length,
                     lane.z_max - lane.z_min,
@@ -589,7 +706,7 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
 </details>
 </dd>
 <dt id="bridge_sim.plot.top_view_vehicles"><code class="name flex">
-<span>def <span class="ident">top_view_vehicles</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, vehicles: List[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>], time: float, all_vehicles: Union[List[bridge_sim.model.Vehicle], NoneType] = None, wheels: bool = False)</span>
+<span>def <span class="ident">top_view_vehicles</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, vehicles: List[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>], time: float, all_vehicles: Union[List[bridge_sim.model.Vehicle], NoneType] = None, wheels: bool = False, body: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot vehicles on a bridge in top view at a given time.</p>
@@ -606,6 +723,8 @@ def shells(config: Config, sim_params: SimParams = SimParams()):
 color scale, if None defaults to "vehicles".</dd>
 <dt><strong><code>wheels</code></strong></dt>
 <dd>plot each wheel as a black dot?</dd>
+<dt><strong><code>body</code></strong></dt>
+<dd>plot the body of the vehicle?</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -617,6 +736,7 @@ color scale, if None defaults to "vehicles".</dd>
     time: float,
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
+    body: bool = True,
 ):
     &#34;&#34;&#34;Plot vehicles on a bridge in top view at a given time.
 
@@ -627,11 +747,14 @@ color scale, if None defaults to "vehicles".</dd>
         all_vehicles: vehicles from which to derive
             color scale, if None defaults to &#34;vehicles&#34;.
         wheels: plot each wheel as a black dot?
+        body: plot the body of the vehicle?
 
     &#34;&#34;&#34;
     if all_vehicles is None:
         all_vehicles = vehicles
     for vehicle in vehicles:
+        if not body:
+            break
         # Left-most position of each vehicles axle.
         xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
         # Center of the lane.
@@ -660,7 +783,7 @@ color scale, if None defaults to "vehicles".</dd>
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
             for load in points_loads:
-                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=2, zorder=10)</code></pre>
+                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=4, zorder=10)</code></pre>
 </details>
 </dd>
 </dl>

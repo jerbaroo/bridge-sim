@@ -258,6 +258,7 @@ class Config:
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
         self.cte = 12e-6
+        self.self_weight_asphalt: bool = True
 
         # Responses &amp; events.
         self.sensor_hz: float = 1 / 100
@@ -478,6 +479,13 @@ class Support:
         return round_m(self.z - half_bottom), round_m(self.z + half_bottom)
 
 
+class Asphalt:
+    def __init__(self, thickness: float, density: float):
+        &#34;&#34;&#34;Asphalt on a lane of a bridge.&#34;&#34;&#34;
+        self.thickness = thickness
+        self.density = density
+
+
 class Lane:
     &#34;&#34;&#34;A traffic lane spanning the length of a bridge.
 
@@ -485,20 +493,28 @@ class Lane:
         z0: Z position of one edge of the lane.
         z1: Z position of the other edge of the lane.
         ltr: traffic moves in left to right direction?
+        asphalt: thickness and density of the asphalt.
 
     Attrs:
         z_min, lower Z position of the bridge.
-        z_min, greater Z position of the bridge.
+        z_max, greater Z position of the bridge.
         width, width of the lane.
 
     &#34;&#34;&#34;
 
-    def __init__(self, z0: float, z1: float, ltr: bool):
+    def __init__(
+        self,
+        z0: float,
+        z1: float,
+        ltr: bool,
+        asphalt: Optional[Asphalt] = Asphalt(thickness=0.1, density=2.4),
+    ):
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr
         self.width = round_m(self.z_max - self.z_min)
         self.z_center = round_m(self.z_min + (self.width / 2))
+        self.asphalt = asphalt
 
     def wheel_track_zs(self, config: Config):
         &#34;&#34;&#34;Z positions of this lane&#39;s wheel track on a bridge.&#34;&#34;&#34;
@@ -537,12 +553,17 @@ class Material:
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
-        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self._youngs_x = youngs_x
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
+
+    def youngs_x(self):
+        if self._youngs_x is not None:
+            return self._youngs_x
+        return self.youngs
 
     def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
         &#34;&#34;&#34;Does this material contain the given point?&#34;&#34;&#34;
@@ -1297,6 +1318,23 @@ class Vehicle:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="bridge_sim.model.Asphalt"><code class="flex name class">
+<span>class <span class="ident">Asphalt</span></span>
+<span>(</span><span>thickness: float, density: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Asphalt on a lane of a bridge.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Asphalt:
+    def __init__(self, thickness: float, density: float):
+        &#34;&#34;&#34;Asphalt on a lane of a bridge.&#34;&#34;&#34;
+        self.thickness = thickness
+        self.density = density</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.model.Bridge"><code class="flex name class">
 <span>class <span class="ident">Bridge</span></span>
 <span>(</span><span>name: str, length: float, width: float, supports: List[<a title="bridge_sim.model.Support" href="#bridge_sim.model.Support">Support</a>], materials: List[ForwardRef('<a title="bridge_sim.model.Material" href="#bridge_sim.model.Material">Material</a>')], lanes: List[<a title="bridge_sim.model.Lane" href="#bridge_sim.model.Lane">Lane</a>], msl: float, data_id: str = 'healthy', single_sections: Union[Tuple[bridge_sim.model.Material, bridge_sim.model.Material], NoneType] = None)</span>
@@ -2103,6 +2141,7 @@ This applies if 'vehicle_pdf_col' is "length".
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
         self.cte = 12e-6
+        self.self_weight_asphalt: bool = True
 
         # Responses &amp; events.
         self.sensor_hz: float = 1 / 100
@@ -2398,7 +2437,7 @@ This applies if 'vehicle_pdf_col' is "length".
 </dd>
 <dt id="bridge_sim.model.Lane"><code class="flex name class">
 <span>class <span class="ident">Lane</span></span>
-<span>(</span><span>z0: float, z1: float, ltr: bool)</span>
+<span>(</span><span>z0: float, z1: float, ltr: bool, asphalt: Union[bridge_sim.model.Asphalt, NoneType] = &lt;bridge_sim.model.Asphalt object&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A traffic lane spanning the length of a bridge.</p>
@@ -2410,10 +2449,12 @@ This applies if 'vehicle_pdf_col' is "length".
 <dd>Z position of the other edge of the lane.</dd>
 <dt><strong><code>ltr</code></strong></dt>
 <dd>traffic moves in left to right direction?</dd>
+<dt><strong><code>asphalt</code></strong></dt>
+<dd>thickness and density of the asphalt.</dd>
 </dl>
 <h2 id="attrs">Attrs</h2>
 <p>z_min, lower Z position of the bridge.
-z_min, greater Z position of the bridge.
+z_max, greater Z position of the bridge.
 width, width of the lane.</p></div>
 <details class="source">
 <summary>
@@ -2426,20 +2467,28 @@ width, width of the lane.</p></div>
         z0: Z position of one edge of the lane.
         z1: Z position of the other edge of the lane.
         ltr: traffic moves in left to right direction?
+        asphalt: thickness and density of the asphalt.
 
     Attrs:
         z_min, lower Z position of the bridge.
-        z_min, greater Z position of the bridge.
+        z_max, greater Z position of the bridge.
         width, width of the lane.
 
     &#34;&#34;&#34;
 
-    def __init__(self, z0: float, z1: float, ltr: bool):
+    def __init__(
+        self,
+        z0: float,
+        z1: float,
+        ltr: bool,
+        asphalt: Optional[Asphalt] = Asphalt(thickness=0.1, density=2.4),
+    ):
         self.z_min: float = round_m(min(z0, z1))
         self.z_max: float = round_m(max(z0, z1))
         self.ltr: bool = ltr
         self.width = round_m(self.z_max - self.z_min)
         self.z_center = round_m(self.z_min + (self.width / 2))
+        self.asphalt = asphalt
 
     def wheel_track_zs(self, config: Config):
         &#34;&#34;&#34;Z positions of this lane&#39;s wheel track on a bridge.&#34;&#34;&#34;
@@ -2527,12 +2576,17 @@ width, width of the lane.</p></div>
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
-        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self._youngs_x = youngs_x
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
+
+    def youngs_x(self):
+        if self._youngs_x is not None:
+            return self._youngs_x
+        return self.youngs
 
     def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
         &#34;&#34;&#34;Does this material contain the given point?&#34;&#34;&#34;
@@ -2642,6 +2696,21 @@ width, width of the lane.</p></div>
 <pre><code class="python">def y_min_max(self) -&gt; Tuple[float, float]:
     &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
     return -self.thickness, 0</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.youngs_x"><code class="name flex">
+<span>def <span class="ident">youngs_x</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def youngs_x(self):
+    if self._youngs_x is not None:
+        return self._youngs_x
+    return self.youngs</code></pre>
 </details>
 </dd>
 </dl>
@@ -2708,12 +2777,17 @@ width, width of the lane.</p></div>
         self.density = density
         self.thickness = thickness
         self.youngs = youngs
-        self.youngs_x = lambda: youngs if youngs_x is None else youngs_x
+        self._youngs_x = youngs_x
         self.poissons = poissons
         self.start_x_frac = start_x_frac
         self.start_z_frac = start_z_frac
         self.end_x_frac = end_x_frac
         self.end_z_frac = end_z_frac
+
+    def youngs_x(self):
+        if self._youngs_x is not None:
+            return self._youngs_x
+        return self.youngs
 
     def contains(self, bridge: &#34;Bridge&#34;, x: float, z: float) -&gt; bool:
         &#34;&#34;&#34;Does this material contain the given point?&#34;&#34;&#34;
@@ -2823,6 +2897,21 @@ width, width of the lane.</p></div>
 <pre><code class="python">def y_min_max(self) -&gt; Tuple[float, float]:
     &#34;&#34;&#34;The min and max values in y for this section.&#34;&#34;&#34;
     return -self.thickness, 0</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.model.Material.youngs_x"><code class="name flex">
+<span>def <span class="ident">youngs_x</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def youngs_x(self):
+    if self._youngs_x is not None:
+        return self._youngs_x
+    return self.youngs</code></pre>
 </details>
 </dd>
 </dl>
@@ -4348,6 +4437,9 @@ per axle).</dd>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="bridge_sim.model.Asphalt" href="#bridge_sim.model.Asphalt">Asphalt</a></code></h4>
+</li>
+<li>
 <h4><code><a title="bridge_sim.model.Bridge" href="#bridge_sim.model.Bridge">Bridge</a></code></h4>
 <ul class="two-column">
 <li><code><a title="bridge_sim.model.Bridge.axle_track_zs" href="#bridge_sim.model.Bridge.axle_track_zs">axle_track_zs</a></code></li>
@@ -4402,6 +4494,7 @@ per axle).</dd>
 <li><code><a title="bridge_sim.model.Material.mat_id_str" href="#bridge_sim.model.Material.mat_id_str">mat_id_str</a></code></li>
 <li><code><a title="bridge_sim.model.Material.prop_str" href="#bridge_sim.model.Material.prop_str">prop_str</a></code></li>
 <li><code><a title="bridge_sim.model.Material.y_min_max" href="#bridge_sim.model.Material.y_min_max">y_min_max</a></code></li>
+<li><code><a title="bridge_sim.model.Material.youngs_x" href="#bridge_sim.model.Material.youngs_x">youngs_x</a></code></li>
 </ul>
 </li>
 <li>
@@ -4411,6 +4504,7 @@ per axle).</dd>
 <li><code><a title="bridge_sim.model.Material.mat_id_str" href="#bridge_sim.model.Material.mat_id_str">mat_id_str</a></code></li>
 <li><code><a title="bridge_sim.model.Material.prop_str" href="#bridge_sim.model.Material.prop_str">prop_str</a></code></li>
 <li><code><a title="bridge_sim.model.Material.y_min_max" href="#bridge_sim.model.Material.y_min_max">y_min_max</a></code></li>
+<li><code><a title="bridge_sim.model.Material.youngs_x" href="#bridge_sim.model.Material.youngs_x">youngs_x</a></code></li>
 </ul>
 </li>
 <li>

@@ -206,20 +206,25 @@ def clean_generated(c: &#34;Config&#34;):
 
 def remove_except_npy(c: &#34;Config&#34;, keep: str):
     &#34;&#34;&#34;Remove files except keep .npy files with a given word in the filename.&#34;&#34;&#34;
+    exts = [&#34;.npy&#34;, &#34;.txt&#34;, &#34;.lock&#34;]
     keep = keep.split()
     print_w(f&#34;Removing all files in: {c.generated_data_dir()}&#34;)
     print_w(f&#34;Except files containing one of: {keep}&#34;)
+    print_w(f&#34;Except files with extension: {exts}&#34;)
+    print_w(f&#34;Except files starting with: &#39;short&#39;&#34;)
 
     def clean_dir(dir_path):
         for root, dir_names, file_names in os.walk(dir_path):
             for file_name in file_names:
-                if not (
-                    any(k in file_name for k in keep) and file_name.endswith(&#34;npy&#34;)
+                if (
+                    any(file_name.endswith(ext) for ext in exts)
+                    or file_name.startswith(&#34;short&#34;)
+                    or any(k in file_name for k in keep)
                 ):
+                    print_w(f&#34;Keeping {file_name}&#34;)
+                else:
                     print_i(f&#34;Removing {file_name}&#34;)
                     os.remove(os.path.join(root, file_name))
-                else:
-                    print_w(f&#34;Keeping {file_name}&#34;)
             for dir_name in dir_names:
                 clean_dir(os.path.join(root, dir_name))
 
@@ -594,20 +599,25 @@ def plot_hours(df):
 </summary>
 <pre><code class="python">def remove_except_npy(c: &#34;Config&#34;, keep: str):
     &#34;&#34;&#34;Remove files except keep .npy files with a given word in the filename.&#34;&#34;&#34;
+    exts = [&#34;.npy&#34;, &#34;.txt&#34;, &#34;.lock&#34;]
     keep = keep.split()
     print_w(f&#34;Removing all files in: {c.generated_data_dir()}&#34;)
     print_w(f&#34;Except files containing one of: {keep}&#34;)
+    print_w(f&#34;Except files with extension: {exts}&#34;)
+    print_w(f&#34;Except files starting with: &#39;short&#39;&#34;)
 
     def clean_dir(dir_path):
         for root, dir_names, file_names in os.walk(dir_path):
             for file_name in file_names:
-                if not (
-                    any(k in file_name for k in keep) and file_name.endswith(&#34;npy&#34;)
+                if (
+                    any(file_name.endswith(ext) for ext in exts)
+                    or file_name.startswith(&#34;short&#34;)
+                    or any(k in file_name for k in keep)
                 ):
+                    print_w(f&#34;Keeping {file_name}&#34;)
+                else:
                     print_i(f&#34;Removing {file_name}&#34;)
                     os.remove(os.path.join(root, file_name))
-                else:
-                    print_w(f&#34;Keeping {file_name}&#34;)
             for dir_name in dir_names:
                 clean_dir(os.path.join(root, dir_name))
 

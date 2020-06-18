@@ -97,7 +97,7 @@ def animate_responses(
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
-    cmap=axis_cmap_r,
+    cmap=cm.get_cmap(&#34;RdBu&#34;),
     without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
@@ -165,8 +165,8 @@ def animate_responses(
     )
     total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
-    # min_response = min(min_response, -max_response)
-    # max_response = max(max_response, -min_response)
+    min_response = min(min_response, -max_response)
+    max_response = max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
     # thresh = abs(min_response - max_response) * 0.01
     # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
@@ -352,7 +352,7 @@ def animate_traffic_array(
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
-    cmap=axis_cmap_r,
+    cmap=cm.get_cmap(&#34;RdBu&#34;),
     without_edges: int = 0,
 ):
     traffic = traffic_sequence.traffic()
@@ -420,8 +420,8 @@ def animate_traffic_array(
     )
     total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
-    # min_response = min(min_response, -max_response)
-    # max_response = max(max_response, -min_response)
+    min_response = min(min_response, -max_response)
+    max_response = max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
     # thresh = abs(min_response - max_response) * 0.01
     # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
@@ -530,7 +530,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic"><code class="name flex">
-<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x1010fd790>, save: str)</span>
+<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x107e69790>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "Traffic" over a bridge.</p></div>
@@ -563,7 +563,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic_array"><code class="name flex">
-<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x114ea0160>, save: str)</span>
+<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x11bc15310>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "TrafficArray" over a bridge.</p></div>
