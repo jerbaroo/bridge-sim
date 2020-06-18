@@ -2,9 +2,12 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+from bridge_sim import sim, plot, temperature
 
-from bridge_sim.model import Config, PointLoad, Point, ResponseType
-from bridge_sim.sim.responses import to_traffic_array
+from bridge_sim.model import Config, PointLoad, Point, ResponseType, PierSettlement
+from bridge_sim.plot import top_view_bridge
+from bridge_sim.sim.model import Responses
+from bridge_sim.sim.responses import to_traffic_array, without
 from bridge_sim.traffic import Traffic, TrafficSequence
 from bridge_sim.util import print_i, flatten, project_dir
 from bridge_sim.vehicles import truck1
@@ -185,19 +188,17 @@ def stress_strength_plot(c: Config, top: bool):
 
     # Pier settlement.
     plt.subplot(3, 1, 1)
-    c, sim_params = pier_disp_damage([(9, settlement / 1000)]).use(original_c)
     responses = (
-        load_fem_responses(
+        sim.responses.load(
             c=c,
-            sim_runner=OSRunner(c),
             response_type=response_type,
-            sim_params=sim_params,
+            pier_settlement=[PierSettlement(pier=9, settlement=settlement)],
         )
         .resize()
         .to_stress(c.bridge)
     )
-    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses, decimals=2)
+    plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
+    plot.contour_responses(c=c, responses=responses, decimals=2)
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"{settlement} mm pier settlement")
     print("Calculated stress from pier settlement")
@@ -219,14 +220,14 @@ def stress_strength_plot(c: Config, top: bool):
             responses=[
                 (temp_effect[p_ind], deck_points[p_ind])
                 for p_ind in range(len(deck_points))
-                if not np.isnan(temp_effect[p_ind])
             ],
         )
+        .without_nan_inf()
         .without(remove=without.edges(c=c, radius=2))
         .to_stress(c.bridge)
     )
-    top_view_bridge(c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses, decimals=2)
+    plot.top_view_bridge(c.bridge, abutments=True, piers=True)
+    plot.contour_responses(c=c, responses=responses, decimals=2)
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"T_bot, T_top = {temp_bottom}°C, {temp_top}°C")
     # plt.title(f"{top_str} stress\nbottom, top = {temp_bottom}, {temp_top}")
@@ -234,10 +235,10 @@ def stress_strength_plot(c: Config, top: bool):
 
     # Cracked concrete.
     plt.subplot(3, 1, 3)
-    time = wagen1.time_at(x=52, bridge=c.bridge)
-    print(f"wagen1.total_kn() = {wagen1.kn}")
-    wagen1.kn = 400
-    loads = wagen1.to_wheel_track_loads(c=c, time=time, flat=True)
+    time = truck1.time_at(x=52, bridge=c.bridge)
+    print(f"wagen1.total_kn() = {truck1.kn}")
+    truck1.kn = 400
+    loads = truck1.to_wheel_track_loads(c=c, time=time, flat=True)
     c, sim_params = transverse_crack().use(original_c)
 
     c, sim_params = HealthyDamage().use(original_c)
