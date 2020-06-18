@@ -5,13 +5,12 @@ import numpy as np
 from bridge_sim import sim, plot, temperature
 from bridge_sim.crack import transverse_crack
 
-from bridge_sim.model import Config, PointLoad, Point, ResponseType, PierSettlement
-from bridge_sim.plot import top_view_bridge
+from bridge_sim.model import Config, Point, ResponseType, PierSettlement
 from bridge_sim.plot.util import equal_lims
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.responses import to_traffic_array, without
-from bridge_sim.traffic import Traffic, TrafficSequence
-from bridge_sim.util import print_i, flatten, project_dir
+from bridge_sim.traffic import TrafficSequence
+from bridge_sim.util import print_i, project_dir
 from bridge_sim.vehicles import truck1
 from lib.validate import _displa_sensor_xz, _strain_sensor_xz
 
@@ -190,7 +189,7 @@ def stress_strength_plot(config: Config, top: bool):
         .to_stress(config.bridge)
     )
     responses.units = "N/mm²"
-    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True)
+    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True, units="m")
     plot.contour_responses(config, responses=responses, decimals=2, interp=(200, 60))
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"{settlement_mm} mm pier settlement")
@@ -215,7 +214,7 @@ def stress_strength_plot(config: Config, top: bool):
         .to_stress(config.bridge)
     )
     responses.units = "N/mm²"
-    plot.top_view_bridge(config.bridge, abutments=True, piers=True)
+    plot.top_view_bridge(config.bridge, abutments=True, piers=True, units="m")
     plot.contour_responses(config, responses=responses, decimals=2, interp=(200, 60))
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"T_bot, T_top = {temp_bottom}°C, {temp_top}°C")
@@ -238,7 +237,7 @@ def stress_strength_plot(config: Config, top: bool):
         .to_stress(config.bridge)
     )
     responses.units = "N/mm²"
-    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True)
+    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True, units="m")
     plot.contour_responses(
         config=config, responses=responses, decimals=2, interp=(200, 60)
     )
