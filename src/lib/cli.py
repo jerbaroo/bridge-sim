@@ -483,10 +483,10 @@ def pier_conv(
     )
 
 
-@validate.command(help="Plot stress for some high stress scenarios.")
-@click.option("--top", is_flag=True, help="Top or bottom stress.")
-def stress_strength(top):
-    lib.make.validate.stress_strength_plot(c=c(), top=top)
+@validate.command(help="Plot stress XX for a few scenarios.")
+@click.option("--bottom", is_flag=True, help="Stress XXB instead of XXT.")
+def stress_top(bottom):
+    lib.make.validate.stress_strength_plot(config=c(), top=not bottom)
 
 
 ##########

@@ -4,7 +4,7 @@ from bridge_sim.configs import test_config
 
 def test_crack():
     config, _ = test_config(msl=10)
-    x, length = config.bridge.x_enter, 2
+    x, length = config.bridge.x_center, 2
     transverse_crack = crack.transverse_crack(length=length, at_x=x)
     crack_zone = transverse_crack.crack_zone(config.bridge)
     assert crack_zone.x_min == x

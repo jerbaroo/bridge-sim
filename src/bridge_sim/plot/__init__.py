@@ -23,6 +23,7 @@ def top_view_vehicles(
     time: float,
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
+    body: bool = True,
 ):
     """Plot vehicles on a bridge in top view at a given time.
 
@@ -33,11 +34,14 @@ def top_view_vehicles(
         all_vehicles: vehicles from which to derive
             color scale, if None defaults to "vehicles".
         wheels: plot each wheel as a black dot?
+        body: plot the body of the vehicle?
 
     """
     if all_vehicles is None:
         all_vehicles = vehicles
     for vehicle in vehicles:
+        if not body:
+            break
         # Left-most position of each vehicles axle.
         xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
         # Center of the lane.
@@ -66,7 +70,7 @@ def top_view_vehicles(
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
             for load in points_loads:
-                plt.scatter([load.x], [load.z], c="black", s=2, zorder=10)
+                plt.scatter([load.x], [load.z], c="black", s=3, zorder=10)
 
 
 def top_view_bridge(
