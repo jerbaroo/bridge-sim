@@ -381,15 +381,15 @@ def opensees_translation_recorders(
     # translation response types, if requested in fem_params.response_types.
     translation_response_types = []
     # X translation.
-    x_path = os_runner.x_translation_path(fem_params)
+    x_path = os_runner.x_translation_path(c, fem_params)
     translation_response_types.append((x_path, 1))
     print_i(f"OpenSees: saving x translation at {x_path}")
     # Y translation.
-    y_path = os_runner.y_translation_path(fem_params)
+    y_path = os_runner.y_translation_path(c, fem_params)
     translation_response_types.append((y_path, 2))
     print_i(f"OpenSees: saving y translation at {y_path}")
     # Z translation.
-    z_path = os_runner.z_translation_path(fem_params)
+    z_path = os_runner.z_translation_path(c, fem_params)
     translation_response_types.append((z_path, 3))
     print_i(f"OpenSees: saving z translation at {z_path}")
 
@@ -415,16 +415,18 @@ def opensees_strain_recorders(
     """OpenSees recorder commands for translation."""
     return "\n".join(
         f"recorder Element"
-        f" -file {os_runner.strain_path(sim_params=sim_params, point=point)}"
+        f" -file {os_runner.strain_path(config=c, sim_params=sim_params, point=point)}"
         f" -ele {det_shells_id_str(ctx)} material {str(point)} deformation"
         for point in [1, 2, 3, 4]
     )
 
 
-def opensees_forces(sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext):
+def opensees_forces(
+    config: Config, sim_params: SimParams, os_runner: "OSRunner", ctx: BuildContext
+):
     return (
         f"recorder Element"
-        f" -file {os_runner.forces_path(sim_params)}"
+        f" -file {os_runner.forces_path(config=config, sim_params=sim_params)}"
         f" -ele {det_shells_id_str(ctx)} forces"
     )
 
@@ -437,7 +439,10 @@ def opensees_stress_variables(
     These replace <<ELEM_IDS>> and <<FORCES_OUT_FILE>> in the TCL file.
 
     """
-    return det_shells_id_str(ctx), os_runner.stress_path(sim_params)
+    return (
+        det_shells_id_str(ctx),
+        os_runner.stress_path(config=c, sim_params=sim_params),
+    )
 
 
 def opensees_integrator(c: Config, pier_disp: List[PierSettlement]):
@@ -564,7 +569,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
             .replace(
                 "<<FORCES>>",
                 opensees_forces(
-                    sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
+                    config=c, sim_params=sim_params, os_runner=os_runner, ctx=sim_ctx
                 ),
             )
             .replace(
@@ -601,7 +606,9 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
         )
 
         # Write the generated model file.
-        model_path = os_runner.sim_model_path(sim_params=sim_params, ext="tcl")
+        model_path = os_runner.sim_model_path(
+            config=c, sim_params=sim_params, ext="tcl"
+        )
         with open(model_path, "w") as f:
             f.write(out_tcl)
         num_nodes = len(set(flatten(bridge_nodes, Node)))

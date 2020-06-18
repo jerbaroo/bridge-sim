@@ -28,9 +28,8 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
 
 
 class OSRunner(FEMRunner):
-    def __init__(self, c: Config, exe_path: str):
+    def __init__(self, exe_path: str):
         super().__init__(
-            c=c,
             name="OpenSees",
             supported_response_types=opensees_supported_response_types,
             build=build_model,
@@ -48,36 +47,38 @@ class OSRunner(FEMRunner):
     # NOTE: All of the path functions below are only used within the OpenSees
     # FEMRunner, used to save results from OpenSees simulations.
 
-    def translation_path(self, fem_params: SimParams, axis: str):
+    def translation_path(self, config: Config, fem_params: SimParams, axis: str):
         return self.opensees_out_path(
-            sim_params=fem_params, ext="out", append=f"node-{axis}"
+            config=config, sim_params=fem_params, ext="out", append=f"node-{axis}"
         )
 
-    def x_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis="x")
+    def x_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis="x")
 
-    def y_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis="y")
+    def y_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis="y")
 
-    def z_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis="z")
+    def z_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis="z")
 
-    def element_path(self, fem_params: SimParams):
-        return self.opensees_out_path(sim_params=fem_params, ext="out", append="-elems")
-
-    def stress_path(self, sim_params: SimParams):
+    def element_path(self, config: Config, fem_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext="out", append="-stress"
+            config=config, sim_params=fem_params, ext="out", append="-elems"
         )
 
-    def strain_path(self, sim_params: SimParams, point: int):
+    def stress_path(self, config: Config, sim_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext="out", append=f"-strain-{point}"
+            config=config, sim_params=sim_params, ext="out", append="-stress"
         )
 
-    def forces_path(self, sim_params: SimParams):
+    def strain_path(self, config: Config, sim_params: SimParams, point: int):
         return self.opensees_out_path(
-            sim_params=sim_params, ext="out", append=f"-forces"
+            config=config, sim_params=sim_params, ext="out", append=f"-strain-{point}"
+        )
+
+    def forces_path(self, config: Config, sim_params: SimParams):
+        return self.opensees_out_path(
+            config=config, sim_params=sim_params, ext="out", append=f"-forces"
         )
 
 
@@ -97,4 +98,4 @@ def os_runner(exe_path: Optional[str] = None) -> Callable[["Config"], OSRunner]:
                 break
     if exe_path is None:
         print_w("Could't find OpenSees executable")
-    return lambda c: OSRunner(c=c, exe_path=exe_path)
+    return OSRunner(exe_path=exe_path)

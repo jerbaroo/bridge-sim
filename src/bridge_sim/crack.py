@@ -43,7 +43,7 @@ class CrackDeck:
         """Return a Config (deepcopied) with a cracked Bridge."""
         config = deepcopy(config)
         bridge = config.bridge
-        bridge.data_id += f"-{self.name}"
+        bridge.data_id = self.name
         self._crack_deck(bridge)  # Add cracked materials.
         # Add additional nodes as requested.
         crack_zone = self.crack_zone(bridge)
@@ -151,6 +151,5 @@ def transverse_crack(
         )
 
     return CrackDeck(
-        name=safe_str(f"transverse-{length}-{width}-{at_x}-{at_z}"),
-        crack_zone=crack_zone,
+        name=safe_str(f"tcrack-{length}-{width}-{at_x}-{at_z}"), crack_zone=crack_zone,
     )

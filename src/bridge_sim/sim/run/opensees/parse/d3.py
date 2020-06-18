@@ -69,7 +69,7 @@ def parse_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
             sim_ind=sim_ind,
-            responses_path=os_runner.x_translation_path(fem_params),
+            responses_path=os_runner.x_translation_path(c, fem_params),
             response_type=ResponseType.XTrans,
         )
         # Parse y translation fem if necessary.
@@ -77,7 +77,7 @@ def parse_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
             sim_ind=sim_ind,
-            responses_path=os_runner.y_translation_path(fem_params),
+            responses_path=os_runner.y_translation_path(c, fem_params),
             response_type=ResponseType.YTrans,
         )
         # Parse z translation fem if necessary.
@@ -85,7 +85,7 @@ def parse_responses_3d(
             results_dict=results_dict,
             fem_params=fem_params,
             sim_ind=sim_ind,
-            responses_path=os_runner.z_translation_path(fem_params),
+            responses_path=os_runner.z_translation_path(c, fem_params),
             response_type=ResponseType.ZTrans,
         )
         # Parse strain fem if necessary.
@@ -93,6 +93,8 @@ def parse_responses_3d(
             results_dict=results_dict,
             sim_params=fem_params,
             sim_ind=sim_ind,
-            response_paths=[os_runner.strain_path(fem_params, i) for i in [1, 2, 3, 4]],
+            response_paths=[
+                os_runner.strain_path(c, fem_params, i) for i in [1, 2, 3, 4]
+            ],
         )
     return results_dict

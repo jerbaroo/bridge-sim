@@ -638,6 +638,7 @@ class SimResponses(Responses):
     def save(self):
         """Save theses simulation fem to disk."""
         path = _responses_path(
+            config=self.c,
             sim_runner=self.sim_runner,
             sim_params=self.sim_params,
             response_type=self.response_type,

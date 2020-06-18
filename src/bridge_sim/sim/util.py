@@ -1,9 +1,12 @@
 def _responses_path(
-    sim_runner: "FEMRunner", sim_params: "SimParams", response_type: "ResponseType"
+    config: "Config",
+    sim_runner: "FEMRunner",
+    sim_params: "SimParams",
+    response_type: "ResponseType",
 ) -> str:
     """Path to fem that were generated with given parameters."""
     return sim_runner.sim_out_path(
-        sim_params=sim_params, ext="npy", response_types=[response_type]
+        config=config, sim_params=sim_params, ext="npy", response_types=[response_type]
     )
 
 
