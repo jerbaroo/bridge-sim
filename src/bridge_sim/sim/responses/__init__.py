@@ -34,6 +34,7 @@ def load(
     pier_settlement: List[PierSettlement] = [],
     temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
     self_weight: bool = False,
+    run: bool = False,
 ) -> Responses:
     """Responses from a single linear simulation.
 
@@ -47,6 +48,7 @@ def load(
         pier_settlement: a pier settlement to apply.
         temp_deltas: uniform and linear temperature components.
         self_weight: add loads corresponding to structure self weight.
+        run: force the simulation to run even if data already generated.
 
     """
     return load_fem_responses(
@@ -59,6 +61,7 @@ def load(
             self_weight=self_weight,
         ),
         response_type=response_type,
+        run=run,
     )
 
 

@@ -9,7 +9,9 @@ from bridge_sim.sim.build import det_shells
 from bridge_sim.sim.model import SimParams, DeckShells
 
 
-def opensees_self_weight_loads(config: Config, sim_params: SimParams, deck_shells: DeckShells):
+def opensees_self_weight_loads(
+    config: Config, sim_params: SimParams, deck_shells: DeckShells
+):
     """Loads for the self weight, if in the simulation parameters."""
     if not sim_params.self_weight:
         return ""
@@ -27,8 +29,7 @@ def opensees_self_weight_loads(config: Config, sim_params: SimParams, deck_shell
             yloads_by_nid[node.n_id] += node_newtons
     load_str = "".join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])
     from bridge_sim.sim.run.opensees.build.d3 import comment
+
     return comment(
-    "thermal loads",
-        load_str,
-        units="load nodeTag N_x N_y N_z N_rx N_ry N_rz",
+        "thermal loads", load_str, units="load nodeTag N_x N_y N_z N_rx N_ry N_rz",
     )

@@ -392,9 +392,9 @@ def self_weight(c: Config):
             config=c, response_type=sim_type, self_weight=True
         )
         if response_type.is_stress():
-            os_responses = os_responses.map(lambda r: r * 1E-6).to_stress(c.bridge)
+            os_responses = os_responses.map(lambda r: r * 1e-6).to_stress(c.bridge)
         else:
-            os_responses = os_responses.map(lambda r: r * 1E3)
+            os_responses = os_responses.map(lambda r: r * 1e3)
         os_responses.units = unit_str
         top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
         contour_responses(
@@ -423,12 +423,7 @@ def self_weight(c: Config):
                     project_dir(), f"data/validation/axis/self-weight-{rt_str}.PNG"
                 )
             ),
-            extent=(
-                c.bridge.x_min,
-                c.bridge.x_max,
-                c.bridge.z_min,
-                c.bridge.z_max,
-            ),
+            extent=(c.bridge.x_min, c.bridge.x_max, c.bridge.z_min, c.bridge.z_max,),
         )
         amin_s = f"{amin:.3f}"
         amax_s = f"{amax:.3f}"

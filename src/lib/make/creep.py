@@ -31,16 +31,20 @@ def plot_creep(config: Config, n: int = 100):
     pier_settlement = PierSettlement(pier=9, settlement=1)
     c = {0: "r", 1: "g", 2: "b"}
     for r_i, response_type in enumerate([RT.StrainXXB, RT.YTrans]):
-        for i, title in enumerate(["Self-weight", f"{pier_settlement.settlement} mm settlement of pier {pier_settlement.pier}", "Shrinkage"]):
+        for i, title in enumerate(
+            [
+                "Self-weight",
+                f"{pier_settlement.settlement} mm settlement of pier {pier_settlement.pier}",
+                "Shrinkage",
+            ]
+        ):
             plt.subplot(2, 1, r_i + 1)
             if i == 0:
                 responses = sim.responses.load(
-                    config=config,
-                    response_type=response_type,
-                    self_weight=True,
+                    config=config, response_type=response_type, self_weight=True,
                 )
                 if not response_type.is_strain():
-                    responses = responses.map(lambda r: r * 1E3)
+                    responses = responses.map(lambda r: r * 1e3)
             elif i == 1:
                 responses = sim.responses.load(
                     config=config,
@@ -55,7 +59,7 @@ def plot_creep(config: Config, n: int = 100):
                     points=[point],
                 )
                 if not response_type.is_strain():
-                    responses *= 1E3
+                    responses *= 1e3
             creep_responses = creep.creep_responses(
                 config=config,
                 times=seconds,
@@ -66,10 +70,11 @@ def plot_creep(config: Config, n: int = 100):
             )[0]
             plt.plot(days / 365, creep_responses, lw=3, c=c[i], label=title)
             plt.xlabel("Time (years)")
-            plt.ylabel("Microstrain XXB" if response_type.is_strain() else response_type.name())
+            plt.ylabel(
+                "Microstrain XXB" if response_type.is_strain() else response_type.name()
+            )
         plt.legend()
     plt.suptitle(f"Responses to creep at X = {point.x} m, Z = {point.z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/creep", "creep-responses.pdf"))
     plt.close()
-

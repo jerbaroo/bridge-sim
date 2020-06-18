@@ -16,6 +16,7 @@ D = "bridge_sim.shrinkage"
 
 class CementClass(Enum):
     """Cement class: BS EN 1992-1-1 31.2 (6)."""
+
     Slow = "S"
     Normal = "N"
     Rapid = "R"
@@ -207,10 +208,7 @@ def autogenous_responses(
 
 
 def total(
-    config: Config,
-    cement_class: CementClass,
-    times: List[float],
-    x: float,
+    config: Config, cement_class: CementClass, times: List[float], x: float,
 ) -> List[float]:
     """Strain due to drying and autogenous shrinkage over time.
 

@@ -56,16 +56,13 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
             x=x,
         )[0]
         if not rt.is_strain():
-            drying *= 1E3
+            drying *= 1e3
         plt.plot(days / 365, drying, lw=lw, c="black", label="Drying")
         autogenous = shrinkage.autogenous_responses(
-            config=config,
-            response_type=rt,
-            times=seconds,
-            points=[Point(x=x)],
+            config=config, response_type=rt, times=seconds, points=[Point(x=x)],
         )[0]
         if not rt.is_strain():
-            autogenous *= 1E3
+            autogenous *= 1e3
         plt.plot(days / 365, autogenous, lw=lw, c="blue", label="Autogenous")
         total = shrinkage.total_responses(
             config=config,
@@ -76,7 +73,7 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
             x=x,
         )[0]
         if not rt.is_strain():
-            total *= 1E3
+            total *= 1e3
         plt.plot(days / 365, total, lw=lw, c="r", label="Total")
         plt.xlabel("Time (years)")
         plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
@@ -85,4 +82,3 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "responses.pdf"))
     plt.close()
-

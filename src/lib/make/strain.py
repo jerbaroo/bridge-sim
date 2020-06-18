@@ -37,12 +37,14 @@ def plot_linear_youngs(config: Config):
     # Multiply young's modulus of piers.
     for support in config_copy.bridge.supports:
         existing_f = support._sections
+
         def new_f(*args):
             material = existing_f(*args)
             og_youngs = material.youngs
             material.youngs = og_youngs * 2
             material._youngs_x = material.youngs
             return material
+
         support._sections = new_f
     # Multiply young's modulus of bridge deck.
     for material in config_copy.bridge.sections:
@@ -54,13 +56,13 @@ def plot_linear_youngs(config: Config):
         response_type=response_type,
         point_loads=point_loads,
         pier_settlement=pier_settlement,
-    ).map(lambda r: r * 1E3)
+    ).map(lambda r: r * 1e3)
     responses2 = sim.responses.load(
         config=config_copy,
         response_type=response_type,
         point_loads=point_loads,
         pier_settlement=pier_settlement,
-    ).map(lambda r: r * 1E3)
+    ).map(lambda r: r * 1e3)
     plt.landscape()
     plt.subplot(1, 2, 1)
     plot.contour_responses(config, responses1)
@@ -71,4 +73,3 @@ def plot_linear_youngs(config: Config):
     plot.top_view_bridge(config_copy.bridge, piers=True)
     plt.legend()
     plt.savefig(config.get_image_path("verification/creep", "linear-youngs.pdf"))
-
