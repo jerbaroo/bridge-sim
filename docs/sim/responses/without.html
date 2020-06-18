@@ -49,7 +49,7 @@ def _distance_numpy(A, B, P):
 def edges(c: Config, radius: float):
     &#34;&#34;&#34;Reject points on the bridge deck not close to edges.&#34;&#34;&#34;
 
-    def _without_edges(point: Point) -&gt; bool:
+    def _without_edges(point: Point, r_) -&gt; bool:
         if point.y != 0 or radius == 0:
             return False
         p2 = np.array([point.x, point.z])
@@ -147,7 +147,7 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
 <pre><code class="python">def edges(c: Config, radius: float):
     &#34;&#34;&#34;Reject points on the bridge deck not close to edges.&#34;&#34;&#34;
 
-    def _without_edges(point: Point) -&gt; bool:
+    def _without_edges(point: Point, r_) -&gt; bool:
         if point.y != 0 or radius == 0:
             return False
         p2 = np.array([point.x, point.z])

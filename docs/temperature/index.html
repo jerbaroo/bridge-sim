@@ -252,7 +252,6 @@ def effect(
     Returns: NumPy array of temperature effect, indexed by point then time.
 
     &#34;&#34;&#34;
-    print_w(&#34;Make sure calculating profile from entire year!!&#34;)
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -278,6 +277,7 @@ def effect(
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather[&#34;temp&#34;], solar=weather[&#34;solar&#34;])
+        print_w(&#34;Make sure calculating profile from entire year!!&#34;)
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
@@ -410,7 +410,6 @@ temperature at the bottom and top of the bridge deck.</dd>
     Returns: NumPy array of temperature effect, indexed by point then time.
 
     &#34;&#34;&#34;
-    print_w(&#34;Make sure calculating profile from entire year!!&#34;)
     # Unit effect from uniform temperature loading.
     uniform_responses = sim.responses.load(
         config=config, response_type=response_type, temp_deltas=(1, None)
@@ -436,6 +435,7 @@ temperature at the bottom and top of the bridge deck.</dd>
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather[&#34;temp&#34;], solar=weather[&#34;solar&#34;])
+        print_w(&#34;Make sure calculating profile from entire year!!&#34;)
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom

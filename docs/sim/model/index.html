@@ -31,9 +31,12 @@ import itertools
 from collections import defaultdict
 from typing import Optional, NewType, Dict, List, Tuple, Callable
 
-import dill
 
+import dill
 import numpy as np
+from scipy.interpolate import griddata, interp1d, interp2d
+from scipy.spatial import distance
+
 from bridge_sim.model import (
     Support,
     Material,
@@ -44,10 +47,10 @@ from bridge_sim.model import (
     Bridge,
     Config,
 )
-from bridge_sim.sim.util import _responses_path
-from bridge_sim.util import round_m, safe_str, nearest_index, print_i
-from scipy.interpolate import griddata, interp1d, interp2d
-from scipy.spatial import distance
+from bridge_sim.util import round_m, safe_str, nearest_index, print_i, print_w, print_d
+from bridge_sim.sim.util import _responses_path, poly_area
+
+D = False
 
 
 class Node:
@@ -163,6 +166,7 @@ class Shell:
         self.section = section
         self.support_position_index = support_position_index
         self.nodes_by_id = nodes_by_id
+        self.deck = all(n.y == 0 for n in self.nodes())
 
         # Attach a reference to the section to each &#39;Node&#39; and note if the node
         # belongs to a pier or to the bridge deck.
@@ -181,14 +185,51 @@ class Shell:
         &#34;&#34;&#34;This element&#39;s nodes.&#34;&#34;&#34;
         return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
 
+    def mass(self, config: Config):
+        &#34;&#34;&#34;Mass of this shell element: volume x density.&#34;&#34;&#34;
+        concrete_mass = self.section.thickness * self.area() * self.section.density
+        # Asphalt only considered if Config flag set and is a deck shell.
+        if not self.deck or not config.self_weight_asphalt:
+            return concrete_mass
+        z_min, z_max = self.width(min_max=True)
+        assert z_min &lt; z_max
+        asphalt_mass = 0
+        for lane in config.bridge.lanes:
+            if lane.asphalt is None:
+                continue
+            assert lane.z_min &lt; lane.z_max
+            # Shell completely in the lane.
+            if z_min &gt;= lane.z_min and z_max &lt;= lane.z_max:
+                z_dist = z_max - z_min
+            # Shell halfway in the lane.
+            elif z_min &lt; lane.z_min &lt;= z_max &lt;= lane.z_max:
+                z_dist = z_max - lane.z_min
+            # Shell halfway in the lane.
+            elif lane.z_min &lt;= z_min &lt;= lane.z_max &lt; z_max:
+                z_dist = lane.z_max - z_min
+            # Shell spanning the lane.
+            elif z_min &lt; lane.z_min and z_max &gt; lane.z_max:
+                z_dist = lane.z_max - lane.z_min
+            else:
+                continue
+            z_frac = z_dist / self.width()
+            assert 0 &lt;= z_frac &lt;= 1
+            asphalt_mass += (
+                lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
+            )
+            print_d(
+                D,
+                f&#34;Concrete density &amp; asphalt density = {self.section.density}, {lane.asphalt.density}&#34;,
+            )
+        print_d(D, f&#34;Concrete mass &amp; asphalt mass = {concrete_mass}, {asphalt_mass}&#34;)
+        return concrete_mass + asphalt_mass
+
     def area(self):
         &#34;&#34;&#34;Assumes a tetrahedron shape.&#34;&#34;&#34;
         ni = self.nodes_by_id[self.ni_id]
         nj = self.nodes_by_id[self.nj_id]
         nk = self.nodes_by_id[self.nk_id]
         nl = self.nodes_by_id[self.nl_id]
-
-        from lib.fem.util import poly_area
 
         return poly_area(
             [
@@ -228,9 +269,14 @@ class Shell:
             self._length = max_x - min_x
         return self._length
 
-    def width(self) -&gt; float:
-        &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
-        if not hasattr(self, &#34;_width&#34;):
+    def width(self, min_max: bool = False) -&gt; float:
+        &#34;&#34;&#34;The width of this element (transverse direction).
+
+        Args:
+            min_max: instead return a tuple of min and max Z position.
+
+        &#34;&#34;&#34;
+        if min_max or not hasattr(self, &#34;_width&#34;):
             min_z, max_z = np.inf, -np.inf
             for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
                 node_z = self.nodes_by_id[n_id].z
@@ -238,6 +284,8 @@ class Shell:
                     min_z = node_z
                 if node_z &gt; max_z:
                     max_z = node_z
+            if min_max:
+                return min_z, max_z
             self._width = max_z - min_z
         return self._width
 
@@ -349,11 +397,11 @@ class SimParams:
     &#34;&#34;&#34;Parameters for one FE simulation.
 
     Args:
-        ploads: List[PointLoad], point loads to apply in the simulation.
-        displacement_ctrl: PierSettlement, apply a load until the given
-            displacement in meters is reached.
-        axial_delta_temp: Optional[float], axial thermal loading in celcius.
-        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+        ploads: point loads to apply in the simulation.
+        displacement_ctrl:  apply a load until a displacement is reached.
+        axial_delta_temp: uniform thermal loading in Celcius.
+        moment_delta_temp: linear thermal loading in Celcius.
+        self_weight: apply loads corresponding to self-weight in simulation.
 
     &#34;&#34;&#34;
 
@@ -363,11 +411,13 @@ class SimParams:
         pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
+        self_weight: bool = False,
     ):
         self.ploads = ploads
         self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
+        self.self_weight = self_weight
 
     def build_ctx(self) -&gt; BuildContext:
         &#34;&#34;&#34;Build context from these simulation parameters.
@@ -377,7 +427,7 @@ class SimParams:
         &#34;&#34;&#34;
         return BuildContext(add_loads=[pload.point() for pload in self.ploads])
 
-    def id_str(self):
+    def id_str(self, config: Config):
         &#34;&#34;&#34;String representing the simulation parameters.
 
         NOTE: Response types are not included in the ID string because it is
@@ -385,6 +435,10 @@ class SimParams:
 
         &#34;&#34;&#34;
         load_str = &#34;&#34;
+        if self.self_weight:
+            load_str += &#34;s&#34;
+            if config.self_weight_asphalt:
+                load_str += &#34;a&#34;
         if self.axial_delta_temp is not None:
             load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
         if self.moment_delta_temp is not None:
@@ -656,7 +710,7 @@ def bridge_3d_elements(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x114ef5790>, all_pier_elements: <function NewType.<locals>.new_type at 0x114ef5940>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11bc66820>, all_pier_elements: <function NewType.<locals>.new_type at 0x11bc669d0>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -677,7 +731,7 @@ def bridge_3d_elements(
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x114ef5160>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11bc66160>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1511,7 +1565,7 @@ def bridge_3d_elements(
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x114ef61f0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11bc713a0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>
@@ -1588,6 +1642,7 @@ index, and z and y indices</dd>
         self.section = section
         self.support_position_index = support_position_index
         self.nodes_by_id = nodes_by_id
+        self.deck = all(n.y == 0 for n in self.nodes())
 
         # Attach a reference to the section to each &#39;Node&#39; and note if the node
         # belongs to a pier or to the bridge deck.
@@ -1606,14 +1661,51 @@ index, and z and y indices</dd>
         &#34;&#34;&#34;This element&#39;s nodes.&#34;&#34;&#34;
         return list(map(lambda n_id: self.nodes_by_id[n_id], self.node_ids()))
 
+    def mass(self, config: Config):
+        &#34;&#34;&#34;Mass of this shell element: volume x density.&#34;&#34;&#34;
+        concrete_mass = self.section.thickness * self.area() * self.section.density
+        # Asphalt only considered if Config flag set and is a deck shell.
+        if not self.deck or not config.self_weight_asphalt:
+            return concrete_mass
+        z_min, z_max = self.width(min_max=True)
+        assert z_min &lt; z_max
+        asphalt_mass = 0
+        for lane in config.bridge.lanes:
+            if lane.asphalt is None:
+                continue
+            assert lane.z_min &lt; lane.z_max
+            # Shell completely in the lane.
+            if z_min &gt;= lane.z_min and z_max &lt;= lane.z_max:
+                z_dist = z_max - z_min
+            # Shell halfway in the lane.
+            elif z_min &lt; lane.z_min &lt;= z_max &lt;= lane.z_max:
+                z_dist = z_max - lane.z_min
+            # Shell halfway in the lane.
+            elif lane.z_min &lt;= z_min &lt;= lane.z_max &lt; z_max:
+                z_dist = lane.z_max - z_min
+            # Shell spanning the lane.
+            elif z_min &lt; lane.z_min and z_max &gt; lane.z_max:
+                z_dist = lane.z_max - lane.z_min
+            else:
+                continue
+            z_frac = z_dist / self.width()
+            assert 0 &lt;= z_frac &lt;= 1
+            asphalt_mass += (
+                lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
+            )
+            print_d(
+                D,
+                f&#34;Concrete density &amp; asphalt density = {self.section.density}, {lane.asphalt.density}&#34;,
+            )
+        print_d(D, f&#34;Concrete mass &amp; asphalt mass = {concrete_mass}, {asphalt_mass}&#34;)
+        return concrete_mass + asphalt_mass
+
     def area(self):
         &#34;&#34;&#34;Assumes a tetrahedron shape.&#34;&#34;&#34;
         ni = self.nodes_by_id[self.ni_id]
         nj = self.nodes_by_id[self.nj_id]
         nk = self.nodes_by_id[self.nk_id]
         nl = self.nodes_by_id[self.nl_id]
-
-        from lib.fem.util import poly_area
 
         return poly_area(
             [
@@ -1653,9 +1745,14 @@ index, and z and y indices</dd>
             self._length = max_x - min_x
         return self._length
 
-    def width(self) -&gt; float:
-        &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
-        if not hasattr(self, &#34;_width&#34;):
+    def width(self, min_max: bool = False) -&gt; float:
+        &#34;&#34;&#34;The width of this element (transverse direction).
+
+        Args:
+            min_max: instead return a tuple of min and max Z position.
+
+        &#34;&#34;&#34;
+        if min_max or not hasattr(self, &#34;_width&#34;):
             min_z, max_z = np.inf, -np.inf
             for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
                 node_z = self.nodes_by_id[n_id].z
@@ -1663,6 +1760,8 @@ index, and z and y indices</dd>
                     min_z = node_z
                 if node_z &gt; max_z:
                     max_z = node_z
+            if min_max:
+                return min_z, max_z
             self._width = max_z - min_z
         return self._width
 
@@ -1691,8 +1790,6 @@ index, and z and y indices</dd>
     nj = self.nodes_by_id[self.nj_id]
     nk = self.nodes_by_id[self.nk_id]
     nl = self.nodes_by_id[self.nl_id]
-
-    from lib.fem.util import poly_area
 
     return poly_area(
         [
@@ -1771,6 +1868,55 @@ index, and z and y indices</dd>
     return self._length</code></pre>
 </details>
 </dd>
+<dt id="bridge_sim.sim.model.Shell.mass"><code class="name flex">
+<span>def <span class="ident">mass</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Mass of this shell element: volume x density.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mass(self, config: Config):
+    &#34;&#34;&#34;Mass of this shell element: volume x density.&#34;&#34;&#34;
+    concrete_mass = self.section.thickness * self.area() * self.section.density
+    # Asphalt only considered if Config flag set and is a deck shell.
+    if not self.deck or not config.self_weight_asphalt:
+        return concrete_mass
+    z_min, z_max = self.width(min_max=True)
+    assert z_min &lt; z_max
+    asphalt_mass = 0
+    for lane in config.bridge.lanes:
+        if lane.asphalt is None:
+            continue
+        assert lane.z_min &lt; lane.z_max
+        # Shell completely in the lane.
+        if z_min &gt;= lane.z_min and z_max &lt;= lane.z_max:
+            z_dist = z_max - z_min
+        # Shell halfway in the lane.
+        elif z_min &lt; lane.z_min &lt;= z_max &lt;= lane.z_max:
+            z_dist = z_max - lane.z_min
+        # Shell halfway in the lane.
+        elif lane.z_min &lt;= z_min &lt;= lane.z_max &lt; z_max:
+            z_dist = lane.z_max - z_min
+        # Shell spanning the lane.
+        elif z_min &lt; lane.z_min and z_max &gt; lane.z_max:
+            z_dist = lane.z_max - lane.z_min
+        else:
+            continue
+        z_frac = z_dist / self.width()
+        assert 0 &lt;= z_frac &lt;= 1
+        asphalt_mass += (
+            lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
+        )
+        print_d(
+            D,
+            f&#34;Concrete density &amp; asphalt density = {self.section.density}, {lane.asphalt.density}&#34;,
+        )
+    print_d(D, f&#34;Concrete mass &amp; asphalt mass = {concrete_mass}, {asphalt_mass}&#34;)
+    return concrete_mass + asphalt_mass</code></pre>
+</details>
+</dd>
 <dt id="bridge_sim.sim.model.Shell.node_ids"><code class="name flex">
 <span>def <span class="ident">node_ids</span></span>(<span>self)</span>
 </code></dt>
@@ -1800,17 +1946,27 @@ index, and z and y indices</dd>
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.Shell.width"><code class="name flex">
-<span>def <span class="ident">width</span></span>(<span>self) -> float</span>
+<span>def <span class="ident">width</span></span>(<span>self, min_max: bool = False) -> float</span>
 </code></dt>
 <dd>
-<div class="desc"><p>The width of this element (longitudinal direction).</p></div>
+<div class="desc"><p>The width of this element (transverse direction).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>min_max</code></strong></dt>
+<dd>instead return a tuple of min and max Z position.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def width(self) -&gt; float:
-    &#34;&#34;&#34;The width of this element (longitudinal direction).&#34;&#34;&#34;
-    if not hasattr(self, &#34;_width&#34;):
+<pre><code class="python">def width(self, min_max: bool = False) -&gt; float:
+    &#34;&#34;&#34;The width of this element (transverse direction).
+
+    Args:
+        min_max: instead return a tuple of min and max Z position.
+
+    &#34;&#34;&#34;
+    if min_max or not hasattr(self, &#34;_width&#34;):
         min_z, max_z = np.inf, -np.inf
         for n_id in [self.ni_id, self.nj_id, self.nk_id, self.nl_id]:
             node_z = self.nodes_by_id[n_id].z
@@ -1818,6 +1974,8 @@ index, and z and y indices</dd>
                 min_z = node_z
             if node_z &gt; max_z:
                 max_z = node_z
+        if min_max:
+            return min_z, max_z
         self._width = max_z - min_z
     return self._width</code></pre>
 </details>
@@ -1826,21 +1984,22 @@ index, and z and y indices</dd>
 </dd>
 <dt id="bridge_sim.sim.model.SimParams"><code class="flex name class">
 <span>class <span class="ident">SimParams</span></span>
-<span>(</span><span>ploads: List[<a title="bridge_sim.model.PointLoad" href="../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], pier_settlement: List[<a title="bridge_sim.model.PierSettlement" href="../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>] = [], axial_delta_temp: Union[float, NoneType] = None, moment_delta_temp: Union[float, NoneType] = None)</span>
+<span>(</span><span>ploads: List[<a title="bridge_sim.model.PointLoad" href="../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>] = [], pier_settlement: List[<a title="bridge_sim.model.PierSettlement" href="../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>] = [], axial_delta_temp: Union[float, NoneType] = None, moment_delta_temp: Union[float, NoneType] = None, self_weight: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Parameters for one FE simulation.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>ploads</code></strong></dt>
-<dd>List[PointLoad], point loads to apply in the simulation.</dd>
+<dd>point loads to apply in the simulation.</dd>
 <dt><strong><code>displacement_ctrl</code></strong></dt>
-<dd>PierSettlement, apply a load until the given
-displacement in meters is reached.</dd>
+<dd>apply a load until a displacement is reached.</dd>
 <dt><strong><code>axial_delta_temp</code></strong></dt>
-<dd>Optional[float], axial thermal loading in celcius.</dd>
+<dd>uniform thermal loading in Celcius.</dd>
 <dt><strong><code>moment_delta_temp</code></strong></dt>
-<dd>Optional[float], moment thermal loading in celcius.</dd>
+<dd>linear thermal loading in Celcius.</dd>
+<dt><strong><code>self_weight</code></strong></dt>
+<dd>apply loads corresponding to self-weight in simulation.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1850,11 +2009,11 @@ displacement in meters is reached.</dd>
     &#34;&#34;&#34;Parameters for one FE simulation.
 
     Args:
-        ploads: List[PointLoad], point loads to apply in the simulation.
-        displacement_ctrl: PierSettlement, apply a load until the given
-            displacement in meters is reached.
-        axial_delta_temp: Optional[float], axial thermal loading in celcius.
-        moment_delta_temp: Optional[float], moment thermal loading in celcius.
+        ploads: point loads to apply in the simulation.
+        displacement_ctrl:  apply a load until a displacement is reached.
+        axial_delta_temp: uniform thermal loading in Celcius.
+        moment_delta_temp: linear thermal loading in Celcius.
+        self_weight: apply loads corresponding to self-weight in simulation.
 
     &#34;&#34;&#34;
 
@@ -1864,11 +2023,13 @@ displacement in meters is reached.</dd>
         pier_settlement: List[PierSettlement] = [],
         axial_delta_temp: Optional[float] = None,
         moment_delta_temp: Optional[float] = None,
+        self_weight: bool = False,
     ):
         self.ploads = ploads
         self.pier_settlement = pier_settlement
         self.axial_delta_temp = axial_delta_temp
         self.moment_delta_temp = moment_delta_temp
+        self.self_weight = self_weight
 
     def build_ctx(self) -&gt; BuildContext:
         &#34;&#34;&#34;Build context from these simulation parameters.
@@ -1878,7 +2039,7 @@ displacement in meters is reached.</dd>
         &#34;&#34;&#34;
         return BuildContext(add_loads=[pload.point() for pload in self.ploads])
 
-    def id_str(self):
+    def id_str(self, config: Config):
         &#34;&#34;&#34;String representing the simulation parameters.
 
         NOTE: Response types are not included in the ID string because it is
@@ -1886,6 +2047,10 @@ displacement in meters is reached.</dd>
 
         &#34;&#34;&#34;
         load_str = &#34;&#34;
+        if self.self_weight:
+            load_str += &#34;s&#34;
+            if config.self_weight_asphalt:
+                load_str += &#34;a&#34;
         if self.axial_delta_temp is not None:
             load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
         if self.moment_delta_temp is not None:
@@ -1919,7 +2084,7 @@ displacement in meters is reached.</dd>
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.SimParams.id_str"><code class="name flex">
-<span>def <span class="ident">id_str</span></span>(<span>self)</span>
+<span>def <span class="ident">id_str</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>String representing the simulation parameters.</p>
@@ -1929,7 +2094,7 @@ currently assumed that a simulation saves all output files.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def id_str(self):
+<pre><code class="python">def id_str(self, config: Config):
     &#34;&#34;&#34;String representing the simulation parameters.
 
     NOTE: Response types are not included in the ID string because it is
@@ -1937,6 +2102,10 @@ currently assumed that a simulation saves all output files.</p></div>
 
     &#34;&#34;&#34;
     load_str = &#34;&#34;
+    if self.self_weight:
+        load_str += &#34;s&#34;
+        if config.self_weight_asphalt:
+            load_str += &#34;a&#34;
     if self.axial_delta_temp is not None:
         load_str += f&#34;temp-axial-{self.axial_delta_temp}&#34;
     if self.moment_delta_temp is not None:
@@ -2103,6 +2272,7 @@ currently assumed that a simulation saves all output files.</p></div>
 <li><code><a title="bridge_sim.sim.model.Shell.center" href="#bridge_sim.sim.model.Shell.center">center</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Shell.command_3d" href="#bridge_sim.sim.model.Shell.command_3d">command_3d</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Shell.length" href="#bridge_sim.sim.model.Shell.length">length</a></code></li>
+<li><code><a title="bridge_sim.sim.model.Shell.mass" href="#bridge_sim.sim.model.Shell.mass">mass</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Shell.node_ids" href="#bridge_sim.sim.model.Shell.node_ids">node_ids</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Shell.nodes" href="#bridge_sim.sim.model.Shell.nodes">nodes</a></code></li>
 <li><code><a title="bridge_sim.sim.model.Shell.width" href="#bridge_sim.sim.model.Shell.width">width</a></code></li>

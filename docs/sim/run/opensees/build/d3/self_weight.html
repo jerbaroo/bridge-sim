@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>bridge_sim API documentation</title>
+<title>bridge_sim.sim.run.opensees.build.d3.self_weight API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,66 +17,93 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>bridge_sim</code></h1>
-</header>This is the API documentation.<br><br>The project homepage is <a href='https://github.com/barischrooneyj/bridge-sim#concrete-slab-bridge-simulation--'>here</a>.
+<h1 class="title">Module <code>bridge_sim.sim.run.opensees.build.d3.self_weight</code></h1>
+</header>
 <section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from collections import defaultdict
+from typing import Dict
+
+import numpy as np
+import scipy.constants as constants
+
+from bridge_sim.model import Config
+from bridge_sim.sim.build import det_shells
+from bridge_sim.sim.model import SimParams, DeckShells
+
+
+def opensees_self_weight_loads(
+    config: Config, sim_params: SimParams, deck_shells: DeckShells
+):
+    &#34;&#34;&#34;Loads for the self weight, if in the simulation parameters.&#34;&#34;&#34;
+    if not sim_params.self_weight:
+        return &#34;&#34;
+
+    def to_tcl(n_id: int, load_intensity: float):
+        &#34;&#34;&#34;Return an empty string or a load string.&#34;&#34;&#34;
+        if np.isclose(load_intensity, 0):
+            return &#34;&#34;
+        return f&#34;\nload {n_id} 0 {load_intensity * 1000} 0 0 0 0&#34;
+
+    yloads_by_nid: Dict[int, float] = defaultdict(lambda: 0)
+    for shell in det_shells(deck_shells):
+        node_newtons = shell.mass(config) * constants.g / 4
+        for node in shell.nodes():
+            yloads_by_nid[node.n_id] += node_newtons
+    load_str = &#34;&#34;.join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])
+    from bridge_sim.sim.run.opensees.build.d3 import comment
+
+    return comment(
+        &#34;thermal loads&#34;, load_str, units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )</code></pre>
+</details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="bridge_sim.bridges" href="bridges/index.html">bridge_sim.bridges</a></code></dt>
+<dt id="bridge_sim.sim.run.opensees.build.d3.self_weight.opensees_self_weight_loads"><code class="name flex">
+<span>def <span class="ident">opensees_self_weight_loads</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_shells: <function NewType.<locals>.new_type at 0x11bc66820>)</span>
+</code></dt>
 <dd>
-<div class="desc"><p>Provided instances of the Bridge class.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.configs" href="configs/index.html">bridge_sim.configs</a></code></dt>
-<dd>
-<div class="desc"><p>Provided instances of the Config class.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.crack" href="crack.html">bridge_sim.crack</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.creep" href="creep/index.html">bridge_sim.creep</a></code></dt>
-<dd>
-<div class="desc"><p>Time series of responses to creep.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.model" href="model/index.html">bridge_sim.model</a></code></dt>
-<dd>
-<div class="desc"><p>Classes for building bridges and running simulations.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.plot" href="plot/index.html">bridge_sim.plot</a></code></dt>
-<dd>
-<div class="desc"><p>Plot responses from simulation.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.shrinkage" href="shrinkage/index.html">bridge_sim.shrinkage</a></code></dt>
-<dd>
-<div class="desc"><p>Time series of responses to shrinkage.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.sim" href="sim/index.html">bridge_sim.sim</a></code></dt>
-<dd>
-<div class="desc"><p>Save/load responses from FE simulation.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.temperature" href="temperature/index.html">bridge_sim.temperature</a></code></dt>
-<dd>
-<div class="desc"><p>Time series of responses to temperature …</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.traffic" href="traffic/index.html">bridge_sim.traffic</a></code></dt>
-<dd>
-<div class="desc"><p>Generate time series of traffic.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.util" href="util.html">bridge_sim.util</a></code></dt>
-<dd>
-<div class="desc"><p>A collection of potentially useful functions.</p></div>
-</dd>
-<dt><code class="name"><a title="bridge_sim.vehicles" href="vehicles/index.html">bridge_sim.vehicles</a></code></dt>
-<dd>
-<div class="desc"><p>Provided instances of the Vehicle class.</p></div>
+<div class="desc"><p>Loads for the self weight, if in the simulation parameters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def opensees_self_weight_loads(
+    config: Config, sim_params: SimParams, deck_shells: DeckShells
+):
+    &#34;&#34;&#34;Loads for the self weight, if in the simulation parameters.&#34;&#34;&#34;
+    if not sim_params.self_weight:
+        return &#34;&#34;
+
+    def to_tcl(n_id: int, load_intensity: float):
+        &#34;&#34;&#34;Return an empty string or a load string.&#34;&#34;&#34;
+        if np.isclose(load_intensity, 0):
+            return &#34;&#34;
+        return f&#34;\nload {n_id} 0 {load_intensity * 1000} 0 0 0 0&#34;
+
+    yloads_by_nid: Dict[int, float] = defaultdict(lambda: 0)
+    for shell in det_shells(deck_shells):
+        node_newtons = shell.mass(config) * constants.g / 4
+        for node in shell.nodes():
+            yloads_by_nid[node.n_id] += node_newtons
+    load_str = &#34;&#34;.join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])
+    from bridge_sim.sim.run.opensees.build.d3 import comment
+
+    return comment(
+        &#34;thermal loads&#34;, load_str, units=&#34;load nodeTag N_x N_y N_z N_rx N_ry N_rz&#34;,
+    )</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -87,20 +114,14 @@
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="bridge_sim.bridges" href="bridges/index.html">bridge_sim.bridges</a></code></li>
-<li><code><a title="bridge_sim.configs" href="configs/index.html">bridge_sim.configs</a></code></li>
-<li><code><a title="bridge_sim.crack" href="crack.html">bridge_sim.crack</a></code></li>
-<li><code><a title="bridge_sim.creep" href="creep/index.html">bridge_sim.creep</a></code></li>
-<li><code><a title="bridge_sim.model" href="model/index.html">bridge_sim.model</a></code></li>
-<li><code><a title="bridge_sim.plot" href="plot/index.html">bridge_sim.plot</a></code></li>
-<li><code><a title="bridge_sim.shrinkage" href="shrinkage/index.html">bridge_sim.shrinkage</a></code></li>
-<li><code><a title="bridge_sim.sim" href="sim/index.html">bridge_sim.sim</a></code></li>
-<li><code><a title="bridge_sim.temperature" href="temperature/index.html">bridge_sim.temperature</a></code></li>
-<li><code><a title="bridge_sim.traffic" href="traffic/index.html">bridge_sim.traffic</a></code></li>
-<li><code><a title="bridge_sim.util" href="util.html">bridge_sim.util</a></code></li>
-<li><code><a title="bridge_sim.vehicles" href="vehicles/index.html">bridge_sim.vehicles</a></code></li>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3" href="index.html">bridge_sim.sim.run.opensees.build.d3</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.self_weight.opensees_self_weight_loads" href="#bridge_sim.sim.run.opensees.build.d3.self_weight.opensees_self_weight_loads">opensees_self_weight_loads</a></code></li>
 </ul>
 </li>
 </ul>

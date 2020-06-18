@@ -60,6 +60,8 @@ def load(
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
     temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
+    self_weight: bool = False,
+    run: bool = False,
 ) -&gt; Responses:
     &#34;&#34;&#34;Responses from a single linear simulation.
 
@@ -72,6 +74,8 @@ def load(
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
         temp_deltas: uniform and linear temperature components.
+        self_weight: add loads corresponding to structure self weight.
+        run: force the simulation to run even if data already generated.
 
     &#34;&#34;&#34;
     return load_fem_responses(
@@ -81,8 +85,10 @@ def load(
             pier_settlement=pier_settlement,
             axial_delta_temp=temp_deltas[0],
             moment_delta_temp=temp_deltas[1],
+            self_weight=self_weight,
         ),
         response_type=response_type,
+        run=run,
     )
 
 
@@ -347,6 +353,7 @@ def to(
             response_type=response_type,
             start_day=start_day,
             end_day=end_day,
+            cement_class=cement_class,
         )
         * 1e3
     )
@@ -368,7 +375,7 @@ def to(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.responses.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>config: Config, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [], temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None)) -> <a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a></span>
+<span>def <span class="ident">load</span></span>(<span>config: Config, response_type: ResponseType, point_loads: List[PointLoad] = [], pier_settlement: List[PierSettlement] = [], temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None), self_weight: bool = False, run: bool = False) -> <a title="bridge_sim.sim.model.Responses" href="../model/index.html#bridge_sim.sim.model.Responses">Responses</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Responses from a single linear simulation.</p>
@@ -386,6 +393,10 @@ temperature loading no post-processing is done.</p>
 <dd>a pier settlement to apply.</dd>
 <dt><strong><code>temp_deltas</code></strong></dt>
 <dd>uniform and linear temperature components.</dd>
+<dt><strong><code>self_weight</code></strong></dt>
+<dd>add loads corresponding to structure self weight.</dd>
+<dt><strong><code>run</code></strong></dt>
+<dd>force the simulation to run even if data already generated.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -397,6 +408,8 @@ temperature loading no post-processing is done.</p>
     point_loads: List[PointLoad] = [],
     pier_settlement: List[PierSettlement] = [],
     temp_deltas: Tuple[Optional[float], Optional[float]] = (None, None),
+    self_weight: bool = False,
+    run: bool = False,
 ) -&gt; Responses:
     &#34;&#34;&#34;Responses from a single linear simulation.
 
@@ -409,6 +422,8 @@ temperature loading no post-processing is done.</p>
         point_loads: a list of point-loads to apply.
         pier_settlement: a pier settlement to apply.
         temp_deltas: uniform and linear temperature components.
+        self_weight: add loads corresponding to structure self weight.
+        run: force the simulation to run even if data already generated.
 
     &#34;&#34;&#34;
     return load_fem_responses(
@@ -418,8 +433,10 @@ temperature loading no post-processing is done.</p>
             pier_settlement=pier_settlement,
             axial_delta_temp=temp_deltas[0],
             moment_delta_temp=temp_deltas[1],
+            self_weight=self_weight,
         ),
         response_type=response_type,
+        run=run,
     )</code></pre>
 </details>
 </dd>
@@ -524,6 +541,7 @@ temperature loading no post-processing is done.</p>
             response_type=response_type,
             start_day=start_day,
             end_day=end_day,
+            cement_class=cement_class,
         )
         * 1e3
     )

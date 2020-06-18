@@ -192,7 +192,7 @@ class FEMRunner:
             append: append to the filename (before the extension).
 
         &#34;&#34;&#34;
-        param_str = sim_params.id_str()
+        param_str = sim_params.id_str(self.c)
         append = append if len(append) == 0 else f&#34;-{append}&#34;
         filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
         if dirname is None:
@@ -1155,7 +1155,7 @@ supported response types for a given bridge.</dd>
             append: append to the filename (before the extension).
 
         &#34;&#34;&#34;
-        param_str = sim_params.id_str()
+        param_str = sim_params.id_str(self.c)
         append = append if len(append) == 0 else f&#34;-{append}&#34;
         filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
         if dirname is None:
@@ -1332,7 +1332,7 @@ supported response types for a given bridge.</dd>
         append: append to the filename (before the extension).
 
     &#34;&#34;&#34;
-    param_str = sim_params.id_str()
+    param_str = sim_params.id_str(self.c)
     append = append if len(append) == 0 else f&#34;-{append}&#34;
     filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
     if dirname is None:

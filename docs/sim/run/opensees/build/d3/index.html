@@ -51,6 +51,7 @@ from bridge_sim.sim.build import (
     get_bridge_shells_and_nodes,
     to_deck_nodes,
 )
+from bridge_sim.sim.run.opensees.build.d3.self_weight import opensees_self_weight_loads
 from bridge_sim.sim.run.opensees.build.d3.thermal import (
     opensees_thermal_axial_deck_loads,
     opensees_thermal_moment_deck_loads,
@@ -575,6 +576,10 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
                     c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
+            .replace(
+                &#34;&lt;&lt;SELF_WEIGHT&gt;&gt;&#34;,
+                opensees_self_weight_loads(c, sim_params, deck_shells),
+            )
             .replace(&#34;&lt;&lt;SUPPORTS&gt;&gt;&#34;, &#34;&#34;)
             .replace(&#34;&lt;&lt;DECK_SECTIONS&gt;&gt;&#34;, opensees_deck_sections(c=c))
             .replace(
@@ -635,6 +640,10 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="bridge_sim.sim.run.opensees.build.d3.self_weight" href="self_weight.html">bridge_sim.sim.run.opensees.build.d3.self_weight</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="bridge_sim.sim.run.opensees.build.d3.thermal" href="thermal.html">bridge_sim.sim.run.opensees.build.d3.thermal</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -739,6 +748,10 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
                     c=c, sim_params=sim_params, deck_elements=deck_shells, ctx=sim_ctx,
                 ),
             )
+            .replace(
+                &#34;&lt;&lt;SELF_WEIGHT&gt;&gt;&#34;,
+                opensees_self_weight_loads(c, sim_params, deck_shells),
+            )
             .replace(&#34;&lt;&lt;SUPPORTS&gt;&gt;&#34;, &#34;&#34;)
             .replace(&#34;&lt;&lt;DECK_SECTIONS&gt;&gt;&#34;, opensees_deck_sections(c=c))
             .replace(
@@ -813,7 +826,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_deck_elements"><code class="name flex">
-<span>def <span class="ident">opensees_deck_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_elements: <function NewType.<locals>.new_type at 0x114ef5790>) -> str</span>
+<span>def <span class="ident">opensees_deck_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_elements: <function NewType.<locals>.new_type at 0x11bc66820>) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees element commands for a bridge deck.</p></div>
@@ -832,7 +845,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_deck_nodes"><code class="name flex">
-<span>def <span class="ident">opensees_deck_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>) -> str</span>
+<span>def <span class="ident">opensees_deck_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees node commands for a bridge deck.</p>
@@ -884,7 +897,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_abutment_nodes"><code class="name flex">
-<span>def <span class="ident">opensees_fixed_abutment_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>) -> str</span>
+<span>def <span class="ident">opensees_fixed_abutment_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees fix commands for fixed nodes on the abument.</p>
@@ -928,7 +941,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_fixed_pier_nodes"><code class="name flex">
-<span>def <span class="ident">opensees_fixed_pier_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, all_support_nodes: <function NewType.<locals>.new_type at 0x114ef5160>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>]) -> str</span>
+<span>def <span class="ident">opensees_fixed_pier_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, all_support_nodes: <function NewType.<locals>.new_type at 0x11bc66160>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>]) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees fix commands for fixed support nodes.</p></div>
@@ -1034,7 +1047,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_load"><code class="name flex">
-<span>def <span class="ident">opensees_load</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, pload: <a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>, deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>)</span>
+<span>def <span class="ident">opensees_load</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, pload: <a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An OpenSees load command.</p></div>
@@ -1067,7 +1080,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_loads"><code class="name flex">
-<span>def <span class="ident">opensees_loads</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, ploads: List[<a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>], deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
+<span>def <span class="ident">opensees_loads</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, ploads: List[<a title="bridge_sim.model.PointLoad" href="../../../../../model/index.html#bridge_sim.model.PointLoad">PointLoad</a>], deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>, pier_disp: List[<a title="bridge_sim.model.PierSettlement" href="../../../../../model/index.html#bridge_sim.model.PierSettlement">PierSettlement</a>])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees load commands for a .tcl file.</p></div>
@@ -1099,7 +1112,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_pier_elements"><code class="name flex">
-<span>def <span class="ident">opensees_pier_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x114ef5940>) -> str</span>
+<span>def <span class="ident">opensees_pier_elements</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x11bc669d0>) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>OpenSees element commands for a bridge's piers.</p></div>
@@ -1118,7 +1131,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_pier_sections"><code class="name flex">
-<span>def <span class="ident">opensees_pier_sections</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x114ef5940>)</span>
+<span>def <span class="ident">opensees_pier_sections</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, all_pier_elements: <function NewType.<locals>.new_type at 0x11bc669d0>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sections used in the bridge's piers.</p></div>
@@ -1219,7 +1232,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: &#34;OSRu
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.build.d3.opensees_support_nodes"><code class="name flex">
-<span>def <span class="ident">opensees_support_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x114ef6ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x114ef5160>) -> str</span>
+<span>def <span class="ident">opensees_support_nodes</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11bc66160>) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Opensees node commands for the supports (ignoring deck).</p>
@@ -1452,6 +1465,7 @@ commands for.</dd>
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="bridge_sim.sim.run.opensees.build.d3.self_weight" href="self_weight.html">bridge_sim.sim.run.opensees.build.d3.self_weight</a></code></li>
 <li><code><a title="bridge_sim.sim.run.opensees.build.d3.thermal" href="thermal.html">bridge_sim.sim.run.opensees.build.d3.thermal</a></code></li>
 <li><code><a title="bridge_sim.sim.run.opensees.build.d3.util" href="util.html">bridge_sim.sim.run.opensees.build.d3.util</a></code></li>
 </ul>
