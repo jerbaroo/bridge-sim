@@ -54,13 +54,11 @@ def truck_1_time_series(c: Config):
     assert all(p.z < 0 for p in displa_points)
 
     # Results from simulation.
-    responses_truck1 = (
-        to_traffic_array(
-            config=c,
-            traffic_array=traffic_array,
-            response_type=ResponseType.YTrans,
-            points=displa_points,
-        )
+    responses_truck1 = to_traffic_array(
+        config=c,
+        traffic_array=traffic_array,
+        response_type=ResponseType.YTrans,
+        points=displa_points,
     )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(displa_points), 1, s_i + 1)
@@ -69,8 +67,11 @@ def truck_1_time_series(c: Config):
         for i in range(len(sensor_responses)):
             if sensor_responses[i] < sensor_responses[data_center]:
                 data_center = i
-        left, right = max(0, data_center - side), min(len(sensor_responses), data_center + side)
-        plot_data = sensor_responses[left : right]
+        left, right = (
+            max(0, data_center - side),
+            min(len(sensor_responses), data_center + side),
+        )
+        plot_data = sensor_responses[left:right]
         x = np.arange(len(plot_data)) / 700
         if data_center - side < 0:
             x += abs(data_center - side) / 700

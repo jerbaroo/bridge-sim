@@ -105,7 +105,9 @@ def temp_profile_plot(c: Config, fname: str):
     plt.subplot(3, 2, 1)
     plt.plot(temp_year["datetime"], temps_year_top, label="Top of deck", c="tab:red")
     plt.plot(temp_year["datetime"], temp_year["temp"], label="Air", c="tab:blue")
-    plt.plot(temp_year["datetime"], temps_year_bottom, label="Bottom of deck", c="tab:orange")
+    plt.plot(
+        temp_year["datetime"], temps_year_bottom, label="Bottom of deck", c="tab:orange"
+    )
     plt.ylabel("Temperature °C")
     legend_lw(plt.legend(loc="lower right"))
     plt.title("Annual temperature")
@@ -136,14 +138,26 @@ def temp_profile_plot(c: Config, fname: str):
     )
 
     plt.subplot(3, 2, 2)
-    plt.plot(temp_month["datetime"], temps_month_top, label="Top of deck", c="tab:red", lw=3)
-    plt.plot(temp_month["datetime"], temp_month["temp"], label="Air", c="tab:blue", lw=3)
-    plt.plot(temp_month["datetime"], temps_month_bottom, label="Top of deck", c="tab:orange", lw=3)
+    plt.plot(
+        temp_month["datetime"], temps_month_top, label="Top of deck", c="tab:red", lw=3
+    )
+    plt.plot(
+        temp_month["datetime"], temp_month["temp"], label="Air", c="tab:blue", lw=3
+    )
+    plt.plot(
+        temp_month["datetime"],
+        temps_month_bottom,
+        label="Top of deck",
+        c="tab:orange",
+        lw=3,
+    )
     legend_lw(plt.legend(loc="lower right"))
     plt.title("Two day temperature")
     plt.subplot(3, 2, 6)
     plt.plot(temp_month["datetime"], linear_month_y, label="Linear", c="tab:blue", lw=3)
-    plt.plot(temp_month["datetime"], uniform_month_y, label="Uniform", c="tab:orange", lw=3)
+    plt.plot(
+        temp_month["datetime"], uniform_month_y, label="Uniform", c="tab:orange", lw=3
+    )
     legend_lw(plt.legend(loc="lower right"))
     plt.title("Two day gradient")
     plt.subplot(3, 2, 4)

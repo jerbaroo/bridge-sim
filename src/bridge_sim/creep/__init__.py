@@ -26,7 +26,9 @@ a_2 = (35 / f_cm) ** 0.2
 a_3 = (35 / f_cm) ** 0.5
 
 
-def creep_coeff(config: Config, cement_class: CementClass, times: List[float], x: float) -> List[float]:
+def creep_coeff(
+    config: Config, cement_class: CementClass, times: List[float], x: float
+) -> List[float]:
     """Creep coefficient over time.
 
     Args:
@@ -108,9 +110,7 @@ def creep_responses(
     Returns: NumPy array ordered by points then times.
 
     """
-    coeff = creep_coeff(
-        config=config, cement_class=cement_class, times=times, x=x
-    )
+    coeff = creep_coeff(config=config, cement_class=cement_class, times=times, x=x)
     if isinstance(responses, Responses):
         responses_at = responses.at_decks(points)
     else:

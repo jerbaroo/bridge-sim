@@ -1,4 +1,5 @@
 import lib.make.asphalt as asphalt
+import lib.make.crack as crack
 import lib.make.creep as creep
 import lib.make.shrinkage as shrinkage
 import lib.make.strain as strain

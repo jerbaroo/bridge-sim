@@ -187,8 +187,13 @@ class Shell:
                 continue
             z_frac = z_dist / self.width()
             assert 0 <= z_frac <= 1
-            asphalt_mass += lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
-            print_d(D, f"Concrete density & asphalt density = {self.section.density}, {lane.asphalt.density}")
+            asphalt_mass += (
+                lane.asphalt.thickness * self.area() * z_frac * lane.asphalt.density
+            )
+            print_d(
+                D,
+                f"Concrete density & asphalt density = {self.section.density}, {lane.asphalt.density}",
+            )
         print_d(D, f"Concrete mass & asphalt mass = {concrete_mass}, {asphalt_mass}")
         return concrete_mass + asphalt_mass
 

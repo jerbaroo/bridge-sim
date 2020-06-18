@@ -375,6 +375,11 @@ def asphalt():
     lib.make.asphalt.plot_asphalt(c())
 
 
+@verify.command(help="Plot E of crack zone on bridge 705.")
+def crack():
+    lib.make.crack.plot_crack_E(c())
+
+
 ############
 # Validate #
 ############
@@ -534,6 +539,13 @@ def temp_profile():
     temp_profile_plot(c=c(), fname="holly-springs")
 
 
+@thesis.command(help="Contour plot of truck 1, healthy & cracked.")
+def crack_contour():
+    lib.make.crack.crack_plot(
+        config=c(), crack_x_min=45, crack_length=5, response_type=ResponseType.YTrans,
+    )
+
+
 #########
 # Debug #
 #########
@@ -591,54 +603,6 @@ def uls_contour(x_i: int, z_i: int, rt: str):
         response_type = ResponseType.YTranslation
 
     uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
-
-
-@debug.command(help="Contour plot of truck 1, healthy & cracked.")
-@click.option("--x", type=int, default=51.8, help="X position of Truck 1's front axle.")
-@click.option(
-    "--crack-x", type=float, default=52, help="X position of start of crack area."
-)
-@click.option(
-    "--rt", required=True, type=click.Choice(["strain", "strain-z", "ytrans"])
-)
-@click.option("--scatter", is_flag=True, help="Scatter plot instead of contour plot.")
-@click.option("--run", is_flag=True, help="Force the simulation to run again.")
-@click.option("--length", type=float, default=0.5, help="Length of transverse crack.")
-@click.option("--outline", is_flag=True, help="Plot an outline of the crack area.")
-@click.option("--wheels", is_flag=True, help="Plot position of vehicles's wheel.")
-@click.option("--temp", is_flag=True, help="Add temperature effect.")
-def truck1_contour(
-    x: int,
-    crack_x: float,
-    rt: str,
-    scatter: bool,
-    run: bool,
-    length: float,
-    outline: bool,
-    wheels: bool,
-    temp: bool,
-):
-    from make.verify import wagen_1_contour_plot
-
-    if rt == "strain":
-        response_type = ResponseType.Strain
-    if rt == "strain-z":
-        response_type = ResponseType.StrainZZB
-    elif rt == "ytrans":
-        response_type = ResponseType.YTranslation
-
-    wagen_1_contour_plot(
-        c=c(),
-        x=x,
-        crack_x=crack_x,
-        response_type=response_type,
-        scatter=scatter,
-        run=run,
-        length=length,
-        outline=outline,
-        wheels=wheels,
-        temp=temp,
-    )
 
 
 @debug.command(help="Plot a time series where a crack occurs.")

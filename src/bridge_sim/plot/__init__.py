@@ -11,7 +11,7 @@ from matplotlib import patches as patches
 
 from bridge_sim.model import Config, Vehicle, PointLoad, Point, Bridge
 from bridge_sim.sim.build import get_bridge_shells
-from bridge_sim.sim.model import Responses, SimParams
+from bridge_sim.sim.model import Responses, SimParams, Shell
 from lib.plot import default_cmap, plt, axis_cmap_r
 
 import bridge_sim.plot.animate as animate
@@ -271,9 +271,9 @@ def shells(
     config: Config,
     sim_params: SimParams = SimParams(),
     lw: float = 0.1,
-    color_f = None,
-    cmap = axis_cmap_r,
-    norm = None,
+    color_f: Callable[[Shell], float] = None,
+    cmap=axis_cmap_r,
+    norm=None,
     ret_cmap_norm: bool = False,
 ):
     """Plot a bridge deck's shells.
@@ -302,13 +302,15 @@ def shells(
             norm = mpl.colors.Normalize(vmin=c_min, vmax=c_max)
     for shell in deck_shells:
         ni, nj, nk, nl = shell.nodes()
-        plt.gca().add_patch(patches.Rectangle(
-            (ni.x, ni.z),
-            nj.x - ni.x,
-            nl.z - ni.z,
-            linewidth=lw,
-            edgecolor="black",
-            facecolor=cmap(norm(color_f(shell))) if color_f else "none"
-        ))
+        plt.gca().add_patch(
+            patches.Rectangle(
+                (ni.x, ni.z),
+                nj.x - ni.x,
+                nl.z - ni.z,
+                linewidth=lw,
+                edgecolor="black",
+                facecolor=cmap(norm(color_f(shell))) if color_f else "none",
+            )
+        )
     if ret_cmap_norm:
         return cmap, norm
