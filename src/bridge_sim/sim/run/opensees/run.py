@@ -14,7 +14,9 @@ def run_model(
     subprocess.run(
         [
             fem_runner.exe_path,
-            fem_runner.sim_model_path(sim_params=expt_params[sim_ind], ext="tcl"),
+            fem_runner.sim_model_path(
+                config=c, sim_params=expt_params[sim_ind], ext="tcl"
+            ),
         ]
     )
     return expt_params

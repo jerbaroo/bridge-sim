@@ -182,7 +182,7 @@ class Config:
     def __init__(
         self,
         bridge: Callable[[], "Bridge"],
-        sim_runner: Callable[[], "FEMRunner"],
+        sim_runner: "FEMRunner",
         vehicle_data_path: str,
         vehicle_pdf: List[Tuple[float, float]],
         vehicle_pdf_col: str,
@@ -212,8 +212,7 @@ class Config:
         # Core.
         self._bridge = bridge
         self.bridge = self._bridge()
-        self._sim_runner = sim_runner
-        self.sim_runner = self._sim_runner(self)
+        self.sim_runner = sim_runner
 
         # OpenSees
         self.os_model_template_path: str = "model-template.tcl"

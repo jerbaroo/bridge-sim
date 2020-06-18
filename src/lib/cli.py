@@ -7,6 +7,7 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 import os
 import pdb
 
+import bridge_sim
 import lib.make.temperature
 import lib.make.validation
 import sys
@@ -261,17 +262,24 @@ def run():
 @click.option("--indices", type=str, help="Indices of point-load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
 @click.option("--temp", is_flag=True, help="Run temperature load simulations.")
-def uls(point, indices, piers, temp):
-    from bridge_sim import sim
+@click.option("--crack-x", type=float, help="Transverse crack at x.")
+@click.option("--crack-len", type=float, help="X length of transverse crack.")
+def uls(point, indices, piers, temp, crack_x, crack_len):
+    from bridge_sim import crack, sim
+
+    config = c()
+    if crack_x is not None:
+        print_i("Using Config for cracking!")
+        config = crack.transverse_crack(at_x=crack_x, length=crack_len).crack(config)
 
     if indices is not None:
         indices = list(map(int, indices.split()))
     if point:
-        list(sim.run.point_load(c(), indices, run_only=True))
+        list(sim.run.point_load(config, indices, run_only=True))
     if piers:
-        list(sim.run.pier_settlement(c(), run_only=True))
+        list(sim.run.pier_settlement(config, run_only=True))
     if temp:
-        list(sim.run.temperature(c(), run_only=True))
+        list(sim.run.temperature(config, run_only=True))
 
 
 @run.command(help="Generate data for convergence plots.")
