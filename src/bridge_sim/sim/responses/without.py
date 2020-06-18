@@ -22,7 +22,7 @@ def _distance_numpy(A, B, P):
 def edges(c: Config, radius: float):
     """Reject points on the bridge deck not close to edges."""
 
-    def _without_edges(point: Point) -> bool:
+    def _without_edges(point: Point, r_) -> bool:
         if point.y != 0 or radius == 0:
             return False
         p2 = np.array([point.x, point.z])

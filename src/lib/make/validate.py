@@ -3,9 +3,11 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from bridge_sim import sim, plot, temperature
+from bridge_sim.crack import transverse_crack
 
 from bridge_sim.model import Config, PointLoad, Point, ResponseType, PierSettlement
 from bridge_sim.plot import top_view_bridge
+from bridge_sim.plot.util import equal_lims
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.responses import to_traffic_array, without
 from bridge_sim.traffic import Traffic, TrafficSequence
@@ -164,52 +166,41 @@ def truck_1_time_series(c: Config):
     plt.close()
 
 
-def stress_strength_plot(c: Config, top: bool):
+def stress_strength_plot(config: Config, top: bool):
     """Plot the difference of tensile strength and stress under load."""
-    original_c = c
     plt.portrait()
-    response_type = ResponseType.StrainT if top else ResponseType.Strain
-    settlement = 3
+    response_type = ResponseType.StrainXXT if top else ResponseType.StrainXXB
+    settlement_mm = 3
     temp_bottom, temp_top = 21, 30
     deck_points = [
         Point(x=x, y=0, z=z)
-        for x in np.linspace(
-            # c.bridge.x_min, c.bridge.x_max, num=10
-            c.bridge.x_min,
-            c.bridge.x_max,
-            num=int(c.bridge.length * 3),
-        )
-        for z in np.linspace(
-            # c.bridge.z_min, c.bridge.z_max, num=10
-            c.bridge.z_min,
-            c.bridge.z_max,
-            num=int(c.bridge.width * 3),
-        )
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 200)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 60)
     ]
 
     # Pier settlement.
     plt.subplot(3, 1, 1)
     responses = (
         sim.responses.load(
-            c=c,
+            config=config,
             response_type=response_type,
-            pier_settlement=[PierSettlement(pier=9, settlement=settlement)],
+            pier_settlement=[PierSettlement(pier=9, settlement=settlement_mm / 1000)],
         )
-        .resize()
-        .to_stress(c.bridge)
+        .map(lambda r: r * 1e-6)
+        .to_stress(config.bridge)
     )
-    plot.top_view_bridge(bridge=c.bridge, abutments=True, piers=True)
-    plot.contour_responses(c=c, responses=responses, decimals=2)
+    responses.units = "N/mm²"
+    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True)
+    plot.contour_responses(config, responses=responses, decimals=2, interp=(200, 60))
     plt.legend(loc="upper right", borderaxespad=0)
-    plt.title(f"{settlement} mm pier settlement")
+    plt.title(f"{settlement_mm} mm pier settlement")
     print("Calculated stress from pier settlement")
 
     # Temperature effect.
     plt.subplot(3, 1, 2)
-    c = original_c
     print(f"deck_points.shape = {np.array(deck_points).shape}")
     temp_effect = temperature.effect(
-        c=c,
+        config=config,
         response_type=response_type,
         points=deck_points,
         temps_bt=([temp_bottom], [temp_top]),
@@ -217,18 +208,15 @@ def stress_strength_plot(c: Config, top: bool):
     print(f"temp_effect.shape = {np.array(temp_effect).shape}")
     responses = (
         Responses(
-            response_type=response_type,
-            responses=[
-                (temp_effect[p_ind], deck_points[p_ind])
-                for p_ind in range(len(deck_points))
-            ],
+            response_type=response_type, responses=list(zip(temp_effect, deck_points))
         )
         .without_nan_inf()
-        .without(remove=without.edges(c=c, radius=2))
-        .to_stress(c.bridge)
+        .without(without.edges(c=config, radius=2))
+        .to_stress(config.bridge)
     )
-    plot.top_view_bridge(c.bridge, abutments=True, piers=True)
-    plot.contour_responses(c=c, responses=responses, decimals=2)
+    responses.units = "N/mm²"
+    plot.top_view_bridge(config.bridge, abutments=True, piers=True)
+    plot.contour_responses(config, responses=responses, decimals=2, interp=(200, 60))
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"T_bot, T_top = {temp_bottom}°C, {temp_top}°C")
     # plt.title(f"{top_str} stress\nbottom, top = {temp_bottom}, {temp_top}")
@@ -236,36 +224,34 @@ def stress_strength_plot(c: Config, top: bool):
 
     # Cracked concrete.
     plt.subplot(3, 1, 3)
-    time = truck1.time_at(x=52, bridge=c.bridge)
-    print(f"wagen1.total_kn() = {truck1.kn}")
-    truck1.kn = 400
-    loads = truck1.to_wheel_track_loads(c=c, time=time, flat=True)
-    c, sim_params = transverse_crack().use(original_c)
-
-    c, sim_params = HealthyDamage().use(original_c)
-    sim_params.ploads = loads
+    time = truck1.time_at(x=53, bridge=config.bridge)
+    truck1.load = 400
+    assert truck1.total_load() == 400
+    cracked_config = transverse_crack().crack(config)
     responses = (
-        load_fem_responses(
-            c=c,
-            sim_runner=OSRunner(c),
+        sim.responses.load(
+            config=cracked_config,
             response_type=response_type,
-            sim_params=sim_params,
+            point_loads=truck1.wheel_track_loads(config, [time])[0],
         )
-        .resize()
-        .to_stress(c.bridge)
+        .map(lambda r: r * 1e-6)
+        .to_stress(config.bridge)
     )
-    top_view_bridge(bridge=c.bridge, compass=False, abutments=True, piers=True)
-    plot_contour_deck(c=c, responses=responses, decimals=2)
+    responses.units = "N/mm²"
+    plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True)
+    plot.contour_responses(
+        config=config, responses=responses, decimals=2, interp=(200, 60)
+    )
     plt.legend(loc="upper right", borderaxespad=0)
-    # plt.title(f"Top stress: cracked concrete\nunder a {int(wagen1.kn)} kN vehicles")
-    plt.title(f"{int(wagen1.total_kn())} kN vehicle")
+    plot.top_view_vehicles(config, vehicles=[truck1], time=time, wheels=True)
+    plt.title(f"{int(truck1.load)} kN vehicle over a 0.5 m crack zone")
 
     plt.suptitle(f"Stress {response_type.ss_direction()} for 3 scenarios")
     equal_lims("x", 3, 1)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(
-        original_c.get_image_path(
-            "validation", f"stress-strength-{response_type.name()}.pdf"
+        config.get_image_path(
+            "validation", f"stress-strength-{response_type.value}.pdf"
         )
     )
     plt.close()
