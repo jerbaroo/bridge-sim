@@ -181,6 +181,7 @@ def crack_zone_plot(
     r_min, r_max = min(responses.values()), max(responses.values())
     c_min, c_max = min(crack_responses.values()), max(crack_responses.values())
     vmin, vmax = min(r_min, c_min), max(r_max, c_max)
+    vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
     print_i(f"Min, max = {vmin}, {vmax}")
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 
