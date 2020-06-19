@@ -109,7 +109,7 @@ def truck_1_time_series(c: Config):
         # Labels/titles.
         legend()
         plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
-        plt.suptitle("Y translation from Truck 1 on bridge 705\nStatic simulation vs. dynamic test")
+        plt.suptitle("Y translation from Truck 1 on bridge 705\nstatic simulation vs. dynamic test")
         plt.tight_layout(rect=[0, 0.03, 1, 0.93])
         if s_i < len(displa_labels) - 1:
             plt.tick_params(axis="x", bottom=False, labelbottom=False)
@@ -170,7 +170,7 @@ def truck_1_time_series(c: Config):
             alpha=0,
         )
         # Labels/titles.
-        plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nStatic simulation vs. dynamic test")
+        plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. dynamic test")
         plt.tight_layout(rect=[0, 0.03, 1, 0.93])
         legend()
         plt.ylabel("Microstrain XXB")
