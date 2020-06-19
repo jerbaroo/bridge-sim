@@ -198,7 +198,7 @@ def per_sensor_plots(
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
             plt.xlabel("X position of Truck 1's front axle (m)")
-            plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nStatic simulation vs. static test")
+            plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. static test")
             plt.tight_layout(rect=[0, 0.03, 1, 0.93])
             plt.savefig(
                 c.get_image_path(
@@ -317,7 +317,7 @@ def per_sensor_plots(
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
             plt.xlabel("X position of Truck 1's front axle (m)")
-            plt.suptitle("Y translation from Truck 1 on bridge 705\nStatic simulation vs. static test")
+            plt.suptitle("Y translation from Truck 1 on bridge 705\nstatic simulation vs. static test")
             plt.tight_layout(rect=[0, 0.03, 1, 0.93])
             plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}.pdf"))
             plt.close()

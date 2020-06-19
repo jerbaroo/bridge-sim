@@ -75,8 +75,8 @@ def crack_zone_plot(
     """
     points = [
         Point(x=x, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 1000)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 300)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
     ]
     crack_deck = crack.transverse_crack(length=crack_length, at_x=crack_x_min)
     crack_config = crack_deck.crack(config)
@@ -93,6 +93,15 @@ def crack_zone_plot(
             .without(without_crack_zone_and_thresh)
         )
 
+    # Find closes point to middle of lane.
+    pi = 0
+    point = points[pi]
+    dist_to = Point(x=55, z=-8.4)
+    for i in range(len(points)):
+        if points[i].distance(dist_to) < point.distance(dist_to):
+            pi = i
+            point = points[pi]
+
     def get_responses(_config):
         _temp_responses = temperature.effect(
             config=_config,
@@ -106,14 +115,15 @@ def crack_zone_plot(
             point_loads=truck1.wheel_track_loads(_config, times=[time])[0],
         ).at_decks(points) * (1e-6 if response_type.is_strain() else 1)
         print_i(f"Temperature shape = {_temp_responses.shape}")
-        print_i(f"Temperature shape = {_truck_responses.shape}")
+        print_i(f"Truck shape = {_truck_responses.shape}")
         _responses = _temp_responses + _truck_responses
-        i = len(_responses) // 3
         print_i(
-            f"At index {i}: (temp, truck, +) = {_temp_responses[i]}, {_truck_responses[i]}, {_responses[i]}"
+            f"At index {pi}: (temp, truck, +) = {_temp_responses[pi]}, {_truck_responses[pi]}, {_responses[pi]}"
         )
         assert _responses.shape == _truck_responses.shape
-        assert np.isclose(_responses[i], _temp_responses[i] + _truck_responses[i])
+        assert np.isclose(_responses[pi], _temp_responses[pi] + _truck_responses[pi])
+        if not response_type.is_strain():
+            _responses *= 1E3
         return (
             _responses,
             (
@@ -181,7 +191,7 @@ def crack_zone_plot(
     r_min, r_max = min(responses.values()), max(responses.values())
     c_min, c_max = min(crack_responses.values()), max(crack_responses.values())
     vmin, vmax = min(r_min, c_min), max(r_max, c_max)
-    vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    # vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
     print_i(f"Min, max = {vmin}, {vmax}")
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 
@@ -200,7 +210,7 @@ def crack_zone_plot(
 
     # Cracked bridge.
     plt.subplot(3, 1, 2)
-    plot.contour_responses(config, crack_responses, decimals=1, interp=(200, 60))
+    plot.contour_responses(config, crack_responses, decimals=1, interp=(200, 60), norm=norm)
     plot.top_view_bridge(config.bridge, piers=True, units="m")
     plot_outline("Crack zone")
     legend()

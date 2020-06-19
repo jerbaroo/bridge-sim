@@ -40,33 +40,32 @@ def top_view_vehicles(
     if all_vehicles is None:
         all_vehicles = vehicles
     for vehicle in vehicles:
-        if not body:
-            break
-        # Left-most position of each vehicles axle.
-        xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
-        # Center of the lane.
-        z_center = config.bridge.lanes[vehicle.lane].z_center
-        # Bottom position on z-axis of vehicles.
-        zb = z_center - (vehicle.axle_width / 2)
-        # Length, not allowed to extend beyond the bridge.
-        length = vehicle.length
-        if xl + length <= config.bridge.x_min:
-            continue
-        if xl >= config.bridge.x_max:
-            continue
-        if xl < config.bridge.x_min:
-            length -= abs(config.bridge.x_min - xl)
-            xl = config.bridge.x_min
-        if xl + length > config.bridge.x_max:
-            length -= abs(xl + length - config.bridge.x_max)
-        plt.gca().add_patch(
-            patches.Rectangle(
-                (xl, zb),
-                length,
-                vehicle.axle_width,
-                facecolor=vehicle.color(all_vehicles),
+        if body:
+            # Left-most position of each vehicles axle.
+            xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
+            # Center of the lane.
+            z_center = config.bridge.lanes[vehicle.lane].z_center
+            # Bottom position on z-axis of vehicles.
+            zb = z_center - (vehicle.axle_width / 2)
+            # Length, not allowed to extend beyond the bridge.
+            length = vehicle.length
+            if xl + length <= config.bridge.x_min:
+                continue
+            if xl >= config.bridge.x_max:
+                continue
+            if xl < config.bridge.x_min:
+                length -= abs(config.bridge.x_min - xl)
+                xl = config.bridge.x_min
+            if xl + length > config.bridge.x_max:
+                length -= abs(xl + length - config.bridge.x_max)
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (xl, zb),
+                    length,
+                    vehicle.axle_width,
+                    facecolor=vehicle.color(all_vehicles),
+                )
             )
-        )
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
             for load in points_loads:
