@@ -26,6 +26,10 @@ def truck_1_time_series(c: Config):
         config=c, vehicles_per_lane=[[truck1], []], warmed_up_at=0, final_time=end_time,
     ).traffic_array()
 
+    def legend():
+        for line in plt.legend().get_lines():
+            line.set_linewidth(4)
+
     # Find points of each sensor.
     displa_labels = ["U13", "U26", "U29"]
     displa_points = [
@@ -95,14 +99,22 @@ def truck_1_time_series(c: Config):
         x = np.arange(len(plot_data)) / 700
         plt.plot(x, plot_data, c="r", label="Experiment")
 
-        # Labels/titles.
-        plt.legend()
-        plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
-        plt.xlabel("Time (s)")
         point = displa_points[s_i]
-        plt.title(f"{displa_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
+        plt.scatter(
+            [0],
+            [0],
+            label=f"{displa_labels[s_i]}: X = {np.around(point.x, 3)} m, Z = {np.around(point.z, 3)} m",
+            alpha=0,
+        )
+        # Labels/titles.
+        legend()
+        plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
+        plt.suptitle("Y translation from Truck 1 on bridge 705\nStatic simulation vs. dynamic test")
+        plt.tight_layout(rect=[0, 0.03, 1, 0.93])
         if s_i < len(displa_labels) - 1:
             plt.tick_params(axis="x", bottom=False, labelbottom=False)
+        else:
+            plt.xlabel("Time (s)")
 
     plt.tight_layout()
     plt.savefig(c.get_image_path("validation/dynamic", "y-trans.pdf"))
@@ -137,7 +149,7 @@ def truck_1_time_series(c: Config):
 
     # Results from experiment.
     center = 13000
-    plot_offsets = [-370, -290, -160]
+    plot_offsets = [-370, -290, -140]
     for s_i, strain_label in enumerate(strain_labels):
         plt.subplot(len(strain_points), 1, s_i + 1)
         with open(
@@ -150,14 +162,22 @@ def truck_1_time_series(c: Config):
         new_center = center + plot_offsets[s_i]
         plt.plot(data[new_center - side : new_center + side], c="r", label="Experiment")
 
-        # Labels/titles.
-        plt.legend()
-        plt.ylabel("Microstrain XXB")
-        plt.xlabel("Time (s)")
         point = strain_points[s_i]
-        plt.title(f"{strain_labels[s_i]} at X = {point.x} m, Z = {point.z} m")
+        plt.scatter(
+            [0],
+            [0],
+            label=f"{strain_labels[s_i]}: X = {np.around(point.x, 3)} m, Z = {np.around(point.z, 3)} m",
+            alpha=0,
+        )
+        # Labels/titles.
+        plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nStatic simulation vs. dynamic test")
+        plt.tight_layout(rect=[0, 0.03, 1, 0.93])
+        legend()
+        plt.ylabel("Microstrain XXB")
         if s_i < len(strain_labels) - 1:
             plt.tick_params(axis="x", bottom=False, labelbottom=False)
+        else:
+            plt.xlabel("Time (s)")
 
     # set_labels(ResponseType.StrainXXB.name(), "Time")
     plt.tight_layout()

@@ -212,6 +212,7 @@ def crack_zone_plot(
     # Difference of cracked and uncracked.
     plt.subplot(3, 1, 3)
     vmin, vmax = min(diff_responses.values()), max(diff_responses.values())
+    vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     plot.contour_responses(
         config,
