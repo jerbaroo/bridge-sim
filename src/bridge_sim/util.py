@@ -128,6 +128,10 @@ def nearest_index(array, value):
 
 def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -> str:
     """Shorten path by mapping to a shorter filepath via a metadata file."""
+    # If file already exists at unshortened path, return unshortened path.
+    if os.path.exists(filepath):
+        return filepath
+
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path("metadata", "filepath-shortening-map.txt")
