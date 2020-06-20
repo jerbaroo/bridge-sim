@@ -77,7 +77,9 @@ def top_view_vehicles(
                     c="black",
                     s=5,
                     zorder=10,
-                    label=(None if (not label_wheels or v_i > 0 or l_i > 0) else "Wheels"),
+                    label=(
+                        None if (not label_wheels or v_i > 0 or l_i > 0) else "Wheels"
+                    ),
                 )
 
 

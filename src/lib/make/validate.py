@@ -259,7 +259,9 @@ def stress_strength_plot(config: Config, top: bool):
         config=config, responses=responses, decimals=2, interp=(200, 60)
     )
     truck1.load /= 1e3  # Display correct units.
-    plot.top_view_vehicles(config, vehicles=[truck1], time=time, wheels=True, label_wheels=True)
+    plot.top_view_vehicles(
+        config, vehicles=[truck1], time=time, wheels=True, label_wheels=True
+    )
     plt.legend(loc="upper right", borderaxespad=0)
     plt.title(f"{int(truck1.load)} kN truck over 0.5 m crack zone")
 

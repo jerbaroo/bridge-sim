@@ -5,9 +5,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional, Tuple
 
+import bridge_sim
 import numpy as np
 import pandas as pd
-from bridge_sim import temperature, util, shrinkage
+from bridge_sim import temperature, util, creep
+from bridge_sim.crack import CrackDeck
 
 from bridge_sim.model import (
     Config,
@@ -151,6 +153,8 @@ def to_pier_settlement(
         same points, but only containing the responses from pier settlement.
 
     """
+    if len(pier_settlement) == 0:
+        return np.zeros(responses_array.shape)
     assert len(responses_array) == len(points)
     start_responses = load(
         config=config,
@@ -247,7 +251,7 @@ def to_shrinkage(
         return shrinkage_responses
     days = np.arange(start_day, end_day + 1)
     seconds = convert_times(f="day", t="second", times=days)
-    effect = shrinkage.total_responses(
+    effect = bridge_sim.shrinkage.total_responses(
         config=config,
         response_type=response_type,
         times=seconds,
@@ -261,18 +265,114 @@ def to_shrinkage(
     return shrinkage_responses
 
 
+def to_creep(
+    config: Config,
+    points: List[Point],
+    responses_array: List[List[float]],
+    response_type: ResponseType,
+    start_day: Optional[int] = None,
+    end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+    self_weight: bool = False,
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    shrinkage: bool = False,
+    x: Optional[float] = None,
+    psi: Optional[float] = None,
+) -> List[List[float]]:
+    """Time series of responses to concrete shrinkage.
+
+    Args:
+        config: simulation configuration object.
+        points: points in 'responses_array'.
+        responses_array: NumPY array indexed first by point then time.
+        response_type: the sensor response type to add.
+        start_day: start day of responses e.g. 365 is 1 year.
+        end_day: end day of responses.
+        cement_class: cement class used in construction.
+        self_weight: return creep due to self weight.
+        pier_settlement: return creep due to pier settlement.
+        shrinkage: return creep due to shrinkage.
+        x: X position where to calculate notational size for creep coefficient.
+
+    Returns: NumPY array of same shape as "responses_array" and considering the
+        same points, but only containing the responses from creep.
+
+    """
+    assert sum(map(int, [self_weight, len(pier_settlement) > 0, shrinkage])) == 1
+    if x is None:
+        x = config.bridge.x_center
+    # Calculate creep coefficient.
+    days = np.arange(start_day, end_day + 1)
+    seconds = convert_times(f="day", t="second", times=days)
+    coeff = creep.creep_coeff(
+        config=config, cement_class=cement_class, times=seconds, x=x
+    )
+    # Convert responses from self-weight, pier settlement or shrinkage to
+    # responses_array. First the most calculated case: self-weight.
+    if self_weight:
+        if psi is None:
+            psi = 1
+        sw_responses = load(
+            config=config, response_type=response_type, self_weight=True
+        )
+        # Repeat same value across time series, for every point.
+        responses = np.array(
+            [
+                np.repeat(r, responses_array.shape[1])
+                for r in sw_responses.at_decks(points)
+            ]
+        )
+    elif len(pier_settlement) > 0:
+        if psi is None:
+            psi = 1.5
+        responses = to_pier_settlement(
+            config=config,
+            points=points,
+            responses_array=responses_array,
+            response_type=response_type,
+            pier_settlement=pier_settlement,
+        )
+    elif shrinkage:
+        if psi is None:
+            psi = 0.55
+        responses = to_shrinkage(
+            config=config,
+            points=points,
+            responses_array=responses_array,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+        )
+    assert len(responses) == len(points)
+    assert responses.shape == responses_array.shape
+    # Multiply corresponding values.
+    coeff = util.apply(coeff, np.arange(responses_array.shape[1]))
+    result = np.empty(responses_array.shape)
+    for p in range(len(points)):
+        assert len(responses[p]) == len(coeff)
+        result[p] = np.multiply(responses[p], (1 + (coeff * psi)))
+        assert result[p][-1] == responses[p][-1] * (1 + coeff[-1] * psi)
+    # Subtract initial value to get changes.
+    for p in range(len(points)):
+        print(result[p])
+        result[p] = result[p] - result[p][0]
+        print(result[p])
+    return result
+
+
 def to(
     config: Config,
     points: List[Point],
     traffic_array: List[List[float]],
     response_type: ResponseType,
-    pier_settlement: List[Tuple[PierSettlement, PierSettlement]],
+    pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
     cement_class: CementClass = CementClass.Normal,
+    crack: Optional[Tuple[CrackDeck, int]] = None,
 ) -> List[List[float]]:
     """Time series of responses to concrete shrinkage.
 
@@ -288,40 +388,58 @@ def to(
         start_day: start day of responses e.g. 365 is 1 year.
         end_day: end day of responses.
         cement_class: cement class used in construction.
+        crack: a crack to apply at some time index.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing any of the given response sources.
 
     """
-    tr_responses = to_traffic_array(
-        config=config,
-        traffic_array=traffic_array,
-        response_type=ResponseType.YTrans,
-        points=points,
+
+    def _get(_config: Config):
+        _tr_responses = to_traffic_array(
+            config=_config,
+            traffic_array=traffic_array,
+            response_type=ResponseType.YTrans,
+            points=points,
+        )
+        _ps_responses = to_pier_settlement(
+            config=_config,
+            points=points,
+            responses_array=_tr_responses,
+            response_type=response_type,
+            pier_settlement=pier_settlement,
+        )
+        _temp_responses = to_temperature(
+            config=_config,
+            points=points,
+            responses_array=_tr_responses,
+            response_type=response_type,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        _shrinkage_responses = to_shrinkage(
+            config=_config,
+            points=points,
+            responses_array=_tr_responses,
+            response_type=response_type,
+            start_day=start_day,
+            end_day=end_day,
+            cement_class=cement_class,
+        )
+        return _tr_responses, _ps_responses, _temp_responses, _shrinkage_responses
+
+    # Healthy.
+    tr_responses, ps_responses, temp_responses, shrinkage_responses = _get(config)
+    responses = tr_responses + ps_responses + temp_responses + shrinkage_responses
+    if crack is None:
+        return responses
+    # Cracked.
+    ctr_responses, cps_responses, ctemp_responses, cshrinkage_responses = _get(
+        crack[0].crack(config)
     )
-    ps_responses = to_pier_settlement(
-        config=config,
-        points=points,
-        responses_array=tr_responses,
-        response_type=response_type,
-        pier_settlement=pier_settlement,
+    crack_responses = (
+        ctr_responses + cps_responses + ctemp_responses + cshrinkage_responses
     )
-    temp_responses = to_temperature(
-        config=config,
-        points=points,
-        responses_array=tr_responses,
-        response_type=response_type,
-        weather=weather,
-        start_date=start_date,
-        end_date=end_date,
-    )
-    shrinkage_responses = to_shrinkage(
-        config=config,
-        points=points,
-        responses_array=tr_responses,
-        response_type=response_type,
-        start_day=start_day,
-        end_day=end_day,
-        cement_class=cement_class,
-    )
-    return tr_responses + ps_responses + temp_responses + shrinkage_responses
+    time = crack[1]
+    return np.concatenate(responses.T[:time], crack_responses.T[time:]).T

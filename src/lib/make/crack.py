@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-from bridge_sim import crack, temperature, plot, sim
+from bridge_sim import crack, temperature, plot, sim, traffic
 from bridge_sim.model import Config, ResponseType, Point
 from bridge_sim.sim.model import Responses, Shell
 from bridge_sim.util import safe_str, print_i
@@ -281,3 +281,19 @@ def crack_zone_plots(
                 response_type=response_type,
                 temps=temps,
             )
+
+
+def plot_crack_time_series(config: Config):
+    time = 10
+    _0, _1, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=time)
+    crack_f = crack.transverse_crack(at_x=80, length=2)
+    point = Point(x=80, z=-8.4)
+    responses = sim.responses.to(
+        config=config,
+        points=[point],
+        traffic_array=ta,
+        response_type=ResponseType.YTrans,
+        crack=(crack_f, (time * config.sensor_hz) // 2),
+    )[0]
+    plt.plot(responses)
+    plt.show()

@@ -554,6 +554,11 @@ def crack_zones():
     )
 
 
+@thesis.command(help="Plot a time series where a crack occurs.")
+def cracking_signal():
+    lib.make.crack.plot_crack_time_series(c())
+
+
 #########
 # Debug #
 #########
@@ -611,13 +616,6 @@ def uls_contour(x_i: int, z_i: int, rt: str):
         response_type = ResponseType.YTranslation
 
     uls_contour_plot(c=c(), x_i=x_i, z_i=z_i, response_type=response_type)
-
-
-@debug.command(help="Plot a time series where a crack occurs.")
-def cracked_concrete():
-    from make.verify import cracked_concrete_plot
-
-    cracked_concrete_plot(c())
 
 
 ####################
