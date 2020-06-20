@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from bridge_sim import creep, shrinkage, sim, plot
+from bridge_sim import creep, shrinkage, sim
 from bridge_sim.model import Config, Point, RT, ResponseType, PierSettlement
 from bridge_sim.util import convert_times
 
@@ -26,70 +26,51 @@ def plot_creep(config: Config, n: int = 100):
     plt.savefig(config.get_image_path("verification/creep", "creep_coeff.pdf"))
     plt.close()
 
-    points = [
-        Point(x=x, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100)
-    ]
-    x = 48
-    response_type = ResponseType.StrainXXB
-    pier_settlement = PierSettlement(pier=9, settlement=1 / 1e3)
-    sw_responses = sim.responses.load(
-        config=config, response_type=response_type, self_weight=True,
-    )
-    ps_responses = sim.responses.load(
-        config=config, response_type=response_type, pier_settlement=[pier_settlement],
-    )
-    sh_responses = shrinkage.total_responses(
-        config=config, response_type=response_type, times=seconds, points=points,
-    )
-    # for responses in
-    # creep_responses = creep.creep_responses(
-    #     config=config,
-    #     times=seconds,
-    #     responses=responses,
-    #     points=points,
-    #     cement_class=shrinkage.CementClass.Normal,
-    #     x=x,
-    # )
-
     plt.landscape()
-    c = {0: "r", 1: "black", 2: "blue"}
-    for r_i, response_type in enumerate([RT.StrainXXB, RT.YTrans]):
-        for i, title in enumerate(
+    point = Point(x=48)
+    start_day, end_day, signal_len = 37, 100 * 365, 100
+    for r_i, response_type in enumerate([ResponseType.StrainXXB, ResponseType.YTrans]):
+        plt.subplot(2, 1, r_i + 1)
+        pier_settlement = PierSettlement(pier=9, settlement=1 / 1e3)
+        for i, (name, sw, ps, sh) in enumerate(
             [
-                "Self-weight",
-                f"{pier_settlement.settlement} mm settlement of pier {pier_settlement.pier}",
-                "Shrinkage",
+                ["Shrinkage", True, [], False],
+                ["Pier settlement", False, [(pier_settlement, pier_settlement)], False],
+                ["Shrinkage", False, [], True],
             ]
         ):
-            plt.subplot(2, 1, r_i + 1)
-            if i == 0:
-                responses = sw_responses
-            elif i == 1:
-                responses = ps_responses
-            elif i == 2:
-                responses = shrinkage.total_responses(
-                    config=config,
-                    response_type=response_type,
-                    times=seconds,
-                    points=[Point(x=x)],
-                )
-            creep_responses = creep.creep_responses(
+            creep_responses = sim.responses.to_creep(
                 config=config,
-                times=seconds,
-                responses=responses,
-                points=[Point(x=x)],
-                cement_class=shrinkage.CementClass.Normal,
-                x=x,
+                points=[point],
+                responses_array=np.empty((1, signal_len)),
+                response_type=response_type,
+                start_day=start_day,
+                end_day=end_day,
+                self_weight=sw,
+                pier_settlement=ps,
+                shrinkage=sh,
             )[0]
-            plt.plot(days / 365, creep_responses, lw=3, c=c[i], label=title)
-            plt.xlabel("Time (years)")
-            plt.ylabel(
-                "Microstrain XXB" if response_type.is_strain() else response_type.name()
+            x = (
+                np.interp(
+                    np.arange(len(creep_responses)),
+                    [0, len(creep_responses) - 1],
+                    [start_day, end_day],
+                )
+                / 365
             )
+            if response_type.is_strain():
+                plt.semilogy(creep_responses * 1e6, label=name, lw=3)
+            else:
+                plt.plot(creep_responses * 1e3, label=name, lw=3)
+            plt.ylabel(
+                "Microstrain XXB" if response_type.is_strain() else "Y translation (mm)"
+            )
+        if r_i == 0:
+            plt.tick_params(axis="x", bottom=False, labelbottom=False)
+        else:
+            plt.xlabel("Time (years)")
         plt.legend()
-    plt.suptitle(f"Responses to creep at X = {x} m, Z = {Point().z} m")
+    plt.suptitle(f"Responses to creep at X = {point.x} m, Z = {point.z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/creep", "creep-responses.pdf"))
     plt.close()

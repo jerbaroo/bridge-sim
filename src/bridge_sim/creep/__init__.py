@@ -10,7 +10,6 @@ from bridge_sim.model import Config, ResponseType, Point
 from bridge_sim.shrinkage import CementClass, RH, f_cm, notational_size
 from bridge_sim.sim.model import Responses
 from bridge_sim.util import print_d, convert_times
-from numba import njit
 
 D = True
 
@@ -84,43 +83,12 @@ def creep_coeff(
 
     coeff = y_0(t_0) * B_c(times, t_0)
     # Set initial strain values to 0.
-    i = 0
-    while i < len(coeff) and not coeff[i] >= 0:
-        coeff[i] = 0
+    for i in range(len(coeff)):
+        if np.isnan(coeff[i]) or coeff[i] <= 0:
+            coeff[i] = 0
+        else:
+            break
     return coeff
 
 
-def creep_responses(
-    config: Config,
-    times: List[float],
-    responses: Union[Responses, List[List[float]]],
-    points: List[Point],
-    cement_class: CementClass,
-    x: float,
-    psi: float = 1,
-) -> List[List[float]]:
-    """Responses over time at points due to creep.
-
-    Args:
-        config: simulation configuration object.
-        times: seconds when to compute responses.
-        cement_class: class of the cement.
-        x: X position used to calculate cross-sectional area and perimeter.
-
-    Returns: NumPy array ordered by points then times.
-
-    """
-    coeff = creep_coeff(config=config, cement_class=cement_class, times=times, x=x)
-    if isinstance(responses, Responses):
-        responses_at = responses.at_decks(points)
-    else:
-        assert len(responses) == len(points)
-        assert len(responses[0]) == len(times)
-        responses_at = responses
-    result = np.empty((len(points), len(times)))
-    for p in range(len(points)):
-        result[p] = responses_at[p] * (1 + (coeff * psi))
-    return result
-
-
-__all__ = ["creep_coeff", "creep_responses"]
+__all__ = ["creep_coeff"]
