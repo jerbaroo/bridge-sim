@@ -258,10 +258,10 @@ def stress_strength_plot(config: Config, top: bool):
     plot.contour_responses(
         config=config, responses=responses, decimals=2, interp=(200, 60)
     )
-    plt.legend(loc="upper right", borderaxespad=0)
     truck1.load /= 1e3  # Display correct units.
-    plot.top_view_vehicles(config, vehicles=[truck1], time=time, wheels=True)
-    plt.title(f"{int(truck1.load)} kN vehicle over a 0.5 m crack zone")
+    plot.top_view_vehicles(config, vehicles=[truck1], time=time, wheels=True, label_wheels=True)
+    plt.legend(loc="upper right", borderaxespad=0)
+    plt.title(f"{int(truck1.load)} kN truck over 0.5 m crack zone")
 
     plt.suptitle(f"Stress {response_type.ss_direction()} for 3 scenarios")
     equal_lims("x", 3, 1)
