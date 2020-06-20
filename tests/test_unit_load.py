@@ -15,7 +15,7 @@ def test_point_load():
     responses = sim.responses.load(
         config=config,
         response_type=ResponseType.YTrans,
-        point_loads=[PointLoad(x=51, z=0, load=100)],
+        point_loads=[PointLoad(x=51, z=0, load=100 * 1E3)],
     )
     # plot.contour_responses(config, responses)
     # plt.show()

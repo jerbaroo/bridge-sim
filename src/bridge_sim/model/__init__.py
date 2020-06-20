@@ -225,7 +225,7 @@ class Config:
 
         # Unit loads.
         self.il_num_loads: int = 600
-        self.il_unit_load_kn: float = 1000
+        self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
@@ -975,7 +975,7 @@ class Bridge:
 class Vehicle:
     def __init__(
         self,
-        kn: Union[float, List[float]],
+        load: Union[float, List[float]],
         axle_distances: List[float],
         axle_width: float,
         kmph: float,
@@ -985,7 +985,7 @@ class Vehicle:
         """A vehicles, load intensities, position and speed.
 
         Args:
-            kn: either a scalar (total load of this vehicle), or a list (load
+            load: either a scalar (total load of this vehicle), or a list (load
                 per axle).
             axle_distances: distance between axles in meters.
             axle_width: width of the vehicles's axles in meters.
@@ -994,7 +994,7 @@ class Vehicle:
             init_x: distance from lane beginning at time 0.
 
         """
-        self.load = kn
+        self.load = load
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
@@ -1024,6 +1024,7 @@ class Vehicle:
         if self._is_load_per_axle():
             return self.load
         result = [(self.load / self.num_axles) for _ in range(self.num_axles)]
+        print(result[0])
         assert isinstance(result[0], float)
         return result
 

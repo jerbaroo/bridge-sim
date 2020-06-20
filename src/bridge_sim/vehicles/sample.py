@@ -1,4 +1,5 @@
 """Sample vehicles from the vehicles data."""
+
 from timeit import default_timer as timer
 from typing import List, Tuple, Union, NewType
 
@@ -132,14 +133,16 @@ def sample_vehicle(
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]
     axle_distances = axle_array_and_count(row["axle_distance"])
-    axle_weights = axle_array_and_count(row["weight_per_axle"])
+    axle_weights = [
+        a / 1e3 for a in axle_array_and_count(row["weight_per_axle"])
+    ]  # From kN to N.
     # TODO: Fix units in database.
     # print(axle_distances)
     # print(axle_weights)
     # print(row["total_weight"])
     vehicle = Vehicle(
         kmph=40,
-        kn=axle_weights,
+        load=axle_weights,
         axle_width=c.axle_width,
         axle_distances=np.array(axle_distances) / 100,
     )

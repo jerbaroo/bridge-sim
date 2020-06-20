@@ -306,28 +306,22 @@ def to(
         response_type=response_type,
         pier_settlement=pier_settlement,
     )
-    temp_responses = (
-        to_temperature(
-            config=config,
-            points=points,
-            responses_array=tr_responses,
-            response_type=response_type,
-            weather=weather,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        * 1e3
+    temp_responses = to_temperature(
+        config=config,
+        points=points,
+        responses_array=tr_responses,
+        response_type=response_type,
+        weather=weather,
+        start_date=start_date,
+        end_date=end_date,
     )
-    shrinkage_responses = (
-        to_shrinkage(
-            config=config,
-            points=points,
-            responses_array=tr_responses,
-            response_type=response_type,
-            start_day=start_day,
-            end_day=end_day,
-            cement_class=cement_class,
-        )
-        * 1e3
+    shrinkage_responses = to_shrinkage(
+        config=config,
+        points=points,
+        responses_array=tr_responses,
+        response_type=response_type,
+        start_day=start_day,
+        end_day=end_day,
+        cement_class=cement_class,
     )
     return tr_responses + ps_responses + temp_responses + shrinkage_responses

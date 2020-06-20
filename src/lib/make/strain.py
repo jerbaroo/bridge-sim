@@ -10,7 +10,7 @@ from bridge_sim.sim.model import SimParams
 def plot_strain(config: Config):
     plt.portrait()
     plt.subplot(3, 1, 1)
-    point_loads = [PointLoad(x=51, z=0, load=100)]
+    point_loads = [PointLoad(x=51, z=0, load=100 * 1e3)]
     responses = sim.responses.load(
         config=config, response_type=ResponseType.StrainXXB, point_loads=point_loads,
     )
@@ -28,7 +28,7 @@ def plot_strain(config: Config):
 
 def plot_linear_youngs(config: Config):
     response_type = ResponseType.StrainXXB
-    point_loads = [PointLoad(x=80, z=+9.65, load=100)]
+    point_loads = [PointLoad(x=80, z=+9.65, load=100 * 1e3)]
     pier_settlement = [PierSettlement(pier=4, settlement=1)]
     pier_settlement = []
 

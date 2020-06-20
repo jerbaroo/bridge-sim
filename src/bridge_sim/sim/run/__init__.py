@@ -374,8 +374,8 @@ def ulm_point_loads(config: Config):
     half_axle = config.axle_width / 2
     return [
         [
-            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
-            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load),
         ]
         for x, z in ulm_xzs(config)
     ]

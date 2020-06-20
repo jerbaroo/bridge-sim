@@ -44,18 +44,18 @@ def unit_loads(c: Config, scatter: bool):
             amin, amax = max(tmin, omin), min(tmax, omax)
             levels = np.linspace(amin, amax, 16)
             # Create the OpenSees plot.
-            point_loads = [PointLoad(x=load_x, z=load_z, load=100, units="kN")]
+            point_loads = [PointLoad(x=load_x, z=load_z, load=100 * 1e3)]  # 100 kN.
             os_responses = sim.responses.load(
                 config=c, response_type=response_type, point_loads=point_loads,
             )
             if response_type.is_strain():
-                os_responses = os_responses.to_stress(c.bridge).map(lambda x: x * 1e-6)
+                os_responses = os_responses.to_stress(c.bridge)
                 os_responses.units = "N/mm²"
             else:
                 os_responses.units = "mm"
                 os_responses = os_responses.map(lambda x: x * 1e3)
             title = (
-                f"{os_responses.response_type.name()} from a {point_loads[0].load} kN point load at"
+                f"{os_responses.response_type.name()} from a {int(point_loads[0].load / 1E3)} kN point load at"
                 + f"\nx = {np.round(load_x, 3)} m, z = {np.round(load_z, 3)} m, with "
             )
             save = lambda prefix: c.get_image_path(
@@ -66,7 +66,10 @@ def unit_loads(c: Config, scatter: bool):
             contour_responses(
                 config=c,
                 responses=os_responses,
-                point_loads=point_loads,
+                point_loads=[
+                    PointLoad(x=p.x, z=p.z, load=int(p.load / 1e3), units="kN")
+                    for p in point_loads
+                ],
                 cmap=axis_cmap_r,
                 levels=levels,
                 scatter=scatter,
@@ -139,17 +142,13 @@ def pier_settlement(c: Config):
             sim_responses = sim.responses.load(
                 config=c,
                 response_type=response_type,
-                pier_settlement=[
-                    PierSettlement(pier=p, settlement=c.unit_pier_settlement)
-                ],
+                pier_settlement=[PierSettlement(pier=p, settlement=1 / 1e3)],
             )
-            assert c.unit_pier_settlement == 1
             if response_type.is_strain():
-                # First from strain -> stress, then kN/m2 -> N/mm2.
-                sim_responses.to_stress(c.bridge).map(lambda r: r * 1e-9)
+                sim_responses.to_stress(c.bridge)
                 sim_responses.units = "N/mm²"
             else:
-                # sim_responses = sim_responses.map(lambda r: r * 1E6)
+                sim_responses = sim_responses.map(lambda r: r * 1e3)
                 sim_responses.units = "mm"
             # Get min and max values for both Axis and OpenSees.
             rt_str = "displa" if response_type == ResponseType.YTrans else "stress"
@@ -276,16 +275,10 @@ def temperature_load(c: Config):
                 config=c, response_type=sim_type, temp_deltas=temp_deltas
             )
             if response_type.is_stress():
-                # og_sim_responses = deepcopy(sim_responses)
                 sim_responses = sim_responses.add_temp_strain(c, temp_deltas).to_stress(
                     c.bridge
                 )
                 sim_responses.units = "N/mm²"
-                # for response, (x, y, z) in og_sim_responses.values(point=True):
-                #     assert np.isclose(
-                #         (response * 1E-6 - (c.cte * c.unit_axial_delta_temp_c)) * c.bridge.sections[0].youngs,
-                #         sim_responses.fem[0][x][y][z]
-                #     )
             else:
                 sim_responses = sim_responses.map(lambda r: r * 1e3)
                 sim_responses.units = "mm"
@@ -392,7 +385,7 @@ def self_weight(c: Config):
             config=c, response_type=sim_type, self_weight=True
         )
         if response_type.is_stress():
-            os_responses = os_responses.map(lambda r: r * 1e-6).to_stress(c.bridge)
+            os_responses = os_responses.to_stress(c.bridge)
         else:
             os_responses = os_responses.map(lambda r: r * 1e3)
         os_responses.units = unit_str

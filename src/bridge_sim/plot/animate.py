@@ -84,8 +84,8 @@ def animate_responses(
         p
         for p in [
             Point(x=x, y=0, z=z)
-            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
-            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=1000)
+            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=120)
         ]
         if not without_edges(p)
     ]
@@ -113,34 +113,27 @@ def animate_responses(
         response_type=response_type,
         pier_settlement=pier_settlement,
     )
-    temp_responses = (
-        sim.responses.to_temperature(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            weather=weather,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        * 1e3
+    temp_responses = sim.responses.to_temperature(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        weather=weather,
+        start_date=start_date,
+        end_date=end_date,
     )
-    shrinkage_responses = (
-        sim.responses.to_shrinkage(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            start_day=start_day,
-            end_day=end_day,
-        )
-        * 1e3
+    shrinkage_responses = sim.responses.to_shrinkage(
+        config=config,
+        points=deck_points,
+        responses_array=responses,
+        response_type=response_type,
+        start_day=start_day,
+        end_day=end_day,
     )
     total_responses = responses + ps_responses + temp_responses + shrinkage_responses
     min_response, max_response = np.amin(responses), np.amax(responses)
-    min_response = min(min_response, -max_response)
-    max_response = max(max_response, -min_response)
-    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
+    vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=vmin, vmax=vmax)
     # thresh = abs(min_response - max_response) * 0.01
     # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
@@ -217,13 +210,13 @@ def animate_responses(
             label="shrinkage",
             lw=lw,
         )
-        plt.plot(
-            traffic_sequence.times,
-            total_responses[point_index],
-            c="xkcd:purple",
-            label="total",
-            lw=lw,
-        )
+        # plt.plot(
+        #     traffic_sequence.times,
+        #     total_responses[point_index],
+        #     c="xkcd:purple",
+        #     label="total",
+        #     lw=lw,
+        # )
         plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(

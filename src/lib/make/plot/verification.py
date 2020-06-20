@@ -138,16 +138,19 @@ def per_sensor_plots(
 
     # Calculate displacement with OpenSees via direct simulation.
     print(f"Parallel {c.parallel}")
-    os_strain = to_vehicles_direct(
-        c=c,
-        vehicles=[truck1],
-        times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
-        response_type=ResponseType.StrainXXB,
-        points=[
-            Point(x=sensor_x, y=0, z=sensor_z)
-            for sensor_x, sensor_z in strain_sensor_xzs
-        ],
-    ).T
+    os_strain = (
+        to_vehicles_direct(
+            c=c,
+            vehicles=[truck1],
+            times=[truck1.time_at(x=x, bridge=c.bridge) for x in truck_front_x],
+            response_type=ResponseType.StrainXXB,
+            points=[
+                Point(x=sensor_x, y=0, z=sensor_z)
+                for sensor_x, sensor_z in strain_sensor_xzs
+            ],
+        ).T
+        * 1e6
+    )
     os_strain_shape = np.array(os_strain).shape
     if len(os_strain_shape) == 3 and os_strain_shape[0] == 1:
         os_strain = os_strain[0]
@@ -198,7 +201,9 @@ def per_sensor_plots(
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(strain_groupby) - 1:
             plt.xlabel("X position of Truck 1's front axle (m)")
-            plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. static test")
+            plt.suptitle(
+                "Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. static test"
+            )
             plt.tight_layout(rect=[0, 0.03, 1, 0.93])
             plt.savefig(
                 c.get_image_path(
@@ -317,7 +322,9 @@ def per_sensor_plots(
         plot(i, sensor_label, meas_group)
         if (subplot_i == rows - 1) or i == len(displa_groupby) - 1:
             plt.xlabel("X position of Truck 1's front axle (m)")
-            plt.suptitle("Y translation from Truck 1 on bridge 705\nstatic simulation vs. static test")
+            plt.suptitle(
+                "Y translation from Truck 1 on bridge 705\nstatic simulation vs. static test"
+            )
             plt.tight_layout(rect=[0, 0.03, 1, 0.93])
             plt.savefig(c.get_image_path("validation/sensors", f"displa-{plot_i}.pdf"))
             plt.close()
