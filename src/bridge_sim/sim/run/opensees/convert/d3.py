@@ -121,19 +121,19 @@ def convert_strain_responses(
             # print(eps11)
             result_bottom.append(
                 (
-                    (eps11 - (theta11 * half_height)) * -1e6,
+                    -(eps11 - (theta11 * half_height)),
                     Point(x=response_point.x, y=response_point.y, z=response_point.z,),
                 )
             )
             result_bottom_z.append(
                 (
-                    (eps22 - (theta22 * half_height)) * -1e6,
+                    -(eps22 - (theta22 * half_height)),
                     Point(x=response_point.x, y=response_point.y, z=response_point.z,),
                 )
             )
             result_top.append(
                 (
-                    (eps11 + (theta11 * half_height)) * -1e6,
+                    -(eps11 + (theta11 * half_height)),
                     Point(x=response_point.x, y=response_point.y, z=response_point.z,),
                 )
             )

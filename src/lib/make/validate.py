@@ -22,9 +22,15 @@ def truck_1_time_series(c: Config):
     assert truck1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
     end_time = truck1.time_left_bridge(c.bridge)
-    traffic_array = TrafficSequence(
-        config=c, vehicles_per_lane=[[truck1], []], warmed_up_at=0, final_time=end_time,
-    ).traffic_array()
+    traffic_array = (
+        TrafficSequence(
+            config=c,
+            vehicles_per_lane=[[truck1], []],
+            warmed_up_at=0,
+            final_time=end_time,
+        ).traffic_array()
+        / 1e6
+    )
 
     def legend():
         for line in plt.legend().get_lines():
@@ -76,7 +82,7 @@ def truck_1_time_series(c: Config):
             max(0, data_center - side),
             min(len(sensor_responses), data_center + side),
         )
-        plot_data = sensor_responses[left:right]
+        plot_data = np.array(sensor_responses[left:right]) * 1e3
         x = np.arange(len(plot_data)) / 700
         if data_center - side < 0:
             x += abs(data_center - side) / 700
@@ -109,14 +115,15 @@ def truck_1_time_series(c: Config):
         # Labels/titles.
         legend()
         plt.ylabel(f"{ResponseType.YTrans.name()} (mm)")
-        plt.suptitle("Y translation from Truck 1 on bridge 705\nstatic simulation vs. dynamic test")
-        plt.tight_layout(rect=[0, 0.03, 1, 0.93])
+        plt.suptitle(
+            "Y translation from Truck 1 on bridge 705\nstatic simulation vs. dynamic test"
+        )
         if s_i < len(displa_labels) - 1:
             plt.tick_params(axis="x", bottom=False, labelbottom=False)
         else:
             plt.xlabel("Time (s)")
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.03, 1, 0.93])
     plt.savefig(c.get_image_path("validation/dynamic", "y-trans.pdf"))
     plt.close()
 
@@ -126,14 +133,11 @@ def truck_1_time_series(c: Config):
 
     plt.portrait()
     # Results from simulation.
-    responses_truck1 = (
-        to_traffic_array(
-            config=c,
-            traffic_array=traffic_array,
-            response_type=ResponseType.StrainXXB,
-            points=strain_points,
-        )
-        * 1e-3
+    responses_truck1 = to_traffic_array(
+        config=c,
+        traffic_array=traffic_array,
+        response_type=ResponseType.StrainXXB,
+        points=strain_points,
     )
     for s_i, sensor_responses in enumerate(responses_truck1):
         plt.subplot(len(strain_points), 1, s_i + 1)
@@ -142,7 +146,7 @@ def truck_1_time_series(c: Config):
             if sensor_responses[i] > sensor_responses[data_center]:
                 data_center = i
         plt.plot(
-            sensor_responses[data_center - side : data_center + side],
+            np.array(sensor_responses[data_center - side : data_center + side]) * 1e6,
             c="b",
             label="Simulation",
         )
@@ -170,8 +174,9 @@ def truck_1_time_series(c: Config):
             alpha=0,
         )
         # Labels/titles.
-        plt.suptitle("Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. dynamic test")
-        plt.tight_layout(rect=[0, 0.03, 1, 0.93])
+        plt.suptitle(
+            "Microstrain XXB from Truck 1 on bridge 705\nstatic simulation vs. dynamic test"
+        )
         legend()
         plt.ylabel("Microstrain XXB")
         if s_i < len(strain_labels) - 1:
@@ -180,7 +185,7 @@ def truck_1_time_series(c: Config):
             plt.xlabel("Time (s)")
 
     # set_labels(ResponseType.StrainXXB.name(), "Time")
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.03, 1, 0.93])
     plt.savefig(c.get_image_path("validation/dynamic", "strain.pdf"))
     plt.close()
 
@@ -199,15 +204,11 @@ def stress_strength_plot(config: Config, top: bool):
 
     # Pier settlement.
     plt.subplot(3, 1, 1)
-    responses = (
-        sim.responses.load(
-            config=config,
-            response_type=response_type,
-            pier_settlement=[PierSettlement(pier=9, settlement=settlement_mm / 1000)],
-        )
-        .map(lambda r: r * 1e-6)
-        .to_stress(config.bridge)
-    )
+    responses = sim.responses.load(
+        config=config,
+        response_type=response_type,
+        pier_settlement=[PierSettlement(pier=9, settlement=settlement_mm / 1e3)],
+    ).to_stress(config.bridge)
     responses.units = "N/mm²"
     plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True, units="m")
     plot.contour_responses(config, responses=responses, decimals=2, interp=(200, 60))
@@ -244,24 +245,21 @@ def stress_strength_plot(config: Config, top: bool):
     # Cracked concrete.
     plt.subplot(3, 1, 3)
     time = truck1.time_at(x=53, bridge=config.bridge)
-    truck1.load = 400
-    assert truck1.total_load() == 400
+    truck1.load = 400 * 1e3
+    assert truck1.total_load() == 400 * 1e3
     cracked_config = transverse_crack().crack(config)
-    responses = (
-        sim.responses.load(
-            config=cracked_config,
-            response_type=response_type,
-            point_loads=truck1.wheel_track_loads(config, [time])[0],
-        )
-        .map(lambda r: r * 1e-6)
-        .to_stress(config.bridge)
-    )
+    responses = sim.responses.load(
+        config=cracked_config,
+        response_type=response_type,
+        point_loads=truck1.wheel_track_loads(config, [time])[0],
+    ).to_stress(config.bridge)
     responses.units = "N/mm²"
     plot.top_view_bridge(bridge=config.bridge, abutments=True, piers=True, units="m")
     plot.contour_responses(
         config=config, responses=responses, decimals=2, interp=(200, 60)
     )
     plt.legend(loc="upper right", borderaxespad=0)
+    truck1.load /= 1e3  # Display correct units.
     plot.top_view_vehicles(config, vehicles=[truck1], time=time, wheels=True)
     plt.title(f"{int(truck1.load)} kN vehicle over a 0.5 m crack zone")
 

@@ -42,9 +42,11 @@ def apply(effect: List[float], signal: List[float]):
         signal: the signal, length of which temperature is interpolated to.
 
     """
+    # Signal indices to effect indices.
     i = interp1d(
         np.linspace(0, len(signal) - 1, 10000), np.linspace(0, len(effect) - 1, 10000),
     )(np.arange(len(signal)))
+    # Effect indices to effect.
     return interp1d(np.arange(len(effect)), effect)(i)
 
 

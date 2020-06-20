@@ -336,14 +336,10 @@ def opensees_load(
     assert np.isclose(best_node.y, 0)
     print(f"before assert load.x = {pload.x}")
     print(f"best_node_x = {best_node.x}")
-    # If we have a proper mesh then this should be the exact node.
-    # TODO: Remove atol when fractional positioning is removed from the system.
     assert np.isclose(best_node.x, pload.x)
     assert np.isclose(best_node.z, pload.z)
-    # assert np.isclose(best_node.x, pload.x, atol=0.001)
-    # assert np.isclose(best_node.z, pload.z, atol=0.001)
 
-    return f"load {best_node.n_id} 0 {pload.load * 1000} 0 0 0 0"
+    return f"load {best_node.n_id} 0 {pload.load} 0 0 0 0"
 
 
 def opensees_loads(

@@ -225,5 +225,5 @@ def temperature_effect(config: Config, fname: str):
 
     # Save.
     plt.tight_layout()
-    plt.savefig(config.get_image_path("verification/temperature", f"{fname}.pdf"))
+    plt.savefig(config.get_image_path("verification/temperature", f"{fname}.png"))
     plt.close()

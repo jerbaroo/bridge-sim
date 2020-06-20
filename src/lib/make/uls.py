@@ -16,7 +16,7 @@ def plot_uls(config: Config, indices=[0, 1, 10, 100, 1100, 1110, 1119]):
             sim.run.point_load(
                 config, indices=[index], response_type=ResponseType.YTrans
             )
-        )[0]
+        )[0].map(lambda r: r * 1e3)
         bridge_sim.plot.top_view_bridge(
             config.bridge, edges=True, piers=True, units="m"
         )

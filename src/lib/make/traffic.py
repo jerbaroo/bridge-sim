@@ -31,7 +31,7 @@ def animate_traffic(config: Config):
 
 
 def animate_responses(config: Config):
-    time = 10
+    time = 1
     config.sensor_hz = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
@@ -43,7 +43,7 @@ def animate_responses(config: Config):
         response_type=ResponseType.YTrans,
         units="mm",
         save=config.get_image_path("verification/animate", "traffic-responses.mp4"),
-        pier_settlement=[(PierSettlement(4, 1.2), PierSettlement(4, 2))],
+        pier_settlement=[(PierSettlement(4, 1.2 / 1e3), PierSettlement(4, 2 / 1e3))],
         weather=weather,
         start_date="01/05/19 00:00",
         end_date="01/05/19 23:59",

@@ -24,6 +24,7 @@ def top_view_vehicles(
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
     body: bool = True,
+    label_wheels: bool = True,
 ):
     """Plot vehicles on a bridge in top view at a given time.
 
@@ -35,11 +36,12 @@ def top_view_vehicles(
             color scale, if None defaults to "vehicles".
         wheels: plot each wheel as a black dot?
         body: plot the body of the vehicle?
+        label_wheels: add a legend label for the wheels?
 
     """
     if all_vehicles is None:
         all_vehicles = vehicles
-    for vehicle in vehicles:
+    for v_i, vehicle in enumerate(vehicles):
         if body:
             # Left-most position of each vehicles axle.
             xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
@@ -68,8 +70,15 @@ def top_view_vehicles(
             )
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
-            for load in points_loads:
-                plt.scatter([load.x], [load.z], c="black", s=4, zorder=10)
+            for l_i, load in enumerate(points_loads):
+                plt.scatter(
+                    [load.x],
+                    [load.z],
+                    c="black",
+                    s=5,
+                    zorder=10,
+                    label=(None if (v_i > 0 or l_i > 0) else "Wheels"),
+                )
 
 
 def top_view_bridge(

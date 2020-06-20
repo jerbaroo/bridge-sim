@@ -75,8 +75,8 @@ def crack_zone_plot(
     """
     points = [
         Point(x=x, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 2000)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 120)
     ]
     crack_deck = crack.transverse_crack(length=crack_length, at_x=crack_x_min)
     crack_config = crack_deck.crack(config)
@@ -123,7 +123,7 @@ def crack_zone_plot(
         assert _responses.shape == _truck_responses.shape
         assert np.isclose(_responses[pi], _temp_responses[pi] + _truck_responses[pi])
         if not response_type.is_strain():
-            _responses *= 1E3
+            _responses *= 1e3
         return (
             _responses,
             (
@@ -201,23 +201,29 @@ def crack_zone_plot(
     plot.contour_responses(config, responses, decimals=1, interp=(200, 60), norm=norm)
     plot.top_view_bridge(config.bridge, piers=True, units="m")
     plot_outline("Not considered")
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
     legend()
     plt.xlabel(None)
     plt.tick_params(axis="x", bottom=False, labelbottom=False)
     plt.title("Healthy bridge")
-    plot.top_view_vehicles(config, [truck1], time, wheels=True, body=False)
     zoom_in()
 
     # Cracked bridge.
     plt.subplot(3, 1, 2)
-    plot.contour_responses(config, crack_responses, decimals=1, interp=(200, 60), norm=norm)
+    plot.contour_responses(
+        config, crack_responses, decimals=1, interp=(200, 60), norm=norm
+    )
     plot.top_view_bridge(config.bridge, piers=True, units="m")
     plot_outline("Crack zone")
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
     legend()
     plt.xlabel(None)
     plt.tick_params(axis="x", bottom=False, labelbottom=False)
     plt.title("Cracked bridge")
-    plot.top_view_vehicles(config, [truck1], time, wheels=True, body=False)
     zoom_in()
 
     # Difference of cracked and uncracked.
@@ -235,9 +241,11 @@ def crack_zone_plot(
     )
     plot.top_view_bridge(config.bridge, piers=True, units="m")
     plot_outline("Crack zone")
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
     legend()
     plt.title("Difference of healthy & cracked bridge")
-    plot.top_view_vehicles(config, [truck1], time, wheels=True, body=False)
     zoom_in()
 
     rt_str = (

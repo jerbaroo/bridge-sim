@@ -480,10 +480,14 @@ class Responses:
             self.responses[0][p.x][p.y][p.z] += v
             after = self.responses[0][p.x][p.y][p.z]
             # print(before, after)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def map(self, f, xyz: bool = False):
-        """Map a function over the values of fem."""
+        """Map a function over the response values."""
         time = self.times[0]
         for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
@@ -492,6 +496,10 @@ class Responses:
                         self.responses[time][x][y][z] = f(response, x, y, z)
                     else:
                         self.responses[time][x][y][z] = f(response)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def without(self, remove: Callable[[Point, float], bool]) -> "Responses":
@@ -521,9 +529,13 @@ class Responses:
         if uniform_delta is not None and linear_delta is not None:
             raise ValueError("Must be ONLY uniform or linear temperature delta")
         if uniform_delta is not None:
-            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+            subtract = 1 * config.cte * uniform_delta
+            print_i(f"Temperature post-processing, subtract strain = {subtract}")
+            return self.map(lambda r: r - subtract)
         if linear_delta is not None:
-            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
+            add = 0.5 * config.cte * linear_delta
+            print_i(f"Temperature post-processing, adding strain = {add}")
+            return self.map(lambda r: r + add)
 
     def to_stress(self, bridge: Bridge):
         """Convert strain responses to stress responses."""
