@@ -31,24 +31,28 @@ def animate_traffic(config: Config):
 
 
 def animate_responses(config: Config):
-    time = 0.1
-    config.sensor_freq = 1 / 10
+    time = 60
+    config.sensor_freq = 1 / 10  # 10 samples per second.
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
     weather = temperature.load("holly-springs")
     weather["temp"] = temperature.resize(weather["temp"], year=2019)
+    ps = PierSettlement(4, 1.2 / 1e3)
     ar(
         config=config,
         traffic_sequence=traffic_sequence,
         response_type=ResponseType.YTrans,
         units="mm",
         save=config.get_image_path("verification/animate", "traffic-responses.mp4"),
-        pier_settlement=[(PierSettlement(4, 1.2 / 1e3), PierSettlement(4, 2 / 1e3))],
+        with_creep=True,
+        pier_settlement=[(ps, ps)],
+        install_pier_settlement=[ps],
         weather=weather,
         start_date="01/05/19 00:00",
-        end_date="01/05/19 23:59",
-        start_day=365,
-        end_day=366,
+        end_date="02/05/19 00:00",
+        install_day=37,
+        start_day=366 * 10,
+        end_day=366 * 10 + 1,
     )
 
 

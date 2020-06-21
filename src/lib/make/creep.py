@@ -28,15 +28,15 @@ def plot_creep(config: Config, n: int = 100):
 
     plt.landscape()
     point = Point(x=48)
-    start_day, end_day, signal_len = 37, 100 * 365, 100
+    install_day, start_day, end_day, signal_len = 37, 37, 100 * 365, 100
     for r_i, response_type in enumerate([ResponseType.StrainXXB, ResponseType.YTrans]):
-        plt.subplot(2, 1, r_i + 1)
+        plt.subplot(1, 2, r_i + 1)
         pier_settlement = PierSettlement(pier=9, settlement=1 / 1e3)
-        for i, (name, sw, ps, sh) in enumerate(
+        for i, (name, sw, ps, sh, c) in enumerate(
             [
-                ["Shrinkage", True, [], False],
-                ["Pier settlement", False, [(pier_settlement, pier_settlement)], False],
-                ["Shrinkage", False, [], True],
+                ["self-weight", True, [], False, "black"],
+                ["pier settlement", False, [(pier_settlement, pier_settlement)], False, "blue"],
+                ["shrinkage", False, [], True, "red"],
             ]
         ):
             creep_responses = sim.responses.to_creep(
@@ -44,9 +44,11 @@ def plot_creep(config: Config, n: int = 100):
                 points=[point],
                 responses_array=np.empty((1, signal_len)),
                 response_type=response_type,
+                install_day=install_day,
                 start_day=start_day,
                 end_day=end_day,
                 self_weight=sw,
+                install_pier_settlement=[pier_settlement],
                 pier_settlement=ps,
                 shrinkage=sh,
             )[0]
@@ -59,15 +61,12 @@ def plot_creep(config: Config, n: int = 100):
                 / 365
             )
             if response_type.is_strain():
-                plt.semilogy(creep_responses * 1e6, label=name, lw=3)
+                plt.semilogy(x, creep_responses * 1e6, label=name, lw=3, c=c)
             else:
-                plt.plot(creep_responses * 1e3, label=name, lw=3)
+                plt.plot(x, creep_responses * 1e3, label=name, lw=3, c=c)
             plt.ylabel(
                 "Microstrain XXB" if response_type.is_strain() else "Y translation (mm)"
             )
-        if r_i == 0:
-            plt.tick_params(axis="x", bottom=False, labelbottom=False)
-        else:
             plt.xlabel("Time (years)")
         plt.legend()
     plt.suptitle(f"Responses to creep at X = {point.x} m, Z = {point.z} m")

@@ -55,11 +55,11 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
             cement_class=shrinkage.CementClass.Normal,
             x=x,
         )[0] * (1e6 if rt.is_strain() else 1e3)
-        plt.plot(days / 365, drying, lw=lw, c="black", label="Drying")
+        plt.plot(days / 365, drying, lw=lw, c="black", label="drying")
         autogenous = shrinkage.autogenous_responses(
             config=config, response_type=rt, times=seconds, points=[Point(x=x)],
         )[0] * (1e6 if rt.is_strain() else 1e3)
-        plt.plot(days / 365, autogenous, lw=lw, c="blue", label="Autogenous")
+        plt.plot(days / 365, autogenous, lw=lw, c="blue", label="autogenous")
         total = shrinkage.total_responses(
             config=config,
             response_type=rt,
@@ -68,7 +68,7 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
             cement_class=shrinkage.CementClass.Normal,
             x=x,
         )[0] * (1e6 if rt.is_strain() else 1e3)
-        plt.plot(days / 365, total, lw=lw, c="r", label="Total")
+        plt.plot(days / 365, total, lw=lw, c="r", label="total")
         plt.xlabel("Time (years)")
         plt.ylabel("Microstrain XXB" if rt.is_strain() else f"{rt.name()} (mm)")
         plt.legend()
@@ -76,3 +76,4 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "responses.pdf"))
     plt.close()
+
