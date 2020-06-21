@@ -343,7 +343,7 @@ def test_axle_track_indices():
 
 def test__times_on_bridge():
     v = Vehicle(load=100, axle_distances=[1], axle_width=2.5, kmph=20, lane=0)
-    sorted_times = np.arange(-1, 100, config.sensor_hz)
+    sorted_times = np.arange(-1, 100, config.sensor_freq)
     v_times_indices, v_times = v._times_on_bridge(config, sorted_times)
     assert len(v_times_indices) == len(v_times)
     for v_times_index, v_time in zip(v_times_indices, v_times):

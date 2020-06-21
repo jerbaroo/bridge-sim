@@ -11,7 +11,7 @@ from bridge_sim.plot.animate import animate_responses as ar
 
 def animate_traffic(config: Config):
     time = 10
-    config.sensor_hz = 1 / 10
+    config.sensor_freq = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
     traffic = traffic_sequence.traffic()
@@ -31,8 +31,8 @@ def animate_traffic(config: Config):
 
 
 def animate_responses(config: Config):
-    time = 1
-    config.sensor_hz = 1 / 10
+    time = 0.1
+    config.sensor_freq = 1 / 10
     traffic_scenario = normal_traffic(config=config)
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
     weather = temperature.load("holly-springs")

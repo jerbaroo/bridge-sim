@@ -48,9 +48,9 @@ def apply(effect: List[float], signal: List[float]):
         np.linspace(0, len(signal) - 1, max_len),
         np.linspace(0, len(effect) - 1, max_len),
     )(np.arange(len(signal)))
-    print(
-        f"i[0:10] = {i[0:10]}, np.arange(len(effect))[0:10] = {np.arange(len(effect))[0:10]}, effect[0:10] = {effect[0:10]}"
-    )
+    # print(
+    #     f"i[0:10] = {i[0:10]}, np.arange(len(effect))[0:10] = {np.arange(len(effect))[0:10]}, effect[0:10] = {effect[0:10]}"
+    # )
     # Effect indices to effect.
     return interp1d(np.arange(len(effect)), effect)(i)
 

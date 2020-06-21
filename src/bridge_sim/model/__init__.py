@@ -233,7 +233,7 @@ class Config:
         self.self_weight_asphalt: bool = True
 
         # Responses & events.
-        self.sensor_hz: float = 1 / 100
+        self.sensor_freq: float = 1 / 100
         self.event_time_s: float = 2  # Seconds.
 
         # Vehicles.

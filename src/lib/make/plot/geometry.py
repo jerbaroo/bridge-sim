@@ -8,7 +8,8 @@ from bridge_sim.model import Config, Point
 from bridge_sim.sim.responses import without
 from bridge_sim.sim.build import get_bridge_nodes, get_bridge_shells
 from bridge_sim.sim.model import BuildContext, Node, Shell, SimParams
-from lib.plot import default_cmap, legend_marker_size, parula_cmap, plt
+from lib.plot import default_cmap, parula_cmap, plt
+from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.plot import top_view_bridge
 from lib.plot.geometry.shell import shell_properties_3d, shell_properties_top_view
 from lib.plot.geometry.node import node_scatter_3d

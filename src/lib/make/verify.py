@@ -112,7 +112,7 @@ def compare_axles(c: Config):
 
     point = Point(x=c.bridge.x_max / 2, y=0, z=-8.4)
     end_time = wagen1.time_left_bridge(bridge=c.bridge)
-    num_times = int(end_time / c.sensor_hz)
+    num_times = int(end_time / c.sensor_freq)
     wagen1_times = np.linspace(0, end_time, num_times)
     plt.portrait()
 
@@ -224,7 +224,7 @@ def compare_responses(c: Config):
     plt.plot(wagen1_times, responses_binned)
     xlim = plt.xlim()
 
-    num_times = int(end_time / c.sensor_hz)
+    num_times = int(end_time / c.sensor_freq)
     wagen1_times = np.linspace(0, end_time, num_times)
 
     # Then from 'TrafficArray' we get fem, without binning.
@@ -687,8 +687,8 @@ def cracked_concrete_plot(c: Config):
         responses.append(np.concatenate(responses_healthy_cracked))
     responses = np.array(responses)
     # Plot the cracked time series.
-    x0 = np.arange(half_i) * c.sensor_hz / 60
-    x1 = np.arange(half_i, len(responses[0])) * c.sensor_hz / 60
+    x0 = np.arange(half_i) * c.sensor_freq / 60
+    x1 = np.arange(half_i, len(responses[0])) * c.sensor_freq / 60
     plt.landscape()
     plt.subplot(2, 1, 1)
     plt.plot(x0, responses[0][:half_i] * 1000, label="Healthy")

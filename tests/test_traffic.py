@@ -45,7 +45,7 @@ def test_traffic_and_traffic_array():
     traffic_sequence = traffic_scenario.traffic_sequence(config, time)
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
-    assert len(traffic_sequence.times) == 1 + time / config.sensor_hz
+    assert len(traffic_sequence.times) == 1 + time / config.sensor_freq
     assert len(traffic) == len(traffic_sequence.times)
     assert len(traffic_array) == len(traffic_sequence.times)
 

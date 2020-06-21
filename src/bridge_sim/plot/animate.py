@@ -12,12 +12,12 @@ from matplotlib.animation import FuncAnimation, FFMpegWriter
 from scipy.spatial import distance
 
 from bridge_sim import sim, plot
+from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run import ulm_xzs
 from bridge_sim.model import Config, Point, ResponseType, Vehicle, PierSettlement
 from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
 from bridge_sim.util import print_i, flatten
-from lib.plot import axis_cmap_r, axis_cmap
 
 
 def _animate_plot(
@@ -73,8 +73,10 @@ def animate_responses(
     cmap=cm.get_cmap("RdBu"),
     without_edges: int = 0,
 ):
+    mul = 1e6 if response_type.is_strain() else 1e3
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
+    # Determine points at which to collect responses.
     without_edges = (
         (lambda _: False)
         if without_edges == 0
@@ -84,8 +86,8 @@ def animate_responses(
         p
         for p in [
             Point(x=x, y=0, z=z)
-            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=1000)
-            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=120)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=100)
+            for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
         ]
         if not without_edges(p)
     ]
@@ -100,42 +102,28 @@ def animate_responses(
         ):
             point_index = _index
     point = deck_points[point_index]
-    responses = sim.responses.to_traffic_array(
+    # Collect all the different kinds of responses.
+    responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = sim.responses.to(
         config=config,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
         points=deck_points,
-    )
-    ps_responses = sim.responses.to_pier_settlement(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
         pier_settlement=pier_settlement,
-    )
-    temp_responses = sim.responses.to_temperature(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
         weather=weather,
         start_date=start_date,
         end_date=end_date,
-    )
-    shrinkage_responses = sim.responses.to_shrinkage(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
         start_day=start_day,
         end_day=end_day,
+        ret_all=True,
     )
-    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
+    # Resize responses for plotting.
+    responses *= mul; ps_responses *= mul; temp_responses *= mul; shrinkage_responses *= mul; creep_responses *= mul;
+    total_responses = responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
+    # Calculate Matplotlib norm.
     min_response, max_response = np.amin(responses), np.amax(responses)
     vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=vmin, vmax=vmax)
-    # thresh = abs(min_response - max_response) * 0.01
-    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
+    # Determine vehicles.
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
     all_vehicles = flatten(traffic, Vehicle)
 
@@ -148,13 +136,6 @@ def animate_responses(
         )
         bridge_sim.plot.top_view_bridge(
             config.bridge, edges=True, piers=True, units="m"
-        )
-        plot.top_view_vehicles(
-            config=config,
-            vehicles=vehicles_at_time[time_index],
-            all_vehicles=all_vehicles,
-            time=traffic_sequence.times[time_index],
-            wheels=True,
         )
         plot.contour_responses(
             config=config,
@@ -172,12 +153,22 @@ def animate_responses(
         plt.scatter(
             [point.x],
             [point.z],
-            c="black",
-            s=20,
+            c="red",
+            s=30,
             label="sensor in bottom plot",
             zorder=100,
         )
-        plt.legend(loc="upper right")
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        legend_marker_size(
+            plt.legend(facecolor="white", loc="upper right", framealpha=1, fancybox=False, borderaxespad=0, labelspacing=0.1),
+            30,
+        )
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
@@ -185,7 +176,7 @@ def animate_responses(
         plt.plot(
             traffic_sequence.times,
             responses[point_index],
-            c="black",
+            c="xkcd:purple",
             label="traffic",
             lw=lw,
         )
@@ -210,22 +201,24 @@ def animate_responses(
             label="shrinkage",
             lw=lw,
         )
-        # plt.plot(
-        #     traffic_sequence.times,
-        #     total_responses[point_index],
-        #     c="xkcd:purple",
-        #     label="total",
-        #     lw=lw,
-        # )
+        plt.plot(
+            traffic_sequence.times,
+            total_responses[point_index],
+            c="red",
+            label="total",
+            lw=lw,
+        )
         plt.xlabel("Time (s)")
         plt.ylabel(units)
         plt.axvline(
             x=traffic_sequence.start_time + time_index * time_step,
-            c="red",
+            c="black",
             label="current time",
             lw=lw,
         )
-        plt.legend(facecolor="white", loc="upper right")
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, -y_max), max(y_max, -y_min))
+        plt.legend(facecolor="white", loc="upper right", framealpha=1, fancybox=False, borderaxespad=0, labelspacing=0.1)
         plt.tight_layout()
 
         # Add a color bar.

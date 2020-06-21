@@ -123,7 +123,7 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         top_view_vehicles(
             bridge=c.bridge,
             mv_vehicles=flatten(traffic[t_ind], Vehicle),
-            time=warmed_up_at + t_ind * c.sensor_hz,
+            time=warmed_up_at + t_ind * c.sensor_freq,
             all_vehicles=all_vehicles,
         )
         responses = Responses(
@@ -145,29 +145,29 @@ def top_view_plot(c: Config, max_time: int, skip: int, damage_scenario):
         )
         plt.legend(loc="upper right")
         plt.title(
-            f"{response_type.name()} after {np.around(t_ind * c.sensor_hz, 4)} seconds"
+            f"{response_type.name()} after {np.around(t_ind * c.sensor_freq, 4)} seconds"
         )
         # Plot the fem at a point.
         plt.subplot2grid((3, 1), (2, 0))
-        time = t_ind * c.sensor_hz
+        time = t_ind * c.sensor_freq
         plt.axvline(
             x=time, color="black", label=f"Current time = {np.around(time, 4)} s"
         )
         plt.plot(
-            np.arange(len(responses_array)) * c.sensor_hz,
+            np.arange(len(responses_array)) * c.sensor_freq,
             responses_w_temp.T[-1],
             color="red",
             label="Total effect",
         )
         if isinstance(damage_scenario, PierDispDamage):
             plt.plot(
-                np.arange(len(responses_array)) * c.sensor_hz,
+                np.arange(len(responses_array)) * c.sensor_freq,
                 np.ones(temp_effect[-1].shape) * pd_response_at_point,
                 color="green",
                 label="Pier settlement effect",
             )
         plt.plot(
-            np.arange(len(responses_array)) * c.sensor_hz,
+            np.arange(len(responses_array)) * c.sensor_freq,
             temp_effect[-1],
             color="blue",
             label="Temperature effect",

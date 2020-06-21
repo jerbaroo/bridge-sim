@@ -111,8 +111,8 @@ class TrafficSequence:
         self.final_time = final_time
         self.times = np.arange(
             self.start_time,
-            self.final_time + (self.config.sensor_hz / 2),
-            self.config.sensor_hz,
+            self.final_time + (self.config.sensor_freq / 2),
+            self.config.sensor_freq,
         )
         assert self.times[0] == self.start_time
 
@@ -167,7 +167,7 @@ def normal_traffic(config: Config, lam: float = 5, min_d: float = 2):
 
 
 def _traffic_name(c: Config, traffic_scenario: TrafficScenario, time: float):
-    return safe_str(f"{traffic_scenario.name} {c.il_num_loads} {time} {c.sensor_hz}")
+    return safe_str(f"{traffic_scenario.name} {c.il_num_loads} {time} {c.sensor_freq}")
 
 
 def load_traffic(

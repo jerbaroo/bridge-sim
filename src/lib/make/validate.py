@@ -18,7 +18,7 @@ from lib.validate import _displa_sensor_xz, _strain_sensor_xz
 def truck_1_time_series(c: Config):
     """Time series of 3 sensors to Truck 1's movement."""
     side_s = 7
-    side = int(side_s * (1 / c.sensor_hz))
+    side = int(side_s * (1 / c.sensor_freq))
     assert truck1.x_at(time=0, bridge=c.bridge) == 0
     # Get times and loads for Truck 1.
     end_time = truck1.time_left_bridge(c.bridge)
