@@ -54,11 +54,11 @@ shown in \autoref{fig:val}.
   concrete using EuroCode 2 models [@en:20041] .
 - **Plots & animations:** support for collecting and displaying simulation
   results including generation of animations e.g. \autoref{fig:time}.
-- **Non-linear simulations & girder bridges (planned):** after discussion with
-  TNO, support for running non-linear simulations and generating model files for
-  girder bridges is planned.
+- **Non-linear simulations & girder bridges (in development):** after discussion
+  with TNO, work has begun to add support for running non-linear simulations,
+  and for generating FE model files for girder bridges.
 
-![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](../data/images/animation.png) 
+![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor due to traffic, pier settlement and temperature effect. \label{fig:time}](../data/images/animation.png) 
 
 # Problem Domain
 
