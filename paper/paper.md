@@ -21,11 +21,11 @@ bibliography: paper.bib
 # Summary
 
 `bridge-sim` is an open source package for Python that provides a high-level API
-for building linear and non-linear 3D models of concrete slab bridges, running
-simulations of the generated models with OpenSees [@mckenna:2011], and
-generating time series and graphics of the responses e.g. \autoref{fig:time}.
-`bridge-sim` has been written with extensibility in mind such that adding
-support for another finite element program other than OpenSees is possible.
+for building linear 3D models of concrete slab bridges, running simulations of
+the generated models with OpenSees [@mckenna:2011], and generating time series
+and graphics of the responses e.g. \autoref{fig:time}. `bridge-sim` has been
+written with extensibility in mind such that adding support for another finite
+element program other than OpenSees is possible.
 
 `bridge-sim` makes the process of generating time series data via simulation of
 concrete slab bridges much faster and easier than with OpenSees, OpenSees has no
@@ -33,33 +33,30 @@ knowledge of concepts such as bridges, traffic or temperature. `bridge-sim`
 accomplishes this by providing a high-level API with classes such as `Bridge`,
 `Material` and `Vehicle`. Functionality includes generation of finite element
 models based on a `Bridge` specification including mesh generation, traffic flow
-generation, settlement of piers and simulation of temperature effect. More
-detail of the provided functionality is given in the list below. One of the
-generated models has been validated against sensor data collected from bridge
-705 in Amsterdam, a plot comparing responses from linear simulation to static
-load tests (a truck parked on the bridge) is shown in \autoref{fig:val}.
+generation, settlement of piers, simulation of temperature effect and concrete
+shrinkage and the effect of creep. More detail of the provided functionality is
+given in the list below. One of the generated models has been validated against
+sensor data collected from bridge 705 in Amsterdam, a plot comparing responses
+from linear simulation to static load tests (a truck parked on the bridge) is
+shown in \autoref{fig:val}.
 
-- **Model file generation** Generating a model file for OpenSees from a
+- **Model file generation:** generating a model file for OpenSees from a
   high-level description of geometry, material properties and boundary
   conditions.
-- **Pier Settlement** Linear simulation of settlement of piers by applying a
+- **Pier settlement:** simulation of settlement of piers by applying a
   displacement load to the central node of one or more supporting piers.
-- **Traffic Flow** Generation of a traffic flow based on a Poisson process and
+- **Traffic flow:** generation of a traffic flow based on a Poisson process and
   simulation of the response of the bridge to the traffic based on superposition
   of a number of one-time simulations.
-- **Temperature Load** Simulation of temperature effect based on linear thermal
-  expansion $\Delta L = \alpha L \Delta T$. (Simulation inputs are verified.
-  Vertical translation simulation outputs are verified. Strain simulation
-  outputs required further verification).
-- **Non-linear Simulation** A non-linear simulation can be triggered via a
-  simulation flag.
-- **Time-dependent Simulation** The loads corresponding to a traffic flow can be
-  written directly into a model file to run a simulation with multiple time
-  steps, instead of generating the time series via superposition from linear
-  simulations.
-- **Shrinkage**
-- **Graphics** Support for collecting and displaying simulation results
-  including generation of time series animation e.g. \autoref{fig:time}.
+- **Temperature load:** simulation of temperature effect based on linear thermal
+  expansion $\Delta L = \alpha L \Delta T$.
+- **Shrinkage & creep:** generation of responses due to shrinkage and creep of
+  concrete using EuroCode 2 models [@en:20041] .
+- **Plots & animations:** support for collecting and displaying simulation
+  results including generation of animations e.g. \autoref{fig:time}.
+- **Non-linear simulations & girder bridges (planned):** after discussion with
+  TNO, support for running non-linear simulations and generating model files for
+  girder bridges is planned.
 
 ![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor, position indicated in the top plot.\label{fig:time}](../data/images/animation.png) 
 
@@ -98,7 +95,7 @@ built-in `Bridge`.
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, model, plot, sim
 
-config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
+config = configs.opensees_default(bridges.bridge_705, shorten_paths=True)
 point_loads = model.Vehicle(
     load=[5000, 4000, 4000, 5000, 7000],
     axle_distances=[2, 2, 2, 1],
