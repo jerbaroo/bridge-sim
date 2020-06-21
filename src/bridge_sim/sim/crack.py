@@ -171,7 +171,7 @@ def time_series_plot(c: Config, n: float):
     ]
     plt.portrait()
     for i, (y_trans, strain) in enumerate(time_series):
-        x = np.arange(len(strain)) * c.sensor_hz / 60
+        x = np.arange(len(strain)) * c.sensor_freq / 60
         x_m = sensors[i].x
         damage_str = "Healthy Bridge"
         if i == 1:

@@ -286,14 +286,24 @@ def crack_zone_plots(
 def plot_crack_time_series(config: Config):
     time = 10
     _0, _1, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=time)
+    response_type = ResponseType.YTrans
     crack_f = crack.transverse_crack(at_x=80, length=2)
     point = Point(x=80, z=-8.4)
+    crack_time = 5
+    crack_index = int((crack_time / time) * len(ta))
     responses = sim.responses.to(
         config=config,
         points=[point],
         traffic_array=ta,
-        response_type=ResponseType.YTrans,
-        crack=(crack_f, (time * config.sensor_hz) // 2),
+        response_type=response_type,
+        crack=(crack_f, crack_index),
     )[0]
-    plt.plot(responses)
-    plt.show()
+    plt.landscape()
+    plt.plot(np.linspace(0, time, len(responses)), responses)
+    plt.axvline(x=crack_time, c="black", label="Crack occurs")
+    plt.ylabel(response_type.name())
+    plt.xlabel("Time (s)")
+    plt.legend(loc="upper right")
+    plt.tight_layout()
+    plt.savefig(config.get_image_path("crack", "time-series.png"))
+

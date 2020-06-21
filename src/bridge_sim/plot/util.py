@@ -27,3 +27,9 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
         cmap(np.linspace(minval, maxval, n)),
     )
     return new_cmap
+
+
+def legend_marker_size(legend, size):
+    """Set the marker size for all legend markers."""
+    for legend_handle in legend.legendHandles:
+        legend_handle._sizes = [size]

@@ -26,7 +26,8 @@ from bridge_sim.sim.build import det_nodes, det_shells
 from bridge_sim.sim.model import SimParams
 from bridge_sim.sim.responses import load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
-from lib.plot import legend_marker_size, plt
+from lib.plot import plt
+from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.plot import contour_responses, top_view_bridge
 from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
 from bridge_sim.util import (
