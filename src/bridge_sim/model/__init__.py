@@ -646,7 +646,7 @@ class Bridge:
         """
         # Given arguments.
         self.name = name
-        self.msl = msl
+        self.msl = float(msl)
         self.data_id = data_id
 
         self.length = length

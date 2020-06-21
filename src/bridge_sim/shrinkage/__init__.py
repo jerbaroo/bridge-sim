@@ -55,7 +55,7 @@ def notational_size(config: Config, x: Optional[float] = None):
             not given use the center of the bridge.
     """
     if x is None:
-        x = config.bridge.x_min + ((config.bridge.x_max - config.bridge.x_min) / 2)
+        x = config.bridge.x_center
     thicknesses = []
     for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100):
         thicknesses.append(config.bridge.deck_section_at(x=x, z=z).thickness)

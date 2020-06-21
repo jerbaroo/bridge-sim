@@ -1,7 +1,7 @@
 """Time series of responses to creep."""
 
 from math import sqrt
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 from bridge_sim import sim
@@ -26,7 +26,7 @@ a_3 = (35 / f_cm) ** 0.5
 
 
 def creep_coeff(
-    config: Config, cement_class: CementClass, times: List[float], x: float
+    config: Config, cement_class: CementClass, times: List[float], x: Optional[float] = None
 ) -> List[float]:
     """Creep coefficient over time.
 
@@ -34,11 +34,14 @@ def creep_coeff(
         config: simulation configuration object.
         cement_class: class of the cement.
         times: seconds when to compute strain.
-        x: X position used to calculate cross-sectional area and perimeter.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: list of creep coefficient at each given time.
 
     """
+    if x is None:
+        x = config.bridge.x_center
     h_0 = notational_size(config=config, x=x)
     times = np.array(convert_times(f="second", t="day", times=times))
     t_0T = 7  # Temperature adjusted age of concrete.

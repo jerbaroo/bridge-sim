@@ -230,6 +230,7 @@ def to_shrinkage(
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
     cement_class: CementClass = CementClass.Normal,
+    x: Optional[float] = None,
 ) -> List[List[float]]:
     """Time series of responses to concrete shrinkage.
 
@@ -241,6 +242,8 @@ def to_shrinkage(
         start_day: start day of responses e.g. 365 is 1 year.
         end_day: end day of responses.
         cement_class: cement class used in construction.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing the responses from shrinkage.
@@ -257,6 +260,7 @@ def to_shrinkage(
         times=seconds,
         points=points,
         cement_class=cement_class,
+        x=x,
     )
     assert len(responses_array) == len(points)
     assert len(effect) == len(points)
@@ -270,69 +274,96 @@ def to_creep(
     points: List[Point],
     responses_array: List[List[float]],
     response_type: ResponseType,
-    start_day: Optional[int] = None,
-    end_day: Optional[int] = None,
+    install_day: int,
+    start_day: int,
+    end_day: int,
     cement_class: CementClass = CementClass.Normal,
     self_weight: bool = False,
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    install_pier_settlement: Optional[List[PierSettlement]] = None,
     shrinkage: bool = False,
-    x: Optional[float] = None,
     psi: Optional[Tuple[float, float, float]] = None,
+    x: Optional[float] = None,
 ) -> List[List[float]]:
-    """Time series of responses to concrete shrinkage.
+    """Time series of responses to concrete creep.
+
+    Three different types of creep can be calculated, due to self-weight, due
+    to pier settlement and due to shrinkage. Use "self_weight=True" to include
+    the creep due to self-weight, pass both pier settlement arguments to include
+    the creep due to pier settlement and use "shrinkage=True" to include the
+    creep due to shrinkage.
 
     Args:
         config: simulation configuration object.
         points: points in 'responses_array'.
         responses_array: NumPY array indexed first by point then time.
-        response_type: the sensor response type to add.
+        response_type: the sensor response type to compute.
+        install_day: day the sensors were installed.
         start_day: start day of responses e.g. 365 is 1 year.
         end_day: end day of responses.
         cement_class: cement class used in construction.
-        self_weight: return creep due to self weight.
-        pier_settlement: return creep due to pier settlement.
-        shrinkage: return creep due to shrinkage.
-        x: X position where to calculate notational size for creep coefficient.
-        psi: psi values for self-weight, pier settlement and shrinkage.
+        self_weight: return creep due to self weight?
+        pier_settlement: return creep due to linear pier settlement?
+        install_pier_settlement: amount of pier settlement on install day.
+        shrinkage: return creep due to shrinkage?
+        psi: psi values for self-weight, pier settlement and shrinkage. If not
+            given defaults are 1, 1.5 and 0.55 respectively.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing the responses from creep.
 
     """
-    if x is None:
-        x = config.bridge.x_center
-    # Calculate creep coefficient.
+    assert start_day >= install_day
+    if sum(map(int, [self_weight, len(pier_settlement) > 0, shrinkage])) == 0:
+        return np.zeros(responses_array.shape)
+    # Calculate creep coefficient. We want to calculate the creep coefficient
+    # from start_day to end_day, the period of sensor responses which are
+    # requested. However we also need to calculate the value at install day,
+    # since this is the value being subtracted from the time series.
     days = np.arange(start_day, end_day + 1)
     seconds = convert_times(f="day", t="second", times=days)
-    coeff = creep.creep_coeff(
-        config=config, cement_class=cement_class, times=seconds, x=x
+    coeff = util.apply(
+        creep.creep_coeff(
+            config=config, cement_class=cement_class, times=seconds, x=x
+        ),
+        np.arange(responses_array.shape[1])
     )
-    coeff = util.apply(coeff, np.arange(responses_array.shape[1]))
-    # Incase creep due to some effect is not requested then we just add an
-    # array of zeros.
+    install_times = convert_times(f="day", t="second", times=np.arange(install_day, install_day + 1))
+    coeff_install = creep.creep_coeff(config, cement_class, times=install_times, x=x)[0]
+    # In-case creep due to some effect is not requested then we just consider an
+    # array of zeros for that effect.
     sw_result, ps_result, sh_result = [np.zeros(responses_array.shape) for _ in range(3)]
     # Convert responses from self-weight, pier settlement or shrinkage to
     # responses_array. First the most calculated case: self-weight.
     if self_weight:
         sw_psi = 1 if psi is None else psi[0]
-        _sw_responses = load(
-            config=config, response_type=response_type, self_weight=True
-        )
-        # Repeat same value across time series, for every point.
+        # For each point, a time series of the same repeating response.
         sw_responses = np.array(
             [
                 np.repeat(r, responses_array.shape[1])
-                for r in _sw_responses.at_decks(points)
+                for r in load(
+                    config=config, response_type=response_type, self_weight=True
+                ).at_decks(points)
             ]
         )
         assert sw_responses.shape == responses_array.shape
         sw_result = np.empty(responses_array.shape)
         for p in range(len(points)):
             assert len(sw_responses[p]) == len(coeff)
-            sw_result[p] = np.multiply(sw_responses[p], (1 + (coeff * sw_psi)))
-            assert sw_result[p][-1] == sw_responses[p][-1] * (1 + coeff[-1] * sw_psi)
+            install_val = sw_responses[p][0] * (1 + (coeff_install * sw_psi))
+            sw_result[p] = np.multiply(sw_responses[p], (1 + (coeff * sw_psi))) - install_val
+            assert sw_result[p][-1] == sw_responses[p][-1] * (1 + coeff[-1] * sw_psi) - install_val
     if len(pier_settlement) > 0:
         ps_psi = 1.5 if psi is None else psi[1]
+        # We need the value of pier settlement at install day, and then also for
+        # the range of the time series being considered.
+        install_ps_responses = load(
+            config=config,
+            response_type=response_type,
+            pier_settlement=install_pier_settlement,
+        ).at_decks(points)
         ps_responses = to_pier_settlement(
             config=config,
             points=points,
@@ -344,10 +375,22 @@ def to_creep(
         ps_result = np.empty(responses_array.shape)
         for p in range(len(points)):
             assert len(ps_responses[p]) == len(coeff)
-            ps_result[p] = np.multiply(ps_responses[p], (1 + (coeff * ps_psi)))
-            assert ps_result[p][-1] == ps_responses[p][-1] * (1 + coeff[-1] * ps_psi)
+            install_val = install_ps_responses[p] * (1 + (coeff_install * ps_psi))
+            ps_result[p] = np.multiply(ps_responses[p], (1 + (coeff * ps_psi))) - install_val
+            assert ps_result[p][-1] == ps_responses[p][-1] * (1 + coeff[-1] * ps_psi) - install_val
     if shrinkage:
         sh_psi = 0.55 if psi is None else psi[2]
+        # We need the value of shrinkage at install day, and then also for
+        # the range of the time series being considered.
+        install_sh_responses = to_shrinkage(
+            config=config,
+            points=points,
+            responses_array=responses_array,
+            response_type=response_type,
+            start_day=install_day,
+            end_day=install_day + 1,
+            cement_class=cement_class,
+        ).T[0].T  # Consider only first value for each point.
         sh_responses = to_shrinkage(
             config=config,
             points=points,
@@ -355,20 +398,17 @@ def to_creep(
             response_type=response_type,
             start_day=start_day,
             end_day=end_day,
+            cement_class=cement_class,
+            x=x,
         )
         assert sh_responses.shape == responses_array.shape
         sh_result = np.empty(responses_array.shape)
         for p in range(len(points)):
             assert len(sh_responses[p]) == len(coeff)
-            sh_result[p] = np.multiply(sh_responses[p], (1 + (coeff * sh_psi)))
-            assert sh_result[p][-1] == sh_responses[p][-1] * (1 + coeff[-1] * sh_psi)
-    result = sw_result + ps_result + sh_result
-    # Subtract initial value to get changes.
-    for p in range(len(points)):
-        print(result[p])
-        result[p] = result[p] - result[p][0]
-        print(result[p])
-    return result
+            install_val = install_sh_responses[p] * (1 + (coeff_install * sh_psi))
+            sh_result[p] = np.multiply(sh_responses[p], (1 + (coeff * sh_psi))) - install_val
+            assert sh_result[p][-1] == sh_responses[p][-1] * (1 + coeff[-1] * sh_psi) - install_val
+    return sw_result + ps_result + sh_result
 
 
 def to(
@@ -376,17 +416,22 @@ def to(
     points: List[Point],
     traffic_array: List[List[float]],
     response_type: ResponseType,
+    with_creep: bool,
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    install_pier_settlement: Optional[List[PierSettlement]] = None,
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    install_day: Optional[int] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
     cement_class: CementClass = CementClass.Normal,
     crack: Optional[Tuple[CrackDeck, int]] = None,
     ret_all: bool = False,
+    psi: Optional[Tuple[float, float, float]] = None,
+    x: Optional[float] = None,
 ) -> List[List[float]]:
-    """Time series of responses to concrete shrinkage.
+    """Time series of responses to multiple effects.
 
     Args:
         config: simulation configuration object.
@@ -394,14 +439,21 @@ def to(
         traffic_array: NumPY array indexed first by point then time.
         response_type: the sensor response type to add.
         pier_settlement: a pier settlement to apply.
+        with_creep: include the effects of creep?
+        install_pier_settlement: amount of pier settlement on installation day.
         weather: the FULL weather data to calculate responses.
         start_date: start-date of weather data.
         end_date: end-date of weather data.
+        install_day: required if calculating effect due to creep.
         start_day: start day of responses e.g. 365 is 1 year.
         end_day: end day of responses.
         cement_class: cement class used in construction.
         crack: a crack to apply at some time index.
         ret_all: return individual components.
+        psi: psi values for self-weight, pier settlement and shrinkage. If not
+            given defaults are 1, 1.5 and 0.55 respectively.
+        x: X position used to calculate cross-sectional area and perimeter, if
+            not given use the center of the bridge.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing any of the given response sources.
@@ -439,34 +491,46 @@ def to(
             start_day=start_day,
             end_day=end_day,
             cement_class=cement_class,
+            x=x,
         )
-        _creep_responses = to_creep(
-            config=_config,
-            points=points,
-            responses_array=_tr_responses,
-            response_type=response_type,
-            start_day=start_day,
-            end_day=end_day,
-            cement_class=cement_class,
-        )
-        return _tr_responses, _ps_responses, _temp_responses, _shrinkage_responses
+        _creep_responses = np.zeros(_shrinkage_responses.shape)
+        if with_creep:
+            _creep_responses = to_creep(
+                config=_config,
+                points=points,
+                responses_array=_tr_responses,
+                response_type=response_type,
+                install_day=install_day,
+                start_day=start_day,
+                end_day=end_day,
+                cement_class=cement_class,
+                self_weight=True,
+                pier_settlement=pier_settlement,
+                install_pier_settlement=install_pier_settlement,
+                shrinkage=True,
+                psi=psi,
+                x=x,
+            )
+        return _tr_responses, _ps_responses, _temp_responses, _shrinkage_responses, _creep_responses
 
     # Healthy.
-    tr_responses, ps_responses, temp_responses, shrinkage_responses = _get(config)
-    responses = tr_responses + ps_responses + temp_responses + shrinkage_responses
+    tr_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = _get(config)
+    responses = tr_responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
     if crack is None:
         if ret_all:
-            return tr_responses, ps_responses, temp_responses, shrinkage_responses
+            return tr_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses
         return responses
     if ret_all:
         raise NotImplementedError("ret_all and cracking not supported")
     # Cracked.
-    ctr_responses, cps_responses, ctemp_responses, cshrinkage_responses = _get(
+    ctr_responses, cps_responses, ctemp_responses, cshrinkage_responses, ccreep_responses = _get(
         crack[0].crack(config)
     )
     crack_responses = (
-        ctr_responses + cps_responses + ctemp_responses + cshrinkage_responses
+        ctr_responses + cps_responses + ctemp_responses + cshrinkage_responses + ccreep_responses
     )
     # Split responses and cracked responses at given time, and concat result.
     time = crack[1]
     return np.concatenate([responses.T[:time], crack_responses.T[time:]]).T
+
+

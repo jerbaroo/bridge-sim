@@ -7,6 +7,8 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import pandas as pd
+from bridge_sim.crack import CrackDeck
+from bridge_sim.shrinkage import CementClass
 from bridge_sim.sim.responses import without
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 from scipy.spatial import distance
@@ -64,15 +66,23 @@ def animate_responses(
     response_type: ResponseType,
     units: str,
     save: str,
+    with_creep: bool,
+    xz: Tuple[float, float] = (18, -8.4),
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
+    install_pier_settlement: Optional[List[PierSettlement]] = None,
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    install_day: Optional[int] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+    crack: Optional[Tuple[CrackDeck, int]] = None,
+    psi: Optional[Tuple[float, float, float]] = None,
     cmap=cm.get_cmap("RdBu"),
     without_edges: int = 0,
 ):
+    x, z = xz
     mul = 1e6 if response_type.is_strain() else 1e3
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
@@ -92,7 +102,6 @@ def animate_responses(
         if not without_edges(p)
     ]
     # Find the closest point to these coordinates.
-    x, z = 18, -8.4
     point_index = 0
     for _index in range(len(deck_points)):
         p = deck_points[point_index]
@@ -103,24 +112,30 @@ def animate_responses(
             point_index = _index
     point = deck_points[point_index]
     # Collect all the different kinds of responses.
-    responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = sim.responses.to(
+    ll_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = sim.responses.to(
         config=config,
+        points=deck_points,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
-        points=deck_points,
+        with_creep=with_creep,
         pier_settlement=pier_settlement,
+        install_pier_settlement=install_pier_settlement,
         weather=weather,
         start_date=start_date,
         end_date=end_date,
+        install_day=install_day,
         start_day=start_day,
         end_day=end_day,
         ret_all=True,
+        cement_class=cement_class,
+        crack=crack,
+        psi=psi,
     )
     # Resize responses for plotting.
-    responses *= mul; ps_responses *= mul; temp_responses *= mul; shrinkage_responses *= mul; creep_responses *= mul;
-    total_responses = responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
+    ll_responses *= mul; ps_responses *= mul; temp_responses *= mul; shrinkage_responses *= mul; creep_responses *= mul;
+    total_responses = ll_responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
     # Calculate Matplotlib norm.
-    min_response, max_response = np.amin(responses), np.amax(responses)
+    min_response, max_response = np.amin(ll_responses), np.amax(ll_responses)
     vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
     response_norm = colors.Normalize(vmin=vmin, vmax=vmax)
     # Determine vehicles.
@@ -141,7 +156,7 @@ def animate_responses(
             config=config,
             responses=Responses(
                 response_type=response_type,
-                responses=list(zip(responses.T[time_index], deck_points)),
+                responses=list(zip(ll_responses.T[time_index], deck_points)),
             ),
             cmap=cmap,
             norm=response_norm,
@@ -175,7 +190,7 @@ def animate_responses(
         lw = 2
         plt.plot(
             traffic_sequence.times,
-            responses[point_index],
+            ll_responses[point_index],
             c="xkcd:purple",
             label="traffic",
             lw=lw,
@@ -199,6 +214,13 @@ def animate_responses(
             shrinkage_responses[point_index],
             c="tab:green",
             label="shrinkage",
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
+            creep_responses[point_index],
+            c="magenta",
+            label="creep",
             lw=lw,
         )
         plt.plot(
