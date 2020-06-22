@@ -13,7 +13,6 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from lib.plot import plt
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
@@ -23,6 +22,9 @@ from bridge_sim.util import print_d, print_i, print_w, project_dir
 
 # D: str = "classify.temperature"
 D: bool = False
+
+f_string = "%d/%m/%Y %H:%M"
+"""Format string used for datetime formatting."""
 
 
 def parse_line(line: str):
@@ -277,6 +279,26 @@ def effect(
     if d:
         return temps_uniform, temps_linear, uniform_responses + linear_responses
     return uniform_responses + linear_responses
+
+
+def repeat(weather: pd.DataFrame, n):
+    """Repeat the given weather data n times."""
+    weather = deepcopy(weather)
+    weather.sort_values(by="datetime")
+    d0, d1 = list(weather["datetime"][-2:])
+    time_delta = d1 - d0
+    next_time = d1 + time_delta
+    weather_copies = [weather]
+    for n_i in range(n - 1):  # We already have one.
+        time_deltas = np.repeat(time_delta, len(weather)) * (
+            np.arange(len(weather)) + 1
+        )
+        new_datetimes = np.repeat(next_time, len(weather)) + time_deltas
+        next_time = new_datetimes[-1]
+        weather_copy = deepcopy(weather)
+        weather_copy["datetime"] = new_datetimes
+        weather_copies.append(weather_copy)
+    return pd.concat(weather_copies, ignore_index=True)
 
 
 def remove_daily(num_samples, signal):

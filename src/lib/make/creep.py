@@ -29,13 +29,19 @@ def plot_creep(config: Config, n: int = 100):
     plt.landscape()
     point = Point(x=48)
     install_day, start_day, end_day, signal_len = 37, 37, 100 * 365, 100
-    for r_i, response_type in enumerate([ResponseType.StrainXXB, ResponseType.YTrans]):
+    for r_i, response_type in enumerate([ResponseType.YTrans, ResponseType.StrainXXB]):
         plt.subplot(1, 2, r_i + 1)
         pier_settlement = PierSettlement(pier=9, settlement=1 / 1e3)
         for i, (name, sw, ps, sh, c) in enumerate(
             [
                 ["self-weight", True, [], False, "black"],
-                ["pier settlement", False, [(pier_settlement, pier_settlement)], False, "blue"],
+                [
+                    "pier settlement",
+                    False,
+                    [(pier_settlement, pier_settlement)],
+                    False,
+                    "blue",
+                ],
                 ["shrinkage", False, [], True, "red"],
             ]
         ):

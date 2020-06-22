@@ -26,7 +26,10 @@ a_3 = (35 / f_cm) ** 0.5
 
 
 def creep_coeff(
-    config: Config, cement_class: CementClass, times: List[float], x: Optional[float] = None
+    config: Config,
+    cement_class: CementClass,
+    times: List[float],
+    x: Optional[float] = None,
 ) -> List[float]:
     """Creep coefficient over time.
 

@@ -12,7 +12,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from bridge_sim import configs, model, plot, sim, temperature, traffic, vehicles
+from bridge_sim import configs, model, sim, temperature, traffic, vehicles
 
 config, exe_found = configs.test_config(msl=5)
 config.shorten_paths = True
@@ -150,7 +150,10 @@ def test_to_pier_settlement():
         responses_array=responses_array,
         response_type=model.ResponseType.StrainXXB,
         # 10 mm.
-        pier_settlement=[(model.PierSettlement(pier=4, settlement=10 / 1E3), model.PierSettlement(pier=4, settlement=10 / 1E3))],
+        pier_settlement=[(
+            model.PierSettlement(pier=4, settlement=10 / 1E3),
+            model.PierSettlement(pier=4, settlement=10 / 1E3),
+        )],
     )
     assert np.isclose(responses[0][0], 2.2771967865779597e-05)  # Strain
 
@@ -166,8 +169,8 @@ def test_to_temperature():
         responses_array=responses_array,
         response_type=model.ResponseType.YTrans,
         weather=weather,
-        start_date="14/05/19 00:00",
-        end_date="15/05/19 00:00",
+        start_date="14/05/2019 00:00",
+        end_date="15/05/2019 00:00",
     )
     assert np.isclose(responses[0][0], 0.001714997507674702)  # Metre.
     responses = sim.responses.to_temperature(
@@ -176,8 +179,8 @@ def test_to_temperature():
         responses_array=responses_array,
         response_type=model.ResponseType.StrainXXB,
         weather=weather,
-        start_date="14/05/19 00:00",
-        end_date="15/05/19 00:00",
+        start_date="14/05/2019 00:00",
+        end_date="15/05/2019 00:00",
     )
     assert np.isclose(responses[0][0], -1.4587014932072391e-05)  # Strain.
 
@@ -204,3 +207,4 @@ def test_to_shrinkage():
         end_day=101,
     )
     assert np.isclose(responses[0][0], 4.433689488022111e-05)  # Strain.
+
