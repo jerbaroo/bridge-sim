@@ -559,6 +559,15 @@ def cracking_signal():
     lib.make.crack.plot_crack_time_series(c())
 
 
+@thesis.command(help="Plot removal of temperature effect.")
+@click.option("--x", type=float, default=23, help="X position of sensor.")
+@click.option("--z", type=float, default=-5, help="Z position of sensor.")
+@click.option("--n", type=int, default=100, help="Number of years.")
+def q1_effects(x, z, n):
+    print_i(f"Using X = {x}, Z = {z}")
+    lib.make.ps_question.plot_year_effects(c(), x=x, z=z, num_years=n)
+
+
 #########
 # Debug #
 #########

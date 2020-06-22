@@ -112,7 +112,13 @@ def animate_responses(
             point_index = _index
     point = deck_points[point_index]
     # Collect all the different kinds of responses.
-    ll_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = sim.responses.to(
+    (
+        ll_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = sim.responses.to(
         config=config,
         points=deck_points,
         traffic_array=traffic_array,
@@ -132,8 +138,18 @@ def animate_responses(
         psi=psi,
     )
     # Resize responses for plotting.
-    ll_responses *= mul; ps_responses *= mul; temp_responses *= mul; shrinkage_responses *= mul; creep_responses *= mul;
-    total_responses = ll_responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
+    ll_responses *= mul
+    ps_responses *= mul
+    temp_responses *= mul
+    shrinkage_responses *= mul
+    creep_responses *= mul
+    total_responses = (
+        ll_responses
+        + ps_responses
+        + temp_responses
+        + shrinkage_responses
+        + creep_responses
+    )
     # Calculate Matplotlib norm.
     min_response, max_response = np.amin(ll_responses), np.amax(ll_responses)
     vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
@@ -181,7 +197,14 @@ def animate_responses(
             wheels=True,
         )
         legend_marker_size(
-            plt.legend(facecolor="white", loc="upper right", framealpha=1, fancybox=False, borderaxespad=0, labelspacing=0.1),
+            plt.legend(
+                facecolor="white",
+                loc="upper right",
+                framealpha=1,
+                fancybox=False,
+                borderaxespad=0,
+                labelspacing=0.1,
+            ),
             30,
         )
 
@@ -240,7 +263,14 @@ def animate_responses(
         )
         y_min, y_max = plt.ylim()
         plt.ylim(min(y_min, -y_max), max(y_max, -y_min))
-        plt.legend(facecolor="white", loc="upper right", framealpha=1, fancybox=False, borderaxespad=0, labelspacing=0.1)
+        plt.legend(
+            facecolor="white",
+            loc="upper right",
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.1,
+        )
         plt.tight_layout()
 
         # Add a color bar.

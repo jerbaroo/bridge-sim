@@ -209,8 +209,8 @@ def to_temperature(
         return temp_responses
     weather = temperature.from_to_mins(
         weather,
-        from_=datetime.strptime(start_date, "%d/%m/%y %H:%M"),
-        to=datetime.strptime(end_date, "%d/%m/%y %H:%M"),
+        from_=datetime.strptime(start_date, temperature.f_string),
+        to=datetime.strptime(end_date, temperature.f_string),
     )
     effect = temperature.effect(
         config=config, response_type=response_type, points=points, weather=weather,
@@ -325,16 +325,18 @@ def to_creep(
     days = np.arange(start_day, end_day + 1)
     seconds = convert_times(f="day", t="second", times=days)
     coeff = util.apply(
-        creep.creep_coeff(
-            config=config, cement_class=cement_class, times=seconds, x=x
-        ),
-        np.arange(responses_array.shape[1])
+        creep.creep_coeff(config=config, cement_class=cement_class, times=seconds, x=x),
+        np.arange(responses_array.shape[1]),
     )
-    install_times = convert_times(f="day", t="second", times=np.arange(install_day, install_day + 1))
+    install_times = convert_times(
+        f="day", t="second", times=np.arange(install_day, install_day + 1)
+    )
     coeff_install = creep.creep_coeff(config, cement_class, times=install_times, x=x)[0]
     # In-case creep due to some effect is not requested then we just consider an
     # array of zeros for that effect.
-    sw_result, ps_result, sh_result = [np.zeros(responses_array.shape) for _ in range(3)]
+    sw_result, ps_result, sh_result = [
+        np.zeros(responses_array.shape) for _ in range(3)
+    ]
     # Convert responses from self-weight, pier settlement or shrinkage to
     # responses_array. First the most calculated case: self-weight.
     if self_weight:
@@ -353,8 +355,13 @@ def to_creep(
         for p in range(len(points)):
             assert len(sw_responses[p]) == len(coeff)
             install_val = sw_responses[p][0] * (1 + (coeff_install * sw_psi))
-            sw_result[p] = np.multiply(sw_responses[p], (1 + (coeff * sw_psi))) - install_val
-            assert sw_result[p][-1] == sw_responses[p][-1] * (1 + coeff[-1] * sw_psi) - install_val
+            sw_result[p] = (
+                np.multiply(sw_responses[p], (1 + (coeff * sw_psi))) - install_val
+            )
+            assert (
+                sw_result[p][-1]
+                == sw_responses[p][-1] * (1 + coeff[-1] * sw_psi) - install_val
+            )
     if len(pier_settlement) > 0:
         ps_psi = 1.5 if psi is None else psi[1]
         # We need the value of pier settlement at install day, and then also for
@@ -376,21 +383,30 @@ def to_creep(
         for p in range(len(points)):
             assert len(ps_responses[p]) == len(coeff)
             install_val = install_ps_responses[p] * (1 + (coeff_install * ps_psi))
-            ps_result[p] = np.multiply(ps_responses[p], (1 + (coeff * ps_psi))) - install_val
-            assert ps_result[p][-1] == ps_responses[p][-1] * (1 + coeff[-1] * ps_psi) - install_val
+            ps_result[p] = (
+                np.multiply(ps_responses[p], (1 + (coeff * ps_psi))) - install_val
+            )
+            assert (
+                ps_result[p][-1]
+                == ps_responses[p][-1] * (1 + coeff[-1] * ps_psi) - install_val
+            )
     if shrinkage:
         sh_psi = 0.55 if psi is None else psi[2]
         # We need the value of shrinkage at install day, and then also for
         # the range of the time series being considered.
-        install_sh_responses = to_shrinkage(
-            config=config,
-            points=points,
-            responses_array=responses_array,
-            response_type=response_type,
-            start_day=install_day,
-            end_day=install_day + 1,
-            cement_class=cement_class,
-        ).T[0].T  # Consider only first value for each point.
+        install_sh_responses = (
+            to_shrinkage(
+                config=config,
+                points=points,
+                responses_array=responses_array,
+                response_type=response_type,
+                start_day=install_day,
+                end_day=install_day + 1,
+                cement_class=cement_class,
+            )
+            .T[0]
+            .T
+        )  # Consider only first value for each point.
         sh_responses = to_shrinkage(
             config=config,
             points=points,
@@ -406,8 +422,13 @@ def to_creep(
         for p in range(len(points)):
             assert len(sh_responses[p]) == len(coeff)
             install_val = install_sh_responses[p] * (1 + (coeff_install * sh_psi))
-            sh_result[p] = np.multiply(sh_responses[p], (1 + (coeff * sh_psi))) - install_val
-            assert sh_result[p][-1] == sh_responses[p][-1] * (1 + coeff[-1] * sh_psi) - install_val
+            sh_result[p] = (
+                np.multiply(sh_responses[p], (1 + (coeff * sh_psi))) - install_val
+            )
+            assert (
+                sh_result[p][-1]
+                == sh_responses[p][-1] * (1 + coeff[-1] * sh_psi) - install_val
+            )
     return sw_result + ps_result + sh_result
 
 
@@ -511,26 +532,56 @@ def to(
                 psi=psi,
                 x=x,
             )
-        return _tr_responses, _ps_responses, _temp_responses, _shrinkage_responses, _creep_responses
+        return (
+            _tr_responses,
+            _ps_responses,
+            _temp_responses,
+            _shrinkage_responses,
+            _creep_responses,
+        )
 
     # Healthy.
-    tr_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses = _get(config)
-    responses = tr_responses + ps_responses + temp_responses + shrinkage_responses + creep_responses
+    (
+        tr_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = _get(config)
+    responses = (
+        tr_responses
+        + ps_responses
+        + temp_responses
+        + shrinkage_responses
+        + creep_responses
+    )
     if crack is None:
         if ret_all:
-            return tr_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses
+            return (
+                tr_responses,
+                ps_responses,
+                temp_responses,
+                shrinkage_responses,
+                creep_responses,
+            )
         return responses
     if ret_all:
         raise NotImplementedError("ret_all and cracking not supported")
     # Cracked.
-    ctr_responses, cps_responses, ctemp_responses, cshrinkage_responses, ccreep_responses = _get(
-        crack[0].crack(config)
-    )
+    (
+        ctr_responses,
+        cps_responses,
+        ctemp_responses,
+        cshrinkage_responses,
+        ccreep_responses,
+    ) = _get(crack[0].crack(config))
     crack_responses = (
-        ctr_responses + cps_responses + ctemp_responses + cshrinkage_responses + ccreep_responses
+        ctr_responses
+        + cps_responses
+        + ctemp_responses
+        + cshrinkage_responses
+        + ccreep_responses
     )
     # Split responses and cracked responses at given time, and concat result.
     time = crack[1]
     return np.concatenate([responses.T[:time], crack_responses.T[time:]]).T
-
-

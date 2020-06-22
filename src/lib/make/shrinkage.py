@@ -76,4 +76,3 @@ def plot_shrinkage_responses(config: Config, n: int = 100, x: float = 51, z: flo
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("verification/shrinkage", "responses.pdf"))
     plt.close()
-

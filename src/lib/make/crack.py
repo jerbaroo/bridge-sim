@@ -306,4 +306,3 @@ def plot_crack_time_series(config: Config):
     plt.legend(loc="upper right")
     plt.tight_layout()
     plt.savefig(config.get_image_path("crack", "time-series.png"))
-
