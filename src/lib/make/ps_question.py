@@ -317,7 +317,103 @@ def plot_removal(config: Config, x: float, z: float):
     for legobj in legend().legendHandles:
         legobj.set_linewidth(2.0)
 
-    plt.suptitle(f"Predicting effect from temperature at X = {x} m, Z = {z} m")
+    plt.suptitle(f"Predicting long-term effect at X = {x} m, Z = {z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("classify/ps", "regress.pdf"))
+
+
+def plot_removal_2(config: Config, x: float, z: float):
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load("holly-springs-18")
+    weather_2018["temp"] = temperature.resize(weather_2018["temp"], year=2018)
+    start_date, end_date = (
+        weather_2018["datetime"].iloc[0].strftime(temperature.f_string),
+        weather_2018["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
+    responses_2018 = sim.responses.to(
+        config=config,
+        points=[model.Point(x=x, z=z)],
+        traffic_array=traffic_array,
+        response_type=response_type,
+        with_creep=True,
+        weather=weather_2018,
+        start_date=start_date,
+        end_date=end_date,
+        install_day=install_day,
+        start_day=start_day,
+        end_day=end_day,
+        # ret_all=True,
+    )[0] * 1e3
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018["temp"], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, err = temperature.regress_and_errors(temps, rs)
+
+    def legend():
+        plt.legend(
+            facecolor="white",
+            loc="lower left",
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.02,
+        )
+
+    ##############################
+    # Iterate through each year. #
+    ##############################
+
+    plt.landscape()
+    weather_2019 = temperature.load("holly-springs")
+    weather_2019["temp"] = temperature.resize(weather_2019["temp"], year=2019)
+    start_date, end_date = (
+        weather_2019["datetime"].iloc[0].strftime(temperature.f_string),
+        weather_2019["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    for y_i, year in enumerate([2019, 2024, 2039]):
+        plt.subplot(3, 1, y_i + 1)
+        start_day = install_day + ((year - 2018) * 365)
+        end_day = start_day + 365
+        responses_2019 = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2019,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0] * 1e3
+        # Plot actual values.
+        xax = np.interp(np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [0, 364])
+        plt.plot(xax, responses_2019, label="responses in year", lw=2)
+        # Daily prediction.
+        xax_responses = np.arange(365)
+        temps_2019 = util.apply(weather_2019["temp"], xax_responses)
+        y_daily = lr.predict(temps_2019.reshape((-1, 1)))
+        y_2_week = [np.mean(y_daily[max(0, i - 14):min(i + 14, len(y_daily))]) for i in range(len(y_daily))]
+        for percentile, alpha in [(100, 20), (75, 40), (50, 60), (25, 100)]:
+            err = np.percentile(err, percentile)
+            p = percentile / 100
+            plt.fill_between(xax_responses, y_2_week + (err * p), y_2_week - (err * p), color="orange", alpha=alpha/100, label=f"{percentile}% of regression error")
+        plt.plot(xax_responses, y_daily, color="black", lw=2, label="daily prediction")
+        plt.plot(xax_responses, y_2_week, color="red", lw=2, label="2 week sliding window")
+        plt.ylabel("Y. trans (mm)")
+        plt.title(f"Year {year}")
+        if y_i == 0:
+            legend()
+        if y_i == 2:
+            plt.xlabel("Days in year")
+        else:
+            plt.tick_params("x", bottom=False, labelbottom=False)
+    equal_lims("y", 3, 1)
+    plt.suptitle(f"Predicting long-term effects at X = {x} m, Z = {z} m")
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path("classify/ps", "regress-2.pdf"))
 
