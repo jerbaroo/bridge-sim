@@ -508,18 +508,18 @@ def plot_removal_3(config: Config, x: float, z: float):
         plt.plot(long_responses[0] * 1e3, label="pier settlement")
         plt.legend()
         plt.savefig(config.get_image_path("hello", f"q3-{p_i}.png"))
+        plt.close()
         for t_i, thresh in enumerate(THRESHES):
             thresh *= -1
             bad = 0
             print_i(f"Threshold = {thresh}")
-            if any(healthy_responses[0] * 1e3 < thresh):
+            if min(healthy_responses[0] * 1e3) < thresh:
                 print_w(f"BAD: min healthy, max healthy & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0]) * 1e3}, {thresh}")
                 bad += 1
-            if not any(long_responses[0] * 1e3 < thresh):
+            if max(long_responses[0] * 1e3) > thresh:
                 bad += 1
                 print_w(f"BAD: min long, max long & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0] * 1e3)}, {thresh}")
             results[p_i][t_i] = bad
         plt.imshow(results, cmap=axis_cmap_r)
-        plt.colorbar()
         plt.savefig(config.get_image_path("hi", f"q3.png"))
 

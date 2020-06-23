@@ -1,7 +1,6 @@
 """Generate time series of traffic."""
 
 import os
-from timeit import default_timer as timer
 from typing import NewType, List, Tuple, Callable, Optional
 
 import dill
