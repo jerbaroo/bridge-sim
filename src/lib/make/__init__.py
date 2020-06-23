@@ -1,5 +1,6 @@
 import lib.make.asphalt as asphalt
 import lib.make.crack as crack
+import lib.make.crack_question as crack_question
 import lib.make.creep as creep
 import lib.make.ps_question as ps_question
 import lib.make.shrinkage as shrinkage

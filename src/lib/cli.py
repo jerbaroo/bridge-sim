@@ -590,9 +590,17 @@ def q1_removal_2(x, z):
 
 @click.option("--x", type=float, required=True, help="X position of sensor.")
 @click.option("--z", type=float, required=True, help="Z position of sensor.")
-@thesis.command(help="Removal of long-term effect with error bars.")
+@thesis.command(help="Detecting effect with threshold.")
 def q1_removal_3(x, z):
     lib.make.ps_question.plot_removal_3(c(), x=x, z=z)
+
+
+@click.option("--crack-x", type=float, required=True, help="Position of crack.")
+@click.option("--length", type=float, required=True, help="Length of crack (X).")
+@thesis.command(help="Crack detection.")
+def q2_crack(crack_x, length):
+    lib.make.crack_question.plot_crack_detection(c(), length=length, crack_x=crack_x, healthy=False)
+    lib.make.crack_question.plot_crack_detection(c(), length=length, crack_x=crack_x, healthy=True)
 
 
 #########
