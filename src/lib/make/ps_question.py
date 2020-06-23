@@ -1,9 +1,12 @@
+from copy import deepcopy
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 from bridge_sim import model, sim, temperature, traffic, plot, util
 from bridge_sim.model import Config
 from bridge_sim.plot.util import equal_lims
+from bridge_sim.util import print_i
 
 
 def plot_year_effects(config: Config, x: float, z: float, num_years: int):
@@ -416,4 +419,100 @@ def plot_removal_2(config: Config, x: float, z: float):
     plt.suptitle(f"Predicting long-term effects at X = {x} m, Z = {z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("classify/ps", "regress-2.pdf"))
+
+
+def plot_removal_3(config: Config, x: float, z: float):
+    # First calculate the linear model.
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load("holly-springs-18")
+    weather_2018["temp"] = temperature.resize(weather_2018["temp"], year=2018)
+    start_date, end_date = (
+        weather_2018["datetime"].iloc[0].strftime(temperature.f_string),
+        weather_2018["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
+    responses_2018 = sim.responses.to(
+        config=config,
+        points=[model.Point(x=x, z=z)],
+        traffic_array=traffic_array,
+        response_type=response_type,
+        with_creep=True,
+        weather=weather_2018,
+        start_date=start_date,
+        end_date=end_date,
+        install_day=install_day,
+        start_day=start_day,
+        end_day=end_day,
+    )[0] * 1e3
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018["temp"], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, _ = temperature.regress_and_errors(temps, rs)
+    # Calculate long-term weather.
+    NUM_YEARS = 5
+    PIER = 5
+    long_weather = deepcopy(weather_2018)
+    long_weather["temp"] = temperature.resize(long_weather["temp"], year=2019)
+    print_i(f"Repeating {NUM_YEARS} of weather data")
+    long_weather = temperature.repeat(long_weather, NUM_YEARS)
+    print_i(f"Repeated {NUM_YEARS} of weather data")
+    start_date, end_date = (
+        long_weather["datetime"].iloc[0].strftime(temperature.f_string),
+        long_weather["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day = install_day + 365
+    end_day = start_day + 365 * NUM_YEARS
+    MAX_PS = 20
+    THRESHES = np.arange(0, MAX_PS, 1)
+    results = np.zeros((MAX_PS, len(THRESHES)))
+    for p_i, ps in enumerate(range(MAX_PS)):
+        print_i(f"Using pier settlement = {ps} mm")
+        long_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[(model.PierSettlement(pier=PIER, settlement=0.00001), model.PierSettlement(pier=PIER, settlement=ps / 1e3))],
+            install_pier_settlement=[],
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        healthy_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[],
+            install_pier_settlement=None,
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        for t_i, thresh in enumerate(THRESHES):
+            thresh *= -1
+            bad = 0
+            print_i(f"Threshold = {thresh}")
+            if (healthy_responses[0] * 1e3 < thresh).any():
+                bad += 1
+            if not (long_responses[0] * 1e3 < thresh).any():
+                bad += 1
+            results[p_i][t_i] = bad
+        plt.imshow(results)
+        plt.colorbar()
+        plt.show()
 

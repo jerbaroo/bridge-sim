@@ -588,6 +588,13 @@ def q1_removal_2(x, z):
     lib.make.ps_question.plot_removal_2(c(), x=x, z=z)
 
 
+@click.option("--x", type=float, required=True, help="X position of sensor.")
+@click.option("--z", type=float, required=True, help="Z position of sensor.")
+@thesis.command(help="Removal of long-term effect with error bars.")
+def q1_removal_3(x, z):
+    lib.make.ps_question.plot_removal_3(c(), x=x, z=z)
+
+
 #########
 # Debug #
 #########
