@@ -6,7 +6,8 @@ import numpy as np
 from bridge_sim import model, sim, temperature, traffic, plot, util
 from bridge_sim.model import Config
 from bridge_sim.plot.util import equal_lims
-from bridge_sim.util import print_i
+from bridge_sim.util import print_i, print_w
+from lib.plot import axis_cmap_r
 
 
 def plot_year_effects(config: Config, x: float, z: float, num_years: int):
@@ -503,16 +504,22 @@ def plot_removal_3(config: Config, x: float, z: float):
             ret_all=False,
             ignore_pier_creep=True,
         )
+        plt.plot(healthy_responses[0] * 1e3, label="healthy")
+        plt.plot(long_responses[0] * 1e3, label="pier settlement")
+        plt.legend()
+        plt.savefig(config.get_image_path("hello", f"q3-{p_i}.png"))
         for t_i, thresh in enumerate(THRESHES):
             thresh *= -1
             bad = 0
             print_i(f"Threshold = {thresh}")
-            if (healthy_responses[0] * 1e3 < thresh).any():
+            if any(healthy_responses[0] * 1e3 < thresh):
+                print_w(f"BAD: min healthy, max healthy & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0]) * 1e3}, {thresh}")
                 bad += 1
-            if not (long_responses[0] * 1e3 < thresh).any():
+            if not any(long_responses[0] * 1e3 < thresh):
                 bad += 1
+                print_w(f"BAD: min long, max long & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0] * 1e3)}, {thresh}")
             results[p_i][t_i] = bad
-        plt.imshow(results)
+        plt.imshow(results, cmap=axis_cmap_r)
         plt.colorbar()
-        plt.show()
+        plt.savefig(config.get_image_path("hi", f"q3.png"))
 
