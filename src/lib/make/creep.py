@@ -8,7 +8,7 @@ from bridge_sim.model import Config, Point, RT, ResponseType, PierSettlement
 from bridge_sim.util import convert_times
 
 
-def plot_creep(config: Config, n: int = 100):
+def plot_creep(config: Config, x: float, z: float, n: int = 100):
     """Plot creep over n years."""
     days = np.arange(n * 365)
     seconds = convert_times(f="day", t="second", times=days)
@@ -27,11 +27,11 @@ def plot_creep(config: Config, n: int = 100):
     plt.close()
 
     plt.landscape()
-    point = Point(x=48)
+    point = Point(x=x, z=z)
     install_day, start_day, end_day, signal_len = 37, 37, 100 * 365, 100
     for r_i, response_type in enumerate([ResponseType.YTrans, ResponseType.StrainXXB]):
         plt.subplot(1, 2, r_i + 1)
-        pier_settlement = PierSettlement(pier=9, settlement=1 / 1e3)
+        pier_settlement = PierSettlement(pier=5, settlement=1 / 1e3)
         for i, (name, sw, ps, sh, c) in enumerate(
             [
                 ["self-weight", True, [], False, "black"],
@@ -54,11 +54,10 @@ def plot_creep(config: Config, n: int = 100):
                 start_day=start_day,
                 end_day=end_day,
                 self_weight=sw,
-                install_pier_settlement=[pier_settlement],
                 pier_settlement=ps,
                 shrinkage=sh,
             )[0]
-            x = (
+            xs = (
                 np.interp(
                     np.arange(len(creep_responses)),
                     [0, len(creep_responses) - 1],
@@ -67,9 +66,9 @@ def plot_creep(config: Config, n: int = 100):
                 / 365
             )
             if response_type.is_strain():
-                plt.semilogy(x, creep_responses * 1e6, label=name, lw=3, c=c)
+                plt.semilogy(xs, creep_responses * 1e6, label=name, lw=3, c=c)
             else:
-                plt.plot(x, creep_responses * 1e3, label=name, lw=3, c=c)
+                plt.plot(xs, creep_responses * 1e3, label=name, lw=3, c=c)
             plt.ylabel(
                 "Microstrain XXB" if response_type.is_strain() else "Y translation (mm)"
             )

@@ -332,9 +332,11 @@ def shrinkage():
     lib.make.shrinkage.plot_shrinkage_responses(c())
 
 
+@click.option("--x", type=float, default=33, help="X position of sensor.")
+@click.option("--z", type=float, default=-4, help="Z position of sensor.")
 @verify.command(help="Plots of time series of creep.")
-def creep():
-    lib.make.creep.plot_creep(c())
+def creep(x, z):
+    lib.make.creep.plot_creep(c(), x=x, z=z)
 
 
 @verify.command(help="Plots of time series of temperature effect.")
@@ -599,8 +601,12 @@ def q1_removal_3(x, z):
 @click.option("--length", type=float, required=True, help="Length of crack (X).")
 @thesis.command(help="Crack detection.")
 def q2_crack(crack_x, length):
-    lib.make.crack_question.plot_crack_detection(c(), length=length, crack_x=crack_x, healthy=False)
-    lib.make.crack_question.plot_crack_detection(c(), length=length, crack_x=crack_x, healthy=True)
+    lib.make.crack_question.plot_crack_detection(
+        c(), length=length, crack_x=crack_x, healthy=False
+    )
+    lib.make.crack_question.plot_crack_detection(
+        c(), length=length, crack_x=crack_x, healthy=True
+    )
 
 
 #########
