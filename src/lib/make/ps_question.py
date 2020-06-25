@@ -467,7 +467,11 @@ def plot_removal_3(config: Config, x: float, z: float):
     end_day = start_day + 365 * NUM_YEARS
     MAX_PS = 20
     THRESHES = np.arange(0, MAX_PS, 1)
-    results = np.zeros((MAX_PS, len(THRESHES)))
+    acc_mat = np.zeros((MAX_PS, len(THRESHES)))
+    fp_mat = np.zeros(acc_mat.shape)
+    fn_mat = np.zeros(acc_mat.shape)
+    tp_mat = np.zeros(acc_mat.shape)
+    tn_mat = np.zeros(acc_mat.shape)
     for p_i, ps in enumerate(range(MAX_PS)):
         print_i(f"Using pier settlement = {ps} mm")
         long_responses = sim.responses.to(
@@ -511,15 +515,41 @@ def plot_removal_3(config: Config, x: float, z: float):
         plt.close()
         for t_i, thresh in enumerate(THRESHES):
             thresh *= -1
-            bad = 0
-            print_i(f"Threshold = {thresh}")
-            if min(healthy_responses[0] * 1e3) < thresh:
-                print_w(f"BAD: min healthy, max healthy & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0]) * 1e3}, {thresh}")
-                bad += 1
-            if max(long_responses[0] * 1e3) > thresh:
-                bad += 1
-                print_w(f"BAD: min long, max long & thresh = {min(healthy_responses[0] * 1e3)}, {max(healthy_responses[0] * 1e3)}, {thresh}")
-            results[p_i][t_i] = bad
-        plt.imshow(results, cmap=axis_cmap_r)
-        plt.savefig(config.get_image_path("hi", f"q3.png"))
+            print(thresh)
+            print(max(healthy_responses[0]))
+            print(min(healthy_responses[0]))
+            print(max(long_responses[0]))
+            print(min(long_responses[0]))
+            fp = len([x for x in healthy_responses[0] * 1e3 if x <= thresh])
+            tp = len([x for x in long_responses[0] * 1e3 if x <= thresh])
+            tn = len([x for x in healthy_responses[0] * 1e3 if x > thresh])
+            fn = len([x for x in long_responses[0] * 1e3 if x > thresh])
+            acc_mat[p_i][t_i] = (tp + tn) / (tp + tn + fp + fn)
+            fp_mat[p_i][t_i] = fp
+            tp_mat[p_i][t_i] = tp
+            fn_mat[p_i][t_i] = fn
+            tn_mat[p_i][t_i] = tn
 
+        ##################
+        # Save matrices. #
+        ##################
+
+        plt.imshow(acc_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path("hello", f"mat.png"))
+        plt.close()
+
+        plt.imshow(fp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path("hello", f"mat-fp.png"))
+        plt.close()
+
+        plt.imshow(fn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path("hello", f"mat-fn.png"))
+        plt.close()
+
+        plt.imshow(tp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path("hello", f"mat-tp.png"))
+        plt.close()
+
+        plt.imshow(tn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path("hello", f"mat-tn.png"))
+        plt.close()
