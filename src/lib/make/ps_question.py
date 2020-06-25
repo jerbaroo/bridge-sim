@@ -229,21 +229,26 @@ def plot_removal(config: Config, x: float, z: float):
     )
     install_day = 37
     start_day, end_day = install_day, install_day + 365
-    _0, _1, traffic_array = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
-    responses = sim.responses.to(
-        config=config,
-        points=[model.Point(x=x, z=z)],
-        traffic_array=traffic_array,
-        response_type=response_type,
-        with_creep=True,
-        weather=weather,
-        start_date=start_date,
-        end_date=end_date,
-        install_day=install_day,
-        start_day=start_day,
-        end_day=end_day,
-        # ret_all=True,
-    )[0] * 1e3
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
 
     def legend():
         return plt.legend(
@@ -256,14 +261,18 @@ def plot_removal(config: Config, x: float, z: float):
 
     plt.landscape()
     plt.subplot(2, 2, 1)
-    xax = np.interp(np.arange(len(weather)), [0, len(weather) - 1], [start_day, end_day])
+    xax = np.interp(
+        np.arange(len(weather)), [0, len(weather) - 1], [start_day, end_day]
+    )
     plt.plot(xax, weather["temp"], c="red")
     plt.ylabel("Temperature °C")
     plt.xlabel("Days since T_0")
     plt.title("Temperature in 2018")
 
     plt.subplot(2, 2, 2)
-    xax = np.interp(np.arange(len(responses)), [0, len(responses) - 1], [start_day, end_day])
+    xax = np.interp(
+        np.arange(len(responses)), [0, len(responses) - 1], [start_day, end_day]
+    )
     plt.plot(xax, responses)
     plt.ylabel("Y translation (mm)")
     plt.xlabel("Days since T_0")
@@ -295,22 +304,29 @@ def plot_removal(config: Config, x: float, z: float):
         weather_2019["datetime"].iloc[-1].strftime(temperature.f_string),
     )
     start_day, end_day = install_day + 365, install_day + (2 * 365)
-    responses_2019 = sim.responses.to(
-        config=config,
-        points=[model.Point(x=x, z=z)],
-        traffic_array=traffic_array,
-        response_type=response_type,
-        with_creep=True,
-        weather=weather_2019,
-        start_date=start_date,
-        end_date=end_date,
-        install_day=install_day,
-        start_day=start_day,
-        end_day=end_day,
-    )[0] * 1e3
+    responses_2019 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2019,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
 
     plt.subplot(2, 2, 4)
-    xax_responses = np.interp(np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [start_day, end_day])
+    xax_responses = np.interp(
+        np.arange(len(responses_2019)),
+        [0, len(responses_2019) - 1],
+        [start_day, end_day],
+    )
     plt.plot(xax_responses, responses_2019, label="2019 responses")
     temps_2019 = util.apply(weather_2019["temp"], xax_responses)
     y = lr.predict(temps_2019.reshape((-1, 1)))
@@ -336,21 +352,26 @@ def plot_removal_2(config: Config, x: float, z: float):
     )
     install_day = 37
     start_day, end_day = install_day, install_day + 365
-    _0, _1, traffic_array = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
-    responses_2018 = sim.responses.to(
-        config=config,
-        points=[model.Point(x=x, z=z)],
-        traffic_array=traffic_array,
-        response_type=response_type,
-        with_creep=True,
-        weather=weather_2018,
-        start_date=start_date,
-        end_date=end_date,
-        install_day=install_day,
-        start_day=start_day,
-        end_day=end_day,
-        # ret_all=True,
-    )[0] * 1e3
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
     num_samples = 365 * 24
     temps = util.apply(weather_2018["temp"], np.arange(num_samples))
     rs = util.apply(responses_2018, np.arange(num_samples))
@@ -381,33 +402,50 @@ def plot_removal_2(config: Config, x: float, z: float):
         plt.subplot(3, 1, y_i + 1)
         start_day = install_day + ((year - 2018) * 365)
         end_day = start_day + 365
-        responses_2019 = sim.responses.to(
-            config=config,
-            points=[model.Point(x=x, z=z)],
-            traffic_array=traffic_array,
-            response_type=response_type,
-            with_creep=True,
-            weather=weather_2019,
-            start_date=start_date,
-            end_date=end_date,
-            install_day=install_day,
-            start_day=start_day,
-            end_day=end_day,
-        )[0] * 1e3
+        responses_2019 = (
+            sim.responses.to(
+                config=config,
+                points=[model.Point(x=x, z=z)],
+                traffic_array=traffic_array,
+                response_type=response_type,
+                with_creep=True,
+                weather=weather_2019,
+                start_date=start_date,
+                end_date=end_date,
+                install_day=install_day,
+                start_day=start_day,
+                end_day=end_day,
+            )[0]
+            * 1e3
+        )
         # Plot actual values.
-        xax = np.interp(np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [0, 364])
+        xax = np.interp(
+            np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [0, 364]
+        )
         plt.plot(xax, responses_2019, label="responses in year", lw=2)
         # Daily prediction.
         xax_responses = np.arange(365)
         temps_2019 = util.apply(weather_2019["temp"], xax_responses)
         y_daily = lr.predict(temps_2019.reshape((-1, 1)))
-        y_2_week = [np.mean(y_daily[max(0, i - 14):min(i + 14, len(y_daily))]) for i in range(len(y_daily))]
+        y_2_week = [
+            np.mean(y_daily[max(0, i - 14) : min(i + 14, len(y_daily))])
+            for i in range(len(y_daily))
+        ]
         for percentile, alpha in [(100, 20), (75, 40), (50, 60), (25, 100)]:
             err = np.percentile(err, percentile)
             p = percentile / 100
-            plt.fill_between(xax_responses, y_2_week + (err * p), y_2_week - (err * p), color="orange", alpha=alpha/100, label=f"{percentile}% of regression error")
+            plt.fill_between(
+                xax_responses,
+                y_2_week + (err * p),
+                y_2_week - (err * p),
+                color="orange",
+                alpha=alpha / 100,
+                label=f"{percentile}% of regression error",
+            )
         plt.plot(xax_responses, y_daily, color="black", lw=2, label="daily prediction")
-        plt.plot(xax_responses, y_2_week, color="red", lw=2, label="2 week sliding window")
+        plt.plot(
+            xax_responses, y_2_week, color="red", lw=2, label="2 week sliding window"
+        )
         plt.ylabel("Y. trans (mm)")
         plt.title(f"Year {year}")
         if y_i == 0:
@@ -433,20 +471,25 @@ def plot_removal_3(config: Config, x: float, z: float):
     )
     install_day = 37
     start_day, end_day = install_day, install_day + 365
-    _0, _1, traffic_array = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
-    responses_2018 = sim.responses.to(
-        config=config,
-        points=[model.Point(x=x, z=z)],
-        traffic_array=traffic_array,
-        response_type=response_type,
-        with_creep=True,
-        weather=weather_2018,
-        start_date=start_date,
-        end_date=end_date,
-        install_day=install_day,
-        start_day=start_day,
-        end_day=end_day,
-    )[0] * 1e3
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
     num_samples = 365 * 24
     temps = util.apply(weather_2018["temp"], np.arange(num_samples))
     rs = util.apply(responses_2018, np.arange(num_samples))
@@ -480,7 +523,12 @@ def plot_removal_3(config: Config, x: float, z: float):
             traffic_array=traffic_array,
             response_type=response_type,
             with_creep=True,
-            pier_settlement=[(model.PierSettlement(pier=PIER, settlement=0.00001), model.PierSettlement(pier=PIER, settlement=ps / 1e3))],
+            pier_settlement=[
+                (
+                    model.PierSettlement(pier=PIER, settlement=0.00001),
+                    model.PierSettlement(pier=PIER, settlement=ps / 1e3),
+                )
+            ],
             install_pier_settlement=[],
             weather=long_weather,
             start_date=start_date,

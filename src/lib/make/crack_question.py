@@ -14,7 +14,9 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     if not healthy:
         config = crack.transverse_crack(length=length, at_x=crack_x).crack(config)
     print_w("TODO: remove bridge.data_id hack!")
-    config.bridge.data_id = config.bridge.data_id.replace("2,0", "2").replace("80,0", "80")  # Temp hack!!
+    config.bridge.data_id = config.bridge.data_id.replace("2,0", "2").replace(
+        "80,0", "80"
+    )  # Temp hack!!
     ts, tr, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
 
     # Calculate positions of sensors.
@@ -40,7 +42,9 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     # plt.show()
 
     # Collect responses at times that vehicles cross sensors.
-    vehicles: List[Vehicle] = [v for v in flatten(ts.vehicles_per_lane, Vehicle) if v.lane == 0]
+    vehicles: List[Vehicle] = [
+        v for v in flatten(ts.vehicles_per_lane, Vehicle) if v.lane == 0
+    ]
     print_i(f"Amount of vehicles = {len(vehicles)}")
     responses_0, responses_1 = [], []
     responses = sim.responses.to_traffic_array(
@@ -51,7 +55,9 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     )
     max_i = len(responses[0]) - 1
     total_time = np.round(ts.final_time - ts.start_time, 6)
-    print_i(f"Total time, sensor_f, responses.shape = {total_time}, {config.sensor_freq}, {responses.shape}")
+    print_i(
+        f"Total time, sensor_f, responses.shape = {total_time}, {config.sensor_freq}, {responses.shape}"
+    )
     for v in vehicles:
         time_0, time_1 = v.time_at(mid0, config.bridge), v.time_at(mid1, config.bridge)
         print_i(f"Times = {time_0}, {time_1}")
@@ -68,4 +74,3 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     plt.plot(responses_1)
     plt.savefig(og_config.get_image_path("classify/crack", f"delta-{healthy}.pdf"))
     plt.close()
-
