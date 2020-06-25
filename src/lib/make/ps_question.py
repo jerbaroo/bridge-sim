@@ -1,10 +1,11 @@
+import os
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from bridge_sim import model, sim, temperature, traffic, plot, util
-from bridge_sim.model import Config
+from bridge_sim.model import Config, Point
 from bridge_sim.plot.util import equal_lims
 from bridge_sim.util import print_i, print_w
 from lib.plot import axis_cmap_r
@@ -601,3 +602,49 @@ def plot_removal_3(config: Config, x: float, z: float):
         plt.imshow(tn_mat, cmap=axis_cmap_r)
         plt.savefig(config.get_image_path("hello", f"mat-tn.png"))
         plt.close()
+
+
+def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
+    log_path = config.get_image_path("classify/q1", "min-thresh.txt")
+    if os.path.exists(log_path):
+        os.remove(log_path)
+    support_xs = sorted(set(s.x for s in config.bridge.supports))
+    for s_i, support in enumerate(config.bridge.supports):
+        if support.x in [support_xs[0], support_xs[3], support_xs[4]]:
+            s_x = support.x + ((support.length / 2) + delta_x)
+        else:
+            s_x = support.x - ((support.length / 2) + delta_x)
+        # plt.scatter([s_x], [support.z])
+        point = Point(x=s_x, z=support.z)
+
+        install_day = 37
+        start_day, end_day = install_day, 365 * num_years
+        year = 2018
+        weather = temperature.load("holly-springs-18")
+        _0, _1, traffic_array = traffic.load_traffic(
+            config, traffic.normal_traffic(config), 60 * 5
+        )
+        weather["temp"] = temperature.resize(weather["temp"], year=year)
+        weather = temperature.repeat(weather, num_years)
+        start_date, end_date = (
+            weather["datetime"].iloc[0].strftime(temperature.f_string),
+            weather["datetime"].iloc[-1].strftime(temperature.f_string),
+        )
+        responses = sim.responses.to(
+            config=config,
+            points=[point],
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0] * 1e3
+        min_response = min(responses)
+        to_write = f"Minimum response {min_response} for support {s_i}, sensor at X = {point.x}, Z = {point.z}"
+        print_w(to_write)
+        with open(log_path, "w") as f:
+            f.write(to_write)

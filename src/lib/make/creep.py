@@ -15,7 +15,6 @@ def plot_creep(config: Config, x: float, z: float, n: int = 100):
 
     strain = creep.creep_coeff(config, shrinkage.CementClass.Normal, seconds, 51)
     for s in strain:
-        print(s)
         if not np.isnan(s):
             break
     plt.plot(days / 365, strain, lw=3, c="r")
