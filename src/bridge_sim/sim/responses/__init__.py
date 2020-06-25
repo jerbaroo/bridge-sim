@@ -444,7 +444,6 @@ def to(
     ret_all: bool = False,
     psi: Tuple[float, float, float] = [1, 1, 1],
     x: Optional[float] = None,
-    ignore_pier_creep: bool = False,
 ) -> List[List[float]]:
     """Time series of responses to multiple effects.
 
@@ -519,7 +518,7 @@ def to(
                 end_day=end_day,
                 cement_class=cement_class,
                 self_weight=True,
-                pier_settlement=[] if ignore_pier_creep else pier_settlement,
+                pier_settlement=pier_settlement,
                 shrinkage=True,
                 psi=psi,
                 x=x,

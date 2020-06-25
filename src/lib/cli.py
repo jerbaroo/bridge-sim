@@ -326,10 +326,12 @@ def self_weight():
     lib.make.validation.self_weight(c())
 
 
+@click.option("--x", type=float, default=33, help="X position of sensor.")
+@click.option("--z", type=float, default=-4, help="Z position of sensor.")
 @verify.command(help="Plots of time series of shrinkage.")
-def shrinkage():
+def shrinkage(x, z):
     lib.make.shrinkage.plot_shrinkage_strain(c())
-    lib.make.shrinkage.plot_shrinkage_responses(c())
+    lib.make.shrinkage.plot_shrinkage_responses(c(), x=x, z=z)
 
 
 @click.option("--x", type=float, default=33, help="X position of sensor.")
@@ -578,23 +580,29 @@ def q1_placement(n):
 
 @click.option("--x", type=float, required=True, help="X position of sensor.")
 @click.option("--z", type=float, required=True, help="Z position of sensor.")
-@thesis.command(help="Removal of long-term effect.")
+@thesis.command(help="Removal of long-term effects.")
 def q1_removal(x, z):
     lib.make.ps_question.plot_removal(c(), x=x, z=z)
 
 
 @click.option("--x", type=float, required=True, help="X position of sensor.")
 @click.option("--z", type=float, required=True, help="Z position of sensor.")
-@thesis.command(help="Removal of long-term effect with error bars.")
+@thesis.command(help="Removal of long-term effects with error bars.")
 def q1_removal_2(x, z):
     lib.make.ps_question.plot_removal_2(c(), x=x, z=z)
 
 
 @click.option("--x", type=float, required=True, help="X position of sensor.")
 @click.option("--z", type=float, required=True, help="Z position of sensor.")
-@thesis.command(help="Detecting effect with threshold.")
+@thesis.command(help="Matrix detecting effect with threshold.")
 def q1_removal_3(x, z):
     lib.make.ps_question.plot_removal_3(c(), x=x, z=z)
+
+
+@click.option("--n", type=int, required=True, help="Number of years.")
+@thesis.command(help="Minimum threshold with no false positives.")
+def q1_min_thresh(n):
+    lib.make.ps_question.plot_min_thresh(c(), num_years=n)
 
 
 @click.option("--crack-x", type=float, required=True, help="Position of crack.")
