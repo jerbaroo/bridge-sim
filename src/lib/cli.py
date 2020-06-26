@@ -605,6 +605,12 @@ def q1_min_thresh(n):
     lib.make.ps_question.plot_min_thresh(c(), num_years=n)
 
 
+@click.option("--n", type=int, required=True, help="Number of years.")
+@thesis.command(help="Minimum pier settlement detected.")
+def q2_min_ps(n):
+    lib.make.ps_question.plot_min_ps_1(c(), num_years=n)
+
+
 @click.option("--crack-x", type=float, required=True, help="Position of crack.")
 @click.option("--length", type=float, required=True, help="Length of crack (X).")
 @thesis.command(help="Crack detection.")

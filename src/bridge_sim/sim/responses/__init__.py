@@ -156,18 +156,24 @@ def to_pier_settlement(
     if len(pier_settlement) == 0:
         return np.zeros(responses_array.shape)
     assert len(responses_array) == len(points)
-    start_responses = load(
-        config=config,
-        response_type=response_type,
-        pier_settlement=list(map(lambda ps: ps[0], pier_settlement)),
-    ).at_decks(points)
-    assert len(start_responses.shape) == 1
-    assert len(start_responses) == len(points)
-    end_responses = load(
-        config=config,
-        response_type=response_type,
-        pier_settlement=list(map(lambda ps: ps[1], pier_settlement)),
-    ).at_decks(points)
+    for ps in pier_settlement:
+        assert ps[0].pier == ps[1].pier
+    # Sorted by pier settlement index then by point index.
+    unit_responses = [
+        load(
+            config=config,
+            response_type=response_type,
+            pier_settlement=[PierSettlement(pier=ps[0].pier, settlement=config.unit_pier_settlement)],
+        ).at_decks(points)
+        for ps in pier_settlement
+    ]
+    assert len(unit_responses) == len(pier_settlement)
+    assert len(unit_responses[0]) == len(points)
+    start_responses, end_responses = [0 for _ in points], [0 for _ in points]
+    for p_i, _ in enumerate(points):
+        for ps_i, ps in enumerate(pier_settlement):
+            start_responses[p_i] += unit_responses[ps_i][p_i] * (ps[0].settlement / config.unit_pier_settlement)
+            end_responses[p_i] += unit_responses[ps_i][p_i] * (ps[1].settlement / config.unit_pier_settlement)
     ps_responses = np.zeros(responses_array.shape)
     for p, _ in enumerate(points):
         ps_responses[p] = np.interp(
