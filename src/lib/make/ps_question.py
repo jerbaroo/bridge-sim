@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from bridge_sim import model, sim, temperature, traffic, plot, util
-from bridge_sim.model import Config, Point
+from bridge_sim.model import Config, Point, Bridge
 from bridge_sim.plot.util import equal_lims
 from bridge_sim.util import print_i, print_w
 from lib.plot import axis_cmap_r
@@ -604,19 +604,30 @@ def plot_removal_3(config: Config, x: float, z: float):
         plt.close()
 
 
-def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
-    log_path = config.get_image_path("classify/q1", "min-thresh.txt")
-    if os.path.exists(log_path):
-        os.remove(log_path)
-    support_xs = sorted(set(s.x for s in config.bridge.supports))
-    for s_i, support in enumerate(config.bridge.supports):
+def support_with_points(bridge: Bridge, delta_x: float):
+    support_xs = sorted(set(s.x for s in bridge.supports))
+    for support in bridge.supports:
         if support.x in [support_xs[0], support_xs[3], support_xs[4]]:
             s_x = support.x + ((support.length / 2) + delta_x)
         else:
             s_x = support.x - ((support.length / 2) + delta_x)
-        # plt.scatter([s_x], [support.z])
-        point = Point(x=s_x, z=support.z)
+        support.point = Point(x=s_x, z=support.z)
+        for support_2 in bridge.supports:
+            if support_2.z == support.z and np.isclose(support_2.x, bridge.length - support.x):
+                support.opposite_support = support_2
+        if not hasattr(support, "opposite_support"):
+            raise ValueError("No opposite support")
+        yield support
 
+
+def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
+    plt.landscape()
+    log_path = config.get_image_path("classify/q1", "min-thresh.txt")
+    if os.path.exists(log_path):
+        os.remove(log_path)
+    for s_i, support in enumerate(
+        support_with_points(config.bridge, delta_x=delta_x)
+    ):
         install_day = 37
         start_day, end_day = install_day, 365 * num_years
         year = 2018
@@ -630,21 +641,36 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
             weather["datetime"].iloc[0].strftime(temperature.f_string),
             weather["datetime"].iloc[-1].strftime(temperature.f_string),
         )
-        responses = sim.responses.to(
+        support.responses = sim.responses.to_traffic_array(
             config=config,
-            points=[point],
+            points=[support.point],
             traffic_array=traffic_array,
             response_type=model.RT.YTrans,
-            with_creep=True,
-            weather=weather,
-            start_date=start_date,
-            end_date=end_date,
-            install_day=install_day,
-            start_day=start_day,
-            end_day=end_day,
+            # with_creep=True,
+            # weather=weather,
+            # start_date=start_date,
+            # end_date=end_date,
+            # install_day=install_day,
+            # start_day=start_day,
+            # end_day=end_day,
         )[0] * 1e3
-        min_response = min(responses)
-        to_write = f"Minimum response {min_response} for support {s_i}, sensor at X = {point.x}, Z = {point.z}"
-        print_w(to_write)
-        with open(log_path, "w") as f:
+    for s_i, support in enumerate(config.bridge.supports):
+        min1, max1 = min(support.responses), max(support.responses)
+        min2, max2 = min(support.opposite_support.responses), max(support.opposite_support.responses)
+        delta_1, delta_2 = abs(min1 - max2), abs(min2 - max1)
+        # max_delta = max(abs(support.responses - support.opposite_support.responses))
+        max_delta = max(delta_1, delta_2)
+        to_write = f"Max delta {max_delta} for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
+        with open(log_path, "a") as f:
             f.write(to_write)
+        plt.scatter([support.point.x], [support.point.z], c="red")
+        plt.annotate(
+            f"{np.around(max_delta, 2)} mm",
+            xy=(support.point.x - 3, support.point.z + 2),
+            color="b", size="large",
+        )
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
+    plt.title("Maximum difference between opposite sensors (Question 1)")
+    plt.tight_layout()
+    plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
+
