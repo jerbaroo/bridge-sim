@@ -16,7 +16,7 @@ API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]
 - [[#introduction][Introduction]]
 - [[#examples][Examples]]
 
-If you are interested in using this library, please open an issue to ask any questions! Please open one issue per question. I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it.
+If you are interested in using this library, please open an issue to ask any questions (one issue per question)! I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it. Read [[./LICENSE][this]] before use.
 
 [[./data/images/animation.png]]
 
