@@ -617,7 +617,7 @@ def support_with_points(bridge: Bridge, delta_x: float):
                 support.opposite_support = support_2
         if not hasattr(support, "opposite_support"):
             raise ValueError("No opposite support")
-        yield support
+    return bridge.supports
 
 
 def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
@@ -633,7 +633,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 5
+            config, traffic.normal_traffic(config), 60 * 10
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
         weather = temperature.repeat(weather, num_years)
@@ -673,4 +673,61 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
     plt.title("Maximum difference between opposite sensors (Question 1)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
+
+
+def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
+    THRESH = 1  # 1 mm pier settlement from question 1.
+    plt.landscape()
+    log_path = config.get_image_path("classify/q2", "min-ps.txt")
+    if os.path.exists(log_path):  # Start with fresh logfile.
+        os.remove(log_path)
+    for s_i, support in enumerate(
+        support_with_points(config.bridge, delta_x=delta_x)
+    ):
+        install_day = 37
+        start_day, end_day = install_day, 365 * num_years
+        year = 2018
+        weather = temperature.load("holly-springs-18")
+        _0, _1, traffic_array = traffic.load_traffic(
+            config, traffic.normal_traffic(config), 60 * 5
+        )
+        weather["temp"] = temperature.resize(weather["temp"], year=year)
+        weather = temperature.repeat(weather, num_years)
+        start_date, end_date = (
+            weather["datetime"].iloc[0].strftime(temperature.f_string),
+            weather["datetime"].iloc[-1].strftime(temperature.f_string),
+        )
+        # Increase pier settlement until threshold triggered.
+        for settlement in np.arange(0, 10, 0.1):
+            responses = sim.responses.to(
+                config=config,
+                points=[support.point, support.opposite_support.point],
+                traffic_array=traffic_array,
+                response_type=model.RT.YTrans,
+                with_creep=True,
+                weather=weather,
+                start_date=start_date,
+                end_date=end_date,
+                install_day=install_day,
+                start_day=start_day,
+                end_day=end_day,
+                pier_settlement=[(model.PierSettlement(pier=s_i, settlement=0), model.PierSettlement(pier=s_i, settlement=settlement / 1e3))],
+            ) * 1e3
+            delta = max(abs(responses[0] - responses[1]))
+            to_write = f"Max delta {delta} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
+            print_w(to_write)
+            if delta > THRESH:
+                break
+        with open(log_path, "a") as f:
+            f.write(to_write)
+        plt.scatter([support.point.x], [support.point.z], c="red")
+        plt.annotate(
+            f"{np.around(settlement, 2)} mm",
+            xy=(support.point.x - 3, support.point.z + 2),
+            color="b", size="large",
+        )
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
+    plt.title("Minimum pier settlement detected (Question 2)")
+    plt.tight_layout()
+    plt.savefig(config.get_image_path("classify/q2", "min-ps.pdf"))
 
