@@ -236,8 +236,21 @@ def make_boundary_plot(c: Config):
             color="red" if (8 <= p_i <= 15) else "orange",
             label="X = 1, Y = 1, Z = 1" if p_i == 8 else None,
         )
+        # Annotate bottom piers.
+        if p_i % 4 == 0:
+            plt.annotate(
+                f"Pier {p_i}", xy=(x_center - 3, z_min_top - 5),
+                color="b", size="large",
+            )
+        # Annotate top piers.
+        elif p_i % 4 == 3:
+            plt.annotate(
+                f"Pier {p_i}", xy=(x_center - 3, z_min_top + 5),
+                color="b", size="large",
+            )
     legend_marker_size(plt.legend(), 50)
-    plt.title("Bridge 705 boundary conditions of nodal supports")
+    plt.title("Bridge 705 boundary conditions and pier numbering")
     plt.tight_layout()
     plt.savefig(c.get_image_path("sensors", "boundary.pdf"))
     plt.close()
+
