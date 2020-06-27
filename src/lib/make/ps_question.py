@@ -676,7 +676,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float=0.5):
 
 
 def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
-    THRESH = 1  # 1 mm pier settlement from question 1.
+    THRESH = 2  # 1 mm pier settlement from question 1.
     plt.landscape()
     log_path = config.get_image_path("classify/q2", "min-ps.txt")
     if os.path.exists(log_path):  # Start with fresh logfile.
@@ -731,5 +731,3 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
     plt.title("Minimum pier settlement detected (Question 2)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "min-ps.pdf"))
-
-
