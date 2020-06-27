@@ -35,11 +35,18 @@ save_to_ = None
 shorten_paths_ = None
 two_materials_ = None
 il_num_loads_ = None
+crack_x_ = None
+crack_len_ = None
 
 
 def c():
     """Construct a "Config" based on CLI parameters."""
     new_c = c_func(b_func)
+    if crack_x_ is not None:
+        print_i(f"Using transverse crack")
+        new_c = bridge_sim.crack.transverse_crack(at_x=crack_x_, length=crack_len_).crack(new_c)
+    else:
+        print_i(f"Not using transverse crack")
     new_c.parallel = parallel_
     new_c.shorten_paths = shorten_paths_
     new_c.il_num_loads = il_num_loads_
@@ -74,6 +81,8 @@ def c():
 @click.option(
     "--pdb", is_flag=True, help="Jump into the debugger on exception.",
 )
+@click.option("--crack-x", type=float, help="Transverse crack at x.")
+@click.option("--crack-len", type=float, help="X length of transverse crack.")
 def cli(
     uls: int,
     msl: str,
@@ -82,6 +91,8 @@ def cli(
     save_to: bool,
     shorten_paths: bool,
     pdb: bool,
+    crack_x,
+    crack_len,
 ):
     global b_func
     global save_to_
@@ -89,6 +100,10 @@ def cli(
     global shorten_paths_
     global il_num_loads_
     global two_materials_
+    global crack_x_
+    global crack_len_
+    crack_x_ = crack_x
+    crack_len_ = crack_len
     two_materials_ = two_materials
     b_func = bridge_705(msl=msl, single_sections=two_materials)
     save_to_ = save_to
@@ -262,16 +277,10 @@ def run():
 @click.option("--indices", type=str, help="Indices of point-load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
 @click.option("--temp", is_flag=True, help="Run temperature load simulations.")
-@click.option("--crack-x", type=float, help="Transverse crack at x.")
-@click.option("--crack-len", type=float, help="X length of transverse crack.")
 def uls(point, indices, piers, temp, crack_x, crack_len):
     from bridge_sim import crack, sim
 
     config = c()
-    if crack_x is not None:
-        print_i("Using Config for cracking!")
-        config = crack.transverse_crack(at_x=crack_x, length=crack_len).crack(config)
-
     if indices is not None:
         indices = list(map(int, indices.split()))
     if point:
