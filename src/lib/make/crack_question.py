@@ -3,8 +3,8 @@ from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
 
-from bridge_sim import crack, sim, traffic, plot
-from bridge_sim.model import Config, Point, ResponseType, Vehicle, PointLoad
+from bridge_sim import crack, sim, traffic
+from bridge_sim.model import Config, Point, ResponseType, Vehicle
 from bridge_sim.util import flatten, print_i, print_w
 
 
@@ -13,10 +13,6 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     og_config = config
     if not healthy:
         config = crack.transverse_crack(length=length, at_x=crack_x).crack(config)
-    print_w("TODO: remove bridge.data_id hack!")
-    config.bridge.data_id = config.bridge.data_id.replace("2,0", "2").replace(
-        "80,0", "80"
-    )  # Temp hack!!
     ts, tr, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=60)
 
     # Calculate positions of sensors.
