@@ -689,7 +689,7 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 5
+            config, traffic.normal_traffic(config), 60 * 10
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
         weather = temperature.repeat(weather, num_years)
@@ -698,7 +698,7 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
             weather["datetime"].iloc[-1].strftime(temperature.f_string),
         )
         # Increase pier settlement until threshold triggered.
-        for settlement in np.arange(0, 10, 0.1):
+        for settlement in np.arange(0, 10, 0.05):
             responses = sim.responses.to(
                 config=config,
                 points=[support.point, support.opposite_support.point],
@@ -711,7 +711,8 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
                 install_day=install_day,
                 start_day=start_day,
                 end_day=end_day,
-                pier_settlement=[(model.PierSettlement(pier=s_i, settlement=0), model.PierSettlement(pier=s_i, settlement=settlement / 1e3))],
+                pier_settlement=[
+                    (model.PierSettlement(pier=s_i, settlement=0), model.PierSettlement(pier=s_i, settlement=settlement / 1e3))],
             ) * 1e3
             delta = max(abs(responses[0] - responses[1]))
             to_write = f"Max delta {delta} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
@@ -730,4 +731,5 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
     plt.title("Minimum pier settlement detected (Question 2)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "min-ps.pdf"))
+
 
