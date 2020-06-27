@@ -44,7 +44,9 @@ def c():
     new_c = c_func(b_func)
     if crack_x_ is not None:
         print_i(f"Using transverse crack")
-        new_c = bridge_sim.crack.transverse_crack(at_x=crack_x_, length=crack_len_).crack(new_c)
+        new_c = bridge_sim.crack.transverse_crack(
+            at_x=crack_x_, length=crack_len_
+        ).crack(new_c)
     else:
         print_i(f"Not using transverse crack")
     new_c.parallel = parallel_

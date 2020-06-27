@@ -163,7 +163,9 @@ def to_pier_settlement(
         load(
             config=config,
             response_type=response_type,
-            pier_settlement=[PierSettlement(pier=ps[0].pier, settlement=config.unit_pier_settlement)],
+            pier_settlement=[
+                PierSettlement(pier=ps[0].pier, settlement=config.unit_pier_settlement)
+            ],
         ).at_decks(points)
         for ps in pier_settlement
     ]
@@ -172,8 +174,12 @@ def to_pier_settlement(
     start_responses, end_responses = [0 for _ in points], [0 for _ in points]
     for p_i, _ in enumerate(points):
         for ps_i, ps in enumerate(pier_settlement):
-            start_responses[p_i] += unit_responses[ps_i][p_i] * (ps[0].settlement / config.unit_pier_settlement)
-            end_responses[p_i] += unit_responses[ps_i][p_i] * (ps[1].settlement / config.unit_pier_settlement)
+            start_responses[p_i] += unit_responses[ps_i][p_i] * (
+                ps[0].settlement / config.unit_pier_settlement
+            )
+            end_responses[p_i] += unit_responses[ps_i][p_i] * (
+                ps[1].settlement / config.unit_pier_settlement
+            )
     ps_responses = np.zeros(responses_array.shape)
     for p, _ in enumerate(points):
         ps_responses[p] = np.interp(
