@@ -198,6 +198,7 @@ def to_temperature(
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    skip_weather_interp: bool = False,
 ) -> List[List[float]]:
     """Time series of responses to temperature.
 
@@ -211,6 +212,10 @@ def to_temperature(
         weather: the FULL weather data to calculate responses.
         start_date: start-date of weather data.
         end_date: end-date of weather data.
+        skip_weather_interp: if True then use the given weather data directly
+            instead of interpolating to minutely data. The consequence of
+            setting this to True is the data might be a bit more jagged, due
+            to data e.g. only every 5 minutes.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing the responses from temperature.
@@ -219,18 +224,24 @@ def to_temperature(
     temp_responses = np.zeros(responses_array.shape)
     if weather is None:
         return temp_responses
-    weather = temperature.from_to_mins(
-        weather,
-        from_=datetime.strptime(start_date, temperature.f_string),
-        to=datetime.strptime(end_date, temperature.f_string),
-    )
+    print_i("Calculating weather...")
+    if not skip_weather_interp:
+        weather = temperature.from_to_mins(
+            weather,
+            from_=datetime.strptime(start_date, temperature.f_string),
+            to=datetime.strptime(end_date, temperature.f_string),
+        )
+    print_i("Calculated weather")
     effect = temperature.effect(
         config=config, response_type=response_type, points=points, weather=weather,
     )
     assert len(responses_array) == len(points)
     assert len(effect) == len(points)
+    total_points = len(points)
     for p, _ in enumerate(points):
+        print_i(f"Calculating temperature for point {p} / {total_points}", end="\r")
         temp_responses[p] = util.apply(effect[p], temp_responses[p])
+    print_i(f"Calculated temperature for {total_points} points")
     return temp_responses
 
 
@@ -456,6 +467,7 @@ def to(
     ret_all: bool = False,
     psi: Tuple[float, float, float] = [1, 1, 1],
     x: Optional[float] = None,
+    skip_weather_interp: bool = False,
 ) -> List[List[float]]:
     """Time series of responses to multiple effects.
 
@@ -479,6 +491,7 @@ def to(
             given defaults are 1, 1.5 and 0.55 respectively.
         x: X position used to calculate cross-sectional area and perimeter, if
             not given use the center of the bridge.
+        skip_weather_interp: see 'to_temperature'.
 
     Returns: NumPY array of same shape as "responses_array" and considering the
         same points, but only containing any of the given response sources.
@@ -492,6 +505,7 @@ def to(
             response_type=ResponseType.YTrans,
             points=points,
         )
+        print_i(f"Calculated responses to traffic")
         _ps_responses = to_pier_settlement(
             config=_config,
             points=points,
@@ -499,6 +513,7 @@ def to(
             response_type=response_type,
             pier_settlement=pier_settlement,
         )
+        print_i(f"Calculated responses to pier settlement")
         _temp_responses = to_temperature(
             config=_config,
             points=points,
@@ -507,7 +522,9 @@ def to(
             weather=weather,
             start_date=start_date,
             end_date=end_date,
+            skip_weather_interp=skip_weather_interp,
         )
+        print_i(f"Calculated responses to temperature")
         _shrinkage_responses = to_shrinkage(
             config=_config,
             points=points,
@@ -518,6 +535,7 @@ def to(
             cement_class=cement_class,
             x=x,
         )
+        print_i(f"Calculated responses to shrinkage")
         _creep_responses = np.zeros(_shrinkage_responses.shape)
         if with_creep:
             _creep_responses = to_creep(
@@ -535,6 +553,7 @@ def to(
                 psi=psi,
                 x=x,
             )
+        print_i(f"Calculated responses to creep")
         return (
             _tr_responses,
             _ps_responses,

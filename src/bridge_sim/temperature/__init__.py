@@ -240,7 +240,7 @@ def effect(
         linear_responses = linear_responses.add_temp_strain(
             config=config, temp_deltas=(None, 1)
         )
-    print_i("Loaded unit temperature responses")
+    print_i("Calculated unit temperature responses")
 
     # Effect to unit temperature loading only at requested points.
     unit_uniforms = np.array(uniform_responses.at_decks(points))
@@ -251,11 +251,13 @@ def effect(
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather["temp"], solar=weather["solar"])
-        print_w("Make sure calculating profile from entire year!!")
+        print_w("Make sure calculating profile from entire weather data!")
+    print_i("Calculating temperature profile...")
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
     temps_uniform = temps_half - config.bridge.ref_temp_c
+    print_i("Calculated temperature profile")
 
     # print(f"temps_bottom.shape = {temps_bottom.shape}")
     # print(f"temps_top.shape = {temps_top.shape}")
@@ -267,12 +269,14 @@ def effect(
     print_d(D, f"temps uniform = {temps_uniform[:3]}")
 
     # Combine uniform and linear responses.
+    print_i("Calculating uniform and linear responses...")
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
     linear_responses = np.array(
         [unit_linear * temps_linear for unit_linear in unit_linears]
     )
+    print_i("Calculated uniform and linear responses")
     # print(f"uniform_responses.shape = {uniform_responses.shape}")
     # print(f"linear_responses.shape = {linear_responses.shape}")
     print_d(D, f"uniform responses = {uniform_responses[:3]}")
