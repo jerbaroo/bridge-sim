@@ -11,6 +11,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
+import dill
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -281,8 +282,17 @@ def effect(
     return uniform_responses + linear_responses
 
 
-def repeat(weather: pd.DataFrame, n):
-    """Repeat the given weather data n times."""
+def repeat(config: Config, data_id: str, weather: pd.DataFrame, n):
+    """Repeat the given weather data n times.
+
+    The data will be loaded from disk if already calculated.
+
+    """
+    # .txt just so the CLI clean function won't delete it.
+    path = config.get_data_path("weather", f"{data_id}-{n}.txt")
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return dill.load(f)
     weather = deepcopy(weather)
     weather.sort_values(by="datetime")
     d0, d1 = list(weather["datetime"][-2:])
@@ -298,7 +308,10 @@ def repeat(weather: pd.DataFrame, n):
         weather_copy = deepcopy(weather)
         weather_copy["datetime"] = new_datetimes
         weather_copies.append(weather_copy)
-    return pd.concat(weather_copies, ignore_index=True)
+    result = pd.concat(weather_copies, ignore_index=True)
+    with open(path, "wb") as f:
+        dill.dump(result, f)
+    return result
 
 
 def remove_daily(num_samples, signal):
