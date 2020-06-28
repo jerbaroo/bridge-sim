@@ -114,7 +114,7 @@ def plot_year_effects(config: Config, x: float, z: float, num_years: int):
     equal_lims("y", 1, 2)
     plt.suptitle(f"Y translation at X = {x} m, Z = {z} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(config.get_image_path("classify/ps", "year-effect.png"))
+    plt.savefig(config.get_image_path("classify/ps", f"year-effect-{x}-{z}.png"))
 
 
 def plot_sensor_placement(config: Config, num_years: int):
