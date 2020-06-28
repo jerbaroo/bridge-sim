@@ -657,6 +657,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
             )[0]
             * 1e3
         )
+    # Determine max delta per sensor pair.
     for s_i, support in enumerate(config.bridge.supports):
         min1, max1 = min(support.responses), max(support.responses)
         min2, max2 = (
@@ -665,19 +666,29 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
         )
         delta_1, delta_2 = abs(min1 - max2), abs(min2 - max1)
         # max_delta = max(abs(support.responses - support.opposite_support.responses))
-        max_delta = max(delta_1, delta_2)
-        to_write = f"Max delta {max_delta} for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
+        support.max_delta = max(delta_1, delta_2)
+        to_write = f"Max delta {support.max_delta} for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
         with open(log_path, "a") as f:
             f.write(to_write)
+    # Bridge supports.
+    for s_i, support in enumerate(config.bridge.supports):
+        if s_i % 4 == 0:
+            support.max_delta = max(support.max_delta, config.bridge.supports[s_i + 3].max_delta)
+        elif s_i % 4 == 1:
+            support.max_delta = max(support.max_delta, config.bridge.supports[s_i + 1].max_delta)
+        elif s_i % 4 == 2:
+            support.max_delta = max(support.max_delta, config.bridge.supports[s_i - 1].max_delta)
+        elif s_i % 4 == 3:
+            support.max_delta = max(support.max_delta, config.bridge.supports[s_i - 3].max_delta)
         plt.scatter([support.point.x], [support.point.z], c="red")
         plt.annotate(
-            f"{np.around(max_delta, 2)} mm",
+            f"{np.around(support.max_delta, 2)} mm",
             xy=(support.point.x - 3, support.point.z + 2),
             color="b",
             size="large",
         )
     plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
-    plt.title("Maximum difference between opposite sensors (Question 1A)")
+    plt.title("Maximum difference between symmetric sensors (Question 1A)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
 
