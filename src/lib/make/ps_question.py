@@ -633,7 +633,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 10
+            config, traffic.normal_traffic(config), 60 * 5
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
         weather = temperature.repeat(weather, num_years)
@@ -677,7 +677,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
             size="large",
         )
     plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
-    plt.title("Maximum difference between opposite sensors (Question 1)")
+    plt.title("Maximum difference between opposite sensors (Question 1A)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
 
@@ -694,7 +694,7 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 10
+            config, traffic.normal_traffic(config), 60 * 5
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
         weather = temperature.repeat(weather, num_years)
@@ -741,6 +741,6 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
             size="large",
         )
     plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
-    plt.title("Minimum pier settlement detected (Question 2)")
+    plt.title("Minimum pier settlement detected (Question 1B)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "min-ps.pdf"))

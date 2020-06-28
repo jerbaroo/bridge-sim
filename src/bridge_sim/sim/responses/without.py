@@ -96,6 +96,6 @@ def points(c: Config, pier_radius: float, track_radius: float, edge_radius: floa
     without_e = edges(c=c, radius=edge_radius)
 
     def _without_points(point: Point) -> bool:
-        return without_t(point) or without_p(point) or without_e(point)
+        return without_t(point) or without_p(point) or without_e(point, None)
 
     return _without_points
