@@ -62,7 +62,7 @@ def unit_loads(c: Config, scatter: bool):
                 "verification/point-load",
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
-            top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+            top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
             contour_responses(
                 config=c,
                 responses=os_responses,
@@ -89,7 +89,7 @@ def unit_loads(c: Config, scatter: bool):
                 )
                 plt.cla()
                 # Then plot the bridge and Axis image.
-                top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+                top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
                 plt.imshow(
                     mpimg.imread(
                         os.path.join(
@@ -107,7 +107,7 @@ def unit_loads(c: Config, scatter: bool):
                 tmax_s = f"{tmax:.3f}"
                 tabs_s = f"{abs(tmin - tmax):.3f}"
                 for point, leg_label, color, alpha in [
-                    ((load_x, load_z), f"{point_loads[0].load} kN load", "black", 1),
+                    ((load_x, load_z), f"{int(point_loads[0].load / 1e3)} kN load", "black", 1),
                     ((0, 0), f"min = {tmin_s} {os_responses.units}", "r", 0),
                     ((0, 0), f"max = {tmax_s} {os_responses.units}", "r", 0),
                     ((0, 0), f"|min-max| = {tabs_s} {os_responses.units}", "r", 0),
@@ -159,7 +159,7 @@ def pier_settlement(c: Config):
             levels = np.linspace(amin, amax, 16)
             # Plot and save the image. If plotting stresses use Axis values for
             # colour normalization.
-            top_view_bridge(c.bridge, abutments=True, piers=True, units="m")
+            top_view_bridge(c.bridge, abutments=True, piers=True, units="m", compass=True)
             contour_responses(
                 config=c,
                 cmap=axis_cmap_r,
@@ -186,7 +186,7 @@ def pier_settlement(c: Config):
             axis_img = mpimg.imread(
                 os.path.join(project_dir(), f"data/validation/axis/{p}-{rt_str}.PNG")
             )
-            top_view_bridge(c.bridge, abutments=True, units="m")
+            top_view_bridge(c.bridge, abutments=True, units="m", compass=True)
             plt.imshow(
                 axis_img,
                 extent=(
@@ -283,7 +283,7 @@ def temperature_load(c: Config):
                 sim_responses = sim_responses.map(lambda r: r * 1e3)
                 sim_responses.units = "mm"
             bridge_sim.plot.top_view_bridge(
-                bridge=c.bridge, abutments=True, piers=True, units="m"
+                bridge=c.bridge, abutments=True, piers=True, units="m", compass=True,
             )
             plot.contour_responses(
                 config=c,
@@ -315,7 +315,7 @@ def temperature_load(c: Config):
             )
             plt.cla()
             # Then imshow the axis image.
-            bridge_sim.plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m")
+            bridge_sim.plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m", compass=True)
             plt.imshow(
                 mpl.image.imread(
                     os.path.join(
@@ -389,7 +389,7 @@ def self_weight(c: Config):
         else:
             os_responses = os_responses.map(lambda r: r * 1e3)
         os_responses.units = unit_str
-        top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+        top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
         contour_responses(
             config=c,
             responses=os_responses,
@@ -409,7 +409,7 @@ def self_weight(c: Config):
         )
         plt.cla()
         # Then plot the bridge and Axis image.
-        top_view_bridge(c.bridge, piers=True, abutments=True, units="m")
+        top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
         plt.imshow(
             mpimg.imread(
                 os.path.join(
