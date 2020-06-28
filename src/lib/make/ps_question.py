@@ -672,6 +672,7 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
         with open(log_path, "a") as f:
             f.write(to_write)
     # Bridge supports.
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
     for s_i, support in enumerate(config.bridge.supports):
         if s_i % 4 == 0:
             support.max_delta = max(support.max_delta, config.bridge.supports[s_i + 3].max_delta)
@@ -688,7 +689,6 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
             color="b",
             size="large",
         )
-    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
     plt.title("Maximum difference between symmetric sensors (Question 1A)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
