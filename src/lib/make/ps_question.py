@@ -7,6 +7,7 @@ import numpy as np
 from bridge_sim import model, sim, temperature, traffic, plot, util
 from bridge_sim.model import Config, Point, Bridge
 from bridge_sim.plot.util import equal_lims
+from bridge_sim.sim.responses import without
 from bridge_sim.util import print_i, print_w
 from lib.plot import axis_cmap_r
 
@@ -691,6 +692,69 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
     plt.title("Maximum difference between symmetric sensors (Question 1A)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
+
+
+def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
+    # Select points: over the deck and the sensors!
+    points = [
+        Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 200)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 60)
+    ]
+    sensor_points = [s.point for s in support_with_points(config.bridge, delta_x=delta_x)]
+    points += sensor_points
+    # Generate the data!
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load("holly-springs-18")
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 6
+    )
+    weather["temp"] = temperature.resize(weather["temp"], year=year)
+    start_date, end_date = (
+        weather["datetime"].iloc[0].strftime(temperature.f_string),
+        weather["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=points,
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    # Convert to Responses, determining maximum response per point.
+    max_responses = [min(rs) for rs in responses]
+    sensor_responses = max_responses[- len(sensor_points):]
+    responses = sim.model.Responses(
+        response_type=model.RT.YTrans,
+        responses=[(r, p) for r, p in zip(max_responses, points)],
+        units="mm",
+    ).without(without.edges(config, 2))
+    plt.landscape()
+    plot.contour_responses(config, responses)
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True)
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        plt.scatter([support.point.x], [support.point.z], c="black")
+        plt.annotate(
+            f"{np.around(sensor_responses[s_i], 2)} mm",
+            xy=(support.point.x - 3, support.point.z + 2),
+            color="black",
+            size="medium",
+        )
+    plt.title(f"Maximum responses over {num_years} years \n from temperature, shrinkage & creep")
+    plt.tight_layout()
+    plt.savefig(config.get_image_path("classify/q2", "q2-contour.pdf"))
+    plt.close()
 
 
 def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
