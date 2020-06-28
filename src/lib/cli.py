@@ -611,27 +611,33 @@ def q1_removal_3(x, z):
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
-@thesis.command(help="Minimum threshold with no false positives.")
+@thesis.command(help="Minimum threshold with no false positives (Q 1A).")
 def q1_min_thresh(n):
     lib.make.ps_question.plot_min_thresh(c(), num_years=n)
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
-@thesis.command(help="Minimum pier settlement detected.")
+@thesis.command(help="Minimum pier settlement detected (Q 1B).")
+def q1_min_ps(n):
+    lib.make.ps_question.plot_min_ps_1(c(), num_years=n)
+
+
+@click.option("--n", type=int, required=True, help="Number of years.")
+@thesis.command(help="Minimum pier settlement detected (Q 2A).")
 def q2_contour(n):
     lib.make.ps_question.plot_contour_q2(c(), num_years=n)
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
-@thesis.command(help="Minimum pier settlement detected.")
+@thesis.command(help="Minimum pier settlement detected (Q 2B).")
 def q2_min_ps(n):
-    lib.make.ps_question.plot_min_ps_1(c(), num_years=n)
+    lib.make.ps_question.plot_min_ps_2(c(), num_years=n)
 
 
 @click.option("--crack-x", type=float, required=True, help="Position of crack.")
 @click.option("--length", type=float, required=True, help="Length of crack (X).")
 @thesis.command(help="Crack detection.")
-def q2_crack(crack_x, length):
+def q_crack_comparison(crack_x, length):
     lib.make.crack_question.plot_crack_detection(
         c(), length=length, crack_x=crack_x, healthy=False
     )

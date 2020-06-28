@@ -116,20 +116,26 @@ def to_vehicles_direct(
     times: List[float],
 ):
     """Responses to vehicles over time (via direct simulation)."""
-    loads = [v.wheel_track_loads(config=c, times=times) for v in vehicles]
-    loads_per_time = [[] for _ in times]
-    for v_loads in loads:
-        for t, t_loads in enumerate(v_loads):
-            loads_per_time[t] += t_loads
-    loads_per_time = [flatten(v_loads, PointLoad) for v_loads in loads_per_time]
-    print([len(load_) for load_ in loads_per_time])
-    print(loads_per_time[0])
-    print(loads_per_time[-1])
-    assert isinstance(loads_per_time, list)
-    assert isinstance(loads_per_time[0], list)
-    assert isinstance(loads_per_time[0][0], PointLoad)
+    loads = [
+        flatten([
+            v.point_load_pw(config=c, time=time) for v in vehicles
+        ], PointLoad)
+        for time in times
+    ]
+    # loads = [v.point_load_pw(c) for v in vehicles]
+    # loads_per_time = [[] for _ in times]
+    # for v_loads in loads:
+    #     for t, t_loads in enumerate(v_loads):
+    #         loads_per_time[t] += t_loads
+    # loads_per_time = [flatten(v_loads, PointLoad) for v_loads in loads_per_time]
+    # print([len(load_) for load_ in loads_per_time])
+    # print(loads_per_time[0])
+    # print(loads_per_time[-1])
+    assert isinstance(loads, list)
+    assert isinstance(loads[0], list)
+    assert isinstance(loads[0][0], PointLoad)
     return to_loads_direct(
-        c=c, response_type=response_type, points=points, loads=loads_per_time,
+        c=c, response_type=response_type, points=points, loads=loads,
     )
 
 
