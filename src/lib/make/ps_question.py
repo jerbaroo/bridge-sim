@@ -17,7 +17,7 @@ def plot_year_effects(config: Config, x: float, z: float, num_years: int):
     year = 2018
     weather = temperature.load("holly-springs-18")
     _0, _1, traffic_array = traffic.load_traffic(
-        config, traffic.normal_traffic(config), 60 * 5
+        config, traffic.normal_traffic(config), 60 * 10
     )
     (
         ll_responses,
@@ -31,7 +31,7 @@ def plot_year_effects(config: Config, x: float, z: float, num_years: int):
     def set_responses(n):
         nonlocal weather, start_day, end_day
         weather["temp"] = temperature.resize(weather["temp"], year=year)
-        weather = temperature.repeat(weather, n)
+        weather = temperature.repeat(config, "holly-springs-18", weather, n)
         start_date, end_date = (
             weather["datetime"].iloc[0].strftime(temperature.f_string),
             weather["datetime"].iloc[-1].strftime(temperature.f_string),
@@ -132,7 +132,7 @@ def plot_sensor_placement(config: Config, num_years: int):
         config, traffic.normal_traffic(config), 10
     )
     weather["temp"] = temperature.resize(weather["temp"], year=year)
-    weather = temperature.repeat(weather, num_years)
+    weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
     start_date, end_date = (
         weather["datetime"].iloc[0].strftime(temperature.f_string),
         weather["datetime"].iloc[-1].strftime(temperature.f_string),
@@ -501,7 +501,7 @@ def plot_removal_3(config: Config, x: float, z: float):
     long_weather = deepcopy(weather_2018)
     long_weather["temp"] = temperature.resize(long_weather["temp"], year=2019)
     print_i(f"Repeating {NUM_YEARS} of weather data")
-    long_weather = temperature.repeat(long_weather, NUM_YEARS)
+    long_weather = temperature.repeat(config, "holly-springs-18", long_weather, NUM_YEARS)
     print_i(f"Repeated {NUM_YEARS} of weather data")
     start_date, end_date = (
         long_weather["datetime"].iloc[0].strftime(temperature.f_string),
@@ -633,10 +633,10 @@ def plot_min_thresh(config: Config, num_years: int, delta_x: float = 0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 5
+            config, traffic.normal_traffic(config), 60 * 10
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
-        weather = temperature.repeat(weather, num_years)
+        weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
         start_date, end_date = (
             weather["datetime"].iloc[0].strftime(temperature.f_string),
             weather["datetime"].iloc[-1].strftime(temperature.f_string),
@@ -694,10 +694,10 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
         year = 2018
         weather = temperature.load("holly-springs-18")
         _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 5
+            config, traffic.normal_traffic(config), 60 * 10
         )
         weather["temp"] = temperature.resize(weather["temp"], year=year)
-        weather = temperature.repeat(weather, num_years)
+        weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
         start_date, end_date = (
             weather["datetime"].iloc[0].strftime(temperature.f_string),
             weather["datetime"].iloc[-1].strftime(temperature.f_string),
