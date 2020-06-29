@@ -608,7 +608,7 @@ def plot_removal_3(config: Config, x: float, z: float):
 def support_with_points(bridge: Bridge, delta_x: float):
     support_xs = sorted(set(s.x for s in bridge.supports))
     for support in bridge.supports:
-        if support.x in [support_xs[0], support_xs[3], support_xs[4]]:
+        if support.x in [support_xs[0], support_xs[2], support_xs[4]]:
             s_x = support.x + ((support.length / 2) + delta_x)
         else:
             s_x = support.x - ((support.length / 2) + delta_x)
@@ -698,8 +698,8 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     # Select points: over the deck and the sensors!
     points = [
         Point(x=x, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 200)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 60)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
     ]
     sensor_points = [s.point for s in support_with_points(config.bridge, delta_x=delta_x)]
     points += sensor_points
@@ -708,6 +708,8 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     start_day, end_day = install_day, 365 * num_years
     year = 2018
     weather = temperature.load("holly-springs-18")
+    # Responses aren't really from traffic, and we are getting the maximum from
+    # 4 sensors, so short traffic data doesn't really matter.
     _0, _1, traffic_array = traffic.load_traffic(
         config, traffic.normal_traffic(config), 6
     )
@@ -740,16 +742,30 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
         responses=[(r, p) for r, p in zip(max_responses, points)],
         units="mm",
     ).without(without.edges(config, 2))
+    # Adjust maximum responses per sensor so they are symmetric!
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        support.max_response = max_responses[s_i]
+    for support in support_with_points(config.bridge, delta_x=delta_x):
+        support.max_response = min(support.max_response, support.opposite_support.max_response)
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        if s_i % 4 == 0:
+            support.max_response = max(support.max_response, config.bridge.supports[s_i + 3].max_response)
+        elif s_i % 4 == 1:
+            support.max_response = max(support.max_response, config.bridge.supports[s_i + 1].max_response)
+        elif s_i % 4 == 2:
+            support.max_response = max(support.max_response, config.bridge.supports[s_i - 1].max_response)
+        elif s_i % 4 == 3:
+            support.max_response = max(support.max_response, config.bridge.supports[s_i - 3].max_response)
     plt.landscape()
-    plot.contour_responses(config, responses)
+    plot.contour_responses(config, responses, interp=(200, 60), levels=20)
     plot.top_view_bridge(config.bridge, lanes=True, piers=True)
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         plt.scatter([support.point.x], [support.point.z], c="black")
         plt.annotate(
-            f"{np.around(sensor_responses[s_i], 2)} mm",
+            f"{np.around(support.max_response, 2)}",
             xy=(support.point.x - 3, support.point.z + 2),
             color="black",
-            size="medium",
+            size="large",
         )
     plt.title(f"Maximum responses over {num_years} years \n from temperature, shrinkage & creep")
     plt.tight_layout()
