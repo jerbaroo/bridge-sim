@@ -628,20 +628,21 @@ def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
     log_path = config.get_image_path("classify/q1", "min-thresh.txt")
     if os.path.exists(log_path):
         os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load("holly-springs-18")
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather["temp"] = temperature.resize(weather["temp"], year=year)
+    # weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
+    start_date, end_date = (
+        weather["datetime"].iloc[0].strftime(temperature.f_string),
+        weather["datetime"].iloc[-1].strftime(temperature.f_string),
+    )
+    # For each support load the responses to traffic and assign to "Support".
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
-        install_day = 37
-        start_day, end_day = install_day, 365 * num_years
-        year = 2018
-        weather = temperature.load("holly-springs-18")
-        _0, _1, traffic_array = traffic.load_traffic(
-            config, traffic.normal_traffic(config), 60 * 10
-        )
-        weather["temp"] = temperature.resize(weather["temp"], year=year)
-        weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
-        start_date, end_date = (
-            weather["datetime"].iloc[0].strftime(temperature.f_string),
-            weather["datetime"].iloc[-1].strftime(temperature.f_string),
-        )
         support.responses = (
             sim.responses.to_traffic_array(
                 config=config,
@@ -658,7 +659,7 @@ def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
             )[0]
             * 1e3
         )
-    # Determine max delta per sensor pair.
+    # Determine max difference for each sensor pair.
     for s_i, support in enumerate(config.bridge.supports):
         min1, max1 = min(support.responses), max(support.responses)
         min2, max2 = (
@@ -703,21 +704,22 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     ]
     sensor_points = [s.point for s in support_with_points(config.bridge, delta_x=delta_x)]
     points += sensor_points
-    # Generate the data!
     install_day = 37
     start_day, end_day = install_day, 365 * num_years
     year = 2018
     weather = temperature.load("holly-springs-18")
-    # Responses aren't really from traffic, and we are getting the maximum from
-    # 4 sensors, so short traffic data doesn't really matter.
+    # Responses aren't much from traffic, and we are getting the maximum from 4
+    # sensors, so short traffic data doesn't really matter.
     _0, _1, traffic_array = traffic.load_traffic(
         config, traffic.normal_traffic(config), 10
     )
     weather["temp"] = temperature.resize(weather["temp"], year=year)
+    # weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
     start_date, end_date = (
         weather["datetime"].iloc[0].strftime(temperature.f_string),
         weather["datetime"].iloc[-1].strftime(temperature.f_string),
     )
+    # Generate the data!
     responses = (
         sim.responses.to(
             config=config,
@@ -767,7 +769,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
             color="black",
             size="large",
         )
-    plt.title(f"Maximum Y translation over {num_years} years \n from traffic, temperature, shrinkage & creep")
+    plt.title(f"Maximum Y translation over {num_years} years \n from temperature, shrinkage & creep")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "q2-contour.pdf"))
     plt.close()
@@ -787,13 +789,14 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
         config, traffic.normal_traffic(config), 60 * 10
     )
     weather["temp"] = temperature.resize(weather["temp"], year=year)
-    weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
+    # weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
     start_date, end_date = (
         weather["datetime"].iloc[0].strftime(temperature.f_string),
         weather["datetime"].iloc[-1].strftime(temperature.f_string),
     )
+    # For each support..
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
-        # Increase pier settlement until threshold triggered.
+        # ..increase pier settlement until threshold triggered.
         for settlement in np.arange(0, 10, 0.1):
             responses = (
                 sim.responses.to(
@@ -821,10 +824,13 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
             delta = max(abs(responses[0] - responses[1]))
             to_write = f"Max delta {delta} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
             print_w(to_write)
+            # Because of "abs", "delta" will be positive.
             if delta > THRESH:
                 break
+        # Write the minimum settlement value for this support to a file.
         with open(log_path, "a") as f:
             f.write(to_write)
+        # Annotate the support with the minimum settlement value.
         plt.scatter([support.point.x], [support.point.z], c="red")
         plt.annotate(
             f"{np.around(settlement, 2)} mm",
@@ -832,6 +838,7 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
             color="b",
             size="large",
         )
+    # Plot the results.
     plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
     plt.title("Minimum pier settlement detected (Question 1B)")
     plt.tight_layout()
@@ -853,7 +860,7 @@ def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
         config, traffic.normal_traffic(config), 60 * 10
     )
     weather["temp"] = temperature.resize(weather["temp"], year=year)
-    weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
+    # weather = temperature.repeat(config, "holly-springs-18", weather, num_years)
     start_date, end_date = (
         weather["datetime"].iloc[0].strftime(temperature.f_string),
         weather["datetime"].iloc[-1].strftime(temperature.f_string),
@@ -884,11 +891,13 @@ def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
                 )
                 * 1e3
             )
+            # Determine the minimum response for this level of settlement.
             max_r = min(responses[0])
             to_write = f"Min {max_r} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}"
             print_w(to_write)
             if max_r < -THRESH:
                 break
+        # Write the minimum response and settlement for this support to a file.
         with open(log_path, "a") as f:
             f.write(to_write)
         plt.scatter([support.point.x], [support.point.z], c="red")
@@ -902,4 +911,5 @@ def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
     plt.title("Minimum pier settlement detected (Question 2B)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2b", "q2b-min-ps.pdf"))
+
 
