@@ -711,7 +711,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     # Responses aren't really from traffic, and we are getting the maximum from
     # 4 sensors, so short traffic data doesn't really matter.
     _0, _1, traffic_array = traffic.load_traffic(
-        config, traffic.normal_traffic(config), 6
+        config, traffic.normal_traffic(config), 10
     )
     weather["temp"] = temperature.resize(weather["temp"], year=year)
     start_date, end_date = (
@@ -767,7 +767,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
             color="black",
             size="large",
         )
-    plt.title(f"Maximum responses over {num_years} years \n from temperature, shrinkage & creep")
+    plt.title(f"Maximum Y translation over {num_years} years \n from traffic, temperature, shrinkage & creep")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "q2-contour.pdf"))
     plt.close()
