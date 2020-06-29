@@ -611,9 +611,9 @@ def q1_removal_3(x, z):
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
-@thesis.command(help="Minimum threshold with no false positives (Q 1A).")
+@thesis.command(help="Minimum difference with no false positives (Q 1A).")
 def q1_min_thresh(n):
-    lib.make.ps_question.plot_min_thresh(c(), num_years=n)
+    lib.make.ps_question.plot_min_diff(c(), num_years=n)
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
