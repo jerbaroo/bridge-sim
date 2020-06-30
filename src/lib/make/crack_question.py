@@ -291,7 +291,7 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
                 legend()
             plt.title(f"±{time_offset_std} m, feature is {feature_name}")
 
-    plt.suptitle(f"ROC for {length} m crack zone at {crack_x}")
+    plt.suptitle(f"Receiver operating characteristic curve for {length} m crack zone at {crack_x} m")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("classify/q5", "roc.pdf"))
     plt.close()

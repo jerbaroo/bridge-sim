@@ -764,7 +764,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         plt.scatter([support.point.x], [support.point.z], c="black")
         plt.annotate(
-            f"{np.around(support.max_response, 2)}",
+            f"{support.max_response}",
             xy=(support.point.x - 3, support.point.z + 2),
             color="black",
             size="large",
