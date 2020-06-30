@@ -279,8 +279,8 @@ def run():
 @click.option("--indices", type=str, help="Indices of point-load simulations.")
 @click.option("--piers", is_flag=True, help="Run pier settlement simulations.")
 @click.option("--temp", is_flag=True, help="Run temperature load simulations.")
-def uls(point, indices, piers, temp, crack_x, crack_len):
-    from bridge_sim import crack, sim
+def uls(point, indices, piers, temp):
+    from bridge_sim import sim
 
     config = c()
     if indices is not None:
@@ -643,6 +643,15 @@ def q_crack_comparison(crack_x, length):
     )
     lib.make.crack_question.plot_crack_detection(
         c(), length=length, crack_x=crack_x, healthy=True
+    )
+
+
+@click.option("--crack-x", type=float, required=True, help="Position of crack.")
+@click.option("--length", type=float, required=True, help="Length of crack (X).")
+@thesis.command(help="Crack detection.")
+def q5_crack_detect(crack_x, length):
+    lib.make.crack_question.plot_q5_crack_substructures(
+        c(), length=length, crack_x=crack_x,
     )
 
 
