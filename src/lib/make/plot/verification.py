@@ -170,7 +170,7 @@ def per_sensor_plots(
             )
 
         # Plot values from OpenSees.
-        plt.plot(truck_front_x, os_strain[i], lw=lw, label="OpenSees")
+        plt.plot(truck_front_x, os_strain[i], lw=lw, label="OpenSees", c="blue")
 
         # Plot measured values against truck position.
         sensor_x, sensor_z = strain_sensor_xzs[i]
@@ -288,7 +288,7 @@ def per_sensor_plots(
             )
 
         # Plot values from OpenSees.
-        plt.plot(truck_front_x, os_displacement[i], lw=lw, label="OpenSees")
+        plt.plot(truck_front_x, os_displacement[i], lw=lw, label="OpenSees", c="blue")
         if i == 0:
             print(os_displacement[i])
             print(f"Truck front (head) = {truck_front_x[:7]}")
@@ -415,11 +415,11 @@ def r2_plots(c: Config):
         diana_response(sensor_label=sensor_label, truck_x=truck_x)
         for sensor_label, truck_x, _ in displa_meas
     ]
-    plt.scatter(x, y)
+    plt.scatter(x, y, color="blue")
     regressor = LinearRegression().fit(np.matrix(x).T, y)
     y_pred = regressor.predict(np.matrix(x).T)
     score = regressor.score(np.matrix(x).T, y)
-    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.plot(x, y_pred, color="tab:red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title(f"{rt_y.name()}: Diana vs. measurements")
     plt.xlabel(f"{rt_y.name()} measurement (mm)")
@@ -432,11 +432,11 @@ def r2_plots(c: Config):
         get_os_meas(sensor_label=sensor_label, truck_x=truck_x)
         for sensor_label, truck_x, _ in displa_meas
     ]
-    plt.scatter(x, y)
+    plt.scatter(x, y, color="blue")
     regressor = LinearRegression().fit(np.matrix(x).T, y)
     y_pred = regressor.predict(np.matrix(x).T)
     score = regressor.score(np.matrix(x).T, y)
-    plt.plot(x, y_pred, color="red", label=f"R² = {score:.3f}")
+    plt.plot(x, y_pred, color="tab:red", label=f"R² = {score:.3f}")
     plt.legend()
     plt.title(f"{rt_y.name()}: OpenSees vs. measurements")
     plt.xlabel(f"{rt_y.name()} measurement (mm)")
