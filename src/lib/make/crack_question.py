@@ -285,6 +285,8 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
                     tprs.append(tpr)
 
                 plt.plot(fprs, tprs, label=f"d = {SENSOR_DIST}", lw=2)
+                plt.xlabel("FPR")
+                plt.ylabel("TPR")
             if tos_i == len(TIME_OFFSET_STDS) - 1 and f_i == len(features) - 1:
                 legend()
             plt.title(f"±{time_offset_std} m, feature is {feature_name}")
