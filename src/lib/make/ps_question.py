@@ -746,7 +746,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     ).without(without.edges(config, 2))
     # Adjust maximum responses per sensor so they are symmetric!
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
-        support.max_response = max_responses[s_i]
+        support.max_response = sensor_responses[s_i]
     for support in support_with_points(config.bridge, delta_x=delta_x):
         support.max_response = min(support.max_response, support.opposite_support.max_response)
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
@@ -764,7 +764,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         plt.scatter([support.point.x], [support.point.z], c="black")
         plt.annotate(
-            f"{support.max_response}",
+            f"{np.around(support.max_response, 2)}",
             xy=(support.point.x - 3, support.point.z + 2),
             color="black",
             size="large",
