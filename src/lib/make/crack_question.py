@@ -114,7 +114,7 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                     config = og_config
                 else:
                     config = crack.transverse_crack(length=length, at_x=crack_x).crack(config)
-                    config.bridge.data_id = config.bridge.data_id.replace(",0", "")  # TODO: remove hack!
+                    # config.bridge.data_id = config.bridge.data_id.replace(",0", "")  # TODO: remove hack!
 
                 # TODO: Different traffic per run.
                 if False:
@@ -293,7 +293,7 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                 legend()
             plt.title(f"{response_type.name()} (±{time_offset_std} m)")
 
-    plt.suptitle(f"Receiver operating characteristic curve for {length} m crack zone at {crack_x} m ({feature_name} feature)")
+    plt.suptitle(f"Receiver operating characteristic curves for {length} m crack zone at {crack_x} m (feature is '{feature_name.lower()}')")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("classify/q5", "roc.pdf"))
     plt.close()

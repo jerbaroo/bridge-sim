@@ -7,6 +7,7 @@ import numpy as np
 from bridge_sim import crack, temperature, plot, sim, traffic
 from bridge_sim.model import Config, ResponseType, Point
 from bridge_sim.sim.model import Responses, Shell
+from bridge_sim.sim.responses import without
 from bridge_sim.util import safe_str, print_i
 from bridge_sim.vehicles import truck1
 
@@ -73,17 +74,20 @@ def crack_zone_plot(
         temps: temperature profile of the deck.
 
     """
+    NUM_X, NUM_Z = 2000, 120
+    # NUM_X, NUM_Z = 100, 100
     points = [
         Point(x=x, z=z)
-        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 2000)
-        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 120)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, NUM_X)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, NUM_Z)
     ]
     crack_deck = crack.transverse_crack(length=crack_length, at_x=crack_x_min)
     crack_config = crack_deck.crack(config)
     time = truck1.time_at(x=56, bridge=config.bridge)
     thresh = 0.35
-    _w = crack_deck.without(config.bridge, thresh)
-    without_crack_zone_and_thresh = lambda p, _r: not _w(p)
+    _w1 = crack_deck.without(config.bridge, thresh)
+    _w2 = without.edges(config, 2)
+    without_crack_zone_and_thresh = lambda p, _r: not _w1(p) or _w2(p, None)
     print_i(f"{thresh} m outside crack zone not considered")
 
     def filter_responses(_responses):
@@ -186,6 +190,25 @@ def crack_zone_plot(
             units="" if response_type.is_strain() else "mm",
         )
     )
+
+    count_min, count_max = 0, 0
+    diff_min, diff_max = min(diff_responses.values()), max(diff_responses.values())
+    print(f"Diff min, max = {diff_min}, {diff_max}")
+    diff_min08, diff_max08 = diff_min * 0.8, diff_max * 0.8
+    for diff_r in diff_responses.values():
+        if diff_r < diff_min08:
+            count_min += 1
+        if diff_r > diff_max08:
+            count_max += 1
+    print(f"Count = {count_min}, {count_max}")
+    txt_path = config.get_image_path(
+        "classify/crack_zones",
+        safe_str(f"x-{crack_x_min}-len-{crack_length}-{response_type.value}")
+        + ".txt",
+    )
+    point_area = (config.bridge.length / NUM_X) * (config.bridge.width / NUM_Z)
+    with open(txt_path, "w") as f:
+        f.write(f"Count 0.8 min/max = {count_min}, {count_max}, area = {point_area}, min/max area = {count_min * point_area}, {count_max * point_area}")
 
     # Norm calculation.
     r_min, r_max = min(responses.values()), max(responses.values())
