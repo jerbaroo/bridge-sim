@@ -75,9 +75,11 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     plt.close()
 
 
-def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
+def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, use_max: bool = False):
     plt.style.use("seaborn-bright")
-    features, feature_names = [np.var, np.mean, np.max], ["Variance", "Mean", "Max"]
+    feature, feature_name = np.var, "Variance"
+    if use_max:
+        feature, feature_name = np.max, "Maximum"
 
     def legend():
         plt.legend(
@@ -94,14 +96,13 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
     # SENSOR_DISTS = [1]
     lane = 0
     cmap = mpl.cm.get_cmap("RdBu")
-    response_type = ResponseType.StrainZZB
+    response_types = [ResponseType.StrainXXB, ResponseType.StrainZZB, ResponseType.YTrans]
 
-    # timing_str = ["σ = 0 m", "σ = 0.2 m", "σ = 0.5 m"]
     TIME_OFFSET_STDS = [0, 1, 2]
 
     # Iterate through the SENSOR_DIST parameter and collect difference matrices!
     # For each sensor dist we collect under healthy (0) and cracked (0).
-    matrices = [[([], [], []) for _ in SENSOR_DISTS] for _ in TIME_OFFSET_STDS]
+    matrices = [[[([], [], []) for _ in SENSOR_DISTS] for _ in TIME_OFFSET_STDS] for _ in response_types]
     for tos_i, time_offset_std in enumerate(TIME_OFFSET_STDS):
         for SD_i, SENSOR_DIST in enumerate(SENSOR_DISTS):
             # None is also healthy but needs a different dataset.
@@ -173,100 +174,101 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
                 start_date = "14/05/2018 14:00"
                 end_date = "14/05/2018 14:10"
 
-                # Calculate responses to traffic for both sets of sensors.
-                responses_0 = sim.responses.to(
-                    config=config,
-                    traffic_array=ta,
-                    response_type=response_type,
-                    points=flatten(sensors_0, Point),
-                    weather=weather,
-                    start_date=start_date,
-                    end_date=end_date,
-                    with_creep=False,
-                ) * 1e6
-                responses_1 = sim.responses.to(
-                    config=config,
-                    traffic_array=ta,
-                    response_type=response_type,
-                    points=flatten(sensors_1, Point),
-                    weather=weather,
-                    start_date=start_date,
-                    end_date=end_date,
-                    with_creep=False,
-                ) * 1e6
+                for r_i, response_type in enumerate(response_types):
+                    # Calculate responses to traffic for both sets of sensors.
+                    responses_0 = sim.responses.to(
+                        config=config,
+                        traffic_array=ta,
+                        response_type=response_type,
+                        points=flatten(sensors_0, Point),
+                        weather=weather,
+                        start_date=start_date,
+                        end_date=end_date,
+                        with_creep=False,
+                    ) * (1e6 if response_type.is_strain() else 1e3)
+                    responses_1 = sim.responses.to(
+                        config=config,
+                        traffic_array=ta,
+                        response_type=response_type,
+                        points=flatten(sensors_1, Point),
+                        weather=weather,
+                        start_date=start_date,
+                        end_date=end_date,
+                        with_creep=False,
+                    ) * (1e6 if response_type.is_strain() else 1e3)
 
-                def time_func(v_: Vehicle, x_: float, b_: "Bridge") -> float:
-                    if time_offset_std == 0:
-                        return v_.time_at(x_, b_)
-                    new_time = v_.time_at(time_offset_std * np.random.random() + x_, b_)
-                    print(f"Time is {new_time}, was {v_.time_at(x_, b_)}")
-                    return new_time
+                    def time_func(v_: Vehicle, x_: float, b_: "Bridge") -> float:
+                        if time_offset_std == 0:
+                            return v_.time_at(x_, b_)
+                        new_time = v_.time_at(time_offset_std * np.random.random() + x_, b_)
+                        print(f"Time is {new_time}, was {v_.time_at(x_, b_)}")
+                        return new_time
 
-                # For each vehicle find times and responses for each sensor.
-                max_index = len(responses_0[0])
-                for v_i, v in enumerate(vehicles):
-                    avoid = False
-                    matrix_0 = np.zeros(sensors_0.shape)
-                    matrix_1 = np.zeros(sensors_1.shape)
-                    for x_i in range(len(sensors_0)):
-                        for z_i, sensor in enumerate(sensors_0[x_i]):
-                            time = time_func(v, sensor.x, config.bridge)
-                            print_i(f"Time = {time}")
-                            index = round((time - ts.start_time) / config.sensor_freq)
-                            result = responses_0[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
-                            if np.isnan(result):
-                                avoid = True
-                            matrix_0[x_i][z_i] = result
-                    for x_i in range(len(sensors_1)):
-                        for z_i, sensor in enumerate(sensors_1[x_i]):
-                            time = time_func(v, sensor.x, config.bridge)
-                            print_i(f"Time = {time}")
-                            index = round((time - ts.start_time) / config.sensor_freq)
-                            result = responses_1[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
-                            if np.isnan(result):
-                                avoid = True
-                            matrix_1[x_i][z_i] = result
+                    # For each vehicle find times and responses for each sensor.
+                    max_index = len(responses_0[0])
+                    for v_i, v in enumerate(vehicles):
+                        avoid = False
+                        matrix_0 = np.zeros(sensors_0.shape)
+                        matrix_1 = np.zeros(sensors_1.shape)
+                        for x_i in range(len(sensors_0)):
+                            for z_i, sensor in enumerate(sensors_0[x_i]):
+                                time = time_func(v, sensor.x, config.bridge)
+                                print_i(f"Time = {time}")
+                                index = round((time - ts.start_time) / config.sensor_freq)
+                                result = responses_0[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
+                                if np.isnan(result):
+                                    avoid = True
+                                matrix_0[x_i][z_i] = result
+                        for x_i in range(len(sensors_1)):
+                            for z_i, sensor in enumerate(sensors_1[x_i]):
+                                time = time_func(v, sensor.x, config.bridge)
+                                print_i(f"Time = {time}")
+                                index = round((time - ts.start_time) / config.sensor_freq)
+                                result = responses_1[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
+                                if np.isnan(result):
+                                    avoid = True
+                                matrix_1[x_i][z_i] = result
 
-                    # Plot the results for this vehicle.
-                    # vmin = min(np.amin(matrix_0), np.amin(matrix_1))
-                    # vmax = max(np.amax(matrix_0), np.amax(matrix_1))
-                    # vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
-                    # norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
-                    # xticks = np.arange(len(matrix_0), dtype=np.int)
-                    # plt.portrait()
-                    # plt.subplot(3, 1, 1)
-                    # plt.imshow(matrix_0.T, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
-                    # plt.title(f"Healthy, Var = {np.var(matrix_0.T):.2f}")
-                    # plt.xticks(xticks)
-                    # plt.colorbar()
-                    # plt.subplot(3, 1, 2)
-                    # plt.imshow(matrix_1.T, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
-                    # plt.title(f"Cracked, Var = {np.var(matrix_1.T):.2f}")
-                    # plt.xticks(xticks)
-                    # plt.colorbar()
-                    # plt.subplot(3, 1, 3)
-                    mat_delta = matrix_0.T - matrix_1.T
-                    # plt.imshow(mat_delta, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
-                    # plt.xticks(xticks)
-                    # plt.title(f"Difference, Var = {np.var(mat_delta):.2f}")
-                    # plt.colorbar()
-                    # plt.suptitle(f"{response_type.name()}, {length} m crack zone at {crack_x} m")
-                    # plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                    # plt.savefig(config.get_image_path("classify/q5/mat/", f"vehicle={v_i}-sensor-dist={SENSOR_DIST}-healthy={is_healthy}-{tos_i}.pdf"))
-                    # plt.close()
+                        # Plot the results for this vehicle.
+                        # vmin = min(np.amin(matrix_0), np.amin(matrix_1))
+                        # vmax = max(np.amax(matrix_0), np.amax(matrix_1))
+                        # vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+                        # norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+                        # xticks = np.arange(len(matrix_0), dtype=np.int)
+                        # plt.portrait()
+                        # plt.subplot(3, 1, 1)
+                        # plt.imshow(matrix_0.T, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+                        # plt.title(f"Healthy, Var = {np.var(matrix_0.T):.2f}")
+                        # plt.xticks(xticks)
+                        # plt.colorbar()
+                        # plt.subplot(3, 1, 2)
+                        # plt.imshow(matrix_1.T, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+                        # plt.title(f"Cracked, Var = {np.var(matrix_1.T):.2f}")
+                        # plt.xticks(xticks)
+                        # plt.colorbar()
+                        # plt.subplot(3, 1, 3)
+                        mat_delta = matrix_0.T - matrix_1.T
+                        # plt.imshow(mat_delta, cmap=cmap, norm=norm, interpolation="nearest", aspect="auto")
+                        # plt.xticks(xticks)
+                        # plt.title(f"Difference, Var = {np.var(mat_delta):.2f}")
+                        # plt.colorbar()
+                        # plt.suptitle(f"{response_type.name()}, {length} m crack zone at {crack_x} m")
+                        # plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                        # plt.savefig(config.get_image_path("classify/q5/mat/", f"vehicle={v_i}-sensor-dist={SENSOR_DIST}-healthy={is_healthy}-{tos_i}.pdf"))
+                        # plt.close()
 
-                    if not avoid:
-                        matrices[tos_i][SD_i][hc_i].append(mat_delta)
+                        if not avoid:
+                            matrices[r_i][tos_i][SD_i][hc_i].append(mat_delta)
 
     plt.figure(figsize=(20, 16))
     for tos_i, time_offset_std in enumerate(TIME_OFFSET_STDS):
         # Each feature is a row.
-        for f_i, (feature, feature_name) in enumerate(zip(features, feature_names)):
-            plt.subplot(len(features), len(TIME_OFFSET_STDS), f_i * len(TIME_OFFSET_STDS) + tos_i + 1)
+        for r_i, response_type in enumerate(response_types):
+            plt.subplot(len(response_types), len(TIME_OFFSET_STDS), r_i * len(TIME_OFFSET_STDS) + tos_i + 1)
 
             # Matrix collection has finished!
             for SD_i, SENSOR_DIST in enumerate(SENSOR_DISTS):
-                ref_mats, healthy_mats, crack_mats = matrices[tos_i][SD_i]
+                ref_mats, healthy_mats, crack_mats = matrices[r_i][tos_i][SD_i]
                 ref_features = list(map(feature, ref_mats))
                 healthy_features = list(map(feature, healthy_mats))
                 cracked_features = list(map(feature, crack_mats))
@@ -287,11 +289,11 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float):
                 plt.plot(fprs, tprs, label=f"d = {SENSOR_DIST}", lw=2)
                 plt.xlabel("FPR")
                 plt.ylabel("TPR")
-            if tos_i == len(TIME_OFFSET_STDS) - 1 and f_i == len(features) - 1:
+            if tos_i == len(TIME_OFFSET_STDS) - 1 and r_i == len(response_types) - 1:
                 legend()
-            plt.title(f"±{time_offset_std} m, feature is {feature_name}")
+            plt.title(f"{response_type.name()} (±{time_offset_std} m)")
 
-    plt.suptitle(f"Receiver operating characteristic curve for {length} m crack zone at {crack_x} m")
+    plt.suptitle(f"Receiver operating characteristic curve for {length} m crack zone at {crack_x} m ({feature_name} feature)")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(config.get_image_path("classify/q5", "roc.pdf"))
     plt.close()
