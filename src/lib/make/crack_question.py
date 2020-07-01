@@ -92,7 +92,7 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
 
     og_config = deepcopy(config)
     OFFSET = 0.35
-    SENSOR_DISTS = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5]
+    SENSOR_DISTS = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5, 0.25, 0.1]
     # SENSOR_DISTS = [1]
     lane = 0
     cmap = mpl.cm.get_cmap("RdBu")
@@ -295,6 +295,6 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
 
     plt.suptitle(f"Receiver operating characteristic curves for {length} m crack zone at {crack_x} m (feature is '{feature_name.lower()}')")
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(config.get_image_path("classify/q5", "roc.pdf"))
+    plt.savefig(config.get_image_path("classify/q5", f"roc{use_max}-{feature_name}.pdf"))
     plt.close()
 
