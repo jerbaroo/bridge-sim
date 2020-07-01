@@ -606,12 +606,8 @@ def plot_removal_3(config: Config, x: float, z: float):
 
 
 def support_with_points(bridge: Bridge, delta_x: float):
-    support_xs = sorted(set(s.x for s in bridge.supports))
     for support in bridge.supports:
-        if support.x in [support_xs[0], support_xs[2], support_xs[4]]:
-            s_x = support.x + ((support.length / 2) + delta_x)
-        else:
-            s_x = support.x - ((support.length / 2) + delta_x)
+        s_x = support.x - ((support.length / 2) + delta_x)
         support.point = Point(x=s_x, z=support.z)
         for support_2 in bridge.supports:
             if support_2.z == support.z and np.isclose(
