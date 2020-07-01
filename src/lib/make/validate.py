@@ -86,7 +86,7 @@ def truck_1_time_series(c: Config):
         x = np.arange(len(plot_data)) / 700
         if data_center - side < 0:
             x += abs(data_center - side) / 700
-        plt.plot(x, plot_data, c="b", label="Simulation")
+        plt.plot(x, plot_data, c="tab:blue", label="Simulation")
 
     # Results from experiment.
     center = 13500
@@ -147,7 +147,7 @@ def truck_1_time_series(c: Config):
                 data_center = i
         plt.plot(
             np.array(sensor_responses[data_center - side : data_center + side]) * 1e6,
-            c="b",
+            c="tab:blue",
             label="Simulation",
         )
 
