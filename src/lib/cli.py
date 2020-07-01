@@ -648,7 +648,7 @@ def q_crack_comparison(crack_x, length):
 
 @click.option("--crack-x", type=float, required=True, help="Position of crack.")
 @click.option("--length", type=float, required=True, help="Length of crack (X).")
-@click.option("--use_max", is_flag=True, help="Use max, not variance.")
+@click.option("--use-max", is_flag=True, help="Use max, not variance.")
 @thesis.command(help="Crack detection.")
 def q5_crack_detect(crack_x, length, use_max):
     lib.make.crack_question.plot_q5_crack_substructures(
