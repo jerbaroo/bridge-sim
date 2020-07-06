@@ -40,9 +40,9 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
+import dill
 import numpy as np
 import pandas as pd
-from lib.plot import plt
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
@@ -52,6 +52,9 @@ from bridge_sim.util import print_d, print_i, print_w, project_dir
 
 # D: str = &#34;classify.temperature&#34;
 D: bool = False
+
+f_string = &#34;%d/%m/%Y %H:%M&#34;
+&#34;&#34;&#34;Format string used for datetime formatting.&#34;&#34;&#34;
 
 
 def parse_line(line: str):
@@ -266,7 +269,7 @@ def effect(
         linear_responses = linear_responses.add_temp_strain(
             config=config, temp_deltas=(None, 1)
         )
-    print_i(&#34;Loaded unit temperature responses&#34;)
+    print_i(&#34;Calculated unit temperature responses&#34;)
 
     # Effect to unit temperature loading only at requested points.
     unit_uniforms = np.array(uniform_responses.at_decks(points))
@@ -277,11 +280,13 @@ def effect(
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather[&#34;temp&#34;], solar=weather[&#34;solar&#34;])
-        print_w(&#34;Make sure calculating profile from entire year!!&#34;)
+        print_w(&#34;Make sure calculating profile from entire weather data!&#34;)
+    print_i(&#34;Calculating temperature profile...&#34;)
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
     temps_uniform = temps_half - config.bridge.ref_temp_c
+    print_i(&#34;Calculated temperature profile&#34;)
 
     # print(f&#34;temps_bottom.shape = {temps_bottom.shape}&#34;)
     # print(f&#34;temps_top.shape = {temps_top.shape}&#34;)
@@ -293,12 +298,14 @@ def effect(
     print_d(D, f&#34;temps uniform = {temps_uniform[:3]}&#34;)
 
     # Combine uniform and linear responses.
+    print_i(&#34;Calculating uniform and linear responses...&#34;)
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
     linear_responses = np.array(
         [unit_linear * temps_linear for unit_linear in unit_linears]
     )
+    print_i(&#34;Calculated uniform and linear responses&#34;)
     # print(f&#34;uniform_responses.shape = {uniform_responses.shape}&#34;)
     # print(f&#34;linear_responses.shape = {linear_responses.shape}&#34;)
     print_d(D, f&#34;uniform responses = {uniform_responses[:3]}&#34;)
@@ -306,6 +313,38 @@ def effect(
     if d:
         return temps_uniform, temps_linear, uniform_responses + linear_responses
     return uniform_responses + linear_responses
+
+
+def repeat(config: Config, data_id: str, weather: pd.DataFrame, n):
+    &#34;&#34;&#34;Repeat the given weather data n times.
+
+    The data will be loaded from disk if already calculated.
+
+    &#34;&#34;&#34;
+    # .txt just so the CLI clean function won&#39;t delete it.
+    path = config.get_data_path(&#34;weather&#34;, f&#34;{data_id}-{n}.txt&#34;)
+    if os.path.exists(path):
+        with open(path, &#34;rb&#34;) as f:
+            return dill.load(f)
+    weather = deepcopy(weather)
+    weather.sort_values(by=&#34;datetime&#34;)
+    d0, d1 = list(weather[&#34;datetime&#34;][-2:])
+    time_delta = d1 - d0
+    next_time = d1 + time_delta
+    weather_copies = [weather]
+    for n_i in range(n - 1):  # We already have one.
+        time_deltas = np.repeat(time_delta, len(weather)) * (
+            np.arange(len(weather)) + 1
+        )
+        new_datetimes = np.repeat(next_time, len(weather)) + time_deltas
+        next_time = new_datetimes[-1]
+        weather_copy = deepcopy(weather)
+        weather_copy[&#34;datetime&#34;] = new_datetimes
+        weather_copies.append(weather_copy)
+    result = pd.concat(weather_copies, ignore_index=True)
+    with open(path, &#34;wb&#34;) as f:
+        dill.dump(result, f)
+    return result
 
 
 def remove_daily(num_samples, signal):
@@ -424,7 +463,7 @@ temperature at the bottom and top of the bridge deck.</dd>
         linear_responses = linear_responses.add_temp_strain(
             config=config, temp_deltas=(None, 1)
         )
-    print_i(&#34;Loaded unit temperature responses&#34;)
+    print_i(&#34;Calculated unit temperature responses&#34;)
 
     # Effect to unit temperature loading only at requested points.
     unit_uniforms = np.array(uniform_responses.at_decks(points))
@@ -435,11 +474,13 @@ temperature at the bottom and top of the bridge deck.</dd>
     # Determine temperature profile.
     if temps_bt is None:
         temps_bt = temp_profile(temps=weather[&#34;temp&#34;], solar=weather[&#34;solar&#34;])
-        print_w(&#34;Make sure calculating profile from entire year!!&#34;)
+        print_w(&#34;Make sure calculating profile from entire weather data!&#34;)
+    print_i(&#34;Calculating temperature profile...&#34;)
     temps_bottom, temps_top = np.array(temps_bt[0]), np.array(temps_bt[1])
     temps_half = (temps_bottom + temps_top) / 2
     temps_linear = temps_top - temps_bottom
     temps_uniform = temps_half - config.bridge.ref_temp_c
+    print_i(&#34;Calculated temperature profile&#34;)
 
     # print(f&#34;temps_bottom.shape = {temps_bottom.shape}&#34;)
     # print(f&#34;temps_top.shape = {temps_top.shape}&#34;)
@@ -451,12 +492,14 @@ temperature at the bottom and top of the bridge deck.</dd>
     print_d(D, f&#34;temps uniform = {temps_uniform[:3]}&#34;)
 
     # Combine uniform and linear responses.
+    print_i(&#34;Calculating uniform and linear responses...&#34;)
     uniform_responses = np.array(
         [unit_uniform * temps_half for unit_uniform in unit_uniforms]
     )
     linear_responses = np.array(
         [unit_linear * temps_linear for unit_linear in unit_linears]
     )
+    print_i(&#34;Calculated uniform and linear responses&#34;)
     # print(f&#34;uniform_responses.shape = {uniform_responses.shape}&#34;)
     # print(f&#34;linear_responses.shape = {linear_responses.shape}&#34;)
     print_d(D, f&#34;uniform responses = {uniform_responses[:3]}&#34;)

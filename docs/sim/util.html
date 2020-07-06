@@ -25,11 +25,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def _responses_path(
-    sim_runner: &#34;FEMRunner&#34;, sim_params: &#34;SimParams&#34;, response_type: &#34;ResponseType&#34;
+    config: &#34;Config&#34;,
+    sim_runner: &#34;FEMRunner&#34;,
+    sim_params: &#34;SimParams&#34;,
+    response_type: &#34;ResponseType&#34;,
 ) -&gt; str:
     &#34;&#34;&#34;Path to fem that were generated with given parameters.&#34;&#34;&#34;
     return sim_runner.sim_out_path(
-        sim_params=sim_params, ext=&#34;npy&#34;, response_types=[response_type]
+        config=config, sim_params=sim_params, ext=&#34;npy&#34;, response_types=[response_type]
     )
 
 

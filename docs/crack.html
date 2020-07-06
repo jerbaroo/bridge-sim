@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
 <title>bridge_sim.crack API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Add crack zones to bridges." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,11 +20,14 @@
 <h1 class="title">Module <code>bridge_sim.crack</code></h1>
 </header>
 <section id="section-intro">
+<p>Add crack zones to bridges.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from copy import deepcopy
+<pre><code class="python">&#34;&#34;&#34;Add crack zones to bridges.&#34;&#34;&#34;
+
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Callable, List, Tuple, Optional
 
@@ -69,7 +72,7 @@ class CrackDeck:
         &#34;&#34;&#34;Return a Config (deepcopied) with a cracked Bridge.&#34;&#34;&#34;
         config = deepcopy(config)
         bridge = config.bridge
-        bridge.data_id += f&#34;-{self.name}&#34;
+        bridge.data_id = self.name
         self._crack_deck(bridge)  # Add cracked materials.
         # Add additional nodes as requested.
         crack_zone = self.crack_zone(bridge)
@@ -177,8 +180,7 @@ def transverse_crack(
         )
 
     return CrackDeck(
-        name=safe_str(f&#34;transverse-{length}-{width}-{at_x}-{at_z}&#34;),
-        crack_zone=crack_zone,
+        name=safe_str(f&#34;tcrack-{length}-{width}-{at_x}-{at_z}&#34;), crack_zone=crack_zone,
     )</code></pre>
 </details>
 </section>
@@ -221,8 +223,7 @@ def transverse_crack(
         )
 
     return CrackDeck(
-        name=safe_str(f&#34;transverse-{length}-{width}-{at_x}-{at_z}&#34;),
-        crack_zone=crack_zone,
+        name=safe_str(f&#34;tcrack-{length}-{width}-{at_x}-{at_z}&#34;), crack_zone=crack_zone,
     )</code></pre>
 </details>
 </dd>
@@ -282,7 +283,7 @@ direction).</dd>
         &#34;&#34;&#34;Return a Config (deepcopied) with a cracked Bridge.&#34;&#34;&#34;
         config = deepcopy(config)
         bridge = config.bridge
-        bridge.data_id += f&#34;-{self.name}&#34;
+        bridge.data_id = self.name
         self._crack_deck(bridge)  # Add cracked materials.
         # Add additional nodes as requested.
         crack_zone = self.crack_zone(bridge)
@@ -381,7 +382,7 @@ direction).</dd>
     &#34;&#34;&#34;Return a Config (deepcopied) with a cracked Bridge.&#34;&#34;&#34;
     config = deepcopy(config)
     bridge = config.bridge
-    bridge.data_id += f&#34;-{self.name}&#34;
+    bridge.data_id = self.name
     self._crack_deck(bridge)  # Add cracked materials.
     # Add additional nodes as requested.
     crack_zone = self.crack_zone(bridge)

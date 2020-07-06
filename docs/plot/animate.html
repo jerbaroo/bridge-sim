@@ -34,17 +34,19 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import pandas as pd
+from bridge_sim.crack import CrackDeck
+from bridge_sim.shrinkage import CementClass
 from bridge_sim.sim.responses import without
 from matplotlib.animation import FuncAnimation, FFMpegWriter
 from scipy.spatial import distance
 
 from bridge_sim import sim, plot
+from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run import ulm_xzs
 from bridge_sim.model import Config, Point, ResponseType, Vehicle, PierSettlement
 from bridge_sim.traffic import Traffic, TrafficSequence, TrafficArray
 from bridge_sim.util import print_i, flatten
-from lib.plot import axis_cmap_r, axis_cmap
 
 
 def _animate_plot(
@@ -91,17 +93,26 @@ def animate_responses(
     response_type: ResponseType,
     units: str,
     save: str,
+    with_creep: bool,
+    xz: Tuple[float, float] = (18, -8.4),
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    install_day: Optional[int] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+    crack: Optional[Tuple[CrackDeck, int]] = None,
+    psi: Tuple[float, float, float] = [1, 1, 1],
     cmap=cm.get_cmap(&#34;RdBu&#34;),
     without_edges: int = 0,
 ):
+    x, z = xz
+    mul = 1e6 if response_type.is_strain() else 1e3
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
+    # Determine points at which to collect responses.
     without_edges = (
         (lambda _: False)
         if without_edges == 0
@@ -111,13 +122,12 @@ def animate_responses(
         p
         for p in [
             Point(x=x, y=0, z=z)
-            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=100)
             for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
         ]
         if not without_edges(p)
     ]
     # Find the closest point to these coordinates.
-    x, z = 18, -8.4
     point_index = 0
     for _index in range(len(deck_points)):
         p = deck_points[point_index]
@@ -127,49 +137,49 @@ def animate_responses(
         ):
             point_index = _index
     point = deck_points[point_index]
-    responses = sim.responses.to_traffic_array(
+    # Collect all the different kinds of responses.
+    (
+        ll_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = sim.responses.to(
         config=config,
+        points=deck_points,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
-        points=deck_points,
-    )
-    ps_responses = sim.responses.to_pier_settlement(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
+        with_creep=with_creep,
         pier_settlement=pier_settlement,
+        weather=weather,
+        start_date=start_date,
+        end_date=end_date,
+        install_day=install_day,
+        start_day=start_day,
+        end_day=end_day,
+        ret_all=True,
+        cement_class=cement_class,
+        crack=crack,
+        psi=psi,
     )
-    temp_responses = (
-        sim.responses.to_temperature(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            weather=weather,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        * 1e3
+    # Resize responses for plotting.
+    ll_responses *= mul
+    ps_responses *= mul
+    temp_responses *= mul
+    shrinkage_responses *= mul
+    creep_responses *= mul
+    total_responses = (
+        ll_responses
+        + ps_responses
+        + temp_responses
+        + shrinkage_responses
+        + creep_responses
     )
-    shrinkage_responses = (
-        sim.responses.to_shrinkage(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            start_day=start_day,
-            end_day=end_day,
-        )
-        * 1e3
-    )
-    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
-    min_response, max_response = np.amin(responses), np.amax(responses)
-    min_response = min(min_response, -max_response)
-    max_response = max(max_response, -min_response)
-    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
-    # thresh = abs(min_response - max_response) * 0.01
-    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
+    # Calculate Matplotlib norm.
+    min_response, max_response = np.amin(ll_responses), np.amax(ll_responses)
+    vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=vmin, vmax=vmax)
+    # Determine vehicles.
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
     all_vehicles = flatten(traffic, Vehicle)
 
@@ -183,18 +193,11 @@ def animate_responses(
         bridge_sim.plot.top_view_bridge(
             config.bridge, edges=True, piers=True, units=&#34;m&#34;
         )
-        plot.top_view_vehicles(
-            config=config,
-            vehicles=vehicles_at_time[time_index],
-            all_vehicles=all_vehicles,
-            time=traffic_sequence.times[time_index],
-            wheels=True,
-        )
         plot.contour_responses(
             config=config,
             responses=Responses(
                 response_type=response_type,
-                responses=list(zip(responses.T[time_index], deck_points)),
+                responses=list(zip(ll_responses.T[time_index], deck_points)),
             ),
             cmap=cmap,
             norm=response_norm,
@@ -206,20 +209,37 @@ def animate_responses(
         plt.scatter(
             [point.x],
             [point.z],
-            c=&#34;black&#34;,
-            s=20,
+            c=&#34;red&#34;,
+            s=30,
             label=&#34;sensor in bottom plot&#34;,
             zorder=100,
         )
-        plt.legend(loc=&#34;upper right&#34;)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        legend_marker_size(
+            plt.legend(
+                facecolor=&#34;white&#34;,
+                loc=&#34;upper right&#34;,
+                framealpha=1,
+                fancybox=False,
+                borderaxespad=0,
+                labelspacing=0.1,
+            ),
+            30,
+        )
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
         lw = 2
         plt.plot(
             traffic_sequence.times,
-            responses[point_index],
-            c=&#34;black&#34;,
+            ll_responses[point_index],
+            c=&#34;xkcd:purple&#34;,
             label=&#34;traffic&#34;,
             lw=lw,
         )
@@ -246,8 +266,15 @@ def animate_responses(
         )
         plt.plot(
             traffic_sequence.times,
+            creep_responses[point_index],
+            c=&#34;magenta&#34;,
+            label=&#34;creep&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
             total_responses[point_index],
-            c=&#34;xkcd:purple&#34;,
+            c=&#34;red&#34;,
             label=&#34;total&#34;,
             lw=lw,
         )
@@ -255,11 +282,20 @@ def animate_responses(
         plt.ylabel(units)
         plt.axvline(
             x=traffic_sequence.start_time + time_index * time_step,
-            c=&#34;red&#34;,
+            c=&#34;black&#34;,
             label=&#34;current time&#34;,
             lw=lw,
         )
-        plt.legend(facecolor=&#34;white&#34;, loc=&#34;upper right&#34;)
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, -y_max), max(y_max, -y_min))
+        plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.1,
+        )
         plt.tight_layout()
 
         # Add a color bar.
@@ -332,7 +368,7 @@ def animate_traffic_array(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.plot.animate.animate_responses"><code class="name flex">
-<span>def <span class="ident">animate_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, units: str, save: str, pier_settlement: List[Tuple[bridge_sim.model.PierSettlement, bridge_sim.model.PierSettlement]] = [], weather: Union[pandas.core.frame.DataFrame, NoneType] = None, start_date: Union[str, NoneType] = None, end_date: Union[str, NoneType] = None, start_day: Union[int, NoneType] = None, end_day: Union[int, NoneType] = None, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, without_edges: int = 0)</span>
+<span>def <span class="ident">animate_responses</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, response_type: <a title="bridge_sim.model.ResponseType" href="../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, units: str, save: str, with_creep: bool, xz: Tuple[float, float] = (18, -8.4), pier_settlement: List[Tuple[bridge_sim.model.PierSettlement, bridge_sim.model.PierSettlement]] = [], weather: Union[pandas.core.frame.DataFrame, NoneType] = None, start_date: Union[str, NoneType] = None, end_date: Union[str, NoneType] = None, install_day: Union[int, NoneType] = None, start_day: Union[int, NoneType] = None, end_day: Union[int, NoneType] = None, cement_class: <a title="bridge_sim.shrinkage.CementClass" href="../shrinkage/index.html#bridge_sim.shrinkage.CementClass">CementClass</a> = CementClass.Normal, crack: Union[Tuple[bridge_sim.crack.CrackDeck, int], NoneType] = None, psi: Tuple[float, float, float] = [1, 1, 1], cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, without_edges: int = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -346,17 +382,26 @@ def animate_traffic_array(
     response_type: ResponseType,
     units: str,
     save: str,
+    with_creep: bool,
+    xz: Tuple[float, float] = (18, -8.4),
     pier_settlement: List[Tuple[PierSettlement, PierSettlement]] = [],
     weather: Optional[pd.DataFrame] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
+    install_day: Optional[int] = None,
     start_day: Optional[int] = None,
     end_day: Optional[int] = None,
+    cement_class: CementClass = CementClass.Normal,
+    crack: Optional[Tuple[CrackDeck, int]] = None,
+    psi: Tuple[float, float, float] = [1, 1, 1],
     cmap=cm.get_cmap(&#34;RdBu&#34;),
     without_edges: int = 0,
 ):
+    x, z = xz
+    mul = 1e6 if response_type.is_strain() else 1e3
     traffic = traffic_sequence.traffic()
     traffic_array = traffic_sequence.traffic_array()
+    # Determine points at which to collect responses.
     without_edges = (
         (lambda _: False)
         if without_edges == 0
@@ -366,13 +411,12 @@ def animate_traffic_array(
         p
         for p in [
             Point(x=x, y=0, z=z)
-            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=200)
+            for x in np.linspace(config.bridge.x_min, config.bridge.x_max, num=100)
             for z in np.linspace(config.bridge.z_min, config.bridge.z_max, num=60)
         ]
         if not without_edges(p)
     ]
     # Find the closest point to these coordinates.
-    x, z = 18, -8.4
     point_index = 0
     for _index in range(len(deck_points)):
         p = deck_points[point_index]
@@ -382,49 +426,49 @@ def animate_traffic_array(
         ):
             point_index = _index
     point = deck_points[point_index]
-    responses = sim.responses.to_traffic_array(
+    # Collect all the different kinds of responses.
+    (
+        ll_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = sim.responses.to(
         config=config,
+        points=deck_points,
         traffic_array=traffic_array,
         response_type=ResponseType.YTrans,
-        points=deck_points,
-    )
-    ps_responses = sim.responses.to_pier_settlement(
-        config=config,
-        points=deck_points,
-        responses_array=responses,
-        response_type=response_type,
+        with_creep=with_creep,
         pier_settlement=pier_settlement,
+        weather=weather,
+        start_date=start_date,
+        end_date=end_date,
+        install_day=install_day,
+        start_day=start_day,
+        end_day=end_day,
+        ret_all=True,
+        cement_class=cement_class,
+        crack=crack,
+        psi=psi,
     )
-    temp_responses = (
-        sim.responses.to_temperature(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            weather=weather,
-            start_date=start_date,
-            end_date=end_date,
-        )
-        * 1e3
+    # Resize responses for plotting.
+    ll_responses *= mul
+    ps_responses *= mul
+    temp_responses *= mul
+    shrinkage_responses *= mul
+    creep_responses *= mul
+    total_responses = (
+        ll_responses
+        + ps_responses
+        + temp_responses
+        + shrinkage_responses
+        + creep_responses
     )
-    shrinkage_responses = (
-        sim.responses.to_shrinkage(
-            config=config,
-            points=deck_points,
-            responses_array=responses,
-            response_type=response_type,
-            start_day=start_day,
-            end_day=end_day,
-        )
-        * 1e3
-    )
-    total_responses = responses + ps_responses + temp_responses + shrinkage_responses
-    min_response, max_response = np.amin(responses), np.amax(responses)
-    min_response = min(min_response, -max_response)
-    max_response = max(max_response, -min_response)
-    response_norm = colors.Normalize(vmin=min_response, vmax=max_response)
-    # thresh = abs(min_response - max_response) * 0.01
-    # response_norm = colors.SymLogNorm(linthresh=thresh, linscale=thresh, vmin=min_response, vmax=max_response, base=10)
+    # Calculate Matplotlib norm.
+    min_response, max_response = np.amin(ll_responses), np.amax(ll_responses)
+    vmin, vmax = min(min_response, -max_response), max(max_response, -min_response)
+    response_norm = colors.Normalize(vmin=vmin, vmax=vmax)
+    # Determine vehicles.
     vehicles_at_time = [flatten(t, Vehicle) for t in traffic]
     all_vehicles = flatten(traffic, Vehicle)
 
@@ -438,18 +482,11 @@ def animate_traffic_array(
         bridge_sim.plot.top_view_bridge(
             config.bridge, edges=True, piers=True, units=&#34;m&#34;
         )
-        plot.top_view_vehicles(
-            config=config,
-            vehicles=vehicles_at_time[time_index],
-            all_vehicles=all_vehicles,
-            time=traffic_sequence.times[time_index],
-            wheels=True,
-        )
         plot.contour_responses(
             config=config,
             responses=Responses(
                 response_type=response_type,
-                responses=list(zip(responses.T[time_index], deck_points)),
+                responses=list(zip(ll_responses.T[time_index], deck_points)),
             ),
             cmap=cmap,
             norm=response_norm,
@@ -461,20 +498,37 @@ def animate_traffic_array(
         plt.scatter(
             [point.x],
             [point.z],
-            c=&#34;black&#34;,
-            s=20,
+            c=&#34;red&#34;,
+            s=30,
             label=&#34;sensor in bottom plot&#34;,
             zorder=100,
         )
-        plt.legend(loc=&#34;upper right&#34;)
+        plot.top_view_vehicles(
+            config=config,
+            vehicles=vehicles_at_time[time_index],
+            all_vehicles=all_vehicles,
+            time=traffic_sequence.times[time_index],
+            wheels=True,
+        )
+        legend_marker_size(
+            plt.legend(
+                facecolor=&#34;white&#34;,
+                loc=&#34;upper right&#34;,
+                framealpha=1,
+                fancybox=False,
+                borderaxespad=0,
+                labelspacing=0.1,
+            ),
+            30,
+        )
 
         # Bottom plot of the total load on the bridge.
         plt.subplot2grid((3, 1), (2, 0), 1, 1)
         lw = 2
         plt.plot(
             traffic_sequence.times,
-            responses[point_index],
-            c=&#34;black&#34;,
+            ll_responses[point_index],
+            c=&#34;xkcd:purple&#34;,
             label=&#34;traffic&#34;,
             lw=lw,
         )
@@ -501,8 +555,15 @@ def animate_traffic_array(
         )
         plt.plot(
             traffic_sequence.times,
+            creep_responses[point_index],
+            c=&#34;magenta&#34;,
+            label=&#34;creep&#34;,
+            lw=lw,
+        )
+        plt.plot(
+            traffic_sequence.times,
             total_responses[point_index],
-            c=&#34;xkcd:purple&#34;,
+            c=&#34;red&#34;,
             label=&#34;total&#34;,
             lw=lw,
         )
@@ -510,11 +571,20 @@ def animate_traffic_array(
         plt.ylabel(units)
         plt.axvline(
             x=traffic_sequence.start_time + time_index * time_step,
-            c=&#34;red&#34;,
+            c=&#34;black&#34;,
             label=&#34;current time&#34;,
             lw=lw,
         )
-        plt.legend(facecolor=&#34;white&#34;, loc=&#34;upper right&#34;)
+        y_min, y_max = plt.ylim()
+        plt.ylim(min(y_min, -y_max), max(y_max, -y_min))
+        plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.1,
+        )
         plt.tight_layout()
 
         # Add a color bar.
@@ -530,7 +600,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic"><code class="name flex">
-<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x107e69790>, save: str)</span>
+<span>def <span class="ident">animate_traffic</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic: <function NewType.<locals>.new_type at 0x1021e5790>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "Traffic" over a bridge.</p></div>
@@ -563,7 +633,7 @@ def animate_traffic_array(
 </details>
 </dd>
 <dt id="bridge_sim.plot.animate.animate_traffic_array"><code class="name flex">
-<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x11bc15310>, save: str)</span>
+<span>def <span class="ident">animate_traffic_array</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, traffic_sequence: <a title="bridge_sim.traffic.TrafficSequence" href="../traffic/index.html#bridge_sim.traffic.TrafficSequence">TrafficSequence</a>, traffic_array: <function NewType.<locals>.new_type at 0x115f8b430>, save: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simple animation of "TrafficArray" over a bridge.</p></div>

@@ -1,3 +1,5 @@
+"""Add crack zones to bridges."""
+
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Callable, List, Tuple, Optional

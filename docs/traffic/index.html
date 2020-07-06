@@ -28,7 +28,6 @@
 <pre><code class="python">&#34;&#34;&#34;Generate time series of traffic.&#34;&#34;&#34;
 
 import os
-from timeit import default_timer as timer
 from typing import NewType, List, Tuple, Callable, Optional
 
 import dill
@@ -94,9 +93,12 @@ class TrafficScenario:
         for lane, _ in enumerate(bridge.lanes):
             while True:
                 v = next(mv_vehicle_gens[lane])
-                if v.time_entering_bridge(bridge) &gt; final_time:
+                entering_time = v.time_entering_bridge(bridge)
+                print_i(f&#34;Lane {lane}: entering time at {entering_time:.2f} s&#34;, end=&#34;\r&#34;)
+                if entering_time &gt; final_time:
                     break
                 vehicles_per_lane[lane].append(v)
+        print_i(&#34;Generated TrafficSequence&#34;)
         return TrafficSequence(
             config=config,
             vehicles_per_lane=vehicles_per_lane,
@@ -138,8 +140,8 @@ class TrafficSequence:
         self.final_time = final_time
         self.times = np.arange(
             self.start_time,
-            self.final_time + (self.config.sensor_hz / 2),
-            self.config.sensor_hz,
+            self.final_time + (self.config.sensor_freq / 2),
+            self.config.sensor_freq,
         )
         assert self.times[0] == self.start_time
 
@@ -147,7 +149,9 @@ class TrafficSequence:
         &#34;&#34;&#34;Convert this &#34;TrafficSequence&#34; to &#34;Traffic&#34;.&#34;&#34;&#34;
         bridge = self.config.bridge
         result = [[[] for _ in bridge.lanes] for _ in self.times]
+        print_i(&#34;Generating Traffic&#34;)
         for t, time in enumerate(self.times):
+            print_i(f&#34;Generating Traffic: time {time:.2f} s&#34;, end=&#34;\r&#34;)
             for l, vehicles in enumerate(self.vehicles_per_lane):
                 for vehicle in vehicles:
                     if vehicle.on_bridge(time=time, bridge=bridge):
@@ -160,8 +164,11 @@ class TrafficSequence:
             (len(self.times), len(self.config.bridge.lanes) * self.config.il_num_loads,)
         )
         vehicles = set(flatten(self.vehicles_per_lane, Vehicle))
+        total_vehicles = len(vehicles)
+        print_i(&#34;Generating TrafficArray&#34;)
         # For each vehicle..
-        for vehicle in vehicles:
+        for v_i, vehicle in enumerate(vehicles):
+            print_i(f&#34;Generating TrafficArray: vehicle {v_i} / {total_vehicles}&#34;, end=&#34;\r&#34;)
             # ..find the times on the bridge in the simulation..
             v_time_indices, v_times = vehicle._times_on_bridge(self.config, self.times,)
             # ..then for each time fill in the traffic array.
@@ -194,7 +201,7 @@ def normal_traffic(config: Config, lam: float = 5, min_d: float = 2):
 
 
 def _traffic_name(c: Config, traffic_scenario: TrafficScenario, time: float):
-    return safe_str(f&#34;{traffic_scenario.name} {c.il_num_loads} {time} {c.sensor_hz}&#34;)
+    return safe_str(f&#34;{traffic_scenario.name} {c.il_num_loads} {time} {c.sensor_freq}&#34;)
 
 
 def load_traffic(
@@ -411,9 +418,12 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
         for lane, _ in enumerate(bridge.lanes):
             while True:
                 v = next(mv_vehicle_gens[lane])
-                if v.time_entering_bridge(bridge) &gt; final_time:
+                entering_time = v.time_entering_bridge(bridge)
+                print_i(f&#34;Lane {lane}: entering time at {entering_time:.2f} s&#34;, end=&#34;\r&#34;)
+                if entering_time &gt; final_time:
                     break
                 vehicles_per_lane[lane].append(v)
+        print_i(&#34;Generated TrafficSequence&#34;)
         return TrafficSequence(
             config=config,
             vehicles_per_lane=vehicles_per_lane,
@@ -494,9 +504,12 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
     for lane, _ in enumerate(bridge.lanes):
         while True:
             v = next(mv_vehicle_gens[lane])
-            if v.time_entering_bridge(bridge) &gt; final_time:
+            entering_time = v.time_entering_bridge(bridge)
+            print_i(f&#34;Lane {lane}: entering time at {entering_time:.2f} s&#34;, end=&#34;\r&#34;)
+            if entering_time &gt; final_time:
                 break
             vehicles_per_lane[lane].append(v)
+    print_i(&#34;Generated TrafficSequence&#34;)
     return TrafficSequence(
         config=config,
         vehicles_per_lane=vehicles_per_lane,
@@ -532,8 +545,8 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
         self.final_time = final_time
         self.times = np.arange(
             self.start_time,
-            self.final_time + (self.config.sensor_hz / 2),
-            self.config.sensor_hz,
+            self.final_time + (self.config.sensor_freq / 2),
+            self.config.sensor_freq,
         )
         assert self.times[0] == self.start_time
 
@@ -541,7 +554,9 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
         &#34;&#34;&#34;Convert this &#34;TrafficSequence&#34; to &#34;Traffic&#34;.&#34;&#34;&#34;
         bridge = self.config.bridge
         result = [[[] for _ in bridge.lanes] for _ in self.times]
+        print_i(&#34;Generating Traffic&#34;)
         for t, time in enumerate(self.times):
+            print_i(f&#34;Generating Traffic: time {time:.2f} s&#34;, end=&#34;\r&#34;)
             for l, vehicles in enumerate(self.vehicles_per_lane):
                 for vehicle in vehicles:
                     if vehicle.on_bridge(time=time, bridge=bridge):
@@ -554,8 +569,11 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
             (len(self.times), len(self.config.bridge.lanes) * self.config.il_num_loads,)
         )
         vehicles = set(flatten(self.vehicles_per_lane, Vehicle))
+        total_vehicles = len(vehicles)
+        print_i(&#34;Generating TrafficArray&#34;)
         # For each vehicle..
-        for vehicle in vehicles:
+        for v_i, vehicle in enumerate(vehicles):
+            print_i(f&#34;Generating TrafficArray: vehicle {v_i} / {total_vehicles}&#34;, end=&#34;\r&#34;)
             # ..find the times on the bridge in the simulation..
             v_time_indices, v_times = vehicle._times_on_bridge(self.config, self.times,)
             # ..then for each time fill in the traffic array.
@@ -571,7 +589,7 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="bridge_sim.traffic.TrafficSequence.traffic"><code class="name flex">
-<span>def <span class="ident">traffic</span></span>(<span>self) -> <function NewType.<locals>.new_type at 0x107e69790></span>
+<span>def <span class="ident">traffic</span></span>(<span>self) -> <function NewType.<locals>.new_type at 0x1021e5790></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert this "TrafficSequence" to "Traffic".</p></div>
@@ -583,7 +601,9 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
     &#34;&#34;&#34;Convert this &#34;TrafficSequence&#34; to &#34;Traffic&#34;.&#34;&#34;&#34;
     bridge = self.config.bridge
     result = [[[] for _ in bridge.lanes] for _ in self.times]
+    print_i(&#34;Generating Traffic&#34;)
     for t, time in enumerate(self.times):
+        print_i(f&#34;Generating Traffic: time {time:.2f} s&#34;, end=&#34;\r&#34;)
         for l, vehicles in enumerate(self.vehicles_per_lane):
             for vehicle in vehicles:
                 if vehicle.on_bridge(time=time, bridge=bridge):
@@ -592,7 +612,7 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
 </details>
 </dd>
 <dt id="bridge_sim.traffic.TrafficSequence.traffic_array"><code class="name flex">
-<span>def <span class="ident">traffic_array</span></span>(<span>self) -> <function NewType.<locals>.new_type at 0x107e69790></span>
+<span>def <span class="ident">traffic_array</span></span>(<span>self) -> <function NewType.<locals>.new_type at 0x1021e5790></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert this "TrafficSequence" to "Traffic".</p></div>
@@ -606,8 +626,11 @@ and 'init_x') attributes of the 'Vehicle' will be overridden.</dd>
         (len(self.times), len(self.config.bridge.lanes) * self.config.il_num_loads,)
     )
     vehicles = set(flatten(self.vehicles_per_lane, Vehicle))
+    total_vehicles = len(vehicles)
+    print_i(&#34;Generating TrafficArray&#34;)
     # For each vehicle..
-    for vehicle in vehicles:
+    for v_i, vehicle in enumerate(vehicles):
+        print_i(f&#34;Generating TrafficArray: vehicle {v_i} / {total_vehicles}&#34;, end=&#34;\r&#34;)
         # ..find the times on the bridge in the simulation..
         v_time_indices, v_times = vehicle._times_on_bridge(self.config, self.times,)
         # ..then for each time fill in the traffic array.

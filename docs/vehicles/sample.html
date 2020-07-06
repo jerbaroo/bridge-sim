@@ -26,6 +26,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Sample vehicles from the vehicles data.&#34;&#34;&#34;
+
 from timeit import default_timer as timer
 from typing import List, Tuple, Union, NewType
 
@@ -159,14 +160,16 @@ def sample_vehicle(
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]
     axle_distances = axle_array_and_count(row[&#34;axle_distance&#34;])
-    axle_weights = axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    axle_weights = [
+        a / 1e3 for a in axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    ]  # From kN to N.
     # TODO: Fix units in database.
     # print(axle_distances)
     # print(axle_weights)
     # print(row[&#34;total_weight&#34;])
     vehicle = Vehicle(
         kmph=40,
-        kn=axle_weights,
+        load=axle_weights,
         axle_width=c.axle_width,
         axle_distances=np.array(axle_distances) / 100,
     )
@@ -273,7 +276,7 @@ def vehicle_data_noise_stats(c: Config, noise_col_names: List[str] = noise_col_n
 </details>
 </dd>
 <dt id="bridge_sim.vehicles.sample.load_vehicle_data"><code class="name flex">
-<span>def <span class="ident">load_vehicle_data</span></span>(<span>vehicle_data_path) -> <function NewType.<locals>.new_type at 0x10ec495e0></span>
+<span>def <span class="ident">load_vehicle_data</span></span>(<span>vehicle_data_path) -> <function NewType.<locals>.new_type at 0x108fc6550></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load the vehicles data from disk.</p></div>
@@ -400,14 +403,16 @@ row from the Pandas DataFrame, else return just a Vehicle.</dd>
     # Convert sample to Vehicle and return it.
     row = sample.iloc[0]
     axle_distances = axle_array_and_count(row[&#34;axle_distance&#34;])
-    axle_weights = axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    axle_weights = [
+        a / 1e3 for a in axle_array_and_count(row[&#34;weight_per_axle&#34;])
+    ]  # From kN to N.
     # TODO: Fix units in database.
     # print(axle_distances)
     # print(axle_weights)
     # print(row[&#34;total_weight&#34;])
     vehicle = Vehicle(
         kmph=40,
-        kn=axle_weights,
+        load=axle_weights,
         axle_width=c.axle_width,
         axle_distances=np.array(axle_distances) / 100,
     )
