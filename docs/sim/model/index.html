@@ -507,10 +507,14 @@ class Responses:
             self.responses[0][p.x][p.y][p.z] += v
             after = self.responses[0][p.x][p.y][p.z]
             # print(before, after)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def map(self, f, xyz: bool = False):
-        &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+        &#34;&#34;&#34;Map a function over the response values.&#34;&#34;&#34;
         time = self.times[0]
         for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
@@ -519,6 +523,10 @@ class Responses:
                         self.responses[time][x][y][z] = f(response, x, y, z)
                     else:
                         self.responses[time][x][y][z] = f(response)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def without(self, remove: Callable[[Point, float], bool]) -&gt; &#34;Responses&#34;:
@@ -548,9 +556,13 @@ class Responses:
         if uniform_delta is not None and linear_delta is not None:
             raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
         if uniform_delta is not None:
-            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+            subtract = 1 * config.cte * uniform_delta
+            print_i(f&#34;Temperature post-processing, subtract strain = {subtract}&#34;)
+            return self.map(lambda r: r - subtract)
         if linear_delta is not None:
-            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
+            add = 0.5 * config.cte * linear_delta
+            print_i(f&#34;Temperature post-processing, adding strain = {add}&#34;)
+            return self.map(lambda r: r + add)
 
     def to_stress(self, bridge: Bridge):
         &#34;&#34;&#34;Convert strain responses to stress responses.&#34;&#34;&#34;
@@ -665,6 +677,7 @@ class SimResponses(Responses):
     def save(self):
         &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
         path = _responses_path(
+            config=self.c,
             sim_runner=self.sim_runner,
             sim_params=self.sim_params,
             response_type=self.response_type,
@@ -710,7 +723,7 @@ def bridge_3d_elements(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x11bc66820>, all_pier_elements: <function NewType.<locals>.new_type at 0x11bc669d0>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x115f9c700>, all_pier_elements: <function NewType.<locals>.new_type at 0x115f9c8b0>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -731,7 +744,7 @@ def bridge_3d_elements(
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x11bc71ee0>, all_support_nodes: <function NewType.<locals>.new_type at 0x11bc66160>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x115fa3dc0>, all_support_nodes: <function NewType.<locals>.new_type at 0x115f9c040>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1162,10 +1175,14 @@ def bridge_3d_elements(
             self.responses[0][p.x][p.y][p.z] += v
             after = self.responses[0][p.x][p.y][p.z]
             # print(before, after)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def map(self, f, xyz: bool = False):
-        &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+        &#34;&#34;&#34;Map a function over the response values.&#34;&#34;&#34;
         time = self.times[0]
         for x, y_dict in self.responses[time].items():
             for y, z_dict in y_dict.items():
@@ -1174,6 +1191,10 @@ def bridge_3d_elements(
                         self.responses[time][x][y][z] = f(response, x, y, z)
                     else:
                         self.responses[time][x][y][z] = f(response)
+        try:
+            del self.griddata
+        except AttributeError:
+            pass
         return self
 
     def without(self, remove: Callable[[Point, float], bool]) -&gt; &#34;Responses&#34;:
@@ -1203,9 +1224,13 @@ def bridge_3d_elements(
         if uniform_delta is not None and linear_delta is not None:
             raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
         if uniform_delta is not None:
-            return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+            subtract = 1 * config.cte * uniform_delta
+            print_i(f&#34;Temperature post-processing, subtract strain = {subtract}&#34;)
+            return self.map(lambda r: r - subtract)
         if linear_delta is not None:
-            return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))
+            add = 0.5 * config.cte * linear_delta
+            print_i(f&#34;Temperature post-processing, adding strain = {add}&#34;)
+            return self.map(lambda r: r + add)
 
     def to_stress(self, bridge: Bridge):
         &#34;&#34;&#34;Convert strain responses to stress responses.&#34;&#34;&#34;
@@ -1327,6 +1352,10 @@ def bridge_3d_elements(
         self.responses[0][p.x][p.y][p.z] += v
         after = self.responses[0][p.x][p.y][p.z]
         # print(before, after)
+    try:
+        del self.griddata
+    except AttributeError:
+        pass
     return self</code></pre>
 </details>
 </dd>
@@ -1349,9 +1378,13 @@ def bridge_3d_elements(
     if uniform_delta is not None and linear_delta is not None:
         raise ValueError(&#34;Must be ONLY uniform or linear temperature delta&#34;)
     if uniform_delta is not None:
-        return self.map(lambda r: (r * 1e-6) - (1 * config.cte * uniform_delta))
+        subtract = 1 * config.cte * uniform_delta
+        print_i(f&#34;Temperature post-processing, subtract strain = {subtract}&#34;)
+        return self.map(lambda r: r - subtract)
     if linear_delta is not None:
-        return self.map(lambda r: r * 1e-6 + (0.5 * config.cte * linear_delta))</code></pre>
+        add = 0.5 * config.cte * linear_delta
+        print_i(f&#34;Temperature post-processing, adding strain = {add}&#34;)
+        return self.map(lambda r: r + add)</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.Responses.at_deck"><code class="name flex">
@@ -1460,13 +1493,13 @@ def bridge_3d_elements(
 <span>def <span class="ident">map</span></span>(<span>self, f, xyz: bool = False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Map a function over the values of fem.</p></div>
+<div class="desc"><p>Map a function over the response values.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def map(self, f, xyz: bool = False):
-    &#34;&#34;&#34;Map a function over the values of fem.&#34;&#34;&#34;
+    &#34;&#34;&#34;Map a function over the response values.&#34;&#34;&#34;
     time = self.times[0]
     for x, y_dict in self.responses[time].items():
         for y, z_dict in y_dict.items():
@@ -1475,6 +1508,10 @@ def bridge_3d_elements(
                     self.responses[time][x][y][z] = f(response, x, y, z)
                 else:
                     self.responses[time][x][y][z] = f(response)
+    try:
+        del self.griddata
+    except AttributeError:
+        pass
     return self</code></pre>
 </details>
 </dd>
@@ -1565,7 +1602,7 @@ def bridge_3d_elements(
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x11bc713a0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x115fa33a0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>
@@ -2150,6 +2187,7 @@ currently assumed that a simulation saves all output files.</p></div>
     def save(self):
         &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
         path = _responses_path(
+            config=self.c,
             sim_runner=self.sim_runner,
             sim_params=self.sim_params,
             response_type=self.response_type,
@@ -2178,6 +2216,7 @@ currently assumed that a simulation saves all output files.</p></div>
 <pre><code class="python">def save(self):
     &#34;&#34;&#34;Save theses simulation fem to disk.&#34;&#34;&#34;
     path = _responses_path(
+        config=self.c,
         sim_runner=self.sim_runner,
         sim_params=self.sim_params,
         response_type=self.response_type,

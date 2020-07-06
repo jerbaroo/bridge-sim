@@ -65,13 +65,20 @@ def apply(effect: List[float], signal: List[float]):
     &#34;&#34;&#34;Given effect interpolated to length of given signal.
 
     Args:
-        effect: temperature effect to interpolate to signal length.
-        signal: the signal, length of which temperature is interpolated to.
+        effect: effect to interpolate to signal length.
+        signal: length of which effect is interpolated to.
 
     &#34;&#34;&#34;
+    max_len = max(len(effect), len(signal))
+    # Signal indices to effect indices.
     i = interp1d(
-        np.linspace(0, len(signal) - 1, 10000), np.linspace(0, len(effect) - 1, 10000),
+        np.linspace(0, len(signal) - 1, max_len),
+        np.linspace(0, len(effect) - 1, max_len),
     )(np.arange(len(signal)))
+    # print(
+    #     f&#34;i[0:10] = {i[0:10]}, np.arange(len(effect))[0:10] = {np.arange(len(effect))[0:10]}, effect[0:10] = {effect[0:10]}&#34;
+    # )
+    # Effect indices to effect.
     return interp1d(np.arange(len(effect)), effect)(i)
 
 
@@ -153,6 +160,10 @@ def nearest_index(array, value):
 
 def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -&gt; str:
     &#34;&#34;&#34;Shorten path by mapping to a shorter filepath via a metadata file.&#34;&#34;&#34;
+    # If file already exists at unshortened path, return unshortened path.
+    if os.path.exists(filepath):
+        return filepath
+
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path(&#34;metadata&#34;, &#34;filepath-shortening-map.txt&#34;)
@@ -313,9 +324,9 @@ def plot_hours(df):
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>effect</code></strong></dt>
-<dd>temperature effect to interpolate to signal length.</dd>
+<dd>effect to interpolate to signal length.</dd>
 <dt><strong><code>signal</code></strong></dt>
-<dd>the signal, length of which temperature is interpolated to.</dd>
+<dd>length of which effect is interpolated to.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -325,13 +336,20 @@ def plot_hours(df):
     &#34;&#34;&#34;Given effect interpolated to length of given signal.
 
     Args:
-        effect: temperature effect to interpolate to signal length.
-        signal: the signal, length of which temperature is interpolated to.
+        effect: effect to interpolate to signal length.
+        signal: length of which effect is interpolated to.
 
     &#34;&#34;&#34;
+    max_len = max(len(effect), len(signal))
+    # Signal indices to effect indices.
     i = interp1d(
-        np.linspace(0, len(signal) - 1, 10000), np.linspace(0, len(effect) - 1, 10000),
+        np.linspace(0, len(signal) - 1, max_len),
+        np.linspace(0, len(effect) - 1, max_len),
     )(np.arange(len(signal)))
+    # print(
+    #     f&#34;i[0:10] = {i[0:10]}, np.arange(len(effect))[0:10] = {np.arange(len(effect))[0:10]}, effect[0:10] = {effect[0:10]}&#34;
+    # )
+    # Effect indices to effect.
     return interp1d(np.arange(len(effect)), effect)(i)</code></pre>
 </details>
 </dd>
@@ -686,6 +704,10 @@ def plot_hours(df):
 </summary>
 <pre><code class="python">def shorten_path(c: Config, filepath: str, bypass_config: bool = False) -&gt; str:
     &#34;&#34;&#34;Shorten path by mapping to a shorter filepath via a metadata file.&#34;&#34;&#34;
+    # If file already exists at unshortened path, return unshortened path.
+    if os.path.exists(filepath):
+        return filepath
+
     if not bypass_config and not c.shorten_paths:
         return filepath
     df_path = c.get_data_path(&#34;metadata&#34;, &#34;filepath-shortening-map.txt&#34;)

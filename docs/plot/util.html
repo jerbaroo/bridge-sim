@@ -53,7 +53,13 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
         &#34;trunc({n},{a:.2f},{b:.2f})&#34;.format(n=cmap.name, a=minval, b=maxval),
         cmap(np.linspace(minval, maxval, n)),
     )
-    return new_cmap</code></pre>
+    return new_cmap
+
+
+def legend_marker_size(legend, size):
+    &#34;&#34;&#34;Set the marker size for all legend markers.&#34;&#34;&#34;
+    for legend_handle in legend.legendHandles:
+        legend_handle._sizes = [size]</code></pre>
 </details>
 </section>
 <section>
@@ -86,6 +92,21 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     for p in subplots:
         plt.subplot(rows, cols, p)
         lim_f((amin, amax))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.plot.util.legend_marker_size"><code class="name flex">
+<span>def <span class="ident">legend_marker_size</span></span>(<span>legend, size)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set the marker size for all legend markers.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def legend_marker_size(legend, size):
+    &#34;&#34;&#34;Set the marker size for all legend markers.&#34;&#34;&#34;
+    for legend_handle in legend.legendHandles:
+        legend_handle._sizes = [size]</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.plot.util.truncate_colormap"><code class="name flex">
@@ -125,6 +146,7 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="bridge_sim.plot.util.equal_lims" href="#bridge_sim.plot.util.equal_lims">equal_lims</a></code></li>
+<li><code><a title="bridge_sim.plot.util.legend_marker_size" href="#bridge_sim.plot.util.legend_marker_size">legend_marker_size</a></code></li>
 <li><code><a title="bridge_sim.plot.util.truncate_colormap" href="#bridge_sim.plot.util.truncate_colormap">truncate_colormap</a></code></li>
 </ul>
 </li>

@@ -209,7 +209,7 @@ class Config:
     def __init__(
         self,
         bridge: Callable[[], &#34;Bridge&#34;],
-        sim_runner: Callable[[], &#34;FEMRunner&#34;],
+        sim_runner: &#34;FEMRunner&#34;,
         vehicle_data_path: str,
         vehicle_pdf: List[Tuple[float, float]],
         vehicle_pdf_col: str,
@@ -239,8 +239,7 @@ class Config:
         # Core.
         self._bridge = bridge
         self.bridge = self._bridge()
-        self._sim_runner = sim_runner
-        self.sim_runner = self._sim_runner(self)
+        self.sim_runner = sim_runner
 
         # OpenSees
         self.os_model_template_path: str = &#34;model-template.tcl&#34;
@@ -253,7 +252,7 @@ class Config:
 
         # Unit loads.
         self.il_num_loads: int = 600
-        self.il_unit_load_kn: float = 1000
+        self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
@@ -261,7 +260,7 @@ class Config:
         self.self_weight_asphalt: bool = True
 
         # Responses &amp; events.
-        self.sensor_hz: float = 1 / 100
+        self.sensor_freq: float = 1 / 100
         self.event_time_s: float = 2  # Seconds.
 
         # Vehicles.
@@ -674,7 +673,7 @@ class Bridge:
         &#34;&#34;&#34;
         # Given arguments.
         self.name = name
-        self.msl = msl
+        self.msl = float(msl)
         self.data_id = data_id
 
         self.length = length
@@ -821,7 +820,7 @@ class Bridge:
 
     def wheel_track_zs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-        return sorted(chain.from_iterable(lane.wheel_track_zs() for lane in self.lanes))
+        return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))
 
     def wheel_track_xs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
@@ -1003,7 +1002,7 @@ class Bridge:
 class Vehicle:
     def __init__(
         self,
-        kn: Union[float, List[float]],
+        load: Union[float, List[float]],
         axle_distances: List[float],
         axle_width: float,
         kmph: float,
@@ -1013,7 +1012,7 @@ class Vehicle:
         &#34;&#34;&#34;A vehicles, load intensities, position and speed.
 
         Args:
-            kn: either a scalar (total load of this vehicle), or a list (load
+            load: either a scalar (total load of this vehicle), or a list (load
                 per axle).
             axle_distances: distance between axles in meters.
             axle_width: width of the vehicles&#39;s axles in meters.
@@ -1022,7 +1021,7 @@ class Vehicle:
             init_x: distance from lane beginning at time 0.
 
         &#34;&#34;&#34;
-        self.load = kn
+        self.load = load
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
@@ -1052,6 +1051,7 @@ class Vehicle:
         if self._is_load_per_axle():
             return self.load
         result = [(self.load / self.num_axles) for _ in range(self.num_axles)]
+        print(result[0])
         assert isinstance(result[0], float)
         return result
 
@@ -1395,7 +1395,7 @@ class Vehicle:
         &#34;&#34;&#34;
         # Given arguments.
         self.name = name
-        self.msl = msl
+        self.msl = float(msl)
         self.data_id = data_id
 
         self.length = length
@@ -1542,7 +1542,7 @@ class Vehicle:
 
     def wheel_track_zs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-        return sorted(chain.from_iterable(lane.wheel_track_zs() for lane in self.lanes))
+        return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))
 
     def wheel_track_xs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
@@ -1905,7 +1905,7 @@ class Vehicle:
 </summary>
 <pre><code class="python">def wheel_track_zs(self, c: &#34;Config&#34;):
     &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-    return sorted(chain.from_iterable(lane.wheel_track_zs() for lane in self.lanes))</code></pre>
+    return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.model.Bridge.x"><code class="name flex">
@@ -2054,7 +2054,7 @@ class Vehicle:
 </dd>
 <dt id="bridge_sim.model.Config"><code class="flex name class">
 <span>class <span class="ident">Config</span></span>
-<span>(</span><span>bridge: Callable[[], ForwardRef('Bridge')], sim_runner: Callable[[], ForwardRef('FEMRunner')], vehicle_data_path: str, vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str, generated_data: str = 'generated-data', shorten_paths: bool = False)</span>
+<span>(</span><span>bridge: Callable[[], ForwardRef('Bridge')], sim_runner: FEMRunner, vehicle_data_path: str, vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str, generated_data: str = 'generated-data', shorten_paths: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simulation configuration object.</p>
@@ -2092,7 +2092,7 @@ This applies if 'vehicle_pdf_col' is "length".
     def __init__(
         self,
         bridge: Callable[[], &#34;Bridge&#34;],
-        sim_runner: Callable[[], &#34;FEMRunner&#34;],
+        sim_runner: &#34;FEMRunner&#34;,
         vehicle_data_path: str,
         vehicle_pdf: List[Tuple[float, float]],
         vehicle_pdf_col: str,
@@ -2122,8 +2122,7 @@ This applies if 'vehicle_pdf_col' is "length".
         # Core.
         self._bridge = bridge
         self.bridge = self._bridge()
-        self._sim_runner = sim_runner
-        self.sim_runner = self._sim_runner(self)
+        self.sim_runner = sim_runner
 
         # OpenSees
         self.os_model_template_path: str = &#34;model-template.tcl&#34;
@@ -2136,7 +2135,7 @@ This applies if 'vehicle_pdf_col' is "length".
 
         # Unit loads.
         self.il_num_loads: int = 600
-        self.il_unit_load_kn: float = 1000
+        self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
         self.unit_moment_delta_temp_c: int = 1
@@ -2144,7 +2143,7 @@ This applies if 'vehicle_pdf_col' is "length".
         self.self_weight_asphalt: bool = True
 
         # Responses &amp; events.
-        self.sensor_hz: float = 1 / 100
+        self.sensor_freq: float = 1 / 100
         self.event_time_s: float = 2  # Seconds.
 
         # Vehicles.
@@ -3743,13 +3742,13 @@ FRONT_VIEW:
 </dd>
 <dt id="bridge_sim.model.Vehicle"><code class="flex name class">
 <span>class <span class="ident">Vehicle</span></span>
-<span>(</span><span>kn: Union[float, List[float]], axle_distances: List[float], axle_width: float, kmph: float, lane: int = 0, init_x: float = 0)</span>
+<span>(</span><span>load: Union[float, List[float]], axle_distances: List[float], axle_width: float, kmph: float, lane: int = 0, init_x: float = 0)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A vehicles, load intensities, position and speed.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>kn</code></strong></dt>
+<dt><strong><code>load</code></strong></dt>
 <dd>either a scalar (total load of this vehicle), or a list (load
 per axle).</dd>
 <dt><strong><code>axle_distances</code></strong></dt>
@@ -3770,7 +3769,7 @@ per axle).</dd>
 <pre><code class="python">class Vehicle:
     def __init__(
         self,
-        kn: Union[float, List[float]],
+        load: Union[float, List[float]],
         axle_distances: List[float],
         axle_width: float,
         kmph: float,
@@ -3780,7 +3779,7 @@ per axle).</dd>
         &#34;&#34;&#34;A vehicles, load intensities, position and speed.
 
         Args:
-            kn: either a scalar (total load of this vehicle), or a list (load
+            load: either a scalar (total load of this vehicle), or a list (load
                 per axle).
             axle_distances: distance between axles in meters.
             axle_width: width of the vehicles&#39;s axles in meters.
@@ -3789,7 +3788,7 @@ per axle).</dd>
             init_x: distance from lane beginning at time 0.
 
         &#34;&#34;&#34;
-        self.load = kn
+        self.load = load
         self.axle_distances = axle_distances
         self.axle_width = axle_width
         self.length = sum(self.axle_distances)
@@ -3819,6 +3818,7 @@ per axle).</dd>
         if self._is_load_per_axle():
             return self.load
         result = [(self.load / self.num_axles) for _ in range(self.num_axles)]
+        print(result[0])
         assert isinstance(result[0], float)
         return result
 
@@ -4110,6 +4110,7 @@ per axle).</dd>
     if self._is_load_per_axle():
         return self.load
     result = [(self.load / self.num_axles) for _ in range(self.num_axles)]
+    print(result[0])
     assert isinstance(result[0], float)
     return result</code></pre>
 </details>

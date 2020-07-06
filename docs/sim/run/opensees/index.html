@@ -55,9 +55,8 @@ def opensees_supported_response_types(bridge: Bridge) -&gt; List[ResponseType]:
 
 
 class OSRunner(FEMRunner):
-    def __init__(self, c: Config, exe_path: str):
+    def __init__(self, exe_path: str):
         super().__init__(
-            c=c,
             name=&#34;OpenSees&#34;,
             supported_response_types=opensees_supported_response_types,
             build=build_model,
@@ -75,36 +74,38 @@ class OSRunner(FEMRunner):
     # NOTE: All of the path functions below are only used within the OpenSees
     # FEMRunner, used to save results from OpenSees simulations.
 
-    def translation_path(self, fem_params: SimParams, axis: str):
+    def translation_path(self, config: Config, fem_params: SimParams, axis: str):
         return self.opensees_out_path(
-            sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
+            config=config, sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
         )
 
-    def x_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;x&#34;)
+    def x_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;x&#34;)
 
-    def y_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;y&#34;)
+    def y_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;y&#34;)
 
-    def z_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;z&#34;)
+    def z_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;z&#34;)
 
-    def element_path(self, fem_params: SimParams):
-        return self.opensees_out_path(sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;)
-
-    def stress_path(self, sim_params: SimParams):
+    def element_path(self, config: Config, fem_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
+            config=config, sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;
         )
 
-    def strain_path(self, sim_params: SimParams, point: int):
+    def stress_path(self, config: Config, sim_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
         )
 
-    def forces_path(self, sim_params: SimParams):
+    def strain_path(self, config: Config, sim_params: SimParams, point: int):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
+        )
+
+    def forces_path(self, config: Config, sim_params: SimParams):
+        return self.opensees_out_path(
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
         )
 
 
@@ -124,7 +125,7 @@ def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;],
                 break
     if exe_path is None:
         print_w(&#34;Could&#39;t find OpenSees executable&#34;)
-    return lambda c: OSRunner(c=c, exe_path=exe_path)</code></pre>
+    return OSRunner(exe_path=exe_path)</code></pre>
 </details>
 </section>
 <section>
@@ -199,7 +200,7 @@ def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;],
                 break
     if exe_path is None:
         print_w(&#34;Could&#39;t find OpenSees executable&#34;)
-    return lambda c: OSRunner(c=c, exe_path=exe_path)</code></pre>
+    return OSRunner(exe_path=exe_path)</code></pre>
 </details>
 </dd>
 </dl>
@@ -209,7 +210,7 @@ def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;],
 <dl>
 <dt id="bridge_sim.sim.run.opensees.OSRunner"><code class="flex name class">
 <span>class <span class="ident">OSRunner</span></span>
-<span>(</span><span>c: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, exe_path: str)</span>
+<span>(</span><span>exe_path: str)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
@@ -226,9 +227,8 @@ supported response types for a given bridge.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class OSRunner(FEMRunner):
-    def __init__(self, c: Config, exe_path: str):
+    def __init__(self, exe_path: str):
         super().__init__(
-            c=c,
             name=&#34;OpenSees&#34;,
             supported_response_types=opensees_supported_response_types,
             build=build_model,
@@ -246,36 +246,38 @@ supported response types for a given bridge.</dd>
     # NOTE: All of the path functions below are only used within the OpenSees
     # FEMRunner, used to save results from OpenSees simulations.
 
-    def translation_path(self, fem_params: SimParams, axis: str):
+    def translation_path(self, config: Config, fem_params: SimParams, axis: str):
         return self.opensees_out_path(
-            sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
+            config=config, sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
         )
 
-    def x_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;x&#34;)
+    def x_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;x&#34;)
 
-    def y_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;y&#34;)
+    def y_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;y&#34;)
 
-    def z_translation_path(self, fem_params: SimParams):
-        return self.translation_path(fem_params=fem_params, axis=&#34;z&#34;)
+    def z_translation_path(self, config: Config, fem_params: SimParams):
+        return self.translation_path(config=config, fem_params=fem_params, axis=&#34;z&#34;)
 
-    def element_path(self, fem_params: SimParams):
-        return self.opensees_out_path(sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;)
-
-    def stress_path(self, sim_params: SimParams):
+    def element_path(self, config: Config, fem_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
+            config=config, sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;
         )
 
-    def strain_path(self, sim_params: SimParams, point: int):
+    def stress_path(self, config: Config, sim_params: SimParams):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
         )
 
-    def forces_path(self, sim_params: SimParams):
+    def strain_path(self, config: Config, sim_params: SimParams, point: int):
         return self.opensees_out_path(
-            sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
+        )
+
+    def forces_path(self, config: Config, sim_params: SimParams):
+        return self.opensees_out_path(
+            config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
         )</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -285,7 +287,7 @@ supported response types for a given bridge.</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.element_path"><code class="name flex">
-<span>def <span class="ident">element_path</span></span>(<span>self, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">element_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -293,12 +295,14 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def element_path(self, fem_params: SimParams):
-    return self.opensees_out_path(sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;)</code></pre>
+<pre><code class="python">def element_path(self, config: Config, fem_params: SimParams):
+    return self.opensees_out_path(
+        config=config, sim_params=fem_params, ext=&#34;out&#34;, append=&#34;-elems&#34;
+    )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.forces_path"><code class="name flex">
-<span>def <span class="ident">forces_path</span></span>(<span>self, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">forces_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -306,14 +310,14 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def forces_path(self, sim_params: SimParams):
+<pre><code class="python">def forces_path(self, config: Config, sim_params: SimParams):
     return self.opensees_out_path(
-        sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
+        config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-forces&#34;
     )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.strain_path"><code class="name flex">
-<span>def <span class="ident">strain_path</span></span>(<span>self, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, point: int)</span>
+<span>def <span class="ident">strain_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, point: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -321,14 +325,14 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def strain_path(self, sim_params: SimParams, point: int):
+<pre><code class="python">def strain_path(self, config: Config, sim_params: SimParams, point: int):
     return self.opensees_out_path(
-        sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
+        config=config, sim_params=sim_params, ext=&#34;out&#34;, append=f&#34;-strain-{point}&#34;
     )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.stress_path"><code class="name flex">
-<span>def <span class="ident">stress_path</span></span>(<span>self, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">stress_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -336,14 +340,14 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def stress_path(self, sim_params: SimParams):
+<pre><code class="python">def stress_path(self, config: Config, sim_params: SimParams):
     return self.opensees_out_path(
-        sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
+        config=config, sim_params=sim_params, ext=&#34;out&#34;, append=&#34;-stress&#34;
     )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.translation_path"><code class="name flex">
-<span>def <span class="ident">translation_path</span></span>(<span>self, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, axis: str)</span>
+<span>def <span class="ident">translation_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, axis: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -351,14 +355,14 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def translation_path(self, fem_params: SimParams, axis: str):
+<pre><code class="python">def translation_path(self, config: Config, fem_params: SimParams, axis: str):
     return self.opensees_out_path(
-        sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
+        config=config, sim_params=fem_params, ext=&#34;out&#34;, append=f&#34;node-{axis}&#34;
     )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.x_translation_path"><code class="name flex">
-<span>def <span class="ident">x_translation_path</span></span>(<span>self, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">x_translation_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -366,12 +370,12 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def x_translation_path(self, fem_params: SimParams):
-    return self.translation_path(fem_params=fem_params, axis=&#34;x&#34;)</code></pre>
+<pre><code class="python">def x_translation_path(self, config: Config, fem_params: SimParams):
+    return self.translation_path(config=config, fem_params=fem_params, axis=&#34;x&#34;)</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.y_translation_path"><code class="name flex">
-<span>def <span class="ident">y_translation_path</span></span>(<span>self, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">y_translation_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -379,12 +383,12 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def y_translation_path(self, fem_params: SimParams):
-    return self.translation_path(fem_params=fem_params, axis=&#34;y&#34;)</code></pre>
+<pre><code class="python">def y_translation_path(self, config: Config, fem_params: SimParams):
+    return self.translation_path(config=config, fem_params=fem_params, axis=&#34;y&#34;)</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.opensees.OSRunner.z_translation_path"><code class="name flex">
-<span>def <span class="ident">z_translation_path</span></span>(<span>self, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
+<span>def <span class="ident">z_translation_path</span></span>(<span>self, config: <a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>, fem_params: <a title="bridge_sim.sim.model.SimParams" href="../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -392,8 +396,8 @@ supported response types for a given bridge.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def z_translation_path(self, fem_params: SimParams):
-    return self.translation_path(fem_params=fem_params, axis=&#34;z&#34;)</code></pre>
+<pre><code class="python">def z_translation_path(self, config: Config, fem_params: SimParams):
+    return self.translation_path(config=config, fem_params=fem_params, axis=&#34;z&#34;)</code></pre>
 </details>
 </dd>
 </dl>

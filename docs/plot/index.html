@@ -51,6 +51,7 @@ def top_view_vehicles(
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
     body: bool = True,
+    label_wheels: bool = True,
 ):
     &#34;&#34;&#34;Plot vehicles on a bridge in top view at a given time.
 
@@ -62,42 +63,51 @@ def top_view_vehicles(
             color scale, if None defaults to &#34;vehicles&#34;.
         wheels: plot each wheel as a black dot?
         body: plot the body of the vehicle?
+        label_wheels: add a legend label for the wheels?
 
     &#34;&#34;&#34;
     if all_vehicles is None:
         all_vehicles = vehicles
-    for vehicle in vehicles:
-        if not body:
-            break
-        # Left-most position of each vehicles axle.
-        xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
-        # Center of the lane.
-        z_center = config.bridge.lanes[vehicle.lane].z_center
-        # Bottom position on z-axis of vehicles.
-        zb = z_center - (vehicle.axle_width / 2)
-        # Length, not allowed to extend beyond the bridge.
-        length = vehicle.length
-        if xl + length &lt;= config.bridge.x_min:
-            continue
-        if xl &gt;= config.bridge.x_max:
-            continue
-        if xl &lt; config.bridge.x_min:
-            length -= abs(config.bridge.x_min - xl)
-            xl = config.bridge.x_min
-        if xl + length &gt; config.bridge.x_max:
-            length -= abs(xl + length - config.bridge.x_max)
-        plt.gca().add_patch(
-            patches.Rectangle(
-                (xl, zb),
-                length,
-                vehicle.axle_width,
-                facecolor=vehicle.color(all_vehicles),
+    for v_i, vehicle in enumerate(vehicles):
+        if body:
+            # Left-most position of each vehicles axle.
+            xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
+            # Center of the lane.
+            z_center = config.bridge.lanes[vehicle.lane].z_center
+            # Bottom position on z-axis of vehicles.
+            zb = z_center - (vehicle.axle_width / 2)
+            # Length, not allowed to extend beyond the bridge.
+            length = vehicle.length
+            if xl + length &lt;= config.bridge.x_min:
+                continue
+            if xl &gt;= config.bridge.x_max:
+                continue
+            if xl &lt; config.bridge.x_min:
+                length -= abs(config.bridge.x_min - xl)
+                xl = config.bridge.x_min
+            if xl + length &gt; config.bridge.x_max:
+                length -= abs(xl + length - config.bridge.x_max)
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (xl, zb),
+                    length,
+                    vehicle.axle_width,
+                    facecolor=vehicle.color(all_vehicles),
+                )
             )
-        )
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
-            for load in points_loads:
-                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=4, zorder=10)
+            for l_i, load in enumerate(points_loads):
+                plt.scatter(
+                    [load.x],
+                    [load.z],
+                    c=&#34;black&#34;,
+                    s=5,
+                    zorder=10,
+                    label=(
+                        None if (not label_wheels or v_i &gt; 0 or l_i &gt; 0) else &#34;wheels&#34;
+                    ),
+                )
 
 
 def top_view_bridge(
@@ -706,7 +716,7 @@ def shells(
 </details>
 </dd>
 <dt id="bridge_sim.plot.top_view_vehicles"><code class="name flex">
-<span>def <span class="ident">top_view_vehicles</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, vehicles: List[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>], time: float, all_vehicles: Union[List[bridge_sim.model.Vehicle], NoneType] = None, wheels: bool = False, body: bool = True)</span>
+<span>def <span class="ident">top_view_vehicles</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a>, vehicles: List[<a title="bridge_sim.model.Vehicle" href="../model/index.html#bridge_sim.model.Vehicle">Vehicle</a>], time: float, all_vehicles: Union[List[bridge_sim.model.Vehicle], NoneType] = None, wheels: bool = False, body: bool = True, label_wheels: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot vehicles on a bridge in top view at a given time.</p>
@@ -725,6 +735,8 @@ color scale, if None defaults to "vehicles".</dd>
 <dd>plot each wheel as a black dot?</dd>
 <dt><strong><code>body</code></strong></dt>
 <dd>plot the body of the vehicle?</dd>
+<dt><strong><code>label_wheels</code></strong></dt>
+<dd>add a legend label for the wheels?</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -737,6 +749,7 @@ color scale, if None defaults to "vehicles".</dd>
     all_vehicles: Optional[List[Vehicle]] = None,
     wheels: bool = False,
     body: bool = True,
+    label_wheels: bool = True,
 ):
     &#34;&#34;&#34;Plot vehicles on a bridge in top view at a given time.
 
@@ -748,42 +761,51 @@ color scale, if None defaults to "vehicles".</dd>
             color scale, if None defaults to &#34;vehicles&#34;.
         wheels: plot each wheel as a black dot?
         body: plot the body of the vehicle?
+        label_wheels: add a legend label for the wheels?
 
     &#34;&#34;&#34;
     if all_vehicles is None:
         all_vehicles = vehicles
-    for vehicle in vehicles:
-        if not body:
-            break
-        # Left-most position of each vehicles axle.
-        xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
-        # Center of the lane.
-        z_center = config.bridge.lanes[vehicle.lane].z_center
-        # Bottom position on z-axis of vehicles.
-        zb = z_center - (vehicle.axle_width / 2)
-        # Length, not allowed to extend beyond the bridge.
-        length = vehicle.length
-        if xl + length &lt;= config.bridge.x_min:
-            continue
-        if xl &gt;= config.bridge.x_max:
-            continue
-        if xl &lt; config.bridge.x_min:
-            length -= abs(config.bridge.x_min - xl)
-            xl = config.bridge.x_min
-        if xl + length &gt; config.bridge.x_max:
-            length -= abs(xl + length - config.bridge.x_max)
-        plt.gca().add_patch(
-            patches.Rectangle(
-                (xl, zb),
-                length,
-                vehicle.axle_width,
-                facecolor=vehicle.color(all_vehicles),
+    for v_i, vehicle in enumerate(vehicles):
+        if body:
+            # Left-most position of each vehicles axle.
+            xl = min(vehicle.xs_at(times=[time], bridge=config.bridge)[0])
+            # Center of the lane.
+            z_center = config.bridge.lanes[vehicle.lane].z_center
+            # Bottom position on z-axis of vehicles.
+            zb = z_center - (vehicle.axle_width / 2)
+            # Length, not allowed to extend beyond the bridge.
+            length = vehicle.length
+            if xl + length &lt;= config.bridge.x_min:
+                continue
+            if xl &gt;= config.bridge.x_max:
+                continue
+            if xl &lt; config.bridge.x_min:
+                length -= abs(config.bridge.x_min - xl)
+                xl = config.bridge.x_min
+            if xl + length &gt; config.bridge.x_max:
+                length -= abs(xl + length - config.bridge.x_max)
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (xl, zb),
+                    length,
+                    vehicle.axle_width,
+                    facecolor=vehicle.color(all_vehicles),
+                )
             )
-        )
         if wheels:
             points_loads = vehicle.point_load_pw(config, time, list=True)
-            for load in points_loads:
-                plt.scatter([load.x], [load.z], c=&#34;black&#34;, s=4, zorder=10)</code></pre>
+            for l_i, load in enumerate(points_loads):
+                plt.scatter(
+                    [load.x],
+                    [load.z],
+                    c=&#34;black&#34;,
+                    s=5,
+                    zorder=10,
+                    label=(
+                        None if (not label_wheels or v_i &gt; 0 or l_i &gt; 0) else &#34;wheels&#34;
+                    ),
+                )</code></pre>
 </details>
 </dd>
 </dl>

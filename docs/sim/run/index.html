@@ -80,7 +80,6 @@ class FEMRunner:
 
     def __init__(
         self,
-        c: &#34;Config&#34;,
         name: str,
         supported_response_types: Callable[[Bridge], List[ResponseType]],
         build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
@@ -90,7 +89,6 @@ class FEMRunner:
             [Config, Parsed], Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]
         ],
     ):
-        self.c = c
         self.name = name
         self.supported_response_types = supported_response_types
         self._build = build
@@ -100,6 +98,7 @@ class FEMRunner:
 
     def run(
         self,
+        config: Config,
         expt_params: List[SimParams],
         return_parsed: bool = False,
         return_converted: bool = False,
@@ -116,7 +115,7 @@ class FEMRunner:
         &#34;&#34;&#34;
         # Building.
         start = timer()
-        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
+        expt_params = self._build(c=config, expt_params=expt_params, fem_runner=self)
         print_i(
             f&#34;FEMRunner: built {self.name} model file(s) in&#34;
             + f&#34; {timer() - start:.2f}s&#34;
@@ -125,7 +124,7 @@ class FEMRunner:
         # Running.
         for sim_ind, _ in enumerate(expt_params):
             start = timer()
-            expt_params = self._run(self.c, expt_params, self, sim_ind)
+            expt_params = self._run(config, expt_params, self, sim_ind)
             print_i(
                 f&#34;FEMRunner: ran {self.name}&#34;
                 + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
@@ -134,7 +133,7 @@ class FEMRunner:
 
         # Parsing.
         start = timer()
-        parsed_expt_responses = self._parse(self.c, expt_params, self)
+        parsed_expt_responses = self._parse(config, expt_params, self)
         print_i(
             f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
         )
@@ -145,7 +144,7 @@ class FEMRunner:
         # Converting.
         start = timer()
         converted_expt_responses = self._convert(
-            c=self.c,
+            c=config,
             expt_params=expt_params,
             parsed_expt_responses=parsed_expt_responses,
         )
@@ -161,7 +160,7 @@ class FEMRunner:
                 print_d(D, f&#34;response_type in converted = {response_type}&#34;)
                 print(len(responses))
                 fem_responses = SimResponses(
-                    c=self.c,
+                    c=config,
                     sim_params=expt_params[sim_ind],
                     sim_runner=self,
                     response_type=response_type,
@@ -178,6 +177,7 @@ class FEMRunner:
 
     def sim_model_path(
         self,
+        config: Config,
         sim_params: SimParams,
         ext: str,
         append: str = &#34;&#34;,
@@ -192,18 +192,19 @@ class FEMRunner:
             append: append to the filename (before the extension).
 
         &#34;&#34;&#34;
-        param_str = sim_params.id_str(self.c)
+        param_str = sim_params.id_str(config)
         append = append if len(append) == 0 else f&#34;-{append}&#34;
-        filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+        filename = f&#34;{config.bridge.id_str()}-params={param_str}{append}&#34;
         if dirname is None:
             dirname = self.name
         dirname = safe_str(dirname)
         return shorten_path(
-            self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+            config, safe_str(config.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
         )
 
     def sim_out_path(
         self,
+        config: Config,
         sim_params: SimParams,
         ext: str,
         dirname: Optional[str] = None,
@@ -212,12 +213,13 @@ class FEMRunner:
     ) -&gt; str:
         &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
 
-        :param sim_params: simulation parameters.
-        :param ext: extension of the output file without the dot.
-        :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
-        :param append: append to the filename (before the extension).
-        :param response_types: response types identifying the output file.
-        :return: path for the output file.
+        Args:
+            sim_params: simulation parameters.
+            ext: extension of the output file without the dot.
+            dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+            append: append to the filename (before the extension).
+            response_types: response types identifying the output file.
+
         &#34;&#34;&#34;
         sim_params_copy = deepcopy(sim_params)
         sim_params_copy.response_types = response_types
@@ -226,7 +228,11 @@ class FEMRunner:
         if dirname is None:
             dirname = self.name + &#34;-responses&#34;
         return self.sim_model_path(
-            sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+            config=config,
+            sim_params=sim_params_copy,
+            ext=ext,
+            dirname=dirname,
+            append=append,
         )
 
 
@@ -262,13 +268,16 @@ def load_fem_responses(
     print_prog = lambda s: print_i(prog_str + s, end=&#34;\n&#34; if index is None else &#34;\r&#34;)
 
     path = _responses_path(
-        sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
+        config=c,
+        sim_runner=c.sim_runner,
+        sim_params=sim_params,
+        response_type=response_type,
     )
 
     # Run the FE simulation if requested.
     if run or not os.path.exists(path):
         print_prog(f&#34;Running simulation&#34;)
-        c.sim_runner.run([sim_params])
+        c.sim_runner.run(c, [sim_params])
     else:
         print_prog(f&#34;Not running simulation&#34;)
     # If only running was requested then we are done.
@@ -393,8 +402,8 @@ def ulm_point_loads(config: Config):
     half_axle = config.axle_width / 2
     return [
         [
-            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
-            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load),
         ]
         for x, z in ulm_xzs(config)
     ]
@@ -661,13 +670,16 @@ necessary.</p>
     print_prog = lambda s: print_i(prog_str + s, end=&#34;\n&#34; if index is None else &#34;\r&#34;)
 
     path = _responses_path(
-        sim_runner=c.sim_runner, sim_params=sim_params, response_type=response_type,
+        config=c,
+        sim_runner=c.sim_runner,
+        sim_params=sim_params,
+        response_type=response_type,
     )
 
     # Run the FE simulation if requested.
     if run or not os.path.exists(path):
         print_prog(f&#34;Running simulation&#34;)
-        c.sim_runner.run([sim_params])
+        c.sim_runner.run(c, [sim_params])
     else:
         print_prog(f&#34;Not running simulation&#34;)
     # If only running was requested then we are done.
@@ -980,8 +992,8 @@ parallel.</p>
     half_axle = config.axle_width / 2
     return [
         [
-            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load_kn),
-            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load_kn),
+            PointLoad(x=x, z=z + half_axle, load=config.il_unit_load),
+            PointLoad(x=x, z=z - half_axle, load=config.il_unit_load),
         ]
         for x, z in ulm_xzs(config)
     ]</code></pre>
@@ -1013,7 +1025,7 @@ parallel.</p>
 <dl>
 <dt id="bridge_sim.sim.run.FEMRunner"><code class="flex name class">
 <span>class <span class="ident">FEMRunner</span></span>
-<span>(</span><span>c: "'Config'", name: str, supported_response_types: Callable[[Bridge], List[ResponseType]], build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]], run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]], parse: Callable[[Config, List[SimParams], FEMRunner], Parsed], convert: "Callable[[Config, Parsed], Dict[int, Dict[ResponseType, List['Response']]]]")</span>
+<span>(</span><span>name: str, supported_response_types: Callable[[Bridge], List[ResponseType]], build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]], run: Callable[[Config, List[SimParams], FEMRunner, int], List[SimParams]], parse: Callable[[Config, List[SimParams], FEMRunner], Parsed], convert: "Callable[[Config, Parsed], Dict[int, Dict[ResponseType, List['Response']]]]")</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
@@ -1043,7 +1055,6 @@ supported response types for a given bridge.</dd>
 
     def __init__(
         self,
-        c: &#34;Config&#34;,
         name: str,
         supported_response_types: Callable[[Bridge], List[ResponseType]],
         build: Callable[[Config, List[SimParams], FEMRunner], List[SimParams]],
@@ -1053,7 +1064,6 @@ supported response types for a given bridge.</dd>
             [Config, Parsed], Dict[int, Dict[ResponseType, List[&#34;Response&#34;]]]
         ],
     ):
-        self.c = c
         self.name = name
         self.supported_response_types = supported_response_types
         self._build = build
@@ -1063,6 +1073,7 @@ supported response types for a given bridge.</dd>
 
     def run(
         self,
+        config: Config,
         expt_params: List[SimParams],
         return_parsed: bool = False,
         return_converted: bool = False,
@@ -1079,7 +1090,7 @@ supported response types for a given bridge.</dd>
         &#34;&#34;&#34;
         # Building.
         start = timer()
-        expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
+        expt_params = self._build(c=config, expt_params=expt_params, fem_runner=self)
         print_i(
             f&#34;FEMRunner: built {self.name} model file(s) in&#34;
             + f&#34; {timer() - start:.2f}s&#34;
@@ -1088,7 +1099,7 @@ supported response types for a given bridge.</dd>
         # Running.
         for sim_ind, _ in enumerate(expt_params):
             start = timer()
-            expt_params = self._run(self.c, expt_params, self, sim_ind)
+            expt_params = self._run(config, expt_params, self, sim_ind)
             print_i(
                 f&#34;FEMRunner: ran {self.name}&#34;
                 + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
@@ -1097,7 +1108,7 @@ supported response types for a given bridge.</dd>
 
         # Parsing.
         start = timer()
-        parsed_expt_responses = self._parse(self.c, expt_params, self)
+        parsed_expt_responses = self._parse(config, expt_params, self)
         print_i(
             f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
         )
@@ -1108,7 +1119,7 @@ supported response types for a given bridge.</dd>
         # Converting.
         start = timer()
         converted_expt_responses = self._convert(
-            c=self.c,
+            c=config,
             expt_params=expt_params,
             parsed_expt_responses=parsed_expt_responses,
         )
@@ -1124,7 +1135,7 @@ supported response types for a given bridge.</dd>
                 print_d(D, f&#34;response_type in converted = {response_type}&#34;)
                 print(len(responses))
                 fem_responses = SimResponses(
-                    c=self.c,
+                    c=config,
                     sim_params=expt_params[sim_ind],
                     sim_runner=self,
                     response_type=response_type,
@@ -1141,6 +1152,7 @@ supported response types for a given bridge.</dd>
 
     def sim_model_path(
         self,
+        config: Config,
         sim_params: SimParams,
         ext: str,
         append: str = &#34;&#34;,
@@ -1155,18 +1167,19 @@ supported response types for a given bridge.</dd>
             append: append to the filename (before the extension).
 
         &#34;&#34;&#34;
-        param_str = sim_params.id_str(self.c)
+        param_str = sim_params.id_str(config)
         append = append if len(append) == 0 else f&#34;-{append}&#34;
-        filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+        filename = f&#34;{config.bridge.id_str()}-params={param_str}{append}&#34;
         if dirname is None:
             dirname = self.name
         dirname = safe_str(dirname)
         return shorten_path(
-            self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+            config, safe_str(config.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
         )
 
     def sim_out_path(
         self,
+        config: Config,
         sim_params: SimParams,
         ext: str,
         dirname: Optional[str] = None,
@@ -1175,12 +1188,13 @@ supported response types for a given bridge.</dd>
     ) -&gt; str:
         &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
 
-        :param sim_params: simulation parameters.
-        :param ext: extension of the output file without the dot.
-        :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
-        :param append: append to the filename (before the extension).
-        :param response_types: response types identifying the output file.
-        :return: path for the output file.
+        Args:
+            sim_params: simulation parameters.
+            ext: extension of the output file without the dot.
+            dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+            append: append to the filename (before the extension).
+            response_types: response types identifying the output file.
+
         &#34;&#34;&#34;
         sim_params_copy = deepcopy(sim_params)
         sim_params_copy.response_types = response_types
@@ -1189,7 +1203,11 @@ supported response types for a given bridge.</dd>
         if dirname is None:
             dirname = self.name + &#34;-responses&#34;
         return self.sim_model_path(
-            sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+            config=config,
+            sim_params=sim_params_copy,
+            ext=ext,
+            dirname=dirname,
+            append=append,
         )</code></pre>
 </details>
 <h3>Subclasses</h3>
@@ -1199,7 +1217,7 @@ supported response types for a given bridge.</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="bridge_sim.sim.run.FEMRunner.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>self, expt_params: List[SimParams], return_parsed: bool = False, return_converted: bool = False)</span>
+<span>def <span class="ident">run</span></span>(<span>self, config: Config, expt_params: List[SimParams], return_parsed: bool = False, return_converted: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Run multiple simulations and save responses.</p>
@@ -1219,6 +1237,7 @@ supported response types for a given bridge.</dd>
 </summary>
 <pre><code class="python">def run(
     self,
+    config: Config,
     expt_params: List[SimParams],
     return_parsed: bool = False,
     return_converted: bool = False,
@@ -1235,7 +1254,7 @@ supported response types for a given bridge.</dd>
     &#34;&#34;&#34;
     # Building.
     start = timer()
-    expt_params = self._build(c=self.c, expt_params=expt_params, fem_runner=self)
+    expt_params = self._build(c=config, expt_params=expt_params, fem_runner=self)
     print_i(
         f&#34;FEMRunner: built {self.name} model file(s) in&#34;
         + f&#34; {timer() - start:.2f}s&#34;
@@ -1244,7 +1263,7 @@ supported response types for a given bridge.</dd>
     # Running.
     for sim_ind, _ in enumerate(expt_params):
         start = timer()
-        expt_params = self._run(self.c, expt_params, self, sim_ind)
+        expt_params = self._run(config, expt_params, self, sim_ind)
         print_i(
             f&#34;FEMRunner: ran {self.name}&#34;
             + f&#34; {sim_ind + 1}/{len(expt_params)}&#34;
@@ -1253,7 +1272,7 @@ supported response types for a given bridge.</dd>
 
     # Parsing.
     start = timer()
-    parsed_expt_responses = self._parse(self.c, expt_params, self)
+    parsed_expt_responses = self._parse(config, expt_params, self)
     print_i(
         f&#34;FEMRunner: parsed {self.name} responses in&#34; + f&#34; {timer() - start:.2f} s&#34;
     )
@@ -1264,7 +1283,7 @@ supported response types for a given bridge.</dd>
     # Converting.
     start = timer()
     converted_expt_responses = self._convert(
-        c=self.c,
+        c=config,
         expt_params=expt_params,
         parsed_expt_responses=parsed_expt_responses,
     )
@@ -1280,7 +1299,7 @@ supported response types for a given bridge.</dd>
             print_d(D, f&#34;response_type in converted = {response_type}&#34;)
             print(len(responses))
             fem_responses = SimResponses(
-                c=self.c,
+                c=config,
                 sim_params=expt_params[sim_ind],
                 sim_runner=self,
                 response_type=response_type,
@@ -1297,7 +1316,7 @@ supported response types for a given bridge.</dd>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.FEMRunner.sim_model_path"><code class="name flex">
-<span>def <span class="ident">sim_model_path</span></span>(<span>self, sim_params: SimParams, ext: str, append: str = '', dirname: Optional[str] = None) -> str</span>
+<span>def <span class="ident">sim_model_path</span></span>(<span>self, config: Config, sim_params: SimParams, ext: str, append: str = '', dirname: Optional[str] = None) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Deterministic path for a FE model file.</p>
@@ -1318,6 +1337,7 @@ supported response types for a given bridge.</dd>
 </summary>
 <pre><code class="python">def sim_model_path(
     self,
+    config: Config,
     sim_params: SimParams,
     ext: str,
     append: str = &#34;&#34;,
@@ -1332,34 +1352,42 @@ supported response types for a given bridge.</dd>
         append: append to the filename (before the extension).
 
     &#34;&#34;&#34;
-    param_str = sim_params.id_str(self.c)
+    param_str = sim_params.id_str(config)
     append = append if len(append) == 0 else f&#34;-{append}&#34;
-    filename = f&#34;{self.c.bridge.id_str()}-params={param_str}{append}&#34;
+    filename = f&#34;{config.bridge.id_str()}-params={param_str}{append}&#34;
     if dirname is None:
         dirname = self.name
     dirname = safe_str(dirname)
     return shorten_path(
-        self.c, safe_str(self.c.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
+        config, safe_str(config.get_data_path(dirname, filename)) + f&#34;.{ext}&#34;
     )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.sim.run.FEMRunner.sim_out_path"><code class="name flex">
-<span>def <span class="ident">sim_out_path</span></span>(<span>self, sim_params: SimParams, ext: str, dirname: Optional[str] = None, append: str = '', response_types: List[ResponseType] = []) -> str</span>
+<span>def <span class="ident">sim_out_path</span></span>(<span>self, config: Config, sim_params: SimParams, ext: str, dirname: Optional[str] = None, append: str = '', response_types: List[ResponseType] = []) -> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Deterministic path for unprocessed simulation output files.</p>
-<p>:param sim_params: simulation parameters.
-:param ext: extension of the output file without the dot.
-:param dirname: directory name of output file. Defaults to FEMRunner.name + "-fem".
-:param append: append to the filename (before the extension).
-:param response_types: response types identifying the output file.
-:return: path for the output file.</p></div>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>sim_params</code></strong></dt>
+<dd>simulation parameters.</dd>
+<dt><strong><code>ext</code></strong></dt>
+<dd>extension of the output file without the dot.</dd>
+<dt><strong><code>dirname</code></strong></dt>
+<dd>directory name of output file. Defaults to FEMRunner.name + "-fem".</dd>
+<dt><strong><code>append</code></strong></dt>
+<dd>append to the filename (before the extension).</dd>
+<dt><strong><code>response_types</code></strong></dt>
+<dd>response types identifying the output file.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sim_out_path(
     self,
+    config: Config,
     sim_params: SimParams,
     ext: str,
     dirname: Optional[str] = None,
@@ -1368,12 +1396,13 @@ supported response types for a given bridge.</dd>
 ) -&gt; str:
     &#34;&#34;&#34;Deterministic path for unprocessed simulation output files.
 
-    :param sim_params: simulation parameters.
-    :param ext: extension of the output file without the dot.
-    :param dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
-    :param append: append to the filename (before the extension).
-    :param response_types: response types identifying the output file.
-    :return: path for the output file.
+    Args:
+        sim_params: simulation parameters.
+        ext: extension of the output file without the dot.
+        dirname: directory name of output file. Defaults to FEMRunner.name + &#34;-fem&#34;.
+        append: append to the filename (before the extension).
+        response_types: response types identifying the output file.
+
     &#34;&#34;&#34;
     sim_params_copy = deepcopy(sim_params)
     sim_params_copy.response_types = response_types
@@ -1382,7 +1411,11 @@ supported response types for a given bridge.</dd>
     if dirname is None:
         dirname = self.name + &#34;-responses&#34;
     return self.sim_model_path(
-        sim_params=sim_params_copy, ext=ext, dirname=dirname, append=append
+        config=config,
+        sim_params=sim_params_copy,
+        ext=ext,
+        dirname=dirname,
+        append=append,
     )</code></pre>
 </details>
 </dd>

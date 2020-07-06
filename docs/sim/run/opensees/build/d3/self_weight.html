@@ -46,11 +46,11 @@ def opensees_self_weight_loads(
         &#34;&#34;&#34;Return an empty string or a load string.&#34;&#34;&#34;
         if np.isclose(load_intensity, 0):
             return &#34;&#34;
-        return f&#34;\nload {n_id} 0 {load_intensity * 1000} 0 0 0 0&#34;
+        return f&#34;\nload {n_id} 0 {load_intensity} 0 0 0 0&#34;
 
     yloads_by_nid: Dict[int, float] = defaultdict(lambda: 0)
     for shell in det_shells(deck_shells):
-        node_newtons = shell.mass(config) * constants.g / 4
+        node_newtons = shell.mass(config) * constants.g / 4 * 1e3
         for node in shell.nodes():
             yloads_by_nid[node.n_id] += node_newtons
     load_str = &#34;&#34;.join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])
@@ -69,7 +69,7 @@ def opensees_self_weight_loads(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.run.opensees.build.d3.self_weight.opensees_self_weight_loads"><code class="name flex">
-<span>def <span class="ident">opensees_self_weight_loads</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_shells: <function NewType.<locals>.new_type at 0x11bc66820>)</span>
+<span>def <span class="ident">opensees_self_weight_loads</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../../../../model/index.html#bridge_sim.model.Config">Config</a>, sim_params: <a title="bridge_sim.sim.model.SimParams" href="../../../../model/index.html#bridge_sim.sim.model.SimParams">SimParams</a>, deck_shells: <function NewType.<locals>.new_type at 0x115f9c700>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads for the self weight, if in the simulation parameters.</p></div>
@@ -88,11 +88,11 @@ def opensees_self_weight_loads(
         &#34;&#34;&#34;Return an empty string or a load string.&#34;&#34;&#34;
         if np.isclose(load_intensity, 0):
             return &#34;&#34;
-        return f&#34;\nload {n_id} 0 {load_intensity * 1000} 0 0 0 0&#34;
+        return f&#34;\nload {n_id} 0 {load_intensity} 0 0 0 0&#34;
 
     yloads_by_nid: Dict[int, float] = defaultdict(lambda: 0)
     for shell in det_shells(deck_shells):
-        node_newtons = shell.mass(config) * constants.g / 4
+        node_newtons = shell.mass(config) * constants.g / 4 * 1e3
         for node in shell.nodes():
             yloads_by_nid[node.n_id] += node_newtons
     load_str = &#34;&#34;.join([to_tcl(n_id, li) for n_id, li in yloads_by_nid.items()])
