@@ -164,7 +164,9 @@ def truck_1_time_series(c: Config):
             data = list(map(float, f.readlines()))
         print_i(f"Total strain data length = {len(data)}")
         new_center = center + plot_offsets[s_i]
-        plt.plot(data[new_center - side : new_center + side], c="tab:red", label="Experiment")
+        plt.plot(
+            data[new_center - side : new_center + side], c="tab:red", label="Experiment"
+        )
 
         point = strain_points[s_i]
         plt.scatter(

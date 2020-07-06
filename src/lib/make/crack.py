@@ -203,12 +203,13 @@ def crack_zone_plot(
     print(f"Count = {count_min}, {count_max}")
     txt_path = config.get_image_path(
         "classify/crack_zones",
-        safe_str(f"x-{crack_x_min}-len-{crack_length}-{response_type.value}")
-        + ".txt",
+        safe_str(f"x-{crack_x_min}-len-{crack_length}-{response_type.value}") + ".txt",
     )
     point_area = (config.bridge.length / NUM_X) * (config.bridge.width / NUM_Z)
     with open(txt_path, "w") as f:
-        f.write(f"Count 0.8 min/max = {count_min}, {count_max}, area = {point_area}, min/max area = {count_min * point_area}, {count_max * point_area}")
+        f.write(
+            f"Count 0.8 min/max = {count_min}, {count_max}, area = {point_area}, min/max area = {count_min * point_area}, {count_max * point_area}"
+        )
 
     # Norm calculation.
     r_min, r_max = min(responses.values()), max(responses.values())

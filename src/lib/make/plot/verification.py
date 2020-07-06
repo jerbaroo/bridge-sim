@@ -288,7 +288,9 @@ def per_sensor_plots(
             )
 
         # Plot values from OpenSees.
-        plt.plot(truck_front_x, os_displacement[i], lw=lw, label="OpenSees", c="tab:blue")
+        plt.plot(
+            truck_front_x, os_displacement[i], lw=lw, label="OpenSees", c="tab:blue"
+        )
         if i == 0:
             print(os_displacement[i])
             print(f"Truck front (head) = {truck_front_x[:7]}")

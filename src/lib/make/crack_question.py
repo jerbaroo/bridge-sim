@@ -75,7 +75,9 @@ def plot_crack_detection(config: Config, crack_x: float, length: float, healthy:
     plt.close()
 
 
-def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, use_max: bool = False):
+def plot_q5_crack_substructures(
+    config: Config, crack_x: float, length: float, use_max: bool = False
+):
     plt.style.use("seaborn-bright")
     feature, feature_name = np.var, "Variance"
     if use_max:
@@ -96,13 +98,20 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
     # SENSOR_DISTS = [1]
     lane = 0
     cmap = mpl.cm.get_cmap("RdBu")
-    response_types = [ResponseType.StrainXXB, ResponseType.StrainZZB, ResponseType.YTrans]
+    response_types = [
+        ResponseType.StrainXXB,
+        ResponseType.StrainZZB,
+        ResponseType.YTrans,
+    ]
 
     TIME_OFFSET_STDS = [0, 1, 2]
 
     # Iterate through the SENSOR_DIST parameter and collect difference matrices!
     # For each sensor dist we collect under healthy (0) and cracked (0).
-    matrices = [[[([], [], []) for _ in SENSOR_DISTS] for _ in TIME_OFFSET_STDS] for _ in response_types]
+    matrices = [
+        [[([], [], []) for _ in SENSOR_DISTS] for _ in TIME_OFFSET_STDS]
+        for _ in response_types
+    ]
     for tos_i, time_offset_std in enumerate(TIME_OFFSET_STDS):
         for SD_i, SENSOR_DIST in enumerate(SENSOR_DISTS):
             # None is also healthy but needs a different dataset.
@@ -113,7 +122,9 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                 if is_healthy in [None, True]:
                     config = og_config
                 else:
-                    config = crack.transverse_crack(length=length, at_x=crack_x).crack(config)
+                    config = crack.transverse_crack(length=length, at_x=crack_x).crack(
+                        config
+                    )
                     # config.bridge.data_id = config.bridge.data_id.replace(",0", "")  # TODO: remove hack!
 
                 # TODO: Different traffic per run.
@@ -121,7 +132,9 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                     time += np.random.random(1)
 
                 # First calculate vehicles on the bridge.
-                ts, tr, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=time)
+                ts, tr, ta = traffic.load_traffic(
+                    config, traffic.normal_traffic(config), time=time
+                )
                 vehicles: List[Vehicle] = [
                     v for v in flatten(ts.vehicles_per_lane, Vehicle) if v.lane == lane
                 ]
@@ -150,22 +163,34 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                 z_max = config.bridge.lanes[lane].z_max
                 NUM_Z = int((z_max - z_min) / SENSOR_DIST)
                 # These two 2d-arrays are the sensor points in each mid-span, respectively.
-                sensors_0 = np.array([
-                    [Point(x=x, z=z) for z in np.linspace(z_min, z_max, NUM_Z)]
-                    for x in xs_0
-                ])
-                sensors_1 = np.array([
-                    [Point(x=x, z=z) for z in np.linspace(z_min, z_max, NUM_Z)]
-                    for x in xs_1
-                ])
+                sensors_0 = np.array(
+                    [
+                        [Point(x=x, z=z) for z in np.linspace(z_min, z_max, NUM_Z)]
+                        for x in xs_0
+                    ]
+                )
+                sensors_1 = np.array(
+                    [
+                        [Point(x=x, z=z) for z in np.linspace(z_min, z_max, NUM_Z)]
+                        for x in xs_1
+                    ]
+                )
                 assert sensors_0.shape == sensors_1.shape
 
                 # Verify position of sensors.
-                plot.top_view_bridge(config.bridge, lanes=True, edges=True, piers=True, units="m")
+                plot.top_view_bridge(
+                    config.bridge, lanes=True, edges=True, piers=True, units="m"
+                )
                 for p in flatten(sensors_0, Point) + flatten(sensors_1, Point):
                     plt.scatter([p.x], [p.z], c="r")
-                plt.title(f"Sensors for {np.round(length, 1)} m crack zone at X = {int(crack_x)} m, D = {SENSOR_DIST} m")
-                plt.savefig(config.get_image_path("classify/q5", f"sensor-positions-sensor-dist-{SENSOR_DIST}.pdf"))
+                plt.title(
+                    f"Sensors for {np.round(length, 1)} m crack zone at X = {int(crack_x)} m, D = {SENSOR_DIST} m"
+                )
+                plt.savefig(
+                    config.get_image_path(
+                        "classify/q5", f"sensor-positions-sensor-dist-{SENSOR_DIST}.pdf"
+                    )
+                )
                 plt.close()
 
                 # Load 10 minutes of weather data.
@@ -200,7 +225,9 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                     def time_func(v_: Vehicle, x_: float, b_: "Bridge") -> float:
                         if time_offset_std == 0:
                             return v_.time_at(x_, b_)
-                        new_time = v_.time_at(time_offset_std * np.random.random() + x_, b_)
+                        new_time = v_.time_at(
+                            time_offset_std * np.random.random() + x_, b_
+                        )
                         print(f"Time is {new_time}, was {v_.time_at(x_, b_)}")
                         return new_time
 
@@ -214,8 +241,14 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                             for z_i, sensor in enumerate(sensors_0[x_i]):
                                 time = time_func(v, sensor.x, config.bridge)
                                 print_i(f"Time = {time}")
-                                index = round((time - ts.start_time) / config.sensor_freq)
-                                result = responses_0[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
+                                index = round(
+                                    (time - ts.start_time) / config.sensor_freq
+                                )
+                                result = (
+                                    responses_0[x_i * NUM_Z + z_i][index]
+                                    if 0 <= index < max_index
+                                    else np.nan
+                                )
                                 if np.isnan(result):
                                     avoid = True
                                 matrix_0[x_i][z_i] = result
@@ -223,8 +256,14 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                             for z_i, sensor in enumerate(sensors_1[x_i]):
                                 time = time_func(v, sensor.x, config.bridge)
                                 print_i(f"Time = {time}")
-                                index = round((time - ts.start_time) / config.sensor_freq)
-                                result = responses_1[x_i * NUM_Z + z_i][index] if 0 <= index < max_index else np.nan
+                                index = round(
+                                    (time - ts.start_time) / config.sensor_freq
+                                )
+                                result = (
+                                    responses_1[x_i * NUM_Z + z_i][index]
+                                    if 0 <= index < max_index
+                                    else np.nan
+                                )
                                 if np.isnan(result):
                                     avoid = True
                                 matrix_1[x_i][z_i] = result
@@ -264,7 +303,11 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
     for tos_i, time_offset_std in enumerate(TIME_OFFSET_STDS):
         # Each feature is a row.
         for r_i, response_type in enumerate(response_types):
-            plt.subplot(len(response_types), len(TIME_OFFSET_STDS), r_i * len(TIME_OFFSET_STDS) + tos_i + 1)
+            plt.subplot(
+                len(response_types),
+                len(TIME_OFFSET_STDS),
+                r_i * len(TIME_OFFSET_STDS) + tos_i + 1,
+            )
 
             # Matrix collection has finished!
             for SD_i, SENSOR_DIST in enumerate(SENSOR_DISTS):
@@ -273,9 +316,15 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                 healthy_features = list(map(feature, healthy_mats))
                 cracked_features = list(map(feature, crack_mats))
                 min_feature, max_feature = min(ref_features), max(ref_features) * 1.5
-                print_i(f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max ref = {min_feature}, {max_feature}")
-                print_i(f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max healthy = {min(healthy_features)}, {max(healthy_features)}")
-                print_i(f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max cracked = {min(cracked_features)}, {max(cracked_features)}")
+                print_i(
+                    f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max ref = {min_feature}, {max_feature}"
+                )
+                print_i(
+                    f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max healthy = {min(healthy_features)}, {max(healthy_features)}"
+                )
+                print_i(
+                    f"Sensor distance = {SENSOR_DIST}, feature = {feature_name}, min max cracked = {min(cracked_features)}, {max(cracked_features)}"
+                )
 
                 fprs, tprs = [], []
                 for TH in np.linspace(min_feature, max_feature, 100):
@@ -293,8 +342,11 @@ def plot_q5_crack_substructures(config: Config, crack_x: float, length: float, u
                 legend()
             plt.title(f"{response_type.name()} (±{time_offset_std} m)")
 
-    plt.suptitle(f"Receiver operating characteristic curves for {length} m crack zone at {crack_x} m (feature is '{feature_name.lower()}')")
+    plt.suptitle(
+        f"Receiver operating characteristic curves for {length} m crack zone at {crack_x} m (feature is '{feature_name.lower()}')"
+    )
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(config.get_image_path("classify/q5", f"roc{use_max}-{feature_name}.pdf"))
+    plt.savefig(
+        config.get_image_path("classify/q5", f"roc{use_max}-{feature_name}.pdf")
+    )
     plt.close()
-
