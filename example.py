@@ -1,17 +1,17 @@
-# Responses to point load.
+# Responses to a point-load.
 
-# import matplotlib.pyplot as plt
-# from bridge_sim import bridges, configs, model, plot, sim
+import matplotlib.pyplot as plt
+from bridge_sim import bridges, configs, model, plot, sim
 
-# config = configs.opensees_default(bridges.bridge_narrow)
-# point_loads = [model.PointLoad(x=5, z=0, load=100)]
-# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
-# plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config.bridge, piers=True)
-# plt.tight_layout()
-# plt.show()
+config = configs.opensees_default(bridges.bridge_narrow)
+point_loads = [model.PointLoad(x=5, z=0, load=100)]
+responses = sim.responses.load(config, model.RT.YTrans, point_loads)
+plot.contour_responses(config, responses, point_loads)
+plot.top_view_bridge(config.bridge, piers=True)
+plt.tight_layout()
+plt.show()
 
-# Responses to vehicle converted to point loads.
+# Responses to a vehicle.
 
 # import matplotlib.pyplot as plt
 # from bridge_sim import bridges, configs, model, plot, sim
@@ -19,7 +19,7 @@
 # config = configs.opensees_default(bridges.bridge_narrow, shorten_paths=True)
 # point_loads = model.Vehicle(
 #     # Load intensity of each axle.
-#     kn=[5000, 4000, 4000, 5000, 7000],
+#     load=[5000, 4000, 4000, 5000, 7000],
 #     # Distance between each pair of axles.
 #     axle_distances=[2, 2, 2, 1],
 #     # Width of each axle, distance between point loads.
@@ -115,7 +115,7 @@
 # point_loads = [model.PointLoad(x=8, z=0, load=100)]
 # responses = sim.responses.load(config, model.RT.YTrans, point_loads)
 # plot.contour_responses(config, responses, point_loads)
-# plot.top_view_bridge(config.bridge, piers=True)
+# plot.top_view_bridge(config.bridge, piers=True, lanes=True)
 # plt.tight_layout()
 # plt.show()
 
@@ -125,7 +125,7 @@
 
 # config = configs.opensees_default(bridges.bridge_705(0.5))
 # time = 10
-# config.sensor_hz = 1 / 10
+# config.sensor_freq = 1 / 10
 # traffic_scenario = traffic.normal_traffic(config)
 # traffic_sequence = traffic_scenario.traffic_sequence(config, time)
 # traffic = traffic_sequence.traffic()
@@ -142,7 +142,7 @@
 
 # config = configs.opensees_default(bridges.bridge_705(10))
 # time = 10
-# config.sensor_hz = 1 / 10
+# config.sensor_freq = 1 / 10
 # traffic_scenario = traffic.normal_traffic(config)
 # traffic_sequence = traffic_scenario.traffic_sequence(config, time)
 # weather = temperature.load("holly-springs")
@@ -156,45 +156,47 @@
 #     pier_settlement=[
 #         (model.PierSettlement(4, 1.2), model.PierSettlement(4, 2))],
 #     weather=weather,
-#     start_date="01/05/19 00:00",
-#     end_date="01/05/19 23:59",
+#     start_date="01/05/2019 00:00",
+#     end_date="01/05/2019 23:59",
+#     install_day=30,
 #     start_day=365,
 #     end_day=366,
+#     with_creep=True,
 # )
 
 # Contour plot of temperature effect.
 
-import matplotlib.pyplot as plt
-import numpy as np
-from bridge_sim import bridges, configs, model, sim, plot, temperature
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from bridge_sim import bridges, configs, model, sim, plot, temperature
 
-config = configs.opensees_default(bridges.bridge_705(msl=10))
-bridge = config.bridge
-response_type = model.RT.StrainXXB
+# config = configs.opensees_default(bridges.bridge_705(msl=10))
+# bridge = config.bridge
+# response_type = model.RT.StrainXXB
 
-points = [
-    model.Point(x=x, y=0, z=z)
-    for x in np.linspace(bridge.x_min, bridge.x_max, num=int(bridge.length * 2))
-    for z in np.linspace(bridge.z_min, bridge.z_max, num=int(bridge.width * 2))
-]
-temp_effect = temperature.effect(
-    config=config, response_type=response_type, points=points, temps_bt=[[20], [22]]
-).T[0]  # Only considering a single temperature profile.
-responses = sim.model.Responses(  # Converting to "Responses" for plotting.
-    response_type=response_type,
-    responses=[(temp_effect[p], points[p]) for p in range(len(points))],
-).without_nan_inf()
-plot.contour_responses(config, responses)
-plot.top_view_bridge(config.bridge, piers=True)
-plt.tight_layout()
-plt.show()
+# points = [
+#     model.Point(x=x, y=0, z=z)
+#     for x in np.linspace(bridge.x_min, bridge.x_max, num=int(bridge.length * 2))
+#     for z in np.linspace(bridge.z_min, bridge.z_max, num=int(bridge.width * 2))
+# ]
+# temp_effect = temperature.effect(
+#     config=config, response_type=response_type, points=points, temps_bt=[[20], [22]]
+# ).T[0]  # Only considering a single temperature profile.
+# responses = sim.model.Responses(  # Converting to "Responses" for plotting.
+#     response_type=response_type,
+#     responses=[(temp_effect[p], points[p]) for p in range(len(points))],
+# ).without_nan_inf()
+# plot.contour_responses(config, responses)
+# plot.top_view_bridge(config.bridge, piers=True)
+# plt.tight_layout()
+# plt.show()
 
 # Traffic and temperature example.
 
 # import matplotlib.pyplot as plt
 # from bridge_sim import bridges, configs, model, sim, temperature, traffic
 
-# config = configs.opensees_default(bridges.bridge_wide)
+# config = configs.opensees_default(bridges.bridge_705(10))
 # points = [model.Point(x=10), model.Point(x=20)]
 # response_type = model.RT.YTrans
 
@@ -210,17 +212,16 @@ plt.show()
 
 # # And responses to temperature.
 # weather = temperature.load("holly-springs")
-# weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=30)
+# weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=31)
 # temp_responses = sim.responses.to_temperature(
 #     config=config,
 #     points=points,
 #     responses_array=responses_to_traffic,
 #     response_type=response_type,
 #     weather=weather,
-#     start_date="01/05/19 00:00",
-#     end_date="02/05/19 00:00",
+#     start_date="01/05/2019 00:00",
+#     end_date="02/05/2019 00:00",
 # )
 
-# plt.plot(responses_to_traffic + temp_responses)
+# plt.plot((responses_to_traffic + temp_responses).T)
 # plt.show()
-

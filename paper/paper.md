@@ -72,15 +72,14 @@ maintenance can extend the life of a bridge. Sensor data can be used to detect
 damage in real-time without the delay or cost of a real-time maintenance check.
 
 One of the biggest problems for research into damage detection of concrete slab
-bridges is collection of data from the structure in damaged state[@worden:2006].
+bridges is data collection from the structure in damaged state [@worden:2006].
 This is because bridges are expensive structures that we are simply not allowed
 to damage, except as they are being decommisioned but then traffic is no longer
 permitted on the bridge. To circumvent this issue a lot of research is based on
 numerical simulations. However models used in such research are typically not
-built for re-use, and so researchers must resort to creating their models from
-the low-level building blocks of nodes and forces. `bridge-sim` addresses the
-need for a high-level API for data collection from concrete slab bridge
-simulation.
+built for re-use, and so researchers must spend time creating models from the
+low-level building blocks of nodes and forces. `bridge-sim` addresses the need
+for a high-level API for data collection from concrete slab bridge simulation.
 
 ![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](../data/images/val.png)
 
@@ -90,7 +89,7 @@ To give the reader an idea of the level of abstraction that is provided by the
 `bridge-sim` library a code snippet is provided. The snippet is correct at the
 time of writing, but may be subject to change. In this snippet a contour plot of
 vertical translation responses is generated from a custom `Vehicle` placed on a
-provided model of bridge 705 in Amsterdam.
+provided model (`Bridge`) of bridge 705 in Amsterdam.
 
 ```python
 import matplotlib.pyplot as plt
