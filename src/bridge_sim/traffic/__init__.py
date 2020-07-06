@@ -67,7 +67,9 @@ class TrafficScenario:
             while True:
                 v = next(mv_vehicle_gens[lane])
                 entering_time = v.time_entering_bridge(bridge)
-                print_i(f"Lane {lane}: entering time at {entering_time:.2f} s", end="\r")
+                print_i(
+                    f"Lane {lane}: entering time at {entering_time:.2f} s", end="\r"
+                )
                 if entering_time > final_time:
                     break
                 vehicles_per_lane[lane].append(v)
@@ -141,7 +143,9 @@ class TrafficSequence:
         print_i("Generating TrafficArray")
         # For each vehicle..
         for v_i, vehicle in enumerate(vehicles):
-            print_i(f"Generating TrafficArray: vehicle {v_i} / {total_vehicles}", end="\r")
+            print_i(
+                f"Generating TrafficArray: vehicle {v_i} / {total_vehicles}", end="\r"
+            )
             # ..find the times on the bridge in the simulation..
             v_time_indices, v_times = vehicle._times_on_bridge(self.config, self.times,)
             # ..then for each time fill in the traffic array.

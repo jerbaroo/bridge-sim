@@ -62,7 +62,9 @@ def unit_loads(c: Config, scatter: bool):
                 "verification/point-load",
                 safe_str(f"{prefix}{response_type.name()}") + ".pdf",
             )
-            top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
+            top_view_bridge(
+                c.bridge, piers=True, abutments=True, units="m", compass=True
+            )
             contour_responses(
                 config=c,
                 responses=os_responses,
@@ -89,7 +91,9 @@ def unit_loads(c: Config, scatter: bool):
                 )
                 plt.cla()
                 # Then plot the bridge and Axis image.
-                top_view_bridge(c.bridge, piers=True, abutments=True, units="m", compass=True)
+                top_view_bridge(
+                    c.bridge, piers=True, abutments=True, units="m", compass=True
+                )
                 plt.imshow(
                     mpimg.imread(
                         os.path.join(
@@ -107,7 +111,12 @@ def unit_loads(c: Config, scatter: bool):
                 tmax_s = f"{tmax:.3f}"
                 tabs_s = f"{abs(tmin - tmax):.3f}"
                 for point, leg_label, color, alpha in [
-                    ((load_x, load_z), f"{int(point_loads[0].load / 1e3)} kN load", "black", 1),
+                    (
+                        (load_x, load_z),
+                        f"{int(point_loads[0].load / 1e3)} kN load",
+                        "black",
+                        1,
+                    ),
                     ((0, 0), f"min = {tmin_s} {os_responses.units}", "r", 0),
                     ((0, 0), f"max = {tmax_s} {os_responses.units}", "r", 0),
                     ((0, 0), f"|min-max| = {tabs_s} {os_responses.units}", "r", 0),
@@ -159,7 +168,9 @@ def pier_settlement(c: Config):
             levels = np.linspace(amin, amax, 16)
             # Plot and save the image. If plotting stresses use Axis values for
             # colour normalization.
-            top_view_bridge(c.bridge, abutments=True, piers=True, units="m", compass=True)
+            top_view_bridge(
+                c.bridge, abutments=True, piers=True, units="m", compass=True
+            )
             contour_responses(
                 config=c,
                 cmap=axis_cmap_r,
@@ -315,7 +326,9 @@ def temperature_load(c: Config):
             )
             plt.cla()
             # Then imshow the axis image.
-            bridge_sim.plot.top_view_bridge(bridge=c.bridge, abutments=True, units="m", compass=True)
+            bridge_sim.plot.top_view_bridge(
+                bridge=c.bridge, abutments=True, units="m", compass=True
+            )
             plt.imshow(
                 mpl.image.imread(
                     os.path.join(

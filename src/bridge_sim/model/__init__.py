@@ -793,7 +793,9 @@ class Bridge:
 
     def wheel_track_zs(self, c: "Config"):
         """Z positions of wheel track on the bridge."""
-        return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))
+        return sorted(
+            chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes)
+        )
 
     def wheel_track_xs(self, c: "Config"):
         """Unit load x positions for wheel tracks on this bridge."""

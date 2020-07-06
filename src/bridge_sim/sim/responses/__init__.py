@@ -117,9 +117,7 @@ def to_vehicles_direct(
 ):
     """Responses to vehicles over time (via direct simulation)."""
     loads = [
-        flatten([
-            v.point_load_pw(config=c, time=time) for v in vehicles
-        ], PointLoad)
+        flatten([v.point_load_pw(config=c, time=time) for v in vehicles], PointLoad)
         for time in times
     ]
     # loads = [v.point_load_pw(c) for v in vehicles]

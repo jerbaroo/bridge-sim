@@ -204,7 +204,7 @@ def make_available_sensors_plot(
             marker="o",
             s=50,
             # label="Sensor of interest" if l_i == 0 else None,
-            label=f"Sensor at X = {load.x} m, Z = {load.z} m"
+            label=f"Sensor at X = {load.x} m, Z = {load.z} m",
         )
     legend_marker_size(plt.legend(), 50)
     plt.title(f"Sensors available for classification on Bridge 705")

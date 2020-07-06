@@ -502,7 +502,9 @@ def plot_removal_3(config: Config, x: float, z: float):
     long_weather = deepcopy(weather_2018)
     long_weather["temp"] = temperature.resize(long_weather["temp"], year=2019)
     print_i(f"Repeating {NUM_YEARS} of weather data")
-    long_weather = temperature.repeat(config, "holly-springs-18", long_weather, NUM_YEARS)
+    long_weather = temperature.repeat(
+        config, "holly-springs-18", long_weather, NUM_YEARS
+    )
     print_i(f"Repeated {NUM_YEARS} of weather data")
     start_date, end_date = (
         long_weather["datetime"].iloc[0].strftime(temperature.f_string),
@@ -672,13 +674,21 @@ def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
     plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
     for s_i, support in enumerate(config.bridge.supports):
         if s_i % 4 == 0:
-            support.max_delta = max(support.max_delta, config.bridge.supports[s_i + 3].max_delta)
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 3].max_delta
+            )
         elif s_i % 4 == 1:
-            support.max_delta = max(support.max_delta, config.bridge.supports[s_i + 1].max_delta)
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 1].max_delta
+            )
         elif s_i % 4 == 2:
-            support.max_delta = max(support.max_delta, config.bridge.supports[s_i - 1].max_delta)
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 1].max_delta
+            )
         elif s_i % 4 == 3:
-            support.max_delta = max(support.max_delta, config.bridge.supports[s_i - 3].max_delta)
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 3].max_delta
+            )
         plt.scatter([support.point.x], [support.point.z], c="red")
         plt.annotate(
             f"{np.around(support.max_delta, 2)} mm",
@@ -698,7 +708,9 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
         for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
         for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
     ]
-    sensor_points = [s.point for s in support_with_points(config.bridge, delta_x=delta_x)]
+    sensor_points = [
+        s.point for s in support_with_points(config.bridge, delta_x=delta_x)
+    ]
     points += sensor_points
     install_day = 37
     start_day, end_day = install_day, 365 * num_years
@@ -734,7 +746,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     )
     # Convert to Responses, determining maximum response per point.
     max_responses = [min(rs) for rs in responses]
-    sensor_responses = max_responses[- len(sensor_points):]
+    sensor_responses = max_responses[-len(sensor_points) :]
     responses = sim.model.Responses(
         response_type=model.RT.YTrans,
         responses=[(r, p) for r, p in zip(max_responses, points)],
@@ -744,16 +756,26 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         support.max_response = sensor_responses[s_i]
     for support in support_with_points(config.bridge, delta_x=delta_x):
-        support.max_response = min(support.max_response, support.opposite_support.max_response)
+        support.max_response = min(
+            support.max_response, support.opposite_support.max_response
+        )
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         if s_i % 4 == 0:
-            support.max_response = max(support.max_response, config.bridge.supports[s_i + 3].max_response)
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 3].max_response
+            )
         elif s_i % 4 == 1:
-            support.max_response = max(support.max_response, config.bridge.supports[s_i + 1].max_response)
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 1].max_response
+            )
         elif s_i % 4 == 2:
-            support.max_response = max(support.max_response, config.bridge.supports[s_i - 1].max_response)
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 1].max_response
+            )
         elif s_i % 4 == 3:
-            support.max_response = max(support.max_response, config.bridge.supports[s_i - 3].max_response)
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 3].max_response
+            )
     plt.landscape()
     plot.contour_responses(config, responses, interp=(200, 60), levels=20)
     plot.top_view_bridge(config.bridge, lanes=True, piers=True)
@@ -765,7 +787,9 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
             color="black",
             size="large",
         )
-    plt.title(f"Maximum Y translation over {num_years} years \n from temperature, shrinkage & creep")
+    plt.title(
+        f"Maximum Y translation over {num_years} years \n from temperature, shrinkage & creep"
+    )
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "q2-contour.pdf"))
     plt.close()
@@ -907,5 +931,3 @@ def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
     plt.title("Minimum pier settlement detected (Question 2B)")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2b", "q2b-min-ps.pdf"))
-
-
