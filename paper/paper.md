@@ -1,5 +1,5 @@
 ---
-title: 'bridge-sim: A Python package for concrete slab bridge simulation'
+title: 'bridge-sim: A Python library for concrete slab bridge simulation'
 tags:
   - Python
   - finite element
