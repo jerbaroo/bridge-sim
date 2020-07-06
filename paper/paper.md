@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-`bridge-sim` is an open source package for Python that provides a high-level API
+`bridge-sim` is an open-source library for Python that provides a high-level API
 for building linear 3D models of concrete slab bridges, running simulations of
 the generated models with OpenSees [@mckenna:2011], and generating time series
 and graphics of the responses e.g. \autoref{fig:time}. `bridge-sim` has been
@@ -28,13 +28,13 @@ written with extensibility in mind such that adding support for another finite
 element program other than OpenSees is possible.
 
 `bridge-sim` makes the process of generating time series data via simulation of
-concrete slab bridges much faster and easier than with OpenSees (OpenSees has no
-knowledge of concepts such as bridges, traffic, temperature, or even how to
-generate a mesh). `bridge-sim` accomplishes this by providing a high-level API
-with classes such as `Bridge`, `Material` and `Vehicle`. Functionality includes
-generation of finite element models based on a `Bridge` specification including
-mesh generation, traffic flow generation, settlement of piers, simulation of
-temperature effect and concrete shrinkage and the effect of creep. More detail
+concrete slab bridges much faster and easier than with OpenSees alone (OpenSees
+has no knowledge of concepts such as bridges, traffic, temperature, or even how
+to generate a mesh). `bridge-sim` accomplishes this by providing a high-level
+API with classes such as `Bridge`, `Material` and `Vehicle`. Functionality
+includes generation of finite element models based on a `Bridge` specification
+including mesh generation, traffic flow generation, settlement of piers,
+simulation of temperature effect and concrete shrinkage and creep. More detail
 of the provided functionality is given in the list below. One of the generated
 models has been validated against sensor data collected from bridge 705 in
 Amsterdam, a plot comparing responses from linear simulation to static load
