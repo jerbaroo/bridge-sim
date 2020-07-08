@@ -623,7 +623,7 @@ def q1_min_ps(n):
 
 
 @click.option("--n", type=int, required=True, help="Number of years.")
-@thesis.command(help="Minimum pier settlement detected (Q 2A).")
+@thesis.command(help="Minimum Y translation (Q 2A).")
 def q2_contour(n):
     lib.make.ps_question.plot_contour_q2(c(), num_years=n)
 
