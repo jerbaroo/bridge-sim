@@ -609,13 +609,17 @@ def plot_removal_3(config: Config, x: float, z: float):
 
 def support_with_points(bridge: Bridge, delta_x: float):
     for support in bridge.supports:
-        s_x = support.x - ((support.length / 2) + delta_x)
+        if support.x < bridge.length / 2:
+            s_x = support.x - ((support.length / 2) + delta_x)
+        else:
+            s_x = support.x + ((support.length / 2) + delta_x)
         support.point = Point(x=s_x, z=support.z)
         for support_2 in bridge.supports:
             if support_2.z == support.z and np.isclose(
                 support_2.x, bridge.length - support.x
             ):
                 support.opposite_support = support_2
+        print_w(f"Support sensor at X = {support.point.x}, Z = {support.point.z}")
         if not hasattr(support, "opposite_support"):
             raise ValueError("No opposite support")
     return bridge.supports
@@ -696,7 +700,7 @@ def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
             color="b",
             size="large",
         )
-    plt.title("Maximum difference between symmetric sensors (Question 1A)")
+    plt.title("Maximum difference between symmetric sensors")
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q1", "min-thresh.pdf"))
 
@@ -778,7 +782,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
             )
     plt.landscape()
     plot.contour_responses(config, responses, interp=(200, 60), levels=20)
-    plot.top_view_bridge(config.bridge, lanes=True, piers=True)
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units="m")
     for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
         plt.scatter([support.point.x], [support.point.z], c="black")
         plt.annotate(
@@ -788,7 +792,7 @@ def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
             size="large",
         )
     plt.title(
-        f"Maximum Y translation over {num_years} years \n from temperature, shrinkage & creep"
+        f"Minimum Y translation over {num_years} years \n from traffic, temperature, shrinkage & creep"
     )
     plt.tight_layout()
     plt.savefig(config.get_image_path("classify/q2", "q2-contour.pdf"))
@@ -867,7 +871,7 @@ def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
 
 
 def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
-    THRESH = 2  # Pier settlement from question 1.
+    THRESH = 6  # Pier settlement from question 1.
     plt.landscape()
     log_path = config.get_image_path("classify/q2b", "2b-min-ps.txt")
     if os.path.exists(log_path):  # Start with fresh logfile.
