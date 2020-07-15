@@ -183,9 +183,7 @@ def plot_q5_crack_substructures(
                 )
                 for p in flatten(sensors_0, Point) + flatten(sensors_1, Point):
                     plt.scatter([p.x], [p.z], c="r")
-                plt.title(
-                    f"Sensors for crack zone at X = {int(crack_x)} m"
-                )
+                plt.title(f"Sensors for crack zone at X = {int(crack_x)} m")
                 plt.savefig(
                     config.get_image_path(
                         "classify/q5", f"sensor-positions-sensor-dist-{SENSOR_DIST}.pdf"
