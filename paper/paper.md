@@ -60,7 +60,7 @@ tests (a truck parked on the bridge) is shown in \autoref{fig:val}.
 
 ![The top plot is a contour plot of vertical translation responses. The rectangles are vehicles on the bridge. One supporting pier has been settled by 1 mm. The bottom plot shows a time series of responses from a vertical translation sensor due to traffic, pier settlement and temperature effect. \label{fig:time}](../data/images/animation.png) 
 
-# Problem Domain
+# Statement of need
 
 The probability of a deteriorating bridge to fail increases over time until it
 is no longer considered safe for use. Maintenance of a bridge is typically
@@ -83,7 +83,7 @@ for a high-level API for data collection from concrete slab bridge simulation.
 
 ![Comparison of vertical translation responses from linear simulation with `bridge-sim` and measurements collected in real life. The real bridge which is modeled and from which sensor measurements were taken is bridge 705 in Amsterdam. The x-axis in each plot shows the longitudinal position of the front axle of a truck parked on bridge 705. The y-axis shows the vertical translation from a sensor due to the truck's weight.\label{fig:val}](../data/images/val.png)
 
-# Usage Example 
+# Usage example 
 
 To give the reader an idea of the level of abstraction that is provided by the
 `bridge-sim` library a code snippet is provided. The snippet is correct at the
