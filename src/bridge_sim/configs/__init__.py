@@ -46,3 +46,6 @@ def test_config(msl: float = 10.0):
     )
     exe_found = config.sim_runner.exe_path is not None
     return config, exe_found
+
+
+__all__ = ["opensees_default"]
