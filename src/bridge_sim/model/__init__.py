@@ -392,6 +392,7 @@ class Support:
         width_top: width of the top of the support in meters.
         width_bottom: width of the bottom of the support in meters.
         materials: deck materials, either a list or function from X position.
+        fix_x_translation: should the translation along x be fixed?
 
     """
 
