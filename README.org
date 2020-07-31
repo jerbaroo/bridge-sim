@@ -29,8 +29,8 @@ Currently two installation methods are provided. The Docker method is the easies
 If you have Docker installed and just want to get something runnning ASAP:
 
 #+BEGIN_SRC bash
-$ docker run -it barischrooneyj/bridge-sim:v0.0.7
-$ pipenv run python example.py
+$ docker run -it barischrooneyj/bridge-sim:v0.0.8
+$ poetry run python example.py
 #+END_SRC
 
 *** Docker
@@ -40,17 +40,17 @@ Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed.
 Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
 #+BEGIN_SRC bash
-$ docker run -it barischrooneyj/bridge-sim:v0.0.7
+$ docker run -it barischrooneyj/bridge-sim:v0.0.8
 #+END_SRC
 
-You are now in the =/bridge-sim= directory of the Docker container. You can run the provided example file =example.py= with ~pipenv run python example.py~. This will generate a file =/root/docker.png=.
+You are now in the =/bridge-sim= directory of the Docker container. You can run the provided example file =example.py= with ~poetry run python example.py~. This will generate a file =/root/docker.png=.
 
 To copy =docker.png= to your host system run the following commands in another terminal. The first command lists all running Docker containers. Copy the container ID and then use the ~docker cp~ command to copy =docker.png= to your host system.
 
 #+BEGIN_SRC bash
 $ docker ps
 CONTAINER ID        IMAGE                              COMMAND          CREATED             STATUS            PORTS     NAMES
-d297a50ff165        barischrooneyj/bridge-sim:v0.0.7   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
+d297a50ff165        barischrooneyj/bridge-sim:v0.0.8   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
 $ docker cp d297a50ff165:/root/docker.png docker.png
 #+END_SRC
 
@@ -62,7 +62,7 @@ The Docker image that you enter with ~docker run~ has OpenSees installed at =/ro
 
 These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
 
-Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://barischrooneyj/bridge-sim:v0.0.7=. If the =pull= command fails or the generated =.sif= file is corrupted then try deleting the =.sif= file and run the =pull= command again.
+Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://barischrooneyj/bridge-sim:v0.0.8=. If the =pull= command fails or the generated =.sif= file is corrupted then try deleting the =.sif= file and run the =pull= command again.
 
 To run a simulation you need a script to interact with the scheduler. See [[docker/run-lisa.sh][run-lisa.sh]] for an example of such a script and see the Lisa [[https://userinfo.surfsara.nl/systems/lisa/user-guide/creating-and-running-jobs][user guide]] for further instructions. The way I use the =run-lisa.sh= script, is I configure scheduling parameters in the =run-lisa.sh= script but define my actual job in a second script [[docker/sim.sh][sim.sh]].
 
@@ -70,7 +70,7 @@ To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my
 
 *** Directly
 
-Make sure you have Python 3.8+ installed. And also [[https://pipenv.kennethreitz.org/en/latest/install/#installing-pipenv][install Pipenv]]. Perhaps with ~pip install --user pipenv~?
+Make sure you have Python 3.8+ installed. And also [[https://python-poetry.org/docs/][install Poetry]].
 
 You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If installing OpenSees on Linux the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
@@ -81,7 +81,7 @@ $ git clone https://github.com/barischrooneyj/bridge-sim
 $ cd bridge-sim
 #+END_SRC
 
-In the =bridge-sim= directory install project dependencies with ~pipenv install~. If you have an error and are on the Windows OS you may need to ~pipenv install pypiwin32~. I do not run Windows so can be of limited help there.
+In the =bridge-sim= directory install project dependencies with ~poetry install~. If you have an error and are on the Windows OS you may need to ~poetry install pypiwin32~. I do not run Windows so can be of limited help there.
 
 *** PyPI
 
@@ -95,7 +95,7 @@ A brief introduction to some of the Python classes provided. A =Bridge= describe
 
 ** Examples
 
-If you have managed to install the software then the next step is to run an example such as /example.py/. You will need to make sure that OpenSees is on your PATH, if you have followed the Docker installation instructions then this is already done for you. The file /example.py/ can be run with =pipenv run python example.py=.
+If you have managed to install the software then the next step is to run an example such as =example.py=. You will need to make sure that OpenSees is on your PATH, if you have followed the Docker installation instructions then this is already done for you. The file =example.py= can be run with =poetry run python example.py=.
 
 *** Point Load
 

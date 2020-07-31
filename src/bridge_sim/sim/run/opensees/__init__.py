@@ -97,5 +97,5 @@ def os_runner(exe_path: Optional[str] = None) -> Callable[["Config"], OSRunner]:
                 exe_path = path
                 break
     if exe_path is None:
-        print_w("Could't find OpenSees executable")
+        raise ValueError("Could't find OpenSees executable")
     return OSRunner(exe_path=exe_path)

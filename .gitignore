@@ -4,6 +4,7 @@
 *.tb
 
 # Python
+.python-version
 *.egg-info/
 .idea/
 .ipynb_checkpoints/

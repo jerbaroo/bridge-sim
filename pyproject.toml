@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "poetry-demo"
+version = "0.0.8"
+description = "A Python library for concrete slab bridge simulation"
+authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
+
+[tool.poetry.dependencies]
+bridge_sim = { path = "./src/" }
+findup = "0.3.0"
+pathos = "0.2.5"
+portalocker = "1.7.0"
+python = ">=3.8"
+scipy = "1.5.0rc1"
+click = "7.1.2"
+colorama = "0.4.3"
+matplotlib = "3.2.1"
+numba = "0.50.0rc1"
+numpy = "1.19.0rc2"
+pandas = "1.0.4"
+sklearn = "0.0"
+termcolor = "1.1.0"
+
+[tool.poetry.dev-dependencies]
+black = "19.10b0"
+jupyterlab = "2.2.0a0"
+pdoc3 = "0.8.1"
+pypandoc = "1.5"
+pytest = "5.4.3"
+twine = "3.1.1"
+mypy = "0.780"
