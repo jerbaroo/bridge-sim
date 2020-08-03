@@ -7,7 +7,13 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from bridge_sim.model import PierSettlement, PointLoad, Config, Material
+from bridge_sim.model import (
+    PierSettlement,
+    PointLoad,
+    Config,
+    Material,
+    UniaxialMaterial,
+)
 from bridge_sim.sim.model import (
     BuildContext,
     DeckNodes,
@@ -80,6 +86,36 @@ def opensees_support_nodes(
     )
 
 
+def opensees_boundary_condition_nodes(
+    c: Config, all_boundary_condition_nodes: List,
+) -> str:
+    """Opensees node commands for the boundary conditions (ignoring piers).
+
+    By 'ignoring piers' we mean that nodes that belong to both boundary
+    conditions and piers will not be returned by this function but instead by
+    'opensees_support_nodes'.
+
+    TODO: add comments after nodes to help to understand where they belong
+
+    Args:
+        c: Config, global configuration object.
+        all_boundary_condition_nodes: AllBCNodes, all support nodes to generate
+            commands for.
+
+    """
+
+    node_strings = []
+    node_strings += list(
+        map(
+            lambda node: node.command_3d(),
+            list(chain.from_iterable(all_boundary_condition_nodes)),
+        )
+    )
+    return comment(
+        "boundary condition nodes", "\n".join(node_strings), units="node nodeTag x y z"
+    )
+
+
 def opensees_deck_nodes(c: Config, deck_nodes: DeckNodes) -> str:
     """OpenSees node commands for a bridge deck.
 
@@ -148,7 +184,7 @@ class FixNode:
 def opensees_fixed_abutment_nodes(
     c: Config, sim_params: SimParams, deck_nodes: DeckNodes
 ) -> str:
-    """OpenSees fix commands for fixed nodes on the abument.
+    """OpenSees fix commands for fixed nodes on the abutment.
 
     Fixed for translation but not for rotation.
 
@@ -291,6 +327,45 @@ def opensees_pier_sections(c: Config, all_pier_elements: PierShells):
             "section ElasticMembranePlateSection secTag youngs_modulus"
             + " poisson_ratio depth mass_density"
         ),
+    )
+
+
+def opensees_uniaxial_material(
+    material_id,
+    stiffness,
+    damping: float = 0,
+    stiffness_under_compression: float = None,
+):
+    """OpenSees uniaxial material tcl command.
+
+    https://opensees.berkeley.edu/wiki/index.php/Elastic_Uniaxial_Material
+    """
+    if not stiffness_under_compression:
+        stiffness_under_compression = stiffness
+    return (
+        f"uniaxialMaterial Elastic {material_id}"
+        f" {stiffness * 1E6}"
+        f" {damping}"
+        f" {stiffness_under_compression * 1E6}"
+    )
+
+
+def opensees_boundary_condition_materials(
+    c: Config, all_uniaxial_materials: List[UniaxialMaterial],
+) -> str:
+    """OpenSees material commands for the boundary conditions materials (elastic spring).
+    """
+    return comment(
+        "boundary condition (spring) materials",
+        "\n".join(
+            [
+                opensees_uniaxial_material(
+                    uniaxial_material.id, uniaxial_material.stiffness
+                )
+                for uniaxial_material in all_uniaxial_materials
+            ]
+        ),
+        units=("uniaxialMaterial Elastic matTag E eta Eneg"),
     )
 
 
@@ -495,7 +570,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
             bridge=c.bridge, ctx=sim_ctx
         )
         deck_shells, pier_shells = bridge_shells
-        deck_shell_nodes, pier_nodes = bridge_nodes
+        deck_shell_nodes, pier_nodes, boundary_condition_nodes = bridge_nodes
         deck_nodes = to_deck_nodes(deck_shell_nodes)
         # Attaching nodes and shells to the 'SimParams'. This allows the convert
         # process to build a deterministic list of nodes and shells. They should
@@ -515,18 +590,15 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
                 ),
             )
             .replace(
-                "<<FIX_DECK>>",
-                opensees_fixed_abutment_nodes(
-                    c=c, sim_params=sim_params, deck_nodes=deck_nodes
+                "<<BOUNDARY_CONDITION_NODES>>",
+                opensees_boundary_condition_nodes(
+                    c=c, all_boundary_condition_nodes=boundary_condition_nodes,
                 ),
             )
             .replace(
-                "<<FIX_SUPPORTS>>",
-                opensees_fixed_pier_nodes(
-                    c=c,
-                    sim_params=sim_params,
-                    all_support_nodes=pier_nodes,
-                    pier_disp=sim_params.pier_settlement,
+                "<<FIX_DECK>>",
+                opensees_fixed_abutment_nodes(
+                    c=c, sim_params=sim_params, deck_nodes=deck_nodes
                 ),
             )
             .replace(
@@ -576,9 +648,17 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
                 "<<PIER_ELEMENTS>>",
                 opensees_pier_elements(c=c, all_pier_elements=pier_shells),
             )
+            # .replace(
+            #     "<<SUPPORT_BOUNDARY_CONDITION_ELEMENTS>>",
+            #     opensees_support_boundary_condition_elements(c=c, all_pier_elements=pier_shells),
+            # )
             .replace(
                 "<<PIER_SECTIONS>>",
                 opensees_pier_sections(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                "<<BOUNDARY_CONDITION_MATERIALS>>",
+                opensees_boundary_condition_materials(c=c, all_uniaxial_materials=uniaxial_materials),
             )
             .replace(
                 "<<INTEGRATOR>>",

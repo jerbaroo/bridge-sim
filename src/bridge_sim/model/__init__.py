@@ -405,12 +405,6 @@ class Support:
         width_top: float,
         width_bottom: float,
         materials: Union[List["MaterialSupport"], Callable[[float], "MaterialSupport"]],
-        fix_x_translation: bool,
-        fix_z_translation: bool,
-        fix_y_translation: bool = True,
-        fix_x_rotation: bool = False,
-        fix_z_rotation: bool = False,
-        fix_y_rotation: bool = False,
     ):
         self.x = x
         self.z = z
@@ -418,12 +412,6 @@ class Support:
         self.height = height
         self.width_top = width_top
         self.width_bottom = width_bottom
-        self.fix_x_translation = fix_x_translation
-        self.fix_y_translation = fix_y_translation
-        self.fix_z_translation = fix_z_translation
-        self.fix_x_rotation = fix_x_rotation
-        self.fix_y_rotation = fix_y_rotation
-        self.fix_z_rotation = fix_z_rotation
         self._sections = materials
         # Must be callable or a list.
         if not callable(self._sections):
@@ -450,6 +438,42 @@ class Support:
         """The min and max z positions for the bottom of this pier."""
         half_bottom = self.width_bottom / 2
         return round_m(self.z - half_bottom), round_m(self.z + half_bottom)
+
+
+class LineSpringSupport:
+    """Spring boundary condition at the bottom of Support.
+
+    Args:
+        connected_to: Support to whose bottom it is connected.
+        stiffness_x_translation: translational stiffness in X direction.
+        ...
+    """
+    def __init__(
+        self,
+        connected_to: Support,
+        stiffness_x_translation: float = float("inf"),
+        stiffness_z_translation: float = float("inf"),
+        stiffness_y_translation: float = float("inf"),
+        stiffness_x_rotation: float = 0,
+        stiffness_z_rotation: float = 0,
+        stiffness_y_rotation: float = 0,
+    ):
+        self.connected_to = connected_to
+        self.stiffness_x_translation = stiffness_x_translation
+        self.stiffness_y_translation = stiffness_y_translation
+        self.stiffness_z_translation = stiffness_z_translation
+        self.stiffness_x_rotation = stiffness_x_rotation
+        self.stiffness_y_rotation = stiffness_y_rotation
+        self.stiffness_z_rotation = stiffness_z_rotation
+
+    def __repr__(self):
+        """Human readable representation of this boundary condition."""
+        return (
+            f"Translational stiffness: X = {self.stiffness_x_translation}, "
+            f"Y = {self.stiffness_y_translation}, Z = {self.stiffness_z_translation}\n"
+            f"Rotational stiffness: X = {self.stiffness_x_rotation}, "
+            f"Y = {self.stiffness_y_rotation}, Z = {self.stiffness_z_rotation}"
+        )
 
 
 class Asphalt:
@@ -618,6 +642,21 @@ class MaterialSupport(Material):
         )
 
 
+class UniaxialMaterial:
+    """Boundary condition spring stiffness.
+
+    Review: I think there is no point of making a class for this but
+    to be consistent with the rest of the code.
+    """
+    def __init__(self, mat_id, stiffness):
+        self.id = mat_id
+        self.stiffness = stiffness
+
+    def __repr__(self):
+        """Human readable representation."""
+        return f"ID = {self.id}, stiffness = {self.stiffness}"
+
+
 class Bridge:
     def __init__(
         self,
@@ -625,9 +664,11 @@ class Bridge:
         length: float,
         width: float,
         supports: List[Support],
+        support_springs: List[LineSpringSupport],
         materials: List["MaterialDeck"],
         lanes: List[Lane],
         msl: float,
+        pier_rot_stiffnesses: List[Union[float, int]],
         data_id: str = "healthy",
         single_sections: Optional[Tuple[Material, Material]] = None,
     ):
@@ -638,9 +679,11 @@ class Bridge:
             length: length of this bridge.
             width: width of this bridge.
             supports: a list of Support.
+            support_springs: a list of LineSpringSupport.
             materials: a list of bridge deck Material.
             lanes: a list of Lane for traffic to drive on.
             msl: maximum shell length.
+            pier_rot_stiffnesses: rotational stiffness at the bottom of the piers.
             data_id: additional identifier for saving/loading data.
             single_sections: tuple of one deck and one material for supports.
 
@@ -648,11 +691,13 @@ class Bridge:
         # Given arguments.
         self.name = name
         self.msl = float(msl)
+        self.pier_rot_stiffness = pier_rot_stiffnesses
         self.data_id = data_id
 
         self.length = length
         self.width = width
         self.supports = supports
+        self.support_springs = support_springs
         self.sections = materials
         self.lanes = lanes
         self.dimensions = Dimensions.D3

@@ -26,6 +26,7 @@ portalocker = "*"
 scipy = "*"
 sklearn = "*"
 termcolor = "*"
+pypiwin32 = "*"
 
 [pipenv]
 allow_prereleases = true

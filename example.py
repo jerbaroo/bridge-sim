@@ -1,15 +1,15 @@
 # Responses to a point-load.
-
-import matplotlib.pyplot as plt
-from bridge_sim import bridges, configs, model, plot, sim
-
-config = configs.opensees_default(bridges.bridge_narrow)
-point_loads = [model.PointLoad(x=5, z=0, load=100)]
-responses = sim.responses.load(config, model.RT.YTrans, point_loads)
-plot.contour_responses(config, responses, point_loads)
-plot.top_view_bridge(config.bridge, piers=True)
-plt.tight_layout()
-plt.show()
+#
+# import matplotlib.pyplot as plt
+# from bridge_sim import bridges, configs, model, plot, sim
+#
+# config = configs.opensees_default(bridges.bridge_narrow)
+# point_loads = [model.PointLoad(x=5, z=0, load=100)]
+# responses = sim.responses.load(config, model.RT.YTrans, point_loads)
+# plot.contour_responses(config, responses, point_loads)
+# plot.top_view_bridge(config.bridge, piers=True)
+# plt.tight_layout()
+# plt.show()
 
 # Responses to a vehicle.
 
@@ -166,30 +166,32 @@ plt.show()
 
 # Contour plot of temperature effect.
 
-# import matplotlib.pyplot as plt
-# import numpy as np
-# from bridge_sim import bridges, configs, model, sim, plot, temperature
+import matplotlib.pyplot as plt
+import numpy as np
+from bridge_sim import bridges, configs, model, sim, plot, temperature
 
+pier_rot_stiffnesses = [0, 0, 1e3, 1e3, 0, 0]
+config = configs.opensees_default(bridges.bridge_705(msl=10, pier_rot_stiffnesses=pier_rot_stiffnesses))
 # config = configs.opensees_default(bridges.bridge_705(msl=10))
-# bridge = config.bridge
-# response_type = model.RT.StrainXXB
+bridge = config.bridge
+response_type = model.RT.StrainXXB
 
-# points = [
-#     model.Point(x=x, y=0, z=z)
-#     for x in np.linspace(bridge.x_min, bridge.x_max, num=int(bridge.length * 2))
-#     for z in np.linspace(bridge.z_min, bridge.z_max, num=int(bridge.width * 2))
-# ]
-# temp_effect = temperature.effect(
-#     config=config, response_type=response_type, points=points, temps_bt=[[20], [22]]
-# ).T[0]  # Only considering a single temperature profile.
-# responses = sim.model.Responses(  # Converting to "Responses" for plotting.
-#     response_type=response_type,
-#     responses=[(temp_effect[p], points[p]) for p in range(len(points))],
-# ).without_nan_inf()
-# plot.contour_responses(config, responses)
-# plot.top_view_bridge(config.bridge, piers=True)
-# plt.tight_layout()
-# plt.show()
+points = [
+    model.Point(x=x, y=0, z=z)
+    for x in np.linspace(bridge.x_min, bridge.x_max, num=int(bridge.length * 2))
+    for z in np.linspace(bridge.z_min, bridge.z_max, num=int(bridge.width * 2))
+]
+temp_effect = temperature.effect(
+    config=config, response_type=response_type, points=points, temps_bt=[[10], [22]]
+).T[0]  # Only considering a single temperature profile.
+responses = sim.model.Responses(  # Converting to "Responses" for plotting.
+    response_type=response_type,
+    responses=[(temp_effect[p], points[p]) for p in range(len(points))],
+).without_nan_inf()
+plot.contour_responses(config, responses)
+plot.top_view_bridge(config.bridge, piers=True)
+plt.tight_layout()
+plt.show()
 
 # Traffic and temperature example.
 

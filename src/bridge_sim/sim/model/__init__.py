@@ -92,6 +92,9 @@ WallNodes = NewType("WallNodes", List[List[Node]])
 APierNodes = NewType("APierNodes", Tuple[WallNodes, WallNodes])
 # Nodes for every pier.
 PierNodes = NewType("PierNodes", List[APierNodes])
+# Boundary condition nodes for every pier.
+BCNodes = NewType("BCNodes", List[Node])
+
 # Deck and pier nodes.
 BridgeNodes = NewType("BridgeNodes", Tuple[DeckShellNodes, PierNodes])
 
@@ -323,11 +326,11 @@ class BuildContext:
         return self.next_s_id - 1
 
     def get_node(
-        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None, allow_identical_pos: bool = False,
     ) -> Node:
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
-        if pos not in self.nodes_by_pos:
+        if (pos not in self.nodes_by_pos) or allow_identical_pos:
             n_id = self.new_n_id()
             node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
             self.nodes_by_id[n_id] = node
@@ -360,6 +363,9 @@ class BuildContext:
             self.shells_by_n_ids[n_ids] = shell
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]
+
+    def get_zerolength_elems(self):
+        pass
 
     def get_nodes_at_xy(self, x: float, y: float):
         x, y = round_m(x), round_m(y)

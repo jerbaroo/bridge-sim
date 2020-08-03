@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 
 from bridge_sim.sim.build.deck import get_deck_nodes, get_deck_shells
 from bridge_sim.sim.build.piers import get_pier_nodes, get_pier_shells
+from bridge_sim.sim.build.boundary_conditions import get_boundary_condition_nodes
 from bridge_sim.sim.model import (
     BridgeNodes,
     BridgeShells,
@@ -24,6 +25,7 @@ def get_bridge_nodes(bridge: Bridge, ctx: Optional[BuildContext] = None) -> Brid
     return (
         get_deck_nodes(bridge=bridge, ctx=ctx),
         get_pier_nodes(bridge=bridge, ctx=ctx),
+        get_boundary_condition_nodes(bridge=bridge, ctx=ctx),
     )
 
 

@@ -2,10 +2,18 @@
 
 import os
 from copy import deepcopy
+from typing import List, Union
 
 import numpy as np
 
-from bridge_sim.model import Lane, Material, MaterialSupport, Support, Bridge
+from bridge_sim.model import (
+    Lane,
+    Material,
+    MaterialSupport,
+    Support,
+    LineSpringSupport,
+    Bridge,
+)
 from bridge_sim.util import project_dir, round_m
 
 #########################
@@ -121,30 +129,71 @@ for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
                 width_top=3.666,
                 width_bottom=1.8,
                 materials=_pier_section_f,
-                fix_x_translation=(x_index in [2, 3]),
-                fix_y_translation=True,
-                fix_z_translation=True,
-                fix_x_rotation=False,
-                fix_y_rotation=False,
-                fix_z_rotation=False,
             )
         )
 
 
-def bridge_705(msl: float, single_sections: bool = False):
+################
+# Line springs #
+################
+
+def _bridge_705_support_springs(pier_rot_stiffnesses: List[Union[float, int]]):
+    """Define support springs for bridge 705.
+
+    Only at the bottom of the piers, i.e. Support.
+    """
+    n_support_group = int(len(bridge_705_supports_3d) / 4)
+    if len(pier_rot_stiffnesses) != n_support_group:
+        raise ValueError(
+            f"The number of provided pier rotational stiffnesses "
+            "(`pier_rot_stiffnesses`): {len(pier_rot_stiffnesses)} does "
+            "not equal with the number of pier groups: {n_pier_group}."
+        )
+
+    support_springs = []
+    for support_index, _support in enumerate(bridge_705_supports_3d):
+        support_group_index = int(np.floor(support_index / 4))
+        support_springs.append(
+            LineSpringSupport(
+                connected_to=_support,
+                stiffness_x_translation=(
+                    float("inf") if support_group_index in [2, 3] else 0
+                ),
+                stiffness_z_translation=float("inf"),
+                stiffness_y_translation=float("inf"),
+                stiffness_x_rotation=0,
+                stiffness_z_rotation=pier_rot_stiffnesses[support_group_index],
+                stiffness_y_rotation=0,
+            )
+        )
+    return support_springs
+
+
+def bridge_705(
+    msl: float,
+    pier_rot_stiffnesses: List[Union[float, int]] = None,
+    single_sections: bool = False,
+):
     """The bridge 705 in Amsterdam.
 
     Args:
         msl: maximum shell length.
+        pier_rot_stiffnesses: list of rotational stiffnesses at the bottom of
+            each pier group: piers with the same X coordinates belong to the same group.
+            If None, all pier rotational stiffnesses assumed to be zero.
 
     """
+    if not pier_rot_stiffnesses:
+        pier_rot_stiffnesses = [0 for _ in range(6)]
     return lambda: Bridge(
         name="bridge-705",
         length=bridge_705_length,
         width=bridge_705_width,
         supports=bridge_705_supports_3d,
+        support_springs=_bridge_705_support_springs(pier_rot_stiffnesses),
         materials=_bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,
+        pier_rot_stiffnesses=pier_rot_stiffnesses,
         single_sections=_bridge_705_single_sections() if single_sections else None,
     )
