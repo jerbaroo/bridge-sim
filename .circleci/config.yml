@@ -17,7 +17,7 @@ jobs:
           name: install dependencies
           command: |
             sudo pip install poetry
-            poetry install --dev
+            poetry install
 
       - run:
           name: run tests
