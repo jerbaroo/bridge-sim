@@ -1,3 +1,3 @@
-shopt -s globstar
 rm -rf test-data/
-pipenv run black -t py37 --check src/**/*.py && pipenv run pytest tests
+bash -c 'shopt -s globstar && poetry run black -t py37 --check src/**/*.py'
+poetry run pytest tests

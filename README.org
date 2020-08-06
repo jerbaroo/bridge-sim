@@ -43,20 +43,20 @@ Then in a terminal run the following to jump into a Docker image that already ha
 $ docker run -it barischrooneyj/bridge-sim:v0.0.8
 #+END_SRC
 
-You are now in the =/bridge-sim= directory of the Docker container. You can run the provided example file =example.py= with ~poetry run python example.py~. This will generate a file =/root/docker.png=.
+You are now in the =/bridge-sim= directory of the Docker container. You can run the provided example file =example.py= with =poetry run python example.py=. This will generate a file =/root/docker-1.png=.
 
-To copy =docker.png= to your host system run the following commands in another terminal. The first command lists all running Docker containers. Copy the container ID and then use the ~docker cp~ command to copy =docker.png= to your host system.
+To copy =docker-1.png= to your host system run the following commands in another terminal. The first command lists all running Docker containers. Copy the container ID and then use the =docker cp= command to copy =docker-1.png= to your host system.
 
 #+BEGIN_SRC bash
 $ docker ps
 CONTAINER ID        IMAGE                              COMMAND          CREATED             STATUS            PORTS     NAMES
 d297a50ff165        barischrooneyj/bridge-sim:v0.0.8   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
-$ docker cp d297a50ff165:/root/docker.png docker.png
+$ docker cp d297a50ff165:/root/docker-1.png docker-1.png
 #+END_SRC
 
-To copy files to the =/root= directory of the Docker container you can run ~docker cp local-files/ d297a50ff165:/root~. Run ~docker cp --help~ or search the web for more information on Docker.
+To copy files to the =/root= directory of the Docker container you can run =docker cp local-files/ d297a50ff165:/root=. Run =docker cp --help= or search the web for more information.
 
-The Docker image that you enter with ~docker run~ has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are given [[Examples][below]].
+The Docker image that you enter with =docker run= has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are given [[Examples][below]].
 
 **** Lisa
 
@@ -72,7 +72,7 @@ To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my
 
 Make sure you have Python 3.8+ installed. And also [[https://python-poetry.org/docs/][install Poetry]].
 
-You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If installing OpenSees on Linux the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
+You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
 Clone this repository and change into the directory:
 
@@ -81,7 +81,9 @@ $ git clone https://github.com/barischrooneyj/bridge-sim
 $ cd bridge-sim
 #+END_SRC
 
-In the =bridge-sim= directory install project dependencies with ~poetry install~. If you have an error and are on the Windows OS you may need to ~poetry install pypiwin32~. I do not run Windows so can be of limited help there.
+In the =bridge-sim= directory install project dependencies with =poetry install=. After installation you can find your poetry created virtual environment by using =poetry show -v=. You might need to add the path to the virtual environment manually in your IDE.
+
+# If you have an error and are on the Windows OS you may need to =poetry install pypiwin32=. I do not run Windows so can be of limited help there.
 
 *** PyPI
 

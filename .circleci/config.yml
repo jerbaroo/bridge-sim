@@ -6,9 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.8.3
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
+      - image: circleci/python:3.8.5
 
     working_directory: ~/repo
 
@@ -18,9 +16,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            sudo pip install pipenv
-            pipenv install --dev
+            sudo pip install poetry
+            poetry install --dev
 
       - run:
           name: run tests
-          command: pipenv run bash ./scripts/test.sh
+          command: poetry run bash ./scripts/test.sh

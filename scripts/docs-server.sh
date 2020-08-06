@@ -1,1 +1,1 @@
-pipenv run pdoc --http : bridge_sim
+poetry run pdoc --http : bridge_sim

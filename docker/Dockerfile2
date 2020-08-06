@@ -1,18 +1,15 @@
 FROM barischrooneyj/bridge-sim-base
 
-# Overwrite with newest version of bridge-sim.
-RUN rm -rf /bridge-sim
+# Copy bridge sim project.
 COPY . /bridge-sim
 WORKDIR /bridge-sim
+RUN touch .git # Necessary for bridge-sim to find project root.
 
-# Add OpenSees to PATH.
-RUN echo 'export PATH=$PATH:/opensees/bin' >> ~/.bashrc
+# Install Python and project dependencies.
+RUN yes | pyenv install $(cat .python-version)
+RUN pip install poetry
+RUN poetry install
 
-# Install project dependencies.
-RUN pipenv install --python 3.8
-
-# Necessary for bridge-sim to find project root.
-RUN touch .git
-
-# Overwrite the example with docker version.
-RUN cp docker/example.py example.py
+# Test run the example.
+RUN poetry run python scripts/dockerize-example.py
+RUN poetry run python example.py

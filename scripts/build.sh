@@ -1,3 +1,2 @@
-cd ../src
 rm -rf build dist
-pipenv run python setup.py sdist bdist_wheel
+poetry run python setup.py sdist bdist_wheel

@@ -1,1 +1,1 @@
-pipenv run python src/lib/cli.py "$@"
+poetry run python src/lib/cli.py "$@"
