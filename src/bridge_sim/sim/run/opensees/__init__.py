@@ -3,7 +3,7 @@
 import os
 
 import distutils.spawn as spawn
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 from bridge_sim.model import ResponseType, Config, Bridge
 from bridge_sim.sim.model import SimParams
@@ -29,6 +29,12 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
 
 class OSRunner(FEMRunner):
     def __init__(self, exe_path: str):
+        """Construct a FEMRunner that uses OpenSees to run simulations.
+
+        Args:
+            exe_path: command to run OpenSees on the command line.
+
+        """
         super().__init__(
             name="OpenSees",
             supported_response_types=opensees_supported_response_types,
@@ -82,7 +88,15 @@ class OSRunner(FEMRunner):
         )
 
 
-def os_runner(exe_path: Optional[str] = None) -> Callable[["Config"], OSRunner]:
+def os_runner(exe_path: Optional[str] = None) -> Union[OSRunner, None]:
+    """Construct a FEMRunner that uses OpenSees to run simulations.
+
+    Args:
+        exe_path: optional command to run OpenSees on the command line. If not
+        given then will look for OpenSees on the PATH, if still not found will
+        look for OpenSees in a few hardcoded places.
+
+    """
     # Try using OpenSees on PATH.
     if exe_path is None:
         exe_path = spawn.find_executable("OpenSees")
@@ -97,5 +111,5 @@ def os_runner(exe_path: Optional[str] = None) -> Callable[["Config"], OSRunner]:
                 exe_path = path
                 break
     if exe_path is None:
-        print_w("Could't find OpenSees executable")
+        return None
     return OSRunner(exe_path=exe_path)

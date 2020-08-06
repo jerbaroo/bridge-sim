@@ -2,14 +2,15 @@
 
 import numpy as np
 
-from bridge_sim.bridges.bridge_705 import bridge_705
-from bridge_sim.configs import opensees_default
+from bridge_sim import configs
 
-c = opensees_default(bridge_705(0.5))
+c, exe_found = configs.test_config(msl=10)
 c.il_num_loads = 10
 
 
 def test_wheel_track_xs():
+    if not exe_found:
+        return
     wheel_track_xs = c.bridge.wheel_track_xs(c)
     delta_x = c.bridge.length / (c.il_num_loads - 1)
     assert wheel_track_xs[0] == c.bridge.x_min

@@ -19,6 +19,7 @@ def opensees_default(
         os_exe: absolute path to OpenSees binary. Optional, if not given this
             will look for OpenSees on the $PATH.
         kwargs: keyword arguments passed to the Config constructor.
+
     """
     return Config(
         bridge=bridge,
@@ -44,7 +45,7 @@ def test_config(msl: float = 10.0):
     config._root_generated_data_dir = os.path.join(
         "test-data/", config._root_generated_data_dir
     )
-    exe_found = config.sim_runner.exe_path is not None
+    exe_found = config.sim_runner is not None
     return config, exe_found
 
 

@@ -1,30 +1,24 @@
+# This Dockerfile installs OpenSees and pyenv.
+
 FROM ubuntu:18.04
+SHELL ["/bin/bash", "-c"]
 
-# Copy project and set time zone.
-COPY . /bridge-sim
-WORKDIR /bridge-sim
-RUN apt-get update && ./docker/tzdata.sh
-
-# Install Python 3.8.
-RUN mkdir /opensees
-WORKDIR /opensees
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get install -y python3.8 python3-pip
-RUN pip3 install pipenv
-
-# Install bridge-sim Python dependencies.
-WORKDIR /bridge-sim
-ENV LC_ALL=C.UTF-8
-ENV LANG=C.UTF-8
-ENV PIPENV_VENV_IN_PROJECT=true
-RUN pipenv install --python 3.8
-
-# Additional software.
-WORKDIR /opensees
+# Useful software.
+RUN apt-get update
 RUN apt-get install -y vim wget
 
+# Environment variables.
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# Set time zone.
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y tzdata
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
 # Install OpenSees.
+RUN mkdir /opensees
 WORKDIR /opensees
 RUN apt-get install -y make tcl8.6 tcl8.6-dev gcc g++ gfortran
 RUN wget https://codeload.github.com/OpenSees/OpenSees/tar.gz/v3.2.0
@@ -33,3 +27,14 @@ COPY docker/Makefile.def.EC2-UBUNTU OpenSees/Makefile.def
 RUN mkdir bin lib
 WORKDIR /opensees/OpenSees
 RUN make
+ENV PATH=/opensees/bin:$PATH
+
+# Install pyenv.
+# https://github.com/pyenv/pyenv/wiki/Common-build-problems
+RUN apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+RUN git clone https://github.com/pyenv/pyenv.git /root/.pyenv
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH"
+RUN echo 'eval "$(pyenv init -)"' >> /root/.bashrc
