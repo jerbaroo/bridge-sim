@@ -27,12 +27,47 @@ def opensees_supported_response_types(bridge: Bridge) -> List[ResponseType]:
     ]
 
 
+def find_exe_path(exe_path: Optional[str] = None) -> str:
+    """Find a command to run OpenSees on the command line.
+
+    Args:
+        exe_path: command to run OpenSees on the command line. If not given then
+            will look for OpenSees on the PATH, if still not found will look for
+            OpenSees in a few hardcoded places.
+
+    Raises:
+        FileNotFoundError: if a command to run OpenSees is not found.
+
+    """
+    # Try using OpenSees on PATH.
+    if exe_path is None:
+        exe_path = spawn.find_executable("OpenSees")
+        if exe_path is not None:
+            print_i(f"Found Opensees at: {exe_path}")
+    # Else try a few hardcoded possibilities e.g. for Singularity.
+    try_exes = ["/opensees/bin/OpenSees"]
+    if exe_path is None:
+        for path in try_exes:
+            if os.path.exists(path):
+                print_i(f"Found Opensees at: {path}")
+                exe_path = path
+                break
+    if exe_path is None:
+        raise FileNotFoundError(
+            f"No OpenSees found on $PATH, and no 'exe_path' argument provided!"
+        )
+    return exe_path
+
+
 class OSRunner(FEMRunner):
-    def __init__(self, exe_path: str):
+    def __init__(self, exe_path: Optional[str] = None, allow_no_exe: bool = False):
         """Construct a FEMRunner that uses OpenSees to run simulations.
 
         Args:
             exe_path: command to run OpenSees on the command line.
+            allow_no_exe: only useful for testing in environments where OpenSees
+                is not available, allows for the construction of a Config
+                without having OpenSees installed.
 
         """
         super().__init__(
@@ -43,7 +78,13 @@ class OSRunner(FEMRunner):
             parse=parse_responses,
             convert=convert_responses,
         )
-        self.exe_path = exe_path
+        try:
+            self.exe_path = find_exe_path(exe_path)
+        except FileNotFoundError as e:
+            if allow_no_exe:
+                self.exe_path = None
+            else:
+                raise e
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace("\\", "/")
@@ -88,28 +129,10 @@ class OSRunner(FEMRunner):
         )
 
 
-def os_runner(exe_path: Optional[str] = None) -> Union[OSRunner, None]:
+def os_runner(exe_path: Optional[str] = None) -> OSRunner:
     """Construct a FEMRunner that uses OpenSees to run simulations.
-
-    Args:
-        exe_path: optional command to run OpenSees on the command line. If not
-        given then will look for OpenSees on the PATH, if still not found will
-        look for OpenSees in a few hardcoded places.
-
     """
-    # Try using OpenSees on PATH.
-    if exe_path is None:
-        exe_path = spawn.find_executable("OpenSees")
-        if exe_path is not None:
-            print_i(f"Found Opensees at: {exe_path}")
-    # Else try a few hardcoded possibilities e.g. for Singularity.
-    try_exes = ["/opensees/bin/OpenSees"]
-    if exe_path is None:
-        for path in try_exes:
-            if os.path.exists(path):
-                print_i(f"Found Opensees at: {path}")
-                exe_path = path
-                break
-    if exe_path is None:
-        return None
     return OSRunner(exe_path=exe_path)
+
+
+__all__ = ["OSRunner"]
