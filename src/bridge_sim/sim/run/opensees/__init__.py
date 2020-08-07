@@ -129,10 +129,4 @@ class OSRunner(FEMRunner):
         )
 
 
-def os_runner(exe_path: Optional[str] = None) -> OSRunner:
-    """Construct a FEMRunner that uses OpenSees to run simulations.
-    """
-    return OSRunner(exe_path=exe_path)
-
-
 __all__ = ["OSRunner"]
