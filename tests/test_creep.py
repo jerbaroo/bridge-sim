@@ -15,9 +15,9 @@ def test_creep_non_negative():
 
 def test_install_day():
     _, exe_found = configs.test_config(msl=10)
-    config = configs.opensees_default(bridges.bridge_705(msl=10))
     if not exe_found:
         return
+    config = configs.opensees_default(bridges.bridge_705(msl=10))
     point = model.Point(x=48)
     traffic_array = np.zeros((1, config.il_num_loads * len(config.bridge.lanes)))
     responses_array = np.zeros((1, 1))

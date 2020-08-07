@@ -208,6 +208,7 @@ class Config:
             vehicle_pdf_col: column name of vehicle_data to group by.
             generated_data: path to directory where to save generated files.
             shorten_paths: shorten simulation paths (to avoid OS limits).
+
         """
         # Core.
         self._bridge = bridge

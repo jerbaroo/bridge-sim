@@ -41,12 +41,14 @@ Parsed = TypeVar("Parsed")
 class FEMRunner:
     """An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading responses you probably want the
+    For running simulations and loading responses you probably want the
     higher-level API in 'bridge_sim.sim.responses'.
 
+    NOTE: The FEMRunner class should have no knowledge of any specific FE
+    package, this will allow for extending support to additional FE packages.
+
     Args:
-        supported_response_types: Callable[[Bridge], List[ResponseType]], the
-            supported response types for a given bridge.
+        TODO: document this much better.
 
     """
 
