@@ -3,9 +3,8 @@ name = "bridge-sim"
 version = "0.0.8.3"
 description = "A Python library for concrete slab bridge simulation"
 authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
-homepage = "https://github.com/barischrooneyj/bridge-sim/blob/master/README.org#concrete-slab-bridge-simulation"
+documentation = "https://github.com/barischrooneyj/bridge-sim/blob/master/README.org#concrete-slab-bridge-simulation"
 repository = "https://github.com/barischrooneyj/bridge-sim"
-documentation = "https://barischrooneyj.github.io/bridge-sim/"
 
 [tool.poetry.dependencies]
 findup = "0.3.0"
