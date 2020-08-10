@@ -24,7 +24,7 @@ API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]
   - [[#example-8-contour-plot-of-temperature-effect][Example 8: contour plot of temperature effect]]
   - [[#example-9-time-series-of-temperature-effect][Example 9: time series of temperature effect]]
 
-If you are interested in using this library, please open an issue to ask any questions (one issue per question)! I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it. Read [[./LICENSE][this]] before use.
+If you are interested in using this library, please open an issue to ask any questions (one issue per question)! I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it. Read the [[./LICENSE][license]] before use.
 
 [[./data/images/animation.png]]
 ** Installation
