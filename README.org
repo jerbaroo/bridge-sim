@@ -28,7 +28,7 @@ If you are interested in using this library, please open an issue to ask any que
 
 [[./data/images/animation.png]]
 ** Installation
-Three installation methods are provided. You can either install a Python package from PyPI in typical fashion. We also provide a Docker image with =bridge-sim= and dependencies already installed. And finally you can clone this repository if intend on developing the =bridge-sim= further.
+Three installation methods are provided. You can install a Python package of =bridge-sim= from PyPI in your preferred way. We also provide a Docker image with =bridge-sim= and all dependencies already installed. And finally you can clone this repository if you intend on contributing to the =bridge-sim= project.
 *** PyPI
 First make sure you are using Python 3.8+. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
