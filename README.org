@@ -32,7 +32,7 @@ Three installation methods are provided. You can install a Python package of =br
 *** PyPI
 First make sure you are using Python 3.8+. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
-If you are working on a Python project that uses [[https://python-poetry.org/docs/][Poetry]] as the package manager then you can add =bridge-sim= as a dependency by running the command =poetry add bridge-sim=. If you are starting a project from scratch you can first initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then try adding =bridge-sim= as a dependency. Now that you have =bridge-sim= installed you probably want to run some code, for that see the examples section [[Examples][below]].
+If you are working on a Python project that uses [[https://python-poetry.org/docs/][Poetry]] as the package manager then you can add =bridge-sim= as a dependency by running the command =poetry add bridge-sim=. If you are starting a project from scratch you can first initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then try adding =bridge-sim= as a dependency. Now that you have =bridge-sim= installed you probably want to run some code, for that see the examples section [[#examples][below]].
 *** Docker
 Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed. Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
@@ -53,7 +53,7 @@ $ docker cp d297a50ff165:/root/docker-1.png docker-1.png
 
 To copy files to the =/root= directory of the Docker container you can run =docker cp local-files/ d297a50ff165:/root=. Run =docker cp --help= or search the web for more information.
 
-The Docker image that you enter with =docker run= has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are provided [[Examples][below]].
+The Docker image that you enter with =docker run= has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are provided [[#examples][below]].
 **** Lisa
 
 These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
