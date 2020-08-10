@@ -67,7 +67,7 @@ To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my
 *** Development
 First make sure you are using Python 3.8+ and [[https://python-poetry.org/docs/][install Poetry]]. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
-Clone this repository, change into the directory and once in the =bridge-sim= directory install project dependencies.
+Now clone this repository, change into the directory and once in the =bridge-sim= directory install project dependencies:
 
 #+BEGIN_SRC bash
 $ git clone https://github.com/barischrooneyj/bridge-sim
