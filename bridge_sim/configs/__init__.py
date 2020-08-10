@@ -45,7 +45,7 @@ def opensees_default(
     )
 
 
-def test_config(msl: float = 10.0, il_num_loads: int = 100):
+def test_config(msl: float = 10.0, il_num_loads: int = 600):
     """A Config used internally for testing."""
     config = opensees_default(
         bridge_705(msl), allow_no_exe=True, il_num_loads=il_num_loads
