@@ -30,7 +30,7 @@
 import os
 
 import distutils.spawn as spawn
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 from bridge_sim.model import ResponseType, Config, Bridge
 from bridge_sim.sim.model import SimParams
@@ -54,8 +54,49 @@ def opensees_supported_response_types(bridge: Bridge) -&gt; List[ResponseType]:
     ]
 
 
+def find_exe_path(exe_path: Optional[str] = None) -&gt; str:
+    &#34;&#34;&#34;Find a command to run OpenSees on the command line.
+
+    Args:
+        exe_path: command to run OpenSees on the command line. If not given then
+            will look for OpenSees on the PATH, if still not found will look for
+            OpenSees in a few hardcoded places.
+
+    Raises:
+        FileNotFoundError: if a command to run OpenSees is not found.
+
+    &#34;&#34;&#34;
+    # Try using OpenSees on PATH.
+    if exe_path is None:
+        exe_path = spawn.find_executable(&#34;OpenSees&#34;)
+        if exe_path is not None:
+            print_i(f&#34;Found Opensees at: {exe_path}&#34;)
+    # Else try a few hardcoded possibilities e.g. for Singularity.
+    try_exes = [&#34;/opensees/bin/OpenSees&#34;]
+    if exe_path is None:
+        for path in try_exes:
+            if os.path.exists(path):
+                print_i(f&#34;Found Opensees at: {path}&#34;)
+                exe_path = path
+                break
+    if exe_path is None:
+        raise FileNotFoundError(
+            f&#34;No OpenSees found on $PATH, and no &#39;exe_path&#39; argument provided!&#34;
+        )
+    return exe_path
+
+
 class OSRunner(FEMRunner):
-    def __init__(self, exe_path: str):
+    def __init__(self, exe_path: Optional[str] = None, allow_no_exe: bool = False):
+        &#34;&#34;&#34;Construct a FEMRunner that uses OpenSees to run simulations.
+
+        Args:
+            exe_path: command to run OpenSees on the command line.
+            allow_no_exe: only useful for testing in environments where OpenSees
+                is not available, allows for the construction of a Config
+                without having OpenSees installed.
+
+        &#34;&#34;&#34;
         super().__init__(
             name=&#34;OpenSees&#34;,
             supported_response_types=opensees_supported_response_types,
@@ -64,7 +105,13 @@ class OSRunner(FEMRunner):
             parse=parse_responses,
             convert=convert_responses,
         )
-        self.exe_path = exe_path
+        try:
+            self.exe_path = find_exe_path(exe_path)
+        except FileNotFoundError as e:
+            if allow_no_exe:
+                self.exe_path = None
+            else:
+                raise e
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace(&#34;\\&#34;, &#34;/&#34;)
@@ -109,23 +156,7 @@ class OSRunner(FEMRunner):
         )
 
 
-def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;], OSRunner]:
-    # Try using OpenSees on PATH.
-    if exe_path is None:
-        exe_path = spawn.find_executable(&#34;OpenSees&#34;)
-        if exe_path is not None:
-            print_i(f&#34;Found Opensees at: {exe_path}&#34;)
-    # Else try a few hardcoded possibilities e.g. for Singularity.
-    try_exes = [&#34;/opensees/bin/OpenSees&#34;]
-    if exe_path is None:
-        for path in try_exes:
-            if os.path.exists(path):
-                print_i(f&#34;Found Opensees at: {path}&#34;)
-                exe_path = path
-                break
-    if exe_path is None:
-        print_w(&#34;Could&#39;t find OpenSees executable&#34;)
-    return OSRunner(exe_path=exe_path)</code></pre>
+__all__ = [&#34;OSRunner&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -152,82 +183,50 @@ def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;],
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="bridge_sim.sim.run.opensees.opensees_supported_response_types"><code class="name flex">
-<span>def <span class="ident">opensees_supported_response_types</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../../model/index.html#bridge_sim.model.Bridge">Bridge</a>) -> List[<a title="bridge_sim.model.ResponseType" href="../../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>The response types supported by OpenSees.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def opensees_supported_response_types(bridge: Bridge) -&gt; List[ResponseType]:
-    &#34;&#34;&#34;The response types supported by OpenSees.&#34;&#34;&#34;
-    return [
-        ResponseType.XTrans,
-        ResponseType.YTrans,
-        ResponseType.ZTrans,
-        ResponseType.StrainXXB,
-        ResponseType.StrainXXT,
-        ResponseType.StrainZZB,
-    ]</code></pre>
-</details>
-</dd>
-<dt id="bridge_sim.sim.run.opensees.os_runner"><code class="name flex">
-<span>def <span class="ident">os_runner</span></span>(<span>exe_path: Union[str, NoneType] = None) -> Callable[[<a title="bridge_sim.model.Config" href="../../../model/index.html#bridge_sim.model.Config">Config</a>], <a title="bridge_sim.sim.run.opensees.OSRunner" href="#bridge_sim.sim.run.opensees.OSRunner">OSRunner</a>]</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def os_runner(exe_path: Optional[str] = None) -&gt; Callable[[&#34;Config&#34;], OSRunner]:
-    # Try using OpenSees on PATH.
-    if exe_path is None:
-        exe_path = spawn.find_executable(&#34;OpenSees&#34;)
-        if exe_path is not None:
-            print_i(f&#34;Found Opensees at: {exe_path}&#34;)
-    # Else try a few hardcoded possibilities e.g. for Singularity.
-    try_exes = [&#34;/opensees/bin/OpenSees&#34;]
-    if exe_path is None:
-        for path in try_exes:
-            if os.path.exists(path):
-                print_i(f&#34;Found Opensees at: {path}&#34;)
-                exe_path = path
-                break
-    if exe_path is None:
-        print_w(&#34;Could&#39;t find OpenSees executable&#34;)
-    return OSRunner(exe_path=exe_path)</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
 <dt id="bridge_sim.sim.run.opensees.OSRunner"><code class="flex name class">
 <span>class <span class="ident">OSRunner</span></span>
-<span>(</span><span>exe_path: str)</span>
+<span>(</span><span>exe_path: Union[str, NoneType] = None, allow_no_exe: bool = False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
-<p>NOTE: For running simulations and loading responses you probably want the
+<p>For running simulations and loading responses you probably want the
 higher-level API in 'bridge_sim.sim.responses'.</p>
+<p>NOTE: The FEMRunner class should have no knowledge of any specific FE
+package, this will allow for extending support to additional FE packages.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>supported_response_types</code></strong></dt>
-<dd>Callable[[Bridge], List[ResponseType]], the
-supported response types for a given bridge.</dd>
+<dt><strong><code>TODO</code></strong></dt>
+<dd>document this much better.</dd>
+</dl>
+<p>Construct a FEMRunner that uses OpenSees to run simulations.</p>
+<h2 id="args_1">Args</h2>
+<dl>
+<dt><strong><code>exe_path</code></strong></dt>
+<dd>command to run OpenSees on the command line.</dd>
+<dt><strong><code>allow_no_exe</code></strong></dt>
+<dd>only useful for testing in environments where OpenSees
+is not available, allows for the construction of a Config
+without having OpenSees installed.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class OSRunner(FEMRunner):
-    def __init__(self, exe_path: str):
+    def __init__(self, exe_path: Optional[str] = None, allow_no_exe: bool = False):
+        &#34;&#34;&#34;Construct a FEMRunner that uses OpenSees to run simulations.
+
+        Args:
+            exe_path: command to run OpenSees on the command line.
+            allow_no_exe: only useful for testing in environments where OpenSees
+                is not available, allows for the construction of a Config
+                without having OpenSees installed.
+
+        &#34;&#34;&#34;
         super().__init__(
             name=&#34;OpenSees&#34;,
             supported_response_types=opensees_supported_response_types,
@@ -236,7 +235,13 @@ supported response types for a given bridge.</dd>
             parse=parse_responses,
             convert=convert_responses,
         )
-        self.exe_path = exe_path
+        try:
+            self.exe_path = find_exe_path(exe_path)
+        except FileNotFoundError as e:
+            if allow_no_exe:
+                self.exe_path = None
+            else:
+                raise e
 
         def opensees_out_path(*args, **kwargs):
             return self.sim_out_path(*args, **kwargs).replace(&#34;\\&#34;, &#34;/&#34;)
@@ -432,12 +437,6 @@ supported response types for a given bridge.</dd>
 <li><code><a title="bridge_sim.sim.run.opensees.convert" href="convert/index.html">bridge_sim.sim.run.opensees.convert</a></code></li>
 <li><code><a title="bridge_sim.sim.run.opensees.parse" href="parse/index.html">bridge_sim.sim.run.opensees.parse</a></code></li>
 <li><code><a title="bridge_sim.sim.run.opensees.run" href="run.html">bridge_sim.sim.run.opensees.run</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="bridge_sim.sim.run.opensees.opensees_supported_response_types" href="#bridge_sim.sim.run.opensees.opensees_supported_response_types">opensees_supported_response_types</a></code></li>
-<li><code><a title="bridge_sim.sim.run.opensees.os_runner" href="#bridge_sim.sim.run.opensees.os_runner">os_runner</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

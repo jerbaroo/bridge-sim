@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.1" />
-<title>bridge_sim.configs API documentation</title>
-<meta name="description" content="Provided instances of the Config class." />
+<title>bridge_sim.internal.validate API documentation</title>
+<meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -17,74 +17,52 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>bridge_sim.configs</code></h1>
+<h1 class="title">Module <code>bridge_sim.internal.validate</code></h1>
 </header>
 <section id="section-intro">
-<p>Provided instances of the Config class.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Provided instances of the Config class.&#34;&#34;&#34;
+<pre><code class="python">import os
 
-import os
-from typing import Callable, Optional
+import pandas as pd
 
-from bridge_sim.bridges import bridge_705
-from bridge_sim.model import Config, Bridge
-from bridge_sim.sim.run.opensees import OSRunner
 from bridge_sim.util import project_dir
 
+# TNO provided files.
+_meas_path = os.path.join(project_dir(), &#34;data/validation/measurements_static_ZB.csv&#34;)
+_displa_path = os.path.join(project_dir(), &#34;data/validation/displasensors.txt&#34;)
+_strain_path = os.path.join(project_dir(), &#34;data/validation/strainsensors.txt&#34;)
 
-def opensees_default(
-    bridge: Callable[[], Bridge],
-    exe_path: Optional[str] = None,
-    allow_no_exe: bool = False,
-    **kwargs,
-) -&gt; Config:
-    &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
-
-    Args:
-        bridge: function to return a new Bridge.
-        exe_path: absolute path to OpenSees binary. Optional, if not given this
-            will look for OpenSees on the $PATH.
-        allow_no_exe: only useful for testing in environments where OpenSees is
-            not available, allows for the construction of a Config without
-            having OpenSees installed.
-        kwargs: keyword arguments passed to the Config constructor.
-
-    &#34;&#34;&#34;
-    return Config(
-        bridge=bridge,
-        sim_runner=OSRunner(exe_path, allow_no_exe=allow_no_exe),
-        vehicle_data_path=os.path.join(project_dir(), &#34;data/traffic/traffic.csv&#34;),
-        vehicle_pdf=[
-            (2.4, 5),
-            (5.6, 45),
-            (7.5, 30),
-            (9, 15),
-            (11.5, 4),
-            (12.2, 0.5),
-            (43, 0),
-        ],
-        vehicle_pdf_col=&#34;length&#34;,
-        **kwargs,
-    )
+_meas, _displa_sensors, _strain_sensors = None, None, None
+if os.path.exists(_meas_path):
+    _meas = pd.read_csv(_meas_path)
+if os.path.exists(_displa_path):
+    _displa_sensors = pd.read_csv(_displa_path, index_col=0)
+if os.path.exists(_strain_path):
+    _strain_sensors = pd.read_csv(_strain_path, index_col=0)
 
 
-def test_config(msl: float = 10.0, il_num_loads: int = 600):
-    &#34;&#34;&#34;A Config used internally for testing.&#34;&#34;&#34;
-    config = opensees_default(
-        bridge_705(msl), allow_no_exe=True, il_num_loads=il_num_loads
-    )
-    config._root_generated_data_dir = os.path.join(
-        &#34;test-data/&#34;, config._root_generated_data_dir
-    )
-    exe_found = config.sim_runner.exe_path is not None
-    return config, exe_found
+def _displa_sensor_xz(sensor_label):
+    &#34;&#34;&#34;X and z position of a displacement sensor in the experimental campaign.&#34;&#34;&#34;
+    sensor = _displa_sensors[_displa_sensors[&#34;label&#34;] == sensor_label]
+    sensor_x = sensor.iloc[0][&#34;x&#34;]
+    sensor_z = sensor.iloc[0][&#34;z&#34;]
+    return sensor_x, sensor_z
 
 
-__all__ = [&#34;opensees_default&#34;]</code></pre>
+def _strain_sensor_xz(sensor_label):
+    &#34;&#34;&#34;X and z position of a strain sensor in the experimental campaign.&#34;&#34;&#34;
+    sensor = _strain_sensors[_strain_sensors[&#34;label&#34;] == sensor_label]
+    sensor_x = sensor.iloc[0][&#34;x&#34;]
+    sensor_z = sensor.iloc[0][&#34;z&#34;]
+    return sensor_x, sensor_z
+
+
+def _truck1_x_pos():
+    &#34;&#34;&#34;X positions of Truck 1&#39;s front axle in the experimental campaign.&#34;&#34;&#34;
+    return sorted(set(_meas[&#34;xpostruck&#34;]))</code></pre>
 </details>
 </section>
 <section>
@@ -92,68 +70,6 @@ __all__ = [&#34;opensees_default&#34;]</code></pre>
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="bridge_sim.configs.opensees_default"><code class="name flex">
-<span>def <span class="ident">opensees_default</span></span>(<span>bridge: Callable[[], bridge_sim.model.Bridge], exe_path: Union[str, NoneType] = None, allow_no_exe: bool = False, **kwargs) -> <a title="bridge_sim.model.Config" href="../model/index.html#bridge_sim.model.Config">Config</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>A Config using OpenSees for a given Bridge.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>bridge</code></strong></dt>
-<dd>function to return a new Bridge.</dd>
-<dt><strong><code>exe_path</code></strong></dt>
-<dd>absolute path to OpenSees binary. Optional, if not given this
-will look for OpenSees on the $PATH.</dd>
-<dt><strong><code>allow_no_exe</code></strong></dt>
-<dd>only useful for testing in environments where OpenSees is
-not available, allows for the construction of a Config without
-having OpenSees installed.</dd>
-<dt><strong><code>kwargs</code></strong></dt>
-<dd>keyword arguments passed to the Config constructor.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def opensees_default(
-    bridge: Callable[[], Bridge],
-    exe_path: Optional[str] = None,
-    allow_no_exe: bool = False,
-    **kwargs,
-) -&gt; Config:
-    &#34;&#34;&#34;A Config using OpenSees for a given Bridge.
-
-    Args:
-        bridge: function to return a new Bridge.
-        exe_path: absolute path to OpenSees binary. Optional, if not given this
-            will look for OpenSees on the $PATH.
-        allow_no_exe: only useful for testing in environments where OpenSees is
-            not available, allows for the construction of a Config without
-            having OpenSees installed.
-        kwargs: keyword arguments passed to the Config constructor.
-
-    &#34;&#34;&#34;
-    return Config(
-        bridge=bridge,
-        sim_runner=OSRunner(exe_path, allow_no_exe=allow_no_exe),
-        vehicle_data_path=os.path.join(project_dir(), &#34;data/traffic/traffic.csv&#34;),
-        vehicle_pdf=[
-            (2.4, 5),
-            (5.6, 45),
-            (7.5, 30),
-            (9, 15),
-            (11.5, 4),
-            (12.2, 0.5),
-            (43, 0),
-        ],
-        vehicle_pdf_col=&#34;length&#34;,
-        **kwargs,
-    )</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -166,12 +82,7 @@ having OpenSees installed.</dd>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="bridge_sim" href="../index.html">bridge_sim</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="bridge_sim.configs.opensees_default" href="#bridge_sim.configs.opensees_default">opensees_default</a></code></li>
+<li><code><a title="bridge_sim.internal" href="../index.html">bridge_sim.internal</a></code></li>
 </ul>
 </li>
 </ul>

@@ -3,7 +3,7 @@
 
 This document provides installation instructions and usage examples.
 
-API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]].
+API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]]
 
 *Table of Contents*
 - [[#installation][Installation]]

@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-from config import Config
-from vehicles import axle_array_and_count, load_vehicle_data
-from vehicles.sample import sample_vehicle
+from bridge_sim.model import Config
+from bridge_sim.vehicles.sample import sample_vehicle, axle_array_and_count, load_vehicle_data
 from bridge_sim.util import print_i
 
 # Print debug information for this file.

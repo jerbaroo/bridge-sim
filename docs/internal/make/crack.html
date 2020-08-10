@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.make.crack API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.make.crack</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Tuple, List
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+
+from bridge_sim import crack, temperature, plot, sim, traffic
+from bridge_sim.model import Config, ResponseType, Point
+from bridge_sim.sim.model import Responses, Shell
+from bridge_sim.sim.responses import without
+from bridge_sim.util import safe_str, print_i
+from bridge_sim.vehicles import truck1
+
+
+def plot_crack_E(config: Config):
+    &#34;&#34;&#34;Verification plot of Young&#39;s modulus before and after cracking&#34;&#34;&#34;
+    plt.portrait()
+    plt.subplot(3, 1, 2)
+    transverse_crack = crack.transverse_crack(length=2, at_x=config.bridge.x_center)
+    crack_config = transverse_crack.crack(config)
+    cmap, norm = plot.shells(
+        crack_config, color_f=lambda shell: shell.section.youngs_x(), ret_cmap_norm=True
+    )
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Cracked bridge&#34;)
+    plt.subplot(3, 1, 1)
+    plot.shells(
+        config, color_f=lambda shell: shell.section.youngs_x(), cmap=cmap, norm=norm
+    )
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Uncracked bridge&#34;)
+    plt.subplot(3, 1, 3)
+
+    def difference(shell: Shell) -&gt; float:
+        center = shell.center()
+        uncracked_shell = config.bridge.deck_section_at(x=center.x, z=center.z)
+        return uncracked_shell.youngs_x() - shell.section.youngs_x()
+
+    cmap, norm = plot.shells(crack_config, color_f=difference, ret_cmap_norm=True)
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Difference of cracked and uncracked&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;verification/cracking&#34;, &#34;crack.pdf&#34;))
+    plt.close()
+
+
+def crack_zone_plot(
+    config: Config,
+    crack_x_min: float,
+    crack_length: float,
+    response_type: ResponseType,
+    run: bool = False,
+    scatter: bool = False,
+    temps: Tuple[float, float] = [17, 23],
+):
+    &#34;&#34;&#34;Plot bridge responses to temperature with and without cracking.
+
+    Args:
+        config: simulation configuration object.
+        crack_x_min: lower X position of crack zone.
+        crack_length: length of crack zone in X direction.
+        response_type: type of sensor response to plot.
+        run: force the simulation data to be regenerated.
+        scatter: scatter plot instead of contour plot.
+        temps: temperature profile of the deck.
+
+    &#34;&#34;&#34;
+    NUM_X, NUM_Z = 2000, 120
+    # NUM_X, NUM_Z = 100, 100
+    points = [
+        Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, NUM_X)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, NUM_Z)
+    ]
+    crack_deck = crack.transverse_crack(length=crack_length, at_x=crack_x_min)
+    crack_config = crack_deck.crack(config)
+    time = truck1.time_at(x=56, bridge=config.bridge)
+    thresh = 0.35
+    _w1 = crack_deck.without(config.bridge, thresh)
+    _w2 = without.edges(config, 2)
+    without_crack_zone_and_thresh = lambda p, _r: not _w1(p) or _w2(p, None)
+    print_i(f&#34;{thresh} m outside crack zone not considered&#34;)
+
+    def filter_responses(_responses):
+        return (
+            _responses.without_nan_inf()
+            .map(lambda r: r * (1e6 if response_type.is_strain() else 1))
+            .without(without_crack_zone_and_thresh)
+        )
+
+    # Find closes point to middle of lane.
+    pi = 0
+    point = points[pi]
+    dist_to = Point(x=55, z=-8.4)
+    for i in range(len(points)):
+        if points[i].distance(dist_to) &lt; point.distance(dist_to):
+            pi = i
+            point = points[pi]
+
+    def get_responses(_config):
+        _temp_responses = temperature.effect(
+            config=_config,
+            response_type=response_type,
+            points=points,
+            temps_bt=([temps[0]], [temps[1]]),
+        ).T[0]
+        _truck_responses = sim.responses.load(
+            config=_config,
+            response_type=response_type,
+            point_loads=truck1.wheel_track_loads(_config, times=[time])[0],
+        ).at_decks(points) * (1e-6 if response_type.is_strain() else 1)
+        print_i(f&#34;Temperature shape = {_temp_responses.shape}&#34;)
+        print_i(f&#34;Truck shape = {_truck_responses.shape}&#34;)
+        _responses = _temp_responses + _truck_responses
+        print_i(
+            f&#34;At index {pi}: (temp, truck, +) = {_temp_responses[pi]}, {_truck_responses[pi]}, {_responses[pi]}&#34;
+        )
+        assert _responses.shape == _truck_responses.shape
+        assert np.isclose(_responses[pi], _temp_responses[pi] + _truck_responses[pi])
+        if not response_type.is_strain():
+            _responses *= 1e3
+        return (
+            _responses,
+            (
+                filter_responses(
+                    Responses(
+                        response_type=response_type,
+                        responses=list(zip(_responses, points)),
+                        units=&#34;&#34; if response_type.is_strain() else &#34;mm&#34;,
+                    )
+                )
+            ),
+        )
+
+    def plot_outline(label):
+        cz = crack_deck.crack_zone(config.bridge)
+        c_x_start, c_z_start, c_x_end, c_z_end = [
+            cz.x_min,
+            cz.z_min,
+            cz.x_max,
+            cz.z_max,
+        ]
+        plt.gca().add_patch(
+            mpl.patches.Rectangle(
+                (c_x_start, c_z_start),
+                c_x_end - c_x_start,
+                c_z_end - c_z_start,
+                fill=not scatter,
+                edgecolor=&#34;black&#34;,
+                facecolor=&#34;white&#34;,
+                alpha=1,
+                label=label,
+            )
+        )
+
+    def legend():
+        plt.legend(
+            loc=&#34;upper right&#34;,
+            borderpad=0.2,
+            labelspacing=0.2,
+            borderaxespad=0,
+            handletextpad=0.2,
+            columnspacing=0.2,
+        )
+
+    center = config.bridge.x_center
+    min_x, max_x = center - 20, center + 20
+    min_z, max_z = config.bridge.z_min, config.bridge.z_max
+
+    def zoom_in():
+        plt.ylim(min_z, max_z)
+        plt.xlim(min_x, max_x)
+
+    # Collect responses.
+    _r, responses = get_responses(config)
+    _cr, crack_responses = get_responses(crack_config)
+    diff_responses = filter_responses(
+        Responses(
+            response_type=response_type,
+            responses=list(zip(map(lambda x: x[1] - x[0], zip(_r, _cr)), points)),
+            units=&#34;&#34; if response_type.is_strain() else &#34;mm&#34;,
+        )
+    )
+
+    count_min, count_max = 0, 0
+    diff_min, diff_max = min(diff_responses.values()), max(diff_responses.values())
+    print(f&#34;Diff min, max = {diff_min}, {diff_max}&#34;)
+    diff_min08, diff_max08 = diff_min * 0.8, diff_max * 0.8
+    for diff_r in diff_responses.values():
+        if diff_r &lt; diff_min08:
+            count_min += 1
+        if diff_r &gt; diff_max08:
+            count_max += 1
+    print(f&#34;Count = {count_min}, {count_max}&#34;)
+    txt_path = config.get_image_path(
+        &#34;classify/crack_zones&#34;,
+        safe_str(f&#34;x-{crack_x_min}-len-{crack_length}-{response_type.value}&#34;) + &#34;.txt&#34;,
+    )
+    point_area = (config.bridge.length / NUM_X) * (config.bridge.width / NUM_Z)
+    with open(txt_path, &#34;w&#34;) as f:
+        f.write(
+            f&#34;Count 0.8 min/max = {count_min}, {count_max}, area = {point_area}, min/max area = {count_min * point_area}, {count_max * point_area}&#34;
+        )
+
+    # Norm calculation.
+    r_min, r_max = min(responses.values()), max(responses.values())
+    c_min, c_max = min(crack_responses.values()), max(crack_responses.values())
+    vmin, vmax = min(r_min, c_min), max(r_max, c_max)
+    # vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    print_i(f&#34;Min, max = {vmin}, {vmax}&#34;)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+
+    # Healthy bridge.
+    plt.portrait()
+    plt.subplot(3, 1, 1)
+    plot.contour_responses(config, responses, decimals=1, interp=(200, 60), norm=norm)
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Not considered&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.xlabel(None)
+    plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+    plt.title(&#34;Healthy bridge&#34;)
+    zoom_in()
+
+    # Cracked bridge.
+    plt.subplot(3, 1, 2)
+    plot.contour_responses(
+        config, crack_responses, decimals=1, interp=(200, 60), norm=norm
+    )
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Crack zone&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.xlabel(None)
+    plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+    plt.title(&#34;Cracked bridge&#34;)
+    zoom_in()
+
+    # Difference of cracked and uncracked.
+    plt.subplot(3, 1, 3)
+    vmin, vmax = min(diff_responses.values()), max(diff_responses.values())
+    vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    plot.contour_responses(
+        config,
+        diff_responses,
+        decimals=1,
+        interp=(200, 60),
+        cmap=mpl.cm.get_cmap(&#34;RdBu_r&#34;),
+        norm=norm,
+    )
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Crack zone&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.title(&#34;Difference of healthy &amp; cracked bridge&#34;)
+    zoom_in()
+
+    rt_str = (
+        &#34;Microstrain XXB&#34;
+        if response_type == ResponseType.StrainXXB
+        else response_type.name()
+    )
+    plt.suptitle(
+        f&#34;{rt_str}: Truck 1 on healthy &amp; cracked bridge\nT_REF = {config.bridge.ref_temp_c} °C, T_bot = {temps[0]} °C, T_top = {temps[1]} °C&#34;
+    )
+    plt.tight_layout(rect=[0, 0.03, 1, 0.93])
+    plt.savefig(
+        config.get_image_path(
+            &#34;classify/crack_zones&#34;,
+            safe_str(f&#34;x-{crack_x_min}-len-{crack_length}-{response_type.value}&#34;)
+            + &#34;.png&#34;,
+        )
+    )
+    plt.close()
+
+
+def crack_zone_plots(
+    config: Config,
+    response_types: List[ResponseType],
+    temps: Tuple[float, float] = [17, 25],
+):
+    for x, length in [(50, 0.5), (50, 1), (50, 3), (50, 5), (41.25, 20), (48, 14)]:
+        for response_type in response_types:
+            crack_zone_plot(
+                config=config,
+                crack_x_min=x,
+                crack_length=length,
+                response_type=response_type,
+                temps=temps,
+            )
+
+
+def plot_crack_time_series(config: Config):
+    time = 10
+    _0, _1, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=time)
+    response_type = ResponseType.YTrans
+    crack_f = crack.transverse_crack(at_x=80, length=2)
+    point = Point(x=80, z=-8.4)
+    crack_time = 5
+    crack_index = int((crack_time / time) * len(ta))
+    responses = sim.responses.to(
+        config=config,
+        points=[point],
+        traffic_array=ta,
+        response_type=response_type,
+        crack=(crack_f, crack_index),
+    )[0]
+    plt.landscape()
+    plt.plot(np.linspace(0, time, len(responses)), responses)
+    plt.axvline(x=crack_time, c=&#34;black&#34;, label=&#34;Crack occurs&#34;)
+    plt.ylabel(response_type.name())
+    plt.xlabel(&#34;Time (s)&#34;)
+    plt.legend(loc=&#34;upper right&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;crack&#34;, &#34;time-series.png&#34;))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.make.crack.crack_zone_plot"><code class="name flex">
+<span>def <span class="ident">crack_zone_plot</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, crack_x_min: float, crack_length: float, response_type: <a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>, run: bool = False, scatter: bool = False, temps: Tuple[float, float] = [17, 23])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot bridge responses to temperature with and without cracking.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>simulation configuration object.</dd>
+<dt><strong><code>crack_x_min</code></strong></dt>
+<dd>lower X position of crack zone.</dd>
+<dt><strong><code>crack_length</code></strong></dt>
+<dd>length of crack zone in X direction.</dd>
+<dt><strong><code>response_type</code></strong></dt>
+<dd>type of sensor response to plot.</dd>
+<dt><strong><code>run</code></strong></dt>
+<dd>force the simulation data to be regenerated.</dd>
+<dt><strong><code>scatter</code></strong></dt>
+<dd>scatter plot instead of contour plot.</dd>
+<dt><strong><code>temps</code></strong></dt>
+<dd>temperature profile of the deck.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def crack_zone_plot(
+    config: Config,
+    crack_x_min: float,
+    crack_length: float,
+    response_type: ResponseType,
+    run: bool = False,
+    scatter: bool = False,
+    temps: Tuple[float, float] = [17, 23],
+):
+    &#34;&#34;&#34;Plot bridge responses to temperature with and without cracking.
+
+    Args:
+        config: simulation configuration object.
+        crack_x_min: lower X position of crack zone.
+        crack_length: length of crack zone in X direction.
+        response_type: type of sensor response to plot.
+        run: force the simulation data to be regenerated.
+        scatter: scatter plot instead of contour plot.
+        temps: temperature profile of the deck.
+
+    &#34;&#34;&#34;
+    NUM_X, NUM_Z = 2000, 120
+    # NUM_X, NUM_Z = 100, 100
+    points = [
+        Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, NUM_X)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, NUM_Z)
+    ]
+    crack_deck = crack.transverse_crack(length=crack_length, at_x=crack_x_min)
+    crack_config = crack_deck.crack(config)
+    time = truck1.time_at(x=56, bridge=config.bridge)
+    thresh = 0.35
+    _w1 = crack_deck.without(config.bridge, thresh)
+    _w2 = without.edges(config, 2)
+    without_crack_zone_and_thresh = lambda p, _r: not _w1(p) or _w2(p, None)
+    print_i(f&#34;{thresh} m outside crack zone not considered&#34;)
+
+    def filter_responses(_responses):
+        return (
+            _responses.without_nan_inf()
+            .map(lambda r: r * (1e6 if response_type.is_strain() else 1))
+            .without(without_crack_zone_and_thresh)
+        )
+
+    # Find closes point to middle of lane.
+    pi = 0
+    point = points[pi]
+    dist_to = Point(x=55, z=-8.4)
+    for i in range(len(points)):
+        if points[i].distance(dist_to) &lt; point.distance(dist_to):
+            pi = i
+            point = points[pi]
+
+    def get_responses(_config):
+        _temp_responses = temperature.effect(
+            config=_config,
+            response_type=response_type,
+            points=points,
+            temps_bt=([temps[0]], [temps[1]]),
+        ).T[0]
+        _truck_responses = sim.responses.load(
+            config=_config,
+            response_type=response_type,
+            point_loads=truck1.wheel_track_loads(_config, times=[time])[0],
+        ).at_decks(points) * (1e-6 if response_type.is_strain() else 1)
+        print_i(f&#34;Temperature shape = {_temp_responses.shape}&#34;)
+        print_i(f&#34;Truck shape = {_truck_responses.shape}&#34;)
+        _responses = _temp_responses + _truck_responses
+        print_i(
+            f&#34;At index {pi}: (temp, truck, +) = {_temp_responses[pi]}, {_truck_responses[pi]}, {_responses[pi]}&#34;
+        )
+        assert _responses.shape == _truck_responses.shape
+        assert np.isclose(_responses[pi], _temp_responses[pi] + _truck_responses[pi])
+        if not response_type.is_strain():
+            _responses *= 1e3
+        return (
+            _responses,
+            (
+                filter_responses(
+                    Responses(
+                        response_type=response_type,
+                        responses=list(zip(_responses, points)),
+                        units=&#34;&#34; if response_type.is_strain() else &#34;mm&#34;,
+                    )
+                )
+            ),
+        )
+
+    def plot_outline(label):
+        cz = crack_deck.crack_zone(config.bridge)
+        c_x_start, c_z_start, c_x_end, c_z_end = [
+            cz.x_min,
+            cz.z_min,
+            cz.x_max,
+            cz.z_max,
+        ]
+        plt.gca().add_patch(
+            mpl.patches.Rectangle(
+                (c_x_start, c_z_start),
+                c_x_end - c_x_start,
+                c_z_end - c_z_start,
+                fill=not scatter,
+                edgecolor=&#34;black&#34;,
+                facecolor=&#34;white&#34;,
+                alpha=1,
+                label=label,
+            )
+        )
+
+    def legend():
+        plt.legend(
+            loc=&#34;upper right&#34;,
+            borderpad=0.2,
+            labelspacing=0.2,
+            borderaxespad=0,
+            handletextpad=0.2,
+            columnspacing=0.2,
+        )
+
+    center = config.bridge.x_center
+    min_x, max_x = center - 20, center + 20
+    min_z, max_z = config.bridge.z_min, config.bridge.z_max
+
+    def zoom_in():
+        plt.ylim(min_z, max_z)
+        plt.xlim(min_x, max_x)
+
+    # Collect responses.
+    _r, responses = get_responses(config)
+    _cr, crack_responses = get_responses(crack_config)
+    diff_responses = filter_responses(
+        Responses(
+            response_type=response_type,
+            responses=list(zip(map(lambda x: x[1] - x[0], zip(_r, _cr)), points)),
+            units=&#34;&#34; if response_type.is_strain() else &#34;mm&#34;,
+        )
+    )
+
+    count_min, count_max = 0, 0
+    diff_min, diff_max = min(diff_responses.values()), max(diff_responses.values())
+    print(f&#34;Diff min, max = {diff_min}, {diff_max}&#34;)
+    diff_min08, diff_max08 = diff_min * 0.8, diff_max * 0.8
+    for diff_r in diff_responses.values():
+        if diff_r &lt; diff_min08:
+            count_min += 1
+        if diff_r &gt; diff_max08:
+            count_max += 1
+    print(f&#34;Count = {count_min}, {count_max}&#34;)
+    txt_path = config.get_image_path(
+        &#34;classify/crack_zones&#34;,
+        safe_str(f&#34;x-{crack_x_min}-len-{crack_length}-{response_type.value}&#34;) + &#34;.txt&#34;,
+    )
+    point_area = (config.bridge.length / NUM_X) * (config.bridge.width / NUM_Z)
+    with open(txt_path, &#34;w&#34;) as f:
+        f.write(
+            f&#34;Count 0.8 min/max = {count_min}, {count_max}, area = {point_area}, min/max area = {count_min * point_area}, {count_max * point_area}&#34;
+        )
+
+    # Norm calculation.
+    r_min, r_max = min(responses.values()), max(responses.values())
+    c_min, c_max = min(crack_responses.values()), max(crack_responses.values())
+    vmin, vmax = min(r_min, c_min), max(r_max, c_max)
+    # vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    print_i(f&#34;Min, max = {vmin}, {vmax}&#34;)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+
+    # Healthy bridge.
+    plt.portrait()
+    plt.subplot(3, 1, 1)
+    plot.contour_responses(config, responses, decimals=1, interp=(200, 60), norm=norm)
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Not considered&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.xlabel(None)
+    plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+    plt.title(&#34;Healthy bridge&#34;)
+    zoom_in()
+
+    # Cracked bridge.
+    plt.subplot(3, 1, 2)
+    plot.contour_responses(
+        config, crack_responses, decimals=1, interp=(200, 60), norm=norm
+    )
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Crack zone&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.xlabel(None)
+    plt.tick_params(axis=&#34;x&#34;, bottom=False, labelbottom=False)
+    plt.title(&#34;Cracked bridge&#34;)
+    zoom_in()
+
+    # Difference of cracked and uncracked.
+    plt.subplot(3, 1, 3)
+    vmin, vmax = min(diff_responses.values()), max(diff_responses.values())
+    vmin, vmax = min(vmin, -vmax), max(vmax, -vmin)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+    plot.contour_responses(
+        config,
+        diff_responses,
+        decimals=1,
+        interp=(200, 60),
+        cmap=mpl.cm.get_cmap(&#34;RdBu_r&#34;),
+        norm=norm,
+    )
+    plot.top_view_bridge(config.bridge, piers=True, units=&#34;m&#34;)
+    plot_outline(&#34;Crack zone&#34;)
+    plot.top_view_vehicles(
+        config, [truck1], time, wheels=True, body=False, label_wheels=True
+    )
+    legend()
+    plt.title(&#34;Difference of healthy &amp; cracked bridge&#34;)
+    zoom_in()
+
+    rt_str = (
+        &#34;Microstrain XXB&#34;
+        if response_type == ResponseType.StrainXXB
+        else response_type.name()
+    )
+    plt.suptitle(
+        f&#34;{rt_str}: Truck 1 on healthy &amp; cracked bridge\nT_REF = {config.bridge.ref_temp_c} °C, T_bot = {temps[0]} °C, T_top = {temps[1]} °C&#34;
+    )
+    plt.tight_layout(rect=[0, 0.03, 1, 0.93])
+    plt.savefig(
+        config.get_image_path(
+            &#34;classify/crack_zones&#34;,
+            safe_str(f&#34;x-{crack_x_min}-len-{crack_length}-{response_type.value}&#34;)
+            + &#34;.png&#34;,
+        )
+    )
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.crack.crack_zone_plots"><code class="name flex">
+<span>def <span class="ident">crack_zone_plots</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, response_types: List[<a title="bridge_sim.model.ResponseType" href="../../model/index.html#bridge_sim.model.ResponseType">ResponseType</a>], temps: Tuple[float, float] = [17, 25])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def crack_zone_plots(
+    config: Config,
+    response_types: List[ResponseType],
+    temps: Tuple[float, float] = [17, 25],
+):
+    for x, length in [(50, 0.5), (50, 1), (50, 3), (50, 5), (41.25, 20), (48, 14)]:
+        for response_type in response_types:
+            crack_zone_plot(
+                config=config,
+                crack_x_min=x,
+                crack_length=length,
+                response_type=response_type,
+                temps=temps,
+            )</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.crack.plot_crack_E"><code class="name flex">
+<span>def <span class="ident">plot_crack_E</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verification plot of Young's modulus before and after cracking</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_crack_E(config: Config):
+    &#34;&#34;&#34;Verification plot of Young&#39;s modulus before and after cracking&#34;&#34;&#34;
+    plt.portrait()
+    plt.subplot(3, 1, 2)
+    transverse_crack = crack.transverse_crack(length=2, at_x=config.bridge.x_center)
+    crack_config = transverse_crack.crack(config)
+    cmap, norm = plot.shells(
+        crack_config, color_f=lambda shell: shell.section.youngs_x(), ret_cmap_norm=True
+    )
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Cracked bridge&#34;)
+    plt.subplot(3, 1, 1)
+    plot.shells(
+        config, color_f=lambda shell: shell.section.youngs_x(), cmap=cmap, norm=norm
+    )
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Uncracked bridge&#34;)
+    plt.subplot(3, 1, 3)
+
+    def difference(shell: Shell) -&gt; float:
+        center = shell.center()
+        uncracked_shell = config.bridge.deck_section_at(x=center.x, z=center.z)
+        return uncracked_shell.youngs_x() - shell.section.youngs_x()
+
+    cmap, norm = plot.shells(crack_config, color_f=difference, ret_cmap_norm=True)
+    plot.top_view_bridge(config.bridge, piers=True)
+    plt.colorbar(
+        mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=plt.gca(), cmap=cmap, norm=norm
+    )
+    plt.title(&#34;Difference of cracked and uncracked&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;verification/cracking&#34;, &#34;crack.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.crack.plot_crack_time_series"><code class="name flex">
+<span>def <span class="ident">plot_crack_time_series</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_crack_time_series(config: Config):
+    time = 10
+    _0, _1, ta = traffic.load_traffic(config, traffic.normal_traffic(config), time=time)
+    response_type = ResponseType.YTrans
+    crack_f = crack.transverse_crack(at_x=80, length=2)
+    point = Point(x=80, z=-8.4)
+    crack_time = 5
+    crack_index = int((crack_time / time) * len(ta))
+    responses = sim.responses.to(
+        config=config,
+        points=[point],
+        traffic_array=ta,
+        response_type=response_type,
+        crack=(crack_f, crack_index),
+    )[0]
+    plt.landscape()
+    plt.plot(np.linspace(0, time, len(responses)), responses)
+    plt.axvline(x=crack_time, c=&#34;black&#34;, label=&#34;Crack occurs&#34;)
+    plt.ylabel(response_type.name())
+    plt.xlabel(&#34;Time (s)&#34;)
+    plt.legend(loc=&#34;upper right&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;crack&#34;, &#34;time-series.png&#34;))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.make" href="index.html">bridge_sim.internal.make</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.make.crack.crack_zone_plot" href="#bridge_sim.internal.make.crack.crack_zone_plot">crack_zone_plot</a></code></li>
+<li><code><a title="bridge_sim.internal.make.crack.crack_zone_plots" href="#bridge_sim.internal.make.crack.crack_zone_plots">crack_zone_plots</a></code></li>
+<li><code><a title="bridge_sim.internal.make.crack.plot_crack_E" href="#bridge_sim.internal.make.crack.plot_crack_E">plot_crack_E</a></code></li>
+<li><code><a title="bridge_sim.internal.make.crack.plot_crack_time_series" href="#bridge_sim.internal.make.crack.plot_crack_time_series">plot_crack_time_series</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -69,12 +69,14 @@ Parsed = TypeVar(&#34;Parsed&#34;)
 class FEMRunner:
     &#34;&#34;&#34;An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading responses you probably want the
+    For running simulations and loading responses you probably want the
     higher-level API in &#39;bridge_sim.sim.responses&#39;.
 
+    NOTE: The FEMRunner class should have no knowledge of any specific FE
+    package, this will allow for extending support to additional FE packages.
+
     Args:
-        supported_response_types: Callable[[Bridge], List[ResponseType]], the
-            supported response types for a given bridge.
+        TODO: document this much better.
 
     &#34;&#34;&#34;
 
@@ -1029,13 +1031,14 @@ parallel.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>An interface to run simulations with an external FE program.</p>
-<p>NOTE: For running simulations and loading responses you probably want the
+<p>For running simulations and loading responses you probably want the
 higher-level API in 'bridge_sim.sim.responses'.</p>
+<p>NOTE: The FEMRunner class should have no knowledge of any specific FE
+package, this will allow for extending support to additional FE packages.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>supported_response_types</code></strong></dt>
-<dd>Callable[[Bridge], List[ResponseType]], the
-supported response types for a given bridge.</dd>
+<dt><strong><code>TODO</code></strong></dt>
+<dd>document this much better.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1044,12 +1047,14 @@ supported response types for a given bridge.</dd>
 <pre><code class="python">class FEMRunner:
     &#34;&#34;&#34;An interface to run simulations with an external FE program.
 
-    NOTE: For running simulations and loading responses you probably want the
+    For running simulations and loading responses you probably want the
     higher-level API in &#39;bridge_sim.sim.responses&#39;.
 
+    NOTE: The FEMRunner class should have no knowledge of any specific FE
+    package, this will allow for extending support to additional FE packages.
+
     Args:
-        supported_response_types: Callable[[Bridge], List[ResponseType]], the
-            supported response types for a given bridge.
+        TODO: document this much better.
 
     &#34;&#34;&#34;
 

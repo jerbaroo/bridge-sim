@@ -9,7 +9,7 @@ from matplotlib import image as mpimg
 from bridge_sim import sim, plot
 from bridge_sim.model import Config, ResponseType, PointLoad, PierSettlement
 from bridge_sim.util import safe_str, project_dir, print_w, print_i
-from lib.plot import axis_cmap_r, plt
+from bridge_sim.internal.plot import axis_cmap_r, plt
 from bridge_sim.plot import contour_responses, top_view_bridge
 
 

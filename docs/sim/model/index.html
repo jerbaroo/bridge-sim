@@ -723,7 +723,7 @@ def bridge_3d_elements(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="bridge_sim.sim.model.bridge_3d_elements"><code class="name flex">
-<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x115f9c700>, all_pier_elements: <function NewType.<locals>.new_type at 0x115f9c8b0>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
+<span>def <span class="ident">bridge_3d_elements</span></span>(<span>deck_elements: <function NewType.<locals>.new_type at 0x119445940>, all_pier_elements: <function NewType.<locals>.new_type at 0x119445af0>) -> List[<a title="bridge_sim.sim.model.Shell" href="#bridge_sim.sim.model.Shell">Shell</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's shell elements in a deterministic order.</p></div>
@@ -744,7 +744,7 @@ def bridge_3d_elements(
 </details>
 </dd>
 <dt id="bridge_sim.sim.model.bridge_3d_nodes"><code class="name flex">
-<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x115fa3dc0>, all_support_nodes: <function NewType.<locals>.new_type at 0x115f9c040>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
+<span>def <span class="ident">bridge_3d_nodes</span></span>(<span>deck_nodes: <function NewType.<locals>.new_type at 0x119445040>, all_support_nodes: <function NewType.<locals>.new_type at 0x119445280>) -> List[<a title="bridge_sim.sim.model.Node" href="#bridge_sim.sim.model.Node">Node</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All a bridge's nodes in a deterministic order.</p></div>
@@ -1602,7 +1602,7 @@ def bridge_3d_elements(
 </dd>
 <dt id="bridge_sim.sim.model.Shell"><code class="flex name class">
 <span>class <span class="ident">Shell</span></span>
-<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x115fa33a0>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
+<span>(</span><span>e_id: int, ni_id: int, nj_id: int, nk_id: int, nl_id: int, section: <a title="bridge_sim.model.Material" href="../../model/index.html#bridge_sim.model.Material">Material</a>, pier: bool, nodes_by_id: <function NewType.<locals>.new_type at 0x1193c7700>, support_position_index: Union[Tuple[int, int, int, int], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A shell element in a FE model.</p>

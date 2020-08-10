@@ -1,6 +1,6 @@
 import numpy as np
 
-from plot import plt
+from bridge_sim.plot import plt
 
 
 def plot_day_lines(datetimes):
