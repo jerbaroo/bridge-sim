@@ -3,14 +3,14 @@ from typing import List
 
 import numpy as np
 
+from bridge_sim.internal.plot import plt
+from bridge_sim.internal.plot.responses import plot_distributions
 from bridge_sim.model import Config, Point, ResponseType
 from bridge_sim.traffic import normal_traffic
 from bridge_sim.sim.responses import to_traffic_array
 from bridge_sim.scenarios import HealthyScenario, Scenario
 from bridge_sim.sim.model import Responses
 from bridge_sim.sim.run.opensees import OSRunner
-from lib.plot import plt
-from lib.plot.responses import plot_distributions
 from bridge_sim.plot import contour_responses
 from bridge_sim.util import print_i, safe_str
 

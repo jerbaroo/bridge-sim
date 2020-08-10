@@ -1,13 +1,13 @@
 import numpy as np
 from scipy.signal import savgol_filter
 
+from bridge_sim.internal.plot import plt
+from bridge_sim.internal.validate import _displa_sensor_xz, _strain_sensor_xz
 from bridge_sim.model import Config, Point, PointLoad, ResponseType
 from bridge_sim.vehicles import truck1
-from lib.validate import _displa_sensor_xz, _strain_sensor_xz
 from bridge_sim.sim.model import SimParams
 from bridge_sim.sim.responses import load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
-from lib.plot import plt
 from bridge_sim.util import flatten, print_i
 
 

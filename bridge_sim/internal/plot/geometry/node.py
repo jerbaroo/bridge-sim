@@ -2,9 +2,9 @@ from typing import List
 
 import numpy as np
 
+from bridge_sim.internal.plot import plt
+from bridge_sim.internal.plot.geometry.angles import ax_3d
 from bridge_sim.sim.model import Node
-from lib.plot import plt
-from lib.plot.geometry.angles import ax_3d
 
 
 def node_scatter_3d(nodes: List[Node], new_fig: bool = True):

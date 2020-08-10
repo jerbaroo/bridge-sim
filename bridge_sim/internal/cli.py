@@ -6,23 +6,19 @@ Run './scripts/cli.sh' from the root directory of the cloned 'bridge_sim' reposi
 
 import os
 import pdb
-
-import bridge_sim
-import lib.make.temperature
-import lib.make.validation
 import sys
 import traceback
 
 import click
 
 from bridge_sim.configs import opensees_default
+from bridge_sim.internal.validate import _truck1_x_pos
+from bridge_sim.internal.make import paramselect
+from bridge_sim.internal.make.plot import contour as contour_
+from bridge_sim.internal.make.plot import geometry as geometry_
+from bridge_sim.internal.make.plot import vehicle, verification
 from bridge_sim.model import ResponseType
 from bridge_sim.vehicles import truck1, og_truck1
-from lib.validate import _truck1_x_pos
-from lib.make import paramselect
-from lib.make.plot import contour as contour_
-from lib.make.plot import geometry as geometry_
-from lib.make.plot import vehicle, verification
 from bridge_sim.bridges.bridge_705 import bridge_705
 from bridge_sim.util import clean_generated, print_i, remove_except_npy
 

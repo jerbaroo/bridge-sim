@@ -9,9 +9,6 @@ from datetime import datetime
 from timeit import default_timer as timer
 from typing import List, Optional, Tuple
 
-import bridge_sim.sim
-import bridge_sim.sim.responses
-import bridge_sim.util
 import matplotlib
 import matplotlib.cm as cm
 import numpy as np
@@ -19,6 +16,7 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from sklearn.linear_model import LinearRegression
 
+from bridge_sim.internal.plot import plt
 from bridge_sim.model import Config, PierSettlement, Point, PointLoad, ResponseType
 from bridge_sim.sim.responses import to_vehicles_direct
 from bridge_sim.vehicles import truck1
@@ -26,10 +24,12 @@ from bridge_sim.sim.build import det_nodes, det_shells
 from bridge_sim.sim.model import SimParams
 from bridge_sim.sim.responses import load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
-from lib.plot import plt
 from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.plot import contour_responses, top_view_bridge
-from lib.plot.validation import plot_mmm_strain_convergence, plot_nesw_convergence
+from bridge_sim.internal.plot.validation import (
+    plot_mmm_strain_convergence,
+    plot_nesw_convergence,
+)
 from bridge_sim.util import (
     print_i,
     print_w,
@@ -37,7 +37,7 @@ from bridge_sim.util import (
     safe_str,
     scalar,
 )
-from lib.validate import (
+from bridge_sim.internal.validate import (
     _meas,
     _displa_sensors,
     _strain_sensors,

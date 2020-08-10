@@ -2,8 +2,8 @@
 
 import matplotlib.pyplot as plt
 
+from bridge_sim.internal.plot.vehicle import topview_vehicle
 from bridge_sim.model import Config, Vehicle
-from lib.plot.vehicle import topview_vehicle
 
 
 def comparison(c: Config, v1: Vehicle, v2: Vehicle):

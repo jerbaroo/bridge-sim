@@ -9,7 +9,7 @@ from bridge_sim.model import Config, Point, Bridge
 from bridge_sim.plot.util import equal_lims
 from bridge_sim.sim.responses import without
 from bridge_sim.util import print_i, print_w
-from lib.plot import axis_cmap_r
+from bridge_sim.internal.plot import axis_cmap_r
 
 
 def plot_year_effects(config: Config, x: float, z: float, num_years: int):

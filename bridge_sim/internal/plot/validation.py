@@ -7,7 +7,7 @@ import pandas as pd
 
 from bridge_sim.model import Config, Point
 from bridge_sim.sim.model import Responses
-from lib.plot import plt
+from bridge_sim.internal.plot import plt
 from bridge_sim.util import print_i, scalar
 
 

@@ -5,6 +5,7 @@ import numpy as np
 from bridge_sim import sim, plot, temperature
 from bridge_sim.crack import transverse_crack
 
+from bridge_sim.internal.validate import _displa_sensor_xz, _strain_sensor_xz
 from bridge_sim.model import Config, Point, ResponseType, PierSettlement
 from bridge_sim.plot.util import equal_lims
 from bridge_sim.sim.model import Responses
@@ -12,7 +13,6 @@ from bridge_sim.sim.responses import to_traffic_array, without
 from bridge_sim.traffic import TrafficSequence
 from bridge_sim.util import print_i, project_dir
 from bridge_sim.vehicles import truck1
-from lib.validate import _displa_sensor_xz, _strain_sensor_xz
 
 
 def truck_1_time_series(c: Config):

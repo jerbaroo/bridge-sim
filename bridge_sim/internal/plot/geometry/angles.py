@@ -3,7 +3,7 @@ from typing import Optional, List
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-from lib.plot import plt
+from bridge_sim.internal.plot import plt
 
 
 def ax_3d(

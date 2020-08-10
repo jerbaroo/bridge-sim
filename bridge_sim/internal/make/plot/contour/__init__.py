@@ -3,13 +3,13 @@ from itertools import chain
 
 from matplotlib.cm import get_cmap
 
+from bridge_sim.internal.plot import parula_cmap, plt
+from bridge_sim.internal.plot.contour import contour_responses_3d
 from bridge_sim.model import Config, ResponseType
 from bridge_sim.vehicles import truck1
 from bridge_sim.sim.model import SimParams
 from bridge_sim.sim.responses import load_fem_responses
 from bridge_sim.sim.run.opensees import OSRunner
-from lib.plot import parula_cmap, plt
-from lib.plot.contour import contour_responses_3d
 
 # Print debug information for this file.
 D: str = "make.plots.contour"

@@ -8,9 +8,9 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 from scipy.stats import chisquare
 
+from bridge_sim.internal.plot import plt
 from bridge_sim.model import ResponseType, Point, Config
 from bridge_sim.sim.build import get_bridge_nodes, det_nodes
-from lib.plot import plt
 from bridge_sim.plot.util import legend_marker_size
 from bridge_sim.util import print_w
 

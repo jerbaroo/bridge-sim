@@ -1,3 +1,5 @@
-poetry run stubgen src/
-export MYPYPATH=~/cs/bridge-sim/out/src/
-poetry run mypy src/bridge_sim/
+set -x
+
+poetry run stubgen bridge_sim/
+export MYPYPATH=$(pwd)/out/bridge_sim/
+poetry run mypy bridge_sim/

@@ -9,6 +9,7 @@ _meas_path = os.path.join(project_dir(), "data/validation/measurements_static_ZB
 _displa_path = os.path.join(project_dir(), "data/validation/displasensors.txt")
 _strain_path = os.path.join(project_dir(), "data/validation/strainsensors.txt")
 
+_meas, _displa_sensors, _strain_sensors = None, None, None
 if os.path.exists(_meas_path):
     _meas = pd.read_csv(_meas_path)
 if os.path.exists(_displa_path):
