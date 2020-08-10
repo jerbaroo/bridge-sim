@@ -1,11 +1,10 @@
 [tool.poetry]
-name = "poetry-demo"
+name = "bridge-sim"
 version = "0.0.8"
 description = "A Python library for concrete slab bridge simulation"
 authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
 
 [tool.poetry.dependencies]
-bridge_sim = { path = "./src/" }
 findup = "0.3.0"
 pathos = "0.2.5"
 portalocker = "1.7.0"

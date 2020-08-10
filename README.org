@@ -1,5 +1,4 @@
 * Concrete slab bridge simulation
-
 [[https://img.shields.io/circleci/build/github/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/docker/pulls/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/codeclimate/maintainability/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/github/license/barischrooneyj/bridge-sim.svg]]
 
 This document provides installation instructions and usage examples.
@@ -8,36 +7,32 @@ API documentation is available at [[https://barischrooneyj.github.io/bridge-sim]
 
 *Table of Contents*
 - [[#installation][Installation]]
-  - [[#tldr][tl;dr]]
+  - [[#pypi][PyPI]]
   - [[#docker][Docker]]
     - [[#lisa][Lisa]]
-  - [[#directly][Directly]]
-  - [[#pypi][PyPI]]
+  - [[#development][Development]]
+  - [[#installation-notes][Installation notes]]
 - [[#introduction][Introduction]]
 - [[#examples][Examples]]
+  - [[#example-1][Example 1]]
+  - [[#example-2][Example 2]]
+  - [[#example-3][Example 3]]
+  - [[#example-4][Example 4]]
+  - [[#example-5][Example 5]]
+  - [[#example-6][Example 6]]
+  - [[#example-7][Example 7]]
 
 If you are interested in using this library, please open an issue to ask any questions (one issue per question)! I welcome all feedback, so don't hesitate to communicate any thoughts. Please star the project if you like it. Read [[./LICENSE][this]] before use.
 
 [[./data/images/animation.png]]
-
 ** Installation
-
 Currently two installation methods are provided. The Docker method is the easiest and will have you running some code as soon as possible. You can also clone this repository and run the source code directly. A Python package will be published on PyPI at some point, however hopefully one of the two available methods will suffice in the meantime.
+*** PyPI
+First make sure you are using Python 3.8+. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
-*** tl;dr
-
-If you have Docker installed and just want to get something runnning ASAP:
-
-#+BEGIN_SRC bash
-$ docker run -it barischrooneyj/bridge-sim:v0.0.8
-$ poetry run python example.py
-#+END_SRC
-
+If you are working on a Python project that uses [[https://python-poetry.org/docs/][Poetry]] as the package manager then you can add =bridge-sim= as a dependency by running the command =poetry add bridge-sim=. If you are starting a project from scratch you can first initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then try adding =bridge-sim= as a dependency.
 *** Docker
-
-Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed.
-
-Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
+Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed. Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
 #+BEGIN_SRC bash
 $ docker run -it barischrooneyj/bridge-sim:v0.0.8
@@ -57,7 +52,6 @@ $ docker cp d297a50ff165:/root/docker-1.png docker-1.png
 To copy files to the =/root= directory of the Docker container you can run =docker cp local-files/ d297a50ff165:/root=. Run =docker cp --help= or search the web for more information.
 
 The Docker image that you enter with =docker run= has OpenSees installed at =/root/bin/OpenSees=. The =bridge-sim= source code along with all installed Python dependencies are in =/bridge-sim=. We have shown how to run the provided =example.py= file but you could modify this file and run a different example, some examples are given [[Examples][below]].
-
 **** Lisa
 
 These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
@@ -68,39 +62,25 @@ To run a simulation you need a script to interact with the scheduler. See [[dock
 
 To view jobs in the queue I run =squeue | grep brjeremy=, where =brjeremy= is my username. Job output is saved in a =slurm-XXXXX.out= file where =XXXXX= is the job ID. I always delete the output from old jobs, so to delete the old output and run a new job I type =rm slurm*.out; sbatch run-lisa.sh=. Then the output can be viewed with =cat slurm-XXXXX.out=. To cancel a job run =scancel XXXXX=.
 
-*** Directly
+*** Development
+First make sure you are using Python 3.8+ and [[https://python-poetry.org/docs/][install Poetry]]. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
-Make sure you have Python 3.8+ installed. And also [[https://python-poetry.org/docs/][install Poetry]].
-
-You will need [[https://opensees.berkeley.edu/][OpenSees]], you can download it [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
-
-Clone this repository and change into the directory:
+Clone this repository, change into the directory and once in the =bridge-sim= directory install project dependencies.
 
 #+BEGIN_SRC bash
 $ git clone https://github.com/barischrooneyj/bridge-sim
 $ cd bridge-sim
+$ poetry install
 #+END_SRC
 
-In the =bridge-sim= directory install project dependencies with =poetry install=. After installation you can find your poetry created virtual environment by using =poetry show -v=. You might need to add the path to the virtual environment manually in your IDE.
-
-# If you have an error and are on the Windows OS you may need to =poetry install pypiwin32=. I do not run Windows so can be of limited help there.
-
-*** PyPI
-
-A package is in the works.
-
+*** Installation notes
+After installation you can find your poetry created virtual environment by using =poetry show -v=. You might need to add the path to the python executable manually in your IDE.
 ** Introduction
-
 A brief introduction to some of the Python classes provided. A =Bridge= describes the material properties, geometry and boundary conditions of a bridge. A =FEMRunner= is capable of transforming a =Bridge= along with some additional simulation parameters into a model file, running that file, and returning the responses from simulation. This project currently provides one instance of =FEMRunner= which is called =OSRunner= and is capable of running simulations with OpenSees. A =Config= contains some additional global configuration but is also used as a container for a =Bridge= and =FEMRunner=. This is useful because all three of these objects are required in many situations and combining them into one object makes life a bit easier than passing these three objects around separately.
-
 # [[./data/images/config-composition.png]]
-
 ** Examples
-
 If you have managed to install the software then the next step is to run an example such as =example.py=. You will need to make sure that OpenSees is on your PATH, if you have followed the Docker installation instructions then this is already done for you. The file =example.py= can be run with =poetry run python example.py=.
-
-*** Point Load
-
+*** Example 1: applying a point load
 Narrow example bridge with a single point load applied.
 
 #+BEGIN_SRC python
@@ -116,8 +96,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Custom Vehicle
-
+*** Example 2: defining a vehicle
 Narrow example bridge with a 5-axled vehicle on it, each wheel is a point load.
 
 #+BEGIN_SRC python
@@ -142,8 +121,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Pier Settlement
-
+*** Example 3: pier settlement
 Wide example bridge with two supporting piers, one pier settled by 1.2 m.
 
 #+BEGIN_SRC python
@@ -162,8 +140,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Different Response Types
-
+*** Example 4: multiple response types
 Like the previous pier settlement example but plotting multiple response types.
 
 #+BEGIN_SRC python
@@ -189,8 +166,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Custom Bridge
-
+*** Example 5: defining a bridge
 Like the first point-load example but with a custom square bridge.
 
 #+BEGIN_SRC python
@@ -240,8 +216,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Generate Traffic Flow
-
+*** Example 6: generating traffic
 Generate 10 seconds of traffic and animate it moving over bridge 705.
 
 #+BEGIN_SRC python
@@ -261,8 +236,7 @@ plot.animate.animate_traffic(
 )
 #+END_SRC
 
-*** Fancy Traffic Flow Animation
-
+*** Example 7: animating traffic flow
 First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
 
 #+BEGIN_SRC python
@@ -293,8 +267,7 @@ plot.animate.animate_responses(
 )
 #+END_SRC
 
-*** Contour Plot of Temperature Effect
-
+*** Example 8: contour plot of temperature effect
 Contour plot of temperature when the bottom and top temperatures of the bridge are 20 and 22 degrees celcius respectively.
 
 #+BEGIN_SRC python
@@ -324,8 +297,7 @@ plt.tight_layout()
 plt.show()
 #+END_SRC
 
-*** Time Series of Temperature Effect
-
+*** Example 9: time series of temperature effect
 Generating traffic, then calculating time series of responses to that traffic over a wide example bridge. Then also calculating the responses to temperature. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
 
 #+BEGIN_SRC python

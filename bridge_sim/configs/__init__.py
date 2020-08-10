@@ -45,9 +45,13 @@ def opensees_default(
     )
 
 
-def test_config(msl: float = 10.0):
+def test_config(msl: float = 10.0, il_num_loads: int = 100):
     """A Config used internally for testing."""
-    config = opensees_default(bridge_705(msl), allow_no_exe=True)
+    config = opensees_default(
+        bridge_705(msl),
+        allow_no_exe=True,
+        il_num_loads=il_num_loads
+    )
     config._root_generated_data_dir = os.path.join(
         "test-data/", config._root_generated_data_dir
     )

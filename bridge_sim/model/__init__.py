@@ -188,6 +188,7 @@ class Config:
         vehicle_pdf_col: str,
         generated_data: str = "generated-data",
         shorten_paths: bool = False,
+        il_num_loads: int = 600,
     ):
         """Simulation configuration object.
 
@@ -225,7 +226,7 @@ class Config:
         self.resp_matrices = dict()
 
         # Unit loads.
-        self.il_num_loads: int = 600
+        self.il_num_loads = il_num_loads
         self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
