@@ -3,6 +3,9 @@ name = "bridge-sim"
 version = "0.0.8"
 description = "A Python library for concrete slab bridge simulation"
 authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
+homepage = "https://github.com/barischrooneyj/bridge-sim#concrete-slab-bridge-simulation"
+repository = "https://github.com/barischrooneyj/bridge-sim"
+documentation = "https://barischrooneyj.github.io/bridge-sim/"
 
 [tool.poetry.dependencies]
 findup = "0.3.0"
@@ -27,3 +30,7 @@ pypandoc = "1.5"
 pytest = "5.4.3"
 twine = "3.1.1"
 mypy = "0.780"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
