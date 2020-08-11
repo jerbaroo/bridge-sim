@@ -159,7 +159,7 @@ time = 10
 config.sensor_freq = 1 / 10
 traffic_scenario = traffic.normal_traffic(config)
 traffic_sequence = traffic_scenario.traffic_sequence(config, time)
-weather = temperature.load("holly-springs")
+weather = temperature.load("holly-springs-19")
 weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=35)
 plot.animate.animate_responses(
     config=config,
@@ -229,7 +229,7 @@ responses_to_traffic = sim.responses.to_traffic_array(
 )
 
 # And responses to temperature.
-weather = temperature.load("holly-springs")
+weather = temperature.load("holly-springs-19")
 weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=31)
 temp_responses = sim.responses.to_temperature(
     config=config,

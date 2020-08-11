@@ -34,7 +34,7 @@ First make sure you are using Python 3.8+. You will also need [[https://opensees
 
 Using pip: inside your Python virtual environment run this command =pip install bridge-sim=.
 
-If you are starting a project from scratch I recommend the [[https://python-poetry.org/docs/][Poetry]] package manager. Initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then add =bridge-sim= as a dependency with =poetry add bridge-sim=.
+If you are starting a project from scratch I recommend the [[https://python-poetry.org/docs/][Poetry]] package manager. Initialize a project named /foobar/ with =poetry new foobar && cd foobar=, then add =bridge-sim= as a dependency with =poetry add bridge-sim=.
 
 Now that you have =bridge-sim= installed you probably want to run some code, for that see the examples section [[#examples][below]].
 *** Docker

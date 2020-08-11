@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import math
+import pathlib
 from typing import Union, List
 
 import findup
@@ -56,8 +57,8 @@ def apply(effect: List[float], signal: List[float]):
 
 
 def project_dir():
-    """Root directory of the project (looks for .git file)."""
-    return os.path.dirname(findup.glob(".git"))
+    """Root directory of the project."""
+    return pathlib.Path(__file__).parents[1].absolute()
 
 
 def log(c: "Config", s):

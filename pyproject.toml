@@ -1,10 +1,16 @@
 [tool.poetry]
 name = "bridge-sim"
-version = "0.0.8.3"
+version = "0.0.8.4"
 description = "A Python library for concrete slab bridge simulation"
 authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
 documentation = "https://github.com/barischrooneyj/bridge-sim/blob/master/README.org#concrete-slab-bridge-simulation"
 repository = "https://github.com/barischrooneyj/bridge-sim"
+include = [
+    "model-template-3d.tcl",
+    "data/temperature/holly-springs-18.txt",
+    "data/temperature/holly-springs-19.txt",
+    "data/traffic/traffic.csv",
+    "data/bridge705/bridge-705.org"]
 
 [tool.poetry.dependencies]
 findup = "0.3.0"
