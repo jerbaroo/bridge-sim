@@ -98,7 +98,14 @@ class FEMRunner:
         # Running.
         for sim_ind, _ in enumerate(expt_params):
             start = timer()
-            expt_params = self._run(config, expt_params, self, sim_ind)
+            try:
+                expt_params = self._run(config, expt_params, self, sim_ind)
+            except PermissionError as e:
+                raise PermissionError(
+                    f"{e}\nOn Windows you can try adding the folder containing"
+                    f" the '{self.name}' executable to your $PATH to avoid this"
+                    " error."
+                )
             print_i(
                 f"FEMRunner: ran {self.name}"
                 + f" {sim_ind + 1}/{len(expt_params)}"
