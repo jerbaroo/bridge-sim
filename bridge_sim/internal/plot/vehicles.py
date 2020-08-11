@@ -6,7 +6,11 @@ import numpy as np
 from scipy import stats
 
 from bridge_sim.model import Config
-from bridge_sim.vehicles.sample import sample_vehicle, axle_array_and_count, load_vehicle_data
+from bridge_sim.vehicles.sample import (
+    sample_vehicle,
+    axle_array_and_count,
+    load_vehicle_data,
+)
 from bridge_sim.util import print_i
 
 # Print debug information for this file.
