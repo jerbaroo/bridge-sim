@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.plot.validation API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.plot.validation</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import itertools
+from typing import Callable, Dict, Optional
+
+import matplotlib
+import numpy as np
+import pandas as pd
+
+from bridge_sim.model import Config, Point
+from bridge_sim.sim.model import Responses
+from bridge_sim.internal.plot import plt
+from bridge_sim.util import print_i, scalar
+
+
+def plot_mmm_strain_convergence(
+    c: Config,
+    pier: int,
+    df: pd.DataFrame,
+    all_strains: Dict[float, Responses],
+    title: str,
+    without: Optional[Callable[[Point], bool]] = None,
+    append: Optional[str] = None,
+):
+    &#34;&#34;&#34;Plot convergence of given fem as model size grows.&#34;&#34;&#34;
+    # A grid of points 1m apart, over which to calculate fem.
+    grid = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
+        )
+    ]
+    # If requested, remove some values from the fem.
+    if without is not None:
+        grid = [point for point in grid if not without(point)]
+        for msl, strains in all_strains.items():
+            print(f&#34;Removing points from strains with max_shell_len = {msl}&#34;)
+            all_strains[msl] = strains.without(without)
+    # Collect fem over all fem, and over the grid. Iterate by
+    # decreasing max_shell_len.
+    mins, maxes, means = [], [], []
+    gmins, gmaxes, gmeans = [], [], []
+    max_shell_lens = []
+    for msl, strains in sorted(all_strains.items(), key=lambda kv: -kv[0]):
+        max_shell_lens.append(msl)
+        print_i(f&#34;Gathering strains with max_shell_len = {msl}&#34;, end=&#34;\r&#34;)
+        grid_strains = np.array([strains.at_deck(point, interp=True) for point in grid])
+        gmins.append(scalar(np.min(grid_strains)))
+        gmaxes.append(scalar(np.max(grid_strains)))
+        gmeans.append(scalar(np.mean(grid_strains)))
+        strains = np.array(list(strains.values()))
+        mins.append(scalar(np.min(strains)))
+        maxes.append(scalar(np.max(strains)))
+        means.append(scalar(np.mean(strains)))
+    print()
+    # Normalize and plot the mins, maxes, and means.
+    def normalize(ys):
+        print(ys)
+        return ys / np.mean(ys[-5:])
+
+    mins, maxes, means = normalize(mins), normalize(maxes), normalize(means)
+    gmins, gmaxes, gmeans = normalize(gmins), normalize(gmaxes), normalize(gmeans)
+    deck_nodes = [df.at[msl, &#34;deck-nodes&#34;] for msl in max_shell_lens]
+    pier_nodes = [df.at[msl, &#34;pier-nodes&#34;] for msl in max_shell_lens]
+    num_nodes = np.array(deck_nodes) + np.array(pier_nodes)
+    print(f&#34;MSLs = {max_shell_lens}&#34;)
+    print(f&#34;num_nodes = {num_nodes}&#34;)
+    # Plot all lines, for debugging.
+    plt.landscape()
+    plt.plot(num_nodes, mins, label=&#34;mins&#34;)
+    plt.plot(num_nodes, maxes, label=&#34;maxes&#34;)
+    plt.plot(num_nodes, means, label=&#34;means&#34;)
+    plt.plot(num_nodes, gmins, label=&#34;gmins&#34;)
+    plt.plot(num_nodes, gmaxes, label=&#34;gmaxes&#34;)
+    plt.plot(num_nodes, gmeans, label=&#34;gmeans&#34;)
+    plt.grid(axis=&#34;y&#34;)
+    plt.xlabel(&#34;Nodes in FEM&#34;)
+    plt.ylabel(&#34;Strain&#34;)
+    plt.title(title)
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig(
+        c.get_image_path(&#34;convergence-pier-strain&#34;, f&#34;mmm-{append}-all.pdf&#34;, acc=False)
+    )
+    plt.close()
+    # Only plot some lines, for the thesis.
+    plt.landscape()
+    plt.plot(num_nodes, gmins, label=&#34;Minimum&#34;)
+    plt.plot(num_nodes, gmaxes, label=&#34;Maximum&#34;)
+    plt.plot(num_nodes, gmeans, label=&#34;Mean&#34;)
+    plt.grid(axis=&#34;y&#34;)
+    plt.title(title)
+    plt.xlabel(&#34;Nodes in FEM&#34;)
+    plt.ylabel(&#34;Strain&#34;)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(
+        c.get_image_path(&#34;convergence-pier-strain&#34;, f&#34;mmm-{append}.pdf&#34;, acc=False)
+    )
+    plt.close()
+
+
+def plot_nesw_convergence(
+    c: Config,
+    df: pd.DataFrame,
+    responses: Dict[float, Responses],
+    point: Point,
+    max_distance: float,
+    from_: str,
+):
+    &#34;&#34;&#34;Plot convergence of strain at different points around a load.&#34;&#34;&#34;
+    delta_distance = 0.05
+    skip = 3
+    # Create color mappable for distances.
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
+    cmap = matplotlib.cm.get_cmap(&#34;jet&#34;)
+    mappable = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap)
+    color = lambda d: mappable.to_rgba(d)
+    # For each compass point.
+    compass_dir = {
+        &#34;N&#34;: (0, 1),
+        &#34;E&#34;: (1, 0),
+        &#34;S&#34;: (0, -1),
+        &#34;W&#34;: (-1, 0),
+    }
+    plt.square()
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    for ax, compass, compass_name, in zip(
+        axes.flat, [&#34;N&#34;, &#34;S&#34;, &#34;E&#34;, &#34;W&#34;], [&#34;North&#34;, &#34;South&#34;, &#34;East&#34;, &#34;West&#34;]
+    ):
+        # Collect data into fem.
+        x_mul, z_mul = compass_dir[compass]
+        for distance in np.arange(0, max_distance, step=delta_distance)[::skip]:
+            dist_point = Point(
+                x=point.x + (distance * x_mul),
+                y=point.y,
+                z=point.z + (distance * z_mul),
+            )
+            print(dist_point)
+            if (
+                dist_point.x &lt; c.bridge.x_min
+                or dist_point.x &gt; c.bridge.x_max
+                or dist_point.z &lt; c.bridge.z_min
+                or dist_point.z &gt; c.bridge.z_max
+            ):
+                break
+            line_responses = []
+            for max_shell_len, sim_responses in responses.items():
+                deck_nodes = float(df.at[max_shell_len, &#34;deck-nodes&#34;])
+                pier_nodes = float(df.at[max_shell_len, &#34;pier-nodes&#34;])
+                line_responses.append(
+                    (
+                        deck_nodes + pier_nodes,
+                        # max_shell_len,
+                        scalar(sim_responses.at_deck(dist_point, interp=True)),
+                    )
+                )
+            line_responses = np.array(sorted(line_responses, key=lambda t: t[0])).T
+            ax.plot(line_responses[0], line_responses[1], color=color(distance))
+            if distance &gt; max_distance:
+                break
+        ax.grid(axis=&#34;y&#34;)
+        ax.set_title(
+            f&#34;Strain at increasing distance\nin direction {compass_name} from\n{from_}&#34;
+        )
+        ax.set_xlabel(&#34;Nodes in FEM&#34;)
+        ax.set_ylabel(&#34;Strain&#34;)
+        # ax.set_xlim(ax.get_xlim()[1], ax.get_xlim()[0])
+    plt.tight_layout()
+    clb = plt.colorbar(mappable, ax=axes.ravel())
+    clb.ax.set_title(&#34;Distance (m)&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.plot.validation.plot_mmm_strain_convergence"><code class="name flex">
+<span>def <span class="ident">plot_mmm_strain_convergence</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, pier: int, df: pandas.core.frame.DataFrame, all_strains: Dict[float, bridge_sim.sim.model.Responses], title: str, without: Union[Callable[[bridge_sim.model.Point], bool], NoneType] = None, append: Union[str, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot convergence of given fem as model size grows.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_mmm_strain_convergence(
+    c: Config,
+    pier: int,
+    df: pd.DataFrame,
+    all_strains: Dict[float, Responses],
+    title: str,
+    without: Optional[Callable[[Point], bool]] = None,
+    append: Optional[str] = None,
+):
+    &#34;&#34;&#34;Plot convergence of given fem as model size grows.&#34;&#34;&#34;
+    # A grid of points 1m apart, over which to calculate fem.
+    grid = [
+        Point(x=x, y=0, z=z)
+        for x, z in itertools.product(
+            np.linspace(c.bridge.x_min, c.bridge.x_max, int(c.bridge.length)),
+            np.linspace(c.bridge.z_min, c.bridge.z_max, int(c.bridge.width)),
+        )
+    ]
+    # If requested, remove some values from the fem.
+    if without is not None:
+        grid = [point for point in grid if not without(point)]
+        for msl, strains in all_strains.items():
+            print(f&#34;Removing points from strains with max_shell_len = {msl}&#34;)
+            all_strains[msl] = strains.without(without)
+    # Collect fem over all fem, and over the grid. Iterate by
+    # decreasing max_shell_len.
+    mins, maxes, means = [], [], []
+    gmins, gmaxes, gmeans = [], [], []
+    max_shell_lens = []
+    for msl, strains in sorted(all_strains.items(), key=lambda kv: -kv[0]):
+        max_shell_lens.append(msl)
+        print_i(f&#34;Gathering strains with max_shell_len = {msl}&#34;, end=&#34;\r&#34;)
+        grid_strains = np.array([strains.at_deck(point, interp=True) for point in grid])
+        gmins.append(scalar(np.min(grid_strains)))
+        gmaxes.append(scalar(np.max(grid_strains)))
+        gmeans.append(scalar(np.mean(grid_strains)))
+        strains = np.array(list(strains.values()))
+        mins.append(scalar(np.min(strains)))
+        maxes.append(scalar(np.max(strains)))
+        means.append(scalar(np.mean(strains)))
+    print()
+    # Normalize and plot the mins, maxes, and means.
+    def normalize(ys):
+        print(ys)
+        return ys / np.mean(ys[-5:])
+
+    mins, maxes, means = normalize(mins), normalize(maxes), normalize(means)
+    gmins, gmaxes, gmeans = normalize(gmins), normalize(gmaxes), normalize(gmeans)
+    deck_nodes = [df.at[msl, &#34;deck-nodes&#34;] for msl in max_shell_lens]
+    pier_nodes = [df.at[msl, &#34;pier-nodes&#34;] for msl in max_shell_lens]
+    num_nodes = np.array(deck_nodes) + np.array(pier_nodes)
+    print(f&#34;MSLs = {max_shell_lens}&#34;)
+    print(f&#34;num_nodes = {num_nodes}&#34;)
+    # Plot all lines, for debugging.
+    plt.landscape()
+    plt.plot(num_nodes, mins, label=&#34;mins&#34;)
+    plt.plot(num_nodes, maxes, label=&#34;maxes&#34;)
+    plt.plot(num_nodes, means, label=&#34;means&#34;)
+    plt.plot(num_nodes, gmins, label=&#34;gmins&#34;)
+    plt.plot(num_nodes, gmaxes, label=&#34;gmaxes&#34;)
+    plt.plot(num_nodes, gmeans, label=&#34;gmeans&#34;)
+    plt.grid(axis=&#34;y&#34;)
+    plt.xlabel(&#34;Nodes in FEM&#34;)
+    plt.ylabel(&#34;Strain&#34;)
+    plt.title(title)
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig(
+        c.get_image_path(&#34;convergence-pier-strain&#34;, f&#34;mmm-{append}-all.pdf&#34;, acc=False)
+    )
+    plt.close()
+    # Only plot some lines, for the thesis.
+    plt.landscape()
+    plt.plot(num_nodes, gmins, label=&#34;Minimum&#34;)
+    plt.plot(num_nodes, gmaxes, label=&#34;Maximum&#34;)
+    plt.plot(num_nodes, gmeans, label=&#34;Mean&#34;)
+    plt.grid(axis=&#34;y&#34;)
+    plt.title(title)
+    plt.xlabel(&#34;Nodes in FEM&#34;)
+    plt.ylabel(&#34;Strain&#34;)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(
+        c.get_image_path(&#34;convergence-pier-strain&#34;, f&#34;mmm-{append}.pdf&#34;, acc=False)
+    )
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.plot.validation.plot_nesw_convergence"><code class="name flex">
+<span>def <span class="ident">plot_nesw_convergence</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, df: pandas.core.frame.DataFrame, responses: Dict[float, bridge_sim.sim.model.Responses], point: <a title="bridge_sim.model.Point" href="../../model/index.html#bridge_sim.model.Point">Point</a>, max_distance: float, from_: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot convergence of strain at different points around a load.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_nesw_convergence(
+    c: Config,
+    df: pd.DataFrame,
+    responses: Dict[float, Responses],
+    point: Point,
+    max_distance: float,
+    from_: str,
+):
+    &#34;&#34;&#34;Plot convergence of strain at different points around a load.&#34;&#34;&#34;
+    delta_distance = 0.05
+    skip = 3
+    # Create color mappable for distances.
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=max_distance)
+    cmap = matplotlib.cm.get_cmap(&#34;jet&#34;)
+    mappable = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap)
+    color = lambda d: mappable.to_rgba(d)
+    # For each compass point.
+    compass_dir = {
+        &#34;N&#34;: (0, 1),
+        &#34;E&#34;: (1, 0),
+        &#34;S&#34;: (0, -1),
+        &#34;W&#34;: (-1, 0),
+    }
+    plt.square()
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    for ax, compass, compass_name, in zip(
+        axes.flat, [&#34;N&#34;, &#34;S&#34;, &#34;E&#34;, &#34;W&#34;], [&#34;North&#34;, &#34;South&#34;, &#34;East&#34;, &#34;West&#34;]
+    ):
+        # Collect data into fem.
+        x_mul, z_mul = compass_dir[compass]
+        for distance in np.arange(0, max_distance, step=delta_distance)[::skip]:
+            dist_point = Point(
+                x=point.x + (distance * x_mul),
+                y=point.y,
+                z=point.z + (distance * z_mul),
+            )
+            print(dist_point)
+            if (
+                dist_point.x &lt; c.bridge.x_min
+                or dist_point.x &gt; c.bridge.x_max
+                or dist_point.z &lt; c.bridge.z_min
+                or dist_point.z &gt; c.bridge.z_max
+            ):
+                break
+            line_responses = []
+            for max_shell_len, sim_responses in responses.items():
+                deck_nodes = float(df.at[max_shell_len, &#34;deck-nodes&#34;])
+                pier_nodes = float(df.at[max_shell_len, &#34;pier-nodes&#34;])
+                line_responses.append(
+                    (
+                        deck_nodes + pier_nodes,
+                        # max_shell_len,
+                        scalar(sim_responses.at_deck(dist_point, interp=True)),
+                    )
+                )
+            line_responses = np.array(sorted(line_responses, key=lambda t: t[0])).T
+            ax.plot(line_responses[0], line_responses[1], color=color(distance))
+            if distance &gt; max_distance:
+                break
+        ax.grid(axis=&#34;y&#34;)
+        ax.set_title(
+            f&#34;Strain at increasing distance\nin direction {compass_name} from\n{from_}&#34;
+        )
+        ax.set_xlabel(&#34;Nodes in FEM&#34;)
+        ax.set_ylabel(&#34;Strain&#34;)
+        # ax.set_xlim(ax.get_xlim()[1], ax.get_xlim()[0])
+    plt.tight_layout()
+    clb = plt.colorbar(mappable, ax=axes.ravel())
+    clb.ax.set_title(&#34;Distance (m)&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.plot" href="index.html">bridge_sim.internal.plot</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.plot.validation.plot_mmm_strain_convergence" href="#bridge_sim.internal.plot.validation.plot_mmm_strain_convergence">plot_mmm_strain_convergence</a></code></li>
+<li><code><a title="bridge_sim.internal.plot.validation.plot_nesw_convergence" href="#bridge_sim.internal.plot.validation.plot_nesw_convergence">plot_nesw_convergence</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

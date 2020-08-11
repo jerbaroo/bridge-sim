@@ -215,6 +215,7 @@ class Config:
         vehicle_pdf_col: str,
         generated_data: str = &#34;generated-data&#34;,
         shorten_paths: bool = False,
+        il_num_loads: int = 600,
     ):
         &#34;&#34;&#34;Simulation configuration object.
 
@@ -235,6 +236,7 @@ class Config:
             vehicle_pdf_col: column name of vehicle_data to group by.
             generated_data: path to directory where to save generated files.
             shorten_paths: shorten simulation paths (to avoid OS limits).
+
         &#34;&#34;&#34;
         # Core.
         self._bridge = bridge
@@ -251,7 +253,7 @@ class Config:
         self.resp_matrices = dict()
 
         # Unit loads.
-        self.il_num_loads: int = 600
+        self.il_num_loads = il_num_loads
         self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
@@ -820,7 +822,9 @@ class Bridge:
 
     def wheel_track_zs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-        return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))
+        return sorted(
+            chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes)
+        )
 
     def wheel_track_xs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
@@ -1542,7 +1546,9 @@ class Vehicle:
 
     def wheel_track_zs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-        return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))
+        return sorted(
+            chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes)
+        )
 
     def wheel_track_xs(self, c: &#34;Config&#34;):
         &#34;&#34;&#34;Unit load x positions for wheel tracks on this bridge.&#34;&#34;&#34;
@@ -1905,7 +1911,9 @@ class Vehicle:
 </summary>
 <pre><code class="python">def wheel_track_zs(self, c: &#34;Config&#34;):
     &#34;&#34;&#34;Z positions of wheel track on the bridge.&#34;&#34;&#34;
-    return sorted(chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes))</code></pre>
+    return sorted(
+        chain.from_iterable(lane.wheel_track_zs(c) for lane in self.lanes)
+    )</code></pre>
 </details>
 </dd>
 <dt id="bridge_sim.model.Bridge.x"><code class="name flex">
@@ -2054,7 +2062,7 @@ class Vehicle:
 </dd>
 <dt id="bridge_sim.model.Config"><code class="flex name class">
 <span>class <span class="ident">Config</span></span>
-<span>(</span><span>bridge: Callable[[], ForwardRef('Bridge')], sim_runner: FEMRunner, vehicle_data_path: str, vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str, generated_data: str = 'generated-data', shorten_paths: bool = False)</span>
+<span>(</span><span>bridge: Callable[[], ForwardRef('Bridge')], sim_runner: FEMRunner, vehicle_data_path: str, vehicle_pdf: List[Tuple[float, float]], vehicle_pdf_col: str, generated_data: str = 'generated-data', shorten_paths: bool = False, il_num_loads: int = 600)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simulation configuration object.</p>
@@ -2098,6 +2106,7 @@ This applies if 'vehicle_pdf_col' is "length".
         vehicle_pdf_col: str,
         generated_data: str = &#34;generated-data&#34;,
         shorten_paths: bool = False,
+        il_num_loads: int = 600,
     ):
         &#34;&#34;&#34;Simulation configuration object.
 
@@ -2118,6 +2127,7 @@ This applies if 'vehicle_pdf_col' is "length".
             vehicle_pdf_col: column name of vehicle_data to group by.
             generated_data: path to directory where to save generated files.
             shorten_paths: shorten simulation paths (to avoid OS limits).
+
         &#34;&#34;&#34;
         # Core.
         self._bridge = bridge
@@ -2134,7 +2144,7 @@ This applies if 'vehicle_pdf_col' is "length".
         self.resp_matrices = dict()
 
         # Unit loads.
-        self.il_num_loads: int = 600
+        self.il_num_loads = il_num_loads
         self.il_unit_load: float = 1000000
         self.unit_pier_settlement: float = 1
         self.unit_axial_delta_temp_c: int = 1
