@@ -28,13 +28,15 @@ If you are interested in using this library, please open an issue to ask any que
 
 [[./data/images/animation.png]]
 ** Installation
-Three installation methods are provided. You can install a Python package of =bridge-sim= from PyPI in your preferred way. We also provide a Docker image with =bridge-sim= and all dependencies already installed. And finally you can clone this repository if you intend on contributing to the =bridge-sim= project.
+Three installation methods are provided. You can install =bridge-sim= from PyPI using your preferred Python package manager. We also provide a Docker image with =bridge-sim= and all dependencies already installed. And finally you can clone this repository if you intend on contributing to the =bridge-sim= project.
 *** PyPI
 First make sure you are using Python 3.8+. You will also need [[https://opensees.berkeley.edu/][OpenSees]] to run FE simulations which you can download [[https://opensees.berkeley.edu/OpenSees/user/download.php][here]]. If you are installing OpenSees on Linux then the top answer [[https://www.researchgate.net/post/How_to_install_opensees_in_UBUNTU][here]] may be of some help.
 
-Using pip: inside your python virtual environment run this command =pip install bridge-sim=.
+Using pip: inside your Python virtual environment run this command =pip install bridge-sim=.
 
-If you are working on a Python project that uses [[https://python-poetry.org/docs/][Poetry]] as the package manager then you can add =bridge-sim= as a dependency by running the command =poetry add bridge-sim=. If you are starting a project from scratch you can first initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then try adding =bridge-sim= as a dependency with =poetry add bridge-sim=. Now that you have =bridge-sim= installed you probably want to run some code, for that see the examples section [[#examples][below]].
+If you are starting a project from scratch I recommend the [[https://python-poetry.org/docs/][Poetry]] package manager. Initialize a project (in this case named /foobar/) with =poetry new foobar && cd foobar=, then add =bridge-sim= as a dependency with =poetry add bridge-sim=.
+
+Now that you have =bridge-sim= installed you probably want to run some code, for that see the examples section [[#examples][below]].
 *** Docker
 Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed. Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
