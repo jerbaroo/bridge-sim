@@ -1,5 +1,0 @@
-* README
-
-The =bridge_sim= directory contains the source files that are available as part of the Python package and documented in the official documentation.
-
-The =lib= directory contains some files that either are *A* not yet converted into /clean/ code and thus in a separate directory, or *B* code that is specific to the author's MSc thesis.

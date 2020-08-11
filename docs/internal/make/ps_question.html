@@ -1,0 +1,2027 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.make.ps_question API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.make.ps_question</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import os
+from copy import deepcopy
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from bridge_sim import model, sim, temperature, traffic, plot, util
+from bridge_sim.model import Config, Point, Bridge
+from bridge_sim.plot.util import equal_lims
+from bridge_sim.sim.responses import without
+from bridge_sim.util import print_i, print_w
+from bridge_sim.internal.plot import axis_cmap_r
+
+
+def plot_year_effects(config: Config, x: float, z: float, num_years: int):
+    &#34;&#34;&#34;Plot all effects over a single year and 100 years at a point.&#34;&#34;&#34;
+    install_day = 37
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    (
+        ll_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = np.repeat(None, 5)
+    start_day, end_day = None, None
+
+    def set_responses(n):
+        nonlocal weather, start_day, end_day
+        weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+        weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, n)
+        start_date, end_date = (
+            weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+            weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+        )
+        start_day, end_day = install_day, 365 * n
+        nonlocal ll_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses
+        (
+            ll_responses,
+            ps_responses,
+            temp_responses,
+            shrinkage_responses,
+            creep_responses,
+        ) = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=True,
+        )
+
+    # from sklearn.decomposition import FastICA, PCA
+    # ica = FastICA(n_components=3)
+    # try_ = ica.fit_transform((ll_responses + temp_responses + creep_responses + shrinkage_responses).T)
+    # plt.plot(try_)
+    # plt.show()
+
+    plt.landscape()
+    lw = 2
+
+    def legend():
+        leg = plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+        )
+        for legobj in leg.legendHandles:
+            legobj.set_linewidth(lw)
+
+    plt.subplot(1, 2, 1)
+    set_responses(1)
+    xax = np.interp(
+        np.arange(len(traffic_array)), [0, len(traffic_array) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, ll_responses[0] * 1e3, c=&#34;green&#34;, label=&#34;traffic&#34;, lw=lw)
+    plt.plot(xax, temp_responses[0] * 1e3, c=&#34;red&#34;, label=&#34;temperature&#34;)
+    plt.plot(xax, shrinkage_responses[0] * 1e3, c=&#34;blue&#34;, label=&#34;shrinkage&#34;, lw=lw)
+    plt.plot(xax, creep_responses[0] * 1e3, c=&#34;black&#34;, label=&#34;creep&#34;, lw=lw)
+    legend()
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Time (days)&#34;)
+
+    plt.subplot(1, 2, 2)
+    end_day = 365 * num_years
+    set_responses(num_years)
+    xax = (
+        np.interp(
+            np.arange(len(traffic_array)),
+            [0, len(traffic_array) - 1],
+            [start_day, end_day],
+        )
+        / 365
+    )
+    plt.plot(xax, ll_responses[0] * 1e3, c=&#34;green&#34;, label=&#34;traffic&#34;, lw=lw)
+    plt.plot(xax, temp_responses[0] * 1e3, c=&#34;red&#34;, label=&#34;temperature&#34;)
+    plt.plot(xax, shrinkage_responses[0] * 1e3, c=&#34;blue&#34;, label=&#34;shrinkage&#34;, lw=lw)
+    plt.plot(xax, creep_responses[0] * 1e3, c=&#34;black&#34;, label=&#34;creep&#34;, lw=lw)
+    legend()
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Time (years)&#34;)
+
+    equal_lims(&#34;y&#34;, 1, 2)
+    plt.suptitle(f&#34;Y translation at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, f&#34;year-effect-{x}-{z}.png&#34;))
+
+
+def plot_sensor_placement(config: Config, num_years: int):
+    all_points = [
+        model.Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 300)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100)
+    ]
+    response_type = model.ResponseType.YTrans
+    install_day = 37
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    config.sensor_freq = 1
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day, end_day = install_day, 365 * num_years
+    for pier in [9]:
+        pier_centre = model.Point(
+            x=config.bridge.supports[pier].x, z=config.bridge.supports[pier].z,
+        )
+        points = [p for p in all_points if pier_centre.distance(p) &lt; 7]
+        ps = model.PierSettlement(pier=pier, settlement=5 / 1e3)
+        (
+            _0,
+            _1,
+            temp_responses,
+            shrinkage_responses,
+            creep_responses,
+        ) = sim.responses.to(
+            config=config,
+            points=points,
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=True,
+        )
+        ps_responses = sim.responses.to_pier_settlement(
+            config=config,
+            points=points,
+            responses_array=_0,
+            response_type=response_type,
+            pier_settlement=[(ps, ps)],
+        ).T[-1]
+        ps_responses += sim.responses.to_creep(
+            config=config,
+            points=points,
+            responses_array=_0,
+            response_type=response_type,
+            pier_settlement=[(ps, ps)],
+            install_pier_settlement=[ps],
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        ).T[-1]
+        long_term_responses = (
+            temp_responses.T[-1] + shrinkage_responses.T[-1] + creep_responses.T[-1]
+        )
+
+        ############
+        # Plotting #
+        ############
+
+        plt.landscape()
+        plt.subplot(3, 1, 1)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(zip(abs(long_term_responses) * 1e3, points)),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+        plt.subplot(3, 1, 2)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(zip(abs(ps_responses) * 1e3, points)),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+        plt.subplot(3, 1, 3)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(
+                zip((abs(ps_responses) - abs(long_term_responses)) * 1e3, points)
+            ),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;placement.pdf&#34;))
+
+
+def plot_removal(config: Config, x: float, z: float):
+    response_type = model.RT.YTrans
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
+
+    def legend():
+        return plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+        )
+
+    plt.landscape()
+    plt.subplot(2, 2, 1)
+    xax = np.interp(
+        np.arange(len(weather)), [0, len(weather) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, weather[&#34;temp&#34;], c=&#34;red&#34;)
+    plt.ylabel(&#34;Temperature °C&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Temperature in 2018&#34;)
+
+    plt.subplot(2, 2, 2)
+    xax = np.interp(
+        np.arange(len(responses)), [0, len(responses) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, responses)
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Y translation in 2018&#34;)
+
+    plt.subplot(2, 2, 3)
+    num_samples = 365 * 24
+    temps = util.apply(weather[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses, np.arange(num_samples))
+    lr, _ = temperature.regress_and_errors(temps, rs)
+    lr_x = np.linspace(min(temps), max(temps), 100)
+    y = lr.predict(lr_x.reshape((-1, 1)))
+    plt.plot(lr_x, y, lw=2, c=&#34;red&#34;, label=&#34;linear fit&#34;)
+    plt.scatter(temps, rs, s=2, alpha=0.5, label=&#34;hourly samples&#34;)
+    leg = legend()
+    leg.legendHandles[1]._sizes = [30]
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Temperature °C&#34;)
+    plt.title(&#34;Linear model from 2018 data&#34;)
+
+    #############
+    # 2019 data #
+    #############
+
+    weather_2019 = temperature.load(&#34;holly-springs&#34;)
+    weather_2019[&#34;temp&#34;] = temperature.resize(weather_2019[&#34;temp&#34;], year=2019)
+    start_date, end_date = (
+        weather_2019[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2019[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day, end_day = install_day + 365, install_day + (2 * 365)
+    responses_2019 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2019,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
+
+    plt.subplot(2, 2, 4)
+    xax_responses = np.interp(
+        np.arange(len(responses_2019)),
+        [0, len(responses_2019) - 1],
+        [start_day, end_day],
+    )
+    plt.plot(xax_responses, responses_2019, label=&#34;2019 responses&#34;)
+    temps_2019 = util.apply(weather_2019[&#34;temp&#34;], xax_responses)
+    y = lr.predict(temps_2019.reshape((-1, 1)))
+    plt.plot(xax_responses, y, label=&#34;prediction&#34;)
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Y translation in 2019&#34;)
+    for legobj in legend().legendHandles:
+        legobj.set_linewidth(2.0)
+
+    plt.suptitle(f&#34;Predicting long-term effect at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;regress.pdf&#34;))
+
+
+def plot_removal_2(config: Config, x: float, z: float):
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load(&#34;holly-springs-18&#34;)
+    weather_2018[&#34;temp&#34;] = temperature.resize(weather_2018[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather_2018[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2018[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, err = temperature.regress_and_errors(temps, rs)
+
+    def legend():
+        plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;lower left&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.02,
+        )
+
+    ##############################
+    # Iterate through each year. #
+    ##############################
+
+    plt.landscape()
+    weather_2019 = temperature.load(&#34;holly-springs&#34;)
+    weather_2019[&#34;temp&#34;] = temperature.resize(weather_2019[&#34;temp&#34;], year=2019)
+    start_date, end_date = (
+        weather_2019[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2019[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    for y_i, year in enumerate([2019, 2024, 2039]):
+        plt.subplot(3, 1, y_i + 1)
+        start_day = install_day + ((year - 2018) * 365)
+        end_day = start_day + 365
+        responses_2019 = (
+            sim.responses.to(
+                config=config,
+                points=[model.Point(x=x, z=z)],
+                traffic_array=traffic_array,
+                response_type=response_type,
+                with_creep=True,
+                weather=weather_2019,
+                start_date=start_date,
+                end_date=end_date,
+                install_day=install_day,
+                start_day=start_day,
+                end_day=end_day,
+            )[0]
+            * 1e3
+        )
+        # Plot actual values.
+        xax = np.interp(
+            np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [0, 364]
+        )
+        plt.plot(xax, responses_2019, label=&#34;responses in year&#34;, lw=2)
+        # Daily prediction.
+        xax_responses = np.arange(365)
+        temps_2019 = util.apply(weather_2019[&#34;temp&#34;], xax_responses)
+        y_daily = lr.predict(temps_2019.reshape((-1, 1)))
+        y_2_week = [
+            np.mean(y_daily[max(0, i - 14) : min(i + 14, len(y_daily))])
+            for i in range(len(y_daily))
+        ]
+        for percentile, alpha in [(100, 20), (75, 40), (50, 60), (25, 100)]:
+            err = np.percentile(err, percentile)
+            p = percentile / 100
+            plt.fill_between(
+                xax_responses,
+                y_2_week + (err * p),
+                y_2_week - (err * p),
+                color=&#34;orange&#34;,
+                alpha=alpha / 100,
+                label=f&#34;{percentile}% of regression error&#34;,
+            )
+        plt.plot(xax_responses, y_daily, color=&#34;black&#34;, lw=2, label=&#34;daily prediction&#34;)
+        plt.plot(
+            xax_responses, y_2_week, color=&#34;red&#34;, lw=2, label=&#34;2 week sliding window&#34;
+        )
+        plt.ylabel(&#34;Y. trans (mm)&#34;)
+        plt.title(f&#34;Year {year}&#34;)
+        if y_i == 0:
+            legend()
+        if y_i == 2:
+            plt.xlabel(&#34;Days in year&#34;)
+        else:
+            plt.tick_params(&#34;x&#34;, bottom=False, labelbottom=False)
+    equal_lims(&#34;y&#34;, 3, 1)
+    plt.suptitle(f&#34;Predicting long-term effects at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;regress-2.pdf&#34;))
+
+
+def plot_removal_3(config: Config, x: float, z: float):
+    # First calculate the linear model.
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load(&#34;holly-springs-18&#34;)
+    weather_2018[&#34;temp&#34;] = temperature.resize(weather_2018[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather_2018[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2018[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, _ = temperature.regress_and_errors(temps, rs)
+    # Calculate long-term weather.
+    NUM_YEARS = 5
+    PIER = 5
+    long_weather = deepcopy(weather_2018)
+    long_weather[&#34;temp&#34;] = temperature.resize(long_weather[&#34;temp&#34;], year=2019)
+    print_i(f&#34;Repeating {NUM_YEARS} of weather data&#34;)
+    long_weather = temperature.repeat(
+        config, &#34;holly-springs-18&#34;, long_weather, NUM_YEARS
+    )
+    print_i(f&#34;Repeated {NUM_YEARS} of weather data&#34;)
+    start_date, end_date = (
+        long_weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        long_weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day = install_day + 365
+    end_day = start_day + 365 * NUM_YEARS
+    MAX_PS = 20
+    THRESHES = np.arange(0, MAX_PS, 1)
+    acc_mat = np.zeros((MAX_PS, len(THRESHES)))
+    fp_mat = np.zeros(acc_mat.shape)
+    fn_mat = np.zeros(acc_mat.shape)
+    tp_mat = np.zeros(acc_mat.shape)
+    tn_mat = np.zeros(acc_mat.shape)
+    for p_i, ps in enumerate(range(MAX_PS)):
+        print_i(f&#34;Using pier settlement = {ps} mm&#34;)
+        long_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[
+                (
+                    model.PierSettlement(pier=PIER, settlement=0.00001),
+                    model.PierSettlement(pier=PIER, settlement=ps / 1e3),
+                )
+            ],
+            install_pier_settlement=[],
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        healthy_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[],
+            install_pier_settlement=None,
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        plt.plot(healthy_responses[0] * 1e3, label=&#34;healthy&#34;)
+        plt.plot(long_responses[0] * 1e3, label=&#34;pier settlement&#34;)
+        plt.legend()
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;q3-{p_i}.png&#34;))
+        plt.close()
+        for t_i, thresh in enumerate(THRESHES):
+            thresh *= -1
+            print(thresh)
+            print(max(healthy_responses[0]))
+            print(min(healthy_responses[0]))
+            print(max(long_responses[0]))
+            print(min(long_responses[0]))
+            fp = len([x for x in healthy_responses[0] * 1e3 if x &lt;= thresh])
+            tp = len([x for x in long_responses[0] * 1e3 if x &lt;= thresh])
+            tn = len([x for x in healthy_responses[0] * 1e3 if x &gt; thresh])
+            fn = len([x for x in long_responses[0] * 1e3 if x &gt; thresh])
+            acc_mat[p_i][t_i] = (tp + tn) / (tp + tn + fp + fn)
+            fp_mat[p_i][t_i] = fp
+            tp_mat[p_i][t_i] = tp
+            fn_mat[p_i][t_i] = fn
+            tn_mat[p_i][t_i] = tn
+
+        ##################
+        # Save matrices. #
+        ##################
+
+        plt.imshow(acc_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat.png&#34;))
+        plt.close()
+
+        plt.imshow(fp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-fp.png&#34;))
+        plt.close()
+
+        plt.imshow(fn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-fn.png&#34;))
+        plt.close()
+
+        plt.imshow(tp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-tp.png&#34;))
+        plt.close()
+
+        plt.imshow(tn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-tn.png&#34;))
+        plt.close()
+
+
+def support_with_points(bridge: Bridge, delta_x: float):
+    for support in bridge.supports:
+        if support.x &lt; bridge.length / 2:
+            s_x = support.x - ((support.length / 2) + delta_x)
+        else:
+            s_x = support.x + ((support.length / 2) + delta_x)
+        support.point = Point(x=s_x, z=support.z)
+        for support_2 in bridge.supports:
+            if support_2.z == support.z and np.isclose(
+                support_2.x, bridge.length - support.x
+            ):
+                support.opposite_support = support_2
+        print_w(f&#34;Support sensor at X = {support.point.x}, Z = {support.point.z}&#34;)
+        if not hasattr(support, &#34;opposite_support&#34;):
+            raise ValueError(&#34;No opposite support&#34;)
+    return bridge.supports
+
+
+def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q1&#34;, &#34;min-thresh.txt&#34;)
+    if os.path.exists(log_path):
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # For each support load the responses to traffic and assign to &#34;Support&#34;.
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        support.responses = (
+            sim.responses.to_traffic_array(
+                config=config,
+                points=[support.point],
+                traffic_array=traffic_array,
+                response_type=model.RT.YTrans,
+                # with_creep=True,
+                # weather=weather,
+                # start_date=start_date,
+                # end_date=end_date,
+                # install_day=install_day,
+                # start_day=start_day,
+                # end_day=end_day,
+            )[0]
+            * 1e3
+        )
+    # Determine max difference for each sensor pair.
+    for s_i, support in enumerate(config.bridge.supports):
+        min1, max1 = min(support.responses), max(support.responses)
+        min2, max2 = (
+            min(support.opposite_support.responses),
+            max(support.opposite_support.responses),
+        )
+        delta_1, delta_2 = abs(min1 - max2), abs(min2 - max1)
+        # max_delta = max(abs(support.responses - support.opposite_support.responses))
+        support.max_delta = max(delta_1, delta_2)
+        to_write = f&#34;Max delta {support.max_delta} for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+    # Bridge supports.
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    for s_i, support in enumerate(config.bridge.supports):
+        if s_i % 4 == 0:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 3].max_delta
+            )
+        elif s_i % 4 == 1:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 1].max_delta
+            )
+        elif s_i % 4 == 2:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 1].max_delta
+            )
+        elif s_i % 4 == 3:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 3].max_delta
+            )
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(support.max_delta, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    plt.title(&#34;Maximum difference between symmetric sensors&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q1&#34;, &#34;min-thresh.pdf&#34;))
+
+
+def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
+    # Select points: over the deck and the sensors!
+    points = [
+        Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
+    ]
+    sensor_points = [
+        s.point for s in support_with_points(config.bridge, delta_x=delta_x)
+    ]
+    points += sensor_points
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    # Responses aren&#39;t much from traffic, and we are getting the maximum from 4
+    # sensors, so short traffic data doesn&#39;t really matter.
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # Generate the data!
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=points,
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    # Convert to Responses, determining maximum response per point.
+    max_responses = [min(rs) for rs in responses]
+    sensor_responses = max_responses[-len(sensor_points) :]
+    responses = sim.model.Responses(
+        response_type=model.RT.YTrans,
+        responses=[(r, p) for r, p in zip(max_responses, points)],
+        units=&#34;mm&#34;,
+    ).without(without.edges(config, 2))
+    # Adjust maximum responses per sensor so they are symmetric!
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        support.max_response = sensor_responses[s_i]
+    for support in support_with_points(config.bridge, delta_x=delta_x):
+        support.max_response = min(
+            support.max_response, support.opposite_support.max_response
+        )
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        if s_i % 4 == 0:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 3].max_response
+            )
+        elif s_i % 4 == 1:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 1].max_response
+            )
+        elif s_i % 4 == 2:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 1].max_response
+            )
+        elif s_i % 4 == 3:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 3].max_response
+            )
+    plt.landscape()
+    plot.contour_responses(config, responses, interp=(200, 60), levels=20)
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        plt.scatter([support.point.x], [support.point.z], c=&#34;black&#34;)
+        plt.annotate(
+            f&#34;{np.around(support.max_response, 2)}&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;black&#34;,
+            size=&#34;large&#34;,
+        )
+    plt.title(
+        f&#34;Minimum Y translation over {num_years} years \n from traffic, temperature, shrinkage &amp; creep&#34;
+    )
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q2&#34;, &#34;q2-contour.pdf&#34;))
+    plt.close()
+
+
+def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
+    THRESH = 2  # Pier settlement from question 1.
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q1b&#34;, &#34;min-ps.txt&#34;)
+    if os.path.exists(log_path):  # Start with fresh logfile.
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # For each support..
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        # ..increase pier settlement until threshold triggered.
+        for settlement in np.arange(0, 10, 0.1):
+            responses = (
+                sim.responses.to(
+                    config=config,
+                    points=[support.point, support.opposite_support.point],
+                    traffic_array=traffic_array,
+                    response_type=model.RT.YTrans,
+                    with_creep=True,
+                    weather=weather,
+                    start_date=start_date,
+                    end_date=end_date,
+                    install_day=install_day,
+                    start_day=start_day,
+                    end_day=end_day,
+                    pier_settlement=[
+                        (
+                            model.PierSettlement(pier=s_i, settlement=0),
+                            model.PierSettlement(pier=s_i, settlement=settlement / 1e3),
+                        )
+                    ],
+                    skip_weather_interp=True,
+                )
+                * 1e3
+            )
+            delta = max(abs(responses[0] - responses[1]))
+            to_write = f&#34;Max delta {delta} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+            print_w(to_write)
+            # Because of &#34;abs&#34;, &#34;delta&#34; will be positive.
+            if delta &gt; THRESH:
+                break
+        # Write the minimum settlement value for this support to a file.
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+        # Annotate the support with the minimum settlement value.
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(settlement, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    # Plot the results.
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    plt.title(&#34;Minimum pier settlement detected (Question 1B)&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q1b&#34;, &#34;q1b-min-ps.pdf&#34;))
+    plt.close()
+
+
+def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
+    THRESH = 6  # Pier settlement from question 1.
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q2b&#34;, &#34;2b-min-ps.txt&#34;)
+    if os.path.exists(log_path):  # Start with fresh logfile.
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        # Increase pier settlement until threshold triggered.
+        for settlement in np.arange(0, 10, 0.1):
+            responses = (
+                sim.responses.to(
+                    config=config,
+                    points=[support.point],
+                    traffic_array=traffic_array,
+                    response_type=model.RT.YTrans,
+                    with_creep=True,
+                    weather=weather,
+                    start_date=start_date,
+                    end_date=end_date,
+                    install_day=install_day,
+                    start_day=start_day,
+                    end_day=end_day,
+                    pier_settlement=[
+                        (
+                            model.PierSettlement(pier=s_i, settlement=0),
+                            model.PierSettlement(pier=s_i, settlement=settlement / 1e3),
+                        )
+                    ],
+                    skip_weather_interp=True,
+                )
+                * 1e3
+            )
+            # Determine the minimum response for this level of settlement.
+            max_r = min(responses[0])
+            to_write = f&#34;Min {max_r} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+            print_w(to_write)
+            if max_r &lt; -THRESH:
+                break
+        # Write the minimum response and settlement for this support to a file.
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(settlement, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    plt.title(&#34;Minimum pier settlement detected (Question 2B)&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q2b&#34;, &#34;q2b-min-ps.pdf&#34;))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.make.ps_question.plot_contour_q2"><code class="name flex">
+<span>def <span class="ident">plot_contour_q2</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, num_years: int, delta_x: float = 0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_contour_q2(config: Config, num_years: int, delta_x: float = 0.5):
+    # Select points: over the deck and the sensors!
+    points = [
+        Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 100)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 30)
+    ]
+    sensor_points = [
+        s.point for s in support_with_points(config.bridge, delta_x=delta_x)
+    ]
+    points += sensor_points
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    # Responses aren&#39;t much from traffic, and we are getting the maximum from 4
+    # sensors, so short traffic data doesn&#39;t really matter.
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # Generate the data!
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=points,
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )
+        * 1e3
+    )
+    # Convert to Responses, determining maximum response per point.
+    max_responses = [min(rs) for rs in responses]
+    sensor_responses = max_responses[-len(sensor_points) :]
+    responses = sim.model.Responses(
+        response_type=model.RT.YTrans,
+        responses=[(r, p) for r, p in zip(max_responses, points)],
+        units=&#34;mm&#34;,
+    ).without(without.edges(config, 2))
+    # Adjust maximum responses per sensor so they are symmetric!
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        support.max_response = sensor_responses[s_i]
+    for support in support_with_points(config.bridge, delta_x=delta_x):
+        support.max_response = min(
+            support.max_response, support.opposite_support.max_response
+        )
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        if s_i % 4 == 0:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 3].max_response
+            )
+        elif s_i % 4 == 1:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i + 1].max_response
+            )
+        elif s_i % 4 == 2:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 1].max_response
+            )
+        elif s_i % 4 == 3:
+            support.max_response = max(
+                support.max_response, config.bridge.supports[s_i - 3].max_response
+            )
+    plt.landscape()
+    plot.contour_responses(config, responses, interp=(200, 60), levels=20)
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        plt.scatter([support.point.x], [support.point.z], c=&#34;black&#34;)
+        plt.annotate(
+            f&#34;{np.around(support.max_response, 2)}&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;black&#34;,
+            size=&#34;large&#34;,
+        )
+    plt.title(
+        f&#34;Minimum Y translation over {num_years} years \n from traffic, temperature, shrinkage &amp; creep&#34;
+    )
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q2&#34;, &#34;q2-contour.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_min_diff"><code class="name flex">
+<span>def <span class="ident">plot_min_diff</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, num_years: int, delta_x: float = 0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_min_diff(config: Config, num_years: int, delta_x: float = 0.5):
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q1&#34;, &#34;min-thresh.txt&#34;)
+    if os.path.exists(log_path):
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # For each support load the responses to traffic and assign to &#34;Support&#34;.
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        support.responses = (
+            sim.responses.to_traffic_array(
+                config=config,
+                points=[support.point],
+                traffic_array=traffic_array,
+                response_type=model.RT.YTrans,
+                # with_creep=True,
+                # weather=weather,
+                # start_date=start_date,
+                # end_date=end_date,
+                # install_day=install_day,
+                # start_day=start_day,
+                # end_day=end_day,
+            )[0]
+            * 1e3
+        )
+    # Determine max difference for each sensor pair.
+    for s_i, support in enumerate(config.bridge.supports):
+        min1, max1 = min(support.responses), max(support.responses)
+        min2, max2 = (
+            min(support.opposite_support.responses),
+            max(support.opposite_support.responses),
+        )
+        delta_1, delta_2 = abs(min1 - max2), abs(min2 - max1)
+        # max_delta = max(abs(support.responses - support.opposite_support.responses))
+        support.max_delta = max(delta_1, delta_2)
+        to_write = f&#34;Max delta {support.max_delta} for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+    # Bridge supports.
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    for s_i, support in enumerate(config.bridge.supports):
+        if s_i % 4 == 0:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 3].max_delta
+            )
+        elif s_i % 4 == 1:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i + 1].max_delta
+            )
+        elif s_i % 4 == 2:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 1].max_delta
+            )
+        elif s_i % 4 == 3:
+            support.max_delta = max(
+                support.max_delta, config.bridge.supports[s_i - 3].max_delta
+            )
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(support.max_delta, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    plt.title(&#34;Maximum difference between symmetric sensors&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q1&#34;, &#34;min-thresh.pdf&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_min_ps_1"><code class="name flex">
+<span>def <span class="ident">plot_min_ps_1</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, num_years: int, delta_x: float = 0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_min_ps_1(config: Config, num_years: int, delta_x: float = 0.5):
+    THRESH = 2  # Pier settlement from question 1.
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q1b&#34;, &#34;min-ps.txt&#34;)
+    if os.path.exists(log_path):  # Start with fresh logfile.
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    # For each support..
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        # ..increase pier settlement until threshold triggered.
+        for settlement in np.arange(0, 10, 0.1):
+            responses = (
+                sim.responses.to(
+                    config=config,
+                    points=[support.point, support.opposite_support.point],
+                    traffic_array=traffic_array,
+                    response_type=model.RT.YTrans,
+                    with_creep=True,
+                    weather=weather,
+                    start_date=start_date,
+                    end_date=end_date,
+                    install_day=install_day,
+                    start_day=start_day,
+                    end_day=end_day,
+                    pier_settlement=[
+                        (
+                            model.PierSettlement(pier=s_i, settlement=0),
+                            model.PierSettlement(pier=s_i, settlement=settlement / 1e3),
+                        )
+                    ],
+                    skip_weather_interp=True,
+                )
+                * 1e3
+            )
+            delta = max(abs(responses[0] - responses[1]))
+            to_write = f&#34;Max delta {delta} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+            print_w(to_write)
+            # Because of &#34;abs&#34;, &#34;delta&#34; will be positive.
+            if delta &gt; THRESH:
+                break
+        # Write the minimum settlement value for this support to a file.
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+        # Annotate the support with the minimum settlement value.
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(settlement, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    # Plot the results.
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    plt.title(&#34;Minimum pier settlement detected (Question 1B)&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q1b&#34;, &#34;q1b-min-ps.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_min_ps_2"><code class="name flex">
+<span>def <span class="ident">plot_min_ps_2</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, num_years: int, delta_x: float = 0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_min_ps_2(config: Config, num_years: int, delta_x: float = 0.5):
+    THRESH = 6  # Pier settlement from question 1.
+    plt.landscape()
+    log_path = config.get_image_path(&#34;classify/q2b&#34;, &#34;2b-min-ps.txt&#34;)
+    if os.path.exists(log_path):  # Start with fresh logfile.
+        os.remove(log_path)
+    install_day = 37
+    start_day, end_day = install_day, 365 * num_years
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    # weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    for s_i, support in enumerate(support_with_points(config.bridge, delta_x=delta_x)):
+        # Increase pier settlement until threshold triggered.
+        for settlement in np.arange(0, 10, 0.1):
+            responses = (
+                sim.responses.to(
+                    config=config,
+                    points=[support.point],
+                    traffic_array=traffic_array,
+                    response_type=model.RT.YTrans,
+                    with_creep=True,
+                    weather=weather,
+                    start_date=start_date,
+                    end_date=end_date,
+                    install_day=install_day,
+                    start_day=start_day,
+                    end_day=end_day,
+                    pier_settlement=[
+                        (
+                            model.PierSettlement(pier=s_i, settlement=0),
+                            model.PierSettlement(pier=s_i, settlement=settlement / 1e3),
+                        )
+                    ],
+                    skip_weather_interp=True,
+                )
+                * 1e3
+            )
+            # Determine the minimum response for this level of settlement.
+            max_r = min(responses[0])
+            to_write = f&#34;Min {max_r} for settlement {settlement} mm for support {s_i}, sensor at X = {support.point.x}, Z = {support.point.z}&#34;
+            print_w(to_write)
+            if max_r &lt; -THRESH:
+                break
+        # Write the minimum response and settlement for this support to a file.
+        with open(log_path, &#34;a&#34;) as f:
+            f.write(to_write)
+        plt.scatter([support.point.x], [support.point.z], c=&#34;red&#34;)
+        plt.annotate(
+            f&#34;{np.around(settlement, 2)} mm&#34;,
+            xy=(support.point.x - 3, support.point.z + 2),
+            color=&#34;b&#34;,
+            size=&#34;large&#34;,
+        )
+    plot.top_view_bridge(config.bridge, lanes=True, piers=True, units=&#34;m&#34;)
+    plt.title(&#34;Minimum pier settlement detected (Question 2B)&#34;)
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;classify/q2b&#34;, &#34;q2b-min-ps.pdf&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_removal"><code class="name flex">
+<span>def <span class="ident">plot_removal</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, x: float, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_removal(config: Config, x: float, z: float):
+    response_type = model.RT.YTrans
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
+
+    def legend():
+        return plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+        )
+
+    plt.landscape()
+    plt.subplot(2, 2, 1)
+    xax = np.interp(
+        np.arange(len(weather)), [0, len(weather) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, weather[&#34;temp&#34;], c=&#34;red&#34;)
+    plt.ylabel(&#34;Temperature °C&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Temperature in 2018&#34;)
+
+    plt.subplot(2, 2, 2)
+    xax = np.interp(
+        np.arange(len(responses)), [0, len(responses) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, responses)
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Y translation in 2018&#34;)
+
+    plt.subplot(2, 2, 3)
+    num_samples = 365 * 24
+    temps = util.apply(weather[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses, np.arange(num_samples))
+    lr, _ = temperature.regress_and_errors(temps, rs)
+    lr_x = np.linspace(min(temps), max(temps), 100)
+    y = lr.predict(lr_x.reshape((-1, 1)))
+    plt.plot(lr_x, y, lw=2, c=&#34;red&#34;, label=&#34;linear fit&#34;)
+    plt.scatter(temps, rs, s=2, alpha=0.5, label=&#34;hourly samples&#34;)
+    leg = legend()
+    leg.legendHandles[1]._sizes = [30]
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Temperature °C&#34;)
+    plt.title(&#34;Linear model from 2018 data&#34;)
+
+    #############
+    # 2019 data #
+    #############
+
+    weather_2019 = temperature.load(&#34;holly-springs&#34;)
+    weather_2019[&#34;temp&#34;] = temperature.resize(weather_2019[&#34;temp&#34;], year=2019)
+    start_date, end_date = (
+        weather_2019[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2019[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day, end_day = install_day + 365, install_day + (2 * 365)
+    responses_2019 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2019,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
+
+    plt.subplot(2, 2, 4)
+    xax_responses = np.interp(
+        np.arange(len(responses_2019)),
+        [0, len(responses_2019) - 1],
+        [start_day, end_day],
+    )
+    plt.plot(xax_responses, responses_2019, label=&#34;2019 responses&#34;)
+    temps_2019 = util.apply(weather_2019[&#34;temp&#34;], xax_responses)
+    y = lr.predict(temps_2019.reshape((-1, 1)))
+    plt.plot(xax_responses, y, label=&#34;prediction&#34;)
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Days since T_0&#34;)
+    plt.title(&#34;Y translation in 2019&#34;)
+    for legobj in legend().legendHandles:
+        legobj.set_linewidth(2.0)
+
+    plt.suptitle(f&#34;Predicting long-term effect at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;regress.pdf&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_removal_2"><code class="name flex">
+<span>def <span class="ident">plot_removal_2</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, x: float, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_removal_2(config: Config, x: float, z: float):
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load(&#34;holly-springs-18&#34;)
+    weather_2018[&#34;temp&#34;] = temperature.resize(weather_2018[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather_2018[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2018[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            # ret_all=True,
+        )[0]
+        * 1e3
+    )
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, err = temperature.regress_and_errors(temps, rs)
+
+    def legend():
+        plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;lower left&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+            labelspacing=0.02,
+        )
+
+    ##############################
+    # Iterate through each year. #
+    ##############################
+
+    plt.landscape()
+    weather_2019 = temperature.load(&#34;holly-springs&#34;)
+    weather_2019[&#34;temp&#34;] = temperature.resize(weather_2019[&#34;temp&#34;], year=2019)
+    start_date, end_date = (
+        weather_2019[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2019[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    for y_i, year in enumerate([2019, 2024, 2039]):
+        plt.subplot(3, 1, y_i + 1)
+        start_day = install_day + ((year - 2018) * 365)
+        end_day = start_day + 365
+        responses_2019 = (
+            sim.responses.to(
+                config=config,
+                points=[model.Point(x=x, z=z)],
+                traffic_array=traffic_array,
+                response_type=response_type,
+                with_creep=True,
+                weather=weather_2019,
+                start_date=start_date,
+                end_date=end_date,
+                install_day=install_day,
+                start_day=start_day,
+                end_day=end_day,
+            )[0]
+            * 1e3
+        )
+        # Plot actual values.
+        xax = np.interp(
+            np.arange(len(responses_2019)), [0, len(responses_2019) - 1], [0, 364]
+        )
+        plt.plot(xax, responses_2019, label=&#34;responses in year&#34;, lw=2)
+        # Daily prediction.
+        xax_responses = np.arange(365)
+        temps_2019 = util.apply(weather_2019[&#34;temp&#34;], xax_responses)
+        y_daily = lr.predict(temps_2019.reshape((-1, 1)))
+        y_2_week = [
+            np.mean(y_daily[max(0, i - 14) : min(i + 14, len(y_daily))])
+            for i in range(len(y_daily))
+        ]
+        for percentile, alpha in [(100, 20), (75, 40), (50, 60), (25, 100)]:
+            err = np.percentile(err, percentile)
+            p = percentile / 100
+            plt.fill_between(
+                xax_responses,
+                y_2_week + (err * p),
+                y_2_week - (err * p),
+                color=&#34;orange&#34;,
+                alpha=alpha / 100,
+                label=f&#34;{percentile}% of regression error&#34;,
+            )
+        plt.plot(xax_responses, y_daily, color=&#34;black&#34;, lw=2, label=&#34;daily prediction&#34;)
+        plt.plot(
+            xax_responses, y_2_week, color=&#34;red&#34;, lw=2, label=&#34;2 week sliding window&#34;
+        )
+        plt.ylabel(&#34;Y. trans (mm)&#34;)
+        plt.title(f&#34;Year {year}&#34;)
+        if y_i == 0:
+            legend()
+        if y_i == 2:
+            plt.xlabel(&#34;Days in year&#34;)
+        else:
+            plt.tick_params(&#34;x&#34;, bottom=False, labelbottom=False)
+    equal_lims(&#34;y&#34;, 3, 1)
+    plt.suptitle(f&#34;Predicting long-term effects at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;regress-2.pdf&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_removal_3"><code class="name flex">
+<span>def <span class="ident">plot_removal_3</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, x: float, z: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_removal_3(config: Config, x: float, z: float):
+    # First calculate the linear model.
+    response_type = model.RT.YTrans
+    weather_2018 = temperature.load(&#34;holly-springs-18&#34;)
+    weather_2018[&#34;temp&#34;] = temperature.resize(weather_2018[&#34;temp&#34;], year=2018)
+    start_date, end_date = (
+        weather_2018[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather_2018[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    install_day = 37
+    start_day, end_day = install_day, install_day + 365
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), time=60
+    )
+    responses_2018 = (
+        sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather_2018,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        )[0]
+        * 1e3
+    )
+    num_samples = 365 * 24
+    temps = util.apply(weather_2018[&#34;temp&#34;], np.arange(num_samples))
+    rs = util.apply(responses_2018, np.arange(num_samples))
+    lr, _ = temperature.regress_and_errors(temps, rs)
+    # Calculate long-term weather.
+    NUM_YEARS = 5
+    PIER = 5
+    long_weather = deepcopy(weather_2018)
+    long_weather[&#34;temp&#34;] = temperature.resize(long_weather[&#34;temp&#34;], year=2019)
+    print_i(f&#34;Repeating {NUM_YEARS} of weather data&#34;)
+    long_weather = temperature.repeat(
+        config, &#34;holly-springs-18&#34;, long_weather, NUM_YEARS
+    )
+    print_i(f&#34;Repeated {NUM_YEARS} of weather data&#34;)
+    start_date, end_date = (
+        long_weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        long_weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day = install_day + 365
+    end_day = start_day + 365 * NUM_YEARS
+    MAX_PS = 20
+    THRESHES = np.arange(0, MAX_PS, 1)
+    acc_mat = np.zeros((MAX_PS, len(THRESHES)))
+    fp_mat = np.zeros(acc_mat.shape)
+    fn_mat = np.zeros(acc_mat.shape)
+    tp_mat = np.zeros(acc_mat.shape)
+    tn_mat = np.zeros(acc_mat.shape)
+    for p_i, ps in enumerate(range(MAX_PS)):
+        print_i(f&#34;Using pier settlement = {ps} mm&#34;)
+        long_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[
+                (
+                    model.PierSettlement(pier=PIER, settlement=0.00001),
+                    model.PierSettlement(pier=PIER, settlement=ps / 1e3),
+                )
+            ],
+            install_pier_settlement=[],
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        healthy_responses = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            pier_settlement=[],
+            install_pier_settlement=None,
+            weather=long_weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=False,
+            ignore_pier_creep=True,
+        )
+        plt.plot(healthy_responses[0] * 1e3, label=&#34;healthy&#34;)
+        plt.plot(long_responses[0] * 1e3, label=&#34;pier settlement&#34;)
+        plt.legend()
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;q3-{p_i}.png&#34;))
+        plt.close()
+        for t_i, thresh in enumerate(THRESHES):
+            thresh *= -1
+            print(thresh)
+            print(max(healthy_responses[0]))
+            print(min(healthy_responses[0]))
+            print(max(long_responses[0]))
+            print(min(long_responses[0]))
+            fp = len([x for x in healthy_responses[0] * 1e3 if x &lt;= thresh])
+            tp = len([x for x in long_responses[0] * 1e3 if x &lt;= thresh])
+            tn = len([x for x in healthy_responses[0] * 1e3 if x &gt; thresh])
+            fn = len([x for x in long_responses[0] * 1e3 if x &gt; thresh])
+            acc_mat[p_i][t_i] = (tp + tn) / (tp + tn + fp + fn)
+            fp_mat[p_i][t_i] = fp
+            tp_mat[p_i][t_i] = tp
+            fn_mat[p_i][t_i] = fn
+            tn_mat[p_i][t_i] = tn
+
+        ##################
+        # Save matrices. #
+        ##################
+
+        plt.imshow(acc_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat.png&#34;))
+        plt.close()
+
+        plt.imshow(fp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-fp.png&#34;))
+        plt.close()
+
+        plt.imshow(fn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-fn.png&#34;))
+        plt.close()
+
+        plt.imshow(tp_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-tp.png&#34;))
+        plt.close()
+
+        plt.imshow(tn_mat, cmap=axis_cmap_r)
+        plt.savefig(config.get_image_path(&#34;hello&#34;, f&#34;mat-tn.png&#34;))
+        plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_sensor_placement"><code class="name flex">
+<span>def <span class="ident">plot_sensor_placement</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, num_years: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_sensor_placement(config: Config, num_years: int):
+    all_points = [
+        model.Point(x=x, z=z)
+        for x in np.linspace(config.bridge.x_min, config.bridge.x_max, 300)
+        for z in np.linspace(config.bridge.z_min, config.bridge.z_max, 100)
+    ]
+    response_type = model.ResponseType.YTrans
+    install_day = 37
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    config.sensor_freq = 1
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 10
+    )
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+    weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, num_years)
+    start_date, end_date = (
+        weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+        weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+    )
+    start_day, end_day = install_day, 365 * num_years
+    for pier in [9]:
+        pier_centre = model.Point(
+            x=config.bridge.supports[pier].x, z=config.bridge.supports[pier].z,
+        )
+        points = [p for p in all_points if pier_centre.distance(p) &lt; 7]
+        ps = model.PierSettlement(pier=pier, settlement=5 / 1e3)
+        (
+            _0,
+            _1,
+            temp_responses,
+            shrinkage_responses,
+            creep_responses,
+        ) = sim.responses.to(
+            config=config,
+            points=points,
+            traffic_array=traffic_array,
+            response_type=response_type,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=True,
+        )
+        ps_responses = sim.responses.to_pier_settlement(
+            config=config,
+            points=points,
+            responses_array=_0,
+            response_type=response_type,
+            pier_settlement=[(ps, ps)],
+        ).T[-1]
+        ps_responses += sim.responses.to_creep(
+            config=config,
+            points=points,
+            responses_array=_0,
+            response_type=response_type,
+            pier_settlement=[(ps, ps)],
+            install_pier_settlement=[ps],
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+        ).T[-1]
+        long_term_responses = (
+            temp_responses.T[-1] + shrinkage_responses.T[-1] + creep_responses.T[-1]
+        )
+
+        ############
+        # Plotting #
+        ############
+
+        plt.landscape()
+        plt.subplot(3, 1, 1)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(zip(abs(long_term_responses) * 1e3, points)),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+        plt.subplot(3, 1, 2)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(zip(abs(ps_responses) * 1e3, points)),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+        plt.subplot(3, 1, 3)
+        responses = sim.model.Responses(
+            response_type=response_type,
+            responses=list(
+                zip((abs(ps_responses) - abs(long_term_responses)) * 1e3, points)
+            ),
+        )
+        plot.contour_responses(config, responses, levels=30, interp=(200, 60))
+        plot.top_view_bridge(config.bridge, piers=True)
+
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, &#34;placement.pdf&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.plot_year_effects"><code class="name flex">
+<span>def <span class="ident">plot_year_effects</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, x: float, z: float, num_years: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot all effects over a single year and 100 years at a point.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_year_effects(config: Config, x: float, z: float, num_years: int):
+    &#34;&#34;&#34;Plot all effects over a single year and 100 years at a point.&#34;&#34;&#34;
+    install_day = 37
+    year = 2018
+    weather = temperature.load(&#34;holly-springs-18&#34;)
+    _0, _1, traffic_array = traffic.load_traffic(
+        config, traffic.normal_traffic(config), 60 * 10
+    )
+    (
+        ll_responses,
+        ps_responses,
+        temp_responses,
+        shrinkage_responses,
+        creep_responses,
+    ) = np.repeat(None, 5)
+    start_day, end_day = None, None
+
+    def set_responses(n):
+        nonlocal weather, start_day, end_day
+        weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=year)
+        weather = temperature.repeat(config, &#34;holly-springs-18&#34;, weather, n)
+        start_date, end_date = (
+            weather[&#34;datetime&#34;].iloc[0].strftime(temperature.f_string),
+            weather[&#34;datetime&#34;].iloc[-1].strftime(temperature.f_string),
+        )
+        start_day, end_day = install_day, 365 * n
+        nonlocal ll_responses, ps_responses, temp_responses, shrinkage_responses, creep_responses
+        (
+            ll_responses,
+            ps_responses,
+            temp_responses,
+            shrinkage_responses,
+            creep_responses,
+        ) = sim.responses.to(
+            config=config,
+            points=[model.Point(x=x, z=z)],
+            traffic_array=traffic_array,
+            response_type=model.RT.YTrans,
+            with_creep=True,
+            weather=weather,
+            start_date=start_date,
+            end_date=end_date,
+            install_day=install_day,
+            start_day=start_day,
+            end_day=end_day,
+            ret_all=True,
+        )
+
+    # from sklearn.decomposition import FastICA, PCA
+    # ica = FastICA(n_components=3)
+    # try_ = ica.fit_transform((ll_responses + temp_responses + creep_responses + shrinkage_responses).T)
+    # plt.plot(try_)
+    # plt.show()
+
+    plt.landscape()
+    lw = 2
+
+    def legend():
+        leg = plt.legend(
+            facecolor=&#34;white&#34;,
+            loc=&#34;upper right&#34;,
+            framealpha=1,
+            fancybox=False,
+            borderaxespad=0,
+        )
+        for legobj in leg.legendHandles:
+            legobj.set_linewidth(lw)
+
+    plt.subplot(1, 2, 1)
+    set_responses(1)
+    xax = np.interp(
+        np.arange(len(traffic_array)), [0, len(traffic_array) - 1], [start_day, end_day]
+    )
+    plt.plot(xax, ll_responses[0] * 1e3, c=&#34;green&#34;, label=&#34;traffic&#34;, lw=lw)
+    plt.plot(xax, temp_responses[0] * 1e3, c=&#34;red&#34;, label=&#34;temperature&#34;)
+    plt.plot(xax, shrinkage_responses[0] * 1e3, c=&#34;blue&#34;, label=&#34;shrinkage&#34;, lw=lw)
+    plt.plot(xax, creep_responses[0] * 1e3, c=&#34;black&#34;, label=&#34;creep&#34;, lw=lw)
+    legend()
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Time (days)&#34;)
+
+    plt.subplot(1, 2, 2)
+    end_day = 365 * num_years
+    set_responses(num_years)
+    xax = (
+        np.interp(
+            np.arange(len(traffic_array)),
+            [0, len(traffic_array) - 1],
+            [start_day, end_day],
+        )
+        / 365
+    )
+    plt.plot(xax, ll_responses[0] * 1e3, c=&#34;green&#34;, label=&#34;traffic&#34;, lw=lw)
+    plt.plot(xax, temp_responses[0] * 1e3, c=&#34;red&#34;, label=&#34;temperature&#34;)
+    plt.plot(xax, shrinkage_responses[0] * 1e3, c=&#34;blue&#34;, label=&#34;shrinkage&#34;, lw=lw)
+    plt.plot(xax, creep_responses[0] * 1e3, c=&#34;black&#34;, label=&#34;creep&#34;, lw=lw)
+    legend()
+    plt.ylabel(&#34;Y translation (mm)&#34;)
+    plt.xlabel(&#34;Time (years)&#34;)
+
+    equal_lims(&#34;y&#34;, 1, 2)
+    plt.suptitle(f&#34;Y translation at X = {x} m, Z = {z} m&#34;)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(config.get_image_path(&#34;classify/ps&#34;, f&#34;year-effect-{x}-{z}.png&#34;))</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.ps_question.support_with_points"><code class="name flex">
+<span>def <span class="ident">support_with_points</span></span>(<span>bridge: <a title="bridge_sim.model.Bridge" href="../../model/index.html#bridge_sim.model.Bridge">Bridge</a>, delta_x: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def support_with_points(bridge: Bridge, delta_x: float):
+    for support in bridge.supports:
+        if support.x &lt; bridge.length / 2:
+            s_x = support.x - ((support.length / 2) + delta_x)
+        else:
+            s_x = support.x + ((support.length / 2) + delta_x)
+        support.point = Point(x=s_x, z=support.z)
+        for support_2 in bridge.supports:
+            if support_2.z == support.z and np.isclose(
+                support_2.x, bridge.length - support.x
+            ):
+                support.opposite_support = support_2
+        print_w(f&#34;Support sensor at X = {support.point.x}, Z = {support.point.z}&#34;)
+        if not hasattr(support, &#34;opposite_support&#34;):
+            raise ValueError(&#34;No opposite support&#34;)
+    return bridge.supports</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.make" href="index.html">bridge_sim.internal.make</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_contour_q2" href="#bridge_sim.internal.make.ps_question.plot_contour_q2">plot_contour_q2</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_min_diff" href="#bridge_sim.internal.make.ps_question.plot_min_diff">plot_min_diff</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_min_ps_1" href="#bridge_sim.internal.make.ps_question.plot_min_ps_1">plot_min_ps_1</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_min_ps_2" href="#bridge_sim.internal.make.ps_question.plot_min_ps_2">plot_min_ps_2</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_removal" href="#bridge_sim.internal.make.ps_question.plot_removal">plot_removal</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_removal_2" href="#bridge_sim.internal.make.ps_question.plot_removal_2">plot_removal_2</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_removal_3" href="#bridge_sim.internal.make.ps_question.plot_removal_3">plot_removal_3</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_sensor_placement" href="#bridge_sim.internal.make.ps_question.plot_sensor_placement">plot_sensor_placement</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.plot_year_effects" href="#bridge_sim.internal.make.ps_question.plot_year_effects">plot_year_effects</a></code></li>
+<li><code><a title="bridge_sim.internal.make.ps_question.support_with_points" href="#bridge_sim.internal.make.ps_question.support_with_points">support_with_points</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

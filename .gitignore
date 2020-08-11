@@ -13,9 +13,9 @@ __pycache__/
 venv/
 
 # Generated
+*.mp4
 *generated*/
-src/build/
-src/dist/
+dist/
 out/
 
 # Validation

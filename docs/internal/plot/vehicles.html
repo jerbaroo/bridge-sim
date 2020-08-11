@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.plot.vehicles API documentation</title>
+<meta name="description" content="Plot vehicles distributions." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.plot.vehicles</code></h1>
+</header>
+<section id="section-intro">
+<p>Plot vehicles distributions.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Plot vehicles distributions.&#34;&#34;&#34;
+import bridge_sim.util
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import stats
+
+from bridge_sim.model import Config
+from bridge_sim.vehicles.sample import sample_vehicle, axle_array_and_count, load_vehicle_data
+from bridge_sim.util import print_i
+
+# Print debug information for this file.
+D: bool = False
+
+
+def plot_dist(c: Config):
+    &#34;&#34;&#34;Original A16 data, showing outliers, and downsampled final data.&#34;&#34;&#34;
+    # Print information on original data.
+    a16 = load_vehicle_data(&#34;data/a16-data/original-a16.csv&#34;)
+    print_i(f&#34;A16 columns = {a16.columns}&#34;)
+    print_i(f&#34;Original A16 data has {len(a16)} rows&#34;)
+    min_length = np.min(a16[&#34;length&#34;])
+    print_i(f&#34;Minimum length = {min_length / 100} m&#34;)
+    min_weight = np.min(a16[&#34;total_weight&#34;])
+    print_i(f&#34;Minimum weight = {min_weight} kN&#34;)
+
+    # Get and remove outliers.
+    outliers = a16[(np.abs(stats.zscore(a16[[&#34;total_weight&#34;, &#34;length&#34;]])) &gt;= 2)]
+    num_outliers = len(a16) - len(outliers)
+    print_i(
+        f&#34;Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight &amp; length) from A16 data&#34;
+    )
+    a16 = a16.drop(outliers.index)
+
+    # Sample to 10% of original size.
+    a16 = a16.sample(n=int(len(a16) * 0.1))
+    print_i(f&#34;Downsampled A16 data has {len(a16)} rows&#34;)
+
+    # Construct passenger vehicles.
+    n, min_kn = len(a16), 5
+    weights = np.random.gumbel(loc=12.53, scale=10, size=n)
+    weights = [w for w in weights if w &gt;= min_kn]
+    axles = list(
+        map(int, np.around(np.interp(weights, [min(weights), max(weights)], [2, 4]), 0))
+    )
+    add_min_length = 2.4 * 100
+    add_max_length = min_length * 1.2
+    lengths = np.interp(
+        weights, [min(weights), max(weights)], [add_min_length, add_max_length]
+    )
+    rand = np.random.gumbel(loc=1.5, scale=4, size=len(lengths))
+    lengths = np.multiply(lengths, rand)
+
+    weights = np.multiply(weights, np.random.gumbel(1, 1, len(weights)))
+    add_weight = np.interp(
+        lengths, [add_min_length, add_max_length], [1, min_weight * 1.5]
+    )
+    weights += add_weight
+
+    # Add passenger vehicles to DataFrame.
+    records = []
+    for length, weight, axle in zip(lengths, weights, axles):
+        # A little filter function, to make results look a bit better.
+        if (
+            add_min_length &lt;= length &lt;= 9.7 * 100
+            and weight &gt;= 7
+            and (length &gt; 5 * 100 or weight &lt; 100)
+        ):
+            records.append(
+                {
+                    &#34;length&#34;: length,
+                    &#34;total_weight&#34;: weight,
+                    &#34;weight_per_axle&#34;: str([weight / axle] * axle),
+                    &#34;axle_distance&#34;: str([length / (axle - 1)] * (axle - 1)),
+                }
+            )
+    a16 = a16.append(records, ignore_index=True)
+    a16.index.name = &#34;number&#34;
+
+    a16.to_csv(&#34;data/a16-data/a16.csv&#34;)
+    print_i(&#34;Wrote updated A16 data to disk&#34;)
+
+    ws, ls = a16[&#34;total_weight&#34;], a16[&#34;length&#34;]
+    print_i(f&#34;Weight: min = {min(ws)}, max = {max(ws)}&#34;)
+    print_i(f&#34;Length: min = {min(ls)}, max = {max(ls)}&#34;)
+
+    # Plot.
+    def plot_pdf():
+        xs = list(map(lambda x: x[0], c.vehicle_pdf))
+        xs[-1] = min(xs[-1], plt.xlim()[1])
+        ps = list(map(lambda x: x[1], c.vehicle_pdf))
+        total_x = xs[-1] - xs[0]
+        rel_heights = []
+        for x0, x1, p in zip(xs[:-1], xs[1:], ps):
+            l = (x1 - x0) / total_x
+            h = p / l
+            rel_heights.append(h)
+        for x0, x1, h in zip(xs[:-1], xs[1:], rel_heights):
+            h = (h / max(rel_heights)) * plt.ylim()[1]
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (x0, 0),
+                    x1 - x0,
+                    h,
+                    facecolor=&#34;none&#34;,
+                    edgecolor=&#34;red&#34;,
+                    lw=1,
+                    label=f&#34;Area ∝ probability&#34; if x1 == xs[-1] else None,
+                )
+            )
+        plt.legend()
+
+    n = 10000
+    c.vehicle_data = load_vehicle_data(c.vehicle_data_path)
+    vehicles = [sample_vehicle(c) for _ in range(n)]
+    kns = list(map(lambda v: v.total_kn(), vehicles))
+
+    num_axles = bridge_sim.util.apply(lambda s: len(axle_array_and_count(s)))
+    plt.landscape()
+    plt.subplot(3, 1, 1)
+    plt.scatter(a16[&#34;length&#34;] / 100, a16[&#34;total_weight&#34;], s=1)
+    plot_pdf()
+    plt.ylabel(&#34;Load intensity (kN)&#34;)
+    plt.xlabel(&#34;Length (m)&#34;)
+    plt.title(&#34;Load intensity per vehicles&#34;)
+    plt.xlim(0, plt.xlim()[1])
+    plt.subplot(3, 1, 2)
+    plt.scatter(a16[&#34;length&#34;] / 100, num_axles, s=1)
+    plt.xlim(0, plt.xlim()[1])
+    plt.ylabel(&#34;Number of axles&#34;)
+    plt.xlabel(&#34;Length (m)&#34;)
+    plt.title(&#34;Number of axles per vehicles&#34;)
+    plt.subplot(3, 1, 3)
+    plt.hist(kns)
+    plt.ylabel(&#34;Number of vehicles&#34;)
+    plt.xlabel(&#34;Load intensity&#34;)
+    plt.title(f&#34;Load intensity distribution of {n} sampled vehicles&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;vehicles&#34;, &#34;vehicles-db.png&#34;))
+    plt.savefig(c.get_image_path(&#34;vehicles&#34;, &#34;vehicles-db.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.plot.vehicles.plot_dist"><code class="name flex">
+<span>def <span class="ident">plot_dist</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Original A16 data, showing outliers, and downsampled final data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_dist(c: Config):
+    &#34;&#34;&#34;Original A16 data, showing outliers, and downsampled final data.&#34;&#34;&#34;
+    # Print information on original data.
+    a16 = load_vehicle_data(&#34;data/a16-data/original-a16.csv&#34;)
+    print_i(f&#34;A16 columns = {a16.columns}&#34;)
+    print_i(f&#34;Original A16 data has {len(a16)} rows&#34;)
+    min_length = np.min(a16[&#34;length&#34;])
+    print_i(f&#34;Minimum length = {min_length / 100} m&#34;)
+    min_weight = np.min(a16[&#34;total_weight&#34;])
+    print_i(f&#34;Minimum weight = {min_weight} kN&#34;)
+
+    # Get and remove outliers.
+    outliers = a16[(np.abs(stats.zscore(a16[[&#34;total_weight&#34;, &#34;length&#34;]])) &gt;= 2)]
+    num_outliers = len(a16) - len(outliers)
+    print_i(
+        f&#34;Removed {len(outliers)} ({len(outliers) / len(a16):.4f}) outliers (by weight &amp; length) from A16 data&#34;
+    )
+    a16 = a16.drop(outliers.index)
+
+    # Sample to 10% of original size.
+    a16 = a16.sample(n=int(len(a16) * 0.1))
+    print_i(f&#34;Downsampled A16 data has {len(a16)} rows&#34;)
+
+    # Construct passenger vehicles.
+    n, min_kn = len(a16), 5
+    weights = np.random.gumbel(loc=12.53, scale=10, size=n)
+    weights = [w for w in weights if w &gt;= min_kn]
+    axles = list(
+        map(int, np.around(np.interp(weights, [min(weights), max(weights)], [2, 4]), 0))
+    )
+    add_min_length = 2.4 * 100
+    add_max_length = min_length * 1.2
+    lengths = np.interp(
+        weights, [min(weights), max(weights)], [add_min_length, add_max_length]
+    )
+    rand = np.random.gumbel(loc=1.5, scale=4, size=len(lengths))
+    lengths = np.multiply(lengths, rand)
+
+    weights = np.multiply(weights, np.random.gumbel(1, 1, len(weights)))
+    add_weight = np.interp(
+        lengths, [add_min_length, add_max_length], [1, min_weight * 1.5]
+    )
+    weights += add_weight
+
+    # Add passenger vehicles to DataFrame.
+    records = []
+    for length, weight, axle in zip(lengths, weights, axles):
+        # A little filter function, to make results look a bit better.
+        if (
+            add_min_length &lt;= length &lt;= 9.7 * 100
+            and weight &gt;= 7
+            and (length &gt; 5 * 100 or weight &lt; 100)
+        ):
+            records.append(
+                {
+                    &#34;length&#34;: length,
+                    &#34;total_weight&#34;: weight,
+                    &#34;weight_per_axle&#34;: str([weight / axle] * axle),
+                    &#34;axle_distance&#34;: str([length / (axle - 1)] * (axle - 1)),
+                }
+            )
+    a16 = a16.append(records, ignore_index=True)
+    a16.index.name = &#34;number&#34;
+
+    a16.to_csv(&#34;data/a16-data/a16.csv&#34;)
+    print_i(&#34;Wrote updated A16 data to disk&#34;)
+
+    ws, ls = a16[&#34;total_weight&#34;], a16[&#34;length&#34;]
+    print_i(f&#34;Weight: min = {min(ws)}, max = {max(ws)}&#34;)
+    print_i(f&#34;Length: min = {min(ls)}, max = {max(ls)}&#34;)
+
+    # Plot.
+    def plot_pdf():
+        xs = list(map(lambda x: x[0], c.vehicle_pdf))
+        xs[-1] = min(xs[-1], plt.xlim()[1])
+        ps = list(map(lambda x: x[1], c.vehicle_pdf))
+        total_x = xs[-1] - xs[0]
+        rel_heights = []
+        for x0, x1, p in zip(xs[:-1], xs[1:], ps):
+            l = (x1 - x0) / total_x
+            h = p / l
+            rel_heights.append(h)
+        for x0, x1, h in zip(xs[:-1], xs[1:], rel_heights):
+            h = (h / max(rel_heights)) * plt.ylim()[1]
+            plt.gca().add_patch(
+                patches.Rectangle(
+                    (x0, 0),
+                    x1 - x0,
+                    h,
+                    facecolor=&#34;none&#34;,
+                    edgecolor=&#34;red&#34;,
+                    lw=1,
+                    label=f&#34;Area ∝ probability&#34; if x1 == xs[-1] else None,
+                )
+            )
+        plt.legend()
+
+    n = 10000
+    c.vehicle_data = load_vehicle_data(c.vehicle_data_path)
+    vehicles = [sample_vehicle(c) for _ in range(n)]
+    kns = list(map(lambda v: v.total_kn(), vehicles))
+
+    num_axles = bridge_sim.util.apply(lambda s: len(axle_array_and_count(s)))
+    plt.landscape()
+    plt.subplot(3, 1, 1)
+    plt.scatter(a16[&#34;length&#34;] / 100, a16[&#34;total_weight&#34;], s=1)
+    plot_pdf()
+    plt.ylabel(&#34;Load intensity (kN)&#34;)
+    plt.xlabel(&#34;Length (m)&#34;)
+    plt.title(&#34;Load intensity per vehicles&#34;)
+    plt.xlim(0, plt.xlim()[1])
+    plt.subplot(3, 1, 2)
+    plt.scatter(a16[&#34;length&#34;] / 100, num_axles, s=1)
+    plt.xlim(0, plt.xlim()[1])
+    plt.ylabel(&#34;Number of axles&#34;)
+    plt.xlabel(&#34;Length (m)&#34;)
+    plt.title(&#34;Number of axles per vehicles&#34;)
+    plt.subplot(3, 1, 3)
+    plt.hist(kns)
+    plt.ylabel(&#34;Number of vehicles&#34;)
+    plt.xlabel(&#34;Load intensity&#34;)
+    plt.title(f&#34;Load intensity distribution of {n} sampled vehicles&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;vehicles&#34;, &#34;vehicles-db.png&#34;))
+    plt.savefig(c.get_image_path(&#34;vehicles&#34;, &#34;vehicles-db.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.plot" href="index.html">bridge_sim.internal.plot</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.plot.vehicles.plot_dist" href="#bridge_sim.internal.plot.vehicles.plot_dist">plot_dist</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

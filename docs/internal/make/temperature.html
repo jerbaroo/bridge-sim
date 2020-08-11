@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.make.temperature API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.make.temperature</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from bridge_sim import temperature
+from bridge_sim.model import Config, Point, ResponseType
+from bridge_sim.sim.model import Responses
+from bridge_sim.util import plot_hours, print_i, safe_str
+from bridge_sim.plot import contour_responses, top_view_bridge
+from bridge_sim.plot.util import equal_lims
+
+
+def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
+    &#34;&#34;&#34;Contour plot of responses for a temperature profile.&#34;&#34;&#34;
+    # Points on the deck to collect fem.
+    deck_points = [
+        Point(x=x, y=0, z=z)
+        for x in np.linspace(
+            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2)
+        )
+        for z in np.linspace(
+            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2)
+        )
+    ]
+
+    def plot_response_type(response_type: ResponseType):
+        # Temperature effect.
+        temp_effect = temperature.effect(
+            config=c,
+            response_type=response_type,
+            points=deck_points,
+            temps_bt=([temp_bottom], [temp_top]),
+        ).T[0]
+        print_i(f&#34;temp shape = {temp_effect.shape}&#34;)
+        responses = Responses(
+            response_type=response_type,
+            responses=[
+                (temp_effect[p_ind], deck_points[p_ind])
+                for p_ind in range(len(deck_points))
+            ],
+        ).without_nan_inf()
+        if response_type.is_strain():
+            responses = responses.map(lambda r: r * 1e6)
+        else:
+            responses.units = &#34;mm&#34;
+            responses = responses.map(lambda r: r * 1e3)
+        top_view_bridge(c.bridge, abutments=True, piers=True, units=&#34;m&#34;)
+        contour_responses(config=c, responses=responses)
+        plt.title(
+            &#34;Microstrain XXB&#34; if response_type.is_strain() else response_type.name()
+        )
+
+    plt.landscape()
+    plt.subplot(2, 1, 1)
+    plot_response_type(ResponseType.YTrans)
+    plt.subplot(2, 1, 2)
+    plot_response_type(ResponseType.StrainXXB)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.suptitle(
+        f&#34;T_REF, T_bot, T_top = {c.bridge.ref_temp_c} °C, {temp_bottom} °C, {temp_top} °C&#34;
+    )
+    plt.savefig(
+        c.get_image_path(
+            &#34;thesis/temperature&#34;, safe_str(f&#34;contour-{temp_bottom}-{temp_top}&#34;) + &#34;.pdf&#34;
+        )
+    )
+    plt.close()
+
+
+def temp_profile_plot(c: Config, fname: str):
+    &#34;&#34;&#34;Plot the temperature profile throughout the bridge deck.&#34;&#34;&#34;
+    x, z = 21, -8.4
+    # Load weather data.
+    weather = temperature.load(name=fname)
+    weather[&#34;temp&#34;] = temperature.resize(list(weather[&#34;temp&#34;]), year=2019)
+    # Convert to minutely.
+    from_ = datetime.fromisoformat(f&#34;2019-01-01T00:00&#34;)
+    to = datetime.fromisoformat(f&#34;2019-12-31T23:59&#34;)
+    temp_year = temperature.from_to_mins(weather, from_, to)
+    # Temperature profile.
+    temps_year_bottom, temps_year_top = temperature.temp_profile(
+        temps=temp_year[&#34;temp&#34;], solar=temp_year[&#34;solar&#34;],
+    )
+    # Calculate responses.
+    uniform_year_y, linear_year_y, effect_year_y = temperature.effect(
+        config=c,
+        response_type=ResponseType.YTrans,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_year,
+        d=True,
+    )
+    effect_year_s = temperature.effect(
+        config=c,
+        response_type=ResponseType.StrainXXB,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_year,
+    )
+
+    def legend_lw(leg):
+        for legobj in leg.legendHandles:
+            legobj.set_linewidth(3.0)
+
+    plt.portrait()
+    plt.subplot(3, 2, 1)
+    plt.plot(temp_year[&#34;datetime&#34;], temps_year_top, label=&#34;Top of deck&#34;, c=&#34;tab:red&#34;)
+    plt.plot(temp_year[&#34;datetime&#34;], temp_year[&#34;temp&#34;], label=&#34;Air&#34;, c=&#34;tab:blue&#34;)
+    plt.plot(
+        temp_year[&#34;datetime&#34;], temps_year_bottom, label=&#34;Bottom of deck&#34;, c=&#34;tab:orange&#34;
+    )
+    plt.ylabel(&#34;Temperature °C&#34;)
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Annual temperature&#34;)
+    plt.subplot(3, 2, 5)
+    plt.plot(temp_year[&#34;datetime&#34;], linear_year_y, label=&#34;Linear&#34;, c=&#34;tab:blue&#34;)
+    plt.plot(temp_year[&#34;datetime&#34;], uniform_year_y, label=&#34;Uniform&#34;, c=&#34;tab:orange&#34;)
+    plt.ylabel(&#34;Temperature °C&#34;)
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Annual gradient&#34;)
+    plt.subplot(3, 2, 3)
+    plt.scatter(temp_year[&#34;datetime&#34;], temp_year[&#34;solar&#34;], c=&#34;tab:red&#34;, s=1)
+    plt.ylabel(&#34;Solar radiation (W/m²)&#34;)
+    plt.title(&#34;Annual solar radiation&#34;)
+
+    from_ = datetime.fromisoformat(f&#34;2019-07-01T00:00&#34;)
+    to = datetime.fromisoformat(f&#34;2019-07-02T23:59&#34;)
+    temp_month = temperature.from_to_mins(df=temp_year, from_=from_, to=to)
+    # Temperature profile.
+    temps_month_bottom, temps_month_top = temperature.temp_profile(
+        temps=temp_month[&#34;temp&#34;], solar=temp_month[&#34;solar&#34;],
+    )
+    uniform_month_y, linear_month_y, effect_month_y = temperature.effect(
+        config=c,
+        response_type=ResponseType.YTrans,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_month,
+        d=True,
+    )
+
+    plt.subplot(3, 2, 2)
+    plt.plot(
+        temp_month[&#34;datetime&#34;], temps_month_top, label=&#34;Top of deck&#34;, c=&#34;tab:red&#34;, lw=3
+    )
+    plt.plot(
+        temp_month[&#34;datetime&#34;], temp_month[&#34;temp&#34;], label=&#34;Air&#34;, c=&#34;tab:blue&#34;, lw=3
+    )
+    plt.plot(
+        temp_month[&#34;datetime&#34;],
+        temps_month_bottom,
+        label=&#34;Top of deck&#34;,
+        c=&#34;tab:orange&#34;,
+        lw=3,
+    )
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Two day temperature&#34;)
+    plt.subplot(3, 2, 6)
+    plt.plot(temp_month[&#34;datetime&#34;], linear_month_y, label=&#34;Linear&#34;, c=&#34;tab:blue&#34;, lw=3)
+    plt.plot(
+        temp_month[&#34;datetime&#34;], uniform_month_y, label=&#34;Uniform&#34;, c=&#34;tab:orange&#34;, lw=3
+    )
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Two day gradient&#34;)
+    plt.subplot(3, 2, 4)
+    plt.scatter(temp_year[&#34;datetime&#34;], temp_year[&#34;solar&#34;], c=&#34;tab:red&#34;, s=1)
+    plt.title(&#34;Two day solar radiation&#34;)
+
+    for ps in [(1, 2), (3, 4), (5, 6)]:
+        plt.subplot(3, 2, ps[1])
+        plt.gca().set_yticklabels([])
+        equal_lims(&#34;y&#34;, 3, 2, ps)
+
+    plt.gcf().autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;thesis/temperature&#34;, &#34;profile.pdf&#34;))
+    plt.close()
+
+
+def temperature_effect(config: Config, fname: str):
+    weather = temperature.load(name=fname)
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=2019)
+    print_i(f&#34;Min/max temp = {min(weather[&#39;temp&#39;])}, {max(weather[&#39;temp&#39;])}&#34;)
+    print_i(f&#34;Min/max solar = {min(weather[&#39;solar&#39;])}, {max(weather[&#39;solar&#39;])}&#34;)
+
+    # Plot the temperature.
+    plt.portrait()
+    plt.subplot(4, 1, 1)
+    plt.scatter(weather[&#34;datetime&#34;], weather[&#34;temp&#34;], c=&#34;b&#34;, s=1)
+    plt.ylabel(&#34;Temperature (°C)&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Temperature from {str(fname[0]).upper()}{fname[1:]}&#34;)
+
+    # Plot the temperature in May.
+    plt.subplot(4, 1, 2)
+    weather_may = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime(&#34;01/05/19 00:00&#34;, &#34;%d/%m/%y %H:%M&#34;),
+        to=datetime.strptime(&#34;31/05/19 23:59&#34;, &#34;%d/%m/%y %H:%M&#34;),
+    )
+    plot_hours(weather_may)
+    plt.scatter(weather_may[&#34;datetime&#34;], weather_may[&#34;temp&#34;], c=&#34;b&#34;, s=1)
+    plt.ylabel(&#34;Temperature (°C)&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Temperature in May&#34;)
+
+    # Plot the solar radiation.
+    plt.subplot(4, 1, 3)
+    plt.scatter(weather[&#34;datetime&#34;], weather[&#34;solar&#34;], c=&#34;r&#34;, s=1)
+    plt.ylabel(&#34;Solar radiation&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Solar radiation from {str(fname[0]).upper()}{fname[1:]}&#34;)
+
+    # Plot the effect at two points.
+    plt.subplot(4, 1, 4)
+    effect = temperature.effect(
+        config=config,
+        response_type=ResponseType.StrainXXB,
+        points=[Point(x=51)],
+        weather=weather,
+    )[0]
+    plt.scatter(weather[&#34;datetime&#34;], effect * 1e6, c=&#34;g&#34;, s=1)
+    plt.ylabel(&#34;Microstrain XXB&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(&#34;Strain at X = 51 in May&#34;)
+    print_i(f&#34;Effect shape = {effect.shape}&#34;)
+
+    # Save.
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;verification/temperature&#34;, f&#34;{fname}.png&#34;))
+    plt.close()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.make.temperature.temp_contour_plot"><code class="name flex">
+<span>def <span class="ident">temp_contour_plot</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, temp_bottom: float, temp_top: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Contour plot of responses for a temperature profile.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def temp_contour_plot(c: Config, temp_bottom: float, temp_top: float):
+    &#34;&#34;&#34;Contour plot of responses for a temperature profile.&#34;&#34;&#34;
+    # Points on the deck to collect fem.
+    deck_points = [
+        Point(x=x, y=0, z=z)
+        for x in np.linspace(
+            c.bridge.x_min, c.bridge.x_max, num=int(c.bridge.length * 2)
+        )
+        for z in np.linspace(
+            c.bridge.z_min, c.bridge.z_max, num=int(c.bridge.width * 2)
+        )
+    ]
+
+    def plot_response_type(response_type: ResponseType):
+        # Temperature effect.
+        temp_effect = temperature.effect(
+            config=c,
+            response_type=response_type,
+            points=deck_points,
+            temps_bt=([temp_bottom], [temp_top]),
+        ).T[0]
+        print_i(f&#34;temp shape = {temp_effect.shape}&#34;)
+        responses = Responses(
+            response_type=response_type,
+            responses=[
+                (temp_effect[p_ind], deck_points[p_ind])
+                for p_ind in range(len(deck_points))
+            ],
+        ).without_nan_inf()
+        if response_type.is_strain():
+            responses = responses.map(lambda r: r * 1e6)
+        else:
+            responses.units = &#34;mm&#34;
+            responses = responses.map(lambda r: r * 1e3)
+        top_view_bridge(c.bridge, abutments=True, piers=True, units=&#34;m&#34;)
+        contour_responses(config=c, responses=responses)
+        plt.title(
+            &#34;Microstrain XXB&#34; if response_type.is_strain() else response_type.name()
+        )
+
+    plt.landscape()
+    plt.subplot(2, 1, 1)
+    plot_response_type(ResponseType.YTrans)
+    plt.subplot(2, 1, 2)
+    plot_response_type(ResponseType.StrainXXB)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.suptitle(
+        f&#34;T_REF, T_bot, T_top = {c.bridge.ref_temp_c} °C, {temp_bottom} °C, {temp_top} °C&#34;
+    )
+    plt.savefig(
+        c.get_image_path(
+            &#34;thesis/temperature&#34;, safe_str(f&#34;contour-{temp_bottom}-{temp_top}&#34;) + &#34;.pdf&#34;
+        )
+    )
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.temperature.temp_profile_plot"><code class="name flex">
+<span>def <span class="ident">temp_profile_plot</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, fname: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot the temperature profile throughout the bridge deck.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def temp_profile_plot(c: Config, fname: str):
+    &#34;&#34;&#34;Plot the temperature profile throughout the bridge deck.&#34;&#34;&#34;
+    x, z = 21, -8.4
+    # Load weather data.
+    weather = temperature.load(name=fname)
+    weather[&#34;temp&#34;] = temperature.resize(list(weather[&#34;temp&#34;]), year=2019)
+    # Convert to minutely.
+    from_ = datetime.fromisoformat(f&#34;2019-01-01T00:00&#34;)
+    to = datetime.fromisoformat(f&#34;2019-12-31T23:59&#34;)
+    temp_year = temperature.from_to_mins(weather, from_, to)
+    # Temperature profile.
+    temps_year_bottom, temps_year_top = temperature.temp_profile(
+        temps=temp_year[&#34;temp&#34;], solar=temp_year[&#34;solar&#34;],
+    )
+    # Calculate responses.
+    uniform_year_y, linear_year_y, effect_year_y = temperature.effect(
+        config=c,
+        response_type=ResponseType.YTrans,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_year,
+        d=True,
+    )
+    effect_year_s = temperature.effect(
+        config=c,
+        response_type=ResponseType.StrainXXB,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_year,
+    )
+
+    def legend_lw(leg):
+        for legobj in leg.legendHandles:
+            legobj.set_linewidth(3.0)
+
+    plt.portrait()
+    plt.subplot(3, 2, 1)
+    plt.plot(temp_year[&#34;datetime&#34;], temps_year_top, label=&#34;Top of deck&#34;, c=&#34;tab:red&#34;)
+    plt.plot(temp_year[&#34;datetime&#34;], temp_year[&#34;temp&#34;], label=&#34;Air&#34;, c=&#34;tab:blue&#34;)
+    plt.plot(
+        temp_year[&#34;datetime&#34;], temps_year_bottom, label=&#34;Bottom of deck&#34;, c=&#34;tab:orange&#34;
+    )
+    plt.ylabel(&#34;Temperature °C&#34;)
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Annual temperature&#34;)
+    plt.subplot(3, 2, 5)
+    plt.plot(temp_year[&#34;datetime&#34;], linear_year_y, label=&#34;Linear&#34;, c=&#34;tab:blue&#34;)
+    plt.plot(temp_year[&#34;datetime&#34;], uniform_year_y, label=&#34;Uniform&#34;, c=&#34;tab:orange&#34;)
+    plt.ylabel(&#34;Temperature °C&#34;)
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Annual gradient&#34;)
+    plt.subplot(3, 2, 3)
+    plt.scatter(temp_year[&#34;datetime&#34;], temp_year[&#34;solar&#34;], c=&#34;tab:red&#34;, s=1)
+    plt.ylabel(&#34;Solar radiation (W/m²)&#34;)
+    plt.title(&#34;Annual solar radiation&#34;)
+
+    from_ = datetime.fromisoformat(f&#34;2019-07-01T00:00&#34;)
+    to = datetime.fromisoformat(f&#34;2019-07-02T23:59&#34;)
+    temp_month = temperature.from_to_mins(df=temp_year, from_=from_, to=to)
+    # Temperature profile.
+    temps_month_bottom, temps_month_top = temperature.temp_profile(
+        temps=temp_month[&#34;temp&#34;], solar=temp_month[&#34;solar&#34;],
+    )
+    uniform_month_y, linear_month_y, effect_month_y = temperature.effect(
+        config=c,
+        response_type=ResponseType.YTrans,
+        points=[Point(x=x, y=0, z=z)],
+        weather=temp_month,
+        d=True,
+    )
+
+    plt.subplot(3, 2, 2)
+    plt.plot(
+        temp_month[&#34;datetime&#34;], temps_month_top, label=&#34;Top of deck&#34;, c=&#34;tab:red&#34;, lw=3
+    )
+    plt.plot(
+        temp_month[&#34;datetime&#34;], temp_month[&#34;temp&#34;], label=&#34;Air&#34;, c=&#34;tab:blue&#34;, lw=3
+    )
+    plt.plot(
+        temp_month[&#34;datetime&#34;],
+        temps_month_bottom,
+        label=&#34;Top of deck&#34;,
+        c=&#34;tab:orange&#34;,
+        lw=3,
+    )
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Two day temperature&#34;)
+    plt.subplot(3, 2, 6)
+    plt.plot(temp_month[&#34;datetime&#34;], linear_month_y, label=&#34;Linear&#34;, c=&#34;tab:blue&#34;, lw=3)
+    plt.plot(
+        temp_month[&#34;datetime&#34;], uniform_month_y, label=&#34;Uniform&#34;, c=&#34;tab:orange&#34;, lw=3
+    )
+    legend_lw(plt.legend(loc=&#34;lower right&#34;))
+    plt.title(&#34;Two day gradient&#34;)
+    plt.subplot(3, 2, 4)
+    plt.scatter(temp_year[&#34;datetime&#34;], temp_year[&#34;solar&#34;], c=&#34;tab:red&#34;, s=1)
+    plt.title(&#34;Two day solar radiation&#34;)
+
+    for ps in [(1, 2), (3, 4), (5, 6)]:
+        plt.subplot(3, 2, ps[1])
+        plt.gca().set_yticklabels([])
+        equal_lims(&#34;y&#34;, 3, 2, ps)
+
+    plt.gcf().autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;thesis/temperature&#34;, &#34;profile.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.temperature.temperature_effect"><code class="name flex">
+<span>def <span class="ident">temperature_effect</span></span>(<span>config: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>, fname: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def temperature_effect(config: Config, fname: str):
+    weather = temperature.load(name=fname)
+    weather[&#34;temp&#34;] = temperature.resize(weather[&#34;temp&#34;], year=2019)
+    print_i(f&#34;Min/max temp = {min(weather[&#39;temp&#39;])}, {max(weather[&#39;temp&#39;])}&#34;)
+    print_i(f&#34;Min/max solar = {min(weather[&#39;solar&#39;])}, {max(weather[&#39;solar&#39;])}&#34;)
+
+    # Plot the temperature.
+    plt.portrait()
+    plt.subplot(4, 1, 1)
+    plt.scatter(weather[&#34;datetime&#34;], weather[&#34;temp&#34;], c=&#34;b&#34;, s=1)
+    plt.ylabel(&#34;Temperature (°C)&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Temperature from {str(fname[0]).upper()}{fname[1:]}&#34;)
+
+    # Plot the temperature in May.
+    plt.subplot(4, 1, 2)
+    weather_may = temperature.from_to_mins(
+        weather,
+        from_=datetime.strptime(&#34;01/05/19 00:00&#34;, &#34;%d/%m/%y %H:%M&#34;),
+        to=datetime.strptime(&#34;31/05/19 23:59&#34;, &#34;%d/%m/%y %H:%M&#34;),
+    )
+    plot_hours(weather_may)
+    plt.scatter(weather_may[&#34;datetime&#34;], weather_may[&#34;temp&#34;], c=&#34;b&#34;, s=1)
+    plt.ylabel(&#34;Temperature (°C)&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Temperature in May&#34;)
+
+    # Plot the solar radiation.
+    plt.subplot(4, 1, 3)
+    plt.scatter(weather[&#34;datetime&#34;], weather[&#34;solar&#34;], c=&#34;r&#34;, s=1)
+    plt.ylabel(&#34;Solar radiation&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(f&#34;Solar radiation from {str(fname[0]).upper()}{fname[1:]}&#34;)
+
+    # Plot the effect at two points.
+    plt.subplot(4, 1, 4)
+    effect = temperature.effect(
+        config=config,
+        response_type=ResponseType.StrainXXB,
+        points=[Point(x=51)],
+        weather=weather,
+    )[0]
+    plt.scatter(weather[&#34;datetime&#34;], effect * 1e6, c=&#34;g&#34;, s=1)
+    plt.ylabel(&#34;Microstrain XXB&#34;)
+    plt.gcf().autofmt_xdate()
+    plt.title(&#34;Strain at X = 51 in May&#34;)
+    print_i(f&#34;Effect shape = {effect.shape}&#34;)
+
+    # Save.
+    plt.tight_layout()
+    plt.savefig(config.get_image_path(&#34;verification/temperature&#34;, f&#34;{fname}.png&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.make" href="index.html">bridge_sim.internal.make</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.make.temperature.temp_contour_plot" href="#bridge_sim.internal.make.temperature.temp_contour_plot">temp_contour_plot</a></code></li>
+<li><code><a title="bridge_sim.internal.make.temperature.temp_profile_plot" href="#bridge_sim.internal.make.temperature.temp_profile_plot">temp_profile_plot</a></code></li>
+<li><code><a title="bridge_sim.internal.make.temperature.temperature_effect" href="#bridge_sim.internal.make.temperature.temperature_effect">temperature_effect</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

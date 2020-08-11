@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>bridge_sim.internal.make.paramselect API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bridge_sim.internal.make.paramselect</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+from scipy.signal import savgol_filter
+
+from bridge_sim.internal.plot import plt
+from bridge_sim.internal.validate import _displa_sensor_xz, _strain_sensor_xz
+from bridge_sim.model import Config, Point, PointLoad, ResponseType
+from bridge_sim.vehicles import truck1
+from bridge_sim.sim.model import SimParams
+from bridge_sim.sim.responses import load_fem_responses
+from bridge_sim.sim.run.opensees import OSRunner
+from bridge_sim.util import flatten, print_i
+
+
+def number_of_uls_plot(c: Config):
+    &#34;&#34;&#34;Plot error as a function of number of unit load simulations.&#34;&#34;&#34;
+    if not c.shorten_paths:
+        raise ValueError(&#34;This plot requires --shorten-paths true&#34;)
+    response_type = ResponseType.YTranslation
+    num_ulss = np.arange(100, 2000, 10)
+    chosen_uls = 600
+    point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
+    wagen1_time = truck1.time_at(x=point.x, bridge=c.bridge)
+    print_i(f&#34;Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}&#34;)
+
+    # Determine the reference value.
+    truck_loads = flatten(
+        truck1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad
+    )
+    print_i(f&#34;Truck loads = {truck_loads}&#34;)
+    sim_responses = load_fem_responses(
+        c=c,
+        response_type=response_type,
+        sim_runner=OSRunner(c),
+        sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
+    )
+    ref_value = sim_responses.at_deck(point, interp=True) * 1000
+    print_i(f&#34;Reference value = {ref_value}&#34;)
+
+    # Collect the data.
+    total_load = []
+    num_loads = []
+    responses = []
+    for num_uls in num_ulss:
+        c.il_num_loads = num_uls
+        # Nested in here because it depends on the setting of &#39;il_num_loads&#39;.
+        truck_loads = flatten(
+            truck1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad
+        )
+        num_loads.append(len(truck_loads))
+        total_load.append(sum(map(lambda l: l.kn, truck_loads)))
+        sim_responses = load_fem_responses(
+            c=c,
+            response_type=response_type,
+            sim_runner=OSRunner(c),
+            sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
+        )
+        responses.append(sim_responses.at_deck(point, interp=True) * 1000)
+
+    # Plot the raw fem, then error on the second axis.
+    plt.landscape()
+    # plt.plot(num_ulss, fem)
+    # plt.ylabel(f&#34;{response_type.name().lower()} (mm)&#34;)
+    plt.xlabel(&#34;ULS&#34;)
+    error = np.abs(np.array(responses) - ref_value).flatten() * 100
+    # ax2 = plt.twinx()
+    plt.plot(num_ulss, error)
+    plt.ylabel(&#34;Error (%)&#34;)
+    plt.title(f&#34;Error in {response_type.name()} to Truck 1 as a function of ULS&#34;)
+    # Plot the chosen number of ULS.
+    chosen_error = np.interp([chosen_uls], num_ulss, error)[0]
+    plt.axhline(
+        chosen_error,
+        label=f&#34;At {chosen_uls} ULS, error = {np.around(chosen_error, 2)} %&#34;,
+        color=&#34;black&#34;,
+    )
+    plt.axhline(
+        0, color=&#34;red&#34;, label=&#34;Response from direct simulation (no wheel tracks)&#34;
+    )
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls.pdf&#34;))
+    plt.close()
+    # Additional verification plots.
+    plt.plot(num_ulss, total_load)
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls-verify-total-load.pdf&#34;))
+    plt.close()
+    plt.plot(num_ulss, num_loads)
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls-verify-num-loads.pdf&#34;))
+    plt.close()
+    #         plt.axhline(min_after_chosen, color=&#34;black&#34;)
+    #         plt.axhline(max_after_chosen, color=&#34;black&#34;)
+    #         plt.legend()
+    #         plt.plot(num_ulss, fem)
+    #         plt.xlabel(&#34;Unit load simulations (ULS) per wheel track&#34;)
+    #         plt.ylabel(f&#34;{response_type.name()} ({units_str})&#34;)
+    #         plt.title(
+    #             f&#34;{response_type.name()} at x = {np.around(point.x, 2)} m, z = {np.around(point.z, 2)} m.&#34;
+    #             f&#34;\nTruck 1&#39;s front axle at x = {np.around(truck_x_pos, 2)} m, on the south lane of Bridge 705.&#34;
+    #         )
+
+
+def experiment_noise(c: Config):
+    &#34;&#34;&#34;Plot displacement and strain noise from dynamic test 1&#34;&#34;&#34;
+    ################
+    # Displacement #
+    ################
+    plt.portrait()
+    # Find points of each sensor.
+    displa_labels = [&#34;U13&#34;, &#34;U26&#34;, &#34;U29&#34;]
+    displa_points = []
+    for displa_label in displa_labels:
+        sensor_x, sensor_z = _displa_sensor_xz(displa_label)
+        displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # For each sensor plot and estimate noise.
+    side = 700
+    for s_i, displa_label in enumerate(displa_labels):
+        # First plot the signal, and smoothed signal.
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
+        with open(f&#34;validation/experiment/D1a-{displa_label}.txt&#34;) as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] &lt; data[data_center]:
+                data_center = i
+        data = data[data_center - side : data_center + side]
+        smooth = savgol_filter(data, 31, 3)
+        plt.plot(data, linewidth=1)
+        plt.plot(smooth, linewidth=1)
+        plt.ylim(-0.8, 0.3)
+        plt.title(f&#34;{displa_label} in dynamic test&#34;)
+        # Then plot subtraction of smoothed from noisey.
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 2)
+        noise = data - smooth
+        plt.plot(noise, label=f&#34;σ = {np.around(np.std(noise), 4)}&#34;)
+        plt.legend()
+        plt.title(f&#34;Noise from {displa_label}&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;params&#34;, &#34;noise-displa.pdf&#34;))
+    plt.close()
+
+    ##########
+    # Strain #
+    ##########
+
+    plt.portrait()
+    # Find points of each sensor.
+    strain_labels = [&#34;T1&#34;, &#34;T10&#34;, &#34;T11&#34;]
+    strain_points = []
+    for strain_label in strain_labels:
+        sensor_x, sensor_z = _strain_sensor_xz(strain_label)
+        strain_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # For each sensor plot and estimate noise.
+    side = 700
+    xmin, xmax = np.inf, -np.inf
+    for s_i, strain_label in enumerate(strain_labels):
+        # First plot the signal, and smoothed signal.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 1)
+        with open(f&#34;validation/experiment/D1a-{strain_label}.txt&#34;) as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] &lt; data[data_center]:
+                data_center = i
+        data = data[data_center - side : data_center + side]
+        smooth = savgol_filter(data, 31, 3)
+        plt.plot(data, linewidth=1)
+        plt.plot(smooth, linewidth=1)
+        plt.title(f&#34;{strain_label} in dynamic test&#34;)
+        # Then plot subtraction of smoothed from noisey.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 2)
+        noise = data - smooth
+        plt.plot(noise, label=f&#34;σ = {np.around(np.std(noise), 4)}&#34;)
+        plt.legend()
+        plt.title(f&#34;Noise from {strain_label}&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;params&#34;, &#34;noise-strain.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bridge_sim.internal.make.paramselect.experiment_noise"><code class="name flex">
+<span>def <span class="ident">experiment_noise</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot displacement and strain noise from dynamic test 1</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def experiment_noise(c: Config):
+    &#34;&#34;&#34;Plot displacement and strain noise from dynamic test 1&#34;&#34;&#34;
+    ################
+    # Displacement #
+    ################
+    plt.portrait()
+    # Find points of each sensor.
+    displa_labels = [&#34;U13&#34;, &#34;U26&#34;, &#34;U29&#34;]
+    displa_points = []
+    for displa_label in displa_labels:
+        sensor_x, sensor_z = _displa_sensor_xz(displa_label)
+        displa_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # For each sensor plot and estimate noise.
+    side = 700
+    for s_i, displa_label in enumerate(displa_labels):
+        # First plot the signal, and smoothed signal.
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 1)
+        with open(f&#34;validation/experiment/D1a-{displa_label}.txt&#34;) as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] &lt; data[data_center]:
+                data_center = i
+        data = data[data_center - side : data_center + side]
+        smooth = savgol_filter(data, 31, 3)
+        plt.plot(data, linewidth=1)
+        plt.plot(smooth, linewidth=1)
+        plt.ylim(-0.8, 0.3)
+        plt.title(f&#34;{displa_label} in dynamic test&#34;)
+        # Then plot subtraction of smoothed from noisey.
+        plt.subplot(len(displa_points), 2, (s_i * 2) + 2)
+        noise = data - smooth
+        plt.plot(noise, label=f&#34;σ = {np.around(np.std(noise), 4)}&#34;)
+        plt.legend()
+        plt.title(f&#34;Noise from {displa_label}&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;params&#34;, &#34;noise-displa.pdf&#34;))
+    plt.close()
+
+    ##########
+    # Strain #
+    ##########
+
+    plt.portrait()
+    # Find points of each sensor.
+    strain_labels = [&#34;T1&#34;, &#34;T10&#34;, &#34;T11&#34;]
+    strain_points = []
+    for strain_label in strain_labels:
+        sensor_x, sensor_z = _strain_sensor_xz(strain_label)
+        strain_points.append(Point(x=sensor_x, y=0, z=sensor_z))
+    # For each sensor plot and estimate noise.
+    side = 700
+    xmin, xmax = np.inf, -np.inf
+    for s_i, strain_label in enumerate(strain_labels):
+        # First plot the signal, and smoothed signal.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 1)
+        with open(f&#34;validation/experiment/D1a-{strain_label}.txt&#34;) as f:
+            data = list(map(float, f.readlines()))
+        # Find the center of the plot, minimum point in first 15000 points.
+        data_center = 0
+        for i in range(15000):
+            if data[i] &lt; data[data_center]:
+                data_center = i
+        data = data[data_center - side : data_center + side]
+        smooth = savgol_filter(data, 31, 3)
+        plt.plot(data, linewidth=1)
+        plt.plot(smooth, linewidth=1)
+        plt.title(f&#34;{strain_label} in dynamic test&#34;)
+        # Then plot subtraction of smoothed from noisey.
+        plt.subplot(len(strain_points), 2, (s_i * 2) + 2)
+        noise = data - smooth
+        plt.plot(noise, label=f&#34;σ = {np.around(np.std(noise), 4)}&#34;)
+        plt.legend()
+        plt.title(f&#34;Noise from {strain_label}&#34;)
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;params&#34;, &#34;noise-strain.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+<dt id="bridge_sim.internal.make.paramselect.number_of_uls_plot"><code class="name flex">
+<span>def <span class="ident">number_of_uls_plot</span></span>(<span>c: <a title="bridge_sim.model.Config" href="../../model/index.html#bridge_sim.model.Config">Config</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot error as a function of number of unit load simulations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def number_of_uls_plot(c: Config):
+    &#34;&#34;&#34;Plot error as a function of number of unit load simulations.&#34;&#34;&#34;
+    if not c.shorten_paths:
+        raise ValueError(&#34;This plot requires --shorten-paths true&#34;)
+    response_type = ResponseType.YTranslation
+    num_ulss = np.arange(100, 2000, 10)
+    chosen_uls = 600
+    point = Point(x=c.bridge.x_max - (c.bridge.length / 2), y=0, z=-8.4)
+    wagen1_time = truck1.time_at(x=point.x, bridge=c.bridge)
+    print_i(f&#34;Wagen 1 time at x = {point.x:.3f} is t = {wagen1_time:.3f}&#34;)
+
+    # Determine the reference value.
+    truck_loads = flatten(
+        truck1.to_point_load_pw(time=wagen1_time, bridge=c.bridge), PointLoad
+    )
+    print_i(f&#34;Truck loads = {truck_loads}&#34;)
+    sim_responses = load_fem_responses(
+        c=c,
+        response_type=response_type,
+        sim_runner=OSRunner(c),
+        sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
+    )
+    ref_value = sim_responses.at_deck(point, interp=True) * 1000
+    print_i(f&#34;Reference value = {ref_value}&#34;)
+
+    # Collect the data.
+    total_load = []
+    num_loads = []
+    responses = []
+    for num_uls in num_ulss:
+        c.il_num_loads = num_uls
+        # Nested in here because it depends on the setting of &#39;il_num_loads&#39;.
+        truck_loads = flatten(
+            truck1.to_wheel_track_loads(c=c, time=wagen1_time), PointLoad
+        )
+        num_loads.append(len(truck_loads))
+        total_load.append(sum(map(lambda l: l.kn, truck_loads)))
+        sim_responses = load_fem_responses(
+            c=c,
+            response_type=response_type,
+            sim_runner=OSRunner(c),
+            sim_params=SimParams(ploads=truck_loads, response_types=[response_type]),
+        )
+        responses.append(sim_responses.at_deck(point, interp=True) * 1000)
+
+    # Plot the raw fem, then error on the second axis.
+    plt.landscape()
+    # plt.plot(num_ulss, fem)
+    # plt.ylabel(f&#34;{response_type.name().lower()} (mm)&#34;)
+    plt.xlabel(&#34;ULS&#34;)
+    error = np.abs(np.array(responses) - ref_value).flatten() * 100
+    # ax2 = plt.twinx()
+    plt.plot(num_ulss, error)
+    plt.ylabel(&#34;Error (%)&#34;)
+    plt.title(f&#34;Error in {response_type.name()} to Truck 1 as a function of ULS&#34;)
+    # Plot the chosen number of ULS.
+    chosen_error = np.interp([chosen_uls], num_ulss, error)[0]
+    plt.axhline(
+        chosen_error,
+        label=f&#34;At {chosen_uls} ULS, error = {np.around(chosen_error, 2)} %&#34;,
+        color=&#34;black&#34;,
+    )
+    plt.axhline(
+        0, color=&#34;red&#34;, label=&#34;Response from direct simulation (no wheel tracks)&#34;
+    )
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls.pdf&#34;))
+    plt.close()
+    # Additional verification plots.
+    plt.plot(num_ulss, total_load)
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls-verify-total-load.pdf&#34;))
+    plt.close()
+    plt.plot(num_ulss, num_loads)
+    plt.savefig(c.get_image_path(&#34;paramselection&#34;, &#34;uls-verify-num-loads.pdf&#34;))
+    plt.close()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="bridge_sim.internal.make" href="index.html">bridge_sim.internal.make</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="bridge_sim.internal.make.paramselect.experiment_noise" href="#bridge_sim.internal.make.paramselect.experiment_noise">experiment_noise</a></code></li>
+<li><code><a title="bridge_sim.internal.make.paramselect.number_of_uls_plot" href="#bridge_sim.internal.make.paramselect.number_of_uls_plot">number_of_uls_plot</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

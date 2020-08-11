@@ -144,9 +144,7 @@ def to_vehicles_direct(
 ):
     &#34;&#34;&#34;Responses to vehicles over time (via direct simulation).&#34;&#34;&#34;
     loads = [
-        flatten([
-            v.point_load_pw(config=c, time=time) for v in vehicles
-        ], PointLoad)
+        flatten([v.point_load_pw(config=c, time=time) for v in vehicles], PointLoad)
         for time in times
     ]
     # loads = [v.point_load_pw(c) for v in vehicles]
@@ -1475,9 +1473,7 @@ to data e.g. only every 5 minutes.</dd>
 ):
     &#34;&#34;&#34;Responses to vehicles over time (via direct simulation).&#34;&#34;&#34;
     loads = [
-        flatten([
-            v.point_load_pw(config=c, time=time) for v in vehicles
-        ], PointLoad)
+        flatten([v.point_load_pw(config=c, time=time) for v in vehicles], PointLoad)
         for time in times
     ]
     # loads = [v.point_load_pw(c) for v in vehicles]
