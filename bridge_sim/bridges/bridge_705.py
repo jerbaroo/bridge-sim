@@ -1,5 +1,6 @@
 """The bridge 705 in Amsterdam."""
 
+import math
 import os
 from copy import deepcopy
 
@@ -25,10 +26,10 @@ bridge_705_lanes = [
 ############
 
 # Pier locations in meters (includes bridge beginning and end).
-bridge_705_piers = [0.0]
+bridge_705_piers_x = [0.0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
-    bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
+    bridge_705_piers_x.append(bridge_705_piers_x[-1] + _span_distance)
 
 ##################
 # deck materials #
@@ -114,7 +115,7 @@ bridge_705_piers_z = list(map(lambda x: x - half_width, bridge_705_piers_z))
 bridge_705_piers = []
 pier_rot_stiffnesses = [0, 0, 1e3, 1e3, 0, 0]
 # Ignoring beginning and end of bridge.
-for x_index, _pier_x in enumerate(bridge_705_piers[1:-1]):
+for x_index, _pier_x in enumerate(bridge_705_piers_x[1:-1]):
     for z_index, _pier_z in enumerate(bridge_705_piers_z):
         bridge_705_piers.append(
             Support(

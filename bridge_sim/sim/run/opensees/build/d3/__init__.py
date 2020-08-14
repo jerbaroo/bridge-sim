@@ -179,7 +179,7 @@ def opensees_fixed_abutment_nodes(
     )
 
 
-def opensees_pier_boundary_conditions(c: Config, all_piers_bottom_nodes: List[]):
+def opensees_pier_boundary_conditions(c: Config, all_piers_bottom_nodes):
     """OpenSees commands for stiffness properties at the bottom of each pier.
 
     This function does not add 'node' commands for the nodes at the bottom of
