@@ -20,7 +20,7 @@ from bridge_sim.model import (
     Bridge,
     Config,
 )
-from bridge_sim.util import round_m, safe_str, nearest_index, print_i, print_w, print_d
+from bridge_sim.util import flatten, round_m, safe_str, nearest_index, print_i, print_w, print_d
 from bridge_sim.sim.util import _responses_path, poly_area
 
 D = False
@@ -301,9 +301,9 @@ class BuildContext:
     ):
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
-        self.nodes_by_pos = dict()
-        # A dict of x to dict of y to dict of z to Node.
-        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(dict))
+        self.nodes_by_pos = defaultdict(list)
+        # A dict of x to dict of y to dict of z to list of Node.
+        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
         self.next_s_id = 1
         self.shells_by_id: ShellsById = dict()
@@ -323,17 +323,38 @@ class BuildContext:
         return self.next_s_id - 1
 
     def get_node(
-        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None
+        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None, nth_node=1,
     ) -> Node:
+        """Get a node at given position, creating one first if necessary.
+
+        Args:
+            x: X position of node.
+            y: Y position of node.
+            z: Z position of node.
+            deck: is the node part of the bridge deck?
+            comment: optionalcomment to add to generated model file.
+            nth_node: return the nth node at this position. Example: if
+                'nth_node=2' then instead of already returning an existing node
+                at the requested position, a second node at this position will
+                be created (if necessary) and returned.
+
+        """
+        # TODO: Remove rounding of node positions. Replace with 'float(x)'.
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
-        if pos not in self.nodes_by_pos:
+        # Create if there is no node at this position, or there are not enough
+        # nodes at this position (e.g. 'nth_node=2').
+        #
+        # TODO: handle the case where 'nth_node=2' and no nodes exist at that
+        # position yet.
+        if pos not in self.nodes_by_pos or len(self.nodes_by_pos[pos]) < nth_node:
             n_id = self.new_n_id()
             node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
             self.nodes_by_id[n_id] = node
-            self.nodes_by_pos[pos] = node
-            self.nodes_by_pos_dict[x][y][z] = node
-        return self.nodes_by_pos[pos]
+            self.nodes_by_pos[pos].append(node)
+            self.nodes_by_pos_dict[x][y][z].append(node)
+        # If 'nth_node=1', return the first node at that position (index 0).
+        return self.nodes_by_pos[pos][nth_node - 1]
 
     def get_shell(
         self,
@@ -361,9 +382,10 @@ class BuildContext:
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]
 
-    def get_nodes_at_xy(self, x: float, y: float):
+    def get_nodes_at_xy(self, x: float, y: float) -> List[Node]:
+        """Return a list of all nodes at given X and Y position."""
         x, y = round_m(x), round_m(y)
-        return self.nodes_by_pos_dict[x][y].values()
+        return flatten(self.nodes_by_pos_dict[x][y].values(), Node)
 
 
 class SimParams:

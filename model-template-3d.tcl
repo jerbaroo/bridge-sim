@@ -29,6 +29,8 @@ model basic -ndm 3 -ndf 6
 
 <<PIER_ELEMENTS>>
 
+<<PIER_BOUNDARY_CONDITIONS>>
+
 <<SUPPORTS>>
 
 timeSeries Linear 1

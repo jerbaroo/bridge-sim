@@ -179,14 +179,28 @@ def opensees_fixed_abutment_nodes(
     )
 
 
-def opensees_pier_boundary_conditions(c: Config, all_piers_bottom_nodes):
-    """OpenSees commands for stiffness properties at the bottom of each pier.
-
-    This function does not add 'node' commands for the nodes at the bottom of
-    each pier, these are handled by 'opensees_support_nodes'.
-
-    """
-    pass
+def opensees_pier_boundary_conditions(c: Config, all_pier_nodes: PierNodes, ctx: BuildContext):
+    """OpenSees commands for stiffness properties at the bottom of each pier."""
+    dupe_bottom_nodes = []
+    # For the nodes of each pier.
+    for p_i, pier_nodes in enumerate(all_pier_nodes):
+        pier = c.bridge.supports[p_i]
+        # For each bottom node.
+        for y_i, y_nodes in enumerate(pier_nodes[0]):
+            bottom_node = y_nodes[-1]
+            dupe_bottom_nodes.append(ctx.get_node(
+                x=bottom_node.x,
+                y=bottom_node.y,
+                z=bottom_node.z,
+                deck=bottom_node.deck,
+                comment=bottom_node.comment,
+                nth_node=2,
+            ))
+    return comment(
+        "Duplicate nodes at bottom of each pier",
+        "\n".join(map(lambda n: n.command_3d(), dupe_bottom_nodes)),
+        units="node nodeTag x y z",
+    )
 
 
 def opensees_fixed_pier_nodes(
@@ -590,6 +604,10 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
             .replace(
                 "<<PIER_SECTIONS>>",
                 opensees_pier_sections(c=c, all_pier_elements=pier_shells),
+            )
+            .replace(
+                "<<PIER_BOUNDARY_CONDITIONS>>",
+                opensees_pier_boundary_conditions(c=c, all_pier_nodes=pier_nodes, ctx=sim_ctx)
             )
             .replace(
                 "<<INTEGRATOR>>",
