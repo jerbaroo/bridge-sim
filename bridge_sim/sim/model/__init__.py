@@ -267,7 +267,7 @@ class Shell:
         repr_section = repr(self.section).replace("\n", " ")
         return (
             f"element ShellMITC4 {self.e_id} {self.ni_id} {self.nj_id}"
-            + f" {self.nk_id} {self.nl_id} {self.section.id}; # {repr_section}"
+            + f" {self.nk_id} {self.nl_id} {self.section.id}"
         )
 
 
