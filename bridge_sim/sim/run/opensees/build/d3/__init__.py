@@ -179,15 +179,25 @@ def opensees_fixed_abutment_nodes(
     )
 
 
+def opensees_pier_boundary_conditions(c: Config, all_piers_bottom_nodes: List[]):
+    """OpenSees commands for stiffness properties at the bottom of each pier.
+
+    This function does not add 'node' commands for the nodes at the bottom of
+    each pier, these are handled by 'opensees_support_nodes'.
+
+    """
+    pass
+
+
 def opensees_fixed_pier_nodes(
     c: Config,
     sim_params: SimParams,
     all_support_nodes: PierNodes,
     pier_disp: List[PierSettlement],
 ) -> str:
-    # TODO: Remove this function?
-    return ""
     """OpenSees fix commands for fixed pier nodes."""
+    # TODO: Remove this function. Ensure pier settlement case is handled.
+    return ""
     # First, for thermal loading, we determine the piers at each longitudinal
     # (x) position, so for each x position we can then determine which piers
     # will be fixed in transverse (z) translation.
