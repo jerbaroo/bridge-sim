@@ -271,6 +271,17 @@ class Shell:
         )
 
 
+class UniaxialMaterial:
+    """Boundary condition spring stiffness."""
+    def __init__(self, mat_id, stiffness):
+        self.id = mat_id
+        self.stiffness = stiffness
+
+    def __repr__(self):
+        """Human readable representation."""
+        return f"Uniaxial Material: ID = {self.id}, stiffness = {self.stiffness}"
+
+
 ShellsById = NewType("ShellsById", Dict[int, Shell])
 # Shells for a bridge deck.
 DeckShells = NewType("DeckShells", List[List[Shell]])
@@ -285,42 +296,64 @@ BridgeShells = NewType("BridgeShells", Tuple[DeckShells, PierShells])
 
 
 class BuildContext:
-    """Stores nodes and shells for a FEM being built.
+    """Stores nodes, shells and other objects for a FE model file being built.
+
+    A 'BuildContext' is useful in that you can query for an object such as a
+    'Node' with properties that uniquely identify that object. The
+    'BuildContext' will ensure duplicate objects are not created and IDs remain
+    unique.
 
     Args:
-        add_loads: List[Point], additional grid lines where to add nodes.
-        refinement_radii: List[float], radii for sweeps to refine around loads.
+        add_loads: points on the deck where, for each point, additional nodes
+            are placed along the bridge deck in both X and Z directions.
 
     """
-
     def __init__(
         self,
         add_loads: List[Point],
         refinement_radii: List[float] = [],
         # refinement_radii: List[float] = [2, 1, 0.5],
     ):
+        # Next unique 'Node' identifier.
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
+        # A dict of (X, Y, Z) to list of 'Node'.
         self.nodes_by_pos = defaultdict(list)
-        # A dict of x to dict of y to dict of z to list of Node.
+        # A dict of X to dict of Y to dict of X to list of 'Node'.
         self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
+        # Next unique 'Shell' identifier.
         self.next_s_id = 1
         self.shells_by_id: ShellsById = dict()
+        # A dict of 'Node' identifiers to 'Shell' that the node belongs to.
         self.shells_by_n_ids = dict()
 
+        # Next unique material identifier.
+        self.next_mat_id = 1
+        # A dict of stiffness to 'UniaxialMaterial'.
+        self.uniaxial_materials = dict()
+
+        # Ensure each addition point is on the deck.
         self.add_loads = add_loads
         for point in self.add_loads:
             assert point.y == 0
+
         self.refinement_radii = refinement_radii
 
     def new_n_id(self):
+        """Next unique 'Node' identifier. For internal use only."""
         self.next_n_id += 1
         return self.next_n_id - 1
 
     def new_s_id(self):
+        """Next unique 'Shell' identifier. For internal use only."""
         self.next_s_id += 1
         return self.next_s_id - 1
+
+    def new_mat_id(self):
+        """Next unique material identifier. For internal use only."""
+        self.next_mat_id += 1
+        return self.next_mat_id - 1
 
     def get_node(
         self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None, nth_node=1,
@@ -332,21 +365,20 @@ class BuildContext:
             y: Y position of node.
             z: Z position of node.
             deck: is the node part of the bridge deck?
-            comment: optionalcomment to add to generated model file.
+            comment: optional comment to add to generated model file.
             nth_node: return the nth node at this position. Example: if
                 'nth_node=2' then instead of already returning an existing node
                 at the requested position, a second node at this position will
                 be created (if necessary) and returned.
 
         """
+        # TODO: handle the case where 'nth_node=2' and no nodes exist at that
+        # position yet.
         # TODO: Remove rounding of node positions. Replace with 'float(x)'.
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
         # Create if there is no node at this position, or there are not enough
         # nodes at this position (e.g. 'nth_node=2').
-        #
-        # TODO: handle the case where 'nth_node=2' and no nodes exist at that
-        # position yet.
         if pos not in self.nodes_by_pos or len(self.nodes_by_pos[pos]) < nth_node:
             n_id = self.new_n_id()
             node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
@@ -381,6 +413,15 @@ class BuildContext:
             self.shells_by_n_ids[n_ids] = shell
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]
+
+    def get_uniaxial_material(stiffness: float):
+        """'UniaxialMaterial' with given stiffness, created if necessary."""
+        if stiffness not in self.uniaxial_materials:
+            self.uniaxial_materials[stiffness] = UniaxialMaterial(
+                id=self.next_max_id(),
+                stiffness=stiffness,
+            )
+        return self.uniaxial_materials[stiffness]
 
     def get_nodes_at_xy(self, x: float, y: float) -> List[Node]:
         """Return a list of all nodes at given X and Y position."""

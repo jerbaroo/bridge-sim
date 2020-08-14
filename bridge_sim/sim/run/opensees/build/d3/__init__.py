@@ -179,11 +179,24 @@ def opensees_fixed_abutment_nodes(
     )
 
 
+def opensees_uniaxial_material(material_id, stiffness):
+    """OpenSees UniaxialMaterial TCL command.
+
+    https://opensees.berkeley.edu/wiki/index.php/Elastic_Uniaxial_Material
+
+    """
+    if not stiffness_under_compression:
+        stiffness_under_compression = stiffness
+    return f"uniaxialMaterial Elastic {material_id} {stiffness * 1E6}"
+
+
 def opensees_pier_boundary_conditions(c: Config, all_pier_nodes: PierNodes, ctx: BuildContext):
     """OpenSees commands for stiffness properties at the bottom of each pier."""
-    dupe_bottom_nodes = []
+    dupe_bottom_nodes, uniaxial_materials, zero_length_elements = [], [], []
     # For the nodes of each pier.
     for p_i, pier_nodes in enumerate(all_pier_nodes):
+        # TODO: Add uniaxial materials.
+        # TODO: Add zerolength elements.
         pier = c.bridge.supports[p_i]
         # For each bottom node.
         for y_i, y_nodes in enumerate(pier_nodes[0]):
@@ -196,6 +209,9 @@ def opensees_pier_boundary_conditions(c: Config, all_pier_nodes: PierNodes, ctx:
                 comment=bottom_node.comment,
                 nth_node=2,
             ))
+    # TODO: Return uniaxial materials string.
+    # TODO: Return zerolength elements string.
+    return ""
     return comment(
         "Duplicate nodes at bottom of each pier",
         "\n".join(map(lambda n: n.command_3d(), dupe_bottom_nodes)),
