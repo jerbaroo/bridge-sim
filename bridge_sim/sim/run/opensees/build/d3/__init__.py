@@ -185,7 +185,9 @@ def opensees_fixed_pier_nodes(
     all_support_nodes: PierNodes,
     pier_disp: List[PierSettlement],
 ) -> str:
-    """OpenSees fix commands for fixed support nodes."""
+    # TODO: Remove this function?
+    return ""
+    """OpenSees fix commands for fixed pier nodes."""
     # First, for thermal loading, we determine the piers at each longitudinal
     # (x) position, so for each x position we can then determine which piers
     # will be fixed in transverse (z) translation.
@@ -202,8 +204,8 @@ def opensees_fixed_pier_nodes(
     # pier wall. And each wall is a 2-d array of nodes.
     for p_i, p_nodes in enumerate(all_support_nodes):
         pier = c.bridge.supports[p_i]
-        # If pier displacement for this pier then select the bottom central node
-        # for the integrator command, and attach it to the pier.
+        # If settling this pier then select the bottom central node for the
+        # integrator command, and attach it to the pier.
         free_y_trans = False
         for ps in pier_disp:
             if p_i == ps.pier:
@@ -213,9 +215,8 @@ def opensees_fixed_pier_nodes(
                 if len(p_nodes[0]) % 2 == 0:
                     print_w("Pier settlement:")
                     print_w("  no central node (even number of nodes)")
-        # For each ~vertical line of nodes for a z position at top of wall.
+        # Fix each bottom node.
         for y_i, y_nodes in enumerate(p_nodes[0]):
-            # We will fix the bottom node.
             node = y_nodes[-1]
             fixed_nodes.append(
                 FixNode(
@@ -521,7 +522,7 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
                 ),
             )
             .replace(
-                "<<FIX_SUPPORTS>>",
+                "<<FIX_PIERS>>",
                 opensees_fixed_pier_nodes(
                     c=c,
                     sim_params=sim_params,

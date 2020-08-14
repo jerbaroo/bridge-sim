@@ -1,5 +1,6 @@
 """Classes for building bridges and running simulations."""
 
+import math
 import os
 from enum import Enum
 from itertools import chain
@@ -351,6 +352,42 @@ class Dimensions(Enum):
         return {Dimensions.D3: "3D",}[self]
 
 
+class LineSpringSupport:
+    """Spring boundary condition at the bottom of a VPier.
+
+    Determines the stiffness for each DOF at the bottom of a VPier.
+
+    """
+    def __init__(
+        self,
+        stiffness_x_translation: float = math.inf,
+        stiffness_z_translation: float = math.inf,
+        stiffness_y_translation: float = math.inf,
+        stiffness_x_rotation: float = 0,
+        stiffness_z_rotation: float = 0,
+        stiffness_y_rotation: float = 0,
+    ):
+        self.stiffness_x_translation = stiffness_x_translation
+        self.stiffness_y_translation = stiffness_y_translation
+        self.stiffness_z_translation = stiffness_z_translation
+        self.stiffness_x_rotation = stiffness_x_rotation
+        self.stiffness_y_rotation = stiffness_y_rotation
+        self.stiffness_z_rotation = stiffness_z_rotation
+
+    def __repr__(self):
+        """Human readable representation of this boundary condition."""
+        return (
+            f"Translational stiffness:"
+            f" X = {self.stiffness_x_translation},"
+            f" Y = {self.stiffness_y_translation},"
+            f" Z = {self.stiffness_z_translation}\n"
+            f"Rotational stiffness:"
+            f" X = {self.stiffness_x_rotation},"
+            f" Y = {self.stiffness_y_rotation},"
+            f" Z = {self.stiffness_z_rotation}"
+        )
+
+
 class Support:
     """A support of the bridge deck, when 3D modeling.
 
@@ -394,6 +431,7 @@ class Support:
         width_top: width of the top of the support in meters.
         width_bottom: width of the bottom of the support in meters.
         materials: deck materials, either a list or function from X position.
+        support: support at the bottom of the pier.
 
     """
 
@@ -406,12 +444,7 @@ class Support:
         width_top: float,
         width_bottom: float,
         materials: Union[List["MaterialSupport"], Callable[[float], "MaterialSupport"]],
-        fix_x_translation: bool,
-        fix_z_translation: bool,
-        fix_y_translation: bool = True,
-        fix_x_rotation: bool = False,
-        fix_z_rotation: bool = False,
-        fix_y_rotation: bool = False,
+        support: LineSpringSupport,
     ):
         self.x = x
         self.z = z
@@ -419,12 +452,9 @@ class Support:
         self.height = height
         self.width_top = width_top
         self.width_bottom = width_bottom
-        self.fix_x_translation = fix_x_translation
-        self.fix_y_translation = fix_y_translation
-        self.fix_z_translation = fix_z_translation
-        self.fix_x_rotation = fix_x_rotation
-        self.fix_y_rotation = fix_y_rotation
-        self.fix_z_rotation = fix_z_rotation
+        # TODO: Fix all references to this old attribute.
+        self.fix_x_translation = False
+        self.support = support
         self._sections = materials
         # Must be callable or a list.
         if not callable(self._sections):
