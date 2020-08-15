@@ -15,6 +15,8 @@ from bridge_sim.sim.model import (
     Node,
     PierNodes,
     PierShells,
+    UniaxialMaterial,
+    ZeroLengthElement,
     SimParams,
 )
 from bridge_sim.sim.build import (
@@ -179,43 +181,123 @@ def opensees_fixed_abutment_nodes(
     )
 
 
-def opensees_uniaxial_material(material_id, stiffness):
+def opensees_uniaxial_material(
+    material_id,
+    stiffness,
+    damping_tangent: float = 0.0,
+    stiffness_under_compression: float = None,
+):
     """OpenSees UniaxialMaterial TCL command.
 
     https://opensees.berkeley.edu/wiki/index.php/Elastic_Uniaxial_Material
-
+    TODO: check units!
     """
     if not stiffness_under_compression:
         stiffness_under_compression = stiffness
-    return f"uniaxialMaterial Elastic {material_id} {stiffness * 1E6}"
+    return (
+        f"uniaxialMaterial Elastic {material_id} {stiffness * 1E6} "
+        f"{damping_tangent} {stiffness_under_compression}"
+    )
 
 
-def opensees_pier_boundary_conditions(c: Config, all_pier_nodes: PierNodes, ctx: BuildContext):
+def opensees_pier_boundary_conditions(
+    c: Config, all_pier_nodes: PierNodes, ctx: BuildContext
+):
     """OpenSees commands for stiffness properties at the bottom of each pier."""
-    dupe_bottom_nodes, uniaxial_materials, zero_length_elements = [], [], []
+    (
+        all_bottom_nodes,
+        all_dupe_bottom_nodes,
+        all_uniaxial_materials,
+        all_zero_length_elements,
+    ) = ([], [], [], [])
     # For the nodes of each pier.
     for p_i, pier_nodes in enumerate(all_pier_nodes):
-        # TODO: Add uniaxial materials.
-        # TODO: Add zerolength elements.
-        pier = c.bridge.supports[p_i]
-        # For each bottom node.
-        for y_i, y_nodes in enumerate(pier_nodes[0]):
-            bottom_node = y_nodes[-1]
-            dupe_bottom_nodes.append(ctx.get_node(
-                x=bottom_node.x,
-                y=bottom_node.y,
-                z=bottom_node.z,
-                deck=bottom_node.deck,
-                comment=bottom_node.comment,
-                nth_node=2,
-            ))
-    # TODO: Return uniaxial materials string.
-    # TODO: Return zerolength elements string.
-    return ""
-    return comment(
+        stiffness_z_rotation = c.bridge.supports[p_i].support.stiffness_z_rotation
+        if stiffness_z_rotation != 0:
+            pier = c.bridge.supports[p_i]
+            bottom_nodes, dupe_bottom_nodes, zero_length_elements = [], [], []
+            n_pier_bottom_node = len(pier_nodes[0])
+            bottom_node_coords = np.empty((n_pier_bottom_node, 3))
+            bottom_node_ids = np.empty(n_pier_bottom_node, dtype=int)
+            dupe_bottom_node_ids = np.empty(n_pier_bottom_node, dtype=int)
+            # For each bottom node.
+            for y_i, y_nodes in enumerate(pier_nodes[0]):
+                bottom_node = y_nodes[-1]
+                dupe_bottom_node = ctx.get_node(
+                    x=bottom_node.x,
+                    y=bottom_node.y,
+                    z=bottom_node.z,
+                    deck=bottom_node.deck,
+                    comment=bottom_node.comment,
+                    nth_node=2,
+                )
+                bottom_nodes.append(bottom_node)
+                dupe_bottom_nodes.append(dupe_bottom_node)
+                bottom_node_coords[y_i, :] = [
+                    bottom_node.x,
+                    bottom_node.y,
+                    bottom_node.z,
+                ]
+                bottom_node_ids[y_i] = bottom_node.n_id
+                dupe_bottom_node_ids[y_i] = dupe_bottom_node.n_id
+
+            diff = np.diff(bottom_node_coords, axis=0)
+            diff_dist = np.sum(diff ** 2, axis=1)
+            node_dist = np.sum(
+                np.vstack((np.hstack((0, diff_dist)), np.hstack((diff_dist, 0)))),
+                axis=0,
+            )
+
+            spring_stiffnesses = stiffness_z_rotation * node_dist / np.sum(node_dist)
+            uniaxial_materials = [
+                ctx.get_uniaxial_material(spring_stiffness)
+                for spring_stiffness in spring_stiffnesses
+            ]
+            # TODO: take only the unique values from uniaxial_materials; there are
+            #  duplicates
+            for uniaxial_material, bottom_node, dupe_bottom_node in zip(
+                uniaxial_materials, bottom_nodes, dupe_bottom_nodes
+            ):
+                zero_length_elements.append(
+                    ctx.get_zerolength_element(
+                        n_i=dupe_bottom_node.n_id,
+                        n_j=bottom_node.n_id,
+                        m_id=uniaxial_material.m_id,
+                        dir_=6,
+                    )
+                )
+
+            all_zero_length_elements.append(zero_length_elements)
+            all_uniaxial_materials.append(uniaxial_materials)
+            all_bottom_nodes.append(bottom_nodes)
+            all_dupe_bottom_nodes.append(dupe_bottom_nodes)
+
+    all_dupe_bottom_nodes_flat = flatten(all_dupe_bottom_nodes, Node)
+    all_uniaxial_materials_flat = flatten(all_uniaxial_materials, UniaxialMaterial)
+    all_zero_length_elements_flat = flatten(all_zero_length_elements, ZeroLengthElement)
+
+    all_dupe_bottom_nodes_os_code = comment(
         "Duplicate nodes at bottom of each pier",
-        "\n".join(map(lambda n: n.command_3d(), dupe_bottom_nodes)),
+        "\n".join(map(lambda n: n.command_3d(), all_dupe_bottom_nodes_flat)),
         units="node nodeTag x y z",
+    )
+    all_uniaxial_materials_os_code = comment(
+        "Spring stiffnesses at the bottom of the piers",
+        "\n".join(map(lambda m: m.command_3d(), all_uniaxial_materials_flat)),
+        units="uniaxialMaterial Elastic matId E",
+    )
+    all_zero_length_elements_os_code = comment(
+        "Spring stiffnesses at the bottom of the piers",
+        "\n".join(map(lambda e: e.command_3d(), all_zero_length_elements_flat)),
+        units="element zeroLength eleTag iNode jNode -mat matTag1 -dir_ dir1",
+    )
+    # return ""
+    return (
+        all_dupe_bottom_nodes_os_code
+        + "\n\n"
+        + all_uniaxial_materials_os_code
+        + "\n\n"
+        + all_zero_length_elements_os_code
     )
 
 
@@ -301,7 +383,7 @@ def opensees_section(section: Material):
     # Old isotropic method.
     raise ValueError("Not using orthotropic method")
     return (
-        f"section ElasticMembranePlateSection {section.id}"
+        f"section ElasticMembranePlateSection {section.m_id}"
         + f" {section.youngs * 1E6} {section.poissons} {section.thickness}"
         + f" {section.density * 1E-3}"
     )
@@ -623,7 +705,9 @@ def build_model_3d(c: Config, expt_params: List[SimParams], os_runner: "OSRunner
             )
             .replace(
                 "<<PIER_BOUNDARY_CONDITIONS>>",
-                opensees_pier_boundary_conditions(c=c, all_pier_nodes=pier_nodes, ctx=sim_ctx)
+                opensees_pier_boundary_conditions(
+                    c=c, all_pier_nodes=pier_nodes, ctx=sim_ctx
+                ),
             )
             .replace(
                 "<<INTEGRATOR>>",

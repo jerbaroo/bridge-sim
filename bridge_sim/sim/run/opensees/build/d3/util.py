@@ -9,3 +9,7 @@ def comment(c: str, inner: str, units: Optional[str] = None):
     """
     units_str = "" if units is None else f"# {units}\n"
     return units_str + f"# Begin {c}\n" + inner + f"\n# End {c}"
+
+
+def flatten_list(x: list):
+    return [item for sublist in x for item in sublist]

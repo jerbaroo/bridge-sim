@@ -815,7 +815,7 @@ def make_convergence_data(c: Config, x: float = 34.955, z: float = 29.226 - 16.6
     strain_path = c.get_image_path("convergence", "strain-inf.txt", bridge=False)
     with open(strain_path, "w") as f:
         # Simulation parameters, direction recording, and recordings.
-        f.write("max_mesh,decknodes,piernodes,dir,recs")
+        f.write("max_mesh,decknodes,piernodes,dir_,recs")
 
     max_shell_lens = list(np.arange(10, 2 - 0.00001, -1))
     max_shell_lens += list(np.arange(1.9, 1 - 0.00001, -0.1))

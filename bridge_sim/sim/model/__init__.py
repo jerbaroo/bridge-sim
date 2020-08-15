@@ -20,7 +20,15 @@ from bridge_sim.model import (
     Bridge,
     Config,
 )
-from bridge_sim.util import flatten, round_m, safe_str, nearest_index, print_i, print_w, print_d
+from bridge_sim.util import (
+    flatten,
+    round_m,
+    safe_str,
+    nearest_index,
+    print_i,
+    print_w,
+    print_d,
+)
 from bridge_sim.sim.util import _responses_path, poly_area
 
 D = False
@@ -272,14 +280,52 @@ class Shell:
 
 
 class UniaxialMaterial:
-    """Boundary condition spring stiffness."""
-    def __init__(self, mat_id, stiffness):
-        self.id = mat_id
+    """Uniaxial material. Used for boundary condition spring stiffness."""
+
+    def __init__(self, m_id: int, stiffness: float, comment: Optional[str] = None):
+        self.m_id = m_id
         self.stiffness = stiffness
+        self.comment = comment
 
     def __repr__(self):
         """Human readable representation."""
-        return f"Uniaxial Material: ID = {self.id}, stiffness = {self.stiffness}"
+        return f"Uniaxial Material: ID = {self.m_id}, stiffness = {self.stiffness}"
+
+    def command_3d(self):
+        """OpenSees uniaxial material command."""
+        comment = "" if self.comment is None else f"; # {self.comment}"
+        return (
+            f"uniaxialMaterial Elastic {self.m_id} {round_m(self.stiffness)}"
+            + f"{comment}"
+        )
+
+
+class ZeroLengthElement:
+    """Zero length element. Used for boundary condition spring."""
+
+    def __init__(
+        self,
+        e_id: int,
+        n_i: int,
+        n_j: int,
+        m_id: int,
+        dir_: int,
+        comment: Optional[str] = None,
+    ):
+        self.e_id = e_id
+        self.n_i = n_i
+        self.n_j = n_j
+        self.m_id = m_id
+        self.dir_ = dir_
+        self.comment = comment
+
+    def command_3d(self):
+        """OpenSees zeroLength element command."""
+        comment = "" if self.comment is None else f"; # {self.comment}"
+        return (
+            f"element zeroLength {self.e_id} {self.n_i} {self.n_j} "
+            + f"-mat {self.m_id} -dir {self.dir_} {comment}"
+        )
 
 
 ShellsById = NewType("ShellsById", Dict[int, Shell])
@@ -308,6 +354,7 @@ class BuildContext:
             are placed along the bridge deck in both X and Z directions.
 
     """
+
     def __init__(
         self,
         add_loads: List[Point],
@@ -320,7 +367,9 @@ class BuildContext:
         # A dict of (X, Y, Z) to list of 'Node'.
         self.nodes_by_pos = defaultdict(list)
         # A dict of X to dict of Y to dict of X to list of 'Node'.
-        self.nodes_by_pos_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        self.nodes_by_pos_dict = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(list))
+        )
 
         # Next unique 'Shell' identifier.
         self.next_s_id = 1
@@ -329,7 +378,7 @@ class BuildContext:
         self.shells_by_n_ids = dict()
 
         # Next unique material identifier.
-        self.next_mat_id = 1
+        self.next_m_id = 1
         # A dict of stiffness to 'UniaxialMaterial'.
         self.uniaxial_materials = dict()
 
@@ -350,13 +399,19 @@ class BuildContext:
         self.next_s_id += 1
         return self.next_s_id - 1
 
-    def new_mat_id(self):
+    def new_m_id(self):
         """Next unique material identifier. For internal use only."""
-        self.next_mat_id += 1
-        return self.next_mat_id - 1
+        self.next_m_id += 1
+        return self.next_m_id - 1
 
     def get_node(
-        self, x: float, y: float, z: float, deck: bool, comment: Optional[str] = None, nth_node=1,
+        self,
+        x: float,
+        y: float,
+        z: float,
+        deck: bool,
+        comment: Optional[str] = None,
+        nth_node=1,
     ) -> Node:
         """Get a node at given position, creating one first if necessary.
 
@@ -414,14 +469,18 @@ class BuildContext:
             self.shells_by_id[s_id] = shell
         return self.shells_by_n_ids[n_ids]
 
-    def get_uniaxial_material(stiffness: float):
+    def get_uniaxial_material(self, stiffness: float):
         """'UniaxialMaterial' with given stiffness, created if necessary."""
+        # TODO: take care of duplicates, close stiffness values
         if stiffness not in self.uniaxial_materials:
             self.uniaxial_materials[stiffness] = UniaxialMaterial(
-                id=self.next_max_id(),
-                stiffness=stiffness,
+                m_id=self.new_m_id(), stiffness=stiffness,
             )
         return self.uniaxial_materials[stiffness]
+
+    # TODO: make this function as the others, requires self.new_e_id()
+    def get_zerolength_element(self, n_i: int, n_j: int, m_id: int, dir_: int):
+        return ZeroLengthElement(e_id=1, n_i=n_i, n_j=n_j, m_id=m_id, dir_=dir_)
 
     def get_nodes_at_xy(self, x: float, y: float) -> List[Node]:
         """Return a list of all nodes at given X and Y position."""
