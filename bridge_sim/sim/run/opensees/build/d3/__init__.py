@@ -241,8 +241,9 @@ def opensees_pier_boundary_conditions(
                 bottom_node_ids[y_i] = bottom_node.n_id
                 dupe_bottom_node_ids[y_i] = dupe_bottom_node.n_id
 
-            diff = np.diff(bottom_node_coords, axis=0)
-            diff_dist = np.sum(diff ** 2, axis=1)
+            # diff = np.diff(bottom_node_coords, axis=0)
+            # diff_dist = np.sum(diff ** 2, axis=1)
+            diff_dist = np.diff(bottom_node_coords[:,2])
             node_dist = np.sum(
                 np.vstack((np.hstack((0, diff_dist)), np.hstack((diff_dist, 0)))),
                 axis=0,
