@@ -212,14 +212,16 @@ def opensees_pier_boundary_conditions(
     ) = ([], [], [], [])
     # For the nodes of each pier.
     for p_i, pier_nodes in enumerate(all_pier_nodes):
-        stiffness_z_rotation = c.bridge.supports[p_i].support.stiffness_z_rotation
+        pier = c.bridge.supports[p_i]
+        stiffness_z_rotation = pier.support.stiffness_z_rotation
         if stiffness_z_rotation != 0:
-            pier = c.bridge.supports[p_i]
             bottom_nodes, dupe_bottom_nodes, zero_length_elements = [], [], []
-            n_pier_bottom_node = len(pier_nodes[0])
-            bottom_node_coords = np.empty((n_pier_bottom_node, 3))
-            bottom_node_ids = np.empty(n_pier_bottom_node, dtype=int)
-            dupe_bottom_node_ids = np.empty(n_pier_bottom_node, dtype=int)
+            num_pier_bottom_nodes = len(pier_nodes[0])
+            # Coordinates for each node at the bottom of the pier.
+            bottom_node_coords = np.empty((num_pier_bottom_nodes, 3))
+            # Node IDs for nodes at the bottom of the pier.
+            bottom_node_ids = np.empty(num_pier_bottom_nodes, dtype=int)
+            dupe_bottom_node_ids = np.empty(num_pier_bottom_nodes, dtype=int)
             # For each bottom node.
             for y_i, y_nodes in enumerate(pier_nodes[0]):
                 bottom_node = y_nodes[-1]
@@ -240,9 +242,13 @@ def opensees_pier_boundary_conditions(
                 ]
                 bottom_node_ids[y_i] = bottom_node.n_id
                 dupe_bottom_node_ids[y_i] = dupe_bottom_node.n_id
-
+            # Now that we have the neccesary data from the bottom nodes,
+            # we will calculate the elements and materials.
+            #
             # diff = np.diff(bottom_node_coords, axis=0)
             # diff_dist = np.sum(diff ** 2, axis=1)
+            #
+            # TODO: Comment on diff_dist and node_dist.
             diff_dist = np.diff(bottom_node_coords[:,2])
             node_dist = np.sum(
                 np.vstack((np.hstack((0, diff_dist)), np.hstack((diff_dist, 0)))),
@@ -254,8 +260,6 @@ def opensees_pier_boundary_conditions(
                 ctx.get_uniaxial_material(spring_stiffness)
                 for spring_stiffness in spring_stiffnesses
             ]
-            # TODO: take only the unique values from uniaxial_materials; there are
-            #  duplicates
             for uniaxial_material, bottom_node, dupe_bottom_node in zip(
                 uniaxial_materials, bottom_nodes, dupe_bottom_nodes
             ):
@@ -273,8 +277,12 @@ def opensees_pier_boundary_conditions(
             all_bottom_nodes.append(bottom_nodes)
             all_dupe_bottom_nodes.append(dupe_bottom_nodes)
 
+    unique_flat = lambda xs, t: list(set(flatten(xs, t)))
+    # TODO: If the information provided by having these nested lists is not
+    # required. Then the code can be shortened by creating sets on line 207
+    # instead of lists, and adding directly to these.
     all_dupe_bottom_nodes_flat = flatten(all_dupe_bottom_nodes, Node)
-    all_uniaxial_materials_flat = flatten(all_uniaxial_materials, UniaxialMaterial)
+    all_uniaxial_materials_flat = unique_flat(all_uniaxial_materials, UniaxialMaterial)
     all_zero_length_elements_flat = flatten(all_zero_length_elements, ZeroLengthElement)
 
     all_dupe_bottom_nodes_os_code = comment(
