@@ -364,8 +364,8 @@ class BuildContext:
         # Next unique 'Node' identifier.
         self.next_n_id = 1
         self.nodes_by_id: NodesById = dict()
-        # A dict of (X, Y, Z) to list of 'Node'.
-        self.nodes_by_pos = defaultdict(list)
+        # A dict of (X, Y, Z) to: dict of 'Node' indexed by int.
+        self.nodes_by_pos = defaultdict(dict)
         # A dict of X to dict of Y to dict of X to list of 'Node'.
         self.nodes_by_pos_dict = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
@@ -428,21 +428,20 @@ class BuildContext:
                 be created (if necessary) and returned.
 
         """
-        # TODO: handle the case where 'nth_node=2' and no nodes exist at that
-        # position yet.
         # TODO: Remove rounding of node positions. Replace with 'float(x)'.
         x, y, z = round_m(x), round_m(y), round_m(z)
         pos = (x, y, z)
-        # Create if there is no node at this position, or there are not enough
-        # nodes at this position (e.g. 'nth_node=2').
-        if pos not in self.nodes_by_pos or len(self.nodes_by_pos[pos]) < nth_node:
+        # Create if there is no nth node at this position.
+        if (
+                pos not in self.nodes_by_pos
+                or nth_node not in self.nodes_by_pos[pos]
+        ):
             n_id = self.new_n_id()
             node = Node(n_id=n_id, x=x, y=y, z=z, deck=deck, comment=comment)
             self.nodes_by_id[n_id] = node
-            self.nodes_by_pos[pos].append(node)
+            self.nodes_by_pos[pos][nth_node] = node
             self.nodes_by_pos_dict[x][y][z].append(node)
-        # If 'nth_node=1', return the first node at that position (index 0).
-        return self.nodes_by_pos[pos][nth_node - 1]
+        return self.nodes_by_pos[pos][nth_node]
 
     def get_shell(
         self,
