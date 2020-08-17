@@ -998,7 +998,177 @@ fix 715 0 1 1 0 0 0
 fix 735 0 1 1 0 0 0
 # End fixed deck nodes
 
-
+# fix nodeTag x y z rx ry rz
+# Begin fixed support nodes
+fix 736 0 1 1 0 0 0; # pier 0 y 0
+fix 737 0 1 1 0 0 0; # pier 0 y 1
+fix 738 0 1 1 0 0 0; # pier 0 y 2
+fix 739 0 1 1 0 0 0; # pier 0 y 3
+fix 740 0 1 1 0 0 0; # pier 0 y 4
+fix 741 0 1 1 0 0 0; # pier 0 y 5
+fix 742 0 1 1 0 0 0; # pier 1 y 0
+fix 743 0 1 1 0 0 0; # pier 1 y 1
+fix 744 0 1 1 0 0 0; # pier 1 y 2
+fix 745 0 1 1 0 0 0; # pier 1 y 3
+fix 746 0 1 1 0 0 0; # pier 1 y 4
+fix 747 0 1 1 0 0 0; # pier 1 y 5
+fix 748 0 1 1 0 0 0; # pier 1 y 6
+fix 749 0 1 1 0 0 0; # pier 1 y 7
+fix 750 0 1 1 0 0 0; # pier 2 y 0
+fix 751 0 1 1 0 0 0; # pier 2 y 1
+fix 752 0 1 1 0 0 0; # pier 2 y 2
+fix 753 0 1 1 0 0 0; # pier 2 y 3
+fix 754 0 1 1 0 0 0; # pier 2 y 4
+fix 755 0 1 1 0 0 0; # pier 2 y 5
+fix 756 0 1 1 0 0 0; # pier 2 y 6
+fix 757 0 1 1 0 0 0; # pier 2 y 7
+fix 758 0 1 1 0 0 0; # pier 3 y 0
+fix 759 0 1 1 0 0 0; # pier 3 y 1
+fix 760 0 1 1 0 0 0; # pier 3 y 2
+fix 761 0 1 1 0 0 0; # pier 3 y 3
+fix 762 0 1 1 0 0 0; # pier 3 y 4
+fix 763 0 1 1 0 0 0; # pier 3 y 5
+fix 764 0 1 1 0 0 0; # pier 4 y 0
+fix 765 0 1 1 0 0 0; # pier 4 y 1
+fix 766 0 1 1 0 0 0; # pier 4 y 2
+fix 767 0 1 1 0 0 0; # pier 4 y 3
+fix 768 0 1 1 0 0 0; # pier 4 y 4
+fix 769 0 1 1 0 0 0; # pier 4 y 5
+fix 770 0 1 1 0 0 0; # pier 5 y 0
+fix 771 0 1 1 0 0 0; # pier 5 y 1
+fix 772 0 1 1 0 0 0; # pier 5 y 2
+fix 773 0 1 1 0 0 0; # pier 5 y 3
+fix 774 0 1 1 0 0 0; # pier 5 y 4
+fix 775 0 1 1 0 0 0; # pier 5 y 5
+fix 776 0 1 1 0 0 0; # pier 5 y 6
+fix 777 0 1 1 0 0 0; # pier 5 y 7
+fix 778 0 1 1 0 0 0; # pier 6 y 0
+fix 779 0 1 1 0 0 0; # pier 6 y 1
+fix 780 0 1 1 0 0 0; # pier 6 y 2
+fix 781 0 1 1 0 0 0; # pier 6 y 3
+fix 782 0 1 1 0 0 0; # pier 6 y 4
+fix 783 0 1 1 0 0 0; # pier 6 y 5
+fix 784 0 1 1 0 0 0; # pier 6 y 6
+fix 785 0 1 1 0 0 0; # pier 6 y 7
+fix 786 0 1 1 0 0 0; # pier 7 y 0
+fix 787 0 1 1 0 0 0; # pier 7 y 1
+fix 788 0 1 1 0 0 0; # pier 7 y 2
+fix 789 0 1 1 0 0 0; # pier 7 y 3
+fix 790 0 1 1 0 0 0; # pier 7 y 4
+fix 791 0 1 1 0 0 0; # pier 7 y 5
+fix 792 1 1 1 0 0 0; # pier 8 y 0
+fix 793 1 1 1 0 0 0; # pier 8 y 1
+fix 794 1 1 1 0 0 0; # pier 8 y 2
+fix 795 1 1 1 0 0 0; # pier 8 y 3
+fix 796 1 1 1 0 0 0; # pier 8 y 4
+fix 797 1 1 1 0 0 0; # pier 8 y 5
+fix 798 1 1 1 0 0 0; # pier 9 y 0
+fix 799 1 1 1 0 0 0; # pier 9 y 1
+fix 800 1 1 1 0 0 0; # pier 9 y 2
+fix 801 1 1 1 0 0 0; # pier 9 y 3
+fix 802 1 1 1 0 0 0; # pier 9 y 4
+fix 803 1 1 1 0 0 0; # pier 9 y 5
+fix 804 1 1 1 0 0 0; # pier 9 y 6
+fix 805 1 1 1 0 0 0; # pier 9 y 7
+fix 806 1 1 1 0 0 0; # pier 10 y 0
+fix 807 1 1 1 0 0 0; # pier 10 y 1
+fix 808 1 1 1 0 0 0; # pier 10 y 2
+fix 809 1 1 1 0 0 0; # pier 10 y 3
+fix 810 1 1 1 0 0 0; # pier 10 y 4
+fix 811 1 1 1 0 0 0; # pier 10 y 5
+fix 812 1 1 1 0 0 0; # pier 10 y 6
+fix 813 1 1 1 0 0 0; # pier 10 y 7
+fix 814 1 1 1 0 0 0; # pier 11 y 0
+fix 815 1 1 1 0 0 0; # pier 11 y 1
+fix 816 1 1 1 0 0 0; # pier 11 y 2
+fix 817 1 1 1 0 0 0; # pier 11 y 3
+fix 818 1 1 1 0 0 0; # pier 11 y 4
+fix 819 1 1 1 0 0 0; # pier 11 y 5
+fix 820 1 1 1 0 0 0; # pier 12 y 0
+fix 821 1 1 1 0 0 0; # pier 12 y 1
+fix 822 1 1 1 0 0 0; # pier 12 y 2
+fix 823 1 1 1 0 0 0; # pier 12 y 3
+fix 824 1 1 1 0 0 0; # pier 12 y 4
+fix 825 1 1 1 0 0 0; # pier 12 y 5
+fix 826 1 1 1 0 0 0; # pier 13 y 0
+fix 827 1 1 1 0 0 0; # pier 13 y 1
+fix 828 1 1 1 0 0 0; # pier 13 y 2
+fix 829 1 1 1 0 0 0; # pier 13 y 3
+fix 830 1 1 1 0 0 0; # pier 13 y 4
+fix 831 1 1 1 0 0 0; # pier 13 y 5
+fix 832 1 1 1 0 0 0; # pier 13 y 6
+fix 833 1 1 1 0 0 0; # pier 13 y 7
+fix 834 1 1 1 0 0 0; # pier 14 y 0
+fix 835 1 1 1 0 0 0; # pier 14 y 1
+fix 836 1 1 1 0 0 0; # pier 14 y 2
+fix 837 1 1 1 0 0 0; # pier 14 y 3
+fix 838 1 1 1 0 0 0; # pier 14 y 4
+fix 839 1 1 1 0 0 0; # pier 14 y 5
+fix 840 1 1 1 0 0 0; # pier 14 y 6
+fix 841 1 1 1 0 0 0; # pier 14 y 7
+fix 842 1 1 1 0 0 0; # pier 15 y 0
+fix 843 1 1 1 0 0 0; # pier 15 y 1
+fix 844 1 1 1 0 0 0; # pier 15 y 2
+fix 845 1 1 1 0 0 0; # pier 15 y 3
+fix 846 1 1 1 0 0 0; # pier 15 y 4
+fix 847 1 1 1 0 0 0; # pier 15 y 5
+fix 848 0 1 1 0 0 0; # pier 16 y 0
+fix 849 0 1 1 0 0 0; # pier 16 y 1
+fix 850 0 1 1 0 0 0; # pier 16 y 2
+fix 851 0 1 1 0 0 0; # pier 16 y 3
+fix 852 0 1 1 0 0 0; # pier 16 y 4
+fix 853 0 1 1 0 0 0; # pier 16 y 5
+fix 854 0 1 1 0 0 0; # pier 17 y 0
+fix 855 0 1 1 0 0 0; # pier 17 y 1
+fix 856 0 1 1 0 0 0; # pier 17 y 2
+fix 857 0 1 1 0 0 0; # pier 17 y 3
+fix 858 0 1 1 0 0 0; # pier 17 y 4
+fix 859 0 1 1 0 0 0; # pier 17 y 5
+fix 860 0 1 1 0 0 0; # pier 17 y 6
+fix 861 0 1 1 0 0 0; # pier 17 y 7
+fix 862 0 1 1 0 0 0; # pier 18 y 0
+fix 863 0 1 1 0 0 0; # pier 18 y 1
+fix 864 0 1 1 0 0 0; # pier 18 y 2
+fix 865 0 1 1 0 0 0; # pier 18 y 3
+fix 866 0 1 1 0 0 0; # pier 18 y 4
+fix 867 0 1 1 0 0 0; # pier 18 y 5
+fix 868 0 1 1 0 0 0; # pier 18 y 6
+fix 869 0 1 1 0 0 0; # pier 18 y 7
+fix 870 0 1 1 0 0 0; # pier 19 y 0
+fix 871 0 1 1 0 0 0; # pier 19 y 1
+fix 872 0 1 1 0 0 0; # pier 19 y 2
+fix 873 0 1 1 0 0 0; # pier 19 y 3
+fix 874 0 1 1 0 0 0; # pier 19 y 4
+fix 875 0 1 1 0 0 0; # pier 19 y 5
+fix 876 0 1 1 0 0 0; # pier 20 y 0
+fix 877 0 1 1 0 0 0; # pier 20 y 1
+fix 878 0 1 1 0 0 0; # pier 20 y 2
+fix 879 0 1 1 0 0 0; # pier 20 y 3
+fix 880 0 1 1 0 0 0; # pier 20 y 4
+fix 881 0 1 1 0 0 0; # pier 20 y 5
+fix 882 0 1 1 0 0 0; # pier 21 y 0
+fix 883 0 1 1 0 0 0; # pier 21 y 1
+fix 884 0 1 1 0 0 0; # pier 21 y 2
+fix 885 0 1 1 0 0 0; # pier 21 y 3
+fix 886 0 1 1 0 0 0; # pier 21 y 4
+fix 887 0 1 1 0 0 0; # pier 21 y 5
+fix 888 0 1 1 0 0 0; # pier 21 y 6
+fix 889 0 1 1 0 0 0; # pier 21 y 7
+fix 890 0 1 1 0 0 0; # pier 22 y 0
+fix 891 0 1 1 0 0 0; # pier 22 y 1
+fix 892 0 1 1 0 0 0; # pier 22 y 2
+fix 893 0 1 1 0 0 0; # pier 22 y 3
+fix 894 0 1 1 0 0 0; # pier 22 y 4
+fix 895 0 1 1 0 0 0; # pier 22 y 5
+fix 896 0 1 1 0 0 0; # pier 22 y 6
+fix 897 0 1 1 0 0 0; # pier 22 y 7
+fix 898 0 1 1 0 0 0; # pier 23 y 0
+fix 899 0 1 1 0 0 0; # pier 23 y 1
+fix 900 0 1 1 0 0 0; # pier 23 y 2
+fix 901 0 1 1 0 0 0; # pier 23 y 3
+fix 902 0 1 1 0 0 0; # pier 23 y 4
+fix 903 0 1 1 0 0 0; # pier 23 y 5
+# End fixed support nodes
 
 # section ElasticMembranePlateSection secTag youngs_modulus poisson_ratio depth mass_density
 # Begin deck sections
@@ -2035,186 +2205,6 @@ element ShellMITC4 966 607 900 901 628 968
 element ShellMITC4 967 628 901 902 649 968
 element ShellMITC4 968 649 902 903 670 968
 # End pier shell elements
-
-# node nodeTag x y z
-# Begin Duplicate nodes at bottom of each pier
-node 904 43.725 -3.5 -13.5
-node 905 43.725 -3.5 -12.771849
-node 906 43.725 -3.5 -12.771358
-node 907 43.725 -3.5 -12.67365
-node 908 43.725 -3.5 -12.673159
-node 909 43.725 -3.5 -11.7
-node 910 43.725 -3.5 -5.1
-node 911 43.725 -3.5 -4.838298
-node 912 43.725 -3.5 -4.837807
-node 913 43.725 -3.5 -4.740098
-node 914 43.725 -3.5 -4.739607
-node 915 43.725 -3.5 -3.556792
-node 916 43.725 -3.5 -3.556301
-node 917 43.725 -3.5 -3.3
-node 918 43.725 -3.5 3.3
-node 919 43.725 -3.5 3.556301
-node 920 43.725 -3.5 3.556792
-node 921 43.725 -3.5 4.739607
-node 922 43.725 -3.5 4.740098
-node 923 43.725 -3.5 4.837807
-node 924 43.725 -3.5 4.838298
-node 925 43.725 -3.5 5.1
-node 926 43.725 -3.5 11.7
-node 927 43.725 -3.5 12.673159
-node 928 43.725 -3.5 12.67365
-node 929 43.725 -3.5 12.771358
-node 930 43.725 -3.5 12.771849
-node 931 43.725 -3.5 13.5
-node 932 59.025 -3.5 -13.5
-node 933 59.025 -3.5 -12.771849
-node 934 59.025 -3.5 -12.771358
-node 935 59.025 -3.5 -12.67365
-node 936 59.025 -3.5 -12.673159
-node 937 59.025 -3.5 -11.7
-node 938 59.025 -3.5 -5.1
-node 939 59.025 -3.5 -4.838298
-node 940 59.025 -3.5 -4.837807
-node 941 59.025 -3.5 -4.740098
-node 942 59.025 -3.5 -4.739607
-node 943 59.025 -3.5 -3.556792
-node 944 59.025 -3.5 -3.556301
-node 945 59.025 -3.5 -3.3
-node 946 59.025 -3.5 3.3
-node 947 59.025 -3.5 3.556301
-node 948 59.025 -3.5 3.556792
-node 949 59.025 -3.5 4.739607
-node 950 59.025 -3.5 4.740098
-node 951 59.025 -3.5 4.837807
-node 952 59.025 -3.5 4.838298
-node 953 59.025 -3.5 5.1
-node 954 59.025 -3.5 11.7
-node 955 59.025 -3.5 12.673159
-node 956 59.025 -3.5 12.67365
-node 957 59.025 -3.5 12.771358
-node 958 59.025 -3.5 12.771849
-node 959 59.025 -3.5 13.5
-# End Duplicate nodes at bottom of each pier
-
-# uniaxialMaterial Elastic matId E
-# Begin Spring stiffnesses at the bottom of the piers
-uniaxialMaterial Elastic 1 202.264167
-uniaxialMaterial Elastic 2 202.400556
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 4 270.458333
-uniaxialMaterial Elastic 5 270.321944
-uniaxialMaterial Elastic 6 72.695
-uniaxialMaterial Elastic 7 72.831389
-uniaxialMaterial Elastic 8 27.277778
-uniaxialMaterial Elastic 9 27.277778
-uniaxialMaterial Elastic 10 328.696111
-uniaxialMaterial Elastic 11 328.696111
-uniaxialMaterial Elastic 12 71.331111
-uniaxialMaterial Elastic 13 71.194722
-uniaxialMaterial Elastic 13 71.194722
-uniaxialMaterial Elastic 12 71.331111
-uniaxialMaterial Elastic 11 328.696111
-uniaxialMaterial Elastic 10 328.696111
-uniaxialMaterial Elastic 9 27.277778
-uniaxialMaterial Elastic 8 27.277778
-uniaxialMaterial Elastic 7 72.831389
-uniaxialMaterial Elastic 6 72.695
-uniaxialMaterial Elastic 5 270.321944
-uniaxialMaterial Elastic 4 270.458333
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 2 202.400556
-uniaxialMaterial Elastic 1 202.264167
-uniaxialMaterial Elastic 1 202.264167
-uniaxialMaterial Elastic 2 202.400556
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 4 270.458333
-uniaxialMaterial Elastic 5 270.321944
-uniaxialMaterial Elastic 6 72.695
-uniaxialMaterial Elastic 7 72.831389
-uniaxialMaterial Elastic 8 27.277778
-uniaxialMaterial Elastic 9 27.277778
-uniaxialMaterial Elastic 10 328.696111
-uniaxialMaterial Elastic 11 328.696111
-uniaxialMaterial Elastic 12 71.331111
-uniaxialMaterial Elastic 13 71.194722
-uniaxialMaterial Elastic 13 71.194722
-uniaxialMaterial Elastic 12 71.331111
-uniaxialMaterial Elastic 11 328.696111
-uniaxialMaterial Elastic 10 328.696111
-uniaxialMaterial Elastic 9 27.277778
-uniaxialMaterial Elastic 8 27.277778
-uniaxialMaterial Elastic 7 72.831389
-uniaxialMaterial Elastic 6 72.695
-uniaxialMaterial Elastic 5 270.321944
-uniaxialMaterial Elastic 4 270.458333
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 3 27.2775
-uniaxialMaterial Elastic 2 202.400556
-uniaxialMaterial Elastic 1 202.264167
-# End Spring stiffnesses at the bottom of the piers
-
-# element zeroLength eleTag iNode jNode -mat matTag1 -dir_ dir1
-# Begin Spring stiffnesses at the bottom of the piers
-element zeroLength 1 904 792 -mat 1 -dir 6 
-element zeroLength 1 905 793 -mat 2 -dir 6 
-element zeroLength 1 906 794 -mat 3 -dir 6 
-element zeroLength 1 907 795 -mat 3 -dir 6 
-element zeroLength 1 908 796 -mat 4 -dir 6 
-element zeroLength 1 909 797 -mat 5 -dir 6 
-element zeroLength 1 910 798 -mat 6 -dir 6 
-element zeroLength 1 911 799 -mat 7 -dir 6 
-element zeroLength 1 912 800 -mat 8 -dir 6 
-element zeroLength 1 913 801 -mat 9 -dir 6 
-element zeroLength 1 914 802 -mat 10 -dir 6 
-element zeroLength 1 915 803 -mat 11 -dir 6 
-element zeroLength 1 916 804 -mat 12 -dir 6 
-element zeroLength 1 917 805 -mat 13 -dir 6 
-element zeroLength 1 918 806 -mat 13 -dir 6 
-element zeroLength 1 919 807 -mat 12 -dir 6 
-element zeroLength 1 920 808 -mat 11 -dir 6 
-element zeroLength 1 921 809 -mat 10 -dir 6 
-element zeroLength 1 922 810 -mat 9 -dir 6 
-element zeroLength 1 923 811 -mat 8 -dir 6 
-element zeroLength 1 924 812 -mat 7 -dir 6 
-element zeroLength 1 925 813 -mat 6 -dir 6 
-element zeroLength 1 926 814 -mat 5 -dir 6 
-element zeroLength 1 927 815 -mat 4 -dir 6 
-element zeroLength 1 928 816 -mat 3 -dir 6 
-element zeroLength 1 929 817 -mat 3 -dir 6 
-element zeroLength 1 930 818 -mat 2 -dir 6 
-element zeroLength 1 931 819 -mat 1 -dir 6 
-element zeroLength 1 932 820 -mat 1 -dir 6 
-element zeroLength 1 933 821 -mat 2 -dir 6 
-element zeroLength 1 934 822 -mat 3 -dir 6 
-element zeroLength 1 935 823 -mat 3 -dir 6 
-element zeroLength 1 936 824 -mat 4 -dir 6 
-element zeroLength 1 937 825 -mat 5 -dir 6 
-element zeroLength 1 938 826 -mat 6 -dir 6 
-element zeroLength 1 939 827 -mat 7 -dir 6 
-element zeroLength 1 940 828 -mat 8 -dir 6 
-element zeroLength 1 941 829 -mat 9 -dir 6 
-element zeroLength 1 942 830 -mat 10 -dir 6 
-element zeroLength 1 943 831 -mat 11 -dir 6 
-element zeroLength 1 944 832 -mat 12 -dir 6 
-element zeroLength 1 945 833 -mat 13 -dir 6 
-element zeroLength 1 946 834 -mat 13 -dir 6 
-element zeroLength 1 947 835 -mat 12 -dir 6 
-element zeroLength 1 948 836 -mat 11 -dir 6 
-element zeroLength 1 949 837 -mat 10 -dir 6 
-element zeroLength 1 950 838 -mat 9 -dir 6 
-element zeroLength 1 951 839 -mat 8 -dir 6 
-element zeroLength 1 952 840 -mat 7 -dir 6 
-element zeroLength 1 953 841 -mat 6 -dir 6 
-element zeroLength 1 954 842 -mat 5 -dir 6 
-element zeroLength 1 955 843 -mat 4 -dir 6 
-element zeroLength 1 956 844 -mat 3 -dir 6 
-element zeroLength 1 957 845 -mat 3 -dir 6 
-element zeroLength 1 958 846 -mat 2 -dir 6 
-element zeroLength 1 959 847 -mat 1 -dir 6 
-# End Spring stiffnesses at the bottom of the piers
 
 
 
