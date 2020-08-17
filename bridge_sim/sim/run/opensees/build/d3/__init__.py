@@ -265,8 +265,8 @@ def opensees_pier_boundary_conditions(
             ):
                 zero_length_elements.append(
                     ctx.get_zerolength_element(
-                        n_i=dupe_bottom_node.n_id,
-                        n_j=bottom_node.n_id,
+                        ni_id=dupe_bottom_node.n_id,
+                        nj_id=bottom_node.n_id,
                         m_id=uniaxial_material.m_id,
                         dir_=6,
                     )
@@ -277,13 +277,12 @@ def opensees_pier_boundary_conditions(
             all_bottom_nodes.append(bottom_nodes)
             all_dupe_bottom_nodes.append(dupe_bottom_nodes)
 
-    unique_flat = lambda xs, t: list(set(flatten(xs, t)))
-    # TODO: If the information provided by having these nested lists is not
-    # required. Then the code can be shortened by creating sets on line 207
+    # TODO: If the information provided by having these nested lists will not be
+    # needed. Then the code can be shortened by creating sets on line 207
     # instead of lists, and adding directly to these.
     all_dupe_bottom_nodes_flat = flatten(all_dupe_bottom_nodes, Node)
-    all_uniaxial_materials_flat = unique_flat(all_uniaxial_materials, UniaxialMaterial)
-    all_zero_length_elements_flat = flatten(all_zero_length_elements, ZeroLengthElement)
+    all_uniaxial_materials_flat = set(flatten(all_uniaxial_materials, UniaxialMaterial))
+    all_zero_length_elements_flat = set(flatten(all_zero_length_elements, ZeroLengthElement))
 
     all_dupe_bottom_nodes_os_code = comment(
         "Duplicate nodes at bottom of each pier",

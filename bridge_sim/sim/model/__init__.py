@@ -306,15 +306,15 @@ class ZeroLengthElement:
     def __init__(
         self,
         e_id: int,
-        n_i: int,
-        n_j: int,
+        ni_id: int,
+        nj_id: int,
         m_id: int,
         dir_: int,
         comment: Optional[str] = None,
     ):
         self.e_id = e_id
-        self.n_i = n_i
-        self.n_j = n_j
+        self.ni_id = ni_id
+        self.nj_id = nj_id
         self.m_id = m_id
         self.dir_ = dir_
         self.comment = comment
@@ -323,7 +323,7 @@ class ZeroLengthElement:
         """OpenSees zeroLength element command."""
         comment = "" if self.comment is None else f"; # {self.comment}"
         return (
-            f"element zeroLength {self.e_id} {self.n_i} {self.n_j} "
+            f"element zeroLength {self.e_id} {self.ni_id} {self.nj_id} "
             + f"-mat {self.m_id} -dir {self.dir_} {comment}"
         )
 
@@ -371,11 +371,12 @@ class BuildContext:
             lambda: defaultdict(lambda: defaultdict(list))
         )
 
-        # Next unique 'Shell' identifier.
-        self.next_s_id = 1
+        # Next unique element identifier.
+        self.next_e_id = 1
         self.shells_by_id: ShellsById = dict()
-        # A dict of 'Node' identifiers to 'Shell' that the node belongs to.
         self.shells_by_n_ids = dict()
+        # A dict of stiffness to 'ZeroLengthElement'.
+        self.zerolength_elements = dict()
 
         # Next unique material identifier.
         self.next_m_id = 1
@@ -390,19 +391,19 @@ class BuildContext:
         self.refinement_radii = refinement_radii
 
     def new_n_id(self):
-        """Next unique 'Node' identifier. For internal use only."""
+        """Next unique 'Node' identifier. For class-internal use only."""
         self.next_n_id += 1
         return self.next_n_id - 1
 
-    def new_s_id(self):
-        """Next unique 'Shell' identifier. For internal use only."""
-        self.next_s_id += 1
-        return self.next_s_id - 1
-
     def new_m_id(self):
-        """Next unique material identifier. For internal use only."""
+        """Next unique material identifier. For class-internal use only."""
         self.next_m_id += 1
         return self.next_m_id - 1
+
+    def new_e_id(self):
+        """Next unique element identifier. For class-internal use only."""
+        self.next_e_id += 1
+        return self.next_e_id - 1
 
     def get_node(
         self,
@@ -454,7 +455,7 @@ class BuildContext:
     ) -> Shell:
         n_ids = (ni_id, nj_id, nk_id, nl_id)
         if n_ids not in self.shells_by_n_ids:
-            s_id = self.new_s_id()
+            s_id = self.new_e_id()
             shell = Shell(
                 e_id=s_id,
                 ni_id=ni_id,
@@ -470,7 +471,9 @@ class BuildContext:
         return self.shells_by_n_ids[n_ids]
 
     def get_uniaxial_material(self, stiffness: float):
-        """'UniaxialMaterial' with given stiffness, created if necessary."""
+        """'UniaxialMaterial' with given stiffness, created if necessary.
+
+        """
         # TODO: take care of duplicates, close stiffness values
         if stiffness not in self.uniaxial_materials:
             self.uniaxial_materials[stiffness] = UniaxialMaterial(
@@ -478,9 +481,23 @@ class BuildContext:
             )
         return self.uniaxial_materials[stiffness]
 
-    # TODO: make this function as the others, requires self.new_e_id()
-    def get_zerolength_element(self, n_i: int, n_j: int, m_id: int, dir_: int):
-        return ZeroLengthElement(e_id=1, n_i=n_i, n_j=n_j, m_id=m_id, dir_=dir_)
+    def get_zerolength_element(
+            self, ni_id: int, nj_id: int, m_id: int, dir_: int):
+        """A zero length element, created if necessary.
+
+        A zero length element is uniquely identified by (ni_id, nj_id).
+
+        """
+        ref = (ni_id, nj_id, m_id)
+        if ref not in self.zerolength_elements:
+            self.zerolength_elements[ref] = ZeroLengthElement(
+                e_id=self.new_e_id(),
+                ni_id=ni_id,
+                nj_id=nj_id,
+                m_id=m_id,
+                dir_=dir_
+            )
+        return self.zerolength_elements[ref]
 
     def get_nodes_at_xy(self, x: float, y: float) -> List[Node]:
         """Return a list of all nodes at given X and Y position."""
