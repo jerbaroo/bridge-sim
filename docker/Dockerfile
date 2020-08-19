@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 ENV OPENSEES_TAG v3.2.0
-ENV BRIDGE_SIM_TAG v0.0.8.5
+ENV BRIDGE_SIM_TAG v0.0.8.6
 ENV PATH /root/.poetry/bin:/home/bin:$PATH
 ENV DEBIAN_FRONTEND=noninteractive
 # Install OpenSees.
