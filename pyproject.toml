@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bridge-sim"
-version = "0.0.8.6"
+version = "0.0.8.7"
 description = "A Python library for concrete slab bridge simulation"
 authors = ["Jeremy Barisch-Rooney <barischrooneyj@protonmail.com>"]
 documentation = "https://github.com/barischrooneyj/bridge-sim/blob/master/README.org#concrete-slab-bridge-simulation"
