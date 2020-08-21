@@ -1,5 +1,6 @@
 """Build OpenSees 3D model files."""
 
+from orderedset import OrderedSet
 import os
 from collections import OrderedDict, defaultdict
 from itertools import chain
@@ -209,12 +210,12 @@ def opensees_pier_boundary_conditions(
         all_dupe_bottom_nodes,
         all_uniaxial_materials,
         all_zero_length_elements,
-    ) = ([], [], [], [])
+        all_fixed_dupe_bottom_nodes,
+    ) = ([], [], [], [], [])
     # For the nodes of each pier.
     for p_i, pier_nodes in enumerate(all_pier_nodes):
         pier = c.bridge.supports[p_i]
-        stiffness_z_rotation = pier.support.stiffness_z_rotation
-        if stiffness_z_rotation != 0:
+        if pier.support.stiffness_z_rotation != 0:
             bottom_nodes, dupe_bottom_nodes, zero_length_elements = [], [], []
             num_pier_bottom_nodes = len(pier_nodes[0])
             # Coordinates for each node at the bottom of the pier.
@@ -242,23 +243,25 @@ def opensees_pier_boundary_conditions(
                 ]
                 bottom_node_ids[y_i] = bottom_node.n_id
                 dupe_bottom_node_ids[y_i] = dupe_bottom_node.n_id
-            # Now that we have the neccesary data from the bottom nodes,
-            # we will calculate the elements and materials.
-            #
-            # diff = np.diff(bottom_node_coords, axis=0)
-            # diff_dist = np.sum(diff ** 2, axis=1)
-            #
-            # TODO: Comment on diff_dist and node_dist.
-            diff_dist = np.diff(bottom_node_coords[:,2])
-            node_dist = np.sum(
-                np.vstack((np.hstack((0, diff_dist/2)), np.hstack((diff_dist/2, 0)))),
+            # The difference of Z coordinates of subsequent nodes.
+            diff_dist_z = np.diff(bottom_node_coords[:,2])
+            # For each node contains the length of the interval [I J] where I =
+            # point at halfway to the subsequent node on the left; J = point at
+            # halfway to the subsequent node on the right.
+            node_dist_z = np.sum(
+                np.vstack((
+                    np.hstack((0, diff_dist_z / 2)),
+                    np.hstack((diff_dist_z / 2, 0)),
+                )),
                 axis=0,
             )
-
-            spring_stiffnesses = stiffness_z_rotation * node_dist / np.sum(node_dist)
+            spring_stiffnesses_z = (
+                pier.support.stiffness_z_rotation * node_dist_z
+                / np.sum(node_dist_z)
+            )
             uniaxial_materials = [
-                ctx.get_uniaxial_material(spring_stiffness)
-                for spring_stiffness in spring_stiffnesses
+                ctx.get_uniaxial_material(spring_stiffness_z)
+                for spring_stiffness_z in spring_stiffnesses_z
             ]
             for uniaxial_material, bottom_node, dupe_bottom_node in zip(
                 uniaxial_materials, bottom_nodes, dupe_bottom_nodes
@@ -271,18 +274,32 @@ def opensees_pier_boundary_conditions(
                         dir_=6,
                     )
                 )
+            all_fixed_dupe_bottom_nodes.append([
+                FixNode(
+                    node=dupe_bottom_node,
+                    fix_x_translation=True,
+                    fix_y_translation=True,
+                    fix_z_translation=True,
+                    fix_x_rotation=True,
+                    fix_y_rotation=True,
+                    fix_z_rotation=True,
+                    comment=f"Pier {p_i}",
+                )
+                for dupe_bottom_node in dupe_bottom_nodes
+            ])
 
             all_zero_length_elements.append(zero_length_elements)
             all_uniaxial_materials.append(uniaxial_materials)
             all_bottom_nodes.append(bottom_nodes)
             all_dupe_bottom_nodes.append(dupe_bottom_nodes)
+        else:
+            # TODO: What about this case?
+            pass
 
-    # TODO: If the information provided by having these nested lists will not be
-    # needed. Then the code can be shortened by creating sets on line 207
-    # instead of lists, and adding directly to these.
     all_dupe_bottom_nodes_flat = flatten(all_dupe_bottom_nodes, Node)
-    all_uniaxial_materials_flat = set(flatten(all_uniaxial_materials, UniaxialMaterial))
-    all_zero_length_elements_flat = set(flatten(all_zero_length_elements, ZeroLengthElement))
+    all_uniaxial_materials_flat = OrderedSet(flatten(all_uniaxial_materials, UniaxialMaterial))
+    all_zero_length_elements_flat = OrderedSet(flatten(all_zero_length_elements, ZeroLengthElement))
+    all_fixed_dupe_bottom_nodes_flat = OrderedSet(flatten(all_fixed_dupe_bottom_nodes, FixNode))
 
     all_dupe_bottom_nodes_os_code = comment(
         "Duplicate nodes at bottom of each pier",
@@ -299,14 +316,18 @@ def opensees_pier_boundary_conditions(
         "\n".join(map(lambda e: e.command_3d(), all_zero_length_elements_flat)),
         units="element zeroLength eleTag iNode jNode -mat matTag1 -dir_ dir1",
     )
-    # return ""
-    return (
-        all_dupe_bottom_nodes_os_code
-        + "\n\n"
-        + all_uniaxial_materials_os_code
-        + "\n\n"
-        + all_zero_length_elements_os_code
+    all_fixed_dupe_bottom_nodes_os_node = comment(
+        "fixed support nodes",
+        "\n".join(map(lambda f: f.command_3d(), all_fixed_dupe_bottom_nodes_flat)),
+        units="fix nodeTag x y z rx ry rz",
     )
+    # return ""
+    return "\n\n".join([
+        all_dupe_bottom_nodes_os_code,
+        all_uniaxial_materials_os_code,
+        all_zero_length_elements_os_code,
+        all_fixed_dupe_bottom_nodes_os_node,
+    ])
 
 
 def opensees_fixed_pier_nodes(
