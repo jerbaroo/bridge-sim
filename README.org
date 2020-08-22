@@ -1,4 +1,4 @@
-* Concrete slab bridge simulation
+* A Python library for concrete slab bridge simulation
 [[https://img.shields.io/circleci/build/github/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/docker/pulls/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/codeclimate/maintainability/barischrooneyj/bridge-sim.svg]] [[https://img.shields.io/github/license/barischrooneyj/bridge-sim.svg]]
 
 This document provides installation instructions and usage examples.
