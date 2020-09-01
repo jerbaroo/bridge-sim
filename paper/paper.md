@@ -10,9 +10,9 @@ authors:
     orcid: 0000-0002-8441-212X
     affiliation: "1, 2"
 affiliations:
- - name: TNO
+ - name: TNO (Netherlands Organisation for Applied Scientific Research)
    index: 1
- - name: University of Amsterdam
+ - name: University of Amsterdam, the Netherlands
    index: 2
 date: 19 May 2019
 bibliography: paper.bib
