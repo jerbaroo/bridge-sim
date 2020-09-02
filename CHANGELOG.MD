@@ -3,5 +3,6 @@
 - Automatically publish Docker image.
 - Automatically publish on PyPI.
 - Package published on PyPI.
+- Testing of examples
 # 0.0.8
 - Moved from pipenv to poetry.
