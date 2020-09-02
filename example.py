@@ -151,6 +151,7 @@ plot.animate.animate_traffic(
 ################################################
 # Example 7: animation of responses to traffic #
 ################################################
+# NOTEST
 
 from bridge_sim import bridges, configs, model, plot, temperature, traffic
 
@@ -210,6 +211,7 @@ plt.show()
 ###################################################
 # Example 9: time series, traffic and temperature #
 ###################################################
+# NOTEST
 
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, model, sim, temperature, traffic
