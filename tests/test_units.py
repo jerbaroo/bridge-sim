@@ -115,7 +115,7 @@ def test_pier_settlement():
 def test_temp_effect():
     if not exe_found:
         return
-    weather = temperature.load("holly-springs")
+    weather = temperature.load("holly-springs-19")
     effect = temperature.effect(
         config=config,
         response_type=model.RT.YTrans,
@@ -162,7 +162,7 @@ def test_to_temperature():
     if not exe_found:
         return
     responses_array = np.zeros((1, 1))  # One point and one timestep.
-    weather = temperature.load("holly-springs")
+    weather = temperature.load("holly-springs-19")
     responses = sim.responses.to_temperature(
         config=config,
         points=[model.Point(config.bridge.x_center)],

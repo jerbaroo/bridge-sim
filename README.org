@@ -241,17 +241,19 @@ plot.animate.animate_traffic(
 #+END_SRC
 
 *** Example 7: animating traffic flow
-First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
+First generating traffic. Then animating the responses of the bridge to that traffic, to pier settlement, to temperature effect and to shrinkage.
+
+NOTE: This example will a long time to run because responses are calculated based on superposition of many "unit" load simulations that must be run.
 
 #+BEGIN_SRC python
 from bridge_sim import bridges, configs, model, plot, temperature, traffic
 
-config = configs.opensees_default(bridges.bridge_705(10))
+config = configs.opensees_default(bridges.bridge_705(10), il_num_loads=100)
 time = 10
 config.sensor_freq = 1 / 10
 traffic_scenario = traffic.normal_traffic(config)
 traffic_sequence = traffic_scenario.traffic_sequence(config, time)
-weather = temperature.load("holly-springs")
+weather = temperature.load("holly-springs-19")
 weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=35)
 plot.animate.animate_responses(
     config=config,
@@ -302,13 +304,15 @@ plt.show()
 #+END_SRC
 
 *** Example 9: time series of temperature effect
-Generating traffic, then calculating time series of responses to that traffic over a wide example bridge. Then also calculating the responses to temperature. This example will take some time as responses are calculated based on superposition and many unit load simulations must be run.
+Generating traffic, then calculating time series of responses to that traffic over a wide example bridge. Then also calculating the responses to temperature.
+
+NOTE: This example will a long time to run because responses are calculated based on superposition of many "unit" load simulations that must be run.
 
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
 from bridge_sim import bridges, configs, model, sim, temperature, traffic
 
-config = configs.opensees_default(bridges.bridge_705(10))
+config = configs.opensees_default(bridges.bridge_705(10), il_num_loads=100)
 points = [model.Point(x=10), model.Point(x=20)]
 response_type = model.RT.YTrans
 
@@ -323,7 +327,7 @@ responses_to_traffic = sim.responses.to_traffic_array(
 )
 
 # And responses to temperature.
-weather = temperature.load("holly-springs")
+weather = temperature.load("holly-springs-19")
 weather["temp"] = temperature.resize(weather["temp"], tmin=-5, tmax=31)
 temp_responses = sim.responses.to_temperature(
     config=config,
