@@ -257,10 +257,10 @@ def load_fem_responses(
 
     # Run the FE simulation if requested.
     if run or not os.path.exists(path):
-        print_prog(f"Running simulation")
+        print_prog(f"Simulation data not found, will run simulation")
         c.sim_runner.run(c, [sim_params])
     else:
-        print_prog(f"Not running simulation")
+        print_prog(f"Simulation data found, will not run simulation")
     # If only running was requested then we are done.
     if run_only:
         return None

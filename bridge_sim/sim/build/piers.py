@@ -7,20 +7,21 @@ from scipy.interpolate import interp1d
 
 from bridge_sim.model import Bridge
 from bridge_sim.sim.model import BuildContext, PierNodes
+from bridge_sim.util import print_i
 
 
 def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
-    """Nodes for all a bridge's piers.
+    """All the nodes for a bridge's piers.
 
     NOTE: This function assumes that 'get_deck_nodes' has already been called
     with the same 'BuildContext'.
 
     """
     pier_nodes = []
-    for pier in bridge.supports:
+    for pier_i, pier in enumerate(bridge.supports):
         z_min, z_max = pier.z_min_max_top()
 
-        # Left wall: top nodes.
+        # Left wall of pier: top nodes that are part of the deck.
         xy_nodes_left = ctx.get_nodes_at_xy(x=pier.x_min_max_top()[0], y=0)
         top_nodes_left = sorted(
             [n for n in xy_nodes_left if z_min <= n.z <= z_max], key=lambda n: n.z
@@ -28,7 +29,7 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         assert any(tn.z == z_min for tn in top_nodes_left)
         assert any(tn.z == z_max for tn in top_nodes_left)
 
-        # Right wall: top nodes.
+        # Right wall of pier: top nodes that are part of the deck.
         xy_nodes_right = ctx.get_nodes_at_xy(x=pier.x_min_max_top()[1], y=0)
         top_nodes_right = sorted(
             [n for n in xy_nodes_right if z_min <= n.z <= z_max], key=lambda n: n.z
@@ -36,19 +37,15 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
         assert any(tn.z == z_min for tn in top_nodes_right)
         assert any(tn.z == z_max for tn in top_nodes_right)
 
-        # Only consider top nodes at z-positions that exist on the left and
-        # right. It may be the case, because of refinement, that some additional
-        # nodes will exist on one side.
-        if len(top_nodes_left) > len(top_nodes_right):
-            zs_top_right = set([tn_r.z for tn_r in top_nodes_right])
-            top_nodes_left = [tn_l for tn_l in top_nodes_left if tn_l.z in zs_top_right]
-        elif len(top_nodes_right) > len(top_nodes_left):
-            zs_top_left = set([tn_l.z for tn_l in top_nodes_left])
-            top_nodes_right = [
-                tn_r for tn_r in top_nodes_right if tn_r.z in zs_top_left
-            ]
+        # Only consider top nodes at Z positions that exist on the left AND on
+        # right. Because of refinement, additional nodes may exist on one side.
+        zs_top_right = set([tn_r.z for tn_r in top_nodes_right])
+        top_nodes_left = [tn_l for tn_l in top_nodes_left if tn_l.z in zs_top_right]
+        zs_top_left = set([tn_l.z for tn_l in top_nodes_left])
+        top_nodes_right = [tn_r for tn_r in top_nodes_right if tn_r.z in zs_top_left]
 
-        # Shared bottom nodes of pier.
+        # Interpolate from the Z position of nodes at the top of a pier wall to
+        # the Z positions at bottom of the pier, where the two pier walls meet.
         bottom_z_interp = interp1d(
             [top_nodes_left[0].z, top_nodes_left[-1].z], pier.z_min_max_bottom(),
         )
@@ -59,7 +56,10 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
             for top_node in top_nodes_left
         ]
 
-        # Determine amount of nodes in longitudinal direction.
+        bottom_zs = sorted(set([bn.z for bn in bottom_nodes]))
+        print_i(f"Node Z positions at bottom of pier {pier_i} =\n  {bottom_zs}")
+
+        # Determine amount of nodes from the top of a pier's wall to the bottom.
         long_dist = top_nodes_left[0].distance_n(bottom_nodes[0])
         num_long_nodes = math.ceil((long_dist / bridge.base_mesh_pier_max_long) + 1)
 
@@ -113,6 +113,7 @@ def get_pier_nodes(bridge: Bridge, ctx: BuildContext) -> PierNodes:
                 )
             wall_nodes_right[z_i].append(bottom_nodes[z_i])
         pier_nodes.append((wall_nodes_left, wall_nodes_right))
+
     return pier_nodes
 
 

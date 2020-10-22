@@ -37,6 +37,14 @@ def get_deck_section_grid(bridge: Bridge) -> DeckGrid:
 
 
 def get_deck_xs(bridge: Bridge, ctx: BuildContext) -> List[float]:
+    """X positions of nodes on the bridge deck.
+
+    First the required X positions 'RX' are determined, positions of loads and
+    abutments etc.. After that a number of X positions are calculated between
+    each pair of adjacent X positions 'RX_i' and 'RX_j', such that the maximum
+    distance between X positions does not exceed 'bridge.base_mesh_deck_max_x'.
+
+    """
     all_xs = set()
 
     # From piers.
@@ -61,7 +69,8 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -> List[float]:
         all_xs.add(round_m(x))
 
     all_xs = sorted(all_xs)
-    print(f"all_xs = {all_xs}")
+    print_i(f"Required node X positions on deck (from all sources) =\n  {all_xs}")
+
     deck_xs = set()
     for i in range(len(all_xs) - 1):
         x0, x1 = all_xs[i], all_xs[i + 1]
@@ -72,16 +81,22 @@ def get_deck_xs(bridge: Bridge, ctx: BuildContext) -> List[float]:
 
 
 def get_deck_zs(bridge: Bridge, ctx: BuildContext) -> List[float]:
-    all_zs = set()
+    """Z positions of nodes on the bridge deck.
+
+    First the required Z positions 'RZ' are determined, positions of loads and
+    abutments etc.. After that a number of Z positions are calculated between
+    each pair of adjacent Z positions 'RZ_i' and 'RZ_j', such that the maximum
+    distance between Z positions does not exceed 'bridge.base_mesh_deck_max_z'.
+
+    """
+    all_zs = set()  # Important Z positions.
 
     # From piers.
     for pier in bridge.supports:
         for z in pier.z_min_max_top():
             all_zs.add(round_m(z))
-    pier_zs = set(all_zs)
-    print(f"pier_zs = {pier_zs}")
 
-    # Bridge ends.
+    # Bridge abutments.
     all_zs.add(round_m(bridge.z_min))
     all_zs.add(round_m(bridge.z_max))
 
@@ -94,12 +109,12 @@ def get_deck_zs(bridge: Bridge, ctx: BuildContext) -> List[float]:
         all_zs.add(round_m(z))
 
     all_zs = sorted(all_zs)
-    print(f"all_zs = {all_zs}")
+    print_i(f"Required node Z positions on deck (from all sources) =\n  {all_zs}")
+
     deck_zs = set()
     for i in range(len(all_zs) - 1):
         z0, z1 = all_zs[i], all_zs[i + 1]
         num = math.ceil((z1 - z0) / bridge.base_mesh_deck_max_z) + 1
-        # print(f"z0, z1, num = {z0}, {z1}, {num}")
         for z in np.linspace(z0, z1, num=num):
             deck_zs.add(round_m(z))
     return sorted(deck_zs)
