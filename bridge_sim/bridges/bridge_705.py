@@ -1,11 +1,12 @@
 """The bridge 705 in Amsterdam."""
 
+import math
 import os
 from copy import deepcopy
 
 import numpy as np
 
-from bridge_sim.model import Lane, Material, MaterialSupport, Support, Bridge
+from bridge_sim.model import Lane, LineSpringSupport, Material, MaterialSupport, Support, Bridge
 from bridge_sim.util import project_dir, round_m
 
 #########################
@@ -25,10 +26,10 @@ bridge_705_lanes = [
 ############
 
 # Pier locations in meters (includes bridge beginning and end).
-bridge_705_piers = [0.0]
+bridge_705_piers_x = [0.0]
 bridge_705_spans = [13.125, 15.3, 15.3, 15.3, 15.3, 15.3, 13.125]
 for _span_distance in bridge_705_spans:
-    bridge_705_piers.append(bridge_705_piers[-1] + _span_distance)
+    bridge_705_piers_x.append(bridge_705_piers_x[-1] + _span_distance)
 
 ##################
 # deck materials #
@@ -99,34 +100,40 @@ def _bridge_705_single_sections():
     return result
 
 
-############
-# Supports #
-############
+#########
+# Piers #
+#########
 
-bridge_705_supports_z = [2.167 + 3.666 / 2]  # To first support + half support.
-# For remaining supports add space between support and support width.
+# First calculate Z position of each pier.
+bridge_705_piers_z = [2.167 + 3.666 / 2]  # Halfway through first pier.
+# For remaining piers, add space between piers and add pier width.
 for _ in range(3):
-    bridge_705_supports_z.append(bridge_705_supports_z[-1] + 4.734 + 3.666)
-bridge_705_supports_z = list(map(lambda x: x - half_width, bridge_705_supports_z))
+    bridge_705_piers_z.append(bridge_705_piers_z[-1] + 4.734 + 3.666)
+bridge_705_piers_z = list(map(lambda x: x - half_width, bridge_705_piers_z))
+
+# Create a 'Pier' object for each pier.
+bridge_705_piers = []
+pier_rot_stiffnesses = [0, 0, 1e3, 1e3, 0, 0]
 # Ignoring beginning and end of bridge.
-bridge_705_supports_3d = []
-for x_index, _support_x in enumerate(bridge_705_piers[1:-1]):
-    for z_index, _support_z in enumerate(bridge_705_supports_z):
-        bridge_705_supports_3d.append(
+for x_index, _pier_x in enumerate(bridge_705_piers_x[1:-1]):
+    for z_index, _pier_z in enumerate(bridge_705_piers_z):
+        bridge_705_piers.append(
             Support(
-                x=_support_x,
-                z=_support_z,
+                x=_pier_x,
+                z=_pier_z,
                 length=3.1,
                 height=3.5,
                 width_top=3.666,
                 width_bottom=1.8,
                 materials=_pier_section_f,
-                fix_x_translation=(x_index in [2, 3]),
-                fix_y_translation=True,
-                fix_z_translation=True,
-                fix_x_rotation=False,
-                fix_y_rotation=False,
-                fix_z_rotation=False,
+                support=LineSpringSupport(
+                    stiffness_x_translation=(math.inf if x_index in [2, 3] else 0),
+                    stiffness_y_translation=math.inf,
+                    stiffness_z_translation=math.inf,
+                    stiffness_x_rotation=0,
+                    stiffness_y_rotation=0,
+                    stiffness_z_rotation=pier_rot_stiffnesses[x_index],
+                )
             )
         )
 
@@ -142,7 +149,7 @@ def bridge_705(msl: float, single_sections: bool = False):
         name="bridge-705",
         length=bridge_705_length,
         width=bridge_705_width,
-        supports=bridge_705_supports_3d,
+        supports=bridge_705_piers,
         materials=_bridge_705_deck_sections(),
         lanes=bridge_705_lanes,
         msl=msl,

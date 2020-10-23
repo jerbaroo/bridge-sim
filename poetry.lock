@@ -660,6 +660,14 @@ python-versions = ">=3.6"
 version = "1.19.0rc2"
 
 [[package]]
+category = "main"
+description = "An Ordered Set implementation in Cython."
+name = "orderedset"
+optional = false
+python-versions = "*"
+version = "2.0.3"
+
+[[package]]
 category = "dev"
 description = "Core utilities for Python packages"
 name = "packaging"
@@ -1260,7 +1268,7 @@ version = "0.34.2"
 test = ["pytest (>=3.0.0)", "pytest-cov"]
 
 [metadata]
-content-hash = "e51e8a5ccf6de988c684851ab45ee341ee7f5fc35b0231ae82af26d54b05e52b"
+content-hash = "c72ab92c3d0de3da45e69705cbd7154c1026f8786c5d4117f6b33f655551fa65"
 lock-version = "1.0"
 python-versions = ">=3.8"
 
@@ -1655,6 +1663,9 @@ numpy = [
     {file = "numpy-1.19.0rc2-cp38-cp38-win_amd64.whl", hash = "sha256:612878ef8025af60c9d43556e45d93fa07d2e6a960e252a475575d3018e361cc"},
     {file = "numpy-1.19.0rc2-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:e20452ad415c56cec51f52080adb4eccc4891ee86cf6b194e2434d09d42a183d"},
     {file = "numpy-1.19.0rc2.zip", hash = "sha256:a233044f7100e9f2100a4fc0f82021c827f7a82624b649059c5dd92cec4cee17"},
+]
+orderedset = [
+    {file = "orderedset-2.0.3.tar.gz", hash = "sha256:b2f5ccfb5a86e7b3b3ddf18b29779cc18b24653abf9d6da4bebecf33780a6e29"},
 ]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
