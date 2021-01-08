@@ -41,7 +41,7 @@ Now that you have =bridge-sim= installed you probably want to run some code, for
 Make sure you have [[https://docs.docker.com/get-docker/][Docker]] installed. Then in a terminal run the following to jump into a Docker image that already has all dependencies installed:
 
 #+BEGIN_SRC bash
-$ docker run -it jerbaroo/bridge-sim:v0.0.8.8
+$ docker run -it jerbaroo/bridge-sim:v0.0.8.9
 #+END_SRC
 
 You are now in the =/bridge-sim= directory of the Docker container. You can run the provided example file =example.py= with =poetry run python example.py=. This will generate a file =/root/docker-1.png=.
@@ -51,7 +51,7 @@ To copy =docker-1.png= to your host system run the following commands in another
 #+BEGIN_SRC bash
 $ docker ps
 CONTAINER ID        IMAGE                              COMMAND          CREATED             STATUS            PORTS     NAMES
-d297a50ff165        jerbaroo/bridge-sim:v0.0.8.8   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
+d297a50ff165        jerbaroo/bridge-sim:v0.0.8.9   "/bin/bash"      37 seconds ago      Up 37 seconds               vigorous_leavitt
 $ docker cp d297a50ff165:/root/docker-1.png docker-1.png
 #+END_SRC
 
@@ -60,7 +60,7 @@ The Docker image that you enter with =docker run= has OpenSees installed at =/ro
 
 These instructions may be useful if you are running simulations on the [[https://userinfo.surfsara.nl/systems/lisa][SURF SARA Lisa]] cluster or another system that supports [[https://sylabs.io/docs/#singularity][Singularity]].
 
-Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://jerbaroo/bridge-sim:v0.0.8.8=. If the =pull= command fails or the generated =.sif= file is corrupted then try deleting the =.sif= file and run the =pull= command again.
+Once you have SSHed into the Lisa cluster you can build a Singularity image of =bridge_sim= on Lisa with =singularity pull docker://jerbaroo/bridge-sim:v0.0.8.9=. If the =pull= command fails or the generated =.sif= file is corrupted then try deleting the =.sif= file and run the =pull= command again.
 
 To run a simulation you need a script to interact with the scheduler. See [[docker/run-lisa.sh][run-lisa.sh]] for an example of such a script and see the Lisa [[https://userinfo.surfsara.nl/systems/lisa/user-guide/creating-and-running-jobs][user guide]] for further instructions. The way I use the =run-lisa.sh= script, is I configure scheduling parameters in the =run-lisa.sh= script but define my actual job in a second script [[docker/sim.sh][sim.sh]].
 

@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-ENV BRIDGE_SIM_TAG v0.0.8.8
+ENV BRIDGE_SIM_TAG v0.0.8.9
 ENV OPENSEES_TAG v3.2.0
 ENV DEBIAN_FRONTEND noninteractive
 ENV PATH /root/.poetry/bin:/home/bin:$PATH

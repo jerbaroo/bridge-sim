@@ -51,3 +51,4 @@ git diff
 echo 'Finally run these commands:'
 echo "git commit -am 'Bump version to v$2'"
 echo 'git push'
+echo 'Don\'t forget to release on GitHub!'
