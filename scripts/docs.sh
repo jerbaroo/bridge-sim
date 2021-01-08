@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 rm -rf docs/
 poetry run pdoc --html --output-dir build bridge_sim
 mv build/bridge_sim docs/

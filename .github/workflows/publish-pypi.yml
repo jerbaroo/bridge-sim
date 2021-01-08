@@ -27,5 +27,5 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         path: docker
-        repository: barischrooneyj/bridge-sim
+        repository: jerbaroo/bridge-sim
         tag_with_ref: true

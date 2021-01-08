@@ -17,6 +17,7 @@ venv/
 *generated*/
 dist/
 out/
+*.parsed
 
 # Validation
 data/validation
