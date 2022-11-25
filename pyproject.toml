@@ -29,7 +29,7 @@ termcolor = "1.1.0"
 
 [tool.poetry.dev-dependencies]
 black = "19.10b0"
-jupyterlab = "2.2.0a0"
+jupyterlab = "2.2.10"
 pdoc3 = "0.8.1"
 pypandoc = "1.5"
 pytest = "5.4.3"
